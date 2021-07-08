@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,10 +29,11 @@ from re import compile as compile_re
 from django.core.validators import RegexValidator
 from django.utils.translation import gettext_lazy as _
 
-color_validator = RegexValidator(compile_re(r'^([0-9a-fA-F]){6}$'),
-                                 message=_('Enter a valid HTML color.'),
-                                 code='invalid',
-                                )
+color_validator = RegexValidator(
+    compile_re(r'^([0-9a-fA-F]){6}$'),
+    message=_('Enter a valid HTML color.'),
+    code='invalid',
+)
 
 
 def validate_color(value: str) -> None:

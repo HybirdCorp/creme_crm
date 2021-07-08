@@ -103,10 +103,11 @@ def replace_related_object(old_instance, new_instance):
     "Replace the references to an instance by references to another one."
     from ..models import HistoryLine
 
-    pre_replace_related.send(sender=old_instance.__class__,
-                             old_instance=old_instance,
-                             new_instance=new_instance,
-                            )  # send_robust() ??
+    pre_replace_related.send(
+        sender=old_instance.__class__,
+        old_instance=old_instance,
+        new_instance=new_instance,
+    )  # send_robust() ??
 
     meta = old_instance._meta
     mark = HistoryLine.mark_as_reassigned
@@ -186,7 +187,8 @@ def find_first(iterable, function, *default):
 
 
 def split_filter(predicate: Callable[[T], bool],
-                 iterable: Iterable[T]) -> Tuple[List[T], List[T]]:
+                 iterable: Iterable[T],
+                 ) -> Tuple[List[T], List[T]]:
     """Split an iterable into 2 lists : accepted elements & rejected elements
     @param predicate: A callable which takes one argument (an element from "iterable")
            & returns a value used as a boolean ('True' to accept the element).

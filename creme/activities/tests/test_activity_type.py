@@ -5,8 +5,6 @@ from django.urls import reverse
 from ..models import ActivitySubType, ActivityType
 from .base import _ActivitiesTestCase
 
-__all__ = ('ActivityTypeTestCase',)
-
 
 class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_create_type(self):
@@ -14,22 +12,24 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
         self.assertGET200(reverse(
             'creme_config__model_portal',
-            args=('activities', 'activity_type')
+            args=('activities', 'activity_type'),
         ))
 
         url = reverse('creme_config__create_instance', args=('activities', 'activity_type'))
         self.assertGET200(url)
 
         name = 'Awesome show'
-        self.assertNoFormError(self.client.post(url, data={'name': name,
-                                                           'default_day_duration': '0',
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'default_day_duration': '0',
 
-                                                           'default_hour_duration_0': '0',
-                                                           'default_hour_duration_1': '15',
-                                                           'default_hour_duration_2': '0',
-                                                          }
-                                               )
-                              )
+                'default_hour_duration_0': '0',
+                'default_hour_duration_1': '15',
+                'default_hour_duration_2': '0',
+            },
+        ))
 
         atype = self.get_object_or_fail(ActivityType, name=name)
         self.assertEqual(0,        atype.default_day_duration)
@@ -39,11 +39,13 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.login()
 
         type_id = 'test-activity_awsesome'
-        atype = ActivityType.objects.create(pk=type_id, name='karate session',
-                                            default_day_duration=0,
-                                            default_hour_duration='00:15:00',
-                                            is_custom=True,
-                                           )
+        atype = ActivityType.objects.create(
+            pk=type_id,
+            name='karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+        )
 
         url = reverse(
             'creme_config__edit_instance',
@@ -52,15 +54,17 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         name = atype.name.title()
-        self.assertNoFormError(self.client.post(url, data={'name': name,
-                                                           'default_day_duration': '1',
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'name': name,
+                'default_day_duration': '1',
 
-                                                           'default_hour_duration_0': '1',
-                                                           'default_hour_duration_1': '0',
-                                                           'default_hour_duration_2': '0',
-                                                          }
-                                               )
-                              )
+                'default_hour_duration_0': '1',
+                'default_hour_duration_1': '0',
+                'default_hour_duration_2': '0',
+            },
+        ))
 
         atype = self.refresh(atype)
         self.assertEqual(name, atype.name)
@@ -74,34 +78,36 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
             args=('activities', 'activity_sub_type')
         ))
 
-        atype = ActivityType.objects.create(pk='test-activity_karate',
-                                            name='Karate session',
-                                            default_day_duration=0,
-                                            default_hour_duration='00:15:00',
-                                            is_custom=True,
-                                           )
+        atype = ActivityType.objects.create(
+            pk='test-activity_karate',
+            name='Karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+        )
 
-        url = reverse('creme_config__create_instance', args=('activities', 'activity_sub_type'))
+        url = reverse(
+            'creme_config__create_instance', args=('activities', 'activity_sub_type'),
+        )
         self.assertGET200(url)
 
         name = 'Fight'
-        self.assertNoFormError(self.client.post(url, data={'type': atype.id,
-                                                           'name': name,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(
+            self.client.post(url, data={'type': atype.id, 'name': name})
+        )
 
         self.get_object_or_fail(ActivitySubType, name=name, type=atype)
 
     def test_edit_subtype(self):
         self.login()
 
-        atype = ActivityType.objects.create(pk='test-activity_karate',
-                                            name='karate session',
-                                            default_day_duration=0,
-                                            default_hour_duration='00:15:00',
-                                            is_custom=True,
-                                           )
+        atype = ActivityType.objects.create(
+            pk='test-activity_karate',
+            name='karate session',
+            default_day_duration=0,
+            default_hour_duration='00:15:00',
+            is_custom=True,
+        )
         satype = ActivitySubType.objects.create(
             pk='test-activity_fight', type=atype, name='Figtho',
         )
@@ -113,9 +119,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         self.assertGET200(url)
 
         name = 'Figtho'
-        self.assertNoFormError(self.client.post(url, data={'type': atype.id,
-                                                           'name': name,
-                                                          }
-                                               )
-                              )
+        self.assertNoFormError(
+            self.client.post(url, data={'type': atype.id, 'name': name})
+        )
         self.assertEqual(name, self.refresh(satype).name)

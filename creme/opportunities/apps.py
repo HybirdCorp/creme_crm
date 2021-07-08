@@ -179,9 +179,10 @@ class OpportunitiesConfig(CremeAppConfig):
         statistics_registry.register(
             id='opportunities',
             label=CurrentYearStatistics.label,
-            func=CurrentYearStatistics(opp_model=self.Opportunity,
-                                       orga_model=get_organisation_model()
-                                      ),
+            func=CurrentYearStatistics(
+                opp_model=self.Opportunity,
+                orga_model=get_organisation_model()
+            ),
             perm='opportunities', priority=15,
         )
 

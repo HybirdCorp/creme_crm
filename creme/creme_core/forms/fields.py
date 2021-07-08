@@ -91,18 +91,18 @@ class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
         )
         regular_choices.sort(key=user_key)
 
-        yield ('', regular_choices)
+        yield '', regular_choices
         del regular_choices
 
         team_choices = [choice(u) for u in queryset if u.is_team]
         if team_choices:
-            yield (_('Teams'), team_choices)
+            yield _('Teams'), team_choices
         del team_choices
 
         inactive_choices = [choice(u) for u in queryset if not u.is_active]
         if inactive_choices:
             inactive_choices.sort(key=user_key)
-            yield (_('Inactive users'), inactive_choices)
+            yield _('Inactive users'), inactive_choices
 
 
 class CremeUserChoiceField(mforms.ModelChoiceField):
@@ -349,7 +349,10 @@ class EntityCredsJSONField(JSONField):
         ),
     ]
 
-    def __init__(self, *, credentials=EntityCredentials.LINK, quickforms_registry=None, **kwargs):
+    def __init__(self, *,
+                 credentials=EntityCredentials.LINK,
+                 quickforms_registry=None,
+                 **kwargs):
         """Constructor.
         @param credentials: Binary combination of EntityCredentials.{VIEW, CHANGE, LINK}.
                             Default value is EntityCredentials.LINK.
@@ -487,13 +490,13 @@ class GenericEntityField(EntityCredsJSONField):
             ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
             ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
         else:
-            warnings.warn('GenericEntityField: old format "ctype": id entry is deprecated.',
-                          DeprecationWarning
-                         )
+            warnings.warn(
+                'GenericEntityField: old format "ctype": id entry is deprecated.',
+                DeprecationWarning
+            )
             ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
-
         entity = self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
 
         return self._check_entity_perms(entity)
@@ -621,7 +624,7 @@ class ChoiceModelIterator:
 
     def __iter__(self):
         for model in self.queryset:
-            yield (self.render_value(model), self.render_label(model))
+            yield self.render_value(model), self.render_label(model)
 
     def __len__(self):
         return len(self.queryset)
@@ -907,11 +910,14 @@ class CreatorEntityField(EntityCredsJSONField):
 
     value_type: Type = int
 
-    def __init__(self, *, model=None, q_filter=None,
+    def __init__(self, *,
+                 model=None,
+                 q_filter=None,
                  create_action_url='',
                  create_action_label=None,
-                 user=None, force_creation=False, **kwargs
-                ):
+                 user=None,
+                 force_creation=False,
+                 **kwargs):
         super().__init__(**kwargs)
         widget = self.widget
         self._model = widget.model = model
@@ -1379,7 +1385,7 @@ class AjaxModelChoiceField(mforms.ModelChoiceField):
             return None
 
         try:
-            key   = self.to_field_name or 'pk'
+            key = self.to_field_name or 'pk'
             value = self.queryset.model._default_manager.get(**{key: value})
         except self.queryset.model.DoesNotExist:
             raise ValidationError(
@@ -1510,7 +1516,7 @@ class DateRangeField(fields.MultiValueField):
         )
         self.start_date = fields.DateField(required=False)
         self.end_date   = fields.DateField(required=False)
-        self.render_as  = render_as
+        self.render_as = render_as
 
         super().__init__(
             fields=(
@@ -1518,7 +1524,8 @@ class DateRangeField(fields.MultiValueField):
                 self.start_date,
                 self.end_date,
             ),
-            require_all_fields=False, **kwargs
+            require_all_fields=False,
+            **kwargs
         )
 
         self.widget.choices = ranges.widget.choices  # Get the CallableChoiceIterator
@@ -1579,11 +1586,15 @@ class DurationField(fields.MultiValueField):
         super().__init__(fields=(self.hours, self.minutes, self.seconds), **kwargs)
 
     def compress(self, data_list):
-        return (data_list[0], data_list[1], data_list[2]) if data_list else ('', '', '')
+        return (
+            data_list[0], data_list[1], data_list[2]
+        ) if data_list else ('', '', '')
 
     def clean(self, value):
         hours, minutes, seconds = super().clean(value)
-        return ':'.join([str(hours or 0), str(minutes or 0), str(seconds or 0)])
+        return ':'.join([
+            str(hours or 0), str(minutes or 0), str(seconds or 0)
+        ])
 
 
 class ChoiceOrCharField(fields.MultiValueField):
@@ -1648,8 +1659,9 @@ class CTypeChoiceField(fields.Field):
     "A ChoiceField whose choices are a ContentType instances."
     widget = widgets.Select
     default_error_messages = {
-        'invalid_choice': _('Select a valid choice. That choice is not one of'
-                            ' the available choices.'),
+        'invalid_choice': _(
+            'Select a valid choice. That choice is not one of the available choices.'
+        ),
     }
 
     # TODO: ctypes_or_models ??
@@ -1784,16 +1796,16 @@ class EnhancedChoiceIterator:
             if isinstance(x, dict):
                 value = x['value']
                 label = x['label']
-                help = x.get('help', '')
+                help_txt = x.get('help', '')
             else:
                 value, label = x
-                help = ''
+                help_txt = ''
 
             yield (
                 self.choice_cls(
                     value=value,
                     readonly=(value in forced_values),
-                    help=help,
+                    help=help_txt,
                 ),
                 label,
             )

@@ -23,15 +23,17 @@ class ReminderTestCase(CremeTestCase):
         registry.register(TestReminder1)
         registry.register(TestReminder2)
 
-        self.assertEqual({TestReminder1, TestReminder2},
-                         {r.__class__ for r in registry}
-                        )
+        self.assertSetEqual(
+            {TestReminder1, TestReminder2},
+            {r.__class__ for r in registry},
+        )
 
         # --
         registry.unregister(TestReminder1)
-        self.assertEqual([TestReminder2],
-                         [r.__class__ for r in registry]
-                        )
+        self.assertListEqual(
+            [TestReminder2],
+            [r.__class__ for r in registry],
+        )
 
         with self.assertRaises(registry.RegistrationError):
             registry.unregister(TestReminder1)
@@ -53,7 +55,7 @@ class ReminderTestCase(CremeTestCase):
 
         self.assertEqual(
             f"Duplicated reminder's id or reminder registered twice: {TestReminder1.id}",
-            str(cm.exception)
+            str(cm.exception),
         )
 
     def test_register_error02(self):
@@ -69,5 +71,5 @@ class ReminderTestCase(CremeTestCase):
 
         self.assertEqual(
             f"Reminder class with empty id: {TestReminder}",
-            str(cm.exception)
+            str(cm.exception),
         )

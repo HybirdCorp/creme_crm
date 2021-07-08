@@ -55,11 +55,10 @@ def skipIfCustomMailingList(test_func):
 
 class _EmailsTestCase(CremeTestCase):
     def login(self, allowed_apps=('emails',), *args, **kwargs):
-        return super().login(allowed_apps=allowed_apps,
-                             *args, **kwargs
-                            )
+        return super().login(allowed_apps=allowed_apps, *args, **kwargs)
 
-    def _build_create_entitymail_url(self, entity):
+    @staticmethod
+    def _build_create_entitymail_url(entity):
         return reverse('emails__create_email', args=(entity.id,))
 
     # def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):

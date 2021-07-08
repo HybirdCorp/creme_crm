@@ -11,31 +11,33 @@ class ModelUtilsTestCase(CremeTestCase):
         "Short value"
         self.assertEqual(40, FakeAddress._meta.get_field('country').max_length)
 
-        adr = FakeAddress()
+        addr = FakeAddress()
         val = 'Groland'
-        assign_2_charfield(adr, 'country', val)
-        self.assertEqual(val, adr.country)
+        assign_2_charfield(addr, 'country', val)
+        self.assertEqual(val, addr.country)
 
     def test_assign_2_charfield02(self):
         "Long value"
-        adr = FakeAddress()
+        addr = FakeAddress()
 
         val = 'A country with a very very very long name'
         self.assertEqual(41, len(val))
 
-        assign_2_charfield(adr, 'country', val)
-        self.assertEqual('A country with a very very very long na…',
-                         adr.country,
-                        )
+        assign_2_charfield(addr, 'country', val)
+        self.assertEqual(
+            'A country with a very very very long na…',
+            addr.country,
+        )
 
     def test_assign_2_charfield03(self):
         "Other truncate policy"
-        adr = FakeAddress()
+        addr = FakeAddress()
 
         val = 'A country with a very very very long name'
         self.assertEqual(41, len(val))
 
-        assign_2_charfield(adr, 'country', val, truncate=truncate_str)
-        self.assertEqual('A country with a very very very long nam',
-                         adr.country,
-                        )
+        assign_2_charfield(addr, 'country', val, truncate=truncate_str)
+        self.assertEqual(
+            'A country with a very very very long nam',
+            addr.country,
+        ),

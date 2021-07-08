@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,7 @@ def handle_merge_organisations(sender, other_entity, **kwargs):
         orga_ids = {
             *model_filter(
                 organisation__in=(sender, other_entity),
-            ).values_list('organisation', flat=True)
+            ).values_list('organisation', flat=True),
         }
 
         if len(orga_ids) == 2:
@@ -102,10 +102,10 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
     if STATUSES_REPLACEMENTS.get(model) == model_field.name:
         tpl_mngr = billing.get_template_base_model().objects
 
-        for pk in tpl_mngr.filter(status_id=sender.pk,
-                                  ct=ContentType.objects.get_for_model(model),
-                                 )\
-                          .values_list('pk', flat=True):
+        for pk in tpl_mngr.filter(
+            status_id=sender.pk,
+            ct=ContentType.objects.get_for_model(model),
+        ).values_list('pk', flat=True):
             # NB1: we perform a .save(), not an .update() in order to:
             #       - let the model compute it's business logic (if there is one).
             #       - get an HistoryLine for entities.

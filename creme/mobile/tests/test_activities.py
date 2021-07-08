@@ -662,9 +662,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(minutes,                          pcall.minutes)
         self.assertSetEqual(
             {user.linked_contact, other_contact},
-            {r.object_entity.get_real_entity()
+            {
+                r.object_entity.get_real_entity()
                 for r in pcall.get_participant_relations()
-            }
+            },
         )
 
         start = self.create_datetime(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,10 +33,11 @@ SAMOUSSA_STATUS_ERROR = 'error'
 
 class SamoussaBackEnd(WSBackEnd):
     def connect(self):
-        return self.open(settings.CREME_SAMOUSSA_URL,
-                         settings.CREME_SAMOUSSA_USERNAME,
-                         settings.CREME_SAMOUSSA_PASSWORD,
-                        )
+        return self.open(
+            settings.CREME_SAMOUSSA_URL,
+            settings.CREME_SAMOUSSA_USERNAME,
+            settings.CREME_SAMOUSSA_PASSWORD,
+        )
 
     def delete_messages(self, **kwargs):
         self.delete('/sms/api/message/', **kwargs)

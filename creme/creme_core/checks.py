@@ -59,12 +59,13 @@ def check_uninstalled_apps(**kwargs):
         return warnings
 
     try:
-        app_labels = [*apps.get_model('contenttypes.ContentType')
-                           .objects
-                           .order_by('app_label')
-                           .distinct()
-                           .values_list('app_label', flat=True)
-                     ]
+        app_labels = [
+            *apps.get_model('contenttypes.ContentType')
+                 .objects
+                 .order_by('app_label')
+                 .distinct()
+                 .values_list('app_label', flat=True),
+        ]
     except DatabaseError:
         pass
     else:

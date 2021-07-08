@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,9 +46,10 @@ from .fetchers.base import CrudityFetcher
 from .inputs.base import CrudityInput
 
 logger = logging.getLogger(__name__)
-ALLOWED_ID_CHARS = OrderedSet('abcdefghijklmnopqrstuvwxyz'
-                              'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.'
-                             )
+ALLOWED_ID_CHARS = OrderedSet(
+    'abcdefghijklmnopqrstuvwxyz'
+    'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_.'
+)
 
 
 class FetcherInterface:
@@ -193,15 +194,17 @@ class CRUDityRegistry:
 
     def register_inputs(self,
                         source: str,
-                        inputs: List[CrudityInput]) -> None:
+                        inputs: List[CrudityInput],
+                        ) -> None:
         fetcher = self.get_fetcher(source)
 
         if fetcher is not None:
             fetcher.add_inputs(*inputs)
         else:
-            logger.warning("The fetcher '%s' does not exist, inputs '%s' will not be registered",
-                           source, inputs,
-                          )
+            logger.warning(
+                "The fetcher '%s' does not exist, inputs '%s' will not be registered",
+                source, inputs,
+            )
 
     def register_backends(self, backends: Iterable[Type[CrudityBackend]]) -> None:
         for backend in backends:
@@ -246,7 +249,8 @@ class CRUDityRegistry:
     def get_configured_backend(self,
                                fetcher_name: str,
                                input_name: str,
-                               norm_subject: str) -> CrudityBackend:
+                               norm_subject: str,
+                               ) -> CrudityBackend:
         try:
             fetcher = self._fetchers[fetcher_name]
         except KeyError as e:
@@ -290,9 +294,10 @@ class CRUDityRegistry:
                 method         = backend_cfg.pop('method', '')
                 subject        = backend_cfg['subject']
             except KeyError as e:
-                raise ImproperlyConfigured('You have an error in your CRUDITY_BACKENDS settings. '
-                                           'Check if "{}" is present'.format(e)
-                                          ) from e
+                raise ImproperlyConfigured(
+                    f'You have an error in your CRUDITY_BACKENDS settings. '
+                    f'Check if "{e}" is present'
+                ) from e
             except DeserializationError as de:
                 raise ImproperlyConfigured(de) from de
             else:
@@ -306,9 +311,9 @@ class CRUDityRegistry:
                 fetcher = self.get_fetcher(fetcher_source)
 
                 if fetcher is None:
-                    raise ImproperlyConfigured(f'settings.CRUDITY_BACKENDS: '
-                                               f'invalid fetcher "{fetcher_source}".'
-                                              )
+                    raise ImproperlyConfigured(
+                        f'settings.CRUDITY_BACKENDS: invalid fetcher "{fetcher_source}".'
+                    )
 
                 if subject == '*':
                     if fetcher.get_default_backend() is not None:

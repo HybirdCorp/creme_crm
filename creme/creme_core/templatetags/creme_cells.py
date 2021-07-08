@@ -141,9 +141,10 @@ def do_cell_4_regularfield(parser, token):
     try:
         first_arg_name, rf_cell_node_cls = _RFIELD_CELL_NODES[fa_name]
     except KeyError as e:
-        raise TemplateSyntaxError(f'Invalid 1rst argument of "cell_4_regularfield" tag ; '
-                                  f'it must be in {_RFIELD_CELL_NODES.keys()}.'
-                                 ) from e
+        raise TemplateSyntaxError(
+            f'Invalid 1rst argument of "cell_4_regularfield" tag ; '
+            f'it must be in {_RFIELD_CELL_NODES.keys()}.'
+        ) from e
 
     # Second argument -------------
     match = KWARG_RE.match(bits[2])
@@ -248,9 +249,10 @@ class CellRenderNode(TemplateNode):
 
         method_name = self.RENDER_METHODS.get(output)
         if method_name is None:
-            raise ValueError(f'{{% cell_render %}}: invalid output "{output}" '
-                             f'(must be in ["html", "csv"])'
-                            )
+            raise ValueError(
+                f'{{% cell_render %}}: invalid output "{output}" '
+                f'(must be in ["html", "csv"])'
+            )
 
         try:
             render = getattr(cell, method_name)(

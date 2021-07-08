@@ -10,15 +10,17 @@ from creme.creme_core.tests.base import CremeTestCase
 
 # TODO: clean registry in teardDown...
 class SettingTestCase(CremeTestCase):
-    def _build_edit_url(self, setting_value):
+    @staticmethod
+    def _build_edit_url(setting_value):
         return reverse('creme_config__edit_setting', args=(setting_value.id,))
 
     def test_edit_string(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_string', description='Page title',
-                        app_label='persons', type=SettingKey.STRING, hidden=False,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_string', description='Page title',
+            app_label='persons', type=SettingKey.STRING, hidden=False,
+        )
         setting_key_registry.register(sk)
 
         title = 'May the source be with you'
@@ -30,9 +32,9 @@ class SettingTestCase(CremeTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
-        context = response.context
-        self.assertEqual(_('Edit «{key}»').format(key=sk.description), context.get('title'))
-        self.assertEqual(_('Save the modifications'),                  context.get('submit_label'))
+        get_ctxt = response.context.get
+        self.assertEqual(_('Edit «{key}»').format(key=sk.description), get_ctxt('title'))
+        self.assertEqual(_('Save the modifications'),                  get_ctxt('submit_label'))
 
         # ---
         title = title.upper()
@@ -42,9 +44,10 @@ class SettingTestCase(CremeTestCase):
     def test_edit_int(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_int', description='Page size',
-                        app_label='persons', type=SettingKey.INT,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_int', description='Page size',
+            app_label='persons', type=SettingKey.INT,
+        )
         setting_key_registry.register(sk)
 
         size = 156
@@ -59,9 +62,10 @@ class SettingTestCase(CremeTestCase):
     def test_edit_bool(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_bool', description='Display logo ?',
-                        app_label='persons', type=SettingKey.BOOL,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_bool', description='Display logo ?',
+            app_label='persons', type=SettingKey.BOOL,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -75,9 +79,10 @@ class SettingTestCase(CremeTestCase):
     def test_edit_hour(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hour', description='Reminder hour',
-                        app_label='persons', type=SettingKey.HOUR,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_hour', description='Reminder hour',
+            app_label='persons', type=SettingKey.HOUR,
+        )
         setting_key_registry.register(sk)
 
         hour = 11
@@ -109,9 +114,10 @@ class SettingTestCase(CremeTestCase):
     def test_edit_email(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_email', description='Campaign Sender',
-                        app_label='persons', type=SettingKey.EMAIL,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_email', description='Campaign Sender',
+            app_label='persons', type=SettingKey.EMAIL,
+        )
         setting_key_registry.register(sk)
 
         email = 'd.knut@eswat.ol'
@@ -122,9 +128,9 @@ class SettingTestCase(CremeTestCase):
         url = self._build_edit_url(sv)
 
         response = self.assertPOST200(url, data={'value': 42})
-        self.assertFormError(response, 'form', 'value',
-                             _('Enter a valid email address.')
-                            )
+        self.assertFormError(
+            response, 'form', 'value', _('Enter a valid email address.'),
+        )
 
         email = 'd.knut.knut@eswat.ol'
         self.assertNoFormError(self.client.post(url, data={'value': email}))
@@ -134,9 +140,10 @@ class SettingTestCase(CremeTestCase):
         "Hidden => not editable (value=True)"
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden01', description='Display logo ?',
-                        app_label='persons', type=SettingKey.BOOL, hidden=True,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_hidden01', description='Display logo ?',
+            app_label='persons', type=SettingKey.BOOL, hidden=True,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -145,12 +152,13 @@ class SettingTestCase(CremeTestCase):
         self.assertGET409(self._build_edit_url(sv))
 
     def test_edit_hidden02(self):
-        "Hidden => not editable (value=False)"
+        "Hidden => not editable (value=False)."
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_hidden02', description='Display logo ?',
-                        app_label='persons', type=SettingKey.BOOL, hidden=True,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_hidden02', description='Display logo ?',
+            app_label='persons', type=SettingKey.BOOL, hidden=True,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -161,10 +169,11 @@ class SettingTestCase(CremeTestCase):
     def test_edit_blank01(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_blank01', description='API key',
-                        app_label='persons', type=SettingKey.STRING,
-                        blank=True,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_blank01', description='API key',
+            app_label='persons', type=SettingKey.STRING,
+            blank=True,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -180,10 +189,11 @@ class SettingTestCase(CremeTestCase):
     def test_edit_blank02(self):
         self.login()
 
-        sk = SettingKey(id='persons-test_edit_blank02', description='API key',
-                        app_label='persons', type=SettingKey.INT,
-                        blank=True,
-                       )
+        sk = SettingKey(
+            id='persons-test_edit_blank02', description='API key',
+            app_label='persons', type=SettingKey.INT,
+            blank=True,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -206,9 +216,10 @@ class SettingTestCase(CremeTestCase):
     def test_edit_app_perm01(self):
         self.login(is_superuser=False, admin_4_apps=['creme_core'])
 
-        sk = SettingKey(id='creme_core-test_edit_app_perm01', description='Page title',
-                        app_label='creme_core', type=SettingKey.STRING, hidden=False,
-                       )
+        sk = SettingKey(
+            id='creme_core-test_edit_app_perm01', description='Page title',
+            app_label='creme_core', type=SettingKey.STRING, hidden=False,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)
@@ -217,12 +228,13 @@ class SettingTestCase(CremeTestCase):
         self.assertGET200(self._build_edit_url(sv))
 
     def test_edit_app_perm02(self):
-        "No app perm => error"
+        "No app perm => error."
         self.login(is_superuser=False)
 
-        sk = SettingKey(id='creme_core-test_edit_app_perm02', description='Page title',
-                        app_label='creme_core', type=SettingKey.STRING, hidden=False,
-                       )
+        sk = SettingKey(
+            id='creme_core-test_edit_app_perm02', description='Page title',
+            app_label='creme_core', type=SettingKey.STRING, hidden=False,
+        )
         setting_key_registry.register(sk)
 
         sv = SettingValue(key=sk)

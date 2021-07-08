@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2020  Hybird
+#    Copyright (C) 2016-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -332,7 +332,8 @@ class FlowPage(Sequence):
                  key: str, key_field_info: FieldInfo, attr_name: str,
                  offset: int, max_size: int,
                  next_item: Optional[Model],
-                 first_page: bool):
+                 first_page: bool,
+                 ):
         """Constructor.
         Do not use it directly ; use FlowPaginator.page().
 
@@ -387,10 +388,11 @@ class FlowPage(Sequence):
     @staticmethod
     def _serialize_value(value):
         if isinstance(value, date):
-            return value.strftime(DATETIME_ISO8601_FMT
-                                  if isinstance(value, datetime) else
-                                  DATE_ISO8601_FMT
-                                 )
+            return value.strftime(
+                DATETIME_ISO8601_FMT
+                if isinstance(value, datetime) else
+                DATE_ISO8601_FMT
+            )
 
         if isinstance(value, Decimal):
             return str(value)
@@ -441,9 +443,11 @@ class FlowPage(Sequence):
             move_type = _BACKWARD
             value_item = self._next_item
 
-        return self._build_info(move_type, offset=self._offset,
-                                value=self._key_field_info.value_from(value_item),
-                               )
+        return self._build_info(
+            move_type,
+            offset=self._offset,
+            value=self._key_field_info.value_from(value_item),
+        )
 
     def _build_info(self, move_type: str, value, offset) -> dict:
         info = {'type': move_type, 'key': self._key, 'value': self._serialize_value(value)}

@@ -20,15 +20,17 @@ class Swallow:
 
 
 class SwallowFetcher(CrudityFetcher):
-    user_id   = 0
+    user_id = 0
     last_name = ''
 
     def fetch(self, *args, **kwargs):
-        return [Swallow('create contact',
-                        f'user_id={self.user_id}\n'
-                        f'last_name={self.last_name}',
-                       ),
-               ]
+        return [
+            Swallow(
+                'create contact',
+                f'user_id={self.user_id}\n'
+                f'last_name={self.last_name}',
+            ),
+        ]
 
 
 class SwallowInput(CrudityInput):

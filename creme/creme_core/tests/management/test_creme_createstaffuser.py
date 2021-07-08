@@ -30,9 +30,9 @@ class CreateStaffUserTestCase(base.CremeTestCase):
             self.call_command(username='staff1', first_name='John')
 
         with self.assertRaises(CommandError):
-            self.call_command(username='staff1',
-                              first_name='John', last_name='Staffman',
-                             )
+            self.call_command(
+                username='staff1', first_name='John', last_name='Staffman',
+            )
 
         self.assertEqual(count, CremeUser.objects.count())
 

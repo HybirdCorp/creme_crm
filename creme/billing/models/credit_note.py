@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,10 +31,10 @@ from .other_models import CreditNoteStatus
 
 
 class AbstractCreditNote(Base):
-    status = ForeignKey(CreditNoteStatus,
-                        verbose_name=_('Status of credit note'),
-                        on_delete=CREME_REPLACE,
-                       )
+    status = ForeignKey(
+        CreditNoteStatus,
+        verbose_name=_('Status of credit note'), on_delete=CREME_REPLACE,
+    )
 
     creation_label = _('Create a credit note')
     save_label     = _('Save the credit note')
@@ -75,10 +75,9 @@ class AbstractCreditNote(Base):
 
     def _update_linked_docs(self):
         # TODO: factorise (Relation.get_real_objects() ??)
-        relations = Relation.objects.filter(subject_entity=self.id,
-                                            type=REL_SUB_CREDIT_NOTE_APPLIED,
-                                           ) \
-                                    .select_related('object_entity')
+        relations = Relation.objects.filter(
+            subject_entity=self.id, type=REL_SUB_CREDIT_NOTE_APPLIED,
+        ).select_related('object_entity')
         Relation.populate_real_object_entities(relations)
 
         for rel in relations:

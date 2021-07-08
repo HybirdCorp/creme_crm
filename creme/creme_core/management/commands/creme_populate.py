@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,7 @@ class BasePopulator:
         self.app = app
         self.options = options
         self.stdout = stdout
-        self.style  = style
+        self.style = style
         self.build_dependencies(all_apps)
 
     def __repr__(self):
@@ -64,9 +64,10 @@ class BasePopulator:
             try:
                 deps.append(_checked_app_label(dep, apps_set))
             except CommandError as e:
-                self.stdout.write(f'BEWARE: ignored dependencies "{dep}", {e}',
-                                  self.style.NOTICE,
-                                 )
+                self.stdout.write(
+                    f'BEWARE: ignored dependencies "{dep}", {e}',
+                    self.style.NOTICE,
+                )
 
         self.dependencies = deps
 
@@ -93,9 +94,10 @@ class Command(BaseCommand):
             self.models.add(sender)
 
     def add_arguments(self, parser):
-        parser.add_argument('args', metavar='app_labels', nargs='*',
-                            help='Optionally one or more application label.',
-                           )
+        parser.add_argument(
+            'args', metavar='app_labels', nargs='*',
+            help='Optionally one or more application label.',
+        )
 
     def handle(self, *app_labels, **options):
         verbosity = options.get('verbosity')
@@ -151,10 +153,11 @@ class Command(BaseCommand):
         for populator in populators:
             populator.build_dependencies(populators_names)
 
-        populators = dependence_sort(populators,
-                                     BasePopulator.get_app,
-                                     BasePopulator.get_dependencies,
-                                    )
+        populators = dependence_sort(
+            populators,
+            BasePopulator.get_app,
+            BasePopulator.get_dependencies,
+        )
 
         # ----------------------------------------------------------------------
         self.models = set()

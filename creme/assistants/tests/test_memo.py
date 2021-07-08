@@ -25,12 +25,14 @@ class MemoTestCase(AssistantsTestCase):
 
     def _create_memo(self, content='Content', on_homepage=True, entity=None):
         entity = entity or self.entity
-        response = self.client.post(self._build_add_url(entity),
-                                    data={'user':        self.user.pk,
-                                          'content':     content,
-                                          'on_homepage': on_homepage,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':        self.user.pk,
+                'content':     content,
+                'on_homepage': on_homepage,
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Memo, content=content)
@@ -40,9 +42,10 @@ class MemoTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        self.assertEqual(_('New memo for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New memo for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the memo'), context.get('submit_label'))
 
         homepage = True
@@ -67,9 +70,10 @@ class MemoTestCase(AssistantsTestCase):
 
         url = memo.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        self.assertEqual(_('Memo for «{entity}»').format(entity=self.entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Memo for «{entity}»').format(entity=self.entity),
+            context.get('title'),
+        )
 
         # ---
         content += (
@@ -78,11 +82,14 @@ class MemoTestCase(AssistantsTestCase):
             'will be truncate by str() method'
         )
         homepage = not homepage
-        response = self.client.post(url, data={'user':        self.user.pk,
-                                               'content':     content,
-                                               'on_homepage': homepage,
-                                              }
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':        self.user.pk,
+                'content':     content,
+                'on_homepage': homepage,
+            },
+        )
         self.assertNoFormError(response)
 
         memo = self.refresh(memo)
@@ -128,9 +135,10 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(Q(assistants_memos__content__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertEqual(
+            Q(assistants_memos__content__icontains=value),
+            to_python(value=value),
+        )
 
     def _oldify_memo(self, memo):
         cdate = memo.creation_date
@@ -146,7 +154,10 @@ class MemoTestCase(AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual('<ul><li>Content02</li><li>Content01</li></ul>', result.for_html())
+        self.assertHTMLEqual(
+            '<ul><li>Content02</li><li>Content01</li></ul>',
+            result.for_html(),
+        )
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'"
@@ -167,8 +178,14 @@ class MemoTestCase(AssistantsTestCase):
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual('<ul><li>Content02</li><li>Content01</li></ul>', result1.for_html())
-        self.assertEqual('<ul><li>Content04</li><li>Content03</li></ul>', result2.for_html())
+        self.assertHTMLEqual(
+            '<ul><li>Content02</li><li>Content01</li></ul>',
+            result1.for_html(),
+        )
+        self.assertHTMLEqual(
+            '<ul><li>Content04</li><li>Content03</li></ul>',
+            result2.for_html(),
+        )
 
     def test_merge(self):
         def creator(contact01, contact02):
@@ -190,14 +207,16 @@ class MemoTestCase(AssistantsTestCase):
         user = self.user
 
         create_user = get_user_model().objects.create
-        teammate1 = create_user(username='luffy',
-                                email='luffy@sunny.org', role=self.role,
-                                first_name='Luffy', last_name='Monkey D.',
-                               )
-        teammate2 = create_user(username='zorro',
-                                email='zorro@sunny.org', role=self.role,
-                                first_name='Zorro', last_name='Roronoa',
-                               )
+        teammate1 = create_user(
+            username='luffy',
+            email='luffy@sunny.org', role=self.role,
+            first_name='Luffy', last_name='Monkey D.',
+        )
+        teammate2 = create_user(
+            username='zorro',
+            email='zorro@sunny.org', role=self.role,
+            first_name='Zorro', last_name='Roronoa',
+        )
 
         team1 = create_user(username='Team #1', is_team=True)
         team1.teammates = [teammate1, user]
@@ -212,7 +231,4 @@ class MemoTestCase(AssistantsTestCase):
         memo1 = create_memo(content='Memo#1')
         memo2 = create_memo(content='Memo#2', user=team1)
         create_memo(content='Memo#3', user=team2)  # No (other team)
-
-        memos = Memo.objects.filter_by_user(user)
-        self.assertEqual({memo1, memo2}, {*memos})
-        self.assertEqual(2, len(memos))
+        self.assertCountEqual([memo1, memo2], Memo.objects.filter_by_user(user))

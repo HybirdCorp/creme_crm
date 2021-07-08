@@ -77,17 +77,20 @@ class TemplateURLBuilder:
             raise NotImplementedError
 
     class Word(PlaceHolder):
-        _patterns = ['__placeholder{}__', '__PLACEHOLDER{}__',
-                     '__place_holder{}__', '__PLACE_HOLDER{}__',
-                     '__XXXXXX{}__',
-                    ]
+        _patterns = [
+            '__placeholder{}__', '__PLACEHOLDER{}__',
+            '__place_holder{}__', '__PLACE_HOLDER{}__',
+            '__XXXXXX{}__',
+        ]
 
         def tmp_name(self, index, trial):
             patterns = self._patterns
             return patterns[trial % len(patterns)].format(index)
 
     class Int(PlaceHolder):
-        _patterns = ['123456789{}', '987654321{}', '88888888888888{}', '112233445566{}']
+        _patterns = [
+            '123456789{}', '987654321{}', '88888888888888{}', '112233445566{}',
+        ]
 
         def tmp_name(self, index, trial):
             patterns = self._patterns
@@ -127,7 +130,8 @@ class TemplateURLBuilder:
                 reverse_kwargs.update(kwargs)
 
                 url = reverse(
-                    viewname, kwargs=reverse_kwargs, urlconf=urlconf, current_app=current_app,
+                    viewname,
+                    kwargs=reverse_kwargs, urlconf=urlconf, current_app=current_app,
                 )
                 tried_urls.append(url)
 
@@ -144,11 +148,13 @@ class TemplateURLBuilder:
 
         raise TemplateURLBuilderError(
             'Cannot generate a URL because of a collision '
-            '(we tried these URLs -- with place holders --: {})'.format(' '.join(tried_urls))
+            '(we tried these URLs -- with place holders --: {})'.format(
+                ' '.join(tried_urls),
+            )
         )
 
 
 def parse_path(path):
-    # handles C:/ usecase for windows
+    # handles C:/ use case for windows
     path = re.sub(r'^(?:file://)?[/]*([A-Za-z]):[\\/]', r'file://\1/', path)
     return urlparse(path)

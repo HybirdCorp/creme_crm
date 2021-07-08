@@ -107,23 +107,24 @@ class _SegmentForm(_AuxForm):
 
         instance = self.instance
         segments = MarketSegment.objects.filter(name=name)
-        ptypes   = CremePropertyType.objects.filter(text=ptype_text)
+        ptypes = CremePropertyType.objects.filter(text=ptype_text)
 
         if instance.pk:
             segment = instance.segment
             segments = segments.exclude(pk=segment.pk)
-            ptypes   = ptypes.exclude(pk=segment.property_type_id)
+            ptypes = ptypes.exclude(pk=segment.property_type_id)
 
         if segments.exists():
-            raise ValidationError(self.error_messages['duplicated_name'],
-                                  code='duplicated_name',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_name'], code='duplicated_name',
+            )
 
         if ptypes.exists():
-            raise ValidationError(self.error_messages['duplicated_property'],
-                                  params={'name': ptype_text},
-                                  code='duplicated_property',
-                                 )
+            raise ValidationError(
+                self.error_messages['duplicated_property'],
+                params={'name': ptype_text},
+                code='duplicated_property',
+            )
 
         return name
 
@@ -157,10 +158,11 @@ class SegmentCreateForm(_SegmentForm):
 
         # TODO: factorise with market_segment.MarketSegmentForm ???
         # is_custom=False ==> CremePropertyType won't be deletable
-        ptype = CremePropertyType.create('commercial-segment',
-                                         MarketSegment.generate_property_text(name),
-                                         generate_pk=True, is_custom=False
-                                        )
+        ptype = CremePropertyType.create(
+            'commercial-segment',
+            MarketSegment.generate_property_text(name),
+            generate_pk=True, is_custom=False,
+        )
 
         segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)
         super().save(*args, **kwargs)

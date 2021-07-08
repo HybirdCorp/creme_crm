@@ -45,9 +45,10 @@ class QuerySorterTestCase(CremeTestCase):
 
         self.assertEqual(('name',), FakeOrganisation._meta.ordering)
 
-        self.assertRegex(get_sql(FakeOrganisation.objects.all()),
-                         r'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
-                        )
+        self.assertRegex(
+            get_sql(FakeOrganisation.objects.all()),
+            r'ORDER BY .creme_core_fakeorganisation.\..name. ASC( NULLS FIRST)?$'
+        )
 
         # Check that order by 'id' does not use cremeentity.id,
         # but fakeorganisation.cremeentity_ptr_id
@@ -111,9 +112,10 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1,), FakeOrganisation._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name=field_name2),
-                 build_cell(name=field_name1),  # meta._meta.ordering[0]
-                ]
+        cells = [
+            build_cell(name=field_name2),
+            build_cell(name=field_name1),  # meta._meta.ordering[0]
+        ]
 
         key = cells[1].key
         sortinfo1 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key, order=Order())
@@ -147,17 +149,16 @@ class QuerySorterTestCase(CremeTestCase):
         field_name2 = 'email'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name=field_name2),
-                 build_cell(name=field_name1),
-                ]
+        cells = [build_cell(name=field_name2), build_cell(name=field_name1)]
 
         key = cells[0].key
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
-        self.assertEqual((field_name2, field_name1, 'cremeentity_ptr_id'),
-                         sortinfo.field_names
-                        )
-        self.assertEqual(key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
+        self.assertEqual(
+            (field_name2, field_name1, 'cremeentity_ptr_id'),
+            sort_info.field_names,
+        )
+        self.assertEqual(key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_oneorder_03(self):
         "Empty cell key => fallback on natural model ordering."
@@ -168,10 +169,12 @@ class QuerySorterTestCase(CremeTestCase):
         main_cell = build_cell(name=field_name1)
         cells = [build_cell(name='email'), main_cell]
 
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key=None, order=None)
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(main_cell.key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(
+            model=FakeOrganisation, cells=cells, cell_key=None, order=None,
+        )
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(main_cell.key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_oneorder_04(self):
         "Invalid cell key => fallback on natural model ordering."
@@ -179,14 +182,12 @@ class QuerySorterTestCase(CremeTestCase):
 
         field_name1 = 'name'
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name='email'),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name='email')]
 
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key='invalid')
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(cells[0].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key='invalid')
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(cells[0].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_oneorder_05(self):
         "Cell is not displayed => fallback on basic ordering."
@@ -206,9 +207,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertTrue(sortinfo1.main_order.asc)
 
         # Natural ordering not displayed ---------------
-        cells2 = [build_cell(name=field_name2),
-                  build_cell(name='sector'),
-                 ]
+        cells2 = [build_cell(name=field_name2), build_cell(name='sector')]
 
         sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells2, cell_key=unused_cell.key)
         # TODO ? Use index
@@ -226,18 +225,18 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1,), FakeDocument._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[1].key
         sortinfo = sorter.get(model=FakeDocument, cells=cells, cell_key=key)
-        self.assertEqual((field_name2 + '__header_filter_search_field',
-                          field_name1,
-                          'cremeentity_ptr_id',
-                         ),
-                         sortinfo.field_names
-                        )
+        self.assertEqual(
+            (
+                f'{field_name2}__header_filter_search_field',
+                field_name1,
+                'cremeentity_ptr_id',
+            ),
+            sortinfo.field_names,
+        )
 
         self.assertEqual(cells[1].key, sortinfo.main_cell_key)
         self.assertTrue(sortinfo.main_order.asc)
@@ -251,36 +250,33 @@ class QuerySorterTestCase(CremeTestCase):
         field_name1 = 'name'
         field_name2 = 'sector'
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[1].key
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
-        self.assertEqual((field_name2 + '__order', field_name1, 'cremeentity_ptr_id'),
-                         sortinfo.field_names
-                        )
-        self.assertEqual(key,   sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
+        self.assertEqual(
+            (f'{field_name2}__order', field_name1, 'cremeentity_ptr_id'),
+            sort_info.field_names
+        )
+        self.assertEqual(key,   sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_oneorder_08(self):
         "Natural ordering field not in cells."
         sorter = QuerySorter()
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name='phone'),
-                 build_cell(name='email'),
-                ]
+        cells = [build_cell(name='phone'), build_cell(name='email')]
 
         key = cells[0].key
-        sortinfo1 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
-        self.assertEqual(('phone', 'cremeentity_ptr_id'), sortinfo1.field_names)
-        self.assertEqual(key,   sortinfo1.main_cell_key)
-        self.assertTrue(sortinfo1.main_order.asc)
+        sort_info1 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
+        self.assertEqual(('phone', 'cremeentity_ptr_id'), sort_info1.field_names)
+        self.assertEqual(key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
 
         # Initial
-        sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=None)
-        self.assertEqual(('cremeentity_ptr_id',), sortinfo2.field_names)
+        sort_info2 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=None)
+        self.assertEqual(('cremeentity_ptr_id',), sort_info2.field_names)
 
     def test_regularfield_default_twoorders_01(self):
         "meta.ordering: 2 fields."
@@ -291,25 +287,27 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name2, field_name1), FakeContact._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[0].key
-        sortinfo1 = sorter.get(model=FakeContact, cells=cells, cell_key=key)
-        self.assertEqual((field_name1, field_name2, 'cremeentity_ptr_id'),
-                         sortinfo1.field_names
-                        )
-        self.assertEqual(key,   sortinfo1.main_cell_key)
-        self.assertTrue(sortinfo1.main_order.asc)
+        sort_info1 = sorter.get(model=FakeContact, cells=cells, cell_key=key)
+        self.assertEqual(
+            (field_name1, field_name2, 'cremeentity_ptr_id'),
+            sort_info1.field_names,
+        )
+        self.assertEqual(key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
 
         # DESC -----------------------------
-        sortinfo2 = sorter.get(model=FakeContact, cells=cells, cell_key=key, order=Order(False))
-        self.assertEqual(('-' + field_name1, '-' + field_name2, '-cremeentity_ptr_id'),
-                         sortinfo2.field_names
-                        )
-        self.assertEqual(key, sortinfo2.main_cell_key)
-        self.assertTrue(sortinfo2.main_order.desc)
+        sort_info2 = sorter.get(
+            model=FakeContact, cells=cells, cell_key=key, order=Order(False),
+        )
+        self.assertEqual(
+            (f'-{field_name1}', f'-{field_name2}', '-cremeentity_ptr_id'),
+            sort_info2.field_names
+        )
+        self.assertEqual(key, sort_info2.main_cell_key)
+        self.assertTrue(sort_info2.main_order.desc)
 
     def test_regularfield_default_twoorders_02(self):
         "Add not natural ordering."
@@ -319,22 +317,27 @@ class QuerySorterTestCase(CremeTestCase):
         field_name3 = 'phone'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                 build_cell(name=field_name3),
-                ]
+        cells = [
+            build_cell(name=field_name1),
+            build_cell(name=field_name2),
+            build_cell(name=field_name3),
+        ]
 
         key = cells[2].key
-        sortinfo1 = sorter.get(model=FakeContact, cells=cells, cell_key=key)
-        self.assertEqual((field_name3, field_name2, field_name1, 'cremeentity_ptr_id'),
-                         sortinfo1.field_names
-                        )
+        sort_info1 = sorter.get(model=FakeContact, cells=cells, cell_key=key)
+        self.assertEqual(
+            (field_name3, field_name2, field_name1, 'cremeentity_ptr_id'),
+            sort_info1.field_names,
+        )
 
         # DESC ------------------
-        sortinfo2 = sorter.get(model=FakeContact, cells=cells, cell_key=key, order=Order(False))
-        self.assertEqual(('-' + field_name3, field_name2, field_name1, '-cremeentity_ptr_id'),
-                         sortinfo2.field_names
-                        )
+        sort_info2 = sorter.get(
+            model=FakeContact, cells=cells, cell_key=key, order=Order(False),
+        )
+        self.assertEqual(
+            ('-' + field_name3, field_name2, field_name1, '-cremeentity_ptr_id'),
+            sort_info2.field_names,
+        )
 
     def test_regularfield_default_twoorders_03(self):
         "Add invalid order."
@@ -344,52 +347,48 @@ class QuerySorterTestCase(CremeTestCase):
         field_name2 = 'last_name'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
-        sortinfo = sorter.get(model=FakeContact, cells=cells, cell_key='invalid')
-        self.assertEqual((field_name2, field_name1, 'cremeentity_ptr_id'),
-                         sortinfo.field_names
-                        )
+        sort_info = sorter.get(model=FakeContact, cells=cells, cell_key='invalid')
+        self.assertEqual(
+            (field_name2, field_name1, 'cremeentity_ptr_id'),
+            sort_info.field_names,
+        )
         # Fallback to (first) natural ordering field
-        self.assertEqual(cells[1].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        self.assertEqual(cells[1].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_twoorders_04(self):
         sorter = QuerySorter()
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name='phone'),
-                 build_cell(name='email'),
-                ]
+        cells = [build_cell(name='phone'), build_cell(name='email')]
 
-        sortinfo = sorter.get(model=FakeContact, cells=cells, cell_key=None)
-        self.assertEqual(('cremeentity_ptr_id',), sortinfo.field_names)
-        self.assertIsNone(sortinfo.main_cell_key)  # Fallback to (first) natural ordering field
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeContact, cells=cells, cell_key=None)
+        self.assertEqual(('cremeentity_ptr_id',), sort_info.field_names)
+        self.assertIsNone(sort_info.main_cell_key)  # Fallback to (first) natural ordering field
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_twoorders_05(self):
         "One natural ordering field not in cells."
         sorter = QuerySorter()
 
-        self.assertEqual(('name', '-expiration_date'),
-                         FakeInvoice._meta.ordering
-                        )
+        self.assertEqual(('name', '-expiration_date'), FakeInvoice._meta.ordering)
         self.assertIsNone(get_indexed_ordering(FakeInvoice, ['name', '-expiration_date']))
 
         field_name1 = 'name'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoice)
-        cells = [build_cell(name='number'),
-                 build_cell(name=field_name1),
-                 # Not expiration_date
-                ]
+        cells = [
+            build_cell(name='number'),
+            build_cell(name=field_name1),
+            # Not expiration_date
+        ]
 
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells, cell_key=None)
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(cells[1].key, sortinfo.main_cell_key)  # First natural order
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeInvoice, cells=cells, cell_key=None)
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(cells[1].key, sort_info.main_cell_key)  # First natural order
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_twoorders_06(self):
         "One natural ordering field not in cells, but an smart index exists."
@@ -398,13 +397,11 @@ class QuerySorterTestCase(CremeTestCase):
         field_name1 = 'last_name'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeContact)
-        cells = [build_cell(name='email'),
-                 build_cell(name=field_name1),
-                ]
+        cells = [build_cell(name='email'), build_cell(name=field_name1)]
 
-        sortinfo = sorter.get(model=FakeContact, cells=cells, cell_key=None)
-        self.assertEqual(cells[1].key,   sortinfo.main_cell_key)  # First natural order
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeContact, cells=cells, cell_key=None)
+        self.assertEqual(cells[1].key,   sort_info.main_cell_key)  # First natural order
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_descorder_01(self):
         "Natural ordering is DESC."
@@ -415,21 +412,24 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(('-' + field_name1,), FakeActivity._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[0].key
-        sortinfo1 = sorter.get(model=FakeActivity, cells=cells, cell_key=key)
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo1.field_names)
-        self.assertEqual(key,   sortinfo1.main_cell_key)
-        self.assertEqual('ASC', str(sortinfo1.main_order))
+        sort_info1 = sorter.get(model=FakeActivity, cells=cells, cell_key=key)
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info1.field_names)
+        self.assertEqual(key,   sort_info1.main_cell_key)
+        self.assertEqual('ASC', str(sort_info1.main_order))
 
         # DESC ------------
-        sortinfo2 = sorter.get(model=FakeActivity, cells=cells, cell_key=key, order=Order(False))
-        self.assertEqual(('-' + field_name1, '-cremeentity_ptr_id'), sortinfo2.field_names)
-        self.assertEqual(key,    sortinfo2.main_cell_key)
-        self.assertEqual('DESC', str(sortinfo2.main_order))
+        sort_info2 = sorter.get(
+            model=FakeActivity, cells=cells, cell_key=key, order=Order(False),
+        )
+        self.assertEqual(
+            ('-' + field_name1, '-cremeentity_ptr_id'),
+            sort_info2.field_names,
+        )
+        self.assertEqual(key,    sort_info2.main_cell_key)
+        self.assertEqual('DESC', str(sort_info2.main_order))
 
     def test_regularfield_default_descorder_02(self):
         "Natural ordering is DESC => Empty GET/POST => DESC."
@@ -439,15 +439,18 @@ class QuerySorterTestCase(CremeTestCase):
         field_name2 = 'title'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[0].key
-        sortinfo = sorter.get(model=FakeActivity, cells=cells, cell_key=None, order=None)
-        self.assertEqual(('-' + field_name1, '-cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.desc)
+        sort_info = sorter.get(
+            model=FakeActivity, cells=cells, cell_key=None, order=None,
+        )
+        self.assertEqual(
+            ('-' + field_name1, '-cremeentity_ptr_id'),
+            sort_info.field_names,
+        )
+        self.assertEqual(key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.desc)
 
     def test_regularfield_default_descorder_03(self):
         "Natural ordering is DESC + another field."
@@ -457,32 +460,42 @@ class QuerySorterTestCase(CremeTestCase):
         field_name2 = 'place'  # Not unique (see below)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[1].key
-        sortinfo1 = sorter.get(model=FakeActivity, cells=cells, cell_key=key, order=None)
-        self.assertEqual((field_name2, '-' + field_name1, 'cremeentity_ptr_id'),
-                         sortinfo1.field_names
-                        )
-        self.assertEqual(key, sortinfo1.main_cell_key)
-        self.assertTrue(sortinfo1.main_order.asc)
+        sort_info1 = sorter.get(
+            model=FakeActivity, cells=cells, cell_key=key, order=None,
+        )
+        self.assertEqual(
+            (field_name2, '-' + field_name1, 'cremeentity_ptr_id'),
+            sort_info1.field_names,
+        )
+        self.assertEqual(key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
 
         # DESC ------------------------------
-        sortinfo2 = sorter.get(model=FakeActivity, cells=cells, cell_key=key, order=Order(False))
-        self.assertEqual(('-' + field_name2,
-                          '-' + field_name1,
-                          '-cremeentity_ptr_id',
-                         ),
-                         sortinfo2.field_names
-                        )
-        self.assertEqual(key, sortinfo2.main_cell_key)
-        self.assertTrue(sortinfo2.main_order.desc)
+        sort_info2 = sorter.get(
+            model=FakeActivity, cells=cells, cell_key=key, order=Order(False)
+        )
+        self.assertEqual(
+            (
+                '-' + field_name2,
+                '-' + field_name1,
+                '-cremeentity_ptr_id',
+            ),
+            sort_info2.field_names,
+        )
+        self.assertEqual(key, sort_info2.main_cell_key)
+        self.assertTrue(sort_info2.main_order.desc)
 
         # FAST MODE
-        sortinfo3 = sorter.get(model=FakeActivity, cells=cells, cell_key=key, fast_mode=True)
-        self.assertEqual((field_name2, 'cremeentity_ptr_id'), sortinfo3.field_names)
+        sort_info3 = sorter.get(
+            model=FakeActivity, cells=cells, cell_key=key, fast_mode=True,
+        )
+        self.assertEqual(
+            (field_name2, 'cremeentity_ptr_id'),
+            sort_info3.field_names,
+        )
 
     def test_regularfield_default_twoordersdesc(self):
         "meta.ordering: 2 fields (one is DESC)."
@@ -493,23 +506,25 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1, '-' + field_name2), FakeInvoice._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoice)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[0].key
         sortinfo1 = sorter.get(model=FakeInvoice, cells=cells, cell_key=key)
-        self.assertEqual((field_name1, '-' + field_name2, 'cremeentity_ptr_id'),
-                         sortinfo1.field_names
-                        )
+        self.assertEqual(
+            (field_name1, '-' + field_name2, 'cremeentity_ptr_id'),
+            sortinfo1.field_names,
+        )
         self.assertEqual(key, sortinfo1.main_cell_key)
         self.assertTrue(sortinfo1.main_order.asc)
 
         # DESC -----------------------------
-        sortinfo2 = sorter.get(model=FakeInvoice, cells=cells, cell_key=key, order=Order(False))
-        self.assertEqual(('-' + field_name1, field_name2, '-cremeentity_ptr_id'),
-                         sortinfo2.field_names
-                        )
+        sortinfo2 = sorter.get(
+            model=FakeInvoice, cells=cells, cell_key=key, order=Order(False),
+        )
+        self.assertEqual(
+            ('-' + field_name1, field_name2, '-cremeentity_ptr_id'),
+            sortinfo2.field_names,
+        )
         self.assertEqual(key, sortinfo2.main_cell_key)
         self.assertTrue(sortinfo2.main_order.desc)
 
@@ -525,79 +540,81 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual((field_name1,), FakeDocument._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[1].key
-        sortinfo = sorter.get(model=FakeDocument, cells=cells, cell_key=key)
-        self.assertEqual((field_name2 + '_id',  # not '__header_filter_search_field'
-                          field_name1,
-                          'cremeentity_ptr_id',
-                         ),
-                         sortinfo.field_names
-                        )
-        self.assertEqual(cells[1].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeDocument, cells=cells, cell_key=key)
+        self.assertEqual(
+            (
+                field_name2 + '_id',  # not '__header_filter_search_field'
+                field_name1,
+                'cremeentity_ptr_id',
+            ),
+            sort_info.field_names,
+        )
+        self.assertEqual(cells[1].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_register_fieldtype(self):
         "Register model field type."
         sorter = QuerySorter()
 
         fields_registry = sorter.registry[EntityCellRegularField.type_id]
-        self.assertIsInstance(fields_registry.sorter_4_model_field_type(IntegerField),
-                              RegularFieldSorter
-                             )
+        self.assertIsInstance(
+            fields_registry.sorter_4_model_field_type(IntegerField),
+            RegularFieldSorter,
+        )
 
-        fields_registry.register_model_field_type(type=IntegerField, sorter_cls=VoidSorter)
-        self.assertIsInstance(fields_registry.sorter_4_model_field_type(IntegerField),
-                              VoidSorter
-                             )
-        self.assertIsInstance(fields_registry.sorter_4_model_field_type(CharField),
-                              RegularFieldSorter
-                             )
+        fields_registry.register_model_field_type(
+            type=IntegerField, sorter_cls=VoidSorter,
+        )
+        self.assertIsInstance(
+            fields_registry.sorter_4_model_field_type(IntegerField),
+            VoidSorter,
+        )
+        self.assertIsInstance(
+            fields_registry.sorter_4_model_field_type(CharField),
+            RegularFieldSorter,
+        )
 
         field_name1 = 'name'
         field_name2 = 'capital'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
-
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key=cells[1].key)
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
+        sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key=cells[1].key)
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
 
     def test_regularfield_register_field(self):
         "Register model field."
         sorter = QuerySorter()
 
         fields_registry = sorter.registry[EntityCellRegularField.type_id]
-        self.assertIsNone(fields_registry.sorter_4_model_field(model=FakeInvoice,
-                                                               field_name='issuing_date',
-                                                              )
-                         )
+        self.assertIsNone(
+            fields_registry.sorter_4_model_field(
+                model=FakeInvoice, field_name='issuing_date',
+            )
+        )
 
-        fields_registry.register_model_field(model=FakeInvoice,
-                                             field_name='issuing_date',
-                                             sorter_cls=VoidSorter,
-                                            )
-        self.assertIsInstance(fields_registry.sorter_4_model_field(model=FakeInvoice,
-                                                                   field_name='issuing_date',
-                                                                  ),
-                              VoidSorter
-                             )
+        fields_registry.register_model_field(
+            model=FakeInvoice, field_name='issuing_date', sorter_cls=VoidSorter,
+        )
+        self.assertIsInstance(
+            fields_registry.sorter_4_model_field(
+                model=FakeInvoice, field_name='issuing_date',
+            ),
+            VoidSorter,
+        )
         field_name1 = 'issuing_date'
         field_name2 = 'expiration_date'
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoice)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells, cell_key=cells[0].key)
-        self.assertEqual(('-expiration_date', '-cremeentity_ptr_id'),
-                         sortinfo.field_names
-                        )
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
+        sort_info = sorter.get(model=FakeInvoice, cells=cells, cell_key=cells[0].key)
+        self.assertEqual(
+            ('-expiration_date', '-cremeentity_ptr_id'),
+            sort_info.field_names,
+        )
 
     def test_regularfield_default_not_sortable01(self):
         "DatePeriodField is not sortable."
@@ -609,12 +626,12 @@ class QuerySorterTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoice)
         cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
-        sortinfo = sorter.get(
+        sort_info = sorter.get(
             model=FakeInvoice, cells=cells, cell_key=cells[1].key, order=Order(),
         )
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(cells[0].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(cells[0].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_not_sortable02(self):
         "ManyToManyField is not sortable."
@@ -626,18 +643,18 @@ class QuerySorterTestCase(CremeTestCase):
         build_cell = partial(EntityCellRegularField.build, model=FakeEmailCampaign)
         cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells,
-                              cell_key=cells[1].key, order=Order(),
-                             )
-        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(cells[0].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(
+            model=FakeInvoice, cells=cells,
+            cell_key=cells[1].key, order=Order(),
+        )
+        self.assertEqual((field_name1, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(cells[0].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_autofield(self):
         "AutoField is sortable."
         cell = EntityCellRegularField.build(model=HistoryLine, name='id')
-        registry = CellSorterRegistry()
-        self.assertEqual('id', registry.get_field_name(cell))
+        self.assertEqual('id', CellSorterRegistry().get_field_name(cell))
 
     def test_register_related_model(self):
         sorter = QuerySorter()
@@ -650,7 +667,7 @@ class QuerySorterTestCase(CremeTestCase):
 
         class MyEntityForeignKeySorter(AbstractCellSorter):
             def get_field_name(self, cell):
-                return cell.value + '__created'
+                return f'{cell.value}__created'
 
         efk_registry = fk_registry.register(
             model=CremeEntity,
@@ -662,17 +679,19 @@ class QuerySorterTestCase(CremeTestCase):
         field_name1 = 'title'
         field_name2 = 'linked_folder'
         build_cell = partial(EntityCellRegularField.build, model=FakeDocument)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
-        sortinfo = sorter.get(model=FakeDocument, cells=cells, cell_key=cells[1].key)
-        self.assertEqual((field_name2 + '__created',
-                          field_name1,
-                          'cremeentity_ptr_id',
-                         ),
-                         sortinfo.field_names
-                        )
+        sort_info = sorter.get(
+            model=FakeDocument, cells=cells, cell_key=cells[1].key,
+        )
+        self.assertEqual(
+            (
+                f'{field_name2}__created',
+                field_name1,
+                'cremeentity_ptr_id',
+            ),
+            sort_info.field_names,
+        )
 
     # def test_customfield(self):  TODO
 
@@ -688,12 +707,12 @@ class QuerySorterTestCase(CremeTestCase):
             ),
         ]
 
-        sortinfo = sorter.get(model=FakeInvoice, cells=cells,
-                              cell_key=cells[1].key, order=Order(),
-                             )
-        self.assertEqual((field_name, 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(cells[0].key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(
+            model=FakeInvoice, cells=cells, cell_key=cells[1].key, order=Order(),
+        )
+        self.assertEqual((field_name, 'cremeentity_ptr_id'), sort_info.field_names)
+        self.assertEqual(cells[0].key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_functionfield02(self):
         "Register a function field."
@@ -715,9 +734,9 @@ class QuerySorterTestCase(CremeTestCase):
         ffield_registry = sorter.registry[EntityCellFunctionField.type_id]
         self.assertIsNone(ffield_registry.sorter(function_field1))
 
-        ffield_registry.register(ffield=function_field1,
-                                 sorter_cls=PropertySorter,
-                                )
+        ffield_registry.register(
+            ffield=function_field1, sorter_cls=PropertySorter,
+        )
         self.assertIsInstance(ffield_registry.sorter(function_field1), PropertySorter)
 
         cells = [
@@ -727,14 +746,21 @@ class QuerySorterTestCase(CremeTestCase):
         ]
 
         prop_key = cells[1].key
-        sortinfo1 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=prop_key)
-        self.assertEqual(('created', 'name', 'cremeentity_ptr_id'), sortinfo1.field_names)
-        self.assertEqual(prop_key, sortinfo1.main_cell_key)
-        self.assertTrue(sortinfo1.main_order.asc)
+        sort_info1 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=prop_key)
+        self.assertEqual(
+            ('created', 'name', 'cremeentity_ptr_id'),
+            sort_info1.field_names,
+        )
+        self.assertEqual(prop_key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
 
         # ---
-        sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells, cell_key=cells[2].key)
-        self.assertEqual(('name', 'cremeentity_ptr_id'), sortinfo2.field_names)
+        sort_info2 = sorter.get(
+            model=FakeOrganisation, cells=cells, cell_key=cells[2].key,
+        )
+        self.assertEqual(
+            ('name', 'cremeentity_ptr_id'), sort_info2.field_names,
+        )
 
     def test_functionfield03(self):
         "<sorter_class> attribute."
@@ -759,10 +785,12 @@ class QuerySorterTestCase(CremeTestCase):
         ]
 
         key = cells[1].key
-        sortinfo = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
-        self.assertEqual(('modified', 'name', 'cremeentity_ptr_id'), sortinfo.field_names)
-        self.assertEqual(key, sortinfo.main_cell_key)
-        self.assertTrue(sortinfo.main_order.asc)
+        sort_info = sorter.get(model=FakeOrganisation, cells=cells, cell_key=key)
+        self.assertEqual(
+            ('modified', 'name', 'cremeentity_ptr_id'), sort_info.field_names,
+        )
+        self.assertEqual(key, sort_info.main_cell_key)
+        self.assertTrue(sort_info.main_order.asc)
 
     def test_relation(self):
         "EntityCellRelation are not sortable."
@@ -791,24 +819,22 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertEqual(('title',), model._meta.ordering)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeCivility)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[0].key
         get_sortinfo = partial(sorter.get, model=model, cells=cells, cell_key=key)
-        sortinfo1 = get_sortinfo(order=Order())
-        self.assertIsInstance(sortinfo1, QuerySortInfo)
+        sort_info1 = get_sortinfo(order=Order())
+        self.assertIsInstance(sort_info1, QuerySortInfo)
 
-        self.assertEqual((field_name1, 'id'), sortinfo1.field_names)
-        self.assertEqual(key,   sortinfo1.main_cell_key)
-        self.assertEqual('ASC', str(sortinfo1.main_order))
+        self.assertEqual((field_name1, 'id'), sort_info1.field_names)
+        self.assertEqual(key,   sort_info1.main_cell_key)
+        self.assertEqual('ASC', str(sort_info1.main_order))
 
         # DESC ---
-        sortinfo2 = get_sortinfo(order=Order(False))
-        self.assertEqual(('-' + field_name1, '-id'), sortinfo2.field_names)
-        self.assertEqual(key, sortinfo2.main_cell_key)
-        self.assertTrue(sortinfo2.main_order.desc)
+        sort_info2 = get_sortinfo(order=Order(False))
+        self.assertEqual(('-' + field_name1, '-id'), sort_info2.field_names)
+        self.assertEqual(key, sort_info2.main_cell_key)
+        self.assertTrue(sort_info2.main_order.desc)
 
     def test_key_already_unique(self):
         sorter = QuerySorter()
@@ -819,32 +845,32 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertTrue(model._meta.get_field(field_name2).unique)
 
         build_cell = partial(EntityCellRegularField.build, model=model)
-        cells = [build_cell(name=field_name1),
-                 build_cell(name=field_name2),
-                ]
+        cells = [build_cell(name=field_name1), build_cell(name=field_name2)]
 
         key = cells[1].key
         get_sortinfo = partial(sorter.get, model=model, cells=cells, cell_key=key)
 
-        sortinfo1 = get_sortinfo(order=None)
-        self.assertEqual((field_name2, '-' + field_name1),
-                         sortinfo1.field_names
-                        )
-        self.assertEqual(key, sortinfo1.main_cell_key)
-        self.assertTrue(sortinfo1.main_order.asc)
+        sort_info1 = get_sortinfo(order=None)
+        self.assertEqual(
+            (field_name2, '-' + field_name1),
+            sort_info1.field_names,
+        )
+        self.assertEqual(key, sort_info1.main_cell_key)
+        self.assertTrue(sort_info1.main_order.asc)
 
         # DESC ------------------------------
-        sortinfo2 = get_sortinfo(order=Order(False))
-        self.assertEqual(('-' + field_name2, '-' + field_name1),
-                         sortinfo2.field_names
-                        )
-        self.assertEqual(key, sortinfo2.main_cell_key)
-        self.assertTrue(sortinfo2.main_order.desc)
+        sort_info2 = get_sortinfo(order=Order(False))
+        self.assertEqual(
+            ('-' + field_name2, '-' + field_name1),
+            sort_info2.field_names,
+        )
+        self.assertEqual(key, sort_info2.main_cell_key)
+        self.assertTrue(sort_info2.main_order.desc)
 
         # FAST MODE ------------------------------
-        sortinfo3 = get_sortinfo(fast_mode=True)
-        self.assertEqual((field_name2,), sortinfo3.field_names)
+        sort_info3 = get_sortinfo(fast_mode=True)
+        self.assertEqual((field_name2,), sort_info3.field_names)
 
         # FAST MODE + DESC ------------------------------
-        sortinfo3 = get_sortinfo(fast_mode=True, order=Order(False))
-        self.assertEqual(('-' + field_name2,), sortinfo3.field_names)
+        sort_info4 = get_sortinfo(fast_mode=True, order=Order(False))
+        self.assertEqual(('-' + field_name2,), sort_info4.field_names)

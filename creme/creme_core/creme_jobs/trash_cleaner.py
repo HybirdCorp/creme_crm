@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 
 
 class _TrashCleanerType(JobType):
-    id           = JobType.generate_id('creme_core', 'trash_cleaner')
+    id = JobType.generate_id('creme_core', 'trash_cleaner')
     verbose_name = gettext_lazy('Trash cleaner')
 
     def _execute(self, job):
@@ -150,10 +150,11 @@ class _TrashCleanerType(JobType):
         count = TrashCleaningCommand.objects.get(job=job).deleted_count
 
         return [
-            ngettext('{count} entity deleted.',
-                     '{count} entities deleted.',
-                     count
-                    ).format(count=count),
+            ngettext(
+                '{count} entity deleted.',
+                '{count} entities deleted.',
+                count
+            ).format(count=count),
         ] if count else []
 
     @property

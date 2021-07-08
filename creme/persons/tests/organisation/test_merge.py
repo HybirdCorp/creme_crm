@@ -79,7 +79,7 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertFalse(b_city_f.required)
         self.assertListEqual(
             [bill_addr01.city,  bill_addr02.city,  bill_addr01.city],
-            b_city_f.initial
+            b_city_f.initial,
         )
 
         response = self.client.post(
@@ -396,16 +396,19 @@ class OrganisationMergeTestCase(_BaseTestCase):
         self.assertNotIn('billaddr_city',   fields)
         self.assertNotIn('billaddr_po_box', fields)
 
-        response = self.client.post(url, follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            url,
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga01.name,
-                                         },
-                                   )
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': orga01.name,
+            },
+        )
         self.assertNoFormError(response)
 
     @skipIfCustomAddress
@@ -439,17 +442,19 @@ class OrganisationMergeTestCase(_BaseTestCase):
         orga01 = create_orga(name='NERV', is_managed=True)
         orga02 = create_orga(name='Nerv')
 
-        response = self.client.post(self.build_merge_url(orga01, orga02),
-                                    follow=True,
-                                    data={'user_1':      user.id,
-                                          'user_2':      user.id,
-                                          'user_merged': user.id,
+        response = self.client.post(
+            self.build_merge_url(orga01, orga02),
+            follow=True,
+            data={
+                'user_1':      user.id,
+                'user_2':      user.id,
+                'user_merged': user.id,
 
-                                          'name_1':      orga01.name,
-                                          'name_2':      orga02.name,
-                                          'name_merged': orga02.name,
-                                         },
-                                   )
+                'name_1':      orga01.name,
+                'name_2':      orga02.name,
+                'name_merged': orga02.name,
+            },
+        )
         self.assertNoFormError(response)
         self.assertDoesNotExist(orga02)
 

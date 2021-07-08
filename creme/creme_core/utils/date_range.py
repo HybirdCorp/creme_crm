@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -154,7 +154,7 @@ class PreviousMonthRange(DateRange):
             start = now.replace(month=month, day=1,                                   **_DAY_START)
             end   = now.replace(month=month, day=get_month_last_day(now.year, month), **_DAY_END)
 
-        return (start, end)
+        return start, end
 
 
 class CurrentMonthRange(DateRange):
@@ -163,9 +163,10 @@ class CurrentMonthRange(DateRange):
 
     @staticmethod
     def get_dates(now):
-        return (now.replace(day=1,                                       **_DAY_START),
-                now.replace(day=get_month_last_day(now.year, now.month), **_DAY_END)
-               )
+        return (
+            now.replace(day=1,                                       **_DAY_START),
+            now.replace(day=get_month_last_day(now.year, now.month), **_DAY_END)
+        )
 
 
 class NextMonthRange(DateRange):
@@ -256,9 +257,10 @@ class YesterdayRange(DateRange):
     @staticmethod
     def get_dates(now):
         yesterday = now - timedelta(days=1)
-        return (yesterday.replace(**_DAY_START),
-                yesterday.replace(**_DAY_END)
-               )
+        return (
+            yesterday.replace(**_DAY_START),
+            yesterday.replace(**_DAY_END),
+        )
 
 
 class TodayRange(DateRange):
@@ -267,9 +269,10 @@ class TodayRange(DateRange):
 
     @staticmethod
     def get_dates(now):
-        return (now.replace(**_DAY_START),
-                now.replace(**_DAY_END)
-               )
+        return (
+            now.replace(**_DAY_START),
+            now.replace(**_DAY_END),
+        )
 
 
 class TomorrowRange(DateRange):
@@ -279,9 +282,10 @@ class TomorrowRange(DateRange):
     @staticmethod
     def get_dates(now):
         tomorrow = now + timedelta(days=1)
-        return (tomorrow.replace(**_DAY_START),
-                tomorrow.replace(**_DAY_END)
-               )
+        return (
+            tomorrow.replace(**_DAY_START),
+            tomorrow.replace(**_DAY_END),
+        )
 
 
 class EmptyRange(DateRange):
@@ -311,7 +315,11 @@ class DateRangeRegistry:
     def choices(self, exclude_empty=True):
         if exclude_empty:
             empties = frozenset((EmptyRange.name, NotEmptyRange.name))
-            return ((key, range) for key, range in self._ranges.items() if key not in empties)
+            return (
+                (key, d_range)
+                for key, d_range in self._ranges.items()
+                if key not in empties
+            )
 
         return self._ranges.items()
 
@@ -331,7 +339,8 @@ class DateRangeRegistry:
     def get_range(self,
                   name: Optional[str] = None,
                   start: Optional[date] = None,
-                  end: Optional[date] = None) -> Optional[DateRange]:
+                  end: Optional[date] = None,
+                  ) -> Optional[DateRange]:
         """Get a DateRange.
         @param name: Name of a registered range (eg: "next_year"),
                or None if you want a custom range.
@@ -347,9 +356,10 @@ class DateRangeRegistry:
             if drange:
                 return drange
             else:
-                logger.warning('%s.get_range(): no range named "%s".',
-                               type(self).__name__, name,
-                              )
+                logger.warning(
+                    '%s.get_range(): no range named "%s".',
+                    type(self).__name__, name,
+                )
 
         if not start and not end:
             return None

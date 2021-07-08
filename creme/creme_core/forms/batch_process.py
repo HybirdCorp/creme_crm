@@ -118,9 +118,9 @@ class BatchActionsField(JSONField):
             model = self._model
             managed_fields = tuple(batch_operator_manager.managed_fields)
             registry = self.bulk_update_registry
-            updatable = partial(registry.is_updatable,
-                                model=model, exclude_unique=False,
-                               )
+            updatable = partial(
+                registry.is_updatable, model=model, exclude_unique=False,
+            )
             get_form = registry.status(model).get_form
 
             for field in model._meta.fields:
@@ -143,7 +143,9 @@ class BatchActionsField(JSONField):
         field = self._get_fields().get(fname)
 
         if not field:
-            raise ValidationError(self.error_messages['invalidfield'], code='invalidfield')
+            raise ValidationError(
+                self.error_messages['invalidfield'], code='invalidfield',
+            )
 
         if fname in used_fields:
             raise ValidationError(

@@ -105,9 +105,12 @@ _BUTTONS = {
 
 
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)
-def activity_card(context, activity, button_panel=START_STOP_BUTTONS, show_date=True,
-                  shortcut=False, never_edit_pcall=False,
-                 ):
+def activity_card(context, activity,
+                  button_panel=START_STOP_BUTTONS,
+                  show_date=True,
+                  shortcut=False,
+                  never_edit_pcall=False,
+                  ):
     extra_classes = ''
 
     if activity.type_id == ACTIVITYTYPE_PHONECALL:

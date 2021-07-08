@@ -248,15 +248,16 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
         ))
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertDictEqual(
-            {'user_id': str(user.id),
-             'created': '01/02/2003',
-             'description': 'I\n want to\n create a    \ncreme entity\n',
+            {
+                'user_id': str(user.id),
+                'created': '01/02/2003',
+                'description': 'I\n want to\n create a    \ncreme entity\n',
             },
             WaitingAction.objects.all()[0].data
         )
 
     def test_create_email_input08(self):
-        "Text mail sandboxed with a weird multiline and some almost same field names"
+        "Text mail sand-boxed with a weird multiline and some almost same field names."
         user = self.user
         email_input = self._get_email_input(
             ContactFakeBackend,
@@ -299,14 +300,11 @@ entity
 
         """.format(user.id)
 
-        email_input.create(self._get_pop_email(body=body,
-                                               senders=('creme@crm.org',),
-                                               subject='create_ce',
-                                              ),
-                          )
+        email_input.create(self._get_pop_email(
+            body=body, senders=('creme@crm.org',), subject='create_ce',
+        ))
         wactions = WaitingAction.objects.all()
         self.assertEqual(1, len(wactions))
-
         self.assertDictEqual(
             {
                 'user_id':     str(user.id),
@@ -316,7 +314,7 @@ entity
                     '                a\ncreme\nentity\n\n        '
                 ),
             },
-            wactions[0].data
+            wactions[0].data,
         )
 
     def test_create_email_input09(self):
@@ -373,11 +371,11 @@ entity
                 'created':     '01/02/2003',
                 'description': 'I',
             },
-            wactions[0].data
+            wactions[0].data,
         )
 
     def test_create_email_input10(self):
-        "Html mail sandboxed with one multiline"
+        "Html mail sand-boxed with one multiline."
         user = self.user
         email_input = self._get_email_input(
             ContactFakeBackend,
@@ -418,11 +416,13 @@ entity
                 'created':     '01-02-2003',
                 'description': 'I\n want to\n create a    \ncreme entity\n',
             },
-            wactions[0].data
+            wactions[0].data,
         )
 
     def test_create_email_input11(self):
-        "HTML mail sandboxed with more than one multi-line and some almost same field names."
+        """HTML mail sand-boxed with more than one multi-line and some almost
+        same field names.
+        """
         user = self.user
         email_input = self._get_email_input(
             ContactFakeBackend,
@@ -466,7 +466,7 @@ description3=[[<br>]]
                 'created':     '01-02-2003',
                 'description': 'I\n want to\n create a    \ncreme entity\n',
             },
-            wactions[0].data
+            wactions[0].data,
         )
 
     def test_create_email_input12(self):
@@ -514,7 +514,7 @@ description3=[[<br>]]
                 'created': '01-02-2003',
                 'description': 'I',
             },
-            wactions[0].data
+            wactions[0].data,
         )
 
     def test_create_email_input13(self):
@@ -542,7 +542,7 @@ description3=[[<br>]]
         wactions = WaitingAction.objects.filter(user=get_user_model().objects.get_admin())
         self.assertEqual(1, len(wactions))
         self.assertDictEqual(
-            {'user_id': str(user.id), 'created': '01/02/2003'}, wactions[0].data
+            {'user_id': str(user.id), 'created': '01/02/2003'}, wactions[0].data,
         )
 
     @skipIfCustomContact
@@ -609,7 +609,7 @@ description3=[[<br>]]
         email_input.create(self._get_pop_email(
             body=f'password=creme\nuser_id={user.id}\ncreated=01/02/2003\n',
             senders=(other_user.email,),
-            subject='create_ce'
+            subject='create_ce',
         ))
         self.assertEqual(1, WaitingAction.objects.count())
         self.assertFalse(History.objects.all())
@@ -627,7 +627,7 @@ description3=[[<br>]]
 
     @skipIfCustomContact
     def test_create_email_input16(self):
-        "Text mail with creation"
+        "Text mail with creation."
         user = self.user
 
         email_input = self._get_email_input(
@@ -658,7 +658,7 @@ description3=[[<br>]]
         self.assertEqual(self.create_datetime(year=2003, month=2, day=1), contact.created)
 
     def test_get_owner01(self):
-        "The sandbox is not by user"
+        "The sandbox is not by user."
         user = self.user
         email_input = self._get_email_input(
             ContactFakeBackend,
@@ -669,7 +669,7 @@ description3=[[<br>]]
         self.assertIsNone(email_input.get_owner(False, sender='user@cremecrm.com'))
 
     def test_get_owner02(self):
-        "The user matches"
+        "The user matches."
         self._set_sandbox_by_user()
         user = self.user
         other_user = self.other_user
@@ -701,7 +701,7 @@ description3=[[<br>]]
         )
         self.assertEqual(
             get_user_model().objects.get_admin(),
-            email_input.get_owner(True, sender='another_user@cremecrm.com')
+            email_input.get_owner(True, sender='another_user@cremecrm.com'),
         )
 
     @skipIfCustomContact
@@ -759,7 +759,7 @@ description3=[[<br>]]
                 'birthday':    '02/08/1987',
                 'description': 'A plumber',
             },
-            wa.data
+            wa.data,
         )
 
         email_input.get_backend(CrudityBackend.normalize_subject('create_contact')).create(wa)
@@ -829,11 +829,11 @@ description3=[[<br>]]
         create_dt = self.create_datetime
         self.assertEqual(
             create_dt(year=2013, month=6, day=15, hour=9, utc=True),
-            activity.start
+            activity.start,
         )
         self.assertEqual(
             create_dt(year=2013, month=6, day=15, hour=12, minute=28, second=45),
-            activity.end
+            activity.end,
         )
 
 
@@ -986,7 +986,7 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 'created':     '2003-02-01',
                 'description': 'My creme entity\n\ndescription',
             },
-            wa.data
+            wa.data,
         )
         self.assertIsNone(wa.user)  # Sandbox is not by user
 

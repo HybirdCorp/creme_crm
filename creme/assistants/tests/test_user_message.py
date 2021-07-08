@@ -29,7 +29,8 @@ class UserMessageTestCase(AssistantsTestCase):
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
-    def _build_add_url(self, entity=None):
+    @staticmethod
+    def _build_add_url(entity=None):
         return reverse(
             'assistants__create_related_message', args=(entity.id,),
         ) if entity else reverse(
@@ -40,14 +41,16 @@ class UserMessageTestCase(AssistantsTestCase):
         if priority is None:
             priority = UserMessagePriority.objects.create(title='Important')
 
-        response = self.client.post(self._build_add_url(entity),
-                                    data={'user':     self.user.pk,
-                                          'title':    title,
-                                          'body':     body,
-                                          'priority': priority.id,
-                                          'users':    [u.id for u in users],
-                                         }
-                                   )
+        response = self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':     self.user.pk,
+                'title':    title,
+                'body':     body,
+                'priority': priority.id,
+                'users':    [u.id for u in users],
+            },
+        )
         self.assertNoFormError(response)
 
     def _get_usermessages_job(self):
@@ -67,17 +70,19 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
         context = response.context
-        self.assertEqual(_('New message about «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New message about «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the message'), context.get('submit_label'))
 
-        title    = 'TITLE'
-        body     = 'BODY'
+        title = 'TITLE'
+        body = 'BODY'
         priority = UserMessagePriority.objects.create(title='Important')
-        user01   = User.objects.create_user('User01', email='user01@foobar.com',
-                                            first_name='User01', last_name='Foo',
-                                           )
+        user01 = User.objects.create_user(
+            'User01',
+            email='user01@foobar.com', first_name='User01', last_name='Foo',
+        )
         self._create_usermessage(title, body, priority, [user01], entity)
 
         messages = UserMessage.objects.all()
@@ -141,7 +146,7 @@ class UserMessageTestCase(AssistantsTestCase):
                 user=self.user,
                 body=body,
             ),
-            message.body
+            message.body,
         )
         self.assertEqual(settings.EMAIL_SENDER, message.from_email)
         self.assertFalse(hasattr(message, 'alternatives'))
@@ -151,7 +156,7 @@ class UserMessageTestCase(AssistantsTestCase):
             self.assertTrue(user_msg.email_sent)
 
     def test_create03(self):
-        "Without related entity"
+        "Without related entity."
         response = self.assertGET200(self._build_add_url())
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
@@ -160,9 +165,9 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertEqual(_('Save the message'), context.get('submit_label'))
 
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user('User01', email='user01@foobar.com',
-                                          first_name='User01', last_name='Foo',
-                                         )
+        user01 = User.objects.create_user(
+            'User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
+        )
 
         self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
 
@@ -177,10 +182,12 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create04(self):
         "One team"
         create_user = User.objects.create_user
-        users       = [create_user(f'User{i}', email=f'user{i}@foobar.com',
-                                   first_name=f'User{i}', last_name='Foobar',
-                                  ) for i in range(1, 3)
-                      ]
+        users = [
+            create_user(
+                f'User{i}',
+                email=f'user{i}@foobar.com', first_name=f'User{i}', last_name='Foobar',
+            ) for i in range(1, 3)
+        ]
 
         team = User.objects.create(username='Team', is_team=True, role=None)
         team.teammates = users
@@ -192,12 +199,14 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertSetEqual({*users}, {msg.recipient for msg in messages})
 
     def test_create05(self):
-        "Teams and isolated usres with non void intersections"
+        "Teams and isolated users with non void intersections."
         create_user = User.objects.create_user
-        users = [create_user(f'User{i}', email=f'user{i}@foobar.com',
-                             first_name=f'User{i}', last_name='Foobar',
-                            ) for i in range(1, 5)
-                ]
+        users = [
+            create_user(
+                f'User{i}',
+                email=f'user{i}@foobar.com', first_name=f'User{i}', last_name='Foobar',
+            ) for i in range(1, 5)
+        ]
 
         team01 = User.objects.create(username='Team01', is_team=True, role=None)
         team01.teammates = users[:2]
@@ -205,10 +214,9 @@ class UserMessageTestCase(AssistantsTestCase):
         team02 = User.objects.create(username='Team02', is_team=True, role=None)
         team02.teammates = users[1:3]
 
-        self._create_usermessage('TITLE', 'BODY', None,
-                                 [team01, team02, users[0], users[3]],
-                                 self.entity,
-                                )
+        self._create_usermessage(
+            'TITLE', 'BODY', None, [team01, team02, users[0], users[3]], self.entity,
+        )
 
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
@@ -216,9 +224,10 @@ class UserMessageTestCase(AssistantsTestCase):
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')
-        user01   = User.objects.create_user('User01', email='user01@foobar.com',
-                                            first_name='User01', last_name='Foo',
-                                           )
+        user01 = User.objects.create_user(
+            'User01',
+            email='user01@foobar.com', first_name='User01', last_name='Foo',
+        )
         self._create_usermessage('TITLE', 'BODY', priority, [user01], self.entity)
 
         self.assertEqual(1, UserMessage.objects.count())
@@ -231,10 +240,9 @@ class UserMessageTestCase(AssistantsTestCase):
         other_user = self.other_user
 
         priority = UserMessagePriority.objects.create(title='Important')
-        self._create_usermessage('TITLE', 'BODY', priority,
-                                 users=[user, other_user],
-                                 entity=None,
-                                )
+        self._create_usermessage(
+            'TITLE', 'BODY', priority, users=[user, other_user], entity=None,
+        )
 
         messages = {msg.recipient_id: msg for msg in UserMessage.objects.all()}
         self.assertEqual(2, len(messages))
@@ -252,9 +260,9 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_merge(self):
         def creator(contact01, contact02):
             priority = UserMessagePriority.objects.create(title='Important')
-            user01 = User.objects.create_user('User01', email='user01@foobar.com',
-                                              first_name='User01', last_name='Foo',
-                                             )
+            user01 = User.objects.create_user(
+                'User01', email='user01@foobar.com', first_name='User01', last_name='Foo',
+            )
             self._create_usermessage(
                 'Beware',
                 'This guy wants to fight against you',
@@ -302,15 +310,16 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertFormError(
             response, 'form',
             'replace_assistants__usermessage_priority',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     def test_job(self):
-        "Error on email sending"
+        "Error on email sending."
         priority = UserMessagePriority.objects.create(title='Important')
-        user01 = User.objects.create_user('User01', email='user01@foobar.com',
-                                          first_name='User01', last_name='Foo',
-                                         )
+        user01 = User.objects.create_user(
+            'User01',
+            email='user01@foobar.com', first_name='User01', last_name='Foo',
+        )
 
         self._create_usermessage('TITLE', 'BODY', priority, [user01], None)
 
@@ -341,5 +350,5 @@ class UserMessageTestCase(AssistantsTestCase):
                 _('An error occurred while sending emails'),
                 _('Original error: {}').format(err_msg),
             ],
-            jresult.messages
+            jresult.messages,
         )

@@ -36,8 +36,7 @@ logger = logging.getLogger(__name__)
 
 class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
                            entity_filter.FilterMixin,
-                           generic.CremeModelCreation,
-                          ):
+                           generic.CremeModelCreation):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterCreateForm
     template_name = 'creme_core/forms/header-filter.html'
@@ -63,8 +62,7 @@ class HeaderFilterCreation(base.EntityCTypeRelatedMixin,
 
 
 class HeaderFilterEdition(entity_filter.FilterMixin,
-                          generic.CremeModelEdition,
-                         ):
+                          generic.CremeModelEdition):
     model = HeaderFilter
     form_class = hf_forms.HeaderFilterEditForm
     template_name = 'creme_core/forms/header-filter.html'
@@ -104,7 +102,7 @@ class HeaderFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         return [
             *HeaderFilter.objects.filter_by_user(self.request.user)
                                  .filter(entity_type=self.get_ctype())
-                                 .values_list('id', 'name')
+                                 .values_list('id', 'name'),
         ]
 
     def get(self, request, *args, **kwargs):

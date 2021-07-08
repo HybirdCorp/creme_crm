@@ -203,7 +203,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             value = field.clean(None)
 
-        self.assertEqual([], value)
+        self.assertListEqual([], value)
 
     def test_regularfields01(self):
         field = ReportHandsField(model=FakeOrganisation)
@@ -272,7 +272,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
                 EntityCellRegularField.build(FakeReportsDocument, fname1),
                 EntityCellRegularField.build(FakeReportsDocument, fname2),
             ],
-            field.clean(f'regular_field-{fname1},regular_field-{fname2}')
+            field.clean(f'regular_field-{fname1},regular_field-{fname2}'),
         )
 
         fname3 = 'linked_folder__parent'
@@ -286,7 +286,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         field = ReportHandsField()
         self.assertListEqual(
             [],
-            [*self._find_sub_widget(field, 'regular_aggregate').choices]
+            [*self._find_sub_widget(field, 'regular_aggregate').choices],
         )
 
         field.model = FakeOrganisation
@@ -316,7 +316,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         agg_id1 = 'capital__avg'
         self.assertListEqual(
             [ReportEntityCellRegularAggregate.build(FakeOrganisation, agg_id1)],
-            field.clean(f'regular_aggregate-{agg_id1}')
+            field.clean(f'regular_aggregate-{agg_id1}'),
         )
 
         agg_id2 = 'invalid'
@@ -337,7 +337,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         field = ReportHandsField(model=FakeOrganisation)
         self.assertListEqual(
             [],
-            [*self._find_sub_widget(field, 'regular_aggregate').choices]
+            [*self._find_sub_widget(field, 'regular_aggregate').choices],
         )
         self.assertFieldValidationError(
             UniformEntityCellsField, 'invalid_value', field.clean,
@@ -360,9 +360,10 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
         self.assertListEqual(
             [('regular_aggregate-capital__avg', f"{_('Average')} - {_('Capital')}")],
-            [(choice_id, str(cell))
-             for choice_id, cell in self._find_sub_widget(field, 'regular_aggregate').choices
-            ]
+            [
+                (choice_id, str(cell))
+                for choice_id, cell in self._find_sub_widget(field, 'regular_aggregate').choices
+            ],
         )
 
         agg_id = 'capital__avg'
@@ -386,7 +387,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
         field = ReportHandsField()
         self.assertListEqual(
             [],
-            [*self._find_sub_widget(field, 'custom_aggregate').choices]
+            [*self._find_sub_widget(field, 'custom_aggregate').choices],
         )
 
         field.model = FakeOrganisation
@@ -415,7 +416,7 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
         self.assertListEqual(
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cf1.id}__avg')],
-            field.clean(value)
+            field.clean(value),
         )
 
     def test_custom_aggregates02(self):
@@ -461,14 +462,14 @@ class ReportHandsFieldTestCase(FieldTestCase):
 
         self.assertListEqual(
             [ReportEntityCellCustomAggregate.build(FakeOrganisation, f'{cfield.id}__avg')],
-            field.clean(agg_id)
+            field.clean(agg_id),
         )
 
     def test_related(self):
         field = ReportHandsField()
         self.assertListEqual(
             [],
-            [*self._find_sub_widget(field, 'related').choices]
+            [*self._find_sub_widget(field, 'related').choices],
         )
 
         field.model = FakeReportsFolder
@@ -510,7 +511,7 @@ class ReportFieldsFormTestCase(BaseReportsTestCase):
         columns_f = form.fields['columns']
         self.assertIsInstance(columns_f, ReportHandsField)
         # self.assertEqual(self.ct_contact, columns_f.content_type)
-        self.assertEqual(FakeContact,     columns_f.model)
+        self.assertEqual(FakeContact, columns_f.model)
 
         cells = [
             EntityCellRegularField.build(FakeContact, 'last_name'),
@@ -615,7 +616,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_invalid_data_type(self):
         clean = AbscissaField(required=False).clean
         self.assertFieldValidationError(AbscissaField, 'invalidtype', clean, '"this is a string"')
-        self.assertFieldValidationError(AbscissaField, 'invalidtype', clean, "[]")
+        self.assertFieldValidationError(AbscissaField, 'invalidtype', clean, '[]')
 
     def test_clean_invalid_data(self):
         field = AbscissaField(required=False)
@@ -882,7 +883,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual('invalidparameter', exception.code)
         self.assertEqual(
             _('The parameter is invalid. {}').format(_('Enter a whole number.')),
-            exception.message
+            exception.message,
         )
 
     def test_clean_rfield_fields_config(self):
@@ -952,7 +953,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         model = FakeOrganisation
         rtype = RelationType.create(
             ('test-subject_foobar', 'is loving',   [FakeContact]),
-            ('test-object_foobar',  'is loved by', [FakeContact])
+            ('test-object_foobar',  'is loved by', [FakeContact]),
         )[0]
 
         field = AbscissaField(
@@ -1245,7 +1246,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual('invalidparameter', exception.code)
         self.assertEqual(
             _('The parameter is invalid. {}').format(_('This field is required.')),
-            exception.message
+            exception.message,
         )
 
         # ---
@@ -1260,7 +1261,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual('invalidparameter', exception.code)
         self.assertEqual(
             _('The parameter is invalid. {}').format(_('Enter a whole number.')),
-            exception.message
+            exception.message,
         )
 
     def test_clean_error01(self):
@@ -1405,7 +1406,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
         rtype = RelationType.create(
             ('test-subject_likes', 'likes'),
-            ('test-object_likes',  'is liked by')
+            ('test-object_likes',  'is liked by'),
         )[0]
 
         # graph_type = constants.RGT_RELATION
@@ -1443,7 +1444,9 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
                 },
                 'parameter': '',
             },
-            json_load(field.from_python(AbscissaInfo(cell=cell, graph_type=graph_type))),
+            json_load(field.from_python(
+                AbscissaInfo(cell=cell, graph_type=graph_type)
+            )),
         )
 
     def test_from_python_rfield_date(self):
@@ -1585,7 +1588,7 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertFieldValidationError(
             OrdinateField, 'invalidformat',
             OrdinateField(required=False).clean,
-            '{"entity_cell":{"cell_key":'
+            '{"entity_cell":{"cell_key":',
         )
 
     def test_clean_invalid_data_type(self):
@@ -1830,7 +1833,9 @@ class OrdinateFieldTestCase(AxisFieldsMixin, FieldTestCase):
     def test_clean_cfield_error01(self):
         "Error on aggregation."
         model = FakeOrganisation
-        field = OrdinateField(model=model, ordinate_constraints=ordinate_constraints)
+        field = OrdinateField(
+            model=model, ordinate_constraints=ordinate_constraints,
+        )
 
         cfield_str = CustomField.objects.create(
             content_type=model,
@@ -2263,7 +2268,7 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         self.assertEqual(FakeContact, rfield.model)
 
     def test_separator02(self):
-        "Set graph then separator"
+        "Set graph then separator."
         field = GraphFetcherField(graph=self._build_graph())
         field.choice_separator = '#'
         self.assertEqual('#', field.choice_separator)

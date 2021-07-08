@@ -22,9 +22,9 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        BrickDetailviewLocation.objects.create_if_needed(brick=ImprintsBrick, order=1,
-                                                         zone=BrickDetailviewLocation.LEFT,
-                                                        )
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=ImprintsBrick, order=1, zone=BrickDetailviewLocation.LEFT,
+        )
         BrickHomeLocation.objects.create(brick_id=ImprintsBrick.id_, order=1)
 
     def test_detailview(self):
@@ -43,7 +43,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(imprint.user, user)
 
     def test_granularity01(self):
-        "Delay is not passed"
+        "Delay is not passed."
         self.assertEqual(timedelta(hours=2), imprint_manager.get_granularity(FakeOrganisation))
 
         user = self.login()
@@ -79,12 +79,14 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertBrickHasClass(brick_node, 'creme_core-imprints-brick')
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
-        link_node = brick_node.find(f".//a[@href='{user.linked_contact.get_absolute_url()}']")
+        link_node = brick_node.find(
+            f".//a[@href='{user.linked_contact.get_absolute_url()}']"
+        )
         self.assertIsNotNone(link_node)
         self.assertEqual(str(user), link_node.text)
 
     def test_brick02(self):
-        "Home"
+        "Home."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -94,21 +96,19 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET200(orga2.get_absolute_url())
 
         response = self.assertGET200(reverse('creme_core__home'))
-
         document = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(document, ImprintsBrick.id_)
         self.assertInstanceLink(brick_node, orga1)
         self.assertInstanceLink(brick_node, orga2)
 
     def test_brick03(self):
-        "Not visible for regular users"
+        "Not visible for regular users."
         user = self.login(is_superuser=False)
 
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
         self.assertGET200(orga.get_absolute_url())
 
         response = self.assertGET200(reverse('creme_core__home'))
-
         document = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(document, ImprintsBrick.id_)
         self.assertBrickHasClass(brick_node, 'is-empty')

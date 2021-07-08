@@ -56,7 +56,8 @@ class BatchActionsFieldTestCase(FieldTestCase):
 
         # Value has no 'value' key
         self.assertFieldValidationError(
-            BatchActionsField, 'required', clean, '[{"operator": "upper", "name": "first_name"}]'
+            BatchActionsField, 'required', clean,
+            '[{"operator": "upper", "name": "first_name"}]',
         )
 
     def test_clean_invalid_field(self):
@@ -141,11 +142,9 @@ class BatchActionsFieldTestCase(FieldTestCase):
         with self.assertNumQueries(0):
             field = BatchActionsField(model=FakeContact)
 
-        actions = field.clean(self.build_data(name='description',
-                                              operator='upper',
-                                              value='',
-                                             )
-                             )
+        actions = field.clean(
+            self.build_data(name='description', operator='upper', value='')
+        )
         self.assertEqual(1, len(actions))
 
         contact = FakeContact(
@@ -155,7 +154,7 @@ class BatchActionsFieldTestCase(FieldTestCase):
         self.assertEqual('YARGLAAAAAAAAAAA', contact.description)
 
     def test_ok02(self):
-        "Several actions"
+        "Several actions."
         with self.assertNumQueries(0):
             field = BatchActionsField()
             field.model = FakeContact

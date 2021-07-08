@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,7 +43,7 @@ from creme.creme_core.utils.serializers import json_encode
 
 class PollLineType:
     verbose_name = '??'
-    editable     = True
+    editable = True
 
     INT            = 1
     # DECIMAL        = 2
@@ -83,7 +83,10 @@ class PollLineType:
 
     @staticmethod
     def choices():
-        return [(i, pltype.verbose_name) for i, pltype in POLL_LINE_TYPES.items()]
+        return [
+            (i, pltype.verbose_name)
+            for i, pltype in POLL_LINE_TYPES.items()
+        ]
 
     def _cleaned_args(self):
         return self._args
@@ -155,9 +158,15 @@ class PollLineType:
 
     def _get_choices_stats(self, answer, choices):
         if isinstance(answer, list):
-            return [(choice[1], 1 if choice[1] in answer else 0) for choice in choices]
+            return [
+                (choice[1], 1 if choice[1] in answer else 0)
+                for choice in choices
+            ]
 
-        return [(choice[1], 1 if choice[1] == answer else 0) for choice in choices]
+        return [
+            (choice[1], 1 if choice[1] == answer else 0)
+            for choice in choices
+        ]
 
 
 class IntPollLineType(PollLineType):
@@ -206,10 +215,11 @@ class IntPollLineType(PollLineType):
 
     def _formfield(self, initial):
         get_arg = self._args.get
-        return IntegerField(min_value=get_arg('lower_bound'),
-                            max_value=get_arg('upper_bound'),
-                            initial=initial,
-                           )
+        return IntegerField(
+            min_value=get_arg('lower_bound'),
+            max_value=get_arg('upper_bound'),
+            initial=initial,
+        )
 
 
 class BoolPollLineType(PollLineType):
@@ -223,17 +233,22 @@ class BoolPollLineType(PollLineType):
         return self._CHOICES[answer]
 
     def _formfield(self, initial):
-        return TypedChoiceField(choices=self._CHOICES.items(), coerce=int,
-                                widget=RadioSelect, initial=initial,
-                                empty_value=None,
-                               )
+        return TypedChoiceField(
+            choices=self._CHOICES.items(),
+            coerce=int,
+            widget=RadioSelect,
+            initial=initial,
+            empty_value=None,
+        )
 
     def get_choices(self):
         return [(k, str(v)) for k, v in self._CHOICES.items()]
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)
-        return self._get_choices_stats(answer, self.get_choices()) if answer is not None else []
+        return self._get_choices_stats(
+            answer, self.get_choices(),
+        ) if answer is not None else []
 
 
 class StringPollLineType(PollLineType):
@@ -266,7 +281,9 @@ class DatePollLineType(PollLineType):
         return date(**answer)
 
     def _formfield(self, initial):
-        return DateField(initial=date(**initial) if initial is not None else None)
+        return DateField(
+            initial=None if initial is None else date(**initial),
+        )
 
     def get_stats(self, raw_answer):
         return None
@@ -280,8 +297,8 @@ class HourPollLineType(PollLineType):
 
 
 class EnumPollLineType(PollLineType):
-    verbose_name     = _('Choice list')
-    _description     = _('Choice list ({})')
+    verbose_name = _('Choice list')
+    _description = _('Choice list ({})')
     _description_del = _('Choice list ({choices}) (deleted: {del_choices})')
 
     def __init__(self, **kwargs):
@@ -312,16 +329,19 @@ class EnumPollLineType(PollLineType):
         del_choices = self.get_deleted_choices()
 
         if del_choices:
-            return self._description_del.format(choices=choices,
-                                                del_choices=join(del_choices),
-                                               )
+            return self._description_del.format(
+                choices=choices, del_choices=join(del_choices),
+            )
 
         return self._description.format(choices)
 
     def _formfield(self, initial):
-        return TypedChoiceField(choices=self._args['choices'], coerce=int,
-                                initial=initial, empty_value=None,
-                               )
+        return TypedChoiceField(
+            choices=self._args['choices'],
+            coerce=int,
+            initial=initial,
+            empty_value=None,
+        )
 
     def get_choices(self):
         return self._args['choices']  # TODO: copy ??
@@ -337,13 +357,17 @@ class EnumPollLineType(PollLineType):
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)
-        return self._get_choices_stats(answer, self.get_choices()) if answer is not None else []
+        return self._get_choices_stats(
+            answer, self.get_choices(),
+        ) if answer is not None else []
 
 
 class MultiEnumPollLineType(EnumPollLineType):
-    verbose_name     = _('Multiple choice list')
-    _description     = _('Multiple choice list ({})')
-    _description_del = _('Multiple choice list ({choices}) (deleted: {del_choices})')
+    verbose_name = _('Multiple choice list')
+    _description = _('Multiple choice list ({})')
+    _description_del = _(
+        'Multiple choice list ({choices}) (deleted: {del_choices})'
+    )
 
     def _cast_answer_4_decoding(self, answer):
         indices = {*answer}
@@ -358,9 +382,11 @@ class MultiEnumPollLineType(EnumPollLineType):
         return json_encode([cond_answer])
 
     def _formfield(self, initial):
-        return MultipleChoiceField(choices=self._args['choices'], initial=initial,
-                                   widget=UnorderedMultipleChoiceWidget(columntype='wide'),
-                                  )
+        return MultipleChoiceField(
+            choices=self._args['choices'],
+            initial=initial,
+            widget=UnorderedMultipleChoiceWidget(columntype='wide'),
+        )
 
     def is_condition_met(self, raw_answer, raw_cond_answer):
         answer = self.decode_answer(raw_answer) or ()
@@ -369,9 +395,11 @@ class MultiEnumPollLineType(EnumPollLineType):
 
 
 class EnumOrStringPollLineType(EnumPollLineType):
-    verbose_name     = _('Choice list with free choice')
-    _description     = _('Choice list with free choice ({})')
-    _description_del = _('Choice list with free choice ({choices}) (deleted: {del_choices})')
+    verbose_name = _('Choice list with free choice')
+    _description = _('Choice list with free choice ({})')
+    _description_del = _(
+        'Choice list with free choice ({choices}) (deleted: {del_choices})'
+    )
 
     def _cast_answer_4_decoding(self, answer):
         if len(answer) == 1:
@@ -406,8 +434,11 @@ class EnumOrStringPollLineType(EnumPollLineType):
         return self._args['choices']
 
     def is_condition_met(self, raw_answer, raw_cond_answer):
-        return False if raw_answer is None else \
+        return (
+            False
+            if raw_answer is None else
             json_load(raw_answer)[0] == json_load(raw_cond_answer)[0]
+        )
 
     def get_stats(self, raw_answer):
         answer = self.decode_answer(raw_answer)
@@ -431,7 +462,7 @@ class EnumOrStringPollLineType(EnumPollLineType):
 
 class CommentPollLineType(PollLineType):
     verbose_name = _('Comment')
-    editable     = False
+    editable = False
 
     def get_stats(self, raw_answer):
         return None

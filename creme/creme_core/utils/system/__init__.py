@@ -5,7 +5,7 @@
 ################################################################################
 #
 # Copyright (c) 2012 Daniel Miller
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -51,9 +51,10 @@ else:  # 'os2', 'ce', 'java', 'riscos', other ?
     from sys import exit
 
     logger = logging.getLogger(__name__)
-    logger.critical('It seems your platform "%s" has not been tested for the sub-process feature ;'
-                    'so you may encounter some issues.', os_name
-                   )
+    logger.critical(
+        'It seems your platform "%s" has not been tested for the sub-process feature ;'
+        'so you may encounter some issues.', os_name
+    )
 
     def enable_exit_handler(on_exit=lambda *args: exit()):
         pass

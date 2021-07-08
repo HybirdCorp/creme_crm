@@ -24,7 +24,8 @@ from .base import AssistantsTestCase
 
 
 class AlertTestCase(AssistantsTestCase):
-    def _build_add_url(self, entity):
+    @staticmethod
+    def _build_add_url(entity):
         return reverse('assistants__create_alert', args=(entity.id,))
 
     def _create_alert(self, title='TITLE',
@@ -32,13 +33,15 @@ class AlertTestCase(AssistantsTestCase):
                       trigger_date='2010-9-29',
                       entity=None):
         entity = entity or self.entity
-        response = self.client.post(self._build_add_url(entity),
-                                    data={'user':         self.user.pk,
-                                          'title':        title,
-                                          'description':  description,
-                                          'trigger_date': trigger_date,
-                                         },
-                                   )
+        response = self.client.post(
+            self._build_add_url(entity),
+            data={
+                'user':         self.user.pk,
+                'title':        title,
+                'description':  description,
+                'trigger_date': trigger_date,
+            },
+        )
         self.assertNoFormError(response)
 
         return self.get_object_or_fail(Alert, title=title, description=description)
@@ -51,9 +54,10 @@ class AlertTestCase(AssistantsTestCase):
 
         entity = self.entity
         context = self.assertGET200(self._build_add_url(entity)).context
-        self.assertEqual(_('New alert for «{entity}»').format(entity=entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('New alert for «{entity}»').format(entity=entity),
+            context.get('title'),
+        )
         self.assertEqual(_('Save the alert'), context.get('submit_label'))
 
         title = 'Title'
@@ -66,9 +70,10 @@ class AlertTestCase(AssistantsTestCase):
 
         self.assertEqual(entity.id,             alert.entity_id)
         self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
-        self.assertEqual(self.create_datetime(year=2010, month=9, day=29),
-                         alert.trigger_date
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2010, month=9, day=29),
+            alert.trigger_date,
+        )
 
         self.assertEqual(title, str(alert))
 
@@ -101,20 +106,24 @@ class AlertTestCase(AssistantsTestCase):
 
         url = alert.get_edit_absolute_url()
         context = self.assertGET200(url).context
-        self.assertEqual(_('Alert for «{entity}»').format(entity=self.entity),
-                         context.get('title')
-                        )
+        self.assertEqual(
+            _('Alert for «{entity}»').format(entity=self.entity),
+            context.get('title'),
+        )
 
         # ---
         title       += '_edited'
         description += '_edited'
-        response = self.client.post(url, data={'user':         self.user.pk,
-                                               'title':        title,
-                                               'description':  description,
-                                               'trigger_date': '2011-10-30',
-                                               'trigger_time': '15:12:00',
-                                              },
-                                   )
+        response = self.client.post(
+            url,
+            data={
+                'user':         self.user.pk,
+                'title':        title,
+                'description':  description,
+                'trigger_date': '2011-10-30',
+                'trigger_time': '15:12:00',
+            },
+        )
         self.assertNoFormError(response)
 
         alert = self.refresh(alert)
@@ -122,9 +131,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(description, alert.description)
 
         # Don't care about seconds
-        self.assertEqual(self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
-                         alert.trigger_date
-                        )
+        self.assertEqual(
+            self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
+            alert.trigger_date,
+        )
 
     def test_delete_related01(self):
         self._create_alert()
@@ -138,9 +148,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(1, Alert.objects.count())
 
         ct = ContentType.objects.get_for_model(Alert)
-        self.client.post(reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
-                         data={'id': alert.id},
-                        )
+        self.client.post(
+            reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
+            data={'id': alert.id},
+        )
         self.assertEqual(0, Alert.objects.count())
 
     def test_validate(self):
@@ -148,7 +159,6 @@ class AlertTestCase(AssistantsTestCase):
         self.assertFalse(alert.is_validated)
 
         url = reverse('assistants__validate_alert', args=(alert.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -176,9 +186,10 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(Q(assistants_alerts__title__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertEqual(
+            Q(assistants_alerts__title__icontains=value),
+            to_python(value=value),
+        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
@@ -196,7 +207,7 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual('<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
 
     def test_function_field03(self):
-        "Prefetch with 'populate_entities()'"
+        "Prefetch with 'populate_entities()'."
         user = self.user
         self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
@@ -249,9 +260,10 @@ class AlertTestCase(AssistantsTestCase):
 
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
-        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
-                               user=user, trigger_date=now_value,
-                              )
+        create_alert = partial(
+            Alert.objects.create,
+            creme_entity=self.entity, user=user, trigger_date=now_value,
+        )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
         create_alert(title='Alert#3', is_validated=True)
@@ -278,7 +290,7 @@ class AlertTestCase(AssistantsTestCase):
             _('Reminder concerning a Creme CRM alert related to {entity}').format(
                 entity=self.entity,
             ),
-            message.subject
+            message.subject,
         )
         self.assertIn(alert1.title, message.body)
 
@@ -291,9 +303,10 @@ class AlertTestCase(AssistantsTestCase):
     def test_next_wakeup(self):
         now_value = now()
 
-        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
-                               user=self.user, trigger_date=now_value,
-                              )
+        create_alert = partial(
+            Alert.objects.create,
+            creme_entity=self.entity, user=self.user, trigger_date=now_value,
+        )
         create_alert(title='Alert#2', is_validated=True)
         create_alert(title='Alert#4', reminded=True)
         create_alert(title='Alert#6', trigger_date=now_value + timedelta(minutes=60))
@@ -306,24 +319,27 @@ class AlertTestCase(AssistantsTestCase):
         job = self.get_reminder_job()
         wakeup = job.type.next_wakeup(job, now_value)
         self.assertIsInstance(wakeup, datetime)
-        self.assertDatetimesAlmostEqual(now_value + timedelta(minutes=20),
-                                        wakeup
-                                       )
+        self.assertDatetimesAlmostEqual(
+            now_value + timedelta(minutes=20),
+            wakeup,
+        )
 
     def test_manager_filter_by_user(self):
-        "Teams"
+        "Teams."
         user = self.user
         now_value = now()
 
         create_user = get_user_model().objects.create
-        teammate1 = create_user(username='luffy',
-                                email='luffy@sunny.org', role=self.role,
-                                first_name='Luffy', last_name='Monkey D.',
-                               )
-        teammate2 = create_user(username='zorro',
-                                email='zorro@sunny.org', role=self.role,
-                                first_name='Zorro', last_name='Roronoa',
-                               )
+        teammate1 = create_user(
+            username='luffy',
+            email='luffy@sunny.org', role=self.role,
+            first_name='Luffy', last_name='Monkey D.',
+        )
+        teammate2 = create_user(
+            username='zorro',
+            email='zorro@sunny.org', role=self.role,
+            first_name='Zorro', last_name='Roronoa',
+        )
 
         team1 = create_user(username='Team #1', is_team=True)
         team1.teammates = [teammate1, user]
@@ -331,9 +347,10 @@ class AlertTestCase(AssistantsTestCase):
         team2 = create_user(username='Team #2', is_team=True)
         team2.teammates = [self.other_user, teammate2]
 
-        create_alert = partial(Alert.objects.create, creme_entity=self.entity,
-                               user=user, trigger_date=now_value,
-                              )
+        create_alert = partial(
+            Alert.objects.create,
+            creme_entity=self.entity, user=user, trigger_date=now_value,
+        )
         alert1 = create_alert(title='Alert#1')
         create_alert(title='Alert#2', user=team2)  # No (other team)
         alert3 = create_alert(title='Alert#3', user=team1)

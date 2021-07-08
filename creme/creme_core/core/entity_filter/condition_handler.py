@@ -200,10 +200,10 @@ class SubFilterConditionHandler(FilterConditionHandler):
 
     DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
 
-    def __init__(
-            self, *,
-            model: Optional[Type[CremeEntity]] = None,
-            subfilter: Union[EntityFilter, str]):
+    def __init__(self, *,
+                 model: Optional[Type[CremeEntity]] = None,
+                 subfilter: Union[EntityFilter, str],
+                 ):
         """Constructor.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>
@@ -238,7 +238,8 @@ class SubFilterConditionHandler(FilterConditionHandler):
     def build_condition(cls,
                         subfilter: EntityFilter,
                         filter_type: int = EF_USER,
-                        condition_cls=EntityFilterCondition):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param subfilter: <creme_core.models.EntityFilter> instance.
@@ -363,7 +364,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         if isinstance(last_field, ForeignKey):
             # NB: we want to retrieve ID & not instance (we store ID in 'values'
             #     & want to avoid some queries).
-            base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
+            base_instance = (
+                entity
+                if len(field_info) == 1 else
+                field_info[:-1].value_from(entity)
+            )
             field_value = (
                 None
                 if base_instance is None else
@@ -375,7 +380,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
                 values = [*map(last_field.to_python, values)]
         elif isinstance(last_field, ManyToManyField):
             # NB: see ForeignKey remark
-            base_instance = entity if len(field_info) == 1 else field_info[:-1].value_from(entity)
+            base_instance = (
+                entity
+                if len(field_info) == 1 else
+                field_info[:-1].value_from(entity)
+            )
             # NB: <or None> to send at least one value (useful for "is empty" operator
             field_value = (
                 None
@@ -419,9 +428,11 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
         return cls(model=model, field_name=name, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, model, field_name, operator, values, user=None,
+    def build_condition(cls, *, model, field_name, operator, values,
+                        user=None,
                         filter_type=EF_USER,
-                        condition_cls=EntityFilterCondition):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -639,7 +650,8 @@ class DateFieldHandlerMixin:
         """
         if not isinstance(data, dict):
             raise cls.DataError(
-                f'{cls.__name__}._load_daterange_kwargs() -> invalid data ({data} is not a dict)'
+                f'{cls.__name__}._load_daterange_kwargs() -> '
+                f'invalid data ({data} is not a dict)'
             )
 
         get = data.get
@@ -690,7 +702,7 @@ class DateRegularFieldConditionHandler(DateFieldHandlerMixin,
                         date_range=None, start=None, end=None,
                         filter_type=EF_USER,
                         condition_cls=EntityFilterCondition,
-                       ):
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -884,9 +896,11 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
         return cls(model=model, custom_field=cf_id, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, custom_field, operator, values, user=None,
+    def build_condition(cls, *, custom_field, operator, values,
+                        user=None,
                         filter_type=EF_USER,
-                        condition_cls=EntityFilterCondition):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param custom_field: Instance of <creme_core.models.CustomField>.
@@ -912,8 +926,12 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             )
 
         # TODO: A bit ugly way to validate operators, but needed for compatibility.
-        if custom_field.field_type == CustomField.BOOL and \
-           operator_id not in (operators.EQUALS, operators.EQUALS_NOT, operators.ISEMPTY):
+        if (
+            custom_field.field_type == CustomField.BOOL
+            and operator_id not in (
+                operators.EQUALS, operators.EQUALS_NOT, operators.ISEMPTY,
+            )
+        ):
             raise cls.ValueError(
                 f'{cls.__name__}.build_condition(): BOOL type is only compatible with '
                 f'EQUALS, EQUALS_NOT and ISEMPTY operators'
@@ -1027,7 +1045,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
             pk__in=self._model
                        ._default_manager
                        .filter(query)
-                       .values_list('id', flat=True)
+                       .values_list('id', flat=True),
         )
 
 
@@ -1067,7 +1085,8 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
         return cls(model=model, custom_field=cf_id, related_name=rname, **kwargs)
 
     @classmethod
-    def build_condition(cls, *, custom_field, date_range=None, start=None, end=None,
+    def build_condition(cls, *, custom_field,
+                        date_range=None, start=None, end=None,
                         filter_type=EF_USER,
                         condition_cls=EntityFilterCondition):
         """Build an (unsaved) EntityFilterCondition.
@@ -1127,7 +1146,7 @@ class DateCustomFieldConditionHandler(DateFieldHandlerMixin,
             pk__in=self._model
                        ._default_manager
                        .filter(**q_dict)
-                       .values_list('id', flat=True)
+                       .values_list('id', flat=True),
         )
 
 
@@ -1158,7 +1177,9 @@ class BaseRelationConditionHandler(FilterConditionHandler):
     def relation_type(self) -> Union[RelationType, bool]:
         rtype = self._rtype
         if rtype is None:
-            self._rtype = rtype = RelationType.objects.filter(id=self._rtype_id).first() or False
+            self._rtype = rtype = (
+                RelationType.objects.filter(id=self._rtype_id).first() or False
+            )
 
         return rtype
 
@@ -1245,7 +1266,8 @@ class RelationConditionHandler(BaseRelationConditionHandler):
     @classmethod
     def build_condition(cls, *, model, rtype, has=True, ct=None, entity=None,
                         filter_type=EF_USER,
-                        condition_cls=EntityFilterCondition):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1326,7 +1348,9 @@ class RelationConditionHandler(BaseRelationConditionHandler):
     def formfield(cls, form_class=ef_fields.RelationsConditionsField, **kwargs):
         defaults = {
             'label': _('On relationships'),
-            'help_text': _('Do not select any entity if you want to match them all.'),
+            'help_text': _(
+                'Do not select any entity if you want to match them all.'
+            ),
             **kwargs
         }
 
@@ -1342,7 +1366,9 @@ class RelationConditionHandler(BaseRelationConditionHandler):
             kwargs['object_entity__entity_type'] = self._ct_id
 
         query = Q(
-            pk__in=Relation.objects.filter(**kwargs).values_list('subject_entity_id', flat=True)
+            pk__in=Relation.objects
+                           .filter(**kwargs)
+                           .values_list('subject_entity_id', flat=True),
         )
 
         if self._exclude:
@@ -1400,8 +1426,8 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     @classmethod
     def build_condition(cls, *, model, rtype, subfilter, has=True,
                         filter_type=EF_USER,
-                        condition_cls=EntityFilterCondition
-                       ):
+                        condition_cls=EntityFilterCondition,
+                        ):
         """Build an (unsaved) EntityFilterCondition.
 
         @param model: Class inheriting <creme_core.models.CremeEntity>.
@@ -1520,7 +1546,9 @@ class PropertyConditionHandler(FilterConditionHandler):
     @classmethod
     def build(cls, *, model, name, data):
         if not isinstance(data, bool):
-            raise cls.DataError(f'{cls.__name__}.build(): invalid data (not boolean)')
+            raise cls.DataError(
+                f'{cls.__name__}.build(): invalid data (not boolean)'
+            )
 
         return cls(model=model, ptype=name, exclude=not data)
 

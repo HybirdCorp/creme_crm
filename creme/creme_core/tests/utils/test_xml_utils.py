@@ -81,148 +81,155 @@ class XMLUtilsTestCase(CremeTestCase):
         self.assertIsNone(xml_diff(xml01, xml02))
 
     def test_xml_diff02(self):
-        "Attributes order can vary"
-        xml01 = ('<?xml version="1.0" encoding="UTF-8"?>'
-                 '<commands attr1="foo" attr2="bar"></commands>'
-                )
-        self.assertIsNone(xml_diff(xml01, '<commands attr2="bar" attr1="foo" />'))
+        "Attributes order can vary."
+        self.assertIsNone(xml_diff(
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<commands attr1="foo" attr2="bar"></commands>',
+            '<commands attr2="bar" attr1="foo" />',
+        ))
 
     def test_xml_diff03(self):
         "Attributes value difference"
-        diff = xml_diff('<commands attr1="foo" attr2="bar"></commands>',
-                        '<commands attr2="bar" attr1="stuff" />'
-                       )
+        diff = xml_diff(
+            '<commands attr1="foo" attr2="bar"></commands>',
+            '<commands attr2="bar" attr1="stuff" />',
+        )
         self.assertIsNotNone(diff)
-        self.assertEqual('<commands> ===> Attribute "attr1": "foo" != "stuff"', diff.short_msg)
+        self.assertEqual(
+            '<commands> ===> Attribute "attr1": "foo" != "stuff"',
+            diff.short_msg,
+        )
         self.assertEqual(
             '<commands attr1="foo" attr2="bar">'
             ' -================= HERE : Attribute "attr1": "foo" != "stuff" ==========</commands>',
-            diff.long_msg
+            diff.long_msg,
         )
 
     def test_xml_diff04(self):
         "Additional attribute"
-        xml01 = ('<commands attr1="foo">\n'
-                 '    <create />\n'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 ' <create />'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
-        self.assertIsNotNone(diff)
-        self.assertEqual('<commands> ===> Attribute "attr2" is missing in the first document',
-                         diff.short_msg
-                        )
-        self.assertEqual('<commands attr1="foo"> -================= HERE : '
-                         'Attribute "attr2" is missing in the first document ==========\n'
-                         '    <create />\n'
-                         '</commands>',
-                         diff.long_msg
-                        )
-
-    def test_xml_diff05(self):
-        "Missing attribute"
-        diff = xml_diff('<commands attr1="bar" attr2="stuff" />', '<commands attr2="stuff" />')
-        self.assertIsNotNone(diff)
-        self.assertEqual('<commands> ===> Attribute "attr1" is missing in the second document',
-                         diff.short_msg
-                        )
-        self.assertEqual(
-            '<commands attr1="bar" attr2="stuff"> -================= HERE : '
-            'Attribute "attr1" is missing in the second document ==========</commands>',
-            diff.long_msg
-        )
-
-    def test_xml_diff06(self):
         xml01 = (
-            '<commands attr1="foo" attr2="bar">'
-            '<create attr3="xxx" >'
-            '</create>'
+            '<commands attr1="foo">\n'
+            '    <create />\n'
             '</commands>'
         )
         xml02 = (
             '<commands attr2="bar" attr1="foo" >'
-            '   <create attr3="xxx" />'
+            ' <create />'
             '</commands>'
         )
-        self.assertIsNone(xml_diff(xml01, xml02))
-
-    def test_xml_diff07(self):
-        "Tag difference"
-        xml01 = ('<commands attr1="foo" attr2="bar">\n'
-                 '   <create attr3="xxx" >\n'
-                 '   </create>\n'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <update />'
-                 '</commands>'
-                )
         diff = xml_diff(xml01, xml02)
         self.assertIsNotNone(diff)
-        self.assertEqual('<create> ===> Tag "create" != "update"', diff.short_msg)
+        self.assertEqual(
+            '<commands> ===> Attribute "attr2" is missing in the first document',
+            diff.short_msg,
+        )
+        self.assertEqual(
+            '<commands attr1="foo"> -================= HERE : '
+            'Attribute "attr2" is missing in the first document ==========\n'
+            '    <create />\n'
+            '</commands>',
+            diff.long_msg,
+        )
+
+    def test_xml_diff05(self):
+        "Missing attribute"
+        diff = xml_diff(
+            '<commands attr1="bar" attr2="stuff" />', '<commands attr2="stuff" />'
+        )
+        self.assertIsNotNone(diff)
+        self.assertEqual(
+            '<commands> ===> Attribute "attr1" is missing in the second document',
+            diff.short_msg,
+        )
+        self.assertEqual(
+            '<commands attr1="bar" attr2="stuff"> -================= HERE : '
+            'Attribute "attr1" is missing in the second document ==========</commands>',
+            diff.long_msg,
+        )
+
+    def test_xml_diff06(self):
+        self.assertIsNone(xml_diff(
+            '<commands attr1="foo" attr2="bar">'
+            '<create attr3="xxx" >'
+            '</create>'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '</commands>',
+        ))
+
+    def test_xml_diff07(self):
+        "Tag difference."
+        diff = xml_diff(
+            '<commands attr1="foo" attr2="bar">\n'
+            '   <create attr3="xxx" >\n'
+            '   </create>\n'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <update />'
+            '</commands>',
+        )
+        self.assertIsNotNone(diff)
+        self.assertEqual(
+            '<create> ===> Tag "create" != "update"', diff.short_msg,
+        )
         self.assertEqual(
             '<commands attr1="foo" attr2="bar">\n'
             '   <create attr3="xxx"> '
             '-================= HERE : Tag "create" != "update" ==========\n'
             '   </create>\n'
             '</commands>',
-            diff.long_msg
+            diff.long_msg,
         )
 
     def test_xml_diff08(self):
-        "Missing child"
-        xml01 = ('<commands attr1="foo" attr2="bar">\n'
-                 '   <create attr3="xxx" >\n'
-                 '      <update />'
-                 '   </create>\n'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
+        "Missing child."
+        diff = xml_diff(
+            '<commands attr1="foo" attr2="bar">\n'
+            '   <create attr3="xxx" >\n'
+            '      <update />'
+            '   </create>\n'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual('<update> ===> Does not exist', diff.short_msg)
 
     def test_xml_diff09(self):
-        "Child becomes sibling"
-        xml01 = ('<commands attr1="foo" attr2="bar">\n'
-                 '   <create attr3="xxx" >\n'
-                 '      <field name="uuid" />\n'
-                 '      <update />'
-                 '   </create>\n'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" >\n'
-                 '      <field name="uuid" />\n'
-                 '   </create>\n'
-                 '   <update />'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
+        "Child becomes sibling."
+        diff = xml_diff(
+            '<commands attr1="foo" attr2="bar">\n'
+            '   <create attr3="xxx" >\n'
+            '      <field name="uuid" />\n'
+            '      <update />'
+            '   </create>\n'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" >\n'
+            '      <field name="uuid" />\n'
+            '   </create>\n'
+            '   <update />'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual('<update> ===> Does not exist', diff.short_msg)
 
     def test_xml_diff10(self):
-        "Additional child"
-        xml01 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr1="foo" attr2="bar">\n'
-                 '   <create attr3="xxx" >\n'
-                 '      <update />'
-                 '   </create>\n'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
+        "Additional child."
+        diff = xml_diff(
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+            '<commands attr1="foo" attr2="bar">\n'
+            '   <create attr3="xxx" >\n'
+            '      <update />'
+            '   </create>\n'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual(
             '<create> ===> '
@@ -231,85 +238,93 @@ class XMLUtilsTestCase(CremeTestCase):
         )
 
     def test_xml_diff11(self):
-        "Text difference"
-        xml01 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update>Text element</update>'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
-        self.assertIsNotNone(diff)
-        self.assertEqual('<update> ===> Text "" != "Text element"', diff.short_msg)
-
-    def test_xml_diff12(self):
-        "Missing tag"
-        xml01 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, '<commands attr2="bar" attr1="foo" />')
+        "Text difference."
+        diff = xml_diff(
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update>Text element</update>'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual(
-            '<create> ===> Does not exist in second document', diff.short_msg
+            '<update> ===> Text "" != "Text element"', diff.short_msg,
+        )
+
+    def test_xml_diff12(self):
+        "Missing tag."
+        diff = xml_diff(
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" />',
+        )
+        self.assertIsNotNone(diff)
+        self.assertEqual(
+            '<create> ===> Does not exist in second document', diff.short_msg,
         )
 
     def test_xml_diff13(self):
-        "Additional tags"
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        diff = xml_diff('<commands attr2="bar" attr1="foo" />', xml02)
+        "Additional tags."
+        diff = xml_diff(
+            '<commands attr2="bar" attr1="foo" />',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual(
             '<commands> ===> '
             'Additional sibling or child element in the second document',
-            diff.short_msg
+            diff.short_msg,
         )
 
     def test_xml_diff14(self):
-        "Tail difference"
-        xml01 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />My Tail'
-                 '   <update />'
-                 '</commands>'
-                )
-        xml02 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        diff = xml_diff(xml01, xml02)
+        "Tail difference."
+        diff = xml_diff(
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />My Tail'
+            '   <update />'
+            '</commands>',
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>',
+        )
         self.assertIsNotNone(diff)
         self.assertEqual('<create> ===> Tail "My Tail" != ""', diff.short_msg)
 
     def test_assert_xml_equal(self):
-        xml01 = ('<commands attr2="bar" attr1="foo" >'
-                 '   <create attr3="xxx" />'
-                 '   <update />'
-                 '</commands>'
-                )
-        self.assertXMLEqualv2(xml01,
-                              '<commands attr1="foo" attr2="bar" >'
-                              ' <create attr3="xxx" />'
-                              ' <update></update>'
-                              '</commands>'
-                             )
+        xml01 = (
+            '<commands attr2="bar" attr1="foo" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>'
+        )
+        self.assertXMLEqualv2(
+            xml01,
+            '<commands attr1="foo" attr2="bar" >'
+            ' <create attr3="xxx" />'
+            ' <update></update>'
+            '</commands>'
+        )
 
-        self.assertRaises(AssertionError, self.assertXMLEqualv2, xml01,
-                          '<commands attr2="bar" >'
-                          '   <create attr3="xxx" />'
-                          '   <update />'
-                          '</commands>'
-                         )
-        self.assertRaises(AssertionError, self.assertXMLEqualv2,
-                          '<commands attr2="bar" attr1="foo" >',  # Syntax error
-                          '<commands attr2="bar" attr1="foo" />',
-                         )
+        self.assertRaises(
+            AssertionError,
+            self.assertXMLEqualv2, xml01,
+            '<commands attr2="bar" >'
+            '   <create attr3="xxx" />'
+            '   <update />'
+            '</commands>'
+        )
+        self.assertRaises(
+            AssertionError,
+            self.assertXMLEqualv2,
+            '<commands attr2="bar" attr1="foo" >',  # Syntax error
+            '<commands attr2="bar" attr1="foo" />',
+        )

@@ -29,19 +29,19 @@ class FunctionFieldsTestCase(CremeTestCase):
         fname2  = 'name2'
 
         class TestFunctionField11(FunctionField):
-            name         = fname11
+            name = fname11
             verbose_name = 'Verbose name 11'
 
         class TestFunctionField12(FunctionField):
-            name         = fname12
+            name = fname12
             verbose_name = 'Verbose name 12'
 
         class TestFunctionField13(FunctionField):
-            name         = fname13
+            name = fname13
             verbose_name = 'Verbose name 13'
 
         class TestFunctionField2(FunctionField):
-            name         = fname2
+            name = fname2
             verbose_name = 'Verbose name 2'
 
         registry.register(
@@ -62,12 +62,13 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIsNone(registry.get(Klass1, fname2))
 
         # Function fields
-        self.assertEqual({TestFunctionField11, TestFunctionField12, TestFunctionField13},
-                         {ff.__class__ for ff in registry.fields(Klass1)}
-                        )
+        self.assertSetEqual(
+            {TestFunctionField11, TestFunctionField12, TestFunctionField13},
+            {ff.__class__ for ff in registry.fields(Klass1)},
+        )
         self.assertSetEqual(
             {TestFunctionField11, TestFunctionField12, TestFunctionField13, TestFunctionField2},
-            {ff.__class__ for ff in registry.fields(Klass2)}
+            {ff.__class__ for ff in registry.fields(Klass2)},
         )
 
         # Unregister -----
@@ -86,11 +87,11 @@ class FunctionFieldsTestCase(CremeTestCase):
         registry = _FunctionFieldRegistry()
 
         class TestFunctionField1(FunctionField):
-            name         = 'name1'
+            name = 'name1'
             verbose_name = 'Verbose name 1'
 
         class TestFunctionField2(FunctionField):
-            name         = TestFunctionField1.name  # <==
+            name = TestFunctionField1.name  # <==
             verbose_name = 'Verbose name 2'
 
         registry.register(Klass, TestFunctionField1)
@@ -112,15 +113,15 @@ class FunctionFieldsTestCase(CremeTestCase):
         fname2 = 'name2'
 
         class TestFunctionField1(FunctionField):
-            name         = fname1
+            name = fname1
             verbose_name = 'Verbose name 1'
 
         class TestFunctionField2(FunctionField):
-            name         = fname2
+            name = fname2
             verbose_name = 'Verbose name 2'
 
         class TestFunctionField22(FunctionField):
-            name         = TestFunctionField2.name  # <== Override
+            name = TestFunctionField2.name  # <== Override
             verbose_name = 'Verbose name 2'
 
         registry.register(Klass1, TestFunctionField1, TestFunctionField2)
@@ -131,12 +132,14 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertIsInstance(registry.get(Klass2, fname2), TestFunctionField22)
 
         # Function fields
-        self.assertEqual({TestFunctionField1, TestFunctionField2},
-                         {ff.__class__ for ff in registry.fields(Klass1)}
-                        )
-        self.assertEqual({TestFunctionField1, TestFunctionField22},
-                         {ff.__class__ for ff in registry.fields(Klass2)}
-                        )
+        self.assertSetEqual(
+            {TestFunctionField1, TestFunctionField2},
+            {ff.__class__ for ff in registry.fields(Klass1)},
+        )
+        self.assertSetEqual(
+            {TestFunctionField1, TestFunctionField22},
+            {ff.__class__ for ff in registry.fields(Klass2)},
+        )
 
     def test_registry04(self):
         "Unregister() error."
@@ -146,7 +149,7 @@ class FunctionFieldsTestCase(CremeTestCase):
         registry = _FunctionFieldRegistry()
 
         class TestFunctionField(FunctionField):
-            name         = 'name'
+            name = 'name'
             verbose_name = 'Verbose name'
 
         with self.assertRaises(_FunctionFieldRegistry.RegistrationError):

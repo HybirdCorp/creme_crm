@@ -98,7 +98,7 @@ class DBTestCase(CremeTestCase):
 
         self.assertSetEqual(
             expected,
-            {tuple(cols) for cols in get_indexes_columns(FakeOrganisation)}
+            {tuple(cols) for cols in get_indexes_columns(FakeOrganisation)},
         )
 
         # FakeContact -------------------------
@@ -118,37 +118,44 @@ class DBTestCase(CremeTestCase):
 
         self.assertSetEqual(
             expected,
-            {tuple(cols) for cols in get_indexes_columns(FakeContact)}
+            {tuple(cols) for cols in get_indexes_columns(FakeContact)},
         )
 
     def test_buildcolumns_key(self):
-        self.assertEqual('#civility_id#',
-                         build_columns_key(('civility_id',))
-                        )
-        self.assertEqual('#last_name##first_name#',
-                         build_columns_key(('last_name', 'first_name'))
-                        )
+        self.assertEqual(
+            '#civility_id#',
+            build_columns_key(('civility_id',))
+        )
+        self.assertEqual(
+            '#last_name##first_name#',
+            build_columns_key(('last_name', 'first_name')),
+        )
 
     def test_indexed_ordering01(self):
-        "FakeOrganisation"
-        self.assertEqual((('name', 'cremeentity_ptr'),),
-                         FakeOrganisation._meta.index_together
-                        )
+        "FakeOrganisation."
+        self.assertEqual(
+            (
+                ('name', 'cremeentity_ptr'),
+            ),
+            FakeOrganisation._meta.index_together,
+        )
 
         self.assertIsNone(get_indexed_ordering(FakeOrganisation, ['phone']))
 
-        self.assertEqual(('sector_id',),
-                         get_indexed_ordering(FakeOrganisation, ['sector_id'])
-                        )
+        self.assertEqual(
+            ('sector_id',),
+            get_indexed_ordering(FakeOrganisation, ['sector_id']),
+        )
 
         # TODO: ?
         # self.assertEqual(('sector',),
         #                  get_best_ordering(FakeOrganisation, ['sector_id'])
         #                 )
 
-        self.assertEqual(('name', 'cremeentity_ptr_id'),
-                         get_indexed_ordering(FakeOrganisation, ['name'])
-                        )
+        self.assertEqual(
+            ('name', 'cremeentity_ptr_id'),
+            get_indexed_ordering(FakeOrganisation, ['name']),
+        )
 
         # Order is important
         self.assertEqual(
@@ -162,10 +169,12 @@ class DBTestCase(CremeTestCase):
         # TODO: M2M ?
 
     def test_indexed_ordering02(self):
-        "FakeContact"
+        "FakeContact."
         self.assertEqual(
-            (('last_name', 'first_name', 'cremeentity_ptr'),),
-            FakeContact._meta.index_together
+            (
+                ('last_name', 'first_name', 'cremeentity_ptr'),
+            ),
+            FakeContact._meta.index_together,
         )
 
         self.assertIsNone(get_indexed_ordering(FakeContact, ['phone']))
@@ -173,24 +182,28 @@ class DBTestCase(CremeTestCase):
 
         expected = ('last_name', 'first_name', 'cremeentity_ptr_id')
         self.assertEqual(
-            expected, get_indexed_ordering(FakeContact, ['last_name'])
+            expected, get_indexed_ordering(FakeContact, ['last_name']),
         )
         self.assertEqual(
-            expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name'])
+            expected, get_indexed_ordering(FakeContact, ['last_name', 'first_name']),
         )
         self.assertEqual(
             expected,
-            get_indexed_ordering(FakeContact, ['last_name', 'first_name', 'cremeentity_ptr_id'])
+            get_indexed_ordering(
+                FakeContact, ['last_name', 'first_name', 'cremeentity_ptr_id'],
+            )
         )
 
-        self.assertIsNone(get_indexed_ordering(FakeContact, ['first_name', 'last_name']))
+        self.assertIsNone(
+            get_indexed_ordering(FakeContact, ['first_name', 'last_name'])
+        )
 
     def test_indexed_ordering03(self):
-        "DESC order => inverted index"
+        "DESC order => inverted index."
         expected = ('-name', '-cremeentity_ptr_id')
         self.assertEqual(
             expected,
-            get_indexed_ordering(FakeOrganisation, ['-name'])
+            get_indexed_ordering(FakeOrganisation, ['-name']),
         )
         self.assertEqual(
             expected,
@@ -200,23 +213,23 @@ class DBTestCase(CremeTestCase):
         )
 
     def test_indexed_ordering04(self):
-        "Blurred query"
+        "Blurred query."
         expected = ('last_name', 'first_name', 'cremeentity_ptr_id')
         self.assertEqual(
             expected,
             get_indexed_ordering(
                 FakeContact, ['last_name', '*', 'cremeentity_ptr_id'],
-            )
+            ),
         )
         self.assertEqual(
             expected,
             get_indexed_ordering(
                 FakeContact, ['*', 'first_name', 'cremeentity_ptr_id']
-            )
+            ),
         )
         self.assertEqual(
             expected,
-            get_indexed_ordering(FakeContact, ['last_name', 'first_name', '*'])
+            get_indexed_ordering(FakeContact, ['last_name', 'first_name', '*']),
         )
 
         self.assertEqual(
@@ -227,7 +240,7 @@ class DBTestCase(CremeTestCase):
         )
         self.assertEqual(
             expected,
-            get_indexed_ordering(FakeContact, ['*', 'first_name', '*'])
+            get_indexed_ordering(FakeContact, ['*', 'first_name', '*']),
         )
         self.assertEqual(
             expected,
@@ -237,18 +250,18 @@ class DBTestCase(CremeTestCase):
         )
 
         self.assertIsNone(
-            get_indexed_ordering(FakeContact, ['last_name', '*', 'phone'])
+            get_indexed_ordering(FakeContact, ['last_name', '*', 'phone']),
         )
 
     def test_indexed_ordering05(self):
         "Blurred query + other model + DESC"
         self.assertEqual(
             ('name', 'cremeentity_ptr_id'),
-            get_indexed_ordering(FakeOrganisation, ['name', '*'])
+            get_indexed_ordering(FakeOrganisation, ['name', '*']),
         )
         self.assertEqual(
             ('-name', '-cremeentity_ptr_id'),
-            get_indexed_ordering(FakeOrganisation, ['-name', '*'])
+            get_indexed_ordering(FakeOrganisation, ['-name', '*']),
         )
 
         self.assertEqual(
@@ -260,7 +273,7 @@ class DBTestCase(CremeTestCase):
         )
 
     def test_indexed_ordering06(self):
-        "Avoid successive wildcards"
+        "Avoid successive wildcards."
         with self.assertRaises(ValueError):
             get_indexed_ordering(FakeContact, ['*', '*', 'cremeentity_ptr_id'])
 
@@ -286,7 +299,7 @@ class DBTestCase(CremeTestCase):
         return [self.refresh(c) for c in contacts]
 
     def test_populate_related01(self):
-        "One field"
+        "One field."
         self.login()
 
         with self.assertNoException():
@@ -308,7 +321,7 @@ class DBTestCase(CremeTestCase):
         self.assertIsNone(contacts[2].sector)
 
     def test_populate_related02(self):
-        "Two fields"
+        "Two fields."
         self.login()
         contacts = self._create_contacts()
 
@@ -348,7 +361,7 @@ class DBTestCase(CremeTestCase):
             populate_related(contacts, ['sector', 'civility'])
 
     def test_populate_related05(self):
-        "Two fields related to the same model"
+        "Two fields related to the same model."
         user = self.create_user()
 
         create_contact = partial(
@@ -357,10 +370,9 @@ class DBTestCase(CremeTestCase):
         marge = create_contact(first_name='Marge')
         homer = create_contact(first_name='Homer')
 
-        rel = Relation.objects.create(user=user, type_id=REL_SUB_HAS,
-                                      subject_entity=marge,
-                                      object_entity=homer,
-                                     )
+        rel = Relation.objects.create(
+            user=user, type_id=REL_SUB_HAS, subject_entity=marge, object_entity=homer,
+        )
         rel = self.refresh(rel)
 
         # NB: we fill the ContentType cache to not disturb assertNumQueries()
@@ -375,7 +387,7 @@ class DBTestCase(CremeTestCase):
         self.assertEqual(marge, e1.get_real_entity())
 
     def test_populate_related06(self):
-        "depth = 1"
+        "depth = 1."
         self.login()
 
         contacts = self._create_contacts()
@@ -388,7 +400,7 @@ class DBTestCase(CremeTestCase):
         self.assertEqual(self.sector1, s1)
 
     def test_populate_related07(self):
-        "Field with depth=1 is a FK"
+        "Field with depth=1 is a FK."
         user = self.create_user()
 
         create_folder = partial(FakeFolder.objects.create, user=user)
@@ -426,7 +438,7 @@ class DBTestCase(CremeTestCase):
         self.assertIsNone(f_null)
 
     def test_populate_related08(self):
-        "Two fields + depth > 1  => instances of level 2 have different models"
+        "Two fields + depth > 1  => instances of level 2 have different models."
         user = self.login()
         user2 = self.other_user
 
@@ -486,7 +498,9 @@ class DBTestCase(CremeTestCase):
         user = self.login()
         user2 = self.other_user
 
-        create_contact = partial(FakeContact.objects.create, user=user, last_name='Simpson')
+        create_contact = partial(
+            FakeContact.objects.create, user=user, last_name='Simpson',
+        )
         contacts = [
             create_contact(first_name='Homer'),
             create_contact(first_name='Lisa', user=user2),

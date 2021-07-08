@@ -50,28 +50,29 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         return sorted(fields, key=lambda f: sort_key(f.verbose_name))
 
     def test_bulk_update_registry01(self):
-        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=FakeOrganisation)
+        registry = self.bulk_update_registry
+        is_updatable = partial(registry.is_updatable, model=FakeOrganisation)
 
-        self.bulk_update_registry.register(FakeOrganisation, exclude=['emails'])
+        registry.register(FakeOrganisation, exclude=['emails'])
 
         # TODO uncomment when bulk registry will manage empty_or_unique fields
-        self.assertTrue(is_bulk_updatable(field_name='name'))
-        self.assertTrue(is_bulk_updatable(field_name='phone'))
+        self.assertTrue(is_updatable(field_name='name'))
+        self.assertTrue(is_updatable(field_name='phone'))
 
-        self.assertFalse(is_bulk_updatable(field_name='created'))  # Editable = False
-        self.assertFalse(is_bulk_updatable(field_name='address'))  # Editable = False
-        self.assertFalse(is_bulk_updatable(field_name='emails'))  # Excluded field
+        self.assertFalse(is_updatable(field_name='created'))  # Editable = False
+        self.assertFalse(is_updatable(field_name='address'))  # Editable = False
+        self.assertFalse(is_updatable(field_name='emails'))  # Excluded field
 
     def test_bulk_update_registry02(self):
-        is_bulk_updatable = partial(self.bulk_update_registry.is_updatable, model=FakeContact)
+        is_updatable = partial(self.bulk_update_registry.is_updatable, model=FakeContact)
 
-        self.assertTrue(is_bulk_updatable(field_name='first_name'))
-        self.assertTrue(is_bulk_updatable(field_name='last_name'))
+        self.assertTrue(is_updatable(field_name='first_name'))
+        self.assertTrue(is_updatable(field_name='last_name'))
 
         # Automatically inherited from CremeEntity excluded fields (editable = false)
-        self.assertFalse(is_bulk_updatable(field_name='modified'))
-        self.assertFalse(is_bulk_updatable(field_name='address'))
-        self.assertFalse(is_bulk_updatable(field_name='is_deleted'))
+        self.assertFalse(is_updatable(field_name='modified'))
+        self.assertFalse(is_updatable(field_name='address'))
+        self.assertFalse(is_updatable(field_name='is_deleted'))
 
     def test_bulk_update_registry03(self):
         "Unique field"
@@ -85,142 +86,143 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_bulk_updatable(field_name='title'))
 
     def test_is_updatable_many2many(self):
-        bulk_update_registry = self.bulk_update_registry
+        registry = self.bulk_update_registry
 
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=FakeImage)
+        registry.register(FakeImage)
+        self.assertTrue(
+            registry.is_updatable(model=FakeImage, field_name='categories')
+        )
 
-        bulk_update_registry.register(FakeImage)
-        self.assertTrue(is_bulk_updatable(model=FakeImage, field_name='categories'))
-
-        status = bulk_update_registry.status(FakeImage)
+        status = registry.status(FakeImage)
         self.assertFalse(status.is_expandable(status.get_field('categories')))
 
     def test_is_updatable_foreignkey(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = bulk_update_registry.is_updatable
+        registry = self.bulk_update_registry
+        is_updatable = registry.is_updatable
 
-        bulk_update_registry.register(FakeContact)
-        self.assertFalse(is_bulk_updatable(model=FakeContact, field_name='billing_address'))
-        self.assertFalse(is_bulk_updatable(model=FakeContact, field_name='shipping_address'))
+        registry.register(FakeContact)
+        self.assertFalse(is_updatable(model=FakeContact, field_name='billing_address'))
+        self.assertFalse(is_updatable(model=FakeContact, field_name='shipping_address'))
 
     def test_is_updatable_enumerable(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = bulk_update_registry.is_updatable
+        registry = self.bulk_update_registry
 
-        bulk_update_registry.register(FakeContact)
-        self.assertTrue(is_bulk_updatable(model=FakeContact, field_name='civility'))
+        registry.register(FakeContact)
+        self.assertTrue(
+            registry.is_updatable(model=FakeContact, field_name='civility')
+        )
 
-        status = bulk_update_registry.status(FakeContact)
+        status = registry.status(FakeContact)
         self.assertFalse(status.is_expandable(status.get_field('civility')))
 
     def test_is_updatable_not_editable(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = bulk_update_registry.is_updatable
+        registry = self.bulk_update_registry
+        is_updatable = registry.is_updatable
 
-        bulk_update_registry.register(FakeContact)
-        self.assertFalse(is_bulk_updatable(model=FakeContact, field_name='billing_address'))
-        self.assertFalse(is_bulk_updatable(model=FakeContact, field_name='shipping_address'))
+        registry.register(FakeContact)
+        self.assertFalse(is_updatable(model=FakeContact, field_name='billing_address'))
+        self.assertFalse(is_updatable(model=FakeContact, field_name='shipping_address'))
 
     def test_is_expandable(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_expandable = bulk_update_registry.is_expandable
+        registry = self.bulk_update_registry
+        is_expandable = registry.is_expandable
 
-        bulk_update_registry.register(FakeContact)
-        self.assertTrue(is_bulk_expandable(model=FakeContact, field_name='address'))
+        registry.register(FakeContact)
+        self.assertTrue(is_expandable(model=FakeContact, field_name='address'))
 
         # Enumerable not expandable
-        self.assertFalse(is_bulk_expandable(model=FakeContact, field_name='civility'))
+        self.assertFalse(is_expandable(model=FakeContact, field_name='civility'))
 
         # Related model is not a CremeModel
-        self.assertFalse(is_bulk_expandable(model=FakeContact, field_name='is_user'))
+        self.assertFalse(is_expandable(model=FakeContact, field_name='is_user'))
 
     def test_is_expandable_excluded(self):
-        bulk_update_registry = self.bulk_update_registry
+        registry = self.bulk_update_registry
 
-        bulk_update_registry.register(FakeContact, exclude=['address'])
+        registry.register(FakeContact, exclude=['address'])
         self.assertFalse(
-            bulk_update_registry.is_expandable(model=FakeContact, field_name='address')
+            registry.is_expandable(model=FakeContact, field_name='address')
         )
 
     def test_is_updatable_ignore(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=FakeOrganisation)
+        registry = self.bulk_update_registry
+        is_updatable = partial(registry.is_updatable, model=FakeOrganisation)
 
-        bulk_update_registry.ignore(FakeOrganisation)
-
-        self.assertFalse(is_bulk_updatable(field_name='name'))
-        self.assertFalse(is_bulk_updatable(field_name='phone'))
+        registry.ignore(FakeOrganisation)
+        self.assertFalse(is_updatable(field_name='name'))
+        self.assertFalse(is_updatable(field_name='phone'))
 
     def test_regular_fields(self):
-        bulk_update_registry = self.bulk_update_registry
-
-        expected = [
-            field
-            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-            if field.editable and not field.unique
-        ]
-        self.assertListEqual(self.sortFields(expected),
-                             bulk_update_registry.regular_fields(FakeContact))
+        self.assertListEqual(
+            self.sortFields([
+                field
+                for field in chain(
+                    FakeContact._meta.fields,
+                    FakeContact._meta.many_to_many,
+                )
+                if field.editable and not field.unique
+            ]),
+            self.bulk_update_registry.regular_fields(FakeContact),
+        )
 
     def test_regular_fields_ignore(self):
-        bulk_update_registry = self.bulk_update_registry
+        registry = self.bulk_update_registry
 
-        bulk_update_registry.ignore(FakeContact)
-        self.assertListEqual(bulk_update_registry.regular_fields(FakeContact), [])
+        registry.ignore(FakeContact)
+        self.assertListEqual([], registry.regular_fields(FakeContact))
 
     def test_regular_fields_include_unique(self):
-        bulk_update_registry = self.bulk_update_registry
-
-        expected = [
-            field
-            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
-            if field.editable
-        ]
+        meta = FakeContact._meta
         self.assertListEqual(
-            self.sortFields(expected),
-            bulk_update_registry.regular_fields(FakeContact, exclude_unique=False)
+            self.sortFields([
+                field
+                for field in chain(meta.fields, meta.many_to_many)
+                if field.editable
+            ]),
+            self.bulk_update_registry.regular_fields(FakeContact, exclude_unique=False),
         )
 
     def test_get_regular_field_not_editable(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.status(FakeContact).get_field('address')
+            registry.status(FakeContact).get_field('address')
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_field(FakeContact, 'address')
+            registry.get_field(FakeContact, 'address')
 
     def test_get_regular_subfield_expandable(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_field(FakeContact, 'address')
+            registry.get_field(FakeContact, 'address')
 
         self.assertIsNotNone(
-            bulk_update_registry.status(FakeContact).get_expandable_field('address')
+            registry.status(FakeContact).get_expandable_field('address'),
         )
         self.assertIsNotNone(
-            bulk_update_registry.get_field(FakeContact, 'address__zipcode')
+            registry.get_field(FakeContact, 'address__zipcode'),
         )
 
     def test_regular_fields_expanded(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
+        c_meta = FakeContact._meta
         expected_names = [
             field.name
-            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            for field in chain(c_meta.fields, c_meta.many_to_many)
             if field.editable and not field.unique
         ]
         expanded_names = ['address']
 
-        fields = bulk_update_registry.regular_fields(FakeContact, expand=True)
+        fields = registry.regular_fields(FakeContact, expand=True)
 
         self.assertListEqual(
             sorted(expected_names + expanded_names),
-            sorted(field[0].name for field in fields)
+            sorted(field[0].name for field in fields),
         )
         self.assertListEqual(
             sorted(expanded_names),
@@ -229,63 +231,67 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         fields_dict = {field[0].name: field for field in fields}
 
+        a_meta = FakeAddress._meta
         sub_expected_names = [
             field.name
-            for field in chain(FakeAddress._meta.fields, FakeAddress._meta.many_to_many)
+            for field in chain(a_meta.fields, a_meta.many_to_many)
             if field.editable and not field.unique
         ]
 
         address_fields = fields_dict['address'][1]
-        self.assertListEqual(sorted(sub_expected_names),
-                             sorted(field.name for field in address_fields)
-                            )
+        self.assertListEqual(
+            sorted(sub_expected_names),
+            sorted(field.name for field in address_fields),
+        )
 
     def test_regular_subfield(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         zipcode_field = FakeAddress._meta.get_field('zipcode')
         self.assertEqual(
             zipcode_field,
-            bulk_update_registry.get_field(FakeContact, 'address__zipcode')
+            registry.get_field(FakeContact, 'address__zipcode'),
         )
         self.assertEqual(
             zipcode_field,
-            bulk_update_registry.get_field(FakeAddress, 'zipcode')
+            registry.get_field(FakeAddress, 'zipcode'),
         )
 
     def test_default_field(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
+        meta = FakeContact._meta
         expected = self.sortFields([
             field
-            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            for field in chain(meta.fields, meta.many_to_many)
             if field.editable and not field.unique
         ])[0]
         self.assertEqual(
             expected.name,
-            bulk_update_registry.get_default_field(FakeContact).name
+            registry.get_default_field(FakeContact).name,
         )
 
     def test_custom_fields(self):
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         contact_ct = ContentType.objects.get_for_model(FakeContact)
 
         create_cf = CustomField.objects.create
         create_cf(name='A', content_type=contact_ct, field_type=CustomField.STR)
 
+        meta = FakeContact._meta
         regular_names = [
             field.name
-            for field in chain(FakeContact._meta.fields, FakeContact._meta.many_to_many)
+            for field in chain(meta.fields, meta.many_to_many)
             if field.editable and not field.unique
         ]
         custom_names = ['A']
 
-        regular_fields = bulk_update_registry.regular_fields(FakeContact)
-        custom_fields  = bulk_update_registry.custom_fields(FakeContact)
+        regular_fields = registry.regular_fields(FakeContact)
+        custom_fields  = registry.custom_fields(FakeContact)
 
         self.assertListEqual(
             sorted(regular_names),
@@ -293,50 +299,53 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         )
         self.assertListEqual(
             sorted(custom_names),
-            [field.name for field in custom_fields]
+            [field.name for field in custom_fields],
         )
 
         create_cf(name='C', content_type=contact_ct, field_type=CustomField.BOOL)
         create_cf(name='0', content_type=contact_ct, field_type=CustomField.INT)
 
-        custom_names  = ['0', 'A', 'C']
+        custom_names = ['0', 'A', 'C']
 
-        regular_fields = bulk_update_registry.regular_fields(FakeContact)
-        custom_fields  = bulk_update_registry.custom_fields(FakeContact)
+        regular_fields = registry.regular_fields(FakeContact)
+        custom_fields  = registry.custom_fields(FakeContact)
 
         self.assertListEqual(
             sorted(regular_names),
-            sorted([field.name for field in regular_fields])
+            sorted([field.name for field in regular_fields]),
         )
         self.assertListEqual(
             sorted(custom_names),
-            [field.name for field in custom_fields]
+            [field.name for field in custom_fields],
         )
 
     def test_custom_fields_ignore(self):
-        bulk_update_registry = self.bulk_update_registry
+        registry = self.bulk_update_registry
 
-        bulk_update_registry.ignore(FakeOrganisation)
-        self.assertListEqual(bulk_update_registry.custom_fields(FakeOrganisation), [])
+        registry.ignore(FakeOrganisation)
+        self.assertListEqual(registry.custom_fields(FakeOrganisation), [])
 
     def test_innerforms(self):
-        bulk_update_registry = self.bulk_update_registry
-        is_bulk_updatable = partial(bulk_update_registry.is_updatable, model=FakeContact)
+        registry = self.bulk_update_registry
+        is_updatable = partial(registry.is_updatable, model=FakeContact)
 
         class _ContactInnerBirthday(BulkDefaultEditForm):
             pass
 
-        bulk_update_registry.register(FakeContact, exclude=['position'],
-                                      innerforms={'birthday': _ContactInnerBirthday},
-                                     )
+        registry.register(
+            FakeContact,
+            exclude=['position'],
+            innerforms={'birthday': _ContactInnerBirthday},
+        )
 
-        self.assertFalse(is_bulk_updatable(field_name='position'))
-        self.assertIsNone(bulk_update_registry.status(FakeContact).get_form('position'))
+        self.assertFalse(is_updatable(field_name='position'))
+        self.assertIsNone(registry.status(FakeContact).get_form('position'))
 
-        self.assertTrue(is_bulk_updatable(field_name='birthday'))
-        self.assertEqual(_ContactInnerBirthday,
-                         bulk_update_registry.status(FakeContact).get_form('birthday')
-                        )
+        self.assertTrue(is_updatable(field_name='birthday'))
+        self.assertEqual(
+            _ContactInnerBirthday,
+            registry.status(FakeContact).get_form('birthday'),
+        )
 
 # NB: these 2 tests make some other test cases crash.
 #  eg: Problem with entity deletion: (1146, "Table '....creme_core_subcontact' doesn't exist")
@@ -433,27 +442,25 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_subfield_innerforms(self):
         user = self.create_user()
 
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         class _ZipcodeInnerEdit(BulkDefaultEditForm):
             pass
 
         contact = FakeContact.objects.create(last_name='contact', user=user)
 
-        form = bulk_update_registry.get_form(
+        form = registry.get_form(
             FakeContact, 'address__zipcode', BulkDefaultEditForm,
-        )(
-            user=user, entities=[contact],
-        )
+        )(user=user, entities=[contact])
 
         self.assertIsInstance(form, BulkDefaultEditForm)
 
-        bulk_update_registry.register(
+        registry.register(
             FakeAddress, innerforms={'zipcode': _ZipcodeInnerEdit},
         )
 
-        form = bulk_update_registry.get_form(
+        form = registry.get_form(
             FakeContact, 'address__zipcode', BulkDefaultEditForm,
         )(user=user, entities=[contact])
         self.assertIsInstance(form, _ZipcodeInnerEdit)
@@ -463,13 +470,13 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         contact = FakeContact.objects.create(last_name='contact', user=user)
 
-        bulk_update_registry = self.bulk_update_registry
-        bulk_update_registry.register(FakeContact)
+        registry = self.bulk_update_registry
+        registry.register(FakeContact)
 
         with self.assertRaises(FieldNotAllowed):
-            bulk_update_registry.get_form(FakeContact, 'address', BulkDefaultEditForm)
+            registry.get_form(FakeContact, 'address', BulkDefaultEditForm)
 
-        form = bulk_update_registry.get_form(
+        form = registry.get_form(
             FakeContact, 'address__zipcode', BulkDefaultEditForm,
         )(user=user, entities=[contact])
         self.assertIsInstance(form, BulkDefaultEditForm)
@@ -569,9 +576,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         field_value_f = form.fields['field_value']
         self.assertIsInstance(field_value_f, ModelMultipleChoiceField)
-        self.assertQuerysetSQLEqual(FakeImageCategory.objects.all(),
-                                    field_value_f.queryset
-                                   )
+        self.assertQuerysetSQLEqual(
+            FakeImageCategory.objects.all(),
+            field_value_f.queryset,
+        )
 
     def test_manytomany_innerform02(self):
         "limit_choices_to"
@@ -586,7 +594,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form = BulkDefaultEditForm(FakeImage, languages_field, user, [contact])
         self.assertQuerysetSQLEqual(
             Language.objects.exclude(name__contains='[deprecated]'),
-            form.fields['field_value'].queryset
+            form.fields['field_value'].queryset,
         )
 
     def test_manytomany_entity_innerform01(self):
@@ -596,7 +604,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(mailing_lists_field.remote_field.limit_choices_to)
 
         campaign = FakeEmailCampaign.objects.create(name='A', user=user)
-
         form = BulkDefaultEditForm(FakeEmailCampaign, mailing_lists_field, user, [campaign])
 
         field_value_f = form.fields['field_value']
@@ -610,7 +617,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         images_field = FakeProduct._meta.get_field('images')
         self.assertDictEqual(
             {'user__is_active': True},
-            images_field.remote_field.limit_choices_to
+            images_field.remote_field.limit_choices_to,
         )
 
         product = FakeProduct.objects.create(user=user, name='P1')
@@ -642,14 +649,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         cell1 = entity_cell.EntityCellRegularField.build(model=model, name=fname1)
         self.assertEqual(
             reverse('creme_core__inner_edition', args=(ct_id, pk, fname1)),
-            self.bulk_update_registry.inner_uri(cell=cell1, instance=instance, user=user)
+            self.bulk_update_registry.inner_uri(cell=cell1, instance=instance, user=user),
         )
 
         fname2 = 'last_name'
         cell2 = entity_cell.EntityCellRegularField.build(model=model, name=fname2)
         self.assertEqual(
             reverse('creme_core__inner_edition', args=(ct_id, pk, fname2)),
-            self.bulk_update_registry.inner_uri(cell=cell2, instance=instance, user=user)
+            self.bulk_update_registry.inner_uri(cell=cell2, instance=instance, user=user),
         )
 
     def test_inner_uri02(self):
@@ -686,5 +693,5 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                 'creme_core__inner_edition',
                 args=(ct.id, instance.id, f'customfield-{cfield.id}'),
             ),
-            self.bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user)
+            self.bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         )

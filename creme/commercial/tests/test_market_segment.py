@@ -17,7 +17,8 @@ from .base import CommercialBaseTestCase, Organisation, Strategy
 
 
 class MarketSegmentTestCase(CommercialBaseTestCase):
-    def _build_delete_url(self, segment):
+    @staticmethod
+    def _build_delete_url(segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
 
     def test_unique_segment_with_ptype(self):
@@ -37,12 +38,13 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         name = 'Industry'
         segment = self._create_segment(name)
 
-        self.assertEqual(_('is in the segment «{}»').format(name),
-                         segment.property_type.text
-                        )
+        self.assertEqual(
+            _('is in the segment «{}»').format(name),
+            segment.property_type.text,
+        )
 
     def test_create02(self):
-        "A segment with the same name already exists"
+        "A segment with the same name already exists."
         self.login(is_superuser=False, allowed_apps=['commercial'])
 
         name = 'Industry'
@@ -50,12 +52,13 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertNoFormError(self.client.post(url, data={'name': name}))
 
         response = self.assertPOST200(url, data={'name': name})
-        self.assertFormError(response, 'form', 'name',
-                             _('A segment with this name already exists')
-                            )
+        self.assertFormError(
+            response, 'form', 'name',
+            _('A segment with this name already exists'),
+        )
 
     def test_create03(self):
-        "A property with the same name already exists"
+        "A property with the same name already exists."
         self.login()
 
         name = 'Industry'
@@ -65,7 +68,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(
             response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname}
+            _('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_create04(self):
@@ -78,9 +81,10 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         response = self.assertGET200(reverse('commercial__list_segments'))
         self.assertTemplateUsed(response, 'commercial/list_segments.html')
-        self.assertEqual(reverse('creme_core__reload_bricks'),
-                         response.context.get('bricks_reload_url')
-                        )
+        self.assertEqual(
+            reverse('creme_core__reload_bricks'),
+            response.context.get('bricks_reload_url'),
+        )
 
     def test_listview02(self):
         "App permission needed."
@@ -99,9 +103,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
-        context = response.context
-        self.assertEqual(_('Edit «{object}»').format(object=segment), context.get('title'))
-        self.assertEqual(_('Save the modifications'),                 context.get('submit_label'))
+        get_ctxt = response.context.get
+        self.assertEqual(_('Edit «{object}»').format(object=segment), get_ctxt('title'))
+        self.assertEqual(_('Save the modifications'),                 get_ctxt('submit_label'))
 
         # ---
         name = name.title()
@@ -111,26 +115,29 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
-        self.assertEqual(_('is in the segment «{}»').format(name),
-                         segment.property_type.text
-                        )
+        self.assertEqual(
+            _('is in the segment «{}»').format(name),
+            segment.property_type.text,
+        )
 
     def test_edit02(self):
-        "A segment with the same name already exists"
+        "A segment with the same name already exists."
         self.login()
 
         name = 'Industry'
         self._create_segment(name)
 
         segment = self._create_segment('in-dus-try')
-        response = self.assertPOST200(segment.get_edit_absolute_url(), data={'name': name})
+        response = self.assertPOST200(
+            segment.get_edit_absolute_url(), data={'name': name},
+        )
         self.assertFormError(
             response, 'form', 'name',
-            _('A segment with this name already exists')
+            _('A segment with this name already exists'),
         )
 
     def test_edit03(self):
-        "A property with the same name already exists"
+        "A property with the same name already exists."
         self.login()
 
         segment = self._create_segment('in-dus-try')
@@ -139,10 +146,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         pname = _('is in the segment «{}»').format(name)
         CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
 
-        response = self.assertPOST200(segment.get_edit_absolute_url(), data={'name': name})
+        response = self.assertPOST200(
+            segment.get_edit_absolute_url(), data={'name': name},
+        )
         self.assertFormError(
             response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname}
+            _('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_edit04(self):
@@ -153,45 +162,44 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         segment = self._create_segment(name)
         ptype_count = CremePropertyType.objects.count()
 
-        self.assertNoFormError(self.client.post(segment.get_edit_absolute_url(),
-                                                data={'name': name},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            segment.get_edit_absolute_url(), data={'name': name},
+        ))
 
         segment = self.refresh(segment)
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
-        self.assertEqual(_('is in the segment «{}»').format(name),
-                         segment.property_type.text
-                        )
+        self.assertEqual(
+            _('is in the segment «{}»').format(name),
+            segment.property_type.text,
+        )
 
     def test_edit05(self):
-        "Edit the segment with property_type=NULL"
+        "Edit the segment with property_type=NULL."
         self.login()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
         ptype_count = CremePropertyType.objects.count()
 
         name = 'All the corporations'
-        self.assertNoFormError(self.client.post(segment.get_edit_absolute_url(),
-                                                data={'name': name},
-                                               )
-                              )
+        self.assertNoFormError(self.client.post(
+            segment.get_edit_absolute_url(), data={'name': name},
+        ))
 
         segment = self.refresh(segment)
         self.assertEqual(name, segment.name)
         self.assertEqual(ptype_count, CremePropertyType.objects.count())
 
     def test_edit06(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False, allowed_apps=['commercial'])
 
         segment = self._create_segment('Industry')
         self.assertGET200(segment.get_edit_absolute_url())
 
     def test_edit07(self):
-        "No app permission"
+        "No app permission."
         self.login(is_superuser=False)  # allowed_apps=['commercial']
 
         ptype = CremePropertyType.objects.create(
@@ -233,11 +241,12 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/delete-popup.html')
 
-        context = response.context
-        self.assertEqual(_('Delete and replace «{object}»').format(object=segment1),
-                         context.get('title')
-                        )
-        self.assertEqual(_('Replace'), context.get('submit_label'))
+        get_ctxt = response.context.get
+        self.assertEqual(
+            _('Delete and replace «{object}»').format(object=segment1),
+            get_ctxt('title'),
+        )
+        self.assertEqual(_('Replace'), get_ctxt('submit_label'))
 
         # ---
         self.assertPOST200(url, data={'to_segment': segment2.id})
@@ -255,23 +264,22 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertNotIn(old_ptype, ptypes)
 
     def test_delete02(self):
-        "Cannot delete if there is only one segment"
+        "Cannot delete if there is only one segment."
         self.login()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
-
         self.assertGET409(self._build_delete_url(segment))
 
     def test_delete03(self):
-        "Cannot replace a segment by itself"
+        "Cannot replace a segment by itself."
         self.login()
 
         segment = self._create_segment('Noobs')
         self._create_segment('Nerds')
 
-        response = self.assertPOST200(self._build_delete_url(segment),
-                                      data={'to_segment': segment.id},
-                                     )
+        response = self.assertPOST200(
+            self._build_delete_url(segment), data={'to_segment': segment.id},
+        )
         self.assertFormError(
             response, 'form', 'to_segment',
             _('Select a valid choice. That choice is not one of the available choices.')
@@ -279,7 +287,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_delete05(self):
-        "Avoid CremeProperty duplicates"
+        "Avoid CremeProperty duplicates."
         user = self.login()
 
         Strategy.objects.create(user=user, name='Producers')
@@ -300,7 +308,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         create_prop(type=ptype2, creme_entity=orga1)
         create_prop(type=ptype2, creme_entity=orga3)
 
-        self.assertPOST200(self._build_delete_url(segment1), data={'to_segment': segment2.id})
+        self.assertPOST200(
+            self._build_delete_url(segment1), data={'to_segment': segment2.id},
+        )
         self.assertDoesNotExist(segment1)
         self.assertDoesNotExist(ptype1)
 
@@ -316,7 +326,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertListEqual(expected, ptypes(orga3))
 
     def test_delete06(self):
-        "Cannot delete the segment with property_type=NULL"
+        "Cannot delete the segment with property_type=NULL."
         self.login()
 
         segment = self.get_object_or_fail(MarketSegment, property_type=None)
@@ -327,7 +337,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_delete07(self):
-        "We replace with the segment with property_type=NULL"
+        "We replace with the segment with property_type=NULL."
         user = self.login()
 
         strategy = Strategy.objects.create(user=user, name='Producers')
@@ -353,7 +363,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         )[0]
 
         segment2 = self.get_object_or_fail(MarketSegment, property_type=None)
-        self.assertPOST200(self._build_delete_url(segment1), data={'to_segment': segment2.id})
+        self.assertPOST200(
+            self._build_delete_url(segment1), data={'to_segment': segment2.id},
+        )
         self.assertDoesNotExist(segment1)
         self.assertDoesNotExist(old_ptype)
 

@@ -99,7 +99,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertEqual(description, retr_ticket.description)
 
         self.assertEqual(
-            f'#{ticket.number} - {title}', str(retr_ticket)
+            f'#{ticket.number} - {title}', str(retr_ticket),
         )
 
     def test_detailview02(self):
@@ -433,9 +433,10 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         )
 
         response = self.client.post(
-            reverse('creme_config__delete_instance',
-                    args=('tickets', 'status', status.id)
-                   ),
+            reverse(
+                'creme_config__delete_instance',
+                args=('tickets', 'status', status.id),
+            ),
             data={
                 'replace_tickets__ticket_status':         status2.id,
                 'replace_tickets__tickettemplate_status': status2.id,
@@ -608,12 +609,14 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         )
 
         now_value = now()
-        self.assertEqual({}, create_ticket().get_html_attrs({'today': now_value}))
+        self.assertDictEqual(
+            {}, create_ticket().get_html_attrs({'today': now_value}),
+        )
 
         context = {'today': now_value + timedelta(days=8)}
         self.assertDictEqual(
             {'data-color': 'tickets-important'},
-            create_ticket().get_html_attrs(context)
+            create_ticket().get_html_attrs(context),
         )
         self.assertFalse(
             create_ticket(status=get_status(pk=CLOSED_PK)).get_html_attrs(context),
@@ -757,7 +760,7 @@ class TicketTemplateTestCase(CremeTestCase):
         template02 = self.create_template('Title02')
         self.assertPOST409(
             reverse('creme_core__delete_entities'),
-            data={'ids': f'{template01.id},{template02.id},'}
+            data={'ids': f'{template01.id},{template02.id},'},
         )
         self.assertEqual(
             2,

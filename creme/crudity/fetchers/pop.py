@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ class PopEmail:
                  subject: str = '',
                  dates: Iterable[datetime] = (),
                  attachments: Iterable[Tuple[str, UploadedFile]] = (),
-                ):
+                 ):
         self.subject   = subject
         self.body      = body
         self.body_html = body_html
@@ -70,10 +70,11 @@ class PopFetcher(CrudityFetcher):
 
         try:
             if settings.CREME_GET_EMAIL_SSL:
-                client = poplib.POP3_SSL(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT,
-                                         settings.CREME_GET_EMAIL_SSL_KEYFILE,
-                                         settings.CREME_GET_EMAIL_SSL_CERTFILE,
-                                        )
+                client = poplib.POP3_SSL(
+                    CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT,
+                    settings.CREME_GET_EMAIL_SSL_KEYFILE,
+                    settings.CREME_GET_EMAIL_SSL_CERTFILE,
+                )
             else:
                 client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
 

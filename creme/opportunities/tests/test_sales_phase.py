@@ -86,11 +86,10 @@ class SalesPhaseTestCase(CremeTestCase):
         self.login()
 
         sp = SalesPhase.objects.create(name='Forthcoming', order=1)
-        response = self.client.post(reverse('creme_config__delete_instance',
-                                            args=('opportunities', 'sales_phase', sp.id),
-                                           ),
-                                   )
-        self.assertNoFormError(response)
+        self.assertNoFormError(self.client.post(reverse(
+            'creme_config__delete_instance',
+            args=('opportunities', 'sales_phase', sp.id),
+        )))
 
         job = self.get_deletion_command_or_fail(SalesPhase).job
         job.type.execute(job)
@@ -108,14 +107,14 @@ class SalesPhaseTestCase(CremeTestCase):
             emitter=create_orga(name='My society'),
             target=create_orga(name='Target renegade'),
         )
-        response = self.assertPOST200(reverse('creme_config__delete_instance',
-                                              args=('opportunities', 'sales_phase', sp.id)
-                                             ),
-                                     )
+        response = self.assertPOST200(reverse(
+            'creme_config__delete_instance',
+            args=('opportunities', 'sales_phase', sp.id)
+        ))
         self.assertFormError(
             response, 'form',
             'replace_opportunities__opportunity_sales_phase',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     def test_full_clean(self):

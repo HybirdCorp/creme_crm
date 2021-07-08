@@ -685,7 +685,8 @@ class SetCredentials(models.Model):
 
             forbidden, allowed = split_filter(
                 lambda sc: sc.forbidden,
-                (sc for sc in sorted_sc
+                (
+                    sc for sc in sorted_sc
                     if sc.ctype_id in model_ct_ids and sc.value & perm
                 )
             )
@@ -694,8 +695,11 @@ class SetCredentials(models.Model):
                 if forbidden and forbidden[0].set_type == ESET_ALL:
                     continue
 
-                allowed_filter_ids = [None] if allowed[0].set_type == ESET_ALL else \
-                                     [*_extract_filter_ids(allowed)]
+                allowed_filter_ids = (
+                    [None]
+                    if allowed[0].set_type == ESET_ALL else
+                    [*_extract_filter_ids(allowed)]
+                )
                 forbidden_filter_ids = [*_extract_filter_ids(forbidden)]
 
                 ctypes_filtering[(

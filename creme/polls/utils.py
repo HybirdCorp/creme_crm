@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -121,9 +121,9 @@ class SectionTree:
                 line.deep = deeper
                 nodes_append(line)
 
-            section.has_line = has_line = self._build_nodes(nodes_append, section.id,
-                                                            sections_map, lines_map, deeper
-                                                           ) or bool(lines)
+            section.has_line = has_line = self._build_nodes(
+                nodes_append, section.id, sections_map, lines_map, deeper
+            ) or bool(lines)
             parent_has_line = parent_has_line or has_line
 
         return parent_has_line
@@ -142,7 +142,9 @@ class SectionTree:
 class ReplySectionTree(SectionTree):
     def __init__(self, preply):
         super().__init__(preply)
-        PollReplyLine.populate_conditions([node for node in self if not node.is_section])
+        PollReplyLine.populate_conditions([
+            node for node in self if not node.is_section
+        ])
 
     def conditions_are_met(self, line_node):
         conditions = line_node.get_conditions()
@@ -171,8 +173,12 @@ class ReplySectionTree(SectionTree):
         conditions_are_met = self.conditions_are_met
 
         for node in self:
-            if not node.is_section and node.raw_answer is None and \
-               node.applicable and conditions_are_met(node):
+            if (
+                not node.is_section
+                and node.raw_answer is None
+                and node.applicable
+                and conditions_are_met(node)
+            ):
                 return node
 
     def set_conditions_flags(self):
@@ -204,6 +210,9 @@ class StatsTree(SectionTree):
                     stats[choice_label] += choice_count
 
             fline.answer_stats = [
-                (stat_label, stat_count, round(float(stat_count * 100) / float(total), 2))
-                for stat_label, stat_count in stats.items()
+                (
+                    stat_label,
+                    stat_count,
+                    round(float(stat_count * 100) / float(total), 2),
+                ) for stat_label, stat_count in stats.items()
             ] if total > 0 else []

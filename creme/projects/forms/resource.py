@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,9 +34,10 @@ from .task import _link_contact_n_activity
 
 # Not CremeEntityForm to avoid Relations/CremeProperties fields
 class ResourceCreateForm(CremeModelForm):
-    contact = CreatorEntityField(label=_('Contact to be assigned to this task'),
-                                 model=get_contact_model(),
-                                )
+    contact = CreatorEntityField(
+        label=_('Contact to be assigned to this task'),
+        model=get_contact_model(),
+    )
 
     class Meta(CremeModelForm.Meta):
         model = Resource
@@ -65,11 +66,13 @@ class ResourceCreateForm(CremeModelForm):
 
 
 class ResourceEditForm(ResourceCreateForm):
-    keep_participating = BooleanField(label=_('If the contact changes, the old one '
-                                              'keeps participating to the activities.'
-                                             ),
-                                      required=False,
-                                     )
+    keep_participating = BooleanField(
+        label=_(
+            'If the contact changes, the old one '
+            'keeps participating to the activities.'
+        ),
+        required=False,
+    )
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(task=entity, *args, **kwargs)
@@ -91,9 +94,11 @@ class ResourceEditForm(ResourceCreateForm):
             if not self.cleaned_data.get('keep_participating'):
                 atypes.append(REL_SUB_PART_2_ACTIVITY)
 
-            for r in Relation.objects.filter(subject_entity=old_contact, type__in=atypes,
-                                             object_entity__in=[a.id for a in task_activities],
-                                            ):
+            for r in Relation.objects.filter(
+                subject_entity=old_contact,
+                type__in=atypes,
+                object_entity__in=[a.id for a in task_activities],
+            ):
                 # NB: no delete() on queryset in order to send signals
                 r.delete()
 

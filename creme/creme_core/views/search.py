@@ -295,11 +295,12 @@ class LightSearch(SearcherMixin, base.CheckedView):
 
                         entities.append(entry)
 
-                    results.append({'id': get_ct(model).id,
-                                    'label': self.build_model_label(model),
-                                    'count': count,
-                                    'results': entities,
-                                   })
+                    results.append({
+                        'id': get_ct(model).id,
+                        'label': self.build_model_label(model),
+                        'count': count,
+                        'results': entities,
+                    })
 
             sort_key = collator.sort_key
             data['results'] = sorted(results, key=lambda r: sort_key(r['label']))

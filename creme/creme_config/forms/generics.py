@@ -80,17 +80,12 @@ class ReplacingHandler:
 
     def __repr__(self):
         return (
-            '{cls}('
-            'field={field}, field_is_hidden={hidden}, '
-            'instance_to_delete={instance}, blocking={blocking}, key="{key}"'
-            ')'.format(
-                cls=type(self).__name__,
-                field=repr(self.field),
-                hidden=self.field_is_hidden,
-                instance=repr(self.instance_to_delete),
-                blocking=self.blocking,
-                key=self.key,
-            )
+            f'{type(self).__name__}('
+            f'field={self.field!r}, '
+            f'field_is_hidden={self.field_is_hidden}, '
+            f'instance_to_delete={self.instance_to_delete!r}, '
+            f'blocking={self.blocking}, '
+            f'key="{self.key}")'
         )
 
     def _build_formfield_label(self):
@@ -186,9 +181,10 @@ class CascadeHandler(LabelReplacingHandler):
 
 
 class ProtectHandler(LabelReplacingHandler):
-    empty_message = _('OK: there is no related instance of «{model}», '
-                      'the deletion can be done.'
-                     )
+    empty_message = _(
+        'OK: there is no related instance of «{model}», '
+        'the deletion can be done.'
+    )
     instances_message = ngettext_lazy(
         'ERROR: {count} instance of «{model}» uses «{instance}» '
         'so the deletion is not possible.',
@@ -252,11 +248,9 @@ class SetDefaultHandler(LabelReplacingHandler):
 
     def get_form_field(self):
         if self.blocking:
-            field = self._build_message_formfield(
-                _('ERROR: the default value is invalid. '
-                  'Please contact your administrator.'
-                 )
-            )
+            field = self._build_message_formfield(_(
+                'ERROR: the default value is invalid. Please contact your administrator.'
+            ))
         elif not self.field_is_hidden:
             field = super().get_form_field()
         else:
@@ -282,7 +276,11 @@ class SetHandler(LabelReplacingHandler):
         return None if self.field_is_hidden else super().get_form_field()
 
     def replacer(self, new_value):
-        return None if self.field_is_hidden else deletion.SETReplacer(model_field=self.field)
+        return (
+            None
+            if self.field_is_hidden else
+            deletion.SETReplacer(model_field=self.field)
+        )
 
 
 class CremeReplaceNullHandler(ChoiceReplacingHandler):
@@ -307,10 +305,18 @@ class CremeReplaceHandler(ChoiceReplacingHandler):
         return data
 
     def get_form_field(self):
-        return None if self.field_is_hidden and not self.count else super().get_form_field()
+        return (
+            None
+            if self.field_is_hidden and not self.count else
+            super().get_form_field()
+        )
 
     def replacer(self, new_value):
-        return None if self.field_is_hidden and not self.count else super().replacer(new_value)
+        return (
+            None
+            if self.field_is_hidden and not self.count else
+            super().replacer(new_value)
+        )
 
 
 class M2MHandler(ChoiceReplacingHandler):

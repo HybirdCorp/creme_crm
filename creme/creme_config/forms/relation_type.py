@@ -115,10 +115,11 @@ class RelationTypeCreateForm(CremeForm):
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def save(self, pk_subject='creme_config-subject_userrelationtype',
+    def save(self,
+             pk_subject='creme_config-subject_userrelationtype',
              pk_object='creme_config-object_userrelationtype',
              generate_pk=True, *args, **kwargs
-            ):
+             ):
         get_data = self.cleaned_data.get
 
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]

@@ -14,7 +14,10 @@ from .base import PollForm, skipIfCustomPollForm
 class PollFormLineConditionsFieldTestCase(FieldTestCase):
     @staticmethod
     def build_data(*info):
-        return json_dump([{'source': str(t['source']), 'choice': str(t['choice'])} for t in info])
+        return json_dump([
+            {'source': str(t['source']), 'choice': str(t['choice'])}
+            for t in info
+        ])
 
     def test_clean_empty_required(self):
         clean = PollFormLineConditionsField().clean
@@ -48,28 +51,34 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
 
         create_line = partial(PollFormLine.objects.create, pform=pform)
         serialize = PollLineType.build_serialized_args
-        line1 = create_line(question='What is your favorite meal ?',
-                            order=1, type=PollLineType.ENUM,
-                            type_args=serialize(ptype=PollLineType.ENUM,
-                                                choices=[[1, 'Spam'], [2, 'Grilled swallow']],
-                                               ),
-                           )
-        line2 = create_line(question='What type of swallow have you already seen ?',
-                            order=2, type=PollLineType.MULTI_ENUM,
-                            type_args=serialize(ptype=PollLineType.MULTI_ENUM,
-                                                choices=[[1, 'European'], [2, 'African']],
-                                               ),
-                           )
+        line1 = create_line(
+            question='What is your favorite meal?',
+            order=1, type=PollLineType.ENUM,
+            type_args=serialize(
+                ptype=PollLineType.ENUM,
+                choices=[[1, 'Spam'], [2, 'Grilled swallow']],
+            ),
+        )
+        line2 = create_line(
+            question='What type of swallow have you already seen?',
+            order=2,
+            type=PollLineType.MULTI_ENUM,
+            type_args=serialize(
+                ptype=PollLineType.MULTI_ENUM,
+                choices=[[1, 'European'], [2, 'African']],
+            ),
+        )
 
         return line1, line2
 
     @skipIfCustomPollForm
     def test_clean_invalid_source01(self):
         line1, line2 = self._create_lines()
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidsource',
-                                        PollFormLineConditionsField(sources=[line1]).clean,
-                                        self.build_data({'source': line2.id, 'choice': 1}),
-                                       )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidsource',
+            PollFormLineConditionsField(sources=[line1]).clean,
+            self.build_data({'source': line2.id, 'choice': 1}),
+        )
 
     @skipIfCustomPollForm
     def test_clean_invalid_source02(self):
@@ -89,10 +98,11 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
     @skipIfCustomPollForm
     def test_clean_invalid_choice(self):
         line1, line2 = self._create_lines()
-        self.assertFieldValidationError(PollFormLineConditionsField, 'invalidchoice',
-                                        PollFormLineConditionsField(sources=[line1]).clean,
-                                        self.build_data({'source': line1.id, 'choice': 3}),
-                                       )
+        self.assertFieldValidationError(
+            PollFormLineConditionsField, 'invalidchoice',
+            PollFormLineConditionsField(sources=[line1]).clean,
+            self.build_data({'source': line1.id, 'choice': 3}),
+        )
 
     @skipIfCustomPollForm
     def test_ok01(self):
@@ -113,7 +123,7 @@ class PollFormLineConditionsFieldTestCase(FieldTestCase):
 
     @skipIfCustomPollForm
     def test_ok02(self):
-        "Several conditions, sources property"
+        "Several conditions, sources property."
         line1, line2 = self._create_lines()
 
         with self.assertNumQueries(0):

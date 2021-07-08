@@ -39,8 +39,7 @@ class CremeModelCreation(base.CustomFormMixin,
                          base.PermissionsMixin,
                          base.TitleMixin,
                          base.SubmittableMixin,
-                         CreateView,
-                        ):
+                         CreateView):
     """ Base class for creation view with a model-form in Creme.
     You'll have to override at least the attributes 'model' & 'form_class'
     because the default ones are just abstract place-holders.
@@ -159,7 +158,8 @@ class EntityCreationPopup(CremeModelCreationPopup):
         user.has_perm_to_create_or_die(model)
 
 
-class AddingInstanceToEntityPopup(base.EntityRelatedMixin, CremeModelCreationPopup):
+class AddingInstanceToEntityPopup(base.EntityRelatedMixin,
+                                  CremeModelCreationPopup):
     """ This specialisation of CremeModelCreationPopup creates an instance
     related to a CremeEntity.
 

@@ -84,9 +84,11 @@ def _format_previous_answered_question(preply_id, line, style):
         answer_str=gettext('Answer'),
         answer=answer,
         url=reverse('polls__edit_reply_line_wizard', args=(preply_id, line.id)),
-        icon=get_icon_by_name('edit', theme=theme, label=_('Edit'),
-                              size_px=get_icon_size_px(theme, size='instance-button'),
-                             ).render(css_class='polls-previous-edition'),
+        icon=get_icon_by_name(
+            'edit',
+            theme=theme, label=_('Edit'),
+            size_px=get_icon_size_px(theme, size='instance-button'),
+        ).render(css_class='polls-previous-edition'),
     )
 
 
@@ -112,13 +114,17 @@ def edit_line_wizard(request, preply_id, line_id):
 
     # TODO: pass instance=preply
     if request.method == 'POST':
-        form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
+        form = preply_forms.PollReplyFillForm(
+            line_node=line_node, user=user, data=request.POST,
+        )
 
         if form.is_valid():
             form.save()
 
             # Optimize 'next_question_to_answer' & cie
-            PollReplyLine.populate_conditions([node for node in tree if not node.is_section])
+            PollReplyLine.populate_conditions([
+                node for node in tree if not node.is_section
+            ])
 
             _clear_dependant_answers(tree, line_node)
 
@@ -136,17 +142,21 @@ def edit_line_wizard(request, preply_id, line_id):
         previous = tree.get_previous_answered_question(line_node)
 
         if previous:
-            previous_answer = _format_previous_answered_question(preply_id, previous, NodeStyle())
+            previous_answer = _format_previous_answered_question(
+                preply_id, previous, NodeStyle(),
+            )
 
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
 
-    return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        gettext('Answers of the form : {}').format(preply),
-                   'form':         form,
-                   'help_message': previous_answer,
-                   'cancel_url':   preply.get_absolute_url(),
-                  }
-                 )
+    return render(
+        request, 'creme_core/generics/blockform/edit.html',
+        {
+            'title':        gettext('Answers of the form : {}').format(preply),
+            'form':         form,
+            'help_message': previous_answer,
+            'cancel_url':   preply.get_absolute_url(),
+        },
+    )
 
 
 @login_required
@@ -173,7 +183,9 @@ def fill(request, preply_id):
 
     # TODO: pass instance=preply
     if request.method == 'POST':
-        form = preply_forms.PollReplyFillForm(line_node=line_node, user=user, data=request.POST)
+        form = preply_forms.PollReplyFillForm(
+            line_node=line_node, user=user, data=request.POST,
+        )
 
         if form.is_valid():
             form.save()
@@ -186,22 +198,28 @@ def fill(request, preply_id):
 
                 return redirect(preply)
 
-            previous_answer = _format_previous_answered_question(preply_id, line_node, NodeStyle())
+            previous_answer = _format_previous_answered_question(
+                preply_id, line_node, NodeStyle(),
+            )
             form = preply_forms.PollReplyFillForm(line_node=next_line, user=user)
     else:
         previous = tree.get_previous_answered_question(line_node)
         if previous:
-            previous_answer = _format_previous_answered_question(preply_id, previous, NodeStyle())
+            previous_answer = _format_previous_answered_question(
+                preply_id, previous, NodeStyle(),
+            )
 
         form = preply_forms.PollReplyFillForm(line_node=line_node, user=user)
 
-    return render(request, 'creme_core/generics/blockform/edit.html',
-                  {'title':        gettext('Answers of the form : {}').format(preply),
-                   'form':         form,
-                   'help_message': previous_answer,
-                   'cancel_url':   preply.get_absolute_url(),
-                  }
-                 )
+    return render(
+        request, 'creme_core/generics/blockform/edit.html',
+        {
+            'title':        gettext('Answers of the form : {}').format(preply),
+            'form':         form,
+            'help_message': previous_answer,
+            'cancel_url':   preply.get_absolute_url(),
+        },
+    )
 
 
 def _clear_dependant_answers(tree, line_node):

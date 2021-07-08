@@ -23,9 +23,10 @@ class ShortcutsTestCase(CremeTestCase):
         with self.assertRaises(Http404) as cm:
             get_bulk_or_404(FakeSector, [s1.id, self.UNUSED_PK])
 
-        self.assertEqual(f'These IDs cannot be found: {self.UNUSED_PK}',
-                         cm.exception.args[0]
-                        )
+        self.assertEqual(
+            f'These IDs cannot be found: {self.UNUSED_PK}',
+            cm.exception.args[0],
+        )
 
         # Invalid argument for IDs
         with self.assertRaises(ValueError):
@@ -77,9 +78,10 @@ class ShortcutsTestCase(CremeTestCase):
         with self.assertRaises(Http404) as cm:
             get_bulk_or_404(FakeSector, [str(s1.id), f'{self.UNUSED_PK}'])
 
-        self.assertEqual(f'These IDs cannot be found: {self.UNUSED_PK}',
-                         cm.exception.args[0]
-                        )
+        self.assertEqual(
+            f'These IDs cannot be found: {self.UNUSED_PK}',
+            cm.exception.args[0],
+        )
 
     def test_get_bulk_or_404_07(self):
         "Duplicated."
@@ -91,6 +93,7 @@ class ShortcutsTestCase(CremeTestCase):
         with self.assertRaises(Http404) as cm:
             get_bulk_or_404(FakeSector, [s1.id, str(s1.id), 2048])
 
-        self.assertEqual('These IDs cannot be found: 2048',
-                         cm.exception.args[0]
-                        )
+        self.assertEqual(
+            'These IDs cannot be found: 2048',
+            cm.exception.args[0],
+        )

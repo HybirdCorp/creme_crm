@@ -39,7 +39,7 @@ class DateRangeTestCase(CremeTestCase):
         )
 
     def test_registry01(self):
-        "Register in __init__"
+        "Register in __init__()."
         prev_range = date_range.PreviousYearRange()
         curr_range = date_range.CurrentYearRange()
 
@@ -50,7 +50,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertIsNone(registry.get_range())
 
     def test_registry02(self):
-        "register() method"
+        "register() method."
         prev_range = date_range.PreviousYearRange()
         curr_range = date_range.CurrentYearRange()
 
@@ -62,7 +62,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertIsNone(registry.get_range())
 
     def test_registry03(self):
-        "Duplicates"
+        "Duplicates."
         prev_range1 = date_range.PreviousYearRange()
         prev_range2 = date_range.PreviousYearRange()
         curr_range = date_range.CurrentYearRange()
@@ -101,17 +101,19 @@ class DateRangeTestCase(CremeTestCase):
         self.assertEqual(_('In the future'), str(date_range.verbose_name))
 
         now_value = now()
-        self.assertEqual({'birthday__gte': now_value},
-                         date_range.get_q_dict(field='birthday', now=now_value)
-                        )
+        self.assertDictEqual(
+            {'birthday__gte': now_value},
+            date_range.get_q_dict(field='birthday', now=now_value),
+        )
 
     def test_past(self):
         now_value = now()
         date_range = self.registry.get_range(name='in_past')
         self.assertIsNotNone(date_range)
-        self.assertEqual({'created__lte': now_value},
-                         date_range.get_q_dict(field='created', now=now_value)
-                        )
+        self.assertDictEqual(
+            {'created__lte': now_value},
+            date_range.get_q_dict(field='created', now=now_value),
+        )
 
     def test_custom_start01(self):
         now_value = date(year=2011, month=6, day=1)
@@ -123,7 +125,7 @@ class DateRangeTestCase(CremeTestCase):
                     year=2011, month=6, day=1, hour=0, minute=0, second=0,
                 ),
             },
-            date_range.get_q_dict(field='created', now=now())
+            date_range.get_q_dict(field='created', now=now()),
         )
 
     def test_custom_start02(self):
@@ -132,8 +134,12 @@ class DateRangeTestCase(CremeTestCase):
         date_range = self.registry.get_range(start=now_value)
         self.assertIsNotNone(date_range)
         self.assertDictEqual(
-            {'created__gte': dt(year=2011, month=6, day=1, hour=12, minute=36, second=12)},
-            date_range.get_q_dict(field='created', now=now())
+            {
+                'created__gte': dt(
+                    year=2011, month=6, day=1, hour=12, minute=36, second=12,
+                ),
+            },
+            date_range.get_q_dict(field='created', now=now()),
         )
 
     def test_custom_end01(self):
@@ -146,7 +152,7 @@ class DateRangeTestCase(CremeTestCase):
                     year=2012, month=7, day=15, hour=23, minute=59, second=59,
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now())
+            date_range.get_q_dict(field='modified', now=now()),
         )
 
     def test_custom_end02(self):
@@ -155,7 +161,11 @@ class DateRangeTestCase(CremeTestCase):
         date_range = self.registry.get_range(end=now_value)
         self.assertIsNotNone(date_range)
         self.assertDictEqual(
-            {'modified__lte': dt(year=2012, month=7, day=15, hour=10, minute=21, second=50)},
+            {
+                'modified__lte': dt(
+                    year=2012, month=7, day=15, hour=10, minute=21, second=50,
+                ),
+            },
             date_range.get_q_dict(field='modified', now=now())
         )
 
@@ -173,7 +183,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=8, day=3, hour=23, minute=59, second=59),
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now())
+            date_range.get_q_dict(field='modified', now=now()),
         )
 
     def test_previous_year(self):
@@ -188,7 +198,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2010, month=12, day=31, hour=23, minute=59, second=59)
                 ),
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_current_year(self):
@@ -203,7 +213,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=12, day=31, hour=23, minute=59, second=59)
                 ),
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_next_year(self):
@@ -218,7 +228,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2012, month=12, day=31, hour=23, minute=59, second=59)
                 ),
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_previous_month01(self):
@@ -232,7 +242,7 @@ class DateRangeTestCase(CremeTestCase):
                     datetime(year=2011, month=3, day=31, hour=23, minute=59, second=59)
                 ),
             },
-            date_range.get_q_dict(field='modified', now=now_value)
+            date_range.get_q_dict(field='modified', now=now_value),
         )
 
     def test_previous_month02(self):
@@ -244,8 +254,9 @@ class DateRangeTestCase(CremeTestCase):
                     datetime(year=2011, month=2, day=28, hour=23, minute=59, second=59),
                 ),
             },
-            self.registry.get_range(name='previous_month')
-                         .get_q_dict(field='modified', now=today)
+            self.registry
+                .get_range(name='previous_month')
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_previous_month03(self):
@@ -257,8 +268,9 @@ class DateRangeTestCase(CremeTestCase):
                     datetime(year=2010, month=12, day=31, hour=23, minute=59, second=59),
                 ),
             },
-            self.registry.get_range(name='previous_month')
-                         .get_q_dict(field='modified', now=today)
+            self.registry
+                .get_range(name='previous_month')
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_current_month01(self):
@@ -286,7 +298,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='current_month')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_current_month03(self):
@@ -300,7 +312,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='current_month')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_next_month01(self):
@@ -314,7 +326,7 @@ class DateRangeTestCase(CremeTestCase):
                     datetime(year=2011, month=11, day=30, hour=23, minute=59, second=59),
                 )
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_next_month02(self):
@@ -328,7 +340,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='next_month')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_next_month03(self):
@@ -342,7 +354,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='next_month')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_previous_quarter01(self):
@@ -358,7 +370,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=3, day=31, hour=23, minute=59, second=59)
                 ),
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_previous_quarter02(self):
@@ -373,7 +385,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='previous_quarter')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_previous_quarter03(self):
@@ -388,7 +400,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='previous_quarter')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_current_quarter01(self):
@@ -404,7 +416,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=9, day=30, hour=23, minute=59, second=59),
                 )
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_next_quarter01(self):
@@ -420,7 +432,7 @@ class DateRangeTestCase(CremeTestCase):
                     dt(year=2011, month=9, day=30, hour=23, minute=59, second=59),
                 ),
             },
-            date_range.get_q_dict(field='modified', now=today)
+            date_range.get_q_dict(field='modified', now=today),
         )
 
     def test_next_quarter02(self):
@@ -435,7 +447,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='next_quarter')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_yesterday01(self):
@@ -463,7 +475,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='yesterday')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_today(self):
@@ -477,7 +489,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='today')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_tomorrow01(self):
@@ -491,7 +503,7 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='tomorrow')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_tomorrow02(self):
@@ -505,19 +517,21 @@ class DateRangeTestCase(CremeTestCase):
             },
             self.registry
                 .get_range(name='tomorrow')
-                .get_q_dict(field='modified', now=today)
+                .get_q_dict(field='modified', now=today),
         )
 
     def test_empty(self):
         date_range = self.registry.get_range(name='empty')
         self.assertIsNotNone(date_range)
-        self.assertEqual({'created__isnull': True},
-                         date_range.get_q_dict(field='created', now=now())
-                        )
+        self.assertDictEqual(
+            {'created__isnull': True},
+            date_range.get_q_dict(field='created', now=now()),
+        )
 
     def test_not_empty(self):
         date_range = self.registry.get_range(name='not_empty')
         self.assertIsNotNone(date_range)
-        self.assertEqual({'created__isnull': False},
-                         date_range.get_q_dict(field='created', now=now())
-                        )
+        self.assertDictEqual(
+            {'created__isnull': False},
+            date_range.get_q_dict(field='created', now=now()),
+        )

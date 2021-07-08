@@ -71,22 +71,25 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         contact_group = (
             self.contacts_title,
-            [(contact_me.pk, f'{self.contacts_title} - {contact_me.name}')]
+            [(contact_me.pk, f'{self.contacts_title} - {contact_me.name}')],
         )
-        self.assertEqual([contact_group],
-                         self.brick.get_filter_choices(user, Contact)
-                        )
+        self.assertListEqual(
+            [contact_group],
+            self.brick.get_filter_choices(user, Contact),
+        )
 
         orga_group = (
             self.organisations_title,
             [(managed_orgas.pk, f'{self.organisations_title} - {managed_orgas.name}')]
         )
-        self.assertEqual([orga_group],
-                         self.brick.get_filter_choices(user, Organisation)
-                        )
-        self.assertEqual([contact_group, orga_group],
-                         self.brick.get_filter_choices(user, Contact, Organisation)
-                        )
+        self.assertListEqual(
+            [orga_group],
+            self.brick.get_filter_choices(user, Organisation),
+        )
+        self.assertListEqual(
+            [contact_group, orga_group],
+            self.brick.get_filter_choices(user, Contact, Organisation),
+        )
 
     def test_filter_choices02(self):
         user = self.user
@@ -156,11 +159,13 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
         title = self.organisations_title
         self.assertListEqual(
-            [(title,
-              [(managed_orgas.pk, f'{title} - {managed_orgas.name}')]
-             )
+            [
+                (
+                    title,
+                    [(managed_orgas.pk, f'{title} - {managed_orgas.name}')],
+                )
             ],
-            self.brick.get_filter_choices(user, Organisation)
+            self.brick.get_filter_choices(user, Organisation),
         )
 
         orga_group = self.brick.get_filter_choices(other_user, Organisation)[0]

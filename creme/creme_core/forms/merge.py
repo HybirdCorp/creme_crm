@@ -73,7 +73,7 @@ class MergeWidget(Widget):
 
         value_1, value_2, value_m = value or ('', '', '')
         widget = self._original_widget
-        # TODO: improve Wigdets with a 'read_only' param
+        # TODO: improve Widgets with a 'read_only' param
         #   -> each type choose the right html attribute
         ro_attr = 'disabled' if isinstance(widget, (Select, CheckboxInput)) else 'readonly'
 

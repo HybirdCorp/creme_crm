@@ -223,10 +223,10 @@ class ContentLine(VBase):
         # group is used as a positional argument to match parseLine's return
         # super(ContentLine, self).__init__(group, *args, **kwds)
         super().__init__(group, *args, **kwds)
-        self.name        = name.upper()
-        self.value       = value
-        self.encoded     = encoded
-        self.params      = {}
+        self.name = name.upper()
+        self.value = value
+        self.encoded = encoded
+        self.params = {}
         self.singletonparams = []
         self.isNative = isNative
         self.lineNumber = lineNumber
@@ -582,11 +582,13 @@ begin_re        = re.compile('BEGIN', re.IGNORECASE)
 
 def parseParams(string):
     """
-    >>> parseParams(';ALTREP="http://www.wiz.org"')
+    >> parseParams(';ALTREP="http://www.wiz.org"')
     [['ALTREP', 'http://www.wiz.org']]
-    >>> parseParams('')
+
+    >> parseParams('')
     []
-    >>> parseParams(';ALTREP="http://www.wiz.org;;",Blah,Foo;NEXT=Nope;BAR')
+
+    >> parseParams(';ALTREP="http://www.wiz.org;;",Blah,Foo;NEXT=Nope;BAR')
     [['ALTREP', 'http://www.wiz.org;;', 'Blah', 'Foo'], ['NEXT', 'Nope'], ['BAR']]
     """
     all = params_re.findall(string)
@@ -608,21 +610,27 @@ def parseParams(string):
 
 def parseLine(line, lineNumber=None):
     """
-    >>> parseLine("BLAH:")
+    >> parseLine("BLAH:")
     ('BLAH', [], '', None)
-    >>> parseLine("RDATE:VALUE=DATE:19970304,19970504,19970704,19970904")
+
+    >> parseLine("RDATE:VALUE=DATE:19970304,19970504,19970704,19970904")
     ('RDATE', [], 'VALUE=DATE:19970304,19970504,19970704,19970904', None)
-    >>> parseLine('DESCRIPTION;ALTREP="http://www.wiz.org":The Fall 98 Wild Wizards Conference
+
+    >> parseLine('DESCRIPTION;ALTREP="http://www.wiz.org":The Fall 98 Wild Wizards Conference
     - - Las Vegas, NV, USA')
     ('DESCRIPTION', [['ALTREP', 'http://www.wiz.org']], 'The Fall 98 Wild Wizards Conference
     - - Las Vegas, NV, USA', None)
-    >>> parseLine("EMAIL;PREF;INTERNET:john@nowhere.com")
+
+    >> parseLine("EMAIL;PREF;INTERNET:john@nowhere.com")
     ('EMAIL', [['PREF'], ['INTERNET']], 'john@nowhere.com', None)
-    >>> parseLine('EMAIL;TYPE="blah",hah;INTERNET="DIGI",DERIDOO:john@nowhere.com')
+
+    >> parseLine('EMAIL;TYPE="blah",hah;INTERNET="DIGI",DERIDOO:john@nowhere.com')
     ('EMAIL', [['TYPE', 'blah', 'hah'], ['INTERNET', 'DIGI', 'DERIDOO']], 'john@nowhere.com', None)
-    >>> parseLine('item1.ADR;type=HOME;type=pref:;;Reeperbahn 116;Hamburg;;20359;')
+
+    >> parseLine('item1.ADR;type=HOME;type=pref:;;Reeperbahn 116;Hamburg;;20359;')
     ('ADR', [['type', 'HOME'], ['type', 'pref']], ';;Reeperbahn 116;Hamburg;;20359;', 'item1')
-    >>> parseLine(":")
+
+    >> parseLine(":")
     Traceback (most recent call last):
     ...
     ParseError: 'Failed to parse line: :'
@@ -636,10 +644,12 @@ def parseLine(line, lineNumber=None):
     #         parseParams(match.group('params')),
     #         match.group('value'), match.group('group'),
     #        )
-    return (match['name'].replace('_', '-'),
-            parseParams(match['params']),
-            match['value'], match['group'],
-           )
+    return (
+        match['name'].replace('_', '-'),
+        parseParams(match['params']),
+        match['value'],
+        match['group'],
+    )
 
 
 # logical line regular expressions
@@ -679,9 +689,9 @@ def getLogicalLines(fp, allowQP=True, findBegin=False):
     Quoted-printable data will be decoded in the Behavior decoding phase.
 
     # >>> from StringIO import StringIO
-    >>> from io import StringIO
-    >>> f = StringIO(testLines)
-    >>> for n, l in enumerate(getLogicalLines(f)):
+    >> from io import StringIO
+    >> f = StringIO(testLines)
+    >> for n, l in enumerate(getLogicalLines(f)):
     ...     print('Line {}: {}'.format(n, l[0]))
     ...
     Line 0: Line 0 text, Line 0 continued.
@@ -909,20 +919,19 @@ def readComponents(streamOrString, validate=False, transform=True,
                    allowQP=False):
     """Generate one Component at a time from a stream.
 
-    >>> from io import StringIO
-    >>> f = StringIO('''
+    >> from io import StringIO
+    >> f = StringIO('''
 BEGIN:VCALENDAR
 BEGIN:VEVENT
 SUMMARY;blah=hi!:Bastille Day Party
 END:VEVENT
 END:VCALENDAR''')
-    >>> cal = next(readComponents(f))
-    >>> cal
+    >> cal = next(readComponents(f))
+    >> cal
     <VCALENDAR| [<VEVENT| [<SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>]>]>
-    >>> cal.vevent.summary
+    >> cal.vevent.summary
     <SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>
     """
-
     # stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
     #          streamOrString
     stream = (
@@ -940,9 +949,11 @@ END:VCALENDAR''')
                 try:
                     vline = textLineToContentLine(line, n)
                 except VObjectError as e:
-                    msg = "Skipped line %(lineNumber)s, message: %(msg)s" \
-                          if e.lineNumber is not None else \
-                          "Skipped a line, message: %(msg)s"
+                    msg = (
+                        "Skipped line %(lineNumber)s, message: %(msg)s"
+                        if e.lineNumber is not None else
+                        "Skipped a line, message: %(msg)s"
+                    )
 
                     logger.error(msg, lineNumber=e.lineNumber, msg=e.message)
                     continue
@@ -962,7 +973,7 @@ END:VCALENDAR''')
                 if len(stack) == 0:
                     raise ParseError(
                         f'Attempted to end the {vline.value} component, but it was never opened',
-                        n
+                        n,
                     )
 
                 if vline.value.upper() == stack.topName():  # START matches END
@@ -1005,10 +1016,9 @@ END:VCALENDAR''')
 def readOne(stream, validate=False, transform=True, findBegin=True,
             ignoreUnreadable=False, allowQP=False):
     """Return the first component from stream."""
-    return next(readComponents(stream, validate, transform, findBegin,
-                               ignoreUnreadable, allowQP,
-                              )
-               )
+    return next(readComponents(
+        stream, validate, transform, findBegin, ignoreUnreadable, allowQP,
+    ))
 
 
 # -------------------------- version registry ----------------------------------
@@ -1025,9 +1035,10 @@ class BehaviorRegistry:
         """
         def _aux(behavior):
             behaviors = self._behaviors[name or behavior.name.upper()]
-            elt = (behavior.versionString if id is None else id,
-                   behavior
-                  )
+            elt = (
+                behavior.versionString if id is None else id,
+                behavior,
+            )
 
             if default:
                 behaviors.insert(0, elt)
@@ -1074,5 +1085,16 @@ behavior_registry = BehaviorRegistry()
 
 # -------------------------- Helper function -----------------------------------
 def backslashEscape(s):
-    return s.replace("\\", "\\\\").replace(";", r"\;").replace(",", r"\,") \
-            .replace("\r\n", "\\n").replace("\n", "\\n").replace("\r", "\\n")
+    return s.replace(
+        '\\', '\\\\'
+    ).replace(
+        ';', r'\;'
+    ).replace(
+        ',', r'\,'
+    ).replace(
+        '\r\n', '\\n'
+    ).replace(
+        '\n', '\\n'
+    ).replace(
+        '\r', '\\n'
+    )

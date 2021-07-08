@@ -55,16 +55,20 @@ class ActTestCase(CommercialBaseTestCase):
 
         cls.ADD_URL = reverse('commercial__create_act')
 
-    def _build_addobjective_url(self, act):
+    @staticmethod
+    def _build_addobjective_url(act):
         return reverse('commercial__create_objective', args=(act.id,))
 
-    def _build_addobjectivefrompattern_url(self, act):
+    @staticmethod
+    def _build_addobjectivefrompattern_url(act):
         return reverse('commercial__create_objective_from_pattern', args=(act.id,))
 
-    def _build_create_related_entity_url(self, objective):
+    @staticmethod
+    def _build_create_related_entity_url(objective):
         return reverse('commercial__create_entity_from_objective', args=(objective.id,))
 
-    def _build_incr_url(self, objective):
+    @staticmethod
+    def _build_incr_url(objective):
         return reverse('commercial__incr_objective_counter', args=(objective.id,))
 
     def test_create(self):
@@ -200,7 +204,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(date(year=2011, month=12, day=25), act.due_date)
 
     def test_edit02(self):
-        "Error: due_date < start date"
+        "Error: due_date < start date."
         user = self.login()
         act = self.create_act()
 
@@ -335,7 +339,7 @@ class ActTestCase(CommercialBaseTestCase):
         )
 
     def test_create_linked_opportunity03(self):
-        "Cannot link with Opportunity"
+        "Cannot link with Opportunity."
         user = self.login(
             is_superuser=False,
             allowed_apps=('commercial', 'opportunities'),
@@ -389,11 +393,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertGET200(reverse('commercial__create_opportunity', args=(act.id,)))
 
     def test_create_linked_opportunity06(self):
-        "Not super-user"
-        self.login(is_superuser=False,
-                   allowed_apps=('commercial', 'opportunities'),
-                   creatable_models=[Opportunity],
-                  )
+        "Not super-user."
+        self.login(
+            is_superuser=False,
+            allowed_apps=('commercial', 'opportunities'),
+            creatable_models=[Opportunity],
+        )
         SetCredentials.objects.create(
             role=self.role, set_type=SetCredentials.ESET_ALL,
             value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
@@ -589,7 +594,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(5, ActObjective.objects.filter(act=act).count())
 
         with self.assertNoException():
-            objectives  = act.objectives
+            objectives = act.objectives
             objective01 = objectives.get(name='Root01')
             objective02 = objectives.get(name='Root02')
             objective11 = objectives.get(name='Child 01')
@@ -664,7 +669,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(efilter,      objective.filter)
 
     def test_edit_objective02(self):
-        "Private filter"
+        "Private filter."
         self.login()
 
         priv_efilter = EntityFilter.objects.smart_update_or_create(
@@ -942,8 +947,10 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(0, objective.get_count())
         self.assertFalse(objective.reached)
 
-        completes_goal = partial(Relation.objects.create, type=rtype, object_entity=act, user=user)
-        create_orga    = partial(Organisation.objects.create, user=user)
+        completes_goal = partial(
+            Relation.objects.create, type=rtype, object_entity=act, user=user,
+        )
+        create_orga = partial(Organisation.objects.create, user=user)
 
         completes_goal(subject_entity=create_orga(name='Ferraille corp'))
         objective = self.refresh(objective)  # Refresh cache
@@ -1000,7 +1007,7 @@ class ActTestCase(CommercialBaseTestCase):
 
         completes_goal = partial(
             Relation.objects.create,
-            type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user
+            type_id=REL_SUB_COMPLETE_GOAL, object_entity=act, user=user,
         )
         completes_goal(subject_entity=orga01)
         self.assertEqual(1, self.refresh(objective).get_count())
@@ -1031,7 +1038,9 @@ class ActTestCase(CommercialBaseTestCase):
 
         create_obj = partial(ActObjective.objects.create, act=act)
         obj1 = create_obj(name='Hello counter')
-        obj2 = create_obj(name='Orga counter', counter_goal=2, filter=efilter, ctype=Organisation)
+        obj2 = create_obj(
+            name='Organisation counter', counter_goal=2, filter=efilter, ctype=Organisation,
+        )
 
         cloned = act.clone()
         self.assertEqual(act.name,     cloned.name)
@@ -1101,11 +1110,12 @@ class ActTestCase(CommercialBaseTestCase):
         self.login()
         act = self.create_act()
         response = self.assertPOST200(reverse(
-            'creme_config__delete_instance', args=('commercial', 'act_type', act.act_type_id),
+            'creme_config__delete_instance',
+            args=('commercial', 'act_type', act.act_type_id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_commercial__act_act_type', _('Deletion is not possible.')
+            response, 'form', 'replace_commercial__act_act_type',
+            _('Deletion is not possible.'),
         )
 
     @skipIfCustomOrganisation
