@@ -157,7 +157,7 @@ class BatchActionsField(JSONField):
         return fname
 
     def _clean_operator_name_n_value(self, entry):
-        clean_value =  self.clean_value
+        clean_value = self.clean_value
         operator_name = clean_value(entry, 'operator', str)
         value = clean_value(entry, 'value', str)
 

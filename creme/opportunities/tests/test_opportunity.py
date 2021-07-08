@@ -196,7 +196,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
         self.assertNoFormError(response)
 
-        opportunity =  self.get_object_or_fail(Opportunity, name=name)
+        opportunity = self.get_object_or_fail(Opportunity, name=name)
         self.assertEqual(phase,              opportunity.sales_phase)
         self.assertEqual(date(2010, 9,  20), opportunity.expected_closing_date)
         self.assertEqual(date(2010, 10, 11), opportunity.closing_date)
@@ -752,7 +752,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         )
 
         opportunity.estimated_sales = 1000
-        opportunity.chance_to_win   =  10
+        opportunity.chance_to_win   = 10
         self.assertEqual(
             number_format('100.0', use_l10n=True),
             funf(opportunity, user).for_html()

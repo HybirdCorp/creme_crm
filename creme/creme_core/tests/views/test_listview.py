@@ -3145,7 +3145,7 @@ class ListViewTestCase(ViewsTestCase):
     @override_settings(FAST_QUERY_MODE_THRESHOLD=14, PAGE_SIZES=[10])
     def test_pagination_fast08(self):
         "Change paginator class slow => fast (so saved page info are not compatible)."
-        user =  self.login()
+        user = self.login()
         self._build_orgas()
         hf = self._build_hf()
         url = FakeOrganisation.get_lv_absolute_url()

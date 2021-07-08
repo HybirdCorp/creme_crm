@@ -267,15 +267,15 @@ class _HistoryLineTypeRegistry:
 
 TYPES_MAP = _HistoryLineTypeRegistry()
 
-TYPE_CREATION        =  1
-TYPE_EDITION         =  2
-TYPE_DELETION        =  3
-TYPE_RELATED         =  4
-TYPE_PROP_ADD        =  5
-TYPE_RELATION        =  6
-TYPE_SYM_RELATION    =  7
-TYPE_RELATION_DEL    =  8
-TYPE_SYM_REL_DEL     =  9
+TYPE_CREATION        = 1
+TYPE_EDITION         = 2
+TYPE_DELETION        = 3
+TYPE_RELATED         = 4
+TYPE_PROP_ADD        = 5
+TYPE_RELATION        = 6
+TYPE_SYM_RELATION    = 7
+TYPE_RELATION_DEL    = 8
+TYPE_SYM_REL_DEL     = 9
 TYPE_AUX_CREATION    = 10
 TYPE_AUX_EDITION     = 11
 TYPE_AUX_DELETION    = 12

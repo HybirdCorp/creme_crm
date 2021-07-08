@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,15 +37,15 @@ from creme.creme_core.utils.meta import FieldInfo
 from . import EF_USER, entity_filter_registries
 
 # IDs
-EQUALS          =  1
-IEQUALS         =  2
-EQUALS_NOT      =  3
-IEQUALS_NOT     =  4
-CONTAINS        =  5
-ICONTAINS       =  6
-CONTAINS_NOT    =  7
-ICONTAINS_NOT   =  8
-GT              =  9
+EQUALS          = 1
+IEQUALS         = 2
+EQUALS_NOT      = 3
+IEQUALS_NOT     = 4
+CONTAINS        = 5
+ICONTAINS       = 6
+CONTAINS_NOT    = 7
+ICONTAINS_NOT   = 8
+GT              = 9
 GTE             = 10
 LT              = 11
 LTE             = 12
