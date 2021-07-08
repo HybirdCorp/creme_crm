@@ -258,11 +258,19 @@ class ExportingTestCase(CremeTestCase):
 
         create_sc = partial(SetCredentials.objects.create, role=role)
         sc1 = create_sc(
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.LINK,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.LINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
         sc2 = create_sc(
-            value=EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+            ),
             set_type=SetCredentials.ESET_ALL,
             ctype=FakeContact,
         )
@@ -306,16 +314,16 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(role.name, role_info.get('name'))
         self.assertSetEqual(
             {'creme_core', 'persons'},
-            {*role_info.get('allowed_apps')}
+            {*role_info.get('allowed_apps')},
         )
         self.assertListEqual(['persons'], role_info.get('admin_4_apps'))
         self.assertSetEqual(
             {'creme_core.fakecontact', 'creme_core.fakeorganisation'},
-            {*role_info.get('creatable_ctypes', ())}
+            {*role_info.get('creatable_ctypes', ())},
         )
         self.assertListEqual(
             ['creme_core.fakecontact'],
-            role_info.get('exportable_ctypes')
+            role_info.get('exportable_ctypes'),
         )
         self.assertListEqual(
             [
@@ -537,7 +545,7 @@ class ExportingTestCase(CremeTestCase):
                 {'id': binfo['id'], 'order': binfo['order']}
                 for binfo in default_bricks_info
                 if binfo['zone'] == BrickDetailviewLocation.LEFT
-            ]
+            ],
         )
         self.assertListEqual(
             existing_default_bricks_data.get(BrickDetailviewLocation.RIGHT),
@@ -545,7 +553,7 @@ class ExportingTestCase(CremeTestCase):
                 {'id': binfo['id'], 'order': binfo['order']}
                 for binfo in default_bricks_info
                 if binfo['zone'] == BrickDetailviewLocation.RIGHT
-            ]
+            ],
         )
 
     def test_detail_bricks02(self):
@@ -603,7 +611,7 @@ class ExportingTestCase(CremeTestCase):
                 {
                     'id': bricks.HistoryBrick.id_, 'order': 10, 'zone': RIGHT,
                     'ctype': 'creme_core.fakecontact',
-                }
+                },
             ],
             [binfo for binfo in contact_bricks_info if binfo['zone'] == RIGHT],
         )
@@ -645,8 +653,8 @@ class ExportingTestCase(CremeTestCase):
             dumped_bdl
             for dumped_bdl in content.get('detail_bricks')
             if (
-                dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
-                dumped_bdl.get('role') == role.name
+                dumped_bdl.get('ctype') == 'creme_core.fakecontact'
+                and dumped_bdl.get('role') == role.name
             )
         ]
 
@@ -673,7 +681,7 @@ class ExportingTestCase(CremeTestCase):
                     'ctype': 'creme_core.fakecontact', 'role': role.name
                 },
             ],
-            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT]
+            [binfo for binfo in contact_bricks_info if binfo['zone'] == LEFT],
         )
         self.assertListEqual(
             [
@@ -701,8 +709,8 @@ class ExportingTestCase(CremeTestCase):
             dumped_bdl
             for dumped_bdl in content.get('detail_bricks')
             if (
-                dumped_bdl.get('ctype') == 'creme_core.fakecontact' and
-                dumped_bdl.get('superuser')
+                dumped_bdl.get('ctype') == 'creme_core.fakecontact'
+                and dumped_bdl.get('superuser')
             )
         ]
 
@@ -807,7 +815,7 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertListEqual(
             [{'id': loc.brick_id, 'order': loc.order} for loc in existing_locs],
-            content.get('mypage_bricks')
+            content.get('mypage_bricks'),
         )
 
     def test_instance_bricks01(self):
@@ -840,7 +848,7 @@ class ExportingTestCase(CremeTestCase):
             self.client.get(self.URL),
             escape(msg_fmt.format(
                 blocks=ExportingInstanceBrick.verbose_name,
-                models=FakeContact._meta.verbose_name
+                models=FakeContact._meta.verbose_name,
             )),
             status_code=409,
         )
@@ -980,7 +988,9 @@ class ExportingTestCase(CremeTestCase):
                 content_type=contact_ct,
                 # id=f'creme_config_export-test_export_buttons-{i}',
                 order=i,
-                button_id=Button.generate_id('creme_config_export', f'test_export_buttons{i}'),
+                button_id=Button.generate_id(
+                    'creme_config_export', f'test_export_buttons{i}',
+                ),
             )
 
         bmi1 = create_button(1)
@@ -995,7 +1005,7 @@ class ExportingTestCase(CremeTestCase):
                 {'order': bconf.order, 'button_id': bconf.button_id}
                 for bconf in default_buttons
             ],
-            [d for d in loaded_buttons if 'ctype' not in d]
+            [d for d in loaded_buttons if 'ctype' not in d],
         )
         self.assertListEqual(
             [
@@ -1511,7 +1521,7 @@ class ExportingTestCase(CremeTestCase):
                     },
                 ],
             },
-            loaded_efilters.get(ef1.id)
+            loaded_efilters.get(ef1.id),
         )
         self.assertDictEqual(
             {

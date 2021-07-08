@@ -140,11 +140,11 @@ class MassExportViewsTestCase(ViewsTestCase):
         return self._build_dl_url(
             ct_or_model=ct,
             hfilter_id=(
-                hfilter_id or
-                HeaderFilter.objects
-                            .filter(entity_type=ct)
-                            .values_list('id', flat=True)
-                            .first()
+                hfilter_id
+                or HeaderFilter.objects
+                               .filter(entity_type=ct)
+                               .values_list('id', flat=True)
+                               .first()
             ),
             **kwargs
         )
@@ -282,7 +282,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-mass_export">{}<div>',
-                _('Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)') % {
+                _(
+                    'Export of «%(counted_instances)s» (view «%(view)s» & filter «%(filter)s»)'
+                ) % {
                     'counted_instances': _('{count} {model}').format(
                         count=count,
                         model='Test Contacts',
@@ -525,7 +527,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         hline = hlines[0]
         self.assertListEqual(
-            [1, hf.name, efilter.name], hline.modifications
+            [1, hf.name, efilter.name], hline.modifications,
         )
         self.assertListEqual(
             [

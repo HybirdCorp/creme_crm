@@ -183,7 +183,8 @@ class BoundFieldBlocks:
 
     def __init__(self,
                  form: forms.BaseForm,
-                 blocks_items: Iterable[Tuple[str, _FieldBlock]]):
+                 blocks_items: Iterable[Tuple[str, _FieldBlock]],
+                 ):
         blocks_data = self._blocks_data = OrderedDict()
         wildcard_id: Optional[str] = None
         field_set: Set[str] = set()
@@ -313,7 +314,8 @@ class FieldBlockManager:
         ])
 
     def new(self,
-            *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]) -> 'FieldBlockManager':
+            *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict],
+            ) -> 'FieldBlockManager':
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
                If you use the dictionary format, you can use an extra key "order"
@@ -667,9 +669,10 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         else:
             del self.fields['property_types']
 
-    def _build_relations_fields(
-            self,
-            forced_relations_info: List[Tuple[RelationType, CremeEntity]]) -> None:
+    def _build_relations_fields(self,
+                                forced_relations_info:
+                                    List[Tuple[RelationType, CremeEntity]],
+                                ) -> None:
         fields = self.fields
         instance = self.instance
         info: Optional[str] = None
@@ -709,8 +712,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                                                      .select_related('object_entity')
                 ]
                 sfrt_qs = SemiFixedRelationType.objects.filter(
-                    Q(relation_type__subject_ctypes=ctype) |
-                    Q(relation_type__subject_ctypes__isnull=True),
+                    Q(relation_type__subject_ctypes=ctype)
+                    | Q(relation_type__subject_ctypes__isnull=True),
                 ).filter(
                     object_entity__in=filter(self.user.has_perm_to_link, entities),
                 )
@@ -848,12 +851,14 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
     def _save_properties(self,
                          properties: Iterable[CremeProperty],
-                         check_existing: bool = True) -> None:
+                         check_existing: bool = True,
+                         ) -> None:
         CremeProperty.objects.safe_multi_save(properties, check_existing=check_existing)
 
     def _save_relations(self,
                         relations: Iterable[Relation],
-                        check_existing: bool = True) -> None:
+                        check_existing: bool = True,
+                        ) -> None:
         Relation.objects.safe_multi_save(relations, check_existing=check_existing)
 
     def save(self, *args, **kwargs):

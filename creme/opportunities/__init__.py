@@ -25,8 +25,8 @@ from creme.creme_core import get_concrete_model
 
 def opportunity_model_is_custom():
     return (
-        settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity' and
-        not settings.OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM
+        settings.OPPORTUNITIES_OPPORTUNITY_MODEL != 'opportunities.Opportunity'
+        and not settings.OPPORTUNITIES_OPPORTUNITY_FORCE_NOT_CUSTOM
     )
 
 

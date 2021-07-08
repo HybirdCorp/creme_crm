@@ -25,28 +25,28 @@ from creme.creme_core import get_concrete_model
 
 def emailcampaign_model_is_custom():
     return (
-        settings.EMAILS_CAMPAIGN_MODEL != 'emails.EmailCampaign' and
-        not settings.EMAILS_CAMPAIGN_FORCE_NOT_CUSTOM
+        settings.EMAILS_CAMPAIGN_MODEL != 'emails.EmailCampaign'
+        and not settings.EMAILS_CAMPAIGN_FORCE_NOT_CUSTOM
     )
 
 
 def emailtemplate_model_is_custom():
     return (
-        settings.EMAILS_TEMPLATE_MODEL != 'emails.EmailTemplate' and
-        not settings.EMAILS_TEMPLATE_FORCE_NOT_CUSTOM
+        settings.EMAILS_TEMPLATE_MODEL != 'emails.EmailTemplate'
+        and not settings.EMAILS_TEMPLATE_FORCE_NOT_CUSTOM
     )
 
 
 def entityemail_model_is_custom():
     return (
-        settings.EMAILS_EMAIL_MODEL != 'emails.EntityEmail' and
-        not settings.EMAILS_EMAIL_FORCE_NOT_CUSTOM)
+        settings.EMAILS_EMAIL_MODEL != 'emails.EntityEmail'
+        and not settings.EMAILS_EMAIL_FORCE_NOT_CUSTOM)
 
 
 def mailinglist_model_is_custom():
     return (
-        settings.EMAILS_MLIST_MODEL != 'emails.MailingList' and
-        not settings.EMAILS_MLIST_FORCE_NOT_CUSTOM
+        settings.EMAILS_MLIST_MODEL != 'emails.MailingList'
+        and not settings.EMAILS_MLIST_FORCE_NOT_CUSTOM
     )
 
 

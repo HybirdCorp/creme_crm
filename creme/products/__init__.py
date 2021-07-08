@@ -25,15 +25,15 @@ from creme.creme_core import get_concrete_model
 
 def product_model_is_custom():
     return (
-        settings.PRODUCTS_PRODUCT_MODEL != 'products.Product' and
-        not settings.PRODUCTS_PRODUCT_FORCE_NOT_CUSTOM
+        settings.PRODUCTS_PRODUCT_MODEL != 'products.Product'
+        and not settings.PRODUCTS_PRODUCT_FORCE_NOT_CUSTOM
     )
 
 
 def service_model_is_custom():
     return (
-        settings.PRODUCTS_SERVICE_MODEL != 'products.Service' and
-        not settings.PRODUCTS_SERVICE_FORCE_NOT_CUSTOM
+        settings.PRODUCTS_SERVICE_MODEL != 'products.Service'
+        and not settings.PRODUCTS_SERVICE_FORCE_NOT_CUSTOM
     )
 
 

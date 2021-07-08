@@ -50,7 +50,8 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         cls.orga_ct       = get_ct(FakeOrganisation)
         cls.contact_ct_id = get_ct(FakeContact).id
 
-    def _build_add_url(self, model, efilter_id=None):
+    @staticmethod
+    def _build_add_url(model, efilter_id=None):
         uri = reverse(
             'creme_core__batch_process',
             args=(ContentType.objects.get_for_model(model).id,),
@@ -80,10 +81,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_max_job(self):
         user = self.login()
-        Job.objects.create(user=user,
-                           type_id=batch_process_type.id,
-                           language='en',
-                          )
+        Job.objects.create(
+            user=user, type_id=batch_process_type.id, language='en',
+        )
 
         response = self.assertGET200(self._build_add_url(FakeOrganisation), follow=True)
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
@@ -105,11 +105,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             form = response.context['form']
             orga_fields = {*form.fields['actions']._fields}
 
-        self.assertEqual({'content_type': self.orga_ct,
-                          'filter': None,
-                         },
-                         form.initial
-                        )
+        self.assertDictEqual(
+            {
+                'content_type': self.orga_ct,
+                'filter': None,
+            },
+            form.initial
+        )
 
         self.assertIn('name', orga_fields)
         self.assertIn('capital', orga_fields)
@@ -154,13 +156,13 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                     operator=_('To upper case'),
                 )
             ],
-            job.description
+            job.description,
         )
 
         self.assertRedirects(response, job.get_absolute_url())
 
-        self.assertEqual([job], queue.started_jobs)
-        self.assertEqual([],    queue.refreshed_jobs)
+        self.assertListEqual([job], queue.started_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         batch_process_type.execute(job)
 
@@ -173,18 +175,21 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertIsNone(job.error)
 
         orga_count = FakeOrganisation.objects.count()
-        self.assertEqual([ngettext('{count} entity has been successfully modified.',
-                                   '{count} entities have been successfully modified.',
-                                   orga_count
-                                  ).format(count=orga_count),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} entity has been successfully modified.',
+                    '{count} entities have been successfully modified.',
+                    orga_count
+                ).format(count=orga_count),
+            ],
+            job.stats,
+        )
 
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
     def test_batching_lower01(self):
-        "Lower OP & use CT"
+        "Lower OP & use CT."
         user = self.login()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -247,9 +252,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 ),
             },
         )
-        self.assertFormError(response, 'form', 'actions',
-                             _('This field is invalid with this model.'),
-                            )
+        self.assertFormError(
+            response, 'form', 'actions',
+            _('This field is invalid with this model.'),
+        )
 
 # TODO: uncomment when a model has a field with batchable type and not inner
 #       editable (maybe a test model)
@@ -334,7 +340,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             response, 'form', 'actions',
             _('The field «%(field)s» can not be used twice.') % {
                 'field': _('First name'),
-            }
+            },
         )
 
     def test_with_filter01(self):
@@ -382,22 +388,27 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.get_object_or_fail(EntityJobResult, job=job, entity=orga02)
         self.assertFalse(EntityJobResult.objects.filter(job=job, entity=orga01))
-        self.assertEqual([ngettext('{count} entity has been successfully modified.',
-                                   '{count} entities have been successfully modified.',
-                                   2
-                                  ).format(count=2),
-                         ],
-                         job.stats
-                        )
+        self.assertListEqual(
+            [
+                ngettext(
+                    '{count} entity has been successfully modified.',
+                    '{count} entities have been successfully modified.',
+                    2
+                ).format(count=2),
+            ],
+            job.stats,
+        )
 
         progress = job.progress
         self.assertIsNone(progress.percentage)
-        self.assertEqual(ngettext('{count} entity has been processed.',
-                                  '{count} entities have been processed.',
-                                  2
-                                 ).format(count=2),
-                         progress.label
-                        )
+        self.assertEqual(
+            ngettext(
+                '{count} entity has been processed.',
+                '{count} entities have been processed.',
+                2
+            ).format(count=2),
+            progress.label,
+        )
 
     def test_with_filter02(self):
         "Private filters (which belong to other users) are forbidden."
@@ -428,7 +439,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'filter',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _(
+                'Select a valid choice. '
+                'That choice is not one of the available choices.'
+            ),
         )
 
     def test_with_filter03(self):
@@ -478,15 +492,20 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),  # Not 'CHANGE'
             set_type=SetCredentials.ESET_ALL,
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
@@ -517,9 +536,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
 
         self.assertListEqual(
             [orga02],
-            [jr.entity.get_real_entity()
+            [
+                jr.entity.get_real_entity()
                 for jr in EntityJobResult.objects.filter(job=job)
-            ]
+            ],
         )
 
     def test_model_error(self):
@@ -569,17 +589,20 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertEqual(first_name, contact01.first_name)
 
         jresult = self.get_object_or_fail(EntityJobResult, job=job, entity=contact01)
-        self.assertEqual(['{} => {}'.format(_('Last name'), _('This field cannot be blank.'))],
-                         jresult.messages
-                        )
+        self.assertListEqual(
+            ['{} => {}'.format(_('Last name'), _('This field cannot be blank.'))],
+            jresult.messages,
+        )
 
         self.assertListEqual(
-            [ngettext('{count} entity has been successfully modified.',
-                      '{count} entities have been successfully modified.',
-                      1
-                     ).format(count=1),
+            [
+                ngettext(
+                    '{count} entity has been successfully modified.',
+                    '{count} entities have been successfully modified.',
+                    1
+                ).format(count=1),
             ],
-            job.stats
+            job.stats,
         )
 
     def build_ops_url(self, ct_id, field):
@@ -623,7 +646,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.login()
 
         response = self.assertGET200(self.build_ops_url(self.contact_ct_id, 'image'))
-        self.assertEqual([], response.json())
+        self.assertListEqual([], response.json())
 
     def test_get_ops05(self):
         "No app credentials."
@@ -633,8 +656,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
     def test_get_ops06(self):
         "Unknown field."
         self.login()
-
-        # self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
         self.assertGET(400, self.build_ops_url(self.contact_ct_id, 'foobar'))
 
     def test_resume_job(self):
@@ -656,9 +677,10 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 ),
             ],
         )
-        self.assertSetEqual({orga01, orga02, orga03},
-                            {*efilter.filter(FakeOrganisation.objects.all())}
-                           )
+        self.assertSetEqual(
+            {orga01, orga02, orga03},
+            {*efilter.filter(FakeOrganisation.objects.all())},
+        )
 
         response = self.client.post(
             self._build_add_url(FakeOrganisation), follow=True,

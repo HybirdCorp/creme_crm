@@ -111,8 +111,8 @@ class GenericCreation(ModelConfMixin, generic.CremeModelCreationPopup):
 
     def get_submit_label(self):
         return (
-            getattr(self.get_model_conf().model, 'save_label', None) or
-            super().get_submit_label()
+            getattr(self.get_model_conf().model, 'save_label', None)
+            or super().get_submit_label()
         )
 
 
@@ -161,13 +161,15 @@ class ModelPortal(ModelConfMixin, generic.BricksView):
 
             if ordering and ordering[0] == 'order' and \
                isinstance(order_field, IntegerField):
-                for order, instance in enumerate(model._default_manager
-                                                      .order_by('order', 'pk'),
-                                                 start=1):
+                for order, instance in enumerate(
+                    model._default_manager.order_by('order', 'pk'),
+                    start=1,
+                ):
                     if order != instance.order:
-                        logger.warning('Fix an order problem in model %s (%s)',
-                                       model, instance,
-                                      )
+                        logger.warning(
+                            'Fix an order problem in model %s (%s)',
+                            model, instance,
+                        )
                         instance.order = order
                         instance.save(force_update=True, update_fields=('order',))
 
@@ -327,11 +329,13 @@ class AppPortal(AppRegistryMixin, generic.BricksView):
         return context
 
     def get_model_configs(self, app_registry):
-        # list-> have the length in the template
+        # NB: list -> get the length in the template
         model_configs = [*app_registry.models()]
         sort_key = collator.sort_key
 
-        model_configs.sort(key=lambda model_conf: sort_key(str(model_conf.verbose_name)))
+        model_configs.sort(
+            key=lambda model_conf: sort_key(str(model_conf.verbose_name)),
+        )
 
         return model_configs
 

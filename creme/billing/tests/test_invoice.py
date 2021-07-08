@@ -58,7 +58,8 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class InvoiceTestCase(_BillingTestCase):
-    def _build_gennumber_url(self, invoice):
+    @staticmethod
+    def _build_gennumber_url(invoice):
         return reverse('billing__generate_invoice_number', args=(invoice.id,))
 
     def test_source_n_target01(self):
@@ -403,7 +404,7 @@ class InvoiceTestCase(_BillingTestCase):
         context = response.context
         self.assertEqual(
             _('Create an invoice for «{entity}»').format(entity=target),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(Invoice.save_label, context.get('submit_label'))
 
@@ -461,9 +462,11 @@ class InvoiceTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -483,9 +486,11 @@ class InvoiceTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -505,10 +510,11 @@ class InvoiceTestCase(_BillingTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW |
-                # EntityCredentials.CHANGE |
-                EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                # | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_ALL,
         )
@@ -536,7 +542,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(2, invoices_page.paginator.count)
         self.assertSetEqual(
             {invoice1, invoice2},
-            {*invoices_page.paginator.object_list}
+            {*invoices_page.paginator.object_list},
         )
 
     def test_listview_export_actions(self):
@@ -578,7 +584,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual('billing-invoice-number', number_action.type)
         self.assertEqual(
             reverse('billing__generate_invoice_number', args=(invoice.id,)),
-            number_action.url
+            number_action.url,
         )
         self.assertTrue(number_action.is_enabled)
         self.assertTrue(number_action.is_visible)
@@ -720,8 +726,9 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertListEqual(
             [other_user.id] * 4,
             [
-                *CremeEntity.objects.filter(pk__in=[line.pk for line in lines])
-                                    .values_list('user', flat=True)
+                *CremeEntity.objects.filter(
+                    pk__in=[line.pk for line in lines],
+                ).values_list('user', flat=True),
             ],  # Refresh
         )
 
@@ -879,7 +886,7 @@ class InvoiceTestCase(_BillingTestCase):
         )
         self.assertFormError(
             response, 'form', 'field_value',
-            _('Enter a number between 0 and 100 (it is a percentage).')
+            _('Enter a number between 0 and 100 (it is a percentage).'),
         )
 
     def test_generate_number01(self):
@@ -949,11 +956,11 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertListEqual(
             [product_line.pk],
-            [*invoice.get_lines(ProductLine).values_list('pk', flat=True)]
+            [*invoice.get_lines(ProductLine).values_list('pk', flat=True)],
         )
         self.assertListEqual(
             [service_line.pk],
-            [*invoice.get_lines(ServiceLine).values_list('pk', flat=True)]
+            [*invoice.get_lines(ServiceLine).values_list('pk', flat=True)],
         )
 
     @skipIfCustomProductLine
@@ -994,7 +1001,7 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertListEqual(
             [product_line, service_line],
-            [*invoice.iter_all_lines()]
+            [*invoice.iter_all_lines()],
         )
 
     @skipIfCustomProductLine
@@ -1023,8 +1030,8 @@ class InvoiceTestCase(_BillingTestCase):
             **kwargs
         )
         expected = (
-            product_line.get_price_inclusive_of_tax() +
-            service_line.get_price_inclusive_of_tax()
+            product_line.get_price_inclusive_of_tax()
+            + service_line.get_price_inclusive_of_tax()
         )
         invoice.save()
         invoice = self.refresh(invoice)
@@ -1064,7 +1071,7 @@ class InvoiceTestCase(_BillingTestCase):
         )
         invoice = self.create_invoice('Invoice001', source, target, currency=currency)
         invoice.additional_info = AdditionalInformation.objects.all()[0]
-        invoice.payment_terms   = PaymentTerms.objects.all()[0]
+        invoice.payment_terms = PaymentTerms.objects.all()[0]
         invoice.save()
 
         kwargs = {'user': user, 'related_document': invoice}
@@ -1216,7 +1223,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertFormError(
             response, 'form',
             'replace_billing__invoice_currency',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
         invoice = self.assertStillExists(invoice)

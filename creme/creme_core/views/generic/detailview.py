@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,17 +45,21 @@ def detailview_bricks(user, entity, registry=brick_registry):
     role = user.role
 
     role_q = Q(role=None, superuser=True) if is_superuser else Q(role=role, superuser=False)
-    locs = BrickDetailviewLocation.objects.filter(Q(content_type=None) |
-                                                  Q(content_type=entity.entity_type)
-                                                 ) \
-                                          .filter(role_q | Q(role=None, superuser=False)) \
-                                          .order_by('order')
+    locs = BrickDetailviewLocation.objects.filter(
+        Q(content_type=None) | Q(content_type=entity.entity_type)
+    ).filter(
+        role_q | Q(role=None, superuser=False)
+    ).order_by('order')
 
     # We fallback to the default config is there is no config for this content type.
-    locs = [loc for loc in locs
-            # NB: useless as long as default conf cannot have a related role
-            if loc.superuser == is_superuser and loc.role == role
-           ] or [loc for loc in locs if loc.content_type_id is not None] or locs
+    locs = [
+        loc
+        for loc in locs
+        # NB: useless as long as default conf cannot have a related role
+        if loc.superuser == is_superuser and loc.role == role
+    ] or [
+        loc for loc in locs if loc.content_type_id is not None
+    ] or locs
     loc_map = defaultdict(list)
 
     for loc in locs:
@@ -168,7 +172,9 @@ class EntityDetail(CremeModelDetail):
         user.has_perm_to_access_or_die(self.model._meta.app_label)
 
     def get_bricks(self):
-        return detailview_bricks(self.request.user, self.object, registry=self.brick_registry)
+        return detailview_bricks(
+            self.request.user, self.object, registry=self.brick_registry,
+        )
 
     def get_object(self, *args, **kwargs):
         entity = super().get_object(*args, **kwargs)

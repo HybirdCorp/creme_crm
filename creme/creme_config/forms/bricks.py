@@ -64,8 +64,8 @@ class BrickLocationsField(forms.MultipleChoiceField):
                  widget=core_widgets.OrderedMultipleChoiceWidget,
                  **kwargs):
         super().__init__(
-            required=required, choices=choices,
-            widget=widget, **kwargs
+            required=required, choices=choices, widget=widget,
+            **kwargs
         )
 
 
@@ -82,10 +82,14 @@ class _BrickLocationsForm(base.CremeForm):
         bricks.choices = choices
         bricks.initial = [bl.brick_id for bl in brick_locations]
 
-    def _save_locations(self, location_model, location_builder,
+    def _save_locations(self,
+                        location_model,
+                        location_builder,
                         bricks_partitions,
-                        old_locations=(), role=None, superuser=False,
-                       ):
+                        old_locations=(),
+                        role=None,
+                        superuser=False,
+                        ):
         # At least 1 block per zone (even if it can be fake block)
         needed = sum(len(brick_ids) or 1 for brick_ids in bricks_partitions.values())
         lendiff = needed - len(old_locations)
@@ -124,7 +128,7 @@ class _BrickLocationsForm(base.CremeForm):
 
 
 class _BrickDetailviewLocationsForm(_BrickLocationsForm):
-    hat    = forms.ChoiceField(label=_('Header block'), widget=core_widgets.CremeRadioSelect)
+    hat = forms.ChoiceField(label=_('Header block'), widget=core_widgets.CremeRadioSelect)
     locations = BricksConfigField(label=_("Blocks"), required=True)
 
     locations_map = {
@@ -203,7 +207,7 @@ class BrickDetailviewLocationsAddForm(_BrickDetailviewLocationsForm):
             *BrickDetailviewLocation.objects
                                     .filter(content_type=self.ct)
                                     .exclude(role__isnull=True, superuser=False)
-                                    .values_list('role', flat=True)
+                                    .values_list('role', flat=True),
         }
 
         try:
@@ -267,7 +271,7 @@ class BrickHomeLocationsAddingForm(_BrickLocationsForm):
         used_role_ids = {
             *BrickHomeLocation.objects
                               .exclude(role__isnull=True, superuser=False)
-                              .values_list('role', flat=True)
+                              .values_list('role', flat=True),
         }
 
         # TODO: factorise ?
@@ -316,7 +320,9 @@ class BrickHomeLocationsEditionForm(_BrickLocationsForm):
 
 
 class BrickMypageLocationsForm(_BrickLocationsForm):
-    bricks = BrickLocationsField(label=_('Blocks to display on the «My Page» of the users'))
+    bricks = BrickLocationsField(
+        label=_('Blocks to display on the «My Page» of the users'),
+    )
 
     def __init__(self, owner=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -418,10 +424,12 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
 
             # These fields are already rendered with <a> tag ; it would be better to
             # have a higher semantic (ask to the fields printer how it renders theme ???)
-            if isinstance(field, (URLField, EmailField, ManyToManyField)) or (
-               isinstance(field, ForeignKey)
-               and
-               issubclass(field.remote_field.model, CremeEntity)
+            if (
+                isinstance(field, (URLField, EmailField, ManyToManyField))
+                or (
+                    isinstance(field, ForeignKey)
+                    and issubclass(field.remote_field.model, CremeEntity)
+                )
             ):
                 return False
         elif isinstance(cell, EntityCellRelation):

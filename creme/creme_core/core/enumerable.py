@@ -183,9 +183,9 @@ class _EnumerableRegistry:
 
     def _enumerator(self, field):
         enumerator_cls = (
-            self._enums_4_fields.get(field) or
-            self._enums_4_field_types[field.__class__] or
-            self._enums_4_models.get(field.remote_field.model, QSEnumerator)
+            self._enums_4_fields.get(field)
+            or self._enums_4_field_types[field.__class__]
+            or self._enums_4_models.get(field.remote_field.model, QSEnumerator)
         )
 
         return enumerator_cls(field)

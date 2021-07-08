@@ -12,9 +12,9 @@ urlpatterns = [
 
     *swap_manager.add_group(
         lambda:
-            persons.contact_model_is_custom() or
-            persons.organisation_model_is_custom() or
-            persons.address_model_is_custom(),
+            persons.contact_model_is_custom()
+            or persons.organisation_model_is_custom()
+            or persons.address_model_is_custom(),
         Swappable(re_path(r'^vcf[/]?', vcf.vcf_import, name='vcfs__import')),
         app_name='vcfs',
     ).kept_patterns(),

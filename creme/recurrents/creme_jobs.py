@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,20 +29,21 @@ from . import get_rgenerator_model
 
 
 class _GenerateDocsType(JobType):
-    id           = JobType.generate_id('recurrents', 'generate_docs')
+    id = JobType.generate_id('recurrents', 'generate_docs')
     verbose_name = _('Generate recurrent documents')
-    periodic     = JobType.PSEUDO_PERIODIC
+    periodic = JobType.PSEUDO_PERIODIC
 
     # TODO: we could add a field RecurrentGenerator.next_generation
     #  => queries would be more efficient
     def _get_generators(self, now_value):
-        return get_rgenerator_model().objects \
-            .filter(is_working=True) \
-            .filter(Q(last_generation__isnull=True,
-                      first_generation__lte=now_value,
-                      ) |
-                    Q(last_generation__isnull=False)
-                    )
+        return get_rgenerator_model().objects.filter(
+            is_working=True,
+        ).filter(
+            Q(
+                last_generation__isnull=True,
+                first_generation__lte=now_value,
+            ) | Q(last_generation__isnull=False)
+        )
 
     def _execute(self, job):
         # TODO: test is_working VS delete it (see next_wakeup() && job refreshing too)

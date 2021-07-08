@@ -51,17 +51,23 @@ class EventsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('events__create_event')
 
-    def _build_link_contacts_url(self, event):
+    @staticmethod
+    def _build_link_contacts_url(event):
         return reverse('events__link_contacts', args=(event.id,))
 
-    def _build_related_opp_url(self, event, contact):
+    @staticmethod
+    def _build_related_opp_url(event, contact):
         return reverse('events__create_related_opportunity', args=(event.id, contact.id))
 
     def test_populate(self):
         rtypes_pks = [
             constants.REL_SUB_IS_INVITED_TO,
-            constants.REL_SUB_ACCEPTED_INVITATION, constants.REL_SUB_REFUSED_INVITATION,
-            constants.REL_SUB_CAME_EVENT, constants.REL_SUB_NOT_CAME_EVENT
+
+            constants.REL_SUB_ACCEPTED_INVITATION,
+            constants.REL_SUB_REFUSED_INVITATION,
+
+            constants.REL_SUB_CAME_EVENT,
+            constants.REL_SUB_NOT_CAME_EVENT
         ]
         rtypes = RelationType.objects.filter(pk__in=rtypes_pks)
         self.assertEqual(len(rtypes_pks), len(rtypes))
@@ -159,7 +165,7 @@ class EventsTestCase(CremeTestCase):
     def test_event_editview(self):
         user = self.login()
 
-        name  = 'Eclipse'
+        name = 'Eclipse'
         etype = EventType.objects.all()[0]
         event = self._create_event(name, etype)
 
@@ -441,7 +447,8 @@ class EventsTestCase(CremeTestCase):
             data={'status': constants.INV_STATUS_REFUSED},
         )
 
-    def _build_presence_url(self, event, contact):
+    @staticmethod
+    def _build_presence_url(event, contact):
         return reverse('events__set_presence_status', args=(event.id, contact.id))
 
     def _set_presence_status(self, event, contact, status_id):
@@ -672,7 +679,8 @@ class EventsTestCase(CremeTestCase):
         )
 
         response = self.client.post(
-            self._build_link_contacts_url(event), follow=True,
+            self._build_link_contacts_url(event),
+            follow=True,
             data={
                 'related_contacts': self.formfield_value_multi_relation_entity(
                     (constants.REL_OBJ_IS_INVITED_TO,  casca),
@@ -714,7 +722,8 @@ class EventsTestCase(CremeTestCase):
         casca = Contact.objects.create(user=user, first_name='Casca', last_name='Miura')
 
         response = self.assertPOST200(
-            self._build_link_contacts_url(event), follow=True,
+            self._build_link_contacts_url(event),
+            follow=True,
             data={
                 'related_contacts': self.formfield_value_multi_relation_entity(
                     (constants.REL_OBJ_IS_INVITED_TO, casca),
@@ -735,9 +744,12 @@ class EventsTestCase(CremeTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # No LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
             set_type=SetCredentials.ESET_OWN,
         )
 
@@ -771,13 +783,13 @@ class EventsTestCase(CremeTestCase):
 
         event = self._create_event('Eclipse', etype)
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             reverse(
-                'creme_config__delete_instance', args=('events', 'event_type', etype.id),
+                'creme_config__delete_instance',
+                args=('events', 'event_type', etype.id),
             ),
             data={'replace_events__event_type': etype2.id},
-        )
-        self.assertNoFormError(response)
+        ))
 
         job = self.get_deletion_command_or_fail(EventType).job
         job.type.execute(job)
@@ -806,7 +818,7 @@ class EventsTestCase(CremeTestCase):
         context = response.context
         self.assertEqual(
             _('Create an opportunity related to «{contact}»').format(contact=casca),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(Opportunity.save_label, context.get('submit_label'))
 
@@ -883,7 +895,7 @@ class EventsTestCase(CremeTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', 'cform_extra-opportunities_target',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
         data['cform_extra-opportunities_target'] = hawks.id

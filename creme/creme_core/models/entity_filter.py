@@ -134,7 +134,7 @@ class EntityFilterManager(models.Manager):
             copy_num_str = groupdict['copy_num']  # eg '11' in 'base_pk[1.5]11'
             copy_num = int(copy_num_str) if copy_num_str else 0
 
-            return (version_num_tuple, version_mod, version_modnum, copy_num)
+            return version_num_tuple, version_mod, version_modnum, copy_num
 
         efilters.sort(key=key)
 
@@ -156,8 +156,8 @@ class EntityFilterManager(models.Manager):
             qs
             if user.is_staff else
             qs.filter(
-                Q(is_private=False) |
-                Q(is_private=True, user__in=[user, *user.teams])
+                Q(is_private=False)
+                | Q(is_private=True, user__in=[user, *user.teams])
             )
         )
 
@@ -469,9 +469,10 @@ class EntityFilter(models.Model):  # CremeModel ???
 
             if not parent_filter.is_private:
                 raise EntityFilter.PrivacyError(
-                    gettext('This filter cannot be private because '
-                            'it is a sub-filter for the public filter "{}"'
-                           ).format(parent_filter.name)
+                    gettext(
+                        'This filter cannot be private because '
+                        'it is a sub-filter for the public filter "{}"'
+                    ).format(parent_filter.name)
                 )
 
             if owner.is_team:
@@ -599,7 +600,8 @@ class EntityFilter(models.Model):  # CremeModel ???
             self,
             conditions: Iterable['EntityFilterCondition'],
             is_private: bool,
-            owner) -> None:
+            owner,
+    ) -> None:
         "@raises EntityFilter.PrivacyError"
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
@@ -793,7 +795,8 @@ class EntityFilter(models.Model):  # CremeModel ???
     def set_conditions(self,
                        conditions,
                        check_cycles: bool = True,
-                       check_privacy: bool = True) -> None:
+                       check_privacy: bool = True,
+                       ) -> None:
         assert all(c.filter_type == self.filter_type for c in conditions)
 
         if check_cycles:
@@ -855,7 +858,9 @@ class EntityFilterCondition(models.Model):
     Tip: use the helper methods 'build_condition()' in child-classes of
     'FilterConditionHandler' instead of calling directly the constructor.
     """
-    filter = models.ForeignKey(EntityFilter, related_name='conditions', on_delete=models.CASCADE)
+    filter = models.ForeignKey(
+        EntityFilter, related_name='conditions', on_delete=models.CASCADE,
+    )
 
     # NB: see core.entity_filter.condition_handler.FilterConditionHandler.type_id
     type = models.PositiveSmallIntegerField()
@@ -908,7 +913,8 @@ class EntityFilterCondition(models.Model):
 
     @staticmethod
     def conditions_equal(conditions1: Iterable['EntityFilterCondition'],
-                         conditions2: Iterable['EntityFilterCondition']) -> bool:
+                         conditions2: Iterable['EntityFilterCondition'],
+                         ) -> bool:
         """Compare 2 sequences on EntityFilterConditions related to the _same_
         EntityFilter instance.
         Beware: the 'filter' fields are not compared (so the related ContentType
@@ -919,10 +925,11 @@ class EntityFilterCondition(models.Model):
             return cond.type, cond.name, cond.value
 
         return all(
-            cond1 and cond2 and
-            cond1.type == cond2.type and
-            cond1.name == cond2.name and
-            cond1.value == cond2.value
+            cond1
+            and cond2
+            and cond1.type == cond2.type
+            and cond1.name == cond2.name
+            and cond1.value == cond2.value
             for cond1, cond2 in zip_longest(
                 sorted(conditions1, key=key),
                 sorted(conditions2, key=key),

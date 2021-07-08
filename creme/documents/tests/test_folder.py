@@ -165,9 +165,12 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # not EntityCredentials.LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
@@ -179,10 +182,11 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         self.assertGET200(url)
 
     def test_create_child03(self):
-        "Creation credentials needed"
-        user = self.login(is_superuser=False, allowed_apps=['documents'],
-                          # creatable_models=[Folder],
-                         )
+        "Creation credentials needed."
+        user = self.login(
+            is_superuser=False, allowed_apps=['documents'],
+            # creatable_models=[Folder],
+        )
         SetCredentials.objects.create(
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
@@ -241,9 +245,12 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
             role=self.role,
             set_type=SetCredentials.ESET_ALL,
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # not EntityCredentials.LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
         )
 
         parent = Folder.objects.create(user=user, title='Parent folder')
@@ -323,7 +330,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
             user=user,
         )
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             folder.get_edit_absolute_url(),
             follow=True,
             data={
@@ -332,8 +339,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
                 'description':   folder.description,
                 'parent_folder': folder.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertIsNone(self.refresh(folder).parent_folder)
 
     def test_editview03(self):
@@ -485,7 +491,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
             context = response.context
             # folders = context['entities'].object_list
             folders = context['page_obj'].object_list
-            title   = context['list_title']
+            title = context['list_title']
 
         self.assertIn(folder1, folders)
         self.assertIn(folder2, folders)
@@ -524,8 +530,8 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         with self.assertNoException():
             context = response.context
-            folders   = context['page_obj'].object_list
-            title     = context['list_title']
+            folders = context['page_obj'].object_list
+            title = context['list_title']
             sub_title = context['sub_title']
 
         self.assertIn(folder1, folders)

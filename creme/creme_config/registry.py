@@ -103,7 +103,8 @@ class _ModelConfigCreator(_ModelConfigAction):
 
     def __init__(self, *,
                  model: Type[Model],
-                 model_name: str):
+                 model_name: str,
+                 ):
         super().__init__(model=model, model_name=model_name)
         # TODO: type when Callable can indicate keyword argument...
         self.enable_func = lambda user: True
@@ -128,7 +129,8 @@ class _ModelConfigEditor(_ModelConfigAction):
 
     def __init__(self, *,
                  model: Type[Model],
-                 model_name: str):
+                 model_name: str,
+                 ):
         super().__init__(model=model, model_name=model_name)
         self.enable_func = lambda instance, user: True
 
@@ -161,7 +163,8 @@ class _ModelConfigDeletor(_ModelConfigAction):
 
     def __init__(self, *,
                  model: Type[Model],
-                 model_name: str):
+                 model_name: str,
+                 ):
         super().__init__(model=model, model_name=model_name)
         self.enable_func = lambda instance, user: True
 
@@ -239,7 +242,8 @@ class _ModelConfig:
     def creation(self, *,
                  form_class: Optional[Type[ModelForm]] = None,
                  url_name: Optional[str] = None,
-                 enable_func=None) -> '_ModelConfig':
+                 enable_func=None,
+                 ) -> '_ModelConfig':
         """ Set the creation behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -265,7 +269,8 @@ class _ModelConfig:
     def edition(self, *,
                 form_class: Optional[Type[ModelForm]] = None,
                 url_name: Optional[str] = None,
-                enable_func=None) -> '_ModelConfig':
+                enable_func=None,
+                ) -> '_ModelConfig':
         """ Set the edition behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -292,7 +297,8 @@ class _ModelConfig:
     def deletion(self, *,
                  form_class: Optional[Type['DeletionForm']] = None,
                  url_name: Optional[str] = None,
-                 enable_func=None) -> '_ModelConfig':
+                 enable_func=None,
+                 ) -> '_ModelConfig':
         """ Set the deletion behaviour ; can be used in a fluent way.
 
         @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.
@@ -400,11 +406,11 @@ class _AppConfigRegistry:
     def is_empty(self) -> bool:
         """Is the configuration portal of the app empty."""
         return not bool(
-            self._models or
-            self._brick_ids or
+            self._models
+            or self._brick_ids
             # TODO: factorise with SettingsBrick ;
             #       pass the _ConfigRegistry to SettingsBrick everywhere
-            any(
+            or any(
                 skey.app_label == self.name and not skey.hidden
                 for skey in self._config_registry._skey_registry
             )
@@ -420,7 +426,10 @@ class _ConfigRegistry:
         - Bricks for the portal of configuration of a specific app.
         - Bricks for the personal configuration of users.
     """
-    def __init__(self, brick_registry=brick_registry, setting_key_registry=setting_key_registry):
+    def __init__(self,
+                 brick_registry=brick_registry,
+                 setting_key_registry=setting_key_registry,
+                 ):
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
         self._apps: Dict[str, _AppConfigRegistry] = {}
@@ -474,7 +483,8 @@ class _ConfigRegistry:
 
     def register_model(self,
                        model: Type[Model],
-                       model_name: Optional[str] = None) -> _ModelConfig:
+                       model_name: Optional[str] = None,
+                       ) -> _ModelConfig:
         """ Register a model in order to make it available in the configuration.
         @param model: Class inheriting <django.db.Model>.
         @param model_name: String (only alphanumerics & _ are allowed) use in the
@@ -509,7 +519,8 @@ class _ConfigRegistry:
     # TODO: prototype for detailview_display() ?
     def register_app_bricks(self,
                             app_label: str,
-                            *brick_classes: Type[Brick]) -> None:
+                            *brick_classes: Type[Brick],
+                            ) -> None:
         """ Register some Brick classes which will be used in the configuration
         portal of a specific app.
 
@@ -573,7 +584,8 @@ class _ConfigRegistry:
     # TODO: find a better name ?
     def get_model_creation_info(self,
                                 model: Type[Model],
-                                user) -> Tuple[Optional[str], bool]:
+                                user,
+                                ) -> Tuple[Optional[str], bool]:
         """ Get the following information about the on-the-fly creation of instances :
          - URL of the creation view.
          - Is the user allowed to create ?

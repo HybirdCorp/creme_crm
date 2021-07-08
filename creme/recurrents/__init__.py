@@ -25,8 +25,8 @@ from creme.creme_core import get_concrete_model
 
 def rgenerator_model_is_custom():
     return (
-        settings.RECURRENTS_RGENERATOR_MODEL != 'recurrents.RecurrentGenerator' and
-        not settings.RECURRENTS_RGENERATOR_FORCE_NOT_CUSTOM
+        settings.RECURRENTS_RGENERATOR_MODEL != 'recurrents.RecurrentGenerator'
+        and not settings.RECURRENTS_RGENERATOR_FORCE_NOT_CUSTOM
     )
 
 

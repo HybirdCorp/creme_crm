@@ -31,23 +31,30 @@ class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
         return json_dump({'category': category.id, 'subcategory': sub_category.id})
 
     def login_as_basic_user(self, creatable_model):
-        user = self.login(is_superuser=False, allowed_apps=['products', 'documents'],
-                          creatable_models=[creatable_model, get_document_model()],
-                         )
+        user = self.login(
+            is_superuser=False, allowed_apps=['products', 'documents'],
+            creatable_models=[creatable_model, get_document_model()],
+        )
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
             ),
             set_type=SetCredentials.ESET_OWN,
         )
         create_sc(
             value=(
-                EntityCredentials.VIEW | EntityCredentials.CHANGE |
-                EntityCredentials.DELETE | EntityCredentials.UNLINK
-            ),  # EntityCredentials.LINK
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.LINK
+            ),
             set_type=SetCredentials.ESET_ALL,
         )
 

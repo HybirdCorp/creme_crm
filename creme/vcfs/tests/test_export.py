@@ -89,9 +89,12 @@ class VcfExportTestCase(CremeTestCase):
         SetCredentials.objects.create(
             role=self.role,
             value=(
-                EntityCredentials.CHANGE | EntityCredentials.DELETE |
-                EntityCredentials.LINK | EntityCredentials.UNLINK
-            ),  # Not EntityCredentials.VIEW
+                EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+                # | EntityCredentials.VIEW
+            ),
             set_type=SetCredentials.ESET_ALL
         )
 
@@ -121,7 +124,9 @@ class VcfExportTestCase(CremeTestCase):
         orga = Organisation.objects.create(user=user, name='ORGNAME')
 
         rtype = RelationType.objects.get(pk=REL_OBJ_EMPLOYED_BY)
-        Relation.objects.create(type=rtype, subject_entity=orga, object_entity=contact, user=user)
+        Relation.objects.create(
+            type=rtype, subject_entity=orga, object_entity=contact, user=user,
+        )
 
         response = self._generate_vcf(contact)
         self.assertEqual(

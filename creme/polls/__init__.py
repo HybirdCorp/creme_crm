@@ -25,22 +25,22 @@ from creme.creme_core import get_concrete_model
 
 def pollcampaign_model_is_custom():
     return (
-        settings.POLLS_CAMPAIGN_MODEL != 'polls.PollCampaign' and
-        not settings.POLLS_CAMPAIGN_FORCE_NOT_CUSTOM
+        settings.POLLS_CAMPAIGN_MODEL != 'polls.PollCampaign'
+        and not settings.POLLS_CAMPAIGN_FORCE_NOT_CUSTOM
     )
 
 
 def pollform_model_is_custom():
     return (
-        settings.POLLS_FORM_MODEL != 'polls.PollForm' and
-        not settings.POLLS_FORM_FORCE_NOT_CUSTOM
+        settings.POLLS_FORM_MODEL != 'polls.PollForm'
+        and not settings.POLLS_FORM_FORCE_NOT_CUSTOM
     )
 
 
 def pollreply_model_is_custom():
     return (
-        settings.POLLS_REPLY_MODEL != 'polls.PollReply' and
-        not settings.POLLS_REPLY_FORCE_NOT_CUSTOM
+        settings.POLLS_REPLY_MODEL != 'polls.PollReply'
+        and not settings.POLLS_REPLY_FORCE_NOT_CUSTOM
     )
 
 
