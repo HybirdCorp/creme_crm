@@ -668,6 +668,17 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         hline = hlines[-1]
         self.assertEqual(akane.id,         hline.entity.id)
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
+        self.assertListEqual(
+            [
+                [
+                    ContentType.objects.get_for_model(ToDo).id,
+                    todo.id,
+                    str(todo),
+                ],
+                ['description', description],
+            ],
+            hline.modifications,
+        )
 
         vmodifs = hline.get_verbose_modifications(user)
         self.assertEqual(2, len(vmodifs))

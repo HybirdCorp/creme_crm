@@ -7,12 +7,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core import mail as django_mail
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.timezone import get_current_timezone, make_naive, now
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
 from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     FakeOrganisation,
     HistoryLine,
@@ -319,6 +321,16 @@ class SendingsTestCase(_EmailsTestCase):
                 )
             ],
             hline.get_verbose_modifications(user=user),
+        )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-auxiliary_creation">{}<div>',
+                _('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': _('Email campaign sending'),
+                    'auxiliary_value': sending,
+                }
+            ),
+            html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
         # ---

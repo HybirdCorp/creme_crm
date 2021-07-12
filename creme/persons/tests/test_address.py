@@ -5,10 +5,12 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.forms import listview as lv_form
+from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.models.history import (
     TYPE_AUX_CREATION,
@@ -38,7 +40,8 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         if create_orga:
             return Organisation.objects.create(user=self.user, name='Nerv')
 
-    def _build_add_url(self, entity):
+    @staticmethod
+    def _build_add_url(entity):
         return reverse('persons__create_address', args=(entity.id,))
 
     def _create_address(self, orga, name, address='', po_box='', city='',
@@ -500,7 +503,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomContact
     def test_history(self):
         "Address is auxiliary + double save() because of addresses caused problems."
-        self.login(create_orga=False)
+        user = self.login(create_orga=False)
 
         old_count = HistoryLine.objects.count()
         country = 'Japan'
@@ -530,7 +533,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(gainax.entity_type, hline.entity_ctype)
         self.assertEqual(self.other_user,    hline.entity_owner)
         self.assertEqual(TYPE_CREATION,      hline.type)
-        self.assertEqual([],                 hline.modifications)
+        self.assertListEqual([],             hline.modifications)
 
         hline = hlines[-1]
         self.assertEqual(gainax.id,          hline.entity.id)
@@ -539,11 +542,21 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(TYPE_AUX_CREATION,  hline.type)
         self.assertEqual(
             [ContentType.objects.get_for_model(address).id, address.id, str(address)],
-            hline.modifications
+            hline.modifications,
         )
         self.assertListEqual(
             [_('Add <{type}>: “{value}”').format(type=_('Address'), value=address)],
-            hline.get_verbose_modifications(self.user),
+            hline.get_verbose_modifications(user),
+        )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-auxiliary_creation">{}<div>',
+                _('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': _('Address'),
+                    'auxiliary_value': address,
+                }
+            ),
+            html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
     # NB: keep as example
