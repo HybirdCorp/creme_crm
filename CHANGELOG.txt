@@ -1,5 +1,11 @@
 == Version 2.2.5 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Assistants :
+            - In forms, the field "user" is the first field (again).
+
 
 == Version 2.2.4 ==
 
