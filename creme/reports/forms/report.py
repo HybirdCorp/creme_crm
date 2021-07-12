@@ -690,8 +690,9 @@ class ReportExportPreviewFilterForm(CremeForm):
     }
 
     # TODO: rename "report" to "instance" to be consistent ?
-    def __init__(self, report, *args, **kwargs):
+    def __init__(self, report, export_registry=export_backend_registry, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.registry = export_registry
         fields = self.fields
 
         fields['date_field'].choices = self._date_field_choices(report)
@@ -712,7 +713,7 @@ class ReportExportPreviewFilterForm(CremeForm):
     def _backend_choices(self):
         return [
             (backend.id, backend.verbose_name)
-            for backend in export_backend_registry.backend_classes
+            for backend in self.registry.backend_classes
         ]
 
     def clean(self):
@@ -740,8 +741,7 @@ class ReportExportPreviewFilterForm(CremeForm):
         return None
 
     def get_backend(self):
-        # TODO: registry in attribute
-        backend_cls = export_backend_registry.get_backend_class(self.cleaned_data['doc_type'])
+        backend_cls = self.registry.get_backend_class(self.cleaned_data['doc_type'])
         return backend_cls() if backend_cls else None
 
     def export_url_data(self):
