@@ -5,6 +5,8 @@
     # Apps :
         * Assistants :
             - In forms, the field "user" is the first field (again).
+        * Billing :
+            - The backend system raises better errors when the related library is not installed.
 
 
 == Version 2.2.4 ==
