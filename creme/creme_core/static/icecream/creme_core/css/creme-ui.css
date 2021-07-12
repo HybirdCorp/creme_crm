@@ -16,9 +16,9 @@
 }
 
 .ui-dialog {
-    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
-       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
-            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.10);
+    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 }
 
 .ui-dialog.ui-widget {
@@ -455,7 +455,8 @@ button[type="button"].ui-creme-actionbutton[disabled],
     cursor: not-allowed;
 }
 
-button[type="button"].ui-creme-actionbutton[disabled]:hover {
+button[type="button"].ui-creme-actionbutton[disabled]:hover,
+.ui-creme-entityselector > button[type="button"][disabled]:hover {
     background-color: #ebebeb; /* desaturate and lighten */
 }
 
@@ -515,8 +516,8 @@ span.ui-creme-datepicker-trigger {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
             box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     text-align: center;
