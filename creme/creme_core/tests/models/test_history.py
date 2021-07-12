@@ -1445,7 +1445,7 @@ about this fantastic animation studio."""
             hline.get_verbose_modifications(user),
         )
 
-    def test_add_auxiliary(self):
+    def test_auxiliary_creation(self):
         "Auxiliary: Address."
         user = self.user
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -1469,7 +1469,7 @@ about this fantastic animation studio."""
         self.assertEqual(user,              hline.entity_owner)
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
 
-    def test_edit_auxiliary01(self):
+    def test_auxiliary_edition01(self):
         "Address."
         country = 'Japan'
         old_city = 'MITAKA'
@@ -1530,7 +1530,7 @@ about this fantastic animation studio."""
             vmodifs[2],
         )
 
-    def test_edit_auxiliary02(self):
+    def test_auxiliary_edition02(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
         - DecimalField
@@ -1578,7 +1578,7 @@ about this fantastic animation studio."""
             vmodifs[2],
         )
 
-    def test_edition_auxiliary_m2m01(self):
+    def test_auxiliary_edition_m2m01(self):
         cat1, cat2 = FakeTodoCategory.objects.order_by('id')[:2]
 
         gainax = FakeOrganisation.objects.create(user=self.other_user, name='Gainax')
@@ -1640,7 +1640,7 @@ about this fantastic animation studio."""
             hline2.get_verbose_modifications(self.user),
         )
 
-    def test_edition_auxiliary_m2m02(self):
+    def test_auxiliary_edition_m2m02(self):
         "add()/remove() (not at the same time)."
         user = self.user
         cat = FakeTodoCategory.objects.first()
@@ -1671,7 +1671,7 @@ about this fantastic animation studio."""
             hline2.modifications[1],
         )
 
-    def test_edition_auxiliary_m2m03(self):
+    def test_auxiliary_edition_m2m03(self):
         "Set() which adds & removes at the same time (1 line, not 2)."
         user = self.user
         cat1, cat2, cat3 = FakeTodoCategory.objects.order_by('id')[:3]
@@ -1719,7 +1719,7 @@ about this fantastic animation studio."""
             self.refresh(hline).modifications[1],
         )
 
-    def test_edition_auxiliary_m2m04(self):
+    def test_auxiliary_edition_m2m04(self):
         "clear()."
         user = self.user
         cat = FakeTodoCategory.objects.first()
@@ -1741,7 +1741,7 @@ about this fantastic animation studio."""
             hline.modifications[1],
         )
 
-    def test_edition_auxiliary_regular_n_m2m(self):
+    def test_auxiliary_edition_regular_n_m2m(self):
         user = self.user
         cat = FakeTodoCategory.objects.first()
 
@@ -1768,7 +1768,7 @@ about this fantastic animation studio."""
             hline.modifications[1:],
         )
 
-    def test_edition_auxiliary_multi_save(self):
+    def test_auxiliary_edition_multi_save(self):
         user = self.user
 
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')

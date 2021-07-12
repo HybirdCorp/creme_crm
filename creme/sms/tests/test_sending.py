@@ -4,9 +4,11 @@ from datetime import date
 from functools import partial
 
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     FakeOrganisation,
     HistoryLine,
@@ -127,6 +129,16 @@ class SendingsTestCase(CremeTestCase):
                 )
             ],
             hline.get_verbose_modifications(user=user),
+        )
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-auxiliary_creation">{}<div>',
+                _('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': _('Sending'),
+                    'auxiliary_value': sending,
+                }
+            ),
+            html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
         # ---
