@@ -128,6 +128,12 @@ LANGUAGES = [
 # to load the internationalization machinery.
 USE_I18N = True
 
+# DO NOT CHANGE THIS VALUE, Creme is not ready for that yet.
+# If you set this to True, Django will format dates, numbers and calendars
+# according to user current locale.
+# TODO: pass to 'True' by default  (in a future release...)
+USE_L10N = False
+
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
