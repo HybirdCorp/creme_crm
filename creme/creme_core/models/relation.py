@@ -251,9 +251,10 @@ class RelationType(CremeModel):
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
-    @staticmethod
+    @classmethod
     @atomic
     def create(
+            cls,
             subject_desc: tuple,
             object_desc: tuple,
             is_custom: bool = False,
@@ -285,7 +286,7 @@ class RelationType(CremeModel):
         pred_object  = object_desc[1]
 
         if not generate_pk:
-            update_or_create = RelationType.objects.update_or_create
+            update_or_create = cls.objects.update_or_create
             defaults = {'is_custom': is_custom, 'is_internal': is_internal}
             sub_relation_type = update_or_create(
                 id=pk_subject,
@@ -310,17 +311,17 @@ class RelationType(CremeModel):
                 generate_string_id_and_save,
             )
 
-            sub_relation_type = RelationType(
+            sub_relation_type = cls(
                 predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
                 is_copiable=is_copiable[0], minimal_display=minimal_display[0],
             )
-            obj_relation_type = RelationType(
+            obj_relation_type = cls(
                 predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
                 is_copiable=is_copiable[1], minimal_display=minimal_display[1],
             )
 
-            generate_string_id_and_save(RelationType, [sub_relation_type], pk_subject)
-            generate_string_id_and_save(RelationType, [obj_relation_type], pk_object)
+            generate_string_id_and_save(cls, [sub_relation_type], pk_subject)
+            generate_string_id_and_save(cls, [obj_relation_type], pk_object)
 
         sub_relation_type.symmetric_type = obj_relation_type
         obj_relation_type.symmetric_type = sub_relation_type
