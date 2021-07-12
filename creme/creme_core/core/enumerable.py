@@ -18,9 +18,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import List, Type
+from typing import Iterable, Iterator, List, Tuple, Type
 
-from django.db.models import Field
+from django.db.models import Field, Model
 
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
@@ -54,14 +54,14 @@ class Enumerator:
         raise NotImplementedError
 
     @classmethod
-    def instance_as_dict(cls, instance):
+    def instance_as_dict(cls, instance) -> dict:
         return {
             'value': instance.pk,
             'label': str(instance),
         }
 
     @staticmethod
-    def convert_choices(choices):
+    def convert_choices(choices: Iterable[Tuple]) -> Iterator[dict]:
         """Generators which converts Django-style choices into
         Enumerator-style choices.
 
@@ -155,7 +155,7 @@ class _EnumerableRegistry:
         return res
 
     @staticmethod
-    def _check_model(model):
+    def _check_model(model: Type[Model]) -> None:
         # TODO: and registered as an entity ??
         if not issubclass(model, CremeEntity):
             raise ValueError(
@@ -163,7 +163,7 @@ class _EnumerableRegistry:
             )
 
     @staticmethod
-    def _check_field(field):
+    def _check_field(field: Field) -> None:
         # if not field.get_tag('viewable'):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: unit test (needs new field)
             raise ValueError(f'This field is not viewable: {field}')
@@ -175,13 +175,13 @@ class _EnumerableRegistry:
         if not field.get_tag(FieldTag.ENUMERABLE):
             raise ValueError(f'This field is not enumerable: {field}')
 
-    def _get_field(self, model, field_name):
+    def _get_field(self, model: Type[Model], field_name: str) -> Field:
         field = model._meta.get_field(field_name)  # Can raise FieldDoesNotExist
         self._check_field(field)
 
         return field
 
-    def _enumerator(self, field):
+    def _enumerator(self, field: Field) -> Enumerator:
         enumerator_cls = (
             self._enums_4_fields.get(field)
             or self._enums_4_field_types[field.__class__]
@@ -202,7 +202,10 @@ class _EnumerableRegistry:
 
         return self._enumerator(field)
 
-    def enumerator_by_fieldname(self, model: Type[CremeEntity], field_name: str) -> Enumerator:
+    def enumerator_by_fieldname(self,
+                                model: Type[CremeEntity],
+                                field_name: str,
+                                ) -> Enumerator:
         """Get an Enumerator instance corresponding to a model field.
 
         @param model: Model inheriting CremeEntity.
@@ -218,7 +221,8 @@ class _EnumerableRegistry:
     def register_field(self,
                        model: Type[CremeEntity],
                        field_name: str,
-                       enumerator_class: Type[Enumerator]):
+                       enumerator_class: Type[Enumerator],
+                       ) -> '_EnumerableRegistry':
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
@@ -243,7 +247,8 @@ class _EnumerableRegistry:
 
     def register_field_type(self,
                             field_class: Type[Field],
-                            enumerator_class: Type[Enumerator]):
+                            enumerator_class: Type[Enumerator],
+                            ) -> '_EnumerableRegistry':
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
@@ -259,7 +264,8 @@ class _EnumerableRegistry:
 
     def register_related_model(self,
                                model: Type[CremeEntity],
-                               enumerator_class: Type[Enumerator]):
+                               enumerator_class: Type[Enumerator],
+                               ) -> '_EnumerableRegistry':
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for ForeignKeys/ManyToManyFields
         which reference a specific model.
