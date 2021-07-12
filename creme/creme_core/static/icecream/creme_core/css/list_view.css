@@ -185,8 +185,8 @@
     font-size: 11px !important;
     font-weight: 600;
 
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
             box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
 }
 
 .list-header-buttons a.with-icon,

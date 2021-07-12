@@ -75,9 +75,9 @@ div.form-container {
     border-bottom: 1px solid #d9d9d9;
     border-right: 1px solid #d9d9d9;
 
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-container .form-block-errors {
@@ -89,9 +89,9 @@ div.form-container {
     border: 2px solid #ffa3a3;
     border-radius: 3px;
 
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
+    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-container .form-block + .form-block {
@@ -223,8 +223,8 @@ div.submit_buttons input {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
+    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
             box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     text-align: center;

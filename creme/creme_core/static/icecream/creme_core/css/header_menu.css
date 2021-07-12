@@ -13,9 +13,9 @@
     background: white;
     top: 0;
 
-    -webkit-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
-       -moz-box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
-            box-shadow: 0 1px 12px -3px rgba(0,0,0,0.3);
+    -webkit-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+       -moz-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
 
     border-bottom: 1px #ddd;
     position: fixed;
@@ -413,9 +413,9 @@ span.create-group-entry {
     border-top: 1px solid rgba(0,0,0,0.1);
 
     background: white;
-    box-shadow:  0   5px 4px -4px rgba(0,0,0,0.2),
-                -5px 0   4px -4px rgba(0,0,0,0.2),
-                 5px 0   4px -4px rgba(0,0,0,0.2);
+    box-shadow:  0   5px 4px -4px rgba(0, 0, 0, 0.2),
+                -5px 0   4px -4px rgba(0, 0, 0, 0.2),
+                 5px 0   4px -4px rgba(0, 0, 0, 0.2);
 
     /* fade out animation */
     opacity: 0;

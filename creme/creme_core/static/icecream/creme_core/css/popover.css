@@ -17,9 +17,11 @@
   border: 1px solid #cccccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
   border-radius: 4px;
-  -webkit-box-shadow: 0 2px 4px rgba(0,0,0,0.10);
-     -moz-box-shadow: 0 2px 4px rgba(0,0,0,0.10);
-          box-shadow: 0 2px 4px rgba(0,0,0,0.10);
+
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+     -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
   white-space: normal;
   max-width: calc(100vw - 10px);
   max-height: calc(100vh - 10px);

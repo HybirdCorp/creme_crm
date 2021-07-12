@@ -180,6 +180,32 @@
     padding-left: 10px;
 }
 
+/* TODO: factorise ? */
+.persons-form_block-addresses .persons-form_block-addresses-buttons button {
+    padding: 5px 15px;
+
+    background: linear-gradient(#f6fcff, #e0f1f7);
+
+    border: 1px solid #bdd3dc;
+    border-bottom: 1px solid #9db2bb;
+
+    border-radius: 3px;
+
+    -webkit-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+       -moz-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+            box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+
+    text-align: center;
+    text-decoration: none;
+    color: #34687e;
+
+    cursor: pointer;
+}
+
+.persons-form_block-addresses .persons-form_block-addresses-buttons button:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+}
+
 /*
 .persons-form_block-addresses .persons-form_block-addresses-inner-header-buttons .addresses-copy_to_left {
     float: left;
