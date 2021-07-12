@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -416,14 +416,16 @@ class DeletionForm(CremeModelForm):
             if fnmatch(delete_signature, handler_pattern):
                 return handler_cls
 
-        raise ValueError(gettext(
-            'The field "{}.{}" cannot be deleted because its '
-            '"on_delete" constraint is not managed. '
-            'Please contact your administrator.'.format(
-                related_field.model.__name__,
-                related_field.name,
+        raise ValueError(
+            gettext(
+                'The field "{model}.{field}" cannot be deleted because its '
+                '"on_delete" constraint is not managed. '
+                'Please contact your administrator.'
+            ).format(
+                model=related_field.model.__name__,
+                field=related_field.name,
             )
-        ))
+        )
 
     def _get_m2m_handler_class(self, model_field):
         # TODO: customisable behaviour ??
