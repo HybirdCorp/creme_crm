@@ -32,6 +32,7 @@ class ToDoManager(models.Manager):
 
 
 class ToDo(CremeModel):
+    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
     title = models.CharField(_('Title'), max_length=200)
     is_ok = models.BooleanField(_('Done?'), editable=False, default=False)
 
@@ -41,7 +42,6 @@ class ToDo(CremeModel):
     description = models.TextField(_('Description'), blank=True)
     creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
     deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
-    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
