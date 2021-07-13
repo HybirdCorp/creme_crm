@@ -293,7 +293,7 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
         return HttpResponse()
 
 
-# TODO: factorise with HideInactiveUsers ?
+# TODO: factorise with HideInactiveUsers
 class CustomFormShowDetails(EntityCTypeRelatedMixin, generic.CheckedView):
     ctype_id_arg = 'ct_id'
     ct_id_0_accepted = True

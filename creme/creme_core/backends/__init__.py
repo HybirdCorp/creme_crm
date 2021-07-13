@@ -50,7 +50,8 @@ class _BackendRegistry(Generic[BackendBaseClass]):
 
     def __init__(self,
                  base_backend_class: Type[BackendBaseClass],
-                 settings: Iterable[str]):
+                 settings: Iterable[str],
+                 ):
         self._backend_classes: Optional[Dict[str, Type[BackendBaseClass]]] = None
         self._settings: List[str] = [*settings]
         self._base_backend_class = base_backend_class

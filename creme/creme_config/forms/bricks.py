@@ -484,7 +484,6 @@ class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # TODO: add an 'exclude' argument in creme_entity_content_types() ??
         get_for_model = ContentType.objects.get_for_model
         is_invalid = gui_bricks.brick_registry.is_model_invalid
         self.fields['ctype'].ctypes = (

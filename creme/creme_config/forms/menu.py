@@ -115,7 +115,7 @@ class ContainerForm(CremeModelForm):
 
         store_it = iter(items_store)
 
-        # TODO: bulk_create
+        # TODO: bulk_create/update
         for order, entry in enumerate(entries):
             item = next(store_it)
             item.entry_id = entry.id
