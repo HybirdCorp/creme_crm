@@ -1238,23 +1238,6 @@ CRUDITY_BACKENDS = [
     },
 ]
 
-# # ACTIVESYNC -------------------------------------------------------------------
-# # todo: Rename and transform this into an AS-Version verification
-# #       => A2:Body doesn't seems to work with AS version > 2.5
-# IS_ZPUSH = True
-#
-# # 0 = Client object replaces server object.
-# # 1 = Server object replaces client object.
-# CONFLICT_MODE = 1
-#
-# ACTIVE_SYNC_DEBUG = DEBUG  # Make appears some debug information on the UI
-#
-# LIMIT_SYNC_KEY_HISTORY = 50  # Number of sync_keys kept in db by user
-#
-# CONNECTION_TIMEOUT = 150
-#
-# PICTURE_LIMIT_SIZE = 55000  # E.g: 55Ko Active sync servers don't handle pictures > to this size
-
 # TICKETS ----------------------------------------------------------------------
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'
 TICKETS_TEMPLATE_MODEL = 'tickets.TicketTemplate'
