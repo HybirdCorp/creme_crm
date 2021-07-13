@@ -68,12 +68,14 @@ if apps.is_installed('creme.assistants'):
 class ActivityTestCase(_ActivitiesTestCase):
     ADD_INDISPO_URL = reverse('activities__create_indispo')
 
-    def _build_add_related_uri(self, related, act_type_id=None):
+    @staticmethod
+    def _build_add_related_uri(related, act_type_id=None):
         url = reverse('activities__create_related_activity', args=(related.id,))
 
         return url if not act_type_id else f'{url}?activity_type={act_type_id}'
 
-    def _build_get_types_url(self, type_id):
+    @staticmethod
+    def _build_get_types_url(type_id):
         return reverse('activities__get_types', args=(type_id,))
 
     def _create_phonecall(
