@@ -230,6 +230,9 @@
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
         # The variables 'default_app_config' present in the file '__init__.py' of all apps have been removed ;
           the classes inheriting 'AppConfig' got an attribute 'default = True' instead (see https://docs.djangoproject.com/en/3.2/releases/3.2/#automatic-appconfig-discovery).
+        # In 'creme.utils.loggers' :
+            - The method 'CremeFormatter.formatEncodedException()' has been removed (use 'formatException()' instead).
+            - The method 'CompressedTimedRotatingFileHandler._next_filename()' has been removed (it was unused).
         # The method 'creme_core.apps.CremeAppConfig.register_menu()' has been removed ;
           all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py')
         # The method 'get_tag()' injected in all model-fields takes now an argument named "tag" (it was named "tag_name") ;

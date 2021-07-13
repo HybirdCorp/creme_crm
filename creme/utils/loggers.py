@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,10 +61,10 @@ class CremeFormatter(Formatter):
 
     def __init__(self, format=None, datefmt=None, colorize=False, colors=None):
         Formatter.__init__(self, fmt=format, datefmt=datefmt)
-        cremepath = dirname(__file__)[:-len(join('creme', 'creme_core'))]
+        creme_path = dirname(__file__)[:-len(join('creme', 'creme_core'))]
 
         self.prefixes = [
-            ('', cremepath),
+            ('', creme_path),
             *(('python-packages', path) for path in syspath),
         ]
 
@@ -76,26 +76,25 @@ class CremeFormatter(Formatter):
                 self.colors[getLevelName(key)] = color
 
     def formatModulepath(self, record):
-        modulepath = splitext(record.pathname)[0]
+        module_path = splitext(record.pathname)[0]
 
         for prefix, path in self.prefixes:
-            if modulepath.startswith(path):
-                return modulepath.replace(path, prefix)
+            if module_path.startswith(path):
+                return module_path.replace(path, prefix)
 
-        return modulepath
+        return module_path
 
-    # TODO: remove ?
-    def formatEncodedException(self, record):
-        # exception = self.formatException(record.exc_info)
-        #
-        # for encoding in ['utf-8', getfilesystemencoding()]:
-        #     try:
-        #         return unicode(exception, encoding=encoding)
-        #     except Exception:
-        #         continue
-        #
-        # return str(exception, getfilesystemencoding(), errors='replace')
-        return self.formatException(record.exc_info)
+    # def formatEncodedException(self, record):
+    #     # exception = self.formatException(record.exc_info)
+    #     #
+    #     # for encoding in ['utf-8', getfilesystemencoding()]:
+    #     #     try:
+    #     #         return unicode(exception, encoding=encoding)
+    #     #     except Exception:
+    #     #         continue
+    #     #
+    #     # return str(exception, getfilesystemencoding(), errors='replace')
+    #     return self.formatException(record.exc_info)
 
     def format(self, record):
         record.message = record.getMessage()
@@ -107,7 +106,8 @@ class CremeFormatter(Formatter):
             record.colored_levelname = colored(getLevelName(record.levelno), color, attrs=attrs)
 
         if record.exc_info and not record.exc_text:
-            record.exc_text = self.formatEncodedException(record)
+            # record.exc_text = self.formatEncodedException(record)
+            record.exc_text = self.formatException(record.exc_info)
 
         log = self._fmt % record.__dict__
 
@@ -142,14 +142,13 @@ class RegexFilter(Filter):
 #
 #    Copyright 2001-2007 by Vinay Sajip. All Rights Reserved.
 #
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This file is released under the Python License (http://www.opensource.org/licenses/Python-2.0)
 ################################################################################
 
 class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
     def __init__(self, *args, **kwargs):
-        # filenames = kwargs.pop('filename', None)
         filename = kwargs.pop('filename', None)
 
         if filename is None:
@@ -157,79 +156,58 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
                 f'{self.__class__.__name__} configuration is invalid (no "filename").'
             )
 
-        # if isinstance(filenames, (list, tuple,)):
-        #     self.filenames = (expanduser(p) for p in filenames[:1])
-        # else:
-        #     self.filenames = (expanduser(filenames),)
-
-        # kwargs.update({'filename': self.filenames[0]})
         kwargs['filename'] = expanduser(filename)
-        # super(CompressedTimedRotatingFileHandler, self).__init__(*args, **kwargs)
         super().__init__(*args, **kwargs)
 
-    # def _open(self):
-    #     for filename in self.filenames:
-    #         log_dir = dirname(filename)
-    #         self.baseFilename = filename
-    #
-    #         try:
-    #             if not exists(log_dir):
-    #                 makedirs(log_dir)
-    #
-    #             return TimedRotatingFileHandler._open(self)
-    #         except:
-    #             continue
-    #
-    #     raise
     def _open(self):
         log_dir = dirname(self.baseFilename)
 
         if not exists(log_dir):
             makedirs(log_dir)
 
-        # return super(CompressedTimedRotatingFileHandler, self)._open()
         return super()._open()
 
-    def _next_filename(self, count, extension):
-        for i in range(self.backupCount - 1, 0, -1):
-            sfn = '{}.{}.gz'.format(self.baseFilename, i)
-            dfn = '{}.{}.gz'.format(self.baseFilename, i + 1)
-
-            if exists(sfn):
-                if exists(dfn):
-                    delete_file(dfn)
-
-                rename_file(sfn, dfn)
-
-            dfn = self.baseFilename + '.1.gz'
+    # def _next_filename(self, count, extension):
+    #     for i in range(self.backupCount - 1, 0, -1):
+    #         sfn = '{}.{}.gz'.format(self.baseFilename, i)
+    #         dfn = '{}.{}.gz'.format(self.baseFilename, i + 1)
+    #
+    #         if exists(sfn):
+    #             if exists(dfn):
+    #                 delete_file(dfn)
+    #
+    #             rename_file(sfn, dfn)
+    #
+    #         dfn = self.baseFilename + '.1.gz'
 
     def _now(self):
         return time.time()
 
     def _compute_next_rollover(self):
-        currentTime = int(self._now())
+        current_time = int(self._now())
+        new_rollover_at = self.computeRollover(current_time)
 
-        newRolloverAt = self.computeRollover(currentTime)
-
-        while newRolloverAt <= currentTime:
-            newRolloverAt = newRolloverAt + self.interval
+        while new_rollover_at <= current_time:
+            new_rollover_at = new_rollover_at + self.interval
 
         # If DST changes and midnight or weekly rollover, adjust for this.
         if (self.when == 'MIDNIGHT' or self.when.startswith('W')) and not self.utc:
-            dstNow = time.localtime(currentTime)[-1]
-            dstAtRollover = time.localtime(newRolloverAt)[-1]
+            dst_now = time.localtime(current_time)[-1]
+            dst_at_rollover = time.localtime(new_rollover_at)[-1]
 
-            if dstNow != dstAtRollover:
-                if not dstNow:  # DST kicks in before next rollover, so we need to deduct an hour
-                    newRolloverAt = newRolloverAt - 3600
-                else:           # DST bows out before next rollover, so we need to add an hour
-                    newRolloverAt = newRolloverAt + 3600
+            if dst_now != dst_at_rollover:
+                if not dst_now:
+                    # DST kicks in before next rollover, so we need to deduct an hour
+                    new_rollover_at = new_rollover_at - 3600
+                else:
+                    # DST bows out before next rollover, so we need to add an hour
+                    new_rollover_at = new_rollover_at + 3600
 
-        self.rolloverAt = newRolloverAt
+        self.rolloverAt = new_rollover_at
 
     def _save_archive(self, rollover_filename):
-        archive_filename = rollover_filename + '.bz2'
-        backup_filename = rollover_filename + '.bak'
+        archive_filename = f'{rollover_filename}.bz2'
+        backup_filename  = f'{rollover_filename}.bak'
         bzip_file = None
 
         try:
@@ -282,12 +260,11 @@ class CompressedTimedRotatingFileHandler(TimedRotatingFileHandler):
 
         if exists(self.baseFilename):
             # Backup current log file
-            rename_file(self.baseFilename, rollover_filename + '.bak')
+            rename_file(self.baseFilename, f'{rollover_filename}.bak')
 
-            # gzip backup log file
+            # Compress backup log file
             self._deferred_save_archive(rollover_filename)
 
-        # print("%s -> %s" % (self.baseFilename, dfn))
         self.mode = 'w'
         self.stream = self._open()
         self._compute_next_rollover()
