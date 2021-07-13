@@ -47,26 +47,36 @@ from .. import constants  # get_event_model
 #         super().__init__(*args, **kwargs)
 
 
-# TODO: set as class attribute
-_SYMMETRICS = {
-    constants.REL_OBJ_CAME_EVENT:     constants.REL_OBJ_NOT_CAME_EVENT,
-    constants.REL_OBJ_NOT_CAME_EVENT: constants.REL_OBJ_CAME_EVENT,
-}
+# _SYMMETRICS = {
+#     constants.REL_OBJ_CAME_EVENT:     constants.REL_OBJ_NOT_CAME_EVENT,
+#     constants.REL_OBJ_NOT_CAME_EVENT: constants.REL_OBJ_CAME_EVENT,
+# }
 
-_TYPES = [
-    constants.REL_OBJ_IS_INVITED_TO,
-    constants.REL_OBJ_CAME_EVENT,
-    constants.REL_OBJ_NOT_CAME_EVENT,
-]
+# _TYPES = [
+#     constants.REL_OBJ_IS_INVITED_TO,
+#     constants.REL_OBJ_CAME_EVENT,
+#     constants.REL_OBJ_NOT_CAME_EVENT,
+# ]
 
 
 class AddContactsToEventForm(CremeForm):
     related_contacts = MultiRelationEntityField(
-        allowed_rtypes=_TYPES, label=_('Related contacts'),
+        # allowed_rtypes=_TYPES,
+        allowed_rtypes=[
+            constants.REL_OBJ_IS_INVITED_TO,
+            constants.REL_OBJ_CAME_EVENT,
+            constants.REL_OBJ_NOT_CAME_EVENT,
+        ],
+        label=_('Related contacts'),
     )
 
     error_messages = {
         'duplicates': _('Contact %(contact)s is present twice.'),
+    }
+
+    symmetric_rtype_ids = {
+        constants.REL_OBJ_CAME_EVENT:     constants.REL_OBJ_NOT_CAME_EVENT,
+        constants.REL_OBJ_NOT_CAME_EVENT: constants.REL_OBJ_CAME_EVENT,
     }
 
     def __init__(self, instance, *args, **kwargs):
@@ -100,7 +110,7 @@ class AddContactsToEventForm(CremeForm):
         #   we avoid several 'REL_OBJ_IS_INVITED_TO' relations,
         #   'REL_OBJ_CAME_EVENT' override existing 'REL_OBJ_NOT_CAME_EVENT' relations etc...
         event = self.event
-        user  = self.user
+        user = self.user
         relations = Relation.objects
         create_relation = relations.create
 
@@ -109,8 +119,12 @@ class AddContactsToEventForm(CremeForm):
         # NB: queries are regrouped to optimise
         relations_map = defaultdict(list)  # per contact relations lists
         for relation in relations.filter(
-            subject_entity=event.id, type__in=_TYPES,
-            object_entity__in=[contact.id for relationtype, contact in related_contacts],
+            subject_entity=event.id,
+            # type__in=_TYPES,
+            type__in=self.fields['related_contacts'].allowed_rtypes,
+            object_entity__in=[
+                contact.id for relationtype, contact in related_contacts
+            ],
         ):
             relations_map[relation.object_entity_id].append(relation)
 
@@ -122,7 +136,8 @@ class AddContactsToEventForm(CremeForm):
 
             # REL_OBJ_CAME_EVENT or REL_OBJ_NOT_CAME_EVENT
             if relationtype_id != constants.REL_OBJ_IS_INVITED_TO:
-                symmetric = _SYMMETRICS[relationtype_id]
+                # symmetric = _SYMMETRICS[relationtype_id]
+                symmetric = self.symmetric_rtype_ids[relationtype_id]
                 rel2del = find_first(
                     contact_relations,
                     lambda relation: relation.type_id == symmetric,
