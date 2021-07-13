@@ -290,6 +290,7 @@
             * Persons :
                 - The method 'forms.merge._PersonMergeForm._handle_addresses()' has been removed ;
                   work has been split cleanly between clean & save steps (notably by the new method '_clean_addresses()').
+                - The class 'views.organisation.OrganisationCreationBase' has been removed (merged with 'OrganisationCreation').
             * Reports :
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.

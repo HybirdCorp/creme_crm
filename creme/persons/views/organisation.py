@@ -42,18 +42,19 @@ from ..forms import organisation as orga_forms
 Organisation = get_organisation_model()
 
 
-class OrganisationCreationBase(generic.EntityCreation):
+# class OrganisationCreationBase(generic.EntityCreation):
+class OrganisationCreation(generic.EntityCreation):
     model = Organisation
     form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
         custom_forms.ORGANISATION_CREATION_CFORM
 
 
-# TODO: merge with OrganisationCreationBase
-class OrganisationCreation(OrganisationCreationBase):
-    pass
+# class OrganisationCreation(OrganisationCreationBase):
+#     pass
 
 
-class CustomerCreation(OrganisationCreationBase):
+# class CustomerCreation(OrganisationCreationBase):
+class CustomerCreation(OrganisationCreation):
     title = _('Create a suspect / prospect / customer')
 
     def check_view_permissions(self, user):
@@ -202,4 +203,6 @@ class OrganisationUnmanage(generic.base.EntityRelatedMixin, generic.CheckedView)
                 orga.is_managed = False
                 orga.save()
             else:
-                raise ConflictError(gettext('You must have at least one managed organisation.'))
+                raise ConflictError(
+                    gettext('You must have at least one managed organisation.')
+                )

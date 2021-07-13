@@ -228,7 +228,7 @@ class GraphsTestCase(CremeTestCase):
         rtype_create = RelationType.create
         rtype01 = rtype_create(
             ('test-subject_love', 'loves'),
-            ('test-object_love',  'is loved to')
+            ('test-object_love',  'is loved to'),
         )[0]
         rtype02 = rtype_create(
             ('test-subject_hate', 'hates'),
