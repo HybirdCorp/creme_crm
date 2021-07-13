@@ -112,7 +112,7 @@ class ImageQuickForm(CremeEntityQuickForm):
         fields['linked_folder'].initial = get_folder_model().objects.filter(
             uuid=constants.UUID_FOLDER_IMAGES,
         ).first()
-        # TODO: hook django (create or own widget and set it on ImageField ?)
+        # TODO: hook django (create our own widget and set it on ImageField ?)
         fields['image'].widget.attrs = {
             'accept': ','.join(
                 f'.{ext}'
