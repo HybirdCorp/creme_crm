@@ -27,7 +27,11 @@ from django.shortcuts import get_object_or_404
 from creme import persons
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import EntityFilter
-from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
+from creme.creme_core.utils import (
+    bool_from_str_extended,
+    get_from_GET_or_404,
+    get_from_POST_or_404,
+)
 from creme.creme_core.views.generic import CheckedView
 
 from .models import GeoAddress
@@ -52,8 +56,8 @@ class AddressInfoSetting(CheckedView):
         data = {
             'latitude': get_arg('latitude'),
             'longitude': get_arg('longitude'),
-            # TODO: utils.bool_from_str_extended()
-            'geocoded': get_arg('geocoded').lower() == 'true',
+            # 'geocoded': get_arg('geocoded').lower() == 'true',
+            'geocoded': bool_from_str_extended(get_arg('geocoded')),
             'status': get_arg('status'),
         }
 
