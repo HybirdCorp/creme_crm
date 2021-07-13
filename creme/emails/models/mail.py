@@ -122,7 +122,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
         ordering = ('-sending_date',)
 
     def genid_n_save(self):
-        while True:  # TODO: range(10000) to avoid infinite loop ??
+        for __ in range(10000):  # NB: avoid infinite loop
             self.identifier = utils.generate_id()
 
             try:
