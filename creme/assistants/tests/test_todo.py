@@ -2,6 +2,7 @@
 
 from datetime import datetime, timedelta
 from functools import partial
+from unittest import SkipTest
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -52,7 +53,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         super().tearDown()
         EmailBackend.send_messages = self.original_send_messages
 
-    def _build_add_url(self, entity):
+    @staticmethod
+    def _build_add_url(entity):
         return reverse('assistants__create_todo', args=(entity.id,))
 
     def _create_todo(self, title='TITLE', description='DESCRIPTION', entity=None, user=None):
@@ -125,7 +127,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(title, str(todo))
 
     def test_create02(self):
-        "Deadline"
+        "Deadline."
         queue = JobSchedulerQueue.get_main_queue()
         queue.clear()
 
@@ -286,7 +288,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, len(page.object_list))
         self.assertSetEqual({*todos}, {*page.object_list})
 
-    def _oldify_todo(self, todo):
+    @staticmethod
+    def _oldify_todo(todo):
         cdate = todo.creation_date
         todo.creation_date = cdate - timedelta(days=1)
         todo.save()
@@ -339,7 +342,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         # )
 
     def test_function_field03(self):
-        "Prefetch with 'populate_entities()'"
+        "Prefetch with 'populate_entities()'."
         user = self.user
         self._oldify_todo(self._create_todo('Todo01', 'Description01'))
         self._create_todo('Todo02', 'Description02')
@@ -436,8 +439,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         next_hour = localtime(now_value).hour + 1
         if next_hour > 23:
-            print('Skip the test TodoTestCase.test_reminder02 because it is too late.')
-            return
+            raise SkipTest('It is too late.')
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = next_hour
@@ -516,7 +518,7 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertFalse(JobResult.objects.filter(job=job))
 
     def test_reminder04(self):
-        "Teams"
+        "Teams."
         user = self.user
         now_value = now()
 
@@ -546,13 +548,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         )
 
     def test_next_wakeup01(self):
-        "Next wake is one day later + minimum hour"
+        "Next wake is one day later + minimum hour."
         now_value = now()
 
         next_hour = localtime(now_value).hour + 1
         if next_hour > 23:
-            print('Skip the test TodoTestCase.test_next_wakeup01 because it is too late.')
-            return
+            raise SkipTest('It is too late.')
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = next_hour
@@ -580,13 +581,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         )
 
     def test_next_wakeup02(self):
-        "Next wake is one day later (but minimum hour has passed)"
+        "Next wake is one day later (but minimum hour has passed)."
         now_value = now()
 
         previous_hour = localtime(now_value).hour - 1
         if previous_hour < 0:
-            print('Skip the test TodoTestCase.test_reminder02 because it is too early.')
-            return
+            raise SkipTest('It is too early.')
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = previous_hour
@@ -603,14 +603,12 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup03(self):
-        "ToDos + Alerts => minimum wake up"
+        "ToDos + Alerts => minimum wake up."
         now_value = now()
 
-        # TODO: factorise
         previous_hour = localtime(now_value).hour - 1
         if previous_hour < 0:
-            print('Skip the test TodoTestCase.test_reminder02 because it is too early.')
-            return
+            raise SkipTest('It is too early.')
 
         sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
         sv.value = previous_hour
@@ -633,7 +631,8 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(now_value + timedelta(minutes=20), job.type.next_wakeup(job, now_value))
 
-    def _get_hlines(self):
+    @staticmethod
+    def _get_hlines():
         return [*HistoryLine.objects.order_by('id')]
 
     def test_history01(self):

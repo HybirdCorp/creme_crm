@@ -20,7 +20,8 @@ from .base import AssistantsTestCase
 
 
 class MemoTestCase(AssistantsTestCase):
-    def _build_add_url(self, entity):
+    @staticmethod
+    def _build_add_url(entity):
         return reverse('assistants__create_memo', args=(entity.id,))
 
     def _create_memo(self, content='Content', on_homepage=True, entity=None):
