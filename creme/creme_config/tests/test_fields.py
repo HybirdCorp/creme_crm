@@ -1217,8 +1217,8 @@ class MenuEntriesFieldTestCase(FieldTestCase):
 
 
 class BricksConfigFieldTestCase(CremeTestCase):
-    # TODO: Use creme_core.tests.forms.base.FieldTestCase.assertFieldValidationError
-    # once it can handle ValidationError.error_list
+    # TODO: Use creme_core.tests.forms.base.FieldTestCase.assertFieldValidationError()
+    #       once it can handle ValidationError.error_list
 
     def test_initial(self):
         field = BricksConfigField()

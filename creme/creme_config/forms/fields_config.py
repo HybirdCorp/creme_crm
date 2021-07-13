@@ -149,7 +149,7 @@ class FieldsConfigEditForm(CremeModelForm):
                 label=field.verbose_name,
                 required=False,
                 choices=[
-                    ('', '---'),  # TODO: improve (eg: "Default (required)") ?
+                    ('', '---'),
                     *((flag, choices_label.get(flag, '??')) for flag in flags),
                 ],
                 initial=(

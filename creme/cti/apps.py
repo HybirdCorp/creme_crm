@@ -51,4 +51,5 @@ class CTIConfig(CremeAppConfig):
 
         from . import utils
 
-        field_printers_registry.register(PhoneField, utils.print_phone)
+        # field_printers_registry.register(PhoneField, utils.print_phone)
+        field_printers_registry.register(PhoneField, utils.print_phone_html)

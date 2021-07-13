@@ -210,7 +210,8 @@ class _FunctionFieldRegistry:
     # TODO: accept FunctionField names too ?
     def unregister(self,
                    model: Type[Model],
-                   *function_field_classes: Type[FunctionField]) -> None:
+                   *function_field_classes: Type[FunctionField],
+                   ) -> None:
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.

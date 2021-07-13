@@ -542,7 +542,7 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
                 this.locations_info = ()
 
         # TODO: factorise with SearchConfigBrick ?
-        # TODO: factorise with CustomBrickConfigItemCreateForm , add a method in brick_registry ?
+        # TODO: factorise with CustomBrickConfigItemCreateForm, add a method in brick_registry ?
         get_ct = ContentType.objects.get_for_model
         is_invalid = self.brick_registry.is_model_invalid
         ctypes = [
