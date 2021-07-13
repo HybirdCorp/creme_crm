@@ -24,6 +24,7 @@ from typing import List, Sequence, Tuple, Type
 
 from django.apps import apps
 from django.db.models.query_utils import FilteredRelation, Q
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -91,7 +92,8 @@ if apps.is_installed('creme.activities'):
             self.context = context
             self.contact = contact
 
-        @property  # TODO: cached_property ??
+        # @property  # TODO: cached_property ??
+        @cached_property
         def label(self):
             contact = self.contact
 
