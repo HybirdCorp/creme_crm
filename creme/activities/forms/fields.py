@@ -137,7 +137,7 @@ class ActivityTypeField(core_fields.JSONField):
         self.widget.types = CallableChoiceIterator(self._get_types_options)
 
     def _get_types_options(self):
-        types = self._types  # TODO: self.types ??
+        types = self._types
 
         if len(types) > 1 or not self.required:
             yield None, self.empty_label

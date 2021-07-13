@@ -54,17 +54,23 @@ from ..utils import get_ical
 Activity = get_activity_model()
 
 _CREATION_PERM_STR = cperm(Activity)
-_TYPES_MAP = {
-    'meeting':   constants.ACTIVITYTYPE_MEETING,
-    'phonecall': constants.ACTIVITYTYPE_PHONECALL,
-    'task':      constants.ACTIVITYTYPE_TASK,
-}
+# _TYPES_MAP = {
+#     'meeting':   constants.ACTIVITYTYPE_MEETING,
+#     'phonecall': constants.ACTIVITYTYPE_PHONECALL,
+#     'task':      constants.ACTIVITYTYPE_TASK,
+# }
 
 
 class ActivityCreation(generic.EntityCreation):
     model = Activity
     form_class: Union[Type[BaseForm], CustomFormDescriptor] = custom_forms.ACTIVITY_CREATION_CFORM
     type_name_url_kwarg = 'act_type'
+
+    allowed_activity_types = {
+        'meeting':   constants.ACTIVITYTYPE_MEETING,
+        'phonecall': constants.ACTIVITYTYPE_PHONECALL,
+        'task':      constants.ACTIVITYTYPE_TASK,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -90,7 +96,8 @@ class ActivityCreation(generic.EntityCreation):
         if act_type is None:
             type_id = None
         else:
-            type_id = _TYPES_MAP.get(act_type)  # TODO: self.TYPES_MAP ?
+            # type_id = _TYPES_MAP.get(act_type)
+            type_id = self.allowed_activity_types.get(act_type)
 
             if not type_id:
                 raise Http404(f'No activity type matches with: {act_type}')
