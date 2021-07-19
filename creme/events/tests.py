@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.utils.profiling import CaptureQueriesContext
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.models import SalesPhase
 from creme.opportunities.tests.base import skipIfCustomOpportunity
@@ -471,7 +472,12 @@ class EventsTestCase(CremeTestCase):
             ).status_code,
         )
 
-        stats = event.get_stats()
+        with CaptureQueriesContext() as ctxt:
+            stats = event.get_stats()
+
+        self.assertEqual(1, len(ctxt.captured_sql))
+        self.assertNotIn(' ORDER BY ', ctxt.captured_sql[0])
+
         self.assertEqual(0, stats['invitations_count'])
         self.assertEqual(0, stats['accepted_count'])
         self.assertEqual(0, stats['refused_count'])
