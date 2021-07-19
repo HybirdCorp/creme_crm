@@ -135,7 +135,8 @@ class AbstractEvent(CremeEntity):
                 relations_count=models.Count('relation'),
             ).values_list(
                 'id', 'relations_count',
-            ).order_by()  # NB: do not use Meta.ordering (remove when use Django 3.1)
+            )
+            # .order_by()  # NB: do not use Meta.ordering (remove when use Django 3.1)
         )
         get_count = types_count.get
 
