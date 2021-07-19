@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'BILLING' APP (JavaScript)
-# Copyright (C) 2019 Hybird
+# Copyright (C) 2021 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -d djangojs -l fr
@@ -8,13 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing(JS) 2.1\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-05-27 16:04+0200\n"
+"POT-Creation-Date: 2021-07-19 12:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
 #: static/billing/js/billing-actions.js:202
 #: static/billing/js/tests/billing-actions.js:114
