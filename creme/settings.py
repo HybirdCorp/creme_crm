@@ -1072,7 +1072,8 @@ CREME_OPT_MEDIA_BUNDLES = []
 ROOT_MEDIA_FILTERS = {
     # 'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
     'js':  'mediagenerator.filters.closure.Closure',
-    'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+    # 'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
+    'css': 'mediagenerator.filters.csscompressor.CSSCompressor',
 }
 
 YUICOMPRESSOR_PATH = join(
