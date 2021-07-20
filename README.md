@@ -65,7 +65,6 @@ virtual env, in order to keep the old one working).
  - MySQL 5.7+ (or MariaDB 10.2+) or PostGreSQL 9.6+ (or SQLite which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
- - Java >= 1.4 (only needed to build the compressed version of CSS and JavaScript files at installation time)
  - These python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
@@ -77,6 +76,8 @@ virtual env, in order to keep the old one working).
      - django-formtools 2.2
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
+     - csscompressor 0.9
+     - rJSmin 1.1
    - Optional :
      - creme.billing :
        If you want PDF export, you can use :

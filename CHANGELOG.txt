@@ -9,6 +9,10 @@
   Users side :
   ------------
     # The version of Django has been upgraded to "3.2".
+    # Two full-python backends for the media-generator have been added ;
+      they are used in the default configuration (see the setting 'ROOT_MEDIA_FILTERS') in order to remove the dependency to Java by default.
+        - The package "csscompressor" is used to minify the CSS files.
+        - The package "rjsmin" is used to minify the JavaScript files.
     # The history has been improved :
         - The messages in the the history block are prettier.
         - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.

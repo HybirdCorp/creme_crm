@@ -1070,8 +1070,17 @@ TEST_CREME_OPT_JS = [
 CREME_OPT_MEDIA_BUNDLES = []
 
 ROOT_MEDIA_FILTERS = {
-    # 'js':  'mediagenerator.filters.yuicompressor.YUICompressor',
-    'js':  'mediagenerator.filters.closure.Closure',
+    # NB: Closure produces smaller JS files than RJSMin, but it needs Java 1.4+
+    #     to be installed, and the generation is slow.
+    #     Comparison of "main.js" sizes (measured during Creme 2.3 beta) :
+    #       - concatenated files (no minification):  822.0 Kb
+    #       - Closure:                               355.7 Kb
+    #       - rJSmin:                                457.5 Kb
+    # 'js':  'mediagenerator.filters.closure.Closure',
+    'js':  'mediagenerator.filters.rjsmin.RJSMin',
+
+    # NB: CSSCompressor gives a result slightly better than YUICompressor, & it
+    #     does not need Java...
     # 'css': 'mediagenerator.filters.yuicompressor.YUICompressor',
     'css': 'mediagenerator.filters.csscompressor.CSSCompressor',
 }
