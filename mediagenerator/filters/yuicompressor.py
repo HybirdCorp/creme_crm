@@ -9,7 +9,7 @@ class YUICompressor(SubProcessFilter):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         assert self.filetype in {'css', 'js'}, (
-            f'YUICompressor only supports compilation to css and js. '
+            f'YUICompressor only supports compilation of CSS and JS files. '
             f'The parent filter expects "{self.filetype}".')
 
     def parse_errors(self, e):
