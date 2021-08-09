@@ -1,5 +1,12 @@
 == Version 2.2.6 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # The setting 'AUTHENTICATION_BACKENDS' is now a list like Django asks (it was a tuple).
+
 
 == Version 2.2.5 ==
 
