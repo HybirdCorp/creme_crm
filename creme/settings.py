@@ -105,6 +105,7 @@ JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
 
 # AUTHENTICATION ###############################################################
 
+# (see the documentation of the Django's app "auth")
 AUTHENTICATION_BACKENDS = ['creme.creme_core.auth.backend.EntityBackend']
 AUTH_USER_MODEL = 'creme_core.CremeUser'
 
@@ -117,8 +118,21 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # I18N / L10N ##################################################################
 
+# Local time zone for this installation. Choices can be found here:
+# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+# although not all choices may be available on all operating systems.
+# If running in a Windows environment this must be set to the same as your
+# system time zone.
+TIME_ZONE = 'Europe/Paris'
+
+# Use timezone-aware date-times ? (you probably should keep the "True" value here).
 USE_TZ = True
 
+# Language code for this installation. All choices can be found here:
+# http://www.i18nguy.com/unicode/language-identifiers.html
+LANGUAGE_CODE = 'fr'  # Choose in the LANGUAGES values
+
+# Available languages (ie: with a translation), proposed in each user settings.
 LANGUAGES = [
     ('en', 'English'),
     ('fr', 'Français'),
@@ -133,17 +147,6 @@ USE_I18N = True
 # according to user current locale.
 # TODO: pass to 'True' by default  (in a future release...)
 USE_L10N = False
-
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
-TIME_ZONE = 'Europe/Paris'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
-LANGUAGE_CODE = 'fr'  # Choose in the LANGUAGES values
 
 DEFAULT_ENCODING = 'UTF8'
 
@@ -292,36 +295,136 @@ INSTALLED_DJANGO_APPS = [
 
     # EXTERNAL APPS
     'formtools',
-    'creme.creme_core.apps.MediaGeneratorConfig',  # It manages js/css/images
+    'creme.creme_core.apps.MediaGeneratorConfig',  # It manages JS, CSS & static images
 ]
 
 INSTALLED_CREME_APPS = [
-    # CREME CORE APPS
+    # ----------------------
+    # MANDATORY CREME APPS #
+    # ----------------------
     'creme.creme_core',
+
+    # Manages the Configuration portal.
     'creme.creme_config',
+
+    # Manages Folders & Documents entities.
+    # NB: currently used by "creme_core" for mass-importing,
+    #     so it's a mandatory app.
     'creme.documents',
-    'creme.activities',  # Extra features if 'assistants' is installed.
+
+    # Manages Contacts & Organisations entities.
     'creme.persons',
 
-    # CREME OPTIONAL APPS (can be safely commented)
+    # Manages Activities entities:
+    #   - they represent meetings, phone calls, tasks...
+    #   - have participants (Contacts) & subjects.
+    #   - can be displayed in a calendar view.
+    # There are extra features if the app "assistants" is installed
+    # (Alerts & UserMessages can be created when an Activity is created).
+    'creme.activities',
+
+    # -----------------------------------------------
+    # CREME OPTIONAL APPS (can be safely commented) #
+    # -----------------------------------------------
+
+    # Manage the following auxiliary models (related to an entity):
+    # Alert, ToDO, Memo, Action, UserMessage
+    # They can be created through specific blocks in detailed views of entities.
     'creme.assistants',
+
+    # Manages the Graphs entities ; they are used to generated images to
+    # visualize all the entities which are linked to given entities.
     'creme.graphs',
+
+    # Manages the Reports entities:
+    #   - they can generate CSV/XLS files containing information about entities,
+    #     generally filtered on a date range.
+    #   - they can be used by special blocks to display some statistics
+    #     (eg: number of related Invoices per month in the current year) as
+    #     histograms/pie-charts...
     'creme.reports',
+
+    # Manages Products & Services entities, to represent what an Organisation
+    # sells.
     'creme.products',
+
+    # Manages RecurrentGenerator entities, which can generate recurrently some
+    # types of entities.
+    # Compatible with these apps:
+    #   - billing (models Invoice/Quote/SalesOrder/CreditNote)
+    #   - tickets
     'creme.recurrents',
-    'creme.billing',  # Need 'products'
-    'creme.opportunities',  # Need 'products'. Extra features if 'billing' is installed.
-    'creme.commercial',  # Need 'opportunities'
-    'creme.events',  # Need 'opportunities'
+
+    # Manages Invoices, Quotes, SalesOrders & CreditNote entities.
+    # BEWARE: needs the app "products".
+    'creme.billing',
+
+    # Manages Opportunities entities, which represent business opportunities
+    # (typically an Organisation trying to sell Products/Service to another
+    # Organisation).
+    # BEWARE: needs the app "products".
+    # There are extra features if the app "billing" is installed, like new
+    # blocks with related Quotes or Invoices.
+    'creme.opportunities',
+
+    # Manages several types of entities related to salesmen :
+    #   - Act (commercial actions), which are used to define some goals to reach
+    #     (eg: a minimum number of people met on a show).
+    #   - Strategy to study market segments, assets & charms.
+    # BEWARE: needs the app "opportunities".
+    'creme.commercial',
+
+    # Manages the Events entities, which represents shows/conferences/... where
+    # people are invited.
+    # BEWARE: needs the app "opportunities".
+    'creme.events',
+
+    # CReates/Removes/UpDates entities from data contained in emails/files...
+    # Actions can be stored ina sand-box before being really applied.
+    # NB1: currently only creation is implemented.
+    # NB2: currently accepted actions are defined below in the section
+    #      'crudity' (if the future they will be defined from a GUI).
     'creme.crudity',
-    'creme.emails',  # Extra features if 'crudity' is installed.
+
+    # Manages EntityEmails, MailingLists & EmailCampaign entities.
+    # If the app "crudity" is installed, emails can be synchronised with Creme.
+    'creme.emails',
+
     # 'creme.sms',  # Work In Progress
+
+    # Manages Projects & ProjectTasks entities. Projects contain tasks, which
+    # can depend on other tasks (their parents), & be associated to Activities.
+    # It's a lightweight project manager, don't expect things like GANTT chart.
     'creme.projects',
+
+    # Manages Tickets entities, which notably have a status (open, closed...)
+    # & a priority (low, high...). They are often used to manages issues
+    # encountered by customers.
     'creme.tickets',
+
+    # <Computer Telephony Integration> features.
     # 'creme.cti',
+
+    # Manages VCF files:
+    #   - Export a Contact as a VCF file
+    #   - Import a Contact (& eventually the related Organisation) from a VCF
+    #     file.
     'creme.vcfs',
-    # 'creme.polls',  # Need 'commercial'
+
+    # Manages PollForms, PollReplies & PollCampaigns entities, to create
+    # internal polls.
+    # Answers have type (integers, date, boolean...) & can depend on previous
+    # answers.
+    # BEWARE: needs the app "commercial".
+    # 'creme.polls',
+
+    # Display some lightweight views, about Contacts, Organisations &
+    # Activities, which are adapted to smartphones.
     # 'creme.mobile',
+
+    # Adds some specific blocks to detailed view of Contacts/Organisations which
+    # display maps (Google Maps, Open Street Map) using the address information.
+    # I can be useful to plan a business itinerary.
     'creme.geolocation',
 ]
 
@@ -518,10 +621,14 @@ ESLINT = {
 
 # GUI ##########################################################################
 
-BLOCK_SIZE = 10  # Lines number in common blocks
-MAX_LAST_ITEMS = 9  # Max number of items in the 'Last viewed items' bar
+# Lines number in common blocks
+BLOCK_SIZE = 10
 
-HIDDEN_VALUE = '??'  # Used to replace contents which a user is not allowed to see.
+# Maximum number of items in the menu entry "Recent entities"
+MAX_LAST_ITEMS = 9
+
+# Used to replace contents which a user is not allowed to see.
+HIDDEN_VALUE = '??'
 
 # List-view
 PAGE_SIZES = [10, 25, 50, 100, 200]  # Available page sizes  (list of integers)
