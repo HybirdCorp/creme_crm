@@ -103,7 +103,7 @@ JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
 
 # AUTHENTICATION ###############################################################
 
-AUTHENTICATION_BACKENDS = ('creme.creme_core.auth.backend.EntityBackend',)
+AUTHENTICATION_BACKENDS = ['creme.creme_core.auth.backend.EntityBackend']
 AUTH_USER_MODEL = 'creme_core.CremeUser'
 
 AUTH_PASSWORD_VALIDATORS = [
