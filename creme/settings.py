@@ -150,7 +150,7 @@ DEFAULT_ENCODING = 'UTF8'
 
 DATE_FORMAT         = 'd-m-Y'
 SHORT_DATE_FORMAT   = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2021)')
+DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2022)')
 DATE_FORMAT_JS      = {
     DATE_FORMAT: 'dd-mm-yy',
 }
@@ -165,7 +165,7 @@ DATE_INPUT_FORMATS = [
 
 DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
 DATETIME_FORMAT_VERBOSE = _(
-    'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2021 23:59:59)'
+    'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)'
 )
 DATETIME_INPUT_FORMATS  = [
     '%d-%m-%Y', '%d/%m/%Y',
