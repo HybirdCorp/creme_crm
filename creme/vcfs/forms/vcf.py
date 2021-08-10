@@ -48,8 +48,16 @@ from creme.creme_core.forms import (
     CremeForm,
     CremeModelForm,
 )
+from creme.creme_core.forms.base import _CUSTOM_NAME
 from creme.creme_core.forms.widgets import DynamicSelect
-from creme.creme_core.models import FieldsConfig, Relation, RelationType
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldValue,
+    FieldsConfig,
+    Relation,
+    RelationType,
+)
+from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents.constants import UUID_FOLDER_IMAGES
@@ -226,33 +234,33 @@ class VcfImportForm(CremeModelForm):
         ('region',   'department'),
     ]
 
-    blocks = CremeModelForm.blocks.new(
-        {
-            'id': 'details',
-            'label': _('Details'),
-            'fields': contact_details,
-        }, {
-            'id': 'contact_address',
-            'label': _('Billing address'),
-            'fields': [HOME_ADDR_PREFIX + n[0] for n in address_mapping],
-        }, {
-            'id': 'organisation',
-            'label': _('Organisation'),
-            'fields': [
-                'create_or_attach_orga', 'organisation', 'relation',
-                *chain.from_iterable(
-                    (f'update_work_{fn}', f'work_{fn}') for fn in orga_fields
-                ),
-            ],
-        }, {
-            'id': 'organisation_address',
-            'label': _('Organisation billing address'),
-            'fields': [
-                'update_work_address',
-                *(WORK_ADDR_PREFIX + n[0] for n in address_mapping),
-            ]
-        },
-    )
+    # blocks = CremeModelForm.blocks.new(
+    #     {
+    #         'id': 'details',
+    #         'label': _('Details'),
+    #         'fields': contact_details,
+    #     }, {
+    #         'id': 'contact_address',
+    #         'label': _('Billing address'),
+    #         'fields': [HOME_ADDR_PREFIX + n[0] for n in address_mapping],
+    #     }, {
+    #         'id': 'organisation',
+    #         'label': _('Organisation'),
+    #         'fields': [
+    #             'create_or_attach_orga', 'organisation', 'relation',
+    #             *chain.from_iterable(
+    #                 (f'update_work_{fn}', f'work_{fn}') for fn in orga_fields
+    #             ),
+    #         ],
+    #     }, {
+    #         'id': 'organisation_address',
+    #         'label': _('Organisation billing address'),
+    #         'fields': [
+    #             'update_work_address',
+    #             *(WORK_ADDR_PREFIX + n[0] for n in address_mapping),
+    #         ]
+    #     },
+    # )
 
     type_help_text  = _('Read in VCF File without type : ')
     other_help_text = _('Read in VCF File : ')
@@ -260,6 +268,7 @@ class VcfImportForm(CremeModelForm):
     def __init__(self, vcf_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
+        self._found_organisation = None
 
         if vcf_data:
             self._init_contact_fields(vcf_data)
@@ -279,6 +288,47 @@ class VcfImportForm(CremeModelForm):
         )
 
         self._hide_fields()
+        self._build_customfields()
+
+    # TODO factorise with/use CustomFieldsMixin ?
+    @staticmethod
+    def _build_customfield_name(cfield):
+        return _CUSTOM_NAME.format(cfield.id)
+
+    def _build_customfields(self):
+        fields = self.fields
+        get_ct = ContentType.objects.get_for_model
+
+        contact_cfields, orga_cfields = split_filter(
+            lambda cfield: cfield.content_type.model_class() == Contact,
+            CustomField.objects.filter(
+                is_required=True,
+                is_deleted=False,
+                content_type__in=[get_ct(Contact), get_ct(Organisation)],
+            ),
+        )
+
+        user = self.user
+        build_name = self._build_customfield_name
+
+        for cfield in contact_cfields:
+            fields[build_name(cfield)] = cfield.get_formfield(None, user=user)
+
+        orga = self._found_organisation
+        if orga and orga_cfields:
+            cvalues_map = CustomField.get_custom_values_map([orga], orga_cfields)
+
+            def initial_value(cfield):
+                return cvalues_map[orga.id].get(cfield.id)
+        else:
+            def initial_value(cfield):
+                return None
+
+        for cfield in orga_cfields:
+            fields[build_name(cfield)] = cfield.get_formfield(initial_value(cfield), user=user)
+
+        self._contact_cfields = contact_cfields
+        self._orga_cfields    = orga_cfields
 
     def _hide_fields(self):
         fields = self.fields
@@ -374,7 +424,7 @@ class VcfImportForm(CremeModelForm):
             fields = self.fields
 
             org_name = vcf_data.org.value[0]
-            orga = Organisation.objects.filter(name=org_name).first()
+            self._found_organisation = orga = Organisation.objects.filter(name=org_name).first()
 
             if orga:
                 fields['organisation'].initial = orga.id
@@ -509,7 +559,7 @@ class VcfImportForm(CremeModelForm):
     def _create_contact(self, cleaned_data):
         get_data = cleaned_data.get
 
-        return Contact.objects.create(
+        contact = Contact.objects.create(
             user=cleaned_data['user'],
             civility=cleaned_data['civility'],
             first_name=cleaned_data['first_name'],
@@ -523,6 +573,10 @@ class VcfImportForm(CremeModelForm):
                 if fname in cleaned_data
             }
         )
+
+        self._save_customfields(contact, self._contact_cfields)
+
+        return contact
 
     def _create_address(self, cleaned_data, owner, data_prefix):
         # NB: we do not use cleaned_data.get() in order to not overload default fields values
@@ -644,12 +698,55 @@ class VcfImportForm(CremeModelForm):
             if save_orga:
                 organisation.save()
 
+            self._save_customfields(organisation, self._orga_cfields)
             Relation.objects.create(
                 user=user,
                 subject_entity=contact,
                 type=cleaned_data['relation'],
                 object_entity=organisation,
             )
+
+    def get_blocks(self):
+        build_cfield_name = self._build_customfield_name
+
+        return CremeModelForm.blocks.new(
+            {
+                'id': 'details',
+                'label': _('Details'),
+                'fields': self.contact_details,
+            }, {
+                'id': 'contact_address',
+                'label': _('Billing address'),
+                'fields': [HOME_ADDR_PREFIX + n[0] for n in self.address_mapping],
+            }, {
+                'id': 'organisation',
+                'label': _('Organisation'),
+                'fields': [
+                    'create_or_attach_orga', 'organisation', 'relation',
+                    *chain.from_iterable(
+                        (f'update_work_{fn}', f'work_{fn}') for fn in self.orga_fields
+                    ),
+                    *(build_cfield_name(cfield) for cfield in self._orga_cfields),
+                ],
+            }, {
+                'id': 'organisation_address',
+                'label': _('Organisation billing address'),
+                'fields': [
+                    'update_work_address',
+                    *(WORK_ADDR_PREFIX + n[0] for n in self.address_mapping),
+                ]
+            },
+        ).build(self)
+
+    # TODO: factorise with CustomFieldsMixin
+    def _save_customfields(self, entity, cfields):
+        if cfields:
+            cleaned_data = self.cleaned_data
+            build_name = self._build_customfield_name
+            save_values = CustomFieldValue.save_values_for_entities
+
+            for cfield in cfields:
+                save_values(cfield, [entity], cleaned_data[build_name(cfield)])
 
     @atomic
     def save(self, *args, **kwargs):
