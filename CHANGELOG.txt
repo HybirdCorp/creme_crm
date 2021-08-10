@@ -230,6 +230,7 @@
                     - The property 'models.AbstractProjectTask.safe_duration' has been removed.
         # The variables 'default_app_config' present in the file '__init__.py' of all apps have been removed ;
           the classes inheriting 'AppConfig' got an attribute 'default = True' instead (see https://docs.djangoproject.com/en/3.2/releases/3.2/#automatic-appconfig-discovery).
+        # In 'creme.settings', the variable 'SITE_ID' (related to the unused app "django.contrib.sites" has been removed.
         # In 'creme.utils.loggers' :
             - The method 'CremeFormatter.formatEncodedException()' has been removed (use 'formatException()' instead).
             - The method 'CompressedTimedRotatingFileHandler._next_filename()' has been removed (it was unused).
