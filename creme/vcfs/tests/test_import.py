@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from functools import partial
 from os import path as os_path
 from tempfile import NamedTemporaryFile
 
@@ -8,7 +9,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import FieldsConfig
+from creme.creme_core.models import CustomField, CustomFieldValue, FieldsConfig
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 
@@ -1624,3 +1625,150 @@ ORG:Corporate\nEND:VCARD"""
                         )
         orga = self.get_object_or_fail(Organisation, name=work_name)
         self.assertIsNone(orga.billing_address)
+
+    @skipIfCustomContact
+    def test_customfields01(self):
+        "Required custom-fields on Contact must be used."
+        user = self.login()
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            field_type=CustomField.STR, content_type=Contact,
+        )
+        cfield1 = create_cfield(name='Nickname', is_required=True)
+        cfield2 = create_cfield(name='Punch line')
+        cfield3 = create_cfield(name='ID', is_required=True, content_type=Document)
+        cfield4 = create_cfield(name='Deleted', is_required=True, is_deleted=True)
+
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+TEL;TYPE=HOME:00 00 00 00 00
+EMAIL;TYPE=HOME:email@email.com
+ORG:Corporate
+END:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+        self.assertNotIn(f'custom_field-{cfield2.id}', fields)
+        self.assertNotIn(f'custom_field-{cfield3.id}', fields)
+        self.assertNotIn(f'custom_field-{cfield4.id}', fields)
+
+        cf_name1 = f'custom_field-{cfield1.id}'
+        cf_formfield1 = fields.get(cf_name1)
+        self.assertIsNotNone(cf_formfield1)
+        self.assertTrue(cf_formfield1.required)
+
+        first_name = fields['first_name'].initial
+        last_name = fields['last_name'].initial
+        data = {
+            'user': user.id,
+
+            'first_name': first_name,
+            'last_name': last_name,
+        }
+        response1 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response1, 'form', cf_name1, _('This field is required.'),
+        )
+
+        nickname = 'Asu'
+        self._post_step1(data={**data, cf_name1: nickname})
+
+        asuna = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        cf_value = self.get_object_or_fail(
+            cfield1.value_class, custom_field=cfield1.id, entity=asuna.id,
+        )
+        self.assertEqual(nickname, cf_value.value)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_customfields02(self):
+        "Required custom-fields on Organisations must be used."
+        user = self.login()
+
+        create_cfield = partial(
+            CustomField.objects.create,
+            field_type=CustomField.STR, content_type=Organisation,
+        )
+        cfield1 = create_cfield(name='Main country', is_required=True)
+        cfield2 = create_cfield(name='Base line')
+        cfield3 = create_cfield(name='EXIF', is_required=True, content_type=Document)
+
+        content = """BEGIN:VCARD
+FN:Asuna Kagurazaka
+TEL;TYPE=HOME:00 00 00 00 00
+EMAIL;TYPE=HOME:email@email.com
+ORG:SAO
+END:VCARD"""
+        fields = self._post_step0(content).context['form'].fields
+        self.assertNotIn(f'custom_field-{cfield2.id}', fields)
+        self.assertNotIn(f'custom_field-{cfield3.id}', fields)
+
+        cf_name1 = f'custom_field-{cfield1.id}'
+        cf_formfield1 = fields.get(cf_name1)
+        self.assertIsNotNone(cf_formfield1)
+        self.assertTrue(cf_formfield1.required)
+        self.assertIsNone(cf_formfield1.initial)
+
+        first_name = fields['first_name'].initial
+        last_name = fields['last_name'].initial
+        work_name = fields['work_name'].initial
+        data = {
+            'user': user.id,
+
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'create_or_attach_orga': True,
+            'relation':              REL_SUB_EMPLOYED_BY,
+            'work_name':             work_name,
+        }
+        response1 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response1, 'form', cf_name1, _('This field is required.'),
+        )
+
+        country = 'Japan'
+        self._post_step1(data={**data, cf_name1: country})
+
+        asuna = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertFalse(cfield1.value_class.objects.filter(entity=asuna.id))
+
+        orga = self.get_object_or_fail(Organisation, name=work_name)
+        cf_value = self.get_object_or_fail(
+            cfield1.value_class, custom_field=cfield1.id, entity=orga.id,
+        )
+        self.assertEqual(country, cf_value.value)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_customfields03(self):
+        "Required custom-fields on Organisations must be used (organisation already exists."
+        user = self.login()
+
+        cfield = CustomField.objects.create(
+            field_type=CustomField.STR,
+            content_type=Organisation,
+            name='Main country',
+            is_required=True,
+        )
+
+        orga = Organisation.objects.create(user=user, name='SAO')
+
+        country = 'Japan'
+        CustomFieldValue.save_values_for_entities(cfield, [orga], country)
+
+        content = f"""BEGIN:VCARD
+FN:Asuna Kagurazaka
+TEL;TYPE=HOME:00 00 00 00 00
+EMAIL;TYPE=HOME:email@email.com
+ORG:{orga.name}
+END:VCARD"""
+        form = self._post_step0(content).context['form']
+
+        with self.assertNoException():
+            cf_formfield = form.fields[f'custom_field-{cfield.id}']
+
+        self.assertEqual(country, cf_formfield.initial)
