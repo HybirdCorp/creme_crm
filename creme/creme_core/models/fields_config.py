@@ -559,7 +559,7 @@ class FieldsConfig(CremeModel):
                     'please contact your administrator.',
                     field_name,
                 )
-                # TODO: is is possible that field does not exist any more ?
+                # TODO: is it possible that field does not exist any more ?
                 form_fields[field_name] = (
                     self.content_type
                         .model_class()

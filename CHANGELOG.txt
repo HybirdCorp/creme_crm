@@ -327,6 +327,10 @@
                 - In 'forms.event', the global variables '_SYMMETRICS' & '_TYPES' have been removed.
             * CTI :
                 - The function 'utils.print_phone()' has been renamed 'utils.print_phone_html()'.
+            * VCFs :
+                - In 'forms.vcf' :
+                    - The constant 'IMG_UPLOAD_PATH' has been removed.
+                    - In the class 'VcfImportForm', the methods '_create_contact()', '_create_address()' & '_create_image()' have been removed.
         # Javascript :
             - The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
             - The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'

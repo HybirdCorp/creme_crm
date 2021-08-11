@@ -8,12 +8,15 @@ from django.conf import settings
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from PIL.Image import open as open_img
 
 from creme.creme_core.models import CustomField, CustomFieldValue, FieldsConfig
 from creme.creme_core.tests.base import CremeTestCase
+from creme.documents.tests.base import _DocumentsTestCase
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.models import Sector
 
-from ..forms import vcf as vcf_forms
+# from ..forms import vcf as vcf_forms
 from ..vcf_lib import readOne as read_vcf
 from ..vcf_lib.base import ContentLine
 from .base import (
@@ -27,7 +30,57 @@ from .base import (
 )
 
 
-class VcfImportTestCase(CremeTestCase):
+class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
+    image_data = (
+        '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODw'
+        'wQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoI'
+        'ChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKC'
+        'goKCgoKCgoKCj/wAARCABIAEgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAA'
+        'AAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhBy'
+        'JxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpT'
+        'VFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqr'
+        'KztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QA'
+        'HwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQ'
+        'J3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRom'
+        'JygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiI'
+        'mKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk'
+        '5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD274v3SR6BaWpKk3FyNyHuqqxzj0'
+        'DbPzFcBpfi3VdKnSC01RnO3cLe4bzVKj2PzAfQirfxYnW78ZTRhgrW1vHCD12kgvn/'
+        'AMfH5V53ptpcWeoXUrzRuojQSSeUQ0n3jnO4+o/LAxXl16j9o2naxvGOiPWbf4jaod'
+        'YtHuooItPACXCRrvJ6kuucEH7oxk9Cea9D0nxLo2rMq2OoQPK3SJjskP8AwBsN+lfM'
+        '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'
+    )
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -349,7 +402,7 @@ END:VCARD"""
         self.login()
 
         contact_count = Contact.objects.count()
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         address_count = Address.objects.count()
 
         content = """BEGIN:VCARD
@@ -399,12 +452,13 @@ END:VCARD"""
             phone=phone, mobile=mobile, fax=fax,
             email=email, url_site=url_site,
         )
+        self.assertIsNone(contact.sector)
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf01(self):
-        self.login()
+        user = self.login()
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
@@ -421,7 +475,8 @@ END:VCARD"""
         response = self._post_step1(
             errors=True,
             data={
-                'user':       fields['user'].initial,
+                'user':       user.id,
+
                 'first_name': fields['first_name'].initial,
                 'last_name':  fields['last_name'].initial,
                 'phone':      fields['phone'].initial,
@@ -442,10 +497,10 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf02(self):
-        self.login()
+        user = self.login()
 
         contact_count = Contact.objects.count()
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         content = """BEGIN:VCARD
 FN:Asuna Kagurazaka
 TEL;TYPE=HOME:00 00 00 00 00
@@ -456,7 +511,8 @@ EMAIL;TYPE=HOME:email@email.com
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
-ORG:Corporate\nEND:VCARD"""
+ORG:Corporate
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -465,9 +521,11 @@ ORG:Corporate\nEND:VCARD"""
         fax        = fields['fax'].initial
         email      = fields['email'].initial
         url_site   = fields['url_site'].initial
+
+        sector = Sector.objects.all()[0]
         self._post_step1(
             data={
-                'user':       fields['user'].initial,
+                'user':       user.id,
                 'first_name': first_name,
                 'last_name':  last_name,
                 'phone':      phone,
@@ -475,6 +533,7 @@ ORG:Corporate\nEND:VCARD"""
                 'fax':        fax,
                 'email':      email,
                 'url_site':   url_site,
+                'sector':     sector.id,
 
                 'create_or_attach_orga': False,
 
@@ -492,6 +551,7 @@ ORG:Corporate\nEND:VCARD"""
             first_name=first_name, last_name=last_name,
             phone=phone, mobile=mobile, fax=fax,
             email=email, url_site=url_site,
+            sector=sector,
         )
 
     @skipIfCustomContact
@@ -500,7 +560,7 @@ ORG:Corporate\nEND:VCARD"""
         self.login()
 
         contact_count = Contact.objects.count()
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         content = """BEGIN:VCARD
 FN:Tchao LINSHEN
 TEL;TYPE=HOME:00 00 00 00 00
@@ -567,14 +627,15 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf04(self):
-        "Related organisation exists & is not updated"
-        self.login()
+        "Related organisation exists & is not updated."
+        user = self.login()
 
         contact_count = Contact.objects.count()
         orga = Organisation.objects.create(
-            user=self.user, name='Corporate',
+            user=user, name='Corporate',
             phone='33 33 33 33 33', email='work@work.com',
-            url_site='www.work.com',
+            # url_site='www.work.com',
+            url_site='https://www.work.com',
         )
         orga_count = Organisation.objects.count()
 
@@ -603,7 +664,7 @@ END:VCARD"""
 
         self._post_step1(
             data={
-                'user':          fields['user'].initial,
+                'user':          user.id,
                 'first_name':    first_name,
                 'last_name':     last_name,
 
@@ -614,10 +675,10 @@ END:VCARD"""
                 'url_site':      url_site,
 
                 'create_or_attach_orga': True,
-                'organisation':          fields['organisation'].initial,
+                'organisation':          orga.id,
                 'relation':              REL_SUB_EMPLOYED_BY,
 
-                'work_name':     orga.name + '_edited',  # <= should not be used,
+                'work_name':     f'{orga.name}_edited',  # <= should not be used,
                 'work_phone':    fields['work_phone'].initial,  # <= idem
                 'work_email':    fields['work_email'].initial,
                 'work_url_site': fields['work_url_site'].initial,
@@ -869,7 +930,7 @@ END:VCARD"""
         self.assertEqual(name,                 orga.name)
         self.assertEqual(phone,                orga.phone)
         self.assertEqual(email,                orga.email)
-        self.assertEqual('http://' + url_site, orga.url_site)
+        self.assertEqual(f'http://{url_site}', orga.url_site)
 
     @skipIfCustomContact
     def test_add_contact_vcf08(self):
@@ -969,11 +1030,12 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_add_contact_vcf10(self):
-        self.login()
+        "Organisation with existing Address."
+        user = self.login()
 
         name = 'Robotic club'
         orga = Organisation.objects.create(
-            user=self.user, name=name, phone='00 00 00 00 00',
+            user=user, name=name, phone='00 00 00 00 00',
             email='corp@corp.com', url_site='www.corp.com',
         )
         orga.billing_address = Address.objects.create(
@@ -987,40 +1049,56 @@ END:VCARD"""
         )
         orga.save()
 
+        address_id = orga.billing_address_id
+
         contact_count = Contact.objects.count()
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         address_count = Address.objects.count()
 
+        first_name = 'Chachamaru'
+        last_name = 'KARAKURI'
+
+        email = 'work@work.com'
+        phone = '11 11 11 11 11'
+
+        country = 'Japan'
+        city = 'Mahora'
+        zipcode = '42'
+        department = 'Kanto'
+
+        box = '99'
+        street = 'Tree place'
+        address_value = f'{box}, {street}'
         content = f"""BEGIN:VCARD
-FN:Chachamaru KARAKURI
-ADR;TYPE=WORK:99;;Tree place;Mahora;Kanto;42;Japan
-TEL;TYPE=WORK:11 11 11 11 11
-EMAIL;TYPE=WORK:work@work.com
+FN:{first_name} {last_name}
+ADR;TYPE=WORK:{box};;{street};{city};{department};{zipcode};{country}
+TEL;TYPE=WORK:{phone}
+EMAIL;TYPE=WORK:{email}
 URL;TYPE=WORK:www.work.com
 ORG:{name}
 END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         self._post_step1(
             data={
-                'user':       fields['user'].initial,
-                'first_name': fields['first_name'].initial,
-                'last_name':  fields['last_name'].initial,
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
 
                 'create_or_attach_orga': True,
-                'organisation':          fields['organisation'].initial,
+                'organisation':          orga.id,
                 'relation':              REL_SUB_EMPLOYED_BY,
-                'work_name':             fields['work_name'].initial,
+                'work_name':             name,
 
-                'work_phone':    fields['work_phone'].initial,
-                'work_email':    fields['work_email'].initial,
+                'work_phone':    phone,
+                'work_email':    email,
                 'work_url_site': fields['work_url_site'].initial,
 
-                'workaddr_name':     fields['workaddr_name'].initial,
-                'workaddr_address':  fields['workaddr_address'].initial,
-                'workaddr_city':     fields['workaddr_city'].initial,
-                'workaddr_country':  fields['workaddr_country'].initial,
-                'workaddr_code':     fields['workaddr_code'].initial,
-                'workaddr_region':   fields['workaddr_region'].initial,
+                'workaddr_name':     name,
+                'workaddr_address':  address_value,
+                'workaddr_city':     city,
+                'workaddr_country':  country,
+                'workaddr_code':     zipcode,
+                'workaddr_region':   department,
 
                 'update_work_name':     True,
                 'update_work_phone':    True,
@@ -1035,22 +1113,19 @@ END:VCARD"""
         self.assertEqual(address_count,     Address.objects.count())
 
         orga = self.refresh(orga)
+        self.assertEqual(name,                  orga.name)
+        self.assertEqual(phone,                 orga.phone)
+        self.assertEqual(email,                 orga.email)
+        self.assertEqual('http://www.work.com', orga.url_site)
+
         billing_address = orga.billing_address
-
-        vobj = read_vcf(content)
-        adr = vobj.adr.value
-        org = vobj.org.value[0]
-        self.assertEqual(orga.name,     org)
-        self.assertEqual(orga.phone,    vobj.tel.value)
-        self.assertEqual(orga.email,    vobj.email.value)
-        self.assertEqual(orga.url_site, 'http://www.work.com')
-
-        self.assertEqual(billing_address.name,       org)
-        self.assertEqual(billing_address.address,    ' '.join([adr.box, adr.street]))
-        self.assertEqual(billing_address.city,       adr.city)
-        self.assertEqual(billing_address.country,    adr.country)
-        self.assertEqual(billing_address.zipcode,    adr.code)
-        self.assertEqual(billing_address.department, adr.region)
+        self.assertEqual(address_id,    billing_address.id)
+        self.assertEqual(name,          billing_address.name)
+        self.assertEqual(address_value, billing_address.address)
+        self.assertEqual(city,          billing_address.city)
+        self.assertEqual(country,       billing_address.country)
+        self.assertEqual(zipcode,       billing_address.zipcode)
+        self.assertEqual(department,    billing_address.department)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1061,11 +1136,11 @@ END:VCARD"""
         name = 'Astronomy club'
         Organisation.objects.create(
             user=user, name=name,
-            phone='00 00 00 00 00', email='corp@corp.com', url_site='www.corp.com',
+            phone='00 00 00 00 00', email='corp@corp.com', url_site='https://www.corp.com',
         )
 
         contact_count = Contact.objects.count()
-        orga_count    = Organisation.objects.count()
+        orga_count = Organisation.objects.count()
         address_count = Address.objects.count()
 
         content = f"""BEGIN:VCARD
@@ -1269,8 +1344,9 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_add_contact_vcf14(self):
-        self.login()
+    def test_vcf_with_image01(self):
+        "Raw image embedded in the file."
+        user = self.login()
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
@@ -1278,65 +1354,18 @@ END:VCARD"""
         address_count = Address.objects.count()
 
         content = (
-            'BEGIN:VCARD\n'
-            'FN:Sakurako SHIINA\n'
-            'PHOTO;TYPE=JPEG:'
-            '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODw'
-            'wQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoI'
-            'ChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKC'
-            'goKCgoKCgoKCj/wAARCABIAEgDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAA'
-            'AAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhBy'
-            'JxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpT'
-            'VFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqr'
-            'KztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QA'
-            'HwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQ'
-            'J3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRom'
-            'JygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiI'
-            'mKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk'
-            '5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD274v3SR6BaWpKk3FyNyHuqqxzj0'
-            'DbPzFcBpfi3VdKnSC01RnO3cLe4bzVKj2PzAfQirfxYnW78ZTRhgrW1vHCD12kgvn/'
-            'AMfH5V53ptpcWeoXUrzRuojQSSeUQ0n3jnO4+o/LAxXl16j9o2naxvGOiPWbf4jaod'
-            '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'
-            '\nEND:VCARD'
+            f'BEGIN:VCARD\n'
+            f'FN:Sakurako SHIINA\n'
+            f'PHOTO;TYPE=JPEG:{self.image_data}\n'
+            f'END:VCARD'
         )
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
-        image      = fields['image_encoded'].initial
+        image = fields['image_encoded'].initial
         self._post_step1(
             data={
-                'user': fields['user'].initial,
+                'user': user.id,
 
                 'first_name': first_name,
                 'last_name':  last_name,
@@ -1354,113 +1383,221 @@ END:VCARD"""
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
-        self.assertTrue(contact.image)
+
+        image_entity = contact.image
+        self.assertIsNotNone(image_entity)
+        self.assertEqual(user, image_entity.user)
         self.assertEqual(
-            _('Image of {contact}').format(contact=contact), contact.image.title,
+            _('Image of {contact}').format(contact=contact), image_entity.title,
         )
+        self.assertEqual(_('Imported by VCFs'), image_entity.description)
+
+        with self.assertNoException():
+            with open_img(image_entity.filedata.path) as img:
+                self.assertTupleEqual((72, 72), img.size)
 
     @skipIfCustomContact
-    def test_add_contact_vcf15(self):
-        self.login()
+    def test_vcf_with_image02(self):
+        "Link to an image."
+        user = self.login()
 
-        vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
-
-        path_base = os_path.join(
-            settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
-        )
-        self.assertTrue(os_path.exists(path_base))
-        path = 'file:///' + os_path.normpath(path_base)
+        # vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
+        #
+        # path_base = os_path.join(
+        #     settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
+        # )
+        # self.assertTrue(os_path.exists(path_base))
+        # path = 'file:///' + os_path.normpath(path_base)
+        url_parts = ['static', 'common', 'images', '500_200.png']
+        self.assertTrue(os_path.exists(
+            os_path.join(settings.CREME_ROOT, *url_parts)
+        ))
+        url = self.http_file('/'.join(['creme', *url_parts]))
 
         contact_count = Contact.objects.count()
-        self.assertEqual(0, Document.objects.count())
+        doc_count = Document.objects.count()
 
-        content = f"""BEGIN:VCARD
-FN:Ayaka YUKIHIRO
-PHOTO;VALUE=URL:{path}
-END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
-        first_name = fields['first_name'].initial
-        last_name  = fields['last_name'].initial
+        first_name = 'Ayaka'
+        last_name = 'YUKIHIRO'
+#         content = f"""BEGIN:VCARD
+# FN:{first_name} {last_name}
+# PHOTO;VALUE=URL:{path}
+# END:VCARD"""
+#         response1 = self._post_step0(content)
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'PHOTO;VALUE=URL:{url}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            image_encoded_f = response1.context['form'].fields['image_encoded']
+
         self._post_step1(
             data={
-                'user':          fields['user'].initial,
+                'user':          user.id,
                 'first_name':    first_name,
                 'last_name':     last_name,
-                'image_encoded': fields['image_encoded'].initial,
+                'image_encoded': image_encoded_f.initial,
             },
         )
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
+        self.assertEqual(doc_count + 1,     Document.objects.count())
 
         contact = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
         )
 
-        images = Document.objects.all()
-        self.assertEqual(1, len(images))
-
-        image = images[0]
-        self.assertEqual(image, contact.image)
+        image_entity = contact.image
+        self.assertIsNotNone(image_entity)
         self.assertEqual(
-            _('Image of {contact}').format(contact=contact), image.title,
+            _('Image of {contact}').format(contact=contact), image_entity.title,
         )
+
+        with self.assertNoException():
+            with open_img(image_entity.filedata.path) as img:
+                self.assertTupleEqual((200, 200), img.size)
 
     @skipIfCustomContact
-    def test_add_contact_vcf16(self):
-        self.login()
+    def test_vcf_with_image03(self):
+        "Referenced image cannot be found."
+        user = self.login()
 
-        contact_count = Contact.objects.count()
-        image_count   = Document.objects.count()
+        # contact_count = Contact.objects.count()
+        image_count = Document.objects.count()
 
-        content = """BEGIN:VCARD
-FN:Kaede NAGASE
-PHOTO;VALUE=URL:http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg
-END:VCARD"""
-        fields = self._post_step0(content).context['form'].fields
-        self._post_step1(
-            data={
-                'user':          fields['user'].initial,
-                'first_name':    fields['first_name'].initial,
-                'last_name':     fields['last_name'].initial,
-                'image_encoded': fields['image_encoded'].initial,
-            },
+        first_name = 'Kaede'
+        last_name = 'NAGASE'
+        # url = 'http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg'
+        url = self.http_file(
+            '/'.join(['creme', 'static', 'common', 'images', 'unknown.png'])
         )
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'PHOTO;VALUE=URL:{url}\n'
+            f'END:VCARD'
+        )
+        with self.assertNoException():
+            encoded_img = response1.context['form'].fields['image_encoded'].initial
 
-        self.assertEqual(contact_count + 1, Contact.objects.count())
+        response2 = self._post_step1(
+            data={
+                'user':          user.id,
+                'first_name':    first_name,
+                'last_name':     last_name,
+                'image_encoded': encoded_img,
+            },
+            errors=True
+        )
+        # NB: difficult to test the message (it contains the original exception message)
+        with self.assertNoException():
+            response2.context['form'].errors['image_encoded']  # NOQA
+
+        # self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
 
-    @skipIfCustomContact
+    # @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
-    def test_add_contact_vcf17(self):
-        self.login()
+    def test_vcf_with_image04(self):
+        "Referenced image is too large."
+        # self.login()
+        #
+        # img_path = os_path.join(
+        #     settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
+        # )
+        # self.assertTrue(os_path.exists(img_path))
+        #
+        # vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
+        #
+        # contact_count = Contact.objects.count()
+        # image_count = Document.objects.count()
+        # content = (
+        #     'BEGIN:VCARD\n'
+        #     'FN:Satomi HAKASE\n'
+        #     'PHOTO;VALUE=URL:file:///{path}\n'
+        #     'END:VCARD'
+        # ).format(path=os_path.normpath(img_path))
+        # fields = self._post_step0(content).context['form'].fields
+        # self._post_step1(
+        #     data={
+        #         'user':          fields['user'].initial,
+        #         'first_name':    fields['first_name'].initial,
+        #         'last_name':     fields['last_name'].initial,
+        #         'image_encoded': fields['image_encoded'].initial,
+        #     },
+        # )
+        # self.assertEqual(contact_count + 1, Contact.objects.count())
+        # self.assertEqual(image_count,       Document.objects.count())
+        user = self.login()
 
-        img_path = os_path.join(
-            settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
+        url_parts = ['static', 'common', 'images', '500_200.png']
+        self.assertTrue(os_path.exists(
+            os_path.join(settings.CREME_ROOT, *url_parts)
+        ))
+        url = self.http_file('/'.join(['creme', *url_parts]))
+
+        image_count = Document.objects.count()
+
+        first_name = 'Satomi'
+        last_name = 'HAKASE'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'PHOTO;VALUE=URL:{url}\n'
+            f'END:VCARD'
         )
-        self.assertTrue(os_path.exists(img_path))
 
-        vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
+        with self.assertNoException():
+            encoded_img = response1.context['form'].fields['image_encoded'].initial
 
-        contact_count = Contact.objects.count()
-        image_count   = Document.objects.count()
-        content = """BEGIN:VCARD
-FN:Satomi HAKASE
-PHOTO;VALUE=URL:file:///{path}
-END:VCARD""".format(path=os_path.normpath(img_path))
-        fields = self._post_step0(content).context['form'].fields
-        self._post_step1(
+        response2 = self._post_step1(
             data={
-                'user':          fields['user'].initial,
-                'first_name':    fields['first_name'].initial,
-                'last_name':     fields['last_name'].initial,
-                'image_encoded': fields['image_encoded'].initial,
+                'user':          user.id,
+                'first_name':    first_name,
+                'last_name':     last_name,
+                'image_encoded': encoded_img,
             },
+            errors=True,
         )
-        self.assertEqual(contact_count + 1, Contact.objects.count())
-        self.assertEqual(image_count,       Document.objects.count())
+        self.assertFormError(
+            response2, 'form', 'image_encoded',
+            _(
+                'The referenced image is too large (limit is {} bytes).'
+            ).format(10240),
+        )
+        self.assertEqual(image_count, Document.objects.count())
+
+    def test_vcf_with_image05(self):
+        "Invalid base64 data."
+        user = self.login()
+
+        first_name = 'Satomi'
+        last_name = 'HAKASE'
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'END:VCARD'
+        )
+
+        response2 = self._post_step1(
+            data={
+                'user':          user.id,
+                'first_name':    first_name,
+                'last_name':     last_name,
+                'image_encoded': 'abc',
+            },
+            errors=True,
+        )
+
+        # NB: difficult to test the message (it contains the original exception message)
+        with self.assertNoException():
+            response2.context['form'].errors['image_encoded']  # NOQA
 
     @skipIfCustomContact
-    def test_fields_config01(self):
+    def test_fields_config_hidden01(self):
         self.login()
 
         FieldsConfig.objects.create(
@@ -1479,7 +1616,8 @@ EMAIL;TYPE=HOME:email@email.com
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
-ORG:Corporate\nEND:VCARD"""
+ORG:Corporate
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -1522,7 +1660,7 @@ ORG:Corporate\nEND:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_fields_config02(self):
+    def test_fields_config_hidden02(self):
         self.login()
 
         create_fc = FieldsConfig.objects.create
@@ -1551,7 +1689,8 @@ EMAIL;TYPE=HOME:email@email.com
 EMAIL;TYPE=WORK:work@work.com
 URL;TYPE=HOME:http://www.url.com/
 URL;TYPE=WORK:www.work.com
-ORG:Corporate\nEND:VCARD"""
+ORG:Corporate
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
         first_name = fields['first_name'].initial
         last_name  = fields['last_name'].initial
@@ -1627,7 +1766,7 @@ ORG:Corporate\nEND:VCARD"""
 
     @skipIfCustomContact
     @skipIfCustomAddress
-    def test_fields_config03(self):
+    def test_fields_config_hidden03(self):
         "Hide Contact.billing_address."
         self.login()
 
@@ -1678,9 +1817,9 @@ ORG:Corporate\nEND:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     @skipIfCustomAddress
-    def test_fields_config04(self):
+    def test_fields_config_hidden04(self):
         "Hide Organisation.billing_address."
-        self.login()
+        user = self.login()
 
         create_fc = FieldsConfig.objects.create
         create_fc(
@@ -1700,7 +1839,8 @@ FN:Asuna Kagurazaka
 ADR;TYPE=WORK:57;;Third street;Tokyo;Tokyo region;8888;Japan
 TEL;TYPE=HOME:00 00 00 00 00
 TEL;TYPE=WORK:33 33 33 33 33
-ORG:Corporate\nEND:VCARD"""
+ORG:Corporate
+END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
 
         work_name = fields['work_name'].initial
@@ -1711,7 +1851,7 @@ ORG:Corporate\nEND:VCARD"""
 
         self._post_step1(
             data={
-                'user':       fields['user'].initial,
+                'user':       user.id,
                 'first_name': fields['first_name'].initial,
                 'last_name':  fields['last_name'].initial,
 
@@ -1727,6 +1867,580 @@ ORG:Corporate\nEND:VCARD"""
 
         orga = self.get_object_or_fail(Organisation, name=work_name)
         self.assertIsNone(orga.billing_address)
+
+    @skipIfCustomContact
+    def test_fields_config_required_contact(self):
+        self.login()
+
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('email', {FieldsConfig.REQUIRED: True})],
+        )
+
+        response = self._post_step0(
+            'BEGIN:VCARD\n'
+            'FN:Asuna Kagurazaka\n'
+            'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+            phone_f = fields['phone']
+            email_f = fields['email']
+
+        self.assertFalse(phone_f.required)
+        self.assertTrue(email_f.required)
+
+    @skipIfCustomContact
+    def test_fields_config_required_contact_image01(self):
+        "No image data => visible image field."
+        user = self.login()
+        image = self._create_image()
+
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('image', {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            image_f = fields['image']
+
+        self.assertTrue(image_f.required)
+        self.assertNotIn('image_encoded', fields)
+
+        # ---
+        response2 = self._post_step1(
+            data={
+                'user':       user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+
+                'image': image.id,
+            },
+        )
+        self.assertNoFormError(response2)
+
+        asuna = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertEqual(image.id, asuna.image_id)
+
+    @skipIfCustomContact
+    def test_fields_config_required_contact_image02(self):
+        "Image data => no explicit image field."
+        user = self.login()
+
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('image', {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'PHOTO;TYPE=JPEG:{self.image_data}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            encoded_image_f = fields['image_encoded']
+
+        self.assertTrue(encoded_image_f.required)
+
+        encoded_image = encoded_image_f.initial
+        self.assertTrue(encoded_image)
+
+        self.assertNotIn('image', fields)
+
+        # ---
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            # 'image_encoded': ...,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response2, 'form', 'image',
+            _('This field is required.'),
+        )
+
+        # ---
+        self._post_step1(
+            data={**data, 'image_encoded': encoded_image},
+        )
+
+        asuna = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+
+        image = asuna.image
+        self.assertIsInstance(image, Document)
+        self.assertTrue(image.mime_type.is_image)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_fields_config_required_organisation01(self):
+        "Field is already in the form; Organisation is created."
+        user = self.login()
+
+        req_fname = 'phone'
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        name = 'SAO'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'ORG:{name}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            phone_f = fields['work_phone']
+            email_f = fields['work_email']
+
+        self.assertFalse(phone_f.required)
+        self.assertFalse(email_f.required)
+
+        # ---
+        response2 = self._post_step1(
+            data={
+                'user':       user.id,
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
+
+                'create_or_attach_orga': True,
+                'relation':              REL_SUB_EMPLOYED_BY,
+                'work_name':             name,
+            },
+            errors=True,
+        )
+        self.assertFormError(
+            response2, 'form', f'work_{req_fname}',
+            _('The field «{}» has been configured as required.').format(
+                Organisation._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_fields_config_required_organisation02(self):
+        "Field is already in the form; Organisation already exists."
+        user = self.login()
+
+        req_fname = 'phone'
+        orga = Organisation.objects.create(user=user, name='SAO')
+
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'ORG:{orga.name}\n'
+            f'END:VCARD'
+        )
+
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': orga.name,
+            'organisation': orga.id,
+
+            # f'update_work_{req_fname}': 'on',
+            # f'work_{req_fname}': '',  # <= empty
+        }
+        response1 = self._post_step1(
+            data=data,
+            errors=True,
+        )
+        self.assertFormError(
+            response1, 'form', f'work_{req_fname}',
+            _('The field «{}» has been configured as required.').format(
+                Organisation._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_fields_config_required_organisation03(self):
+        "Field not in the base form (must be added); Organisation is created."
+        user = self.login()
+
+        req_fname = 'sector'
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        name = 'SAO'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'ORG:{name}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            sector_f = response1.context['form'].fields[f'work_{req_fname}']
+
+        label = Organisation._meta.get_field(req_fname).verbose_name
+        self.assertEqual(label, sector_f.label)
+        self.assertFalse(sector_f.required)
+        self.assertIsNone(sector_f.initial)
+
+        # ---
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name':  last_name,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': name,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response2, 'form', f'work_{req_fname}',
+            _('The field «{}» has been configured as required.').format(label),
+        )
+
+        # ---
+        sector = Sector.objects.all()[0]
+        self._post_step1(data={**data, f'work_{req_fname}': sector.id})
+        self.get_object_or_fail(Organisation, name=name, sector=sector)
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_fields_config_required_organisation04(self):
+        "Field not in the base form (must be added); Organisation is updated."
+        user = self.login()
+
+        req_fname = 'sector'
+
+        sector1, sector2 = Sector.objects.all()[:2]
+        orga = Organisation.objects.create(user=user, name='SAO', **{req_fname: sector1})
+
+        FieldsConfig.objects.create(
+            content_type=Organisation,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        name = 'SAO'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'ORG:{name}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            sector_f = response1.context['form'].fields[f'work_{req_fname}']
+
+        self.assertFalse(sector_f.required)
+        self.assertEqual(sector1, sector_f.initial)
+
+        # ---
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name':  last_name,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': name,
+            'organisation': orga.id,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response2, 'form', f'work_{req_fname}',
+            _('The field «{}» has been configured as required.').format(
+                Organisation._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+        # ---
+        self._post_step1(data={**data, f'work_{req_fname}': sector2.id})
+        self.assertEqual(sector2, self.refresh(orga).sector)
+
+    @skipIfCustomContact
+    def test_fields_config_required_address01(self):
+        "Addresses not filled."
+        user = self.login()
+
+        req_fname = 'country'
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        response1 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            contact_country_f = fields[f'homeaddr_{req_fname}']
+            orga_country_f    = fields[f'workaddr_{req_fname}']
+
+        self.assertFalse(contact_country_f.required)
+        self.assertFalse(orga_country_f.required)
+
+        self._post_step1(
+            data={
+                'user': user.id,
+                'first_name': first_name,
+                'last_name':  last_name,
+
+                'create_or_attach_orga': True,
+                'relation': REL_SUB_EMPLOYED_BY,
+                'work_name': 'SAO',
+            },
+        )
+
+        asuna = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertIsNone(asuna.billing_address)
+
+    @skipIfCustomContact
+    def test_fields_config_required_address02(self):
+        "Addresses are filled (+ field name must be remapped on VCF name)."
+        user = self.login()
+
+        req_fname = 'department'
+        req_fname_vcf = 'region'  # name in VCF data
+
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            f'END:VCARD'
+        )
+
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            # 'homeaddr_name':     ...,
+            'homeaddr_address':  '3 Meuporg street',
+            'homeaddr_city':     'Tokyo',
+            # 'homeaddr_country':  ...,
+            # 'homeaddr_code':     ...,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': 'SAO',
+
+            # 'workaddr_name':     ...,
+            'workaddr_address': '4 Meuporg street',
+            'workaddr_city': 'Tokyo',
+            # 'workaddr_country':  ...,
+            # 'workaddr_code':     ...,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+        self.assertFormError(
+            response2, 'form', f'homeaddr_{req_fname_vcf}',
+            _('The field «{}» has been configured as required.').format(
+                Address._meta.get_field(req_fname).verbose_name
+            ),
+        )
+        self.assertFormError(
+            response2, 'form', f'workaddr_{req_fname_vcf}',
+            _('The field «{}» has been configured as required.').format(
+                Address._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    def test_fields_config_required_address03(self):
+        "Existing organisation without address."
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='SAO')
+
+        req_fname = 'department'
+        req_fname_vcf = 'region'  # name in VCF data
+
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            f'END:VCARD'
+        )
+
+        # ---
+        address_value = '4 Meuporg street'
+        city = 'Tokyo'
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': orga.name,
+            'organisation': orga.id,
+
+            'update_work_address': 'on',
+
+            # 'workaddr_name':     ...,
+            'workaddr_address':   address_value,
+            'workaddr_city':      city,
+            # 'workaddr_country':  ...,
+            # 'workaddr_code':     ...,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+
+        field_name = f'workaddr_{req_fname_vcf}'
+        self.assertFormError(
+            response2, 'form', field_name,
+            _('The field «{}» has been configured as required.').format(
+                Address._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+        # ---
+        department = 'Kanto'
+        self._post_step1(data={**data, field_name: department})
+
+        address = self.refresh(orga).billing_address
+        self.assertIsNotNone(address)
+        self.assertEqual(city,          address.city)
+        self.assertEqual(address_value, address.address)
+        self.assertEqual(department,    getattr(address, req_fname))
+
+    @skipIfCustomContact
+    @skipIfCustomOrganisation
+    @skipIfCustomAddress
+    def test_fields_config_required_address04(self):
+        "Organisation with existing address."
+        user = self.login()
+
+        orga = Organisation.objects.create(user=user, name='SAO')
+        country = 'Japan'
+        address = Address.objects.create(
+            owner=orga,
+            name='billing address',
+            country=country,
+        )
+
+        orga.billing_address = address
+        orga.save()
+
+        req_fname = 'department'
+        req_fname_vcf = 'region'  # name in VCF data
+
+        FieldsConfig.objects.create(
+            content_type=Address,
+            descriptions=[(req_fname, {FieldsConfig.REQUIRED: True})],
+        )
+
+        first_name = 'Asuna'
+        last_name = 'Kagurazaka'
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'EMAIL;TYPE=HOME:asuna@sao.jp\n'
+            f'END:VCARD'
+        )
+
+        # ---
+        address_value = '4 Meuporg street'
+        city = 'Tokyo'
+        data = {
+            'user': user.id,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'create_or_attach_orga': True,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'work_name': orga.name,
+            'organisation': orga.id,
+
+            'update_work_address': 'on',
+
+            # 'workaddr_name':     ...,
+            'workaddr_address':   address_value,
+            'workaddr_city':      city,
+            'workaddr_country':   '',  # should not be used
+            # 'workaddr_code':     ...,
+        }
+        response2 = self._post_step1(data=data, errors=True)
+
+        field_name = f'workaddr_{req_fname_vcf}'
+        self.assertFormError(
+            response2, 'form', field_name,
+            _('The field «{}» has been configured as required.').format(
+                Address._meta.get_field(req_fname).verbose_name
+            ),
+        )
+
+        # ---
+        department = 'Kanto'
+        self._post_step1(data={**data, field_name: department})
+
+        address = self.refresh(orga).billing_address
+        self.assertIsNotNone(address)
+        self.assertEqual(city,          address.city)
+        self.assertEqual(address_value, address.address)
+        self.assertEqual(country,       address.country)
+        self.assertEqual(department,    getattr(address, req_fname))
 
     @skipIfCustomContact
     def test_customfields01(self):
