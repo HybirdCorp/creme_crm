@@ -127,7 +127,7 @@ END:VCARD"""
         n_value = vobj.n.value
         self.assertEqual(civility, n_value.prefix)
         self.assertEqual(
-            _('Read in VCF File : ') + civility,
+            _('Read in VCF File: ') + civility,
             fields['civility'].help_text,
         )
 
@@ -150,7 +150,7 @@ END:VCARD"""
         self.assertEqual(position, vobj.title.value)
         self.assertEqual(
             fields['position'].help_text,
-            _('Read in VCF File : ') + position,
+            _('Read in VCF File: ') + position,
         )
 
         self.assertEqual(email, vobj.email.value)
@@ -264,7 +264,7 @@ end:vcard"""
         vobj = read_vcf(content)
         # self.assertEqual('<VERSION{}2.1>', str(vobj.version))
 
-        help_prefix = _('Read in VCF File without type : ')
+        help_prefix = _('Read in VCF File without type: ')
         adr_value = vobj.adr.value
 
         self.assertEqual(box,     adr_value.box)

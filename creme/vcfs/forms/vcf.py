@@ -262,8 +262,8 @@ class VcfImportForm(CremeModelForm):
     #     },
     # )
 
-    type_help_text  = _('Read in VCF File without type : ')
-    other_help_text = _('Read in VCF File : ')
+    type_help_text  = _('Read in VCF File without type: ')
+    other_help_text = _('Read in VCF File: ')
 
     def __init__(self, vcf_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
