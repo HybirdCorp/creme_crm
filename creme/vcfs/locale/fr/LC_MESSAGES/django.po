@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme VCFs 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-11 16:47+0200\n"
+"POT-Creation-Date: 2021-08-17 12:36+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -39,25 +39,8 @@ msgstr "Fichier VCF"
 msgid "VCF file is invalid [%(error)s]"
 msgstr "Fichier VCF non valide [%(error)s]"
 
-# Already translated in persons app
-msgid "Phone number"
-msgstr ""
-
-# Already translated in persons app
-msgid "Mobile"
-msgstr ""
-
-# Already translated in persons app
-msgid "Fax"
-msgstr ""
-
-# Already translated in persons app
-msgid "Email address"
-msgstr ""
-
-# Already translated in persons app
-msgid "Web Site"
-msgstr ""
+msgid "Embedded image"
+msgstr "Image embarquée"
 
 # Already translated in persons app
 msgid "Name"
@@ -128,6 +111,22 @@ msgstr "Mettre à jour l'adresse"
 msgid "Update organisation selected address"
 msgstr "Met à jour l'adresse de la société sélectionnée"
 
+# Already translated in persons app
+msgid "Phone number"
+msgstr ""
+
+# Already translated in persons app
+msgid "Fax"
+msgstr ""
+
+# Already translated in persons app
+msgid "Email address"
+msgstr ""
+
+# Already translated in persons app
+msgid "Web Site"
+msgstr ""
+
 msgid "Required, if you want to create organisation"
 msgstr "Requis, si vous voulez créer une société"
 
@@ -140,6 +139,40 @@ msgstr "Société non sélectionnée"
 msgid "Required, if you want to update organisation"
 msgstr "Requis, si vous voulez mettre à jour la société"
 
+msgid "Read in VCF File without type: "
+msgstr "Lu dans le fichier VCF sans type précisé : "
+
+msgid "Read in VCF File: "
+msgstr "Lu dans le fichier VCF : "
+
+msgid "The referenced image is too large (limit is {} bytes)."
+msgstr "L'image référencée est trop large (la limit est {} octets)."
+
+msgid ""
+"An error occurred when trying to retrieve the referenced image [original "
+"error: {}]."
+msgstr ""
+"Une erreur est survenue lors de la récupération de l'image référéncée "
+"[erreur originale : {}]."
+
+msgid ""
+"An error occurred when trying to decode the embedded image [original error: "
+"{}]."
+msgstr ""
+"Une erreur est survenue lors ddu décodage de l'image embarquée [erreur "
+"originale : {}]."
+
+msgid "Imported by VCFs"
+msgstr "Importé par VCFs"
+
+msgid "Error with image data in the VCF file [original error: {}]"
+msgstr ""
+"Erreur avec les données d'image dans le fichier VCF [erreur originale : {}]"
+
+#, python-brace-format
+msgid "Image of {contact}"
+msgstr "Image de {contact}"
+
 msgid "Details"
 msgstr "Détails"
 
@@ -149,19 +182,6 @@ msgstr ""
 
 msgid "Organisation billing address"
 msgstr "Adresse de facturation de la société"
-
-msgid "Read in VCF File without type: "
-msgstr "Lu dans le fichier VCF sans type précisé : "
-
-msgid "Read in VCF File: "
-msgstr "Lu dans le fichier VCF : "
-
-#, python-brace-format
-msgid "Image of {contact}"
-msgstr "Image de {contact}"
-
-msgid "Imported by VCFs"
-msgstr "Importé par VCFs"
 
 msgid "Import from a VCF file"
 msgstr "Importer depuis un fichier VCF"

@@ -21,8 +21,10 @@
 import base64
 import logging
 from itertools import chain
-from os import path
-from urllib.request import urlopen, urlretrieve
+# from os import path
+# from urllib.request import urlopen, urlretrieve
+from urllib.error import URLError
+from urllib.request import urlopen
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -57,8 +59,9 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
 )
+from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.utils import split_filter
-from creme.creme_core.utils.secure_filename import secure_filename
+# from creme.creme_core.utils.secure_filename import secure_filename
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents.constants import UUID_FOLDER_IMAGES
 from creme.documents.utils import get_image_format
@@ -77,7 +80,7 @@ Organisation = persons.get_organisation_model()
 Address = persons.get_address_model()
 
 URL_START = ('http://', 'https://', 'www.')
-IMG_UPLOAD_PATH = Document._meta.get_field('filedata').upload_to
+# IMG_UPLOAD_PATH = Document._meta.get_field('filedata').upload_to
 
 HOME_ADDR_PREFIX = 'homeaddr_'
 WORK_ADDR_PREFIX = 'workaddr_'
@@ -109,20 +112,24 @@ _get_ct = ContentType.objects.get_for_model
 
 
 class VcfImportForm(CremeModelForm):
-    class Meta:
+    # class Meta:
+    class Meta(CremeModelForm.Meta):
         model = Contact
-        fields = ('user', 'civility', 'first_name', 'last_name', 'position')
+        # fields = ('user', 'civility', 'first_name', 'last_name', 'position')
 
     vcf_step = IntegerField(widget=HiddenInput)
 
-    image_encoded = CharField(required=False, widget=HiddenInput)
+    # NB: label because there can be validation error on it
+    image_encoded = CharField(
+        label=_('Embedded image'), required=False, widget=HiddenInput,
+    )
 
-    # Details
-    phone    = CharField(label=_('Phone number'),   required=False)
-    mobile   = CharField(label=_('Mobile'),         required=False)
-    fax      = CharField(label=_('Fax'),            required=False)
-    email    = EmailField(label=_('Email address'), required=False)
-    url_site = URLField(label=_('Web Site'),        required=False)
+    # # Details
+    # phone    = CharField(label=_('Phone number'),   required=False)
+    # mobile   = CharField(label=_('Mobile'),         required=False)
+    # fax      = CharField(label=_('Fax'),            required=False)
+    # email    = EmailField(label=_('Email address'), required=False)
+    # url_site = URLField(label=_('Web Site'),        required=False)
 
     # Address
     homeaddr_name     = CharField(label=_('Name'),     required=False)
@@ -196,7 +203,8 @@ class VcfImportForm(CremeModelForm):
     }
 
     # Names of the fields corresponding to the Contact's details.
-    contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site']
+    # contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site']
+    contact_details = ['phone', 'mobile', 'fax', 'email', 'url_site', 'skype']
 
     # Names of the fields corresponding to the related Organisation (but not its Address).
     orga_fields = ['name', 'phone', 'email', 'fax', 'url_site']
@@ -268,7 +276,21 @@ class VcfImportForm(CremeModelForm):
     def __init__(self, vcf_data=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         fields = self.fields
+        self.contact_address = self.organisation_address = None
+        self._vcf_image = None  # Cleaned data about image embedded/linked in the file
+
+        # Organisation chosen/created by the user (filled by clean())
+        self.organisation = None
+
+        # Organisation automatically found from VCF file
         self._found_organisation = None
+
+        image_f = fields.get('image')
+        if image_f:
+            # If the field "image" has been configured to be required,
+            # we do the same with the hidden input
+            # (one of the 2 fields will be removed just after)
+            fields['image_encoded'].required = image_f.required
 
         if vcf_data:
             self._init_contact_fields(vcf_data)
@@ -277,6 +299,14 @@ class VcfImportForm(CremeModelForm):
 
             if vcf_data.contents.get('photo'):
                 fields['image_encoded'].initial = vcf_data.photo.value.replace('\n', '')
+                fields.pop('image', None)
+            else:
+                fields.pop('image_encoded', None)
+        else:
+            fields.pop(
+                'image' if 'image_encoded' in self.data else 'image_encoded',
+                None,
+            )
 
         # Beware: this queryset directly in the field declaration does not work
         #   on some systems in unit tests...
@@ -288,6 +318,7 @@ class VcfImportForm(CremeModelForm):
         )
 
         self._hide_fields()
+        self._forced_orga_fields = self._build_missing_orga_fields()
         self._build_customfields()
 
     # TODO factorise with/use CustomFieldsMixin ?
@@ -329,6 +360,28 @@ class VcfImportForm(CremeModelForm):
 
         self._contact_cfields = contact_cfields
         self._orga_cfields    = orga_cfields
+
+    def _build_missing_orga_fields(self):
+        """Add the Organisation fields required by configuration which are missing."""
+        fields = self.fields
+        forced_fields = []
+
+        orga = self._found_organisation
+        if orga:
+            def get_initial(field_name):
+                return getattr(orga, field_name)
+        else:
+            def get_initial(field_name):
+                return None
+
+        for field in self.fields_configs.get_for_model(Organisation).required_fields:
+            # TODO: specific block
+            prefixed_name = f'work_{field.name}'
+            if prefixed_name not in fields:
+                fields[prefixed_name] = field.formfield(initial=get_initial(field.name))
+                forced_fields.append(field.name)
+
+        return forced_fields
 
     def _hide_fields(self):
         fields = self.fields
@@ -449,12 +502,12 @@ class VcfImportForm(CremeModelForm):
 
                 box = value.box
                 fields[prefix + 'address'].initial = (
-                    box + ' ' + value.street
-                ) if box else value.street
-                fields[prefix + 'city'].initial    = value.city
-                fields[prefix + 'country'].initial = value.country
-                fields[prefix + 'code'].initial    = value.code
-                fields[prefix + 'region'].initial  = value.region
+                    f'{box} {value.street}' if box else value.street
+                )
+                fields[f'{prefix}city'].initial    = value.city
+                fields[f'{prefix}country'].initial = value.country
+                fields[f'{prefix}code'].initial    = value.code
+                fields[f'{prefix}region'].initial  = value.region
             else:
                 self._generate_help_text(
                     'homeaddr_address',
@@ -472,6 +525,51 @@ class VcfImportForm(CremeModelForm):
             field.help_text = self.type_help_text + value
         else:
             field.help_text = f'{help_text} | {value}'
+
+    def clean_image_encoded(self):
+        encoded_image = self.cleaned_data['image_encoded']
+
+        if encoded_image:
+            image_data = ''
+
+            if encoded_image.startswith(URL_START):
+                # TODO: only retrieve once (ie: what if several validation errors) ?
+
+                try:
+                    # TODO: smaller timeout than our own web server?
+                    with urlopen(encoded_image) as f:
+                        max_size = settings.VCF_IMAGE_MAX_SIZE
+                        if int(f.info()['content-length']) > max_size:
+                            raise ValidationError(
+                                gettext(
+                                    'The referenced image is too large '
+                                    '(limit is {} bytes).'
+                                ).format(max_size)
+                            )
+
+                        image_data = f.read()
+                except URLError as e:
+                    raise ValidationError(
+                        gettext(
+                            'An error occurred when trying to retrieve the referenced image '
+                            '[original error: {}].'
+                        ).format(e)
+                    )
+            else:  # TODO: manage urls encoded in base64 ??
+                try:
+                    image_data = base64.decodebytes(encoded_image.encode())
+                except Exception as e:
+                    raise ValidationError(
+                        gettext(
+                            'An error occurred when trying to decode the embedded image '
+                            '[original error: {}].'
+                        ).format(e)
+                    )
+
+            # TODO: validate image
+            self._vcf_image = ContentFile(image_data)
+
+        return encoded_image
 
     def _clean_orga_field(self, field_name):
         cleaned_data = self.cleaned_data
@@ -556,151 +654,307 @@ class VcfImportForm(CremeModelForm):
     def clean_work_address(self):
         return self.clean_update_field('work_address')
 
-    def _create_contact(self, cleaned_data):
-        get_data = cleaned_data.get
+    def _cleaned_address(self, cleaned_data, data_prefix, address=None):
+        if address is None:
+            address = Address()
 
-        contact = Contact.objects.create(
-            user=cleaned_data['user'],
-            civility=cleaned_data['civility'],
-            first_name=cleaned_data['first_name'],
-            last_name=cleaned_data['last_name'],
-            position=get_data('position'),
-            # NB: we do not use cleaned_data.get() in order to not overload
-            #     default fields values
-            **{
-                fname: cleaned_data[fname]
-                for fname in self.contact_details
-                if fname in cleaned_data
-            }
-        )
+        address_mapping = self.address_mapping
 
-        self._save_customfields(contact, self._contact_cfields)
-
-        return contact
-
-    def _create_address(self, cleaned_data, owner, data_prefix):
-        # NB: we do not use cleaned_data.get() in order to not overload default fields values
-        kwargs = {}
-        for form_fname, model_fname in self.address_mapping:
+        # NB: we do not use cleaned_data.get() in order to not overload
+        #     default fields values
+        for form_fname, model_fname in address_mapping:
             try:
-                kwargs[model_fname] = cleaned_data[data_prefix + form_fname]
+                value = cleaned_data[data_prefix + form_fname]
             except KeyError:
                 pass
-
-        address = Address(owner=owner, **kwargs)
+            else:
+                if value:
+                    setattr(address, model_fname, value)
 
         if address:
-            address.save()
+            try:
+                address.full_clean()
+            except ValidationError as e:
+                for field_name, error in e.message_dict.items():
+                    error_name = None
+
+                    if field_name:
+                        for form_fname, model_fname in address_mapping:
+                            if model_fname == field_name:
+                                error_name = data_prefix + form_fname
+                                break
+
+                    self.add_error(field=error_name, error=error)
+
             return address
 
-    def _create_image(self, contact):
+        return None
+
+    def clean(self):
         cleaned_data = self.cleaned_data
-        image_encoded = cleaned_data['image_encoded']
+        contact = self.instance
 
-        if image_encoded:
-            img_name = secure_filename(
-                f'{contact.last_name}_{contact.first_name}_{contact.id}'
+        # NB: prevent error when the field "image" is required & image build later.
+        if self._vcf_image:
+            image = Document(
+                user=cleaned_data['user'],
+                title='Image of contact',
+                filedata='TMP',
+                linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
+                description=gettext('Imported by VCFs'),
             )
-            img_path = None
 
-            if image_encoded.startswith(URL_START):
-                tmp_img_path = None
-
-                try:
-                    if (
-                        int(urlopen(image_encoded).info()['content-length'])
-                        <= settings.VCF_IMAGE_MAX_SIZE
-                    ):
-                        tmp_img_path = path.normpath(path.join(IMG_UPLOAD_PATH, img_name))
-
-                        urlretrieve(
-                            image_encoded,
-                            path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)),
-                        )
-                except Exception:
-                    logger.exception('Error with image')
-                else:
-                    img_path = tmp_img_path
-            else:  # TODO: manage urls encoded in base64 ??
-                try:
-                    img_data = base64.decodebytes(image_encoded.encode())
-                    img_path = handle_uploaded_file(
-                        ContentFile(img_data),
-                        path=IMG_UPLOAD_PATH.split('/'),
-                        name=f'{img_name}.{get_image_format(img_data)}',
-                    )
-                except Exception:
-                    logger.exception('VcfImportForm.save()')
-
-            if img_path:
-                return Document.objects.create(
-                    user=cleaned_data['user'],
-                    title=gettext('Image of {contact}').format(contact=contact),
-                    filedata=img_path,
-                    linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
-                    description=gettext('Imported by VCFs'),
+            # NB: sadly we do not clean with the final title/filedata...
+            try:
+                image.full_clean()
+            except ValidationError as e:
+                # TODO: test
+                logger.exception(
+                    f'{type(self).__name__}.clean(): error when build embedded image'
+                )
+                self.add_error(
+                    field=None,
+                    error=gettext(
+                        'Error with image data in the VCF file [original error: {}]'
+                    ).format(e)
                 )
 
+            contact.image = image
+
+        super().clean()
+
+        if not self._errors:
+            self.contact_address = self._cleaned_address(
+                cleaned_data, data_prefix=HOME_ADDR_PREFIX,
+            )
+
+            if cleaned_data['create_or_attach_orga']:
+                get_data = cleaned_data.get
+                organisation = get_data('organisation')
+
+                if organisation:
+                    # TODO: select_for_update() option in CreatorEntityField ?
+                    organisation = Organisation.objects.select_for_update().get(id=organisation.id)
+
+                    for fname in self.orga_fields:
+                        if get_data(f'update_work_{fname}'):
+                            setattr(organisation, fname, get_data(f'work_{fname}'))
+
+                    for fname in self._forced_orga_fields:
+                        setattr(organisation, fname, get_data(f'work_{fname}'))
+
+                    if get_data('update_work_address'):
+                        self.organisation_address = self._cleaned_address(
+                            cleaned_data,
+                            data_prefix=WORK_ADDR_PREFIX,
+                            address=organisation.billing_address,
+                        )
+                else:
+                    # NB: we do not use cleaned_data.get() in order to not overload
+                    #     default fields values
+                    orga_kwargs = {}
+                    for fname in chain(self.orga_fields, self._forced_orga_fields):
+                        try:
+                            orga_kwargs[fname] = cleaned_data[f'work_{fname}']
+                        except KeyError:
+                            pass
+
+                    organisation = Organisation(user=cleaned_data['user'], **orga_kwargs)
+                    self.organisation_address = self._cleaned_address(
+                        cleaned_data, data_prefix=WORK_ADDR_PREFIX,
+                    )
+
+                try:
+                    organisation.full_clean()
+                except ValidationError as e:
+                    fields = self.fields
+                    for field_name, error in e.message_dict.items():
+                        if field_name:
+                            prefixed_fname = f'work_{field_name}'
+
+                            if prefixed_fname in fields:
+                                field_name = prefixed_fname
+
+                        self.add_error(field=field_name, error=error)
+                else:
+                    self.organisation = organisation
+
+        return cleaned_data
+
+    # def _create_contact(self, cleaned_data):
+    #     get_data = cleaned_data.get
+    #
+    #     contact = Contact.objects.create(
+    #         user=cleaned_data['user'],
+    #         civility=cleaned_data['civility'],
+    #         first_name=cleaned_data['first_name'],
+    #         last_name=cleaned_data['last_name'],
+    #         position=get_data('position'),
+    #         # NB: we do not use cleaned_data.get() in order to not overload
+    #         #     default fields values
+    #         **{
+    #             fname: cleaned_data[fname]
+    #             for fname in self.contact_details
+    #             if fname in cleaned_data
+    #         }
+    #     )
+    #
+    #     self._save_customfields(contact, self._contact_cfields)
+    #
+    #     return contact
+
+    # def _create_address(self, cleaned_data, owner, data_prefix):
+    #     # NB: we do not use cleaned_data.get() in order to not overload default fields values
+    #     kwargs = {}
+    #     for form_fname, model_fname in self.address_mapping:
+    #         try:
+    #             kwargs[model_fname] = cleaned_data[data_prefix + form_fname]
+    #         except KeyError:
+    #             pass
+    #
+    #     address = Address(owner=owner, **kwargs)
+    #
+    #     if address:
+    #         address.save()
+    #         return address
+
+    # def _create_image(self, contact):
+    #     cleaned_data = self.cleaned_data
+    #     image_encoded = cleaned_data['image_encoded']
+    #
+    #     if image_encoded:
+    #         img_name = secure_filename(
+    #             f'{contact.last_name}_{contact.first_name}_{contact.id}'
+    #         )
+    #         img_path = None
+    #
+    #         if image_encoded.startswith(URL_START):
+    #             tmp_img_path = None
+    #
+    #             try:
+    #                 if (
+    #                     int(urlopen(image_encoded).info()['content-length'])
+    #                     <= settings.VCF_IMAGE_MAX_SIZE
+    #                 ):
+    #                     tmp_img_path = path.normpath(path.join(IMG_UPLOAD_PATH, img_name))
+    #
+    #                     urlretrieve(
+    #                         image_encoded,
+    #                         path.normpath(path.join(settings.MEDIA_ROOT, tmp_img_path)),
+    #                     )
+    #             except Exception:
+    #                 logger.exception('Error with image')
+    #             else:
+    #                 img_path = tmp_img_path
+    #         else:
+    #             try:
+    #                 img_data = base64.decodebytes(image_encoded.encode())
+    #                 img_path = handle_uploaded_file(
+    #                     ContentFile(img_data),
+    #                     path=IMG_UPLOAD_PATH.split('/'),
+    #                     name=f'{img_name}.{get_image_format(img_data)}',
+    #                 )
+    #             except Exception:
+    #                 logger.exception('VcfImportForm.save()')
+    #
+    #         if img_path:
+    #             return Document.objects.create(
+    #                 user=cleaned_data['user'],
+    #                 title=gettext('Image of {contact}').format(contact=contact),
+    #                 filedata=img_path,
+    #                 linked_folder=Folder.objects.get(uuid=UUID_FOLDER_IMAGES),
+    #                 description=gettext('Imported by VCFs'),
+    #             )
+
+    # def _create_orga(self, contact):
+    #     cleaned_data = self.cleaned_data
+    #
+    #     if cleaned_data['create_or_attach_orga']:
+    #         get_data = cleaned_data.get
+    #         organisation = get_data('organisation')
+    #         save_orga    = False
+    #         user         = cleaned_data['user']
+    #         addr_prefix  = WORK_ADDR_PREFIX
+    #
+    #         if organisation:
+    #             # todo: select_for_update() option in CreatorEntityField ?
+    #             organisation = Organisation.objects.select_for_update().get(id=organisation.id)
+    #
+    #             for fname in self.orga_fields:
+    #                 if get_data('update_work_' + fname):
+    #                     setattr(organisation, fname, get_data('work_' + fname))
+    #
+    #             if get_data('update_work_address'):
+    #                 billing_address = organisation.billing_address
+    #
+    #                 if billing_address is not None:
+    #                     for form_fname, model_fname in self.address_mapping:
+    #                         value = get_data(addr_prefix + form_fname)
+    #
+    #                         if value:
+    #                             setattr(billing_address, model_fname, value)
+    #
+    #                     organisation.billing_address.save()
+    #                 else:
+    #                     organisation.billing_address = self._create_address(
+    #                         cleaned_data, owner=organisation, data_prefix=addr_prefix,
+    #                     )
+    #
+    #             save_orga = True
+    #         else:
+    #             # NB: we do not use cleaned_data.get() in order to not overload
+    #             #     default fields values
+    #             orga_kwargs = {}
+    #             for fname in self.orga_fields:
+    #                 try:
+    #                     orga_kwargs[fname] = cleaned_data['work_' + fname]
+    #                 except KeyError:
+    #                     pass
+    #
+    #             organisation = Organisation.objects.create(user=user, **orga_kwargs)
+    #
+    #             orga_addr = self._create_address(
+    #                 cleaned_data, owner=organisation, data_prefix=addr_prefix,
+    #             )
+    #             if orga_addr is not None:
+    #                 organisation.billing_address = orga_addr
+    #                 save_orga = True
+    #
+    #         if save_orga:
+    #             organisation.save()
+    #
+    #         self._save_customfields(organisation, self._orga_cfields)
+    #         Relation.objects.create(
+    #             user=user,
+    #             subject_entity=contact,
+    #             type=cleaned_data['relation'],
+    #             object_entity=organisation,
+    #         )
     def _create_orga(self, contact):
+        organisation = self.organisation
         cleaned_data = self.cleaned_data
 
-        if cleaned_data['create_or_attach_orga']:
-            get_data = cleaned_data.get
-            organisation = get_data('organisation')
-            save_orga    = False
-            user         = cleaned_data['user']
-            addr_prefix  = WORK_ADDR_PREFIX
-
-            if organisation:
-                # TODO: select_for_update() option in CreatorEntityField ?
-                organisation = Organisation.objects.select_for_update().get(id=organisation.id)
-
-                for fname in self.orga_fields:
-                    if get_data('update_work_' + fname):
-                        setattr(organisation, fname, get_data('work_' + fname))
-
-                if get_data('update_work_address'):
-                    billing_address = organisation.billing_address
-
-                    if billing_address is not None:
-                        for form_fname, model_fname in self.address_mapping:
-                            value = get_data(addr_prefix + form_fname)
-
-                            if value:
-                                setattr(billing_address, model_fname, value)
-
-                        organisation.billing_address.save()
-                    else:
-                        organisation.billing_address = self._create_address(
-                            cleaned_data, owner=organisation, data_prefix=addr_prefix,
-                        )
-
+        if organisation:
+            save_orga = False
+            if organisation.id:
                 save_orga = True
             else:
-                # NB: we do not use cleaned_data.get() in order to not overload
-                #     default fields values
-                orga_kwargs = {}
-                for fname in self.orga_fields:
-                    try:
-                        orga_kwargs[fname] = cleaned_data['work_' + fname]
-                    except KeyError:
-                        pass
+                organisation.save()
 
-                organisation = Organisation.objects.create(user=user, **orga_kwargs)
+            orga_addr = self.organisation_address
+            if orga_addr is not None:
+                orga_addr.owner = organisation
+                orga_addr.save()
 
-                orga_addr = self._create_address(
-                    cleaned_data, owner=organisation, data_prefix=addr_prefix,
-                )
-                if orga_addr is not None:
-                    organisation.billing_address = orga_addr
-                    save_orga = True
+                organisation.billing_address = orga_addr
+                save_orga = True
 
             if save_orga:
                 organisation.save()
 
             self._save_customfields(organisation, self._orga_cfields)
             Relation.objects.create(
-                user=user,
+                user=cleaned_data['user'],
                 subject_entity=contact,
                 type=cleaned_data['relation'],
                 object_entity=organisation,
@@ -726,6 +980,8 @@ class VcfImportForm(CremeModelForm):
                     *chain.from_iterable(
                         (f'update_work_{fn}', f'work_{fn}') for fn in self.orga_fields
                     ),
+                    # TODO: separated block(s)?
+                    *(f'work_{fn}' for fn in self._forced_orga_fields),
                     *(build_cfield_name(cfield) for cfield in self._orga_cfields),
                 ],
             }, {
@@ -748,27 +1004,66 @@ class VcfImportForm(CremeModelForm):
             for cfield in cfields:
                 save_values(cfield, [entity], cleaned_data[build_name(cfield)])
 
+    def _save_image(self):
+        if self._vcf_image:
+            contact = self.instance
+            image = contact.image
+            file_field = type(image)._meta.get_field('filedata')
+            img_data = self._vcf_image
+
+            assign_2_charfield(
+                image, 'title',
+                gettext('Image of {contact}').format(contact=contact),
+            )
+            image.filedata = handle_uploaded_file(
+                img_data,
+                path=file_field.upload_to.split('/'),
+                # TODO: PIL parse only once...
+                name=f'{contact.last_name}_{contact.first_name}.'
+                     f'{get_image_format(img_data.read())}',
+                max_length=file_field.max_length
+            )
+            image.save()
+
+    # @atomic
+    # def save(self, *args, **kwargs):
+    #     cleaned_data = self.cleaned_data
+    #     save_contact = False
+    #     contact = self._create_contact(cleaned_data)
+    #
+    #     image = self._create_image(contact)
+    #     if image is not None:
+    #         contact.image = image
+    #         save_contact = True
+    #
+    #     contact_addr = self._create_address(cleaned_data, owner=contact,
+    #                                         data_prefix=HOME_ADDR_PREFIX,
+    #                                        )
+    #     if contact_addr is not None:
+    #         contact.billing_address = contact_addr
+    #         save_contact = True
+    #
+    #     self._create_orga(contact)
+    #
+    #     if save_contact:
+    #         contact.save()
+    #
+    #     return contact
     @atomic
     def save(self, *args, **kwargs):
-        cleaned_data = self.cleaned_data
-        save_contact = False
-        contact = self._create_contact(cleaned_data)
+        contact = self.instance
+        self._save_image()
+        super().save(*args, **kwargs)
+        self._save_customfields(contact, self._contact_cfields)
 
-        image = self._create_image(contact)
-        if image is not None:
-            contact.image = image
-            save_contact = True
-
-        contact_addr = self._create_address(
-            cleaned_data, owner=contact, data_prefix=HOME_ADDR_PREFIX,
-        )
+        contact_addr = self.contact_address
         if contact_addr is not None:
+            contact_addr.owner = contact
+            contact_addr.save()
+
             contact.billing_address = contact_addr
-            save_contact = True
+            contact.save()
 
         self._create_orga(contact)
-
-        if save_contact:
-            contact.save()
 
         return contact
