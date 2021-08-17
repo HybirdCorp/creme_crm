@@ -294,7 +294,8 @@ class VcfImportForm(CremeModelForm):
 
         if vcf_data:
             self._init_contact_fields(vcf_data)
-            self._init_orga_field(vcf_data)
+            # self._init_orga_field(vcf_data)
+            self._init_orga_fields(vcf_data)
             self._init_addresses_fields(vcf_data)
 
             if vcf_data.contents.get('photo'):
@@ -472,7 +473,8 @@ class VcfImportForm(CremeModelForm):
                 else:
                     self._generate_help_text(field_dict['HOME'], key.value)
 
-    def _init_orga_field(self, vcf_data):
+    # def _init_orga_field(self, vcf_data):
+    def _init_orga_fields(self, vcf_data):
         if vcf_data.contents.get('org'):
             fields = self.fields
 
