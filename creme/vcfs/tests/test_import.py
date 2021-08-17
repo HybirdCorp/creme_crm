@@ -1623,6 +1623,7 @@ END:VCARD"""
 
     @skipIfCustomContact
     def test_fields_config_hidden01(self):
+        "Hide some regular Contact fields."
         self.login()
 
         FieldsConfig.objects.create(
@@ -1686,6 +1687,7 @@ END:VCARD"""
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_fields_config_hidden02(self):
+        "Hide some regular Organisation & Address fields."
         self.login()
 
         create_fc = FieldsConfig.objects.create
@@ -1892,6 +1894,49 @@ END:VCARD"""
 
         orga = self.get_object_or_fail(Organisation, name=work_name)
         self.assertIsNone(orga.billing_address)
+
+    @skipIfCustomContact
+    def test_fields_config_hidden05(self):
+        "Hide <Contact.image>."
+        user = self.login()
+        image_count = Document.objects.count()
+
+        FieldsConfig.objects.create(
+            content_type=Contact,
+            descriptions=[('image', {FieldsConfig.HIDDEN: True})],
+        )
+
+        first_name = 'Sakurako'
+        last_name = 'SHIINA'
+        response0 = self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'PHOTO;TYPE=JPEG:{self.image_data}\n'
+            f'END:VCARD'
+        )
+
+        with self.assertNoException():
+            fields = response0.context['form'].fields
+
+        self.assertNotIn('image',         fields)
+        self.assertNotIn('image_encoded', fields)
+
+        self._post_step1(
+            data={
+                'user': user.id,
+
+                'first_name': first_name,
+                'last_name':  last_name,
+
+                'image_encoded': self.image_data,  # Should not be used
+            },
+        )
+        self.assertEqual(image_count, Document.objects.count())
+
+        contact = self.get_object_or_fail(
+            Contact, first_name=first_name, last_name=last_name,
+        )
+        self.assertIsNone(contact.image)
 
     @skipIfCustomContact
     def test_fields_config_required_contact(self):
