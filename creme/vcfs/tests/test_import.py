@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+import base64
 from functools import partial
 from os import path as os_path
 from tempfile import NamedTemporaryFile
@@ -1595,6 +1595,31 @@ END:VCARD"""
         # NB: difficult to test the message (it contains the original exception message)
         with self.assertNoException():
             response2.context['form'].errors['image_encoded']  # NOQA
+
+    def test_vcf_with_image06(self):
+        "Invalid image data."
+        user = self.login()
+
+        first_name = 'Satomi'
+        last_name = 'HAKASE'
+        self._post_step0(
+            f'BEGIN:VCARD\n'
+            f'FN:{first_name} {last_name}\n'
+            f'END:VCARD'
+        )
+
+        response2 = self._post_step1(
+            data={
+                'user':          user.id,
+                'first_name':    first_name,
+                'last_name':     last_name,
+                'image_encoded': base64.b64encode(b'not an image').decode(),
+            },
+            errors=True,
+        )
+        self.assertFormError(
+            response2, 'form', 'image_encoded', _('Invalid image data'),
+        )
 
     @skipIfCustomContact
     def test_fields_config_hidden01(self):

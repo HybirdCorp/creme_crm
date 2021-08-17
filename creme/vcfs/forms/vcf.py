@@ -23,6 +23,7 @@ import logging
 from itertools import chain
 # from os import path
 # from urllib.request import urlopen, urlretrieve
+from typing import Optional, Tuple
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -280,7 +281,9 @@ class VcfImportForm(CremeModelForm):
         super().__init__(*args, **kwargs)
         fields = self.fields
         self.contact_address = self.organisation_address = None
-        self._vcf_image = None  # Cleaned data about image embedded/linked in the file
+
+        # Cleaned data about image embedded/linked in the file
+        self._vcf_image_info: Optional[Tuple[ContentFile, str]] = None
 
         # Organisation chosen/created by the user (filled by clean())
         self.organisation = None
@@ -571,8 +574,14 @@ class VcfImportForm(CremeModelForm):
                         ).format(e)
                     )
 
-            # TODO: validate image
-            self._vcf_image = ContentFile(image_data)
+            try:
+                img_format = get_image_format(image_data)
+            except Exception:
+                logger.exception('Clean image encoded in VCF')
+                raise ValidationError(gettext('Invalid image data'))
+
+            # TODO: check with settings.ALLOWED_IMAGES_EXTENSIONS ?
+            self._vcf_image_info = (ContentFile(image_data), img_format)
 
         return encoded_image
 
@@ -700,7 +709,7 @@ class VcfImportForm(CremeModelForm):
         contact = self.instance
 
         # NB: prevent error when the field "image" is required & image build later.
-        if self._vcf_image:
+        if self._vcf_image_info:
             image = Document(
                 user=cleaned_data['user'],
                 title='Image of contact',
@@ -1024,11 +1033,11 @@ class VcfImportForm(CremeModelForm):
                 save_values(cfield, [entity], cleaned_data[build_name(cfield)])
 
     def _save_image(self):
-        if self._vcf_image:
+        if self._vcf_image_info:
             contact = self.instance
             image = contact.image
             file_field = type(image)._meta.get_field('filedata')
-            img_data = self._vcf_image
+            img_data, img_format = self._vcf_image_info
 
             assign_2_charfield(
                 image, 'title',
@@ -1037,9 +1046,7 @@ class VcfImportForm(CremeModelForm):
             image.filedata = handle_uploaded_file(
                 img_data,
                 path=file_field.upload_to.split('/'),
-                # TODO: PIL parse only once...
-                name=f'{contact.last_name}_{contact.first_name}.'
-                     f'{get_image_format(img_data.read())}',
+                name=f'{contact.last_name}_{contact.first_name}.{img_format}',
                 max_length=file_field.max_length
             )
             image.save()
