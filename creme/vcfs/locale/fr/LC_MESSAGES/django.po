@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme VCFs 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-17 12:36+0200\n"
+"POT-Creation-Date: 2021-08-17 15:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -169,23 +169,26 @@ msgid "Error with image data in the VCF file [original error: {}]"
 msgstr ""
 "Erreur avec les données d'image dans le fichier VCF [erreur originale : {}]"
 
-#, python-brace-format
-msgid "Image of {contact}"
-msgstr "Image de {contact}"
+msgid "Main information on contact"
+msgstr "Informations principales sur le contact"
 
-msgid "Details"
-msgstr "Détails"
+msgid "Details on contact"
+msgstr "Détails sur le contact"
 
-# Already translated in persons app
-msgid "Billing address"
-msgstr ""
+msgid "Contact billing address"
+msgstr "Adresse de facturation du contact"
 
 msgid "Organisation billing address"
 msgstr "Adresse de facturation de la société"
 
+#, python-brace-format
+msgid "Image of {contact}"
+msgstr "Image de {contact}"
+
 msgid "Import from a VCF file"
 msgstr "Importer depuis un fichier VCF"
 
+# Already in 'persons'
 msgid "Directory"
 msgstr ""
 
@@ -198,6 +201,3 @@ msgstr "Importer un contact depuis un fichier VCF"
 
 msgid "Import this VCF file"
 msgstr "Importer ce fichier VCF"
-
-#~ msgid "Images"
-#~ msgstr "Images"

@@ -46,9 +46,12 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import documents, persons
 from creme.creme_core.forms import (
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
     CreatorEntityField,
     CremeForm,
     CremeModelForm,
+    FieldBlockManager,
 )
 from creme.creme_core.forms.base import _CUSTOM_NAME
 from creme.creme_core.forms.widgets import DynamicSelect
@@ -965,15 +968,27 @@ class VcfImportForm(CremeModelForm):
     def get_blocks(self):
         build_cfield_name = self._build_customfield_name
 
-        return CremeModelForm.blocks.new(
+        return FieldBlockManager(
             {
+                'id': 'general',
+                'label': _('Main information on contact'),
+                'fields': '*',
+                'layout': LAYOUT_DUAL_FIRST,
+            }, {
                 'id': 'details',
-                'label': _('Details'),
+                'label': _('Details on contact'),
                 'fields': self.contact_details,
+                'layout': LAYOUT_DUAL_SECOND,
             }, {
                 'id': 'contact_address',
-                'label': _('Billing address'),
+                'label': _('Contact billing address'),
                 'fields': [HOME_ADDR_PREFIX + n[0] for n in self.address_mapping],
+                'layout': LAYOUT_DUAL_SECOND,
+            }, {
+                # This block separates visually the blocks for contact & organisation
+                'id': 'spacer',
+                'label': 'Spacer',
+                'fields': (),
             }, {
                 'id': 'organisation',
                 'label': _('Organisation'),
@@ -986,13 +1001,15 @@ class VcfImportForm(CremeModelForm):
                     *(f'work_{fn}' for fn in self._forced_orga_fields),
                     *(build_cfield_name(cfield) for cfield in self._orga_cfields),
                 ],
+                'layout': LAYOUT_DUAL_FIRST,
             }, {
                 'id': 'organisation_address',
                 'label': _('Organisation billing address'),
                 'fields': [
                     'update_work_address',
                     *(WORK_ADDR_PREFIX + n[0] for n in self.address_mapping),
-                ]
+                ],
+                'layout': LAYOUT_DUAL_SECOND,
             },
         ).build(self)
 
