@@ -291,29 +291,33 @@ class VcfImportForm(CremeModelForm):
         # Organisation automatically found from VCF file
         self._found_organisation = None
 
+        # Image fields ---------
+        # TODO: separated method ?
         image_f = fields.get('image')
+        fields_to_remove = set()
         if image_f:
             # If the field "image" has been configured to be required,
             # we do the same with the hidden input
             # (one of the 2 fields will be removed just after)
             fields['image_encoded'].required = image_f.required
+        else:
+            fields_to_remove.add('image_encoded')
 
         if vcf_data:
             self._init_contact_fields(vcf_data)
-            # self._init_orga_field(vcf_data)
             self._init_orga_fields(vcf_data)
             self._init_addresses_fields(vcf_data)
 
             if vcf_data.contents.get('photo'):
                 fields['image_encoded'].initial = vcf_data.photo.value.replace('\n', '')
-                fields.pop('image', None)
+                fields_to_remove.add('image')
             else:
-                fields.pop('image_encoded', None)
+                fields_to_remove.add('image_encoded')
         else:
-            fields.pop(
-                'image' if 'image_encoded' in self.data else 'image_encoded',
-                None,
-            )
+            fields_to_remove.add('image' if 'image_encoded' in self.data else 'image_encoded')
+
+        for field_to_remove in fields_to_remove:
+            fields.pop(field_to_remove, None)
 
         # Beware: this queryset directly in the field declaration does not work
         #   on some systems in unit tests...
@@ -732,8 +736,8 @@ class VcfImportForm(CremeModelForm):
                         'Error with image data in the VCF file [original error: {}]'
                     ).format(e)
                 )
-
-            contact.image = image
+            else:
+                contact.image = image
 
         super().clean()
 
