@@ -5,6 +5,7 @@ from os.path import dirname, exists, join
 from shutil import copy, rmtree
 from tempfile import NamedTemporaryFile, mkdtemp
 
+from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models.query_utils import Q
@@ -13,7 +14,6 @@ from creme.activities.constants import (
     ACTIVITYSUBTYPE_MEETING_MEETING,
     ACTIVITYTYPE_MEETING,
 )
-from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.models import FakeContact, Language
 from creme.documents.tests.base import skipIfCustomDocument, skipIfCustomFolder
 from creme.persons.tests.base import skipIfCustomContact
@@ -24,9 +24,8 @@ from ..inputs.email import CreateEmailInput, CreateInfopathInput
 from ..inputs.filesystem import IniFileInput
 from ..models import History, WaitingAction
 from ..utils import decode_b64binary
+# from .base import Activity, ActivityFakeBackend
 from .base import (
-    Activity,
-    ActivityFakeBackend,
     Contact,
     ContactFakeBackend,
     CrudityTestCase,
@@ -34,6 +33,17 @@ from .base import (
     DocumentFakeBackend,
     Folder,
 )
+
+if apps.is_installed('creme.activities'):
+    from creme.activities.tests.base import skipIfCustomActivity
+else:
+    from unittest import SkipTest
+
+    def skipIfCustomActivity(test_func):
+        def _aux(*args, **kwargs):
+            raise SkipTest('The app "activities" is not installed.')
+
+        return _aux
 
 
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
@@ -777,6 +787,13 @@ description3=[[<br>]]
     @skipIfCustomActivity
     def test_create_activity01(self):
         "Datetimes with or without timezone"
+        from creme.activities import get_activity_model
+
+        Activity = get_activity_model()
+
+        class ActivityFakeBackend(CrudityBackend):
+            model = Activity
+
         title = 'My Meeting'
         self.assertFalse(Activity.objects.filter(title=title))
 

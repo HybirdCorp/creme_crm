@@ -950,7 +950,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         self.assertGET404(self._build_preply_from_person_url(self._create_activity()))
 
-    @skipIfCustomActivity
     def test_create_from_person04(self):
         "Not super-user."
         user = self.login(
@@ -971,7 +970,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=user, name='Gaimos')
         self.assertGET200(self._build_preply_from_person_url(orga))
 
-    @skipIfCustomActivity
     def test_create_from_person05(self):
         "Creation credentials are needed."
         user = self.login(
@@ -992,7 +990,6 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         orga = Organisation.objects.create(user=user, name='Gaimos')
         self.assertGET403(self._build_preply_from_person_url(orga))
 
-    @skipIfCustomActivity
     def test_create_from_person06(self):
         "LINK credentials are needed."
         user = self.login(

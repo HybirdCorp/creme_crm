@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from creme.activities import get_activity_model
+# from creme.activities import get_activity_model
 from creme.creme_core.models import SettingValue
 from creme.creme_core.tests.base import CremeTestCase
 from creme.documents import get_document_model, get_folder_model
@@ -23,7 +23,7 @@ Folder = get_folder_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()
 
-Activity = get_activity_model()
+# Activity = get_activity_model()
 
 
 class FakeFetcher(CrudityFetcher):
@@ -47,8 +47,8 @@ class DocumentFakeBackend(CrudityBackend):
     model = Document
 
 
-class ActivityFakeBackend(CrudityBackend):
-    model = Activity
+# class ActivityFakeBackend(CrudityBackend):
+#     model = Activity
 
 
 class CrudityTestCase(CremeTestCase):
