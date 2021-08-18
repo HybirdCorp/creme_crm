@@ -4,12 +4,12 @@ from datetime import timedelta
 from functools import partial
 from unittest import skipIf
 
+from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 
-from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.models import HeaderFilter, RelationType
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
@@ -65,10 +65,19 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertTrue(hf_filter(entity_type=get_ct(TicketTemplate)).exists())
 
         # Contribution to activities
-        rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
-        self.assertTrue(rtype.subject_ctypes.filter(id=ticket_ct.id).exists())
-        self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(get_contact_model()).id).exists())
-        self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists())
+        if apps.is_installed('creme.activities'):
+            from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
+
+            rtype = self.get_object_or_fail(RelationType, pk=REL_SUB_ACTIVITY_SUBJECT)
+            self.assertTrue(
+                rtype.subject_ctypes.filter(id=ticket_ct.id).exists()
+            )
+            self.assertTrue(
+                rtype.subject_ctypes.filter(id=get_ct(get_contact_model()).id).exists()
+            )
+            self.assertTrue(
+                rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists()
+            )
 
     def test_detailview01(self):
         user = self.login()

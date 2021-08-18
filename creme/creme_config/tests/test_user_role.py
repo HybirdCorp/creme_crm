@@ -583,6 +583,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(other_user.has_perm_to_view(contact))
 
     @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.activities')
     def test_add_credentials02(self):
         "Specific CType + ESET_OWN."
         self.login()
@@ -1109,6 +1110,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.activities')
     def test_edit_credentials01(self):
         self.login()
 

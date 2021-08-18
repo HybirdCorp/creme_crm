@@ -27,7 +27,8 @@ class CommercialConfig(CremeAppConfig):
     default = True
     name = 'creme.commercial'
     verbose_name = _('Commercial strategy')
-    dependencies = ['creme.persons', 'creme.opportunities']
+    # XXX: remove 'creme.activities' if we remove CommercialApproach?
+    dependencies = ['creme.persons', 'creme.activities', 'creme.opportunities']
 
     def all_apps_ready(self):
         from django.apps import apps

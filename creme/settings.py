@@ -314,6 +314,10 @@ INSTALLED_CREME_APPS = [
     # Manages Contacts & Organisations entities.
     'creme.persons',
 
+    # -----------------------------------------------
+    # CREME OPTIONAL APPS (can be safely commented) #
+    # -----------------------------------------------
+
     # Manages Activities entities:
     #   - they represent meetings, phone calls, tasks...
     #   - have participants (Contacts) & subjects.
@@ -321,10 +325,6 @@ INSTALLED_CREME_APPS = [
     # There are extra features if the app "assistants" is installed
     # (Alerts & UserMessages can be created when an Activity is created).
     'creme.activities',
-
-    # -----------------------------------------------
-    # CREME OPTIONAL APPS (can be safely commented) #
-    # -----------------------------------------------
 
     # Manage the following auxiliary models (related to an entity):
     # Alert, ToDO, Memo, Action, UserMessage
@@ -370,7 +370,7 @@ INSTALLED_CREME_APPS = [
     #   - Act (commercial actions), which are used to define some goals to reach
     #     (eg: a minimum number of people met on a show).
     #   - Strategy to study market segments, assets & charms.
-    # BEWARE: needs the app "opportunities".
+    # BEWARE: needs the apps "activities & "opportunities".
     'creme.commercial',
 
     # Manages the Events entities, which represents shows/conferences/... where
@@ -394,6 +394,7 @@ INSTALLED_CREME_APPS = [
     # Manages Projects & ProjectTasks entities. Projects contain tasks, which
     # can depend on other tasks (their parents), & be associated to Activities.
     # It's a lightweight project manager, don't expect things like GANTT chart.
+    # BEWARE: needs the app "activities".
     'creme.projects',
 
     # Manages Tickets entities, which notably have a status (open, closed...)
@@ -402,6 +403,7 @@ INSTALLED_CREME_APPS = [
     'creme.tickets',
 
     # <Computer Telephony Integration> features.
+    # BEWARE: needs the app "activities".
     # 'creme.cti',
 
     # Manages VCF files:
@@ -419,6 +421,7 @@ INSTALLED_CREME_APPS = [
 
     # Display some lightweight views, about Contacts, Organisations &
     # Activities, which are adapted to smartphones.
+    # BEWARE: needs the app "activities".
     # 'creme.mobile',
 
     # Adds some specific blocks to detailed view of Contacts/Organisations which
