@@ -172,7 +172,7 @@ else:
             ordering = ('name',)
 
     class FakeImage(CremeEntity):
-        name = models.CharField(_('Name'), max_length=100, blank=True, null=True)
+        name = models.CharField(_('Name'), max_length=100, blank=True)  # null=True
         # image = models.ImageField(
         #     _('Image'), height_field='height', width_field='width',
         #     upload_to='upload/images', max_length=500,
@@ -262,18 +262,18 @@ else:
             ordering = ('order',)
 
     class FakeAddress(CremeModel):
-        value = models.TextField(_('Address'), blank=True, null=True)
+        value = models.TextField(_('Address'), blank=True)  # null=True
         zipcode = models.CharField(
-            _('Zip code'), max_length=100, blank=True, null=True,
+            _('Zip code'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
         city = models.CharField(
-            _('City'), max_length=100, blank=True, null=True,
+            _('City'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
         department = models.CharField(
-            _('Department'), max_length=100, blank=True, null=True,
+            _('Department'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
         country = models.CharField(
-            _('Country'), max_length=40, blank=True, null=True,
+            _('Country'), max_length=40, blank=True,  # null=True,
         ).set_tags(optional=True)
 
         entity = models.ForeignKey(
@@ -575,7 +575,7 @@ else:
 
     class FakeInvoice(CremeEntity):
         name = models.CharField(_('Name'), max_length=100)
-        number = models.CharField(_('Number'), max_length=100, blank=True, null=True)
+        number = models.CharField(_('Number'), max_length=100, blank=True)  # null=True
         issuing_date = models.DateField(_('Issuing date'), blank=True, null=True)
         expiration_date = models.DateField(
             _('Expiration date'), blank=True, null=True,
@@ -813,7 +813,8 @@ else:
         # reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
         description = models.TextField(_('Description'), blank=True)
         categories = models.ManyToManyField(
-            FakeTodoCategory, verbose_name=_('Categories'), related_name='+', blank=True,
+            FakeTodoCategory,
+            verbose_name=_('Categories'), related_name='+', blank=True,
         )
 
         entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)

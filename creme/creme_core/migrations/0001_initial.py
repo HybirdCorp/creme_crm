@@ -1208,7 +1208,8 @@ class Migration(migrations.Migration):
                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
                         )
                     ),
-                    ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    # ('name', models.CharField(max_length=100, null=True, verbose_name='Name', blank=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name', blank=True)),
                     (
                         'filedata',
                         models.FileField(
@@ -1235,11 +1236,16 @@ class Migration(migrations.Migration):
                 name='FakeAddress',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                    ('value', models.TextField(null=True, verbose_name='Address', blank=True)),
-                    ('zipcode', models.CharField(max_length=100, null=True, verbose_name='Zip code', blank=True)),
-                    ('city', models.CharField(max_length=100, null=True, verbose_name='City', blank=True)),
-                    ('department', models.CharField(max_length=100, null=True, verbose_name='Department', blank=True)),
-                    ('country', models.CharField(max_length=40, null=True, verbose_name='Country', blank=True)),
+                    # ('value', models.TextField(null=True, verbose_name='Address', blank=True)),
+                    ('value', models.TextField(verbose_name='Address', blank=True)),
+                    # ('zipcode', models.CharField(max_length=100, null=True, verbose_name='Zip code', blank=True)),
+                    ('zipcode', models.CharField(max_length=100, verbose_name='Zip code', blank=True)),
+                    # ('city', models.CharField(max_length=100, null=True, verbose_name='City', blank=True)),
+                    ('city', models.CharField(max_length=100, verbose_name='City', blank=True)),
+                    # ('department', models.CharField(max_length=100, null=True, verbose_name='Department', blank=True)),
+                    ('department', models.CharField(max_length=100, verbose_name='Department', blank=True)),
+                    # ('country', models.CharField(max_length=40, null=True, verbose_name='Country', blank=True)),
+                    ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
                     ('entity', models.ForeignKey(related_name='+', editable=False, to='creme_core.CremeEntity', on_delete=models.CASCADE)),
                 ],
                 options={
@@ -1417,7 +1423,8 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('number', models.CharField(max_length=100, null=True, verbose_name='Number', blank=True)),
+                    # ('number', models.CharField(max_length=100, null=True, verbose_name='Number', blank=True)),
+                    ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                     ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                     ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
                     ('periodicity', creme_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),
