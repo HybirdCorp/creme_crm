@@ -2311,7 +2311,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         tywin = create_contact(first_name='Tywin',  last_name='Lannister')
         ned   = create_contact(first_name='Eddard', last_name='Stark')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('reports-subject_obeys',   'obeys to', [FakeOrganisation]),
             ('reports-object_commands', 'commands', [FakeContact]),
         )[0]
@@ -3092,7 +3092,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         user = self.login()
         report = self._create_simple_contacts_report()
         rtype = RelationType.objects.get(pk=fake_constants.FAKE_REL_SUB_EMPLOYED_BY)
-        incompatible_rtype = RelationType.create(
+        incompatible_rtype = RelationType.objects.smart_update_or_create(
             ('reports-subject_related_doc', 'is related to doc',   [Report]),
             ('reports-object_related_doc',  'is linked to report', [FakeReportsDocument]),
         )[0]

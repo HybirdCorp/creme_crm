@@ -209,9 +209,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ],
         )
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
 
@@ -727,7 +727,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]
@@ -951,7 +951,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             'test-filter02', 'Filter 02', FakeContact, is_custom=True,
         )
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )
@@ -1234,7 +1234,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Cycle error."
         self.login()
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -1443,7 +1443,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.assertFormError(response, 'form', None, msg)
 
         # ----
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]
@@ -1675,7 +1675,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         "Can not delete if used as subfilter (for relations)"
         self.login()
 
-        srtype = RelationType.create(
+        srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[1]
@@ -1698,7 +1698,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_get_content_types01(self):
         self.login()
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -1715,7 +1715,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
     def test_get_content_types02(self):
         self.login()
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving',),
             ('test-object_love',  'Is loved by', (FakeContact,))
         )

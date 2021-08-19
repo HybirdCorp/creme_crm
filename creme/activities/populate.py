@@ -82,7 +82,7 @@ class Populator(BasePopulator):
         Activity = get_activity_model()
 
         # ---------------------------
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
             (constants.REL_SUB_LINKED_2_ACTIVITY, _('related to the activity')),
             (constants.REL_OBJ_LINKED_2_ACTIVITY, _('(activity) related to'),    [Activity]),

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-04-2021 for Creme 2.3
+:Version: 19-08-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1255,7 +1255,7 @@ Then ``beavers/populate.py`` : ::
 
         Contact = persons.get_contact_model()
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
         )
@@ -1265,14 +1265,14 @@ Then ``beavers/populate.py`` : ::
 Contact here). We could also, if we'd create a property type «is a veterinary»
 (for Contacts), set an additional constraint : ::
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
         )
 
 The created types of relationship cannot be deleted from the configuration UI
-(the argument ``is_custom`` of ``RelationType.create()`` is ``False`` by
-default), which is generally a good thing.
+(the argument ``is_custom`` of ``RelationType.objects.smart_update_or_create()``
+is ``False`` by default), which is generally a good thing.
 
 **Going a bit further** : in some cases, we want to control precisely the
 creation and the deletion of the relationships with a given type, because of
@@ -1282,7 +1282,7 @@ relationships. The solution is to declare these types as internal ;
 the generic creation and deletion views for relationships ignore these kind of
 types : ::
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
             is_internal=True,

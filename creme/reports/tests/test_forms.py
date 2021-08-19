@@ -951,7 +951,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
 
     def test_clean_rtype_error(self):
         model = FakeOrganisation
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving',   [FakeContact]),
             ('test-object_foobar',  'is loved by', [FakeContact]),
         )[0]
@@ -1404,7 +1404,7 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         "Relation."
         field = AbscissaField(abscissa_constraints=abscissa_constraints)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_likes', 'likes'),
             ('test-object_likes',  'is liked by'),
         )[0]

@@ -68,7 +68,7 @@ class Populator(BasePopulator):
         Document = get_document_model()
         Folder   = get_folder_model()
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_RELATED_2_DOC, _('related to the document')),
             (constants.REL_OBJ_RELATED_2_DOC, _('document related to'),      [Document])
         )

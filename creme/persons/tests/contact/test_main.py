@@ -643,7 +643,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET404(build_url(self.UNUSED_PK, REL_OBJ_EMPLOYED_BY))
         self.assertGET404(build_url(orga.id, 'IDONOTEXIST'))
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('persons-subject_test_rtype1', 'RType #1',     [Organisation]),
             ('persons-object_test_rtype1',  'Rtype sym #1', [Contact]),
@@ -675,7 +675,7 @@ class ContactTestCase(_BaseTestCase):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('persons-subject_test_linked', 'is the employee of the month at', [Contact]),
             ('persons-object_test_linked',  'has the employee of the month',   [Organisation]),
             is_internal=True,

@@ -9,7 +9,7 @@ from . import fake_constants, fake_custom_forms, fake_forms, fake_models
 
 # TODO: use fixture instead ?
 def populate():
-    create_rtype = RelationType.create
+    create_rtype = RelationType.objects.smart_update_or_create
     create_rtype(
         (
             fake_constants.FAKE_REL_SUB_EMPLOYED_BY,

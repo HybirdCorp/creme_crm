@@ -260,11 +260,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cute in her suit')
 
-        employed = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        employed = create_rtype(
             ('persons-subject_employed_by', 'is an employee of'),
             ('persons-object_employed_by',  'employs'),
         )[0]
-        loves = RelationType.create(
+        loves = create_rtype(
             ('test-subject_loving', 'is loving'),
             ('test-object_loving',  'is loved by')
         )[0]
@@ -395,7 +396,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         orga_name = 'Nerv'
         self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
 
-        employed = RelationType.create(
+        employed = RelationType.objects.smart_update_or_create(
             ('persons-subject_employed_by', 'is an employee of'),
             ('persons-object_employed_by',  'employs'),
         )[0]
@@ -504,7 +505,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         "Same Relation in fixed & dynamic fields at creation."
         user = self.login()
 
-        employed = RelationType.create(
+        employed = RelationType.objects.smart_update_or_create(
             ('persons-subject_employed_by', 'is an employee of'),
             ('persons-object_employed_by',  'employs'),
         )[0]
@@ -1080,7 +1081,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             creatable_models=[FakeContact, Document],  # Not Organisation
         )
 
-        employed = RelationType.create(
+        employed = RelationType.objects.smart_update_or_create(
             ('persons-subject_employed_by', 'is an employee of'),
             ('persons-object_employed_by',  'employs'),
         )[0]
@@ -1110,7 +1111,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         shinji = create_contact(first_name='Shinji', last_name='Ikari')
         gendo  = create_contact(first_name='Gendo',  last_name='Ikari')
 
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_loving', 'is loving'),
             ('test-object_loving',  'is loved by'),
         )[0]

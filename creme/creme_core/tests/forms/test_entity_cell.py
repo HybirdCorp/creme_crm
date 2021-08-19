@@ -557,7 +557,7 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
 
     def test_ok02(self):
         "All types of columns."
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]

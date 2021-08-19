@@ -941,7 +941,7 @@ class HistoryRenderTestCase(CremeTestCase):
         last_name = 'Miyazaki'
         hayao = FakeContact.objects.create(user=user, last_name=last_name)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employed', 'is employed'),
             ('test-object_employed', 'employs'),
         )[0]
@@ -1128,7 +1128,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_works', 'is employed'),
             ('test-object_works',  'employs'),
         )
@@ -1224,7 +1224,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_works', 'is employed'),
             ('test-object_works',  'employs'),
         )
@@ -1327,11 +1327,14 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
-        rtype1 = RelationType.create(
-            ('test-subject_works', 'is employed'), ('test-object_works', 'employs'),
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_works', 'is employed'),
+            ('test-object_works',  'employs'),
         )[0]
-        rtype2 = RelationType.create(
-            ('test-subject_pilot', 'is pilot for'), ('test-object_pilot', 'has pilot'),
+        rtype2 = create_rtype(
+            ('test-subject_pilot', 'is pilot for'),
+            ('test-object_pilot',  'has pilot'),
         )[0]
 
         create_rel = partial(

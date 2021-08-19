@@ -134,7 +134,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         # --
         ct = self.contact_ct
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]

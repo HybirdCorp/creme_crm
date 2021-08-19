@@ -125,7 +125,7 @@ class RelationTypeCreateForm(CremeForm):
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
         object_ctypes  = [ct.model_class() for ct in get_data('object_ctypes')]
 
-        return RelationType.create(
+        return RelationType.objects.smart_update_or_create(
             (
                 pk_subject,
                 get_data('subject_predicate'),

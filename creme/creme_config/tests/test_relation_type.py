@@ -164,16 +164,16 @@ class RelationTypeTestCase(CremeTestCase):
 
     def test_edit01(self):
         "Edit a not custom type => error."
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
-            is_custom=False
+            is_custom=False,
         )[0]
         self.assertGET404(self._build_edit_url(rt))
 
     def test_edit02(self):
         "Edit a custom type."
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=True,
@@ -208,7 +208,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
 
     def test_delete01(self):
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-subfoo', 'object_predicate'),
             is_custom=False,
@@ -216,7 +216,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertGET405(self.DEL_URL, data={'id': rt.id})
 
     def test_delete02(self):
-        rt, srt = RelationType.create(
+        rt, srt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-subfoo', 'object_predicate'),
             is_custom=True,
@@ -233,7 +233,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         super().setUp()
         self.login()
 
-        self.loves = RelationType.create(
+        self.loves = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]

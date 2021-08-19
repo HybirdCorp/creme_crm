@@ -1459,7 +1459,7 @@ class FieldGroupListTestCase(CremeTestCase):
         orga1 = create_orga(user=user, name="'Turtle's lair'")
         orga2 = create_orga(user=user, name="'April's apartment")
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_sensei', 'has sensei'),
             ('test-object_sensei', 'is the sensei of'),
@@ -1591,7 +1591,7 @@ class FieldGroupListTestCase(CremeTestCase):
         user = self.create_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_leads', 'leads'),
             ('test-object_leads',  'is lead by'),
         )[0]
@@ -1645,7 +1645,7 @@ class FieldGroupListTestCase(CremeTestCase):
         ptype = CremePropertyType.create(str_pk='test-prop_bad',  text='Is bad')
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_leads', 'leads', [], [ptype]),
             ('test-object_leads',  'is lead by'),
         )[0]

@@ -264,7 +264,7 @@ class ListViewTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Valentine')
 
         # Relation
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_piloted', 'is piloted by'),
             ('test-object_piloted',  'pilots'),
         )[0]
@@ -1894,7 +1894,7 @@ class ListViewTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_piloted', 'is piloted by'),
             ('test-object_piloted',  'pilots'),
         )[0]
@@ -1947,7 +1947,7 @@ class ListViewTestCase(ViewsTestCase):
         faye  = create_contact(first_name='Faye',  last_name='Spiegel')
         jet   = create_contact(first_name='Jet',   last_name='Black')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_piloted', 'is piloted by'),
             ('test-object_piloted',  'pilots'),
@@ -3298,7 +3298,7 @@ class ListViewTestCase(ViewsTestCase):
         "Beware to DISTINCT with filter on relationships."
         user = self.login(is_superuser=False)
 
-        pilots = RelationType.create(
+        pilots = RelationType.objects.smart_update_or_create(
             ('test-subject_pilots', 'pilots'),
             ('test-object_pilots',  'is piloted by'),
         )[0]

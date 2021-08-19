@@ -303,7 +303,7 @@ class CreationTestCase(ViewsTestCase):
         orga1 = create_orga(user=user, name='Bebop')
         orga2 = create_orga(user=user, name='Swordfish II')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),

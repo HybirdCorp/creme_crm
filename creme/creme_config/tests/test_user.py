@@ -356,7 +356,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "Internal relationships are forbidden."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('creme_config-subject_test_badrtype', 'Bad RType',     [Contact]),
             ('creme_config-object_test_badrtype',  'Bad RType sym', [Organisation]),
             is_internal=True,  # <==

@@ -516,7 +516,7 @@ class EntityCellTestCase(CremeTestCase):
     def test_relation(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]
@@ -656,7 +656,7 @@ class EntityCellTestCase(CremeTestCase):
         "Relationships."
         user = self.create_user()
 
-        create_rt = RelationType.create
+        create_rt = RelationType.objects.smart_update_or_create
         loved = create_rt(
             ('test-subject_love', 'Is loving'),
             ('test-object_love', 'Is loved by'),
@@ -719,7 +719,7 @@ class EntityCellTestCase(CremeTestCase):
             create_contact(first_name='Izana',   last_name='Shinatose'),
         ]
 
-        loved = RelationType.create(
+        loved = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love', 'Is loved by'),
         )[1]

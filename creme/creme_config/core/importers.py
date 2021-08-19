@@ -729,7 +729,7 @@ class RelationTypesImporter(Importer):
     def save(self):
         for data in self._data:
             sym_data = data['symmetric']
-            RelationType.create(
+            RelationType.objects.smart_update_or_create(
                 (
                     data['id'],
                     data['predicate'],

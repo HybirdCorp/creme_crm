@@ -90,25 +90,25 @@ class _JSONFieldBaseTestCase(FieldTestCase):
         if isinstance(object_ptypes, CremePropertyType):
             object_ptypes = (object_ptypes,)
 
-        return RelationType.create(
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'is loving', (), subject_ptypes),
             ('test-object_loves',  'loved by',  (), object_ptypes),
         )
 
     def create_hates_rtype(self):
-        return RelationType.create(
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_hates', 'is hating'),
             ('test-object_hates',  'hated by'),
         )
 
     def create_employed_rtype(self):
-        return RelationType.create(
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'is an employee of', [FakeContact]),
             ('test-object_employed_by',  'employs',           [FakeOrganisation]),
         )
 
     def create_customer_rtype(self):
-        return RelationType.create(
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_customer', 'is a customer of', [FakeContact, FakeOrganisation]),
             ('test-object_customer',  'is a supplier of', [FakeContact, FakeOrganisation]),
         )
@@ -1125,7 +1125,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.create(
+        rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_friend', 'is friend of'),
             ('test-object_friend', 'has friend'),
         )[0]
@@ -1143,7 +1143,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.create(
+        rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_friend', 'is friend of'),
             ('test-object_friend', 'has friend'),
         )[0]
@@ -1464,7 +1464,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.create(
+        rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_friend', 'is friend of'),
             ('test-object_friend', 'has friend'),
         )[0]
@@ -1487,7 +1487,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         rtype1 = self.create_loves_rtype()[0]
         rtype2 = self.create_hates_rtype()[0]
-        rtype3 = RelationType.create(
+        rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_friend', 'is friend of'),
             ('test-object_friend', 'has friend'),
         )[0]

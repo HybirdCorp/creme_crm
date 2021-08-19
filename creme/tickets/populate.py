@@ -66,7 +66,7 @@ class Populator(BasePopulator):
         Ticket = get_ticket_model()
         TicketTemplate = get_tickettemplate_model()
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_LINKED_2_TICKET, _('is linked to the ticket')),
             (constants.REL_OBJ_LINKED_2_TICKET, _('(ticket) linked to the entity'), [Ticket]),
         )

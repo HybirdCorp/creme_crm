@@ -97,7 +97,7 @@ class Populator(BasePopulator):
 
         # Relationships ---------------------------
         line_entities = [*lines_registry]
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
             (constants.REL_SUB_BILL_ISSUED, _('issued by'),  BILLING_MODELS),
             (constants.REL_OBJ_BILL_ISSUED, _('has issued'), [Organisation]),

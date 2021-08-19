@@ -203,19 +203,20 @@ class GraphHandConstraintsTestCase(CremeTestCase):
     def test_relationship(self):
         constraint = GHCCRelation(model=FakeContact)
 
-        rtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
             ('test-subject_likes', 'likes'),
             ('test-object_likes',  'is liked by'),
         )[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype1)))
 
-        rtype2 = RelationType.create(
+        rtype2 = create_rtype(
             ('test-subject_loves', 'is loving',   [FakeContact]),
             ('test-object_loves',  'is loved by', [FakeContact]),
         )[0]
         self.assertTrue(constraint.check_cell(EntityCellRelation(FakeContact, rtype2)))
 
-        rtype3 = RelationType.create(
+        rtype3 = create_rtype(
             ('test-subject_branch', 'has branch',     [FakeOrganisation]),
             ('test-object_branch',  'is a branch of', [FakeOrganisation]),
         )[0]

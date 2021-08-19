@@ -105,14 +105,14 @@ class HeaderFiltersTestCase(CremeTestCase):
         "With cells."
         user = self.create_user()
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         loves = create_rtype(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )[0]
         likes = create_rtype(
             ('test-subject_like', 'Is liking'),
-            ('test-object_like',  'Is liked by')
+            ('test-object_like',  'Is liked by'),
         )[0]
 
         hf = HeaderFilter.objects.create_if_needed(

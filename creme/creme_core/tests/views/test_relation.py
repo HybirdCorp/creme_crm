@@ -37,7 +37,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "No sort."
         self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject__JSP01_3', 'is a customer of', [FakeContact]),
             ('test-object__JSP01_4',  'is a supplier of', [FakeContact, FakeOrganisation]),
         )[0]
@@ -63,7 +63,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_get_ctypes_of_relation02(self):
         self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
             ('test-object_foobar1',  'is loved by'),
         )[0]
@@ -83,7 +83,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "'sort' argument."
         self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'foo'),
             ('test-object_foobar',  'bar', [FakeImage, FakeContact]),
         )[0]
@@ -120,11 +120,12 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.ct_id = ContentType.objects.get_for_model(CremeEntity).id
 
-        self.rtype01 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        self.rtype01 = create_rtype(
             ('test-subject_foobar1', 'is loving'),
             ('test-object_foobar1',  'is loved by'),
         )[0]
-        self.rtype02 = RelationType.create(
+        self.rtype02 = create_rtype(
             ('test-subject_foobar2', 'is hating'),
             ('test-object_foobar2',  'is hated by'),
         )[0]
@@ -297,7 +298,7 @@ class RelationViewsTestCase(ViewsTestCase):
         create_prop(type=ptype02)
 
         # Constraint KO & OK
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype03 = create_rtype(
             ('test-subject_foobar3', 'rules', [FakeContact], [ptype01, ptype03]),
             ('test-object_foobar3',  'is ruled by'),
@@ -359,7 +360,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self.subject01
 
         # Constraint OK & KO
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype03 = create_rtype(
             ('test-subject_foobar3', 'is hating orga',     [FakeContact]),
             ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
@@ -536,7 +537,7 @@ class RelationViewsTestCase(ViewsTestCase):
         CremeProperty.objects.create(type=ptype02, creme_entity=subject)
 
         # Constraint OK & KO
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype03 = create_rtype(
             ('test-subject_foobar3', 'rules', [FakeContact], [ptype01]),
             ('test-object_foobar3',  'is ruled by'),
@@ -662,7 +663,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Internal type => error."
         user = self.login()
         subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
             ('test-object_foobar1',  'is loved by'),
             is_internal=True,
@@ -683,7 +684,7 @@ class RelationViewsTestCase(ViewsTestCase):
         create_prop(type=ptype1)
         create_prop(type=ptype2)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
             ('test-object_foobar1',  'is hired by'),
         )[0]
@@ -695,7 +696,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = FakeContact.objects.create(
             user=user, first_name='Laharl', last_name='Overlord',
         )
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
             ('test-object_foobar1',  'is hired by'),
         )[0]
@@ -722,7 +723,7 @@ class RelationViewsTestCase(ViewsTestCase):
         create_prop(type=ptype1)
         create_prop(type=ptype3)  # Not ptype2 !
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
             ('test-object_foobar1',  'is hired by'),
         )[0]
@@ -981,7 +982,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.ct_contact = ContentType.objects.get_for_model(FakeContact)
 
-        self.rtype = RelationType.create(
+        self.rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving',   [FakeContact]),
             ('test-object_foobar',  'is loved by', [FakeContact]),
         )[0]
@@ -1052,7 +1053,7 @@ class RelationViewsTestCase(ViewsTestCase):
         create_property(type=ptype01, creme_entity=contact04)
         create_property(type=ptype02, creme_entity=contact04)
 
-        rtype, sym_rtype = RelationType.create(
+        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loving', 'is loving',   [FakeContact]),
             ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02]),
         )
@@ -1075,7 +1076,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = CremeEntity.objects.create(user=self.user)
         ct = ContentType.objects.get_for_model(FakeContact)
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving',   [FakeContact]),
             ('test-object_foobar',  'is loved by', [FakeContact]),
             is_internal=True,
@@ -1095,7 +1096,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.subject  = create_entity()
         self.object01 = create_entity()
         self.object02 = create_entity()
-        self.rtype = RelationType.create(
+        self.rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -1193,7 +1194,7 @@ class RelationViewsTestCase(ViewsTestCase):
         allowed01 = create_entity(user=user)
         allowed02 = create_entity(user=user)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -1238,7 +1239,7 @@ class RelationViewsTestCase(ViewsTestCase):
         contact01 = create_contact(first_name='John', last_name='Doe')
         contact02 = create_contact(first_name='Joe',  last_name='Gohn')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'manages',       [FakeContact]),
             ('test-object_foobar',  'is managed by', [FakeOrganisation]),
         )[0]
@@ -1282,7 +1283,7 @@ class RelationViewsTestCase(ViewsTestCase):
         CremeProperty.objects.create(type=subject_ptype, creme_entity=good_subject)
         CremeProperty.objects.create(type=object_ptype, creme_entity=good_object)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'manages',       [], [subject_ptype]),
             ('test-object_foobar',  'is managed by', [], [object_ptype])
         )[0]
@@ -1317,7 +1318,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject  = create_entity()
         object01 = create_entity()
         object02 = create_entity()
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
             is_internal=True,
@@ -1345,7 +1346,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject_entity = create_entity()
         object_entity  = create_entity()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -1366,7 +1367,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -1388,7 +1389,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject_entity = create_entity()
         object_entity  = create_entity()
 
-        rtype, sym_rtype = RelationType.create(
+        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
             is_internal=True,
@@ -1428,7 +1429,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject_entity02 = create_entity()
         object_entity02  = create_entity()
 
-        create_rt = RelationType.create
+        create_rt = RelationType.objects.smart_update_or_create
         rtype01 = create_rt(
             ('test-subject_love', 'is loving'),
             ('test-object_love',  'is loved by'),
@@ -1478,7 +1479,7 @@ class RelationViewsTestCase(ViewsTestCase):
         allowed   = CremeEntity.objects.create(user=user)
         forbidden = CremeEntity.objects.create(user=self.other_user)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'is loving'),
             ('test-object_love',  'is loved by'),
         )[0]
@@ -1501,7 +1502,7 @@ class RelationViewsTestCase(ViewsTestCase):
         subject_entity = create_entity()
         object_entity  = create_entity()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'is loving'),
             ('test-object_love', 'is loved by'),
             is_internal=True,
@@ -1521,12 +1522,12 @@ class RelationViewsTestCase(ViewsTestCase):
         user = self.login()
 
         self.assertEqual(0, Relation.objects.count())
-        rtype1, rtype2 = RelationType.create(
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
             is_copiable=False,
         )
-        rtype3, rtype4 = RelationType.create(
+        rtype3, rtype4 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar_copiable', 'is loving'),
             ('test-object_foobar_copiable',  'is loved by'),
         )
@@ -1554,7 +1555,7 @@ class RelationViewsTestCase(ViewsTestCase):
         user = self.login()
         self.assertEqual(0, Relation.objects.count())
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1, rtype2 = create_rtype(
             ('test-subject_foobar_copiable', 'is loving',   [FakeContact, FakeOrganisation]),
             ('test-object_foobar_copiable',  'is loved by', [FakeContact]),

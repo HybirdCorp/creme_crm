@@ -25,7 +25,7 @@ class HistoryConfigTestCase(CremeTestCase):
     def test_add01(self):
         self.assertFalse(HistoryConfigItem.objects.exists())
 
-        create_rt = RelationType.create
+        create_rt = RelationType.objects.smart_update_or_create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
@@ -45,7 +45,7 @@ class HistoryConfigTestCase(CremeTestCase):
 
     def test_add02(self):
         "No duplicates"
-        create_rt = RelationType.create
+        create_rt = RelationType.objects.smart_update_or_create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
 
@@ -55,13 +55,16 @@ class HistoryConfigTestCase(CremeTestCase):
         response = self.client.post(self.ADD_URL, data={'relation_types': rtype_ids})
         self.assertFormError(
             response, 'form', field='relation_types',
-            errors=_('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': rtype01.id,
-            },
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': rtype01.id},
         )
 
     def test_delete(self):
-        rtype = RelationType.create(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'fooes'),
+            ('test-object_foo', 'fooed'),
+        )[0]
         hci = HistoryConfigItem.objects.create(relation_type=rtype)
 
         self.assertPOST200(reverse('creme_config__remove_history_config'), data={'id': hci.id})

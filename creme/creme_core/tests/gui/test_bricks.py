@@ -384,7 +384,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
         brick_registry = _BrickRegistry()
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loved', 'is loved by'),
         )[0]
@@ -446,7 +446,7 @@ class BrickRegistryTestCase(CremeTestCase):
 
     def test_get_compatible_bricks02(self):
         "SpecificRelationsBrick."
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loved', 'is loved by'),
@@ -718,7 +718,7 @@ class BrickRegistryTestCase(CremeTestCase):
             id_ = SimpleBrick.generate_id('creme_core', 'BrickRegistryTestCase__test_get_bricks_2')
             verbose_name = 'Testing purpose #1'
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loved', 'is loved by'),
         )[0]
@@ -1011,13 +1011,13 @@ class BricksManagerTestCase(CremeTestCase):
     def test_manage03(self):
         "Relation bricks."
         rtype1_pk = 'test-subject_loves'
-        rtype1, srtype1 = RelationType.create(
+        rtype1, srtype1 = RelationType.objects.smart_update_or_create(
             (rtype1_pk,           'loves'),
             ('test-object_loved', 'is loved by'),
         )
 
         rtype2_pk = 'test-subject_follows'
-        rtype2, srtype2 = RelationType.create(
+        rtype2, srtype2 = RelationType.objects.smart_update_or_create(
             (rtype2_pk,              'follow'),
             ('test-object_followed', 'is followed by'),
         )
@@ -1178,7 +1178,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_custom_brick02(self):
         "Relation + dependencies."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employs', 'employs'),
             ('test-object_employs', 'is employed by'),
         )[0]
@@ -1400,7 +1400,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_specific_relations_brick01(self):
         predicate = 'loves'
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', predicate),
             ('test-object_loved', 'is loved by'),
         )[0]
@@ -1417,7 +1417,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_specific_relations_brick02(self):
         "ContentType constraints."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves', [FakeOrganisation, FakeContact]),
             ('test-object_loved', 'is loved by'),
         )[0]

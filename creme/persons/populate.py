@@ -120,7 +120,7 @@ class Populator(BasePopulator):
                 (constants.REL_OBJ_COMPETITOR, _('has as competitor'),  [Contact, Organisation]),
             ),
         ]:
-            rt, sym_rt = RelationType.create(*rt_info)
+            rt, sym_rt = RelationType.objects.smart_update_or_create(*rt_info)
             rt_map[rt.id] = rt
             rt_map[sym_rt.id] = sym_rt
 

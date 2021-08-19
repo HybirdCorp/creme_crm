@@ -1094,9 +1094,9 @@ class SearchFieldsTestCase(CremeTestCase):
 
     def test_relationfield(self):
         user = self.user
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_trains', 'trains'),
-            ('test-object_trains',  'trained by')
+            ('test-object_trains',  'trained by'),
         )[1]
 
         create_contact = partial(FakeContact.objects.create, user=user)

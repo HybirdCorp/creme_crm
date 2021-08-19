@@ -221,7 +221,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             (
                 'commercial-subject_test_segment_delete',
                 'has produced',
@@ -348,7 +348,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         orga = Organisation.objects.create(user=user, name='NHK')
         prop = CremeProperty.objects.create(creme_entity=orga, type=old_ptype)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             (
                 'commercial-subject_test_segment_delete7',
                 'has produced',

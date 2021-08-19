@@ -1347,7 +1347,7 @@ class BillingDeleteTestCase(_BillingTestCaseMixin, CremeTransactionTestCase):
 
         # This relation prohibits the deletion of the invoice
         ce = CremeEntity.objects.create(user=user)
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_linked', 'is linked to'),
             ('test-object_linked',  'is linked to'),
             is_internal=True,

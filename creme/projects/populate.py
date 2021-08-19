@@ -69,7 +69,7 @@ class Populator(BasePopulator):
         Project     = get_project_model()
         ProjectTask = get_task_model()
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
             (
                 constants.REL_SUB_PROJECT_MANAGER,

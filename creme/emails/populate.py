@@ -73,15 +73,16 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        create_rtype(
             (constants.REL_SUB_MAIL_RECEIVED, _('(email) received by'),  [EntityEmail]),
             (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]),
         )
-        RelationType.create(
+        create_rtype(
             (constants.REL_SUB_MAIL_SENDED,   _('(email) sent by'),      [EntityEmail]),
             (constants.REL_OBJ_MAIL_SENDED,   _('sent the email'),       [Organisation, Contact]),
         )
-        RelationType.create(
+        create_rtype(
             (constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),
             (constants.REL_OBJ_RELATED_TO,    _('related to the email'), []),
         )

@@ -60,7 +60,7 @@ class Populator(BasePopulator):
         Contact = get_contact_model()
         Opportunity = get_opportunity_model()
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         create_rtype(
             (constants.REL_SUB_IS_INVITED_TO, _('is invited to the event'), [Contact]),
             (constants.REL_OBJ_IS_INVITED_TO, _('has invited'),             [Event]),
