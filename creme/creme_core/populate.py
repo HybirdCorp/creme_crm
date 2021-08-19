@@ -53,7 +53,7 @@ class Populator(BasePopulator):
         if not CaseSensitivity.objects.exists():
             CaseSensitivity.objects.create(text='CasE')
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS, _('owns')),
             (constants.REL_OBJ_HAS, _('belongs to')),
         )

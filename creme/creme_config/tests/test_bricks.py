@@ -767,7 +767,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
         )[0]
@@ -1635,7 +1635,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_relationbrick(self):
         self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
         )[0]
@@ -1658,7 +1658,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_add_relationbrick_ctypes_wizard01(self):
         self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'Subject predicate'),
             ('test-objfoo', 'Object predicate', [FakeContact, FakeOrganisation, FakeActivity]),
         )[0]
@@ -1756,7 +1756,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_add_relationbrick_ctypes_wizard02(self):
         "ContentType constraint."
         self.login()
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate', [FakeContact]),
             ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
         )[0]
@@ -1792,7 +1792,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_add_relationbrick_ctypes_wizard03(self):
         "Go back."
         self.login()
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
             ('test-objfoo', 'object_predicate',  [FakeContact]),
         )[0]
@@ -1829,7 +1829,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_relationbrick_ctypes01(self):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
         )[0]
@@ -1886,7 +1886,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=RelationType.create(
+            relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
             )[0],
@@ -1921,7 +1921,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=RelationType.create(
+            relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
             )[0],
@@ -1947,7 +1947,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_relationbrick_ctypes04(self):
         "Validation errors with Relation."
         self.login()
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rt1 = create_rtype(
             ('test-subfoo', 'subject_predicate1'),
             ('test-objfoo', 'object_predicate2'),
@@ -1977,7 +1977,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "With FieldsConfig."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
         )[0]
@@ -2033,7 +2033,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         rb_item = RelationBrickItem(
             brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=RelationType.create(
+            relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
             )[0],
@@ -2052,7 +2052,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_delete_relationbrick01(self):
         user = self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
@@ -2074,7 +2074,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_relationbrick02(self):
         "Cannot delete because it is used."
         self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
@@ -2158,7 +2158,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
 
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]

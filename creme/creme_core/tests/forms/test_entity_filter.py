@@ -2100,12 +2100,12 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         super().setUp()
 
-        create = RelationType.create
-        self.rtype01, self.rtype02 = create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        self.rtype01, self.rtype02 = create_rtype(
             ('test-subject_love', 'Is loving', [FakeContact]),
             ('test-object_love',  'Is loved by'),
         )
-        self.rtype03, self.srtype04 = create(
+        self.rtype03, self.srtype04 = create_rtype(
             ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
             ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation]),
         )
@@ -2340,14 +2340,14 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         super().setUp()
 
-        create = RelationType.create
-        self.rtype01, self.rtype02 = create(
+        create_rtyep = RelationType.objects.smart_update_or_create
+        self.rtype01, self.rtype02 = create_rtyep(
             ('test-subject_love', 'Is loving', [FakeContact]),
             ('test-object_love',  'Is loved by'),
         )
-        self.rtype03, self.srtype04 = create(
+        self.rtype03, self.srtype04 = create_rtyep(
             ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
-            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation])
+            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation]),
         )
 
         create_efilter = partial(

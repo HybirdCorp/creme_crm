@@ -78,7 +78,7 @@ class Populator(BasePopulator):
         Service = products.get_service_model()
 
         # ---------------------------
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rt_sub_targets = create_rtype(
             (
                 constants.REL_SUB_TARGETS,

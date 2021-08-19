@@ -703,7 +703,7 @@ class ListViewSearchTestCase(CremeTestCase):
         class MyRelationField(lv_form.ListViewSearchField):
             pass
 
-        rtype2 = RelationType.create(
+        rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loved',  'is loved by'),
         )[0]

@@ -75,7 +75,7 @@ class Populator(BasePopulator):
         Product = products.get_product_model()
         Service = products.get_service_model()
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_SOLD, _('has sold'),         [Contact, Organisation]),
             (constants.REL_OBJ_SOLD, _('has been sold by'), [Product, Service]),
         )
@@ -90,7 +90,7 @@ class Populator(BasePopulator):
             complete_goal_models.discard(billing.get_template_base_model())
             complete_goal_models.difference_update(lines_registry)
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (
                 constants.REL_SUB_COMPLETE_GOAL,
                 _('completes a goal of the commercial action'),

@@ -99,7 +99,7 @@ class MergeViewsTestCase(ViewsTestCase):
         "2 (fake) Organisations, some relationships duplicates."
         user = self.login()
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype01 = create_rtype(
             ('test-subject_member', 'is a member of',  [FakeContact]),
             ('test-object_member',  'has as a member', [FakeOrganisation]),
@@ -446,7 +446,7 @@ class MergeViewsTestCase(ViewsTestCase):
         "No relationships duplicates."
         user = self.login()
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype = create_rtype(
             ('test-subject_member', 'is a member of',  [FakeContact]),
             ('test-object_member',  'has as a member', [FakeOrganisation]),

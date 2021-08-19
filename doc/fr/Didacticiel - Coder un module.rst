@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 30-04-2021 pour la version 2.3 de Creme
+:Version: 19-08-2021 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1286,7 +1286,7 @@ Puis ``beavers/populate.py`` : ::
 
         Contact = persons.get_contact_model()
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
         )
@@ -1296,14 +1296,15 @@ Puis ``beavers/populate.py`` : ::
 (Beaver et Contact en l'occurrence). Nous pourrions aussi, si on créait un type de propriété
 «est un vétérinaire» (pour les Contacts), mettre une contrainte supplémentaire : ::
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact], [VeterinaryPType]),
         )
 
 Les types de relations créés ne sont pas supprimables via l'interface de
-configuration (l'argument ``is_custom`` de ``RelationType.create()`` étant par
-défaut à ``False``), ce qui est généralement ce qu'on veut.
+configuration (l'argument ``is_custom`` de
+``RelationType.objects.smart_update_or_create()`` étant par défaut à ``False``),
+ce qui est généralement ce qu'on veut.
 
 **Allons un peu loin** : dans certain cas, on veut contrôler finement la
 création et la suppression des relations ayant un certain type, à cause de
@@ -1313,7 +1314,7 @@ supprimer ces relations là. La solution consiste à déclarer ces types comme
 internes ; les vues de création et de suppression génériques des relations
 ignorent alors ces types : ::
 
-        RelationType.create(
+        RelationType.objects.smart_update_or_create(
             (constants.REL_SUB_HAS_VET, _('has veterinary'),       [Beaver]),
             (constants.REL_OBJ_HAS_VET, _('is the veterinary of'), [Contact]),
             is_internal=True,

@@ -2423,7 +2423,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_init01(self):
         user = self.create_user()
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by')
         )[0]
@@ -2499,7 +2499,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_init02(self):
         "Pass an instance of RelationType."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]
@@ -2663,7 +2663,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "Build condition."
         user = self.create_user()
 
-        loves, loved = RelationType.create(
+        loves, loved = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -2738,7 +2738,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "get_q() not empty."
         user = self.create_user()
 
-        loves, loved = RelationType.create(
+        loves, loved = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -2810,9 +2810,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_accept(self):
         user = self.create_user()
-        loves = RelationType.create(
+        loves = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )[0]
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -2868,7 +2868,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_relation_description01(self):
         user = self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]
@@ -2915,7 +2915,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_relation_description02(self):
         user = self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_like', 'Is liking'),
             ('test-object_like',  'Is liked by'),
         )[0]
@@ -2966,7 +2966,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "Credentials."
         user = self.login(is_superuser=False)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]
@@ -3000,7 +3000,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler1.description(user))
 
         # ---
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_like', 'Is liking'),
             ('test-object_like',  'Is liked by'),
         )[0]
@@ -3301,9 +3301,9 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_subfilter_init03(self):
         "Pass a RelationType instance."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )[0]
 
         handler = RelationSubFilterConditionHandler(
@@ -3395,7 +3395,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
 
     def test_relation_subfilter_condition(self):
         "Build condition."
-        loves, loved = RelationType.create(
+        loves, loved = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -3473,7 +3473,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         "get_q() not empty."
         user = self.create_user()
 
-        loves, loved = RelationType.create(
+        loves, loved = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
@@ -3523,7 +3523,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
     def test_relation_subfilter_description01(self):
         user = self.create_user()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]
@@ -3587,7 +3587,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual('???', handler1.description(user))
 
         # ---
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )[0]

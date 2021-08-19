@@ -27,8 +27,7 @@ class RelationsTestCase(CremeTestCase):
         super().setUp()
         self.user = get_user_model().objects.create(username='name')
 
-    def test_relation01(self):
-        user = self.user
+    def test_relation_type_create(self):  # DEPRECATED
         subject_pred = 'is loving'
         object_pred  = 'is loved by'
 
@@ -38,6 +37,26 @@ class RelationsTestCase(CremeTestCase):
                 ('test-object_foobar',  object_pred),
             )
 
+        self.assertEqual(rtype1.symmetric_type, rtype2)
+        self.assertEqual(rtype2.symmetric_type, rtype1)
+        self.assertEqual(rtype1.predicate,      subject_pred)
+        self.assertEqual(rtype2.predicate,      object_pred)
+
+    def test_relation01(self):
+        user = self.user
+        subject_id = 'test-subject_foobar'
+        subject_pred = 'is loving'
+        object_id = 'test-object_foobar'
+        object_pred  = 'is loved by'
+
+        with self.assertNoException():
+            rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+                (subject_id, subject_pred),
+                (object_id,  object_pred),
+            )
+
+        self.assertEqual(rtype1.id,             subject_id)
+        self.assertEqual(rtype2.id,             object_id)
         self.assertEqual(rtype1.symmetric_type, rtype2)
         self.assertEqual(rtype2.symmetric_type, rtype1)
         self.assertEqual(rtype1.predicate,      subject_pred)
@@ -58,7 +77,7 @@ class RelationsTestCase(CremeTestCase):
 
     def test_relation02(self):
         "BEWARE: don't do this ! Bad usage of Relations."
-        rtype1, rtype2 = RelationType.create(
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )
@@ -98,7 +117,7 @@ class RelationsTestCase(CremeTestCase):
         )
 
     def test_delete_rtype(self):
-        rtype1, rtype2 = RelationType.create(
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )
@@ -119,7 +138,7 @@ class RelationsTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype = create_rtype(
             ('test-subject_foobar', 'manages',       [FakeContact]),
             ('test-object_foobar',  'is managed by', [FakeOrganisation]),
@@ -163,7 +182,7 @@ class RelationsTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype = create_rtype(
             ('test-subject_foobar', 'manages',       [FakeContact]),
             ('test-object_foobar',  'is managed by', [FakeOrganisation]),
@@ -186,7 +205,7 @@ class RelationsTestCase(CremeTestCase):
         orig_compat_ids = self.build_compatible_set()
         orig_internal_compat_ids = self.build_compatible_set(include_internals=True)
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype, sym_rtype = create_rtype(
             ('test-subject_foobar', 'manages'),
             ('test-object_foobar',  'is managed by'),
@@ -212,7 +231,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertTrue(rtype.is_compatible(self.contact_ct.id))
 
     def test_manager_safe_create(self):
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )
@@ -241,7 +260,7 @@ class RelationsTestCase(CremeTestCase):
             )
 
     def test_manager_safe_get_or_create01(self):
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )
@@ -272,7 +291,7 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_get_or_create02(self):
         "Give user ID (not user instance)"
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )
@@ -303,11 +322,12 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save01(self):
         "Create several relation."
-        rtype1, srtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1, srtype1 = create_rtype(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )
-        rtype2, srtype2 = RelationType.create(
+        rtype2, srtype2 = create_rtype(
             ('test-subject_foobar', 'loves'),
             ('test-object_foobar',  'is loved by'),
         )
@@ -338,7 +358,7 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save02(self):
         "De-duplicates arguments."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'challenges'),
             ('test-object_foobar',  'is challenged by'),
         )[0]
@@ -365,11 +385,12 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save03(self):
         "Avoid creating existing relations."
-        rtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )[0]
-        rtype2 = RelationType.create(
+        rtype2 = create_rtype(
             ('test-subject_foobar', 'loves'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -412,11 +433,12 @@ class RelationsTestCase(CremeTestCase):
 
     def test_manager_safe_multi_save05(self):
         "Argument <check_existing>."
-        rtype1, srtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1, srtype1 = create_rtype(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
         )
-        rtype2, srtype2 = RelationType.create(
+        rtype2, srtype2 = create_rtype(
             ('test-subject_foobar', 'loves'),
             ('test-object_foobar',  'is loved by'),
         )

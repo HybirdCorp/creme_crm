@@ -68,7 +68,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             for name in ('Bebop', 'Swordfish')
         }
 
-        rtype_pilots = RelationType.create(
+        rtype_pilots = RelationType.objects.smart_update_or_create(
             ('test-subject_pilots', 'pilots'),
             ('test-object_pilots',  'is piloted by'),
         )[0]

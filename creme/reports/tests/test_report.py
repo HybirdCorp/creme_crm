@@ -250,7 +250,7 @@ class ReportTestCase(BaseReportsTestCase):
 
         self.assertEqual((), columns_f.initial)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
         )[0]
@@ -1915,7 +1915,7 @@ class ReportTestCase(BaseReportsTestCase):
         contact_report = Report.objects.create(
             user=user, ct=self.ct_contact, name='Report on contacts',
         )
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('reports-subject_obeys',   'obeys to'),
             ('reports-object_commands', 'commands'),
         )[0]

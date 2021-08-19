@@ -1070,7 +1070,7 @@ about this fantastic animation studio."""
             user=user.id, first_name=first_name, last_name=last_name,
         )
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employed', 'is employed'),
             ('test-object_employed', 'employs'),
         )[0]
@@ -1111,7 +1111,7 @@ about this fantastic animation studio."""
         )
         self.assertNotEqual(hayao.modified, ghibli.modified)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employed', 'is employed'),
             ('test-object_employed', 'employs'),
         )[0]
@@ -1156,7 +1156,7 @@ about this fantastic animation studio."""
         ghibli = self.create_old(FakeOrganisation, user=user, name='Ghibli')
         img = FakeImage.objects.create(user=user, name='Museum image')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_related_img', '(image) is used by'),
             ('test-object_related_img',  'has related image'),
         )[0]
@@ -1329,7 +1329,7 @@ about this fantastic animation studio."""
 
         old_count = HistoryLine.objects.count()
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_works4', 'is employed'),
             ('test-object_works4',  'employs'),
         )
@@ -1379,7 +1379,7 @@ about this fantastic animation studio."""
         rei  = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         olds_ids = [*HistoryLine.objects.values_list('id', flat=True)]
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_works5', 'is employed'),
             ('test-object_works5',  'employs'),
         )
@@ -1406,7 +1406,7 @@ about this fantastic animation studio."""
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         old_count = HistoryLine.objects.count()
 
-        rtype, srtype = RelationType.create(
+        rtype, srtype = RelationType.objects.smart_update_or_create(
             ('test-subject_works4', 'is employed'),
             ('test-object_works4',  'employs'),
         )
@@ -1958,7 +1958,7 @@ about this fantastic animation studio."""
             user=user, first_name='Hayao', last_name='Miyazaki',
         )
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employed', 'is employed'),
             ('test-object_employed', 'employs'),
         )[0]
@@ -2047,7 +2047,7 @@ about this fantastic animation studio."""
         )
         ghibli = FakeOrganisation.objects.create(user=user, name='Ghibli')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_delline_works', 'is employed'),
             ('test-object_delline_works',  'employs'),
         )[0]
@@ -2141,7 +2141,7 @@ about this fantastic animation studio."""
         rei   = create_contact(first_name='Rei',   last_name='Ayanami')
         asuka = create_contact(first_name='Asuka', last_name='Langley')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employs', 'employs'),
             ('test-object_employs',  'is employed'),
         )[0]
@@ -2183,7 +2183,7 @@ about this fantastic animation studio."""
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_employs', 'employs'),
             ('test-object_employs',  'is employed'),
         )[0]

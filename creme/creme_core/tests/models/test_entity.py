@@ -95,7 +95,7 @@ class EntityTestCase(CremeTestCase):
         )
 
     def _build_rtypes_n_ptypes(self):
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         self.rtype1, self.rtype2 = create_rtype(
             ('test-subject_loving', 'is loving'),
             ('test-object_loving',  'is loved by'),

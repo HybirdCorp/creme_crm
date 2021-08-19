@@ -480,7 +480,7 @@ class EntityFiltersTestCase(CremeTestCase):
         ))
 
         ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
-        hates = RelationType.create(
+        hates = RelationType.objects.smart_update_or_create(
             ('test-subject_hate', 'Is hating'),
             ('test-object_hate',  'Is hated by'),
         )[0]
@@ -2146,12 +2146,13 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
     def _aux_test_relations(self):
-        self.loves, self.loved = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        self.loves, self.loved = create_rtype(
             ('test-subject_love', 'Is loving'),
             ('test-object_love',  'Is loved by'),
         )
 
-        self.hates, self.hated = RelationType.create(
+        self.hates, self.hated = create_rtype(
             ('test-subject_hate', 'Is hating'),
             ('test-object_hate',  'Is hated by'),
         )

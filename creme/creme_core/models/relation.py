@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
+import warnings
 from collections import defaultdict
 from typing import Iterable, Tuple, Type, Union
 
@@ -55,6 +55,121 @@ class RelationTypeManager(models.Manager):
             types = types.filter(Q(is_internal=False))
 
         return types
+
+    @atomic
+    def smart_update_or_create(
+        self,
+        subject_desc: tuple,
+        object_desc: tuple,
+        *,
+        generate_pk: bool = False,
+        is_custom: bool = False,
+        is_internal: bool = False,
+        is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
+        minimal_display: Tuple[bool, bool] = (False, False),
+    ) -> Tuple['RelationType', 'RelationType']:
+        """Create or update 2 symmetric RelationTypes, with their constraints.
+        @param subject_desc: Tuple describing the subject RelationType instance
+               (
+                string_pk, predicate_string
+                [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]]
+               )
+               'string_pk' is used as ID value (or it's prefix -- see generate_pk).
+               'predicate_string' is used as <RelationType.predicate>.
+               'sequence_of_cremeEntityClasses' is used to fill <RelationType.subject_ctypes>.
+               'sequence_of_propertyTypes' is used to fill <RelationType.subject_properties>.
+        @param object_desc: Tuple describing the object RelationType instance ;
+               see 'subject_desc'.
+        @param generate_pk: If True, 'string_pk' args are used as prefix to
+               generate the Primary Keys.
+        @param is_custom: Value of <RelationType.is_custom> in the created
+               instances (same value for the both).
+        @param is_internal: Value of <RelationType.is_internal> in the created
+               instances (same value for the both).
+        @param is_copiable: Values of <RelationType.is_internal> in the created
+               instances.
+        @param minimal_display: Values of <RelationType.is_internal> in the
+               created instances.
+        """
+        # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
+        padding = ((), ())
+
+        subject_desc += padding
+        object_desc  += padding
+
+        if isinstance(is_copiable, bool):
+            is_copiable = (is_copiable, is_copiable)
+
+        pk_subject   = subject_desc[0]
+        pk_object    = object_desc[0]
+        pred_subject = subject_desc[1]
+        pred_object  = object_desc[1]
+
+        if not generate_pk:
+            update_or_create = self.update_or_create
+            defaults = {'is_custom': is_custom, 'is_internal': is_internal}
+            sub_relation_type = update_or_create(
+                id=pk_subject,
+                defaults={
+                    **defaults,
+                    'predicate': pred_subject,
+                    'is_copiable': is_copiable[0],
+                    'minimal_display': minimal_display[0],
+                },
+            )[0]
+            obj_relation_type = update_or_create(
+                id=pk_object,
+                defaults={
+                    **defaults,
+                    'predicate': pred_object,
+                    'is_copiable': is_copiable[1],
+                    'minimal_display': minimal_display[1],
+                },
+            )[0]
+        else:
+            from creme.creme_core.utils.id_generator import (
+                generate_string_id_and_save,
+            )
+
+            model = self.model
+            sub_relation_type = model(
+                predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
+                is_copiable=is_copiable[0], minimal_display=minimal_display[0],
+            )
+            obj_relation_type = model(
+                predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
+                is_copiable=is_copiable[1], minimal_display=minimal_display[1],
+            )
+
+            generate_string_id_and_save(model, [sub_relation_type], pk_subject)
+            generate_string_id_and_save(model, [obj_relation_type], pk_object)
+
+        sub_relation_type.symmetric_type = obj_relation_type
+        obj_relation_type.symmetric_type = sub_relation_type
+
+        # Delete old m2m (TODO: just remove useless ones ???)
+        for rt in (sub_relation_type, obj_relation_type):
+            rt.subject_ctypes.clear()
+            rt.subject_properties.clear()
+
+        get_ct = ContentType.objects.get_for_model
+
+        for subject_ctype in subject_desc[2]:
+            sub_relation_type.subject_ctypes.add(get_ct(subject_ctype))
+
+        for object_ctype in object_desc[2]:
+            obj_relation_type.subject_ctypes.add(get_ct(object_ctype))
+
+        for subject_prop in subject_desc[3]:
+            sub_relation_type.subject_properties.add(subject_prop)
+
+        for object_prop in object_desc[3]:
+            obj_relation_type.subject_properties.add(object_prop)
+
+        sub_relation_type.save()
+        obj_relation_type.save()
+
+        return sub_relation_type, obj_relation_type
 
 
 class RelationManager(models.Manager):
@@ -263,92 +378,20 @@ class RelationType(CremeModel):
             is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
             minimal_display: Tuple[bool, bool] = (False, False),
     ) -> Tuple['RelationType', 'RelationType']:
-        """
-        @param subject_desc: Tuple
-               (string_pk, predicate_string
-                [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]]
-               )
-        @param object_desc: See subject_desc.
-        @param generate_pk: If True, 'string_pk' args are used as prefix to generate pks.
-        """
-        # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
-        padding = ((), ())
-
-        subject_desc += padding
-        object_desc  += padding
-
-        if isinstance(is_copiable, bool):
-            is_copiable = (is_copiable, is_copiable)
-
-        pk_subject   = subject_desc[0]
-        pk_object    = object_desc[0]
-        pred_subject = subject_desc[1]
-        pred_object  = object_desc[1]
-
-        if not generate_pk:
-            update_or_create = cls.objects.update_or_create
-            defaults = {'is_custom': is_custom, 'is_internal': is_internal}
-            sub_relation_type = update_or_create(
-                id=pk_subject,
-                defaults={
-                    **defaults,
-                    'predicate': pred_subject,
-                    'is_copiable': is_copiable[0],
-                    'minimal_display': minimal_display[0],
-                },
-            )[0]
-            obj_relation_type = update_or_create(
-                id=pk_object,
-                defaults={
-                    **defaults,
-                    'predicate': pred_object,
-                    'is_copiable': is_copiable[1],
-                    'minimal_display': minimal_display[1],
-                },
-            )[0]
-        else:
-            from creme.creme_core.utils.id_generator import (
-                generate_string_id_and_save,
-            )
-
-            sub_relation_type = cls(
-                predicate=pred_subject, is_custom=is_custom, is_internal=is_internal,
-                is_copiable=is_copiable[0], minimal_display=minimal_display[0],
-            )
-            obj_relation_type = cls(
-                predicate=pred_object,  is_custom=is_custom, is_internal=is_internal,
-                is_copiable=is_copiable[1], minimal_display=minimal_display[1],
-            )
-
-            generate_string_id_and_save(cls, [sub_relation_type], pk_subject)
-            generate_string_id_and_save(cls, [obj_relation_type], pk_object)
-
-        sub_relation_type.symmetric_type = obj_relation_type
-        obj_relation_type.symmetric_type = sub_relation_type
-
-        # Delete old m2m (TODO: just remove useless ones ???)
-        for rt in (sub_relation_type, obj_relation_type):
-            rt.subject_ctypes.clear()
-            rt.subject_properties.clear()
-
-        get_ct = ContentType.objects.get_for_model
-
-        for subject_ctype in subject_desc[2]:
-            sub_relation_type.subject_ctypes.add(get_ct(subject_ctype))
-
-        for object_ctype in object_desc[2]:
-            obj_relation_type.subject_ctypes.add(get_ct(object_ctype))
-
-        for subject_prop in subject_desc[3]:
-            sub_relation_type.subject_properties.add(subject_prop)
-
-        for object_prop in object_desc[3]:
-            obj_relation_type.subject_properties.add(object_prop)
-
-        sub_relation_type.save()
-        obj_relation_type.save()
-
-        return sub_relation_type, obj_relation_type
+        warnings.warn(
+            'RelationType.create() is deprecated; '
+            'use RelationType.objects.smart_update_or_create() instead.',
+            DeprecationWarning,
+        )
+        return cls.objects.smart_update_or_create(
+            subject_desc=subject_desc,
+            object_desc=object_desc,
+            is_custom=is_custom,
+            generate_pk=generate_pk,
+            is_internal=is_internal,
+            is_copiable=is_copiable,
+            minimal_display=minimal_display,
+        )
 
     # TODO: use the '/' (positional-only argument) in Python 3.8
     def is_compatible(self, *args) -> bool:

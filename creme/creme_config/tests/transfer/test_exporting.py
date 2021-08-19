@@ -363,11 +363,12 @@ class ExportingTestCase(CremeTestCase):
         self.login(is_staff=True)
         get_ct = ContentType.objects.get_for_model
 
-        rtype01 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype01 = create_rtype(
             ('test-subfoo', 'subject_predicate01'),
             ('test-objfoo', 'object_predicate01'),
         )[0]
-        rtype02 = RelationType.create(
+        rtype02 = create_rtype(
             ('test-subbar', 'subject_predicate02'),
             ('test-objbar', 'object_predicate02'),
         )[0]
@@ -1159,7 +1160,7 @@ class ExportingTestCase(CremeTestCase):
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
         o_pk_fmt = 'creme_config_export-object_test_export_relations_types_{}'.format
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1a, rtype1b = create_rtype(
             (s_pk_fmt(1),  'loves',       (), [ptype1]),
             (o_pk_fmt(1),  'is loved by', (), [ptype2]),

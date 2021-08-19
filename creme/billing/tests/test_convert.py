@@ -404,7 +404,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(0, Relation.objects.count())
 
         quote, source, target = self.create_quote_n_orgas('My Quote')
-        rtype1, rtype2 = RelationType.create(
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving',   (Quote, Invoice)),
             ('test-object_foobar',  'is loved by', (Organisation,)),
         )
@@ -418,7 +418,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype1).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype2).count())
 
-        rtype3, rtype4 = RelationType.create(
+        rtype3, rtype4 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar_not_copiable', 'is loving', (Quote, Invoice)),
             ('test-object_foobar_not_copiable',  'is loved by', (Organisation,)),
             is_copiable=False,
@@ -432,7 +432,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype3).count())
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
-        rtype5, rtype6 = RelationType.create(
+        rtype5, rtype6 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar_wrong_ctype', 'is loving',   (Quote,)),
             ('test-object_foobar_wrong_ctype',  'is loved by', (Organisation,)),
         )
@@ -459,11 +459,11 @@ class ConvertTestCase(_BillingTestCase):
 
         self.assertEqual(0, Relation.objects.count())
         quote, source, target = self.create_quote_n_orgas('My Quote')
-        rtype1, rtype2 = RelationType.create(
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-CONVERT-subject_foobar', 'is loving',   [Quote]),
             ('test-CONVERT-object_foobar',  'is loved by', [Organisation]),
         )
-        rtype3, rtype4 = RelationType.create(
+        rtype3, rtype4 = RelationType.objects.smart_update_or_create(
             ('test-CONVERT-subject_foobar_not_copiable', 'is loving', [Invoice]),
             ('test-CONVERT-object_foobar_not_copiable',  'is loved by', [Organisation]),
         )

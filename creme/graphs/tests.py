@@ -107,7 +107,7 @@ class GraphsTestCase(CremeTestCase):
         self.assertEqual(_('Save'), context.get('submit_label'))
 
         # ---
-        rtype_create = RelationType.create
+        rtype_create = RelationType.objects.smart_update_or_create
         rtype01 = rtype_create(
             ('test-subject_love', 'loves'),
             ('test-object_love',  'is loved to'),
@@ -140,7 +140,7 @@ class GraphsTestCase(CremeTestCase):
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
         self.assertGET403(reverse('graphs__add_rtypes', args=(graph.id,)))
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'loves'),
             ('test-object_love', 'is loved to'),
         )[0]
@@ -159,7 +159,7 @@ class GraphsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # Tests an encoding error, pygraphviz supports unicode...
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_hate', 'déteste'),
             ('test-object_hate',  'est détesté par'),
         )[0]
@@ -225,7 +225,7 @@ class GraphsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
-        rtype_create = RelationType.create
+        rtype_create = RelationType.objects.smart_update_or_create
         rtype01 = rtype_create(
             ('test-subject_love', 'loves'),
             ('test-object_love',  'is loved to'),
@@ -286,7 +286,7 @@ class GraphsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
         # TODO: factorise
-        rtype_create = RelationType.create
+        rtype_create = RelationType.objects.smart_update_or_create
         rtype01 = rtype_create(
             ('test-subject_love', 'loves'),
             ('test-object_love',  'is loved to'),

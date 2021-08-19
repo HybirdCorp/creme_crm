@@ -2403,7 +2403,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -2471,7 +2471,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -2544,7 +2544,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by'),
         )[0]
@@ -2653,7 +2653,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         create_dt = self.create_datetime
         today = create_dt(year=2019, month=8, day=26, hour=8)
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
             ('test-object_foobar',  'is loved by')
         )[0]

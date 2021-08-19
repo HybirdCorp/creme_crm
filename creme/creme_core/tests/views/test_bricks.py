@@ -482,7 +482,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         tenma = create_contact(first_name='Dr',   last_name='Tenma')
         uran  = create_contact(first_name='Uran', last_name='Ochanomizu')
 
-        rtype1 = RelationType.create(
+        rtype1 = RelationType.objects.smart_update_or_create(
             ('test-subject_son',   'is the son of'),
             ('test-object_father', 'is the father of'),
         )[0]
@@ -490,7 +490,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             subject_entity=atom, type=rtype1, object_entity=tenma, user=user,
         )
 
-        rtype2 = RelationType.create(
+        rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_brother', 'is the brother of'),
             ('test-object_sister',   'is the sister of'),
         )[0]
@@ -514,11 +514,12 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         rbrick_id = RelationsBrick.id_
 
-        rtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
             ('test-subject_son',   'is the son of'),
             ('test-object_father', 'is the father of'),
         )[0]
-        rtype2 = RelationType.create(
+        rtype2 = create_rtype(
             ('test-subject_brother', 'is the brother of'),
             ('test-object_sister',   'is the sister of'),
         )[0]
@@ -588,12 +589,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
         rbrick_id = RelationsBrick.id_
 
-        rtype1 = RelationType.create(
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
             ('test-subject_son',   'is the son of'),
             ('test-object_father', 'is the father of'),
             minimal_display=(True, True),
         )[0]
-        rtype2 = RelationType.create(
+        rtype2 = create_rtype(
             ('test-subject_brother', 'is the brother of'),
             ('test-object_sister',   'is the sister of'),
         )[0]

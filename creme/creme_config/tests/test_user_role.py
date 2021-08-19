@@ -871,7 +871,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
         ctype = ContentType.objects.get_for_model(FakeOrganisation)
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_recruited', 'Has recruited'),
             ('test-object_recruited',  'Has been recruited by'),
         )[0]
@@ -1313,7 +1313,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Change filter conditions + conditions on CustomField/Relation/CremeProperty."
         self.login()
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_recruited', 'Has been recruited by'),
             ('test-object_recruited',  'Has recruited'),
         )[0]

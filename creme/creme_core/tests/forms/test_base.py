@@ -527,7 +527,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
@@ -587,7 +587,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
@@ -655,7 +655,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
@@ -703,7 +703,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
@@ -773,7 +773,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.create_user()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_heals', 'has healed'),
             ('test-object_heals',  'healed by'),
         )[1]
@@ -832,7 +832,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
         self.assertFalse(user.has_perm_to_link(contact2))
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
         )[0]
@@ -871,7 +871,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_heals', 'heals'),
             ('test-object_heals',  'is healed by'),
         )[1]
@@ -925,7 +925,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_heals', 'heals'),
             ('test-object_heals',  'is healed by'),
         )[1]
@@ -968,7 +968,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_heals', 'heals'),
             ('test-object_heals',  'is healed by'),
         )[1]
@@ -1033,7 +1033,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_heals', 'heals'),
             ('test-object_heals',  'is healed by'),
         )[1]
@@ -1076,7 +1076,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         user = self.login()
 
         orga = FakeOrganisation.objects.create(user=user, name='Oshino corp.')
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_registered', 'has registered',      [FakeOrganisation]),
             ('test-object_registered',  'has been registered', [FakeOrganisation]),
         )[0]
@@ -1126,7 +1126,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
         ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_registered', 'registered',     [FakeContact], [ptype1]),
             ('test-object_registered',  'has registered', [FakeOrganisation]),
@@ -1257,7 +1257,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
         ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_leads', 'leads',   [FakeContact], [ptype1, ptype2]),
             ('test-object_leads',  'is lead', [FakeOrganisation]),
         )[0]

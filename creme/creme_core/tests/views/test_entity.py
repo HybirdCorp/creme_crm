@@ -354,7 +354,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity02 = create_orga(name='Seele')
         entity03 = create_orga(name='Neo tokyo')
 
-        create_rtype = RelationType.create
+        create_rtype = RelationType.objects.smart_update_or_create
         rtype1 = create_rtype(
             ('test-subject_linked', 'is linked to'),
             ('test-object_linked',  'is linked to'),
@@ -411,7 +411,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         entity01 = create_orga(name='Nerv', is_deleted=True)
         entity02 = create_orga(name='Seele')
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_daughter', 'is a daughter of'),
             ('test-object_daughter',  'has a daughter'),
             is_internal=True,
@@ -735,7 +735,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             user=user, name='Acme', is_deleted=True,
         )  # Not linked => can be deleted
 
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_linked', 'is linked to'),
             ('test-object_linked',  'is linked to'),
             is_internal=True,

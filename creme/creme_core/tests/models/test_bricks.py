@@ -500,7 +500,7 @@ class BrickTestCase(CremeTestCase):
         )
 
     def test_relation_brick01(self):
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loved',  'is loved by'),
         )[0]
@@ -553,7 +553,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_relation_brick02(self):
         "All ctypes configured + Relation instance."
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_rented', 'is rented by'),
             ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
         )[0]
@@ -583,7 +583,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype))
 
     def test_relation_brick_errors(self):
-        rtype = RelationType.create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_rented', 'is rented by'),
             ('test-object_rented',  'rents'),
         )[0]
@@ -617,7 +617,7 @@ class BrickTestCase(CremeTestCase):
 
     def test_relationbrick_delete01(self):
         user = self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
@@ -636,7 +636,7 @@ class BrickTestCase(CremeTestCase):
     def test_relationbrick_delete02(self):
         "Cannot delete because it is used."
         self.login()
-        rt = RelationType.create(
+        rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
