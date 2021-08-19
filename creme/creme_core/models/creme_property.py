@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from typing import Iterable, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
@@ -43,6 +44,54 @@ class CremePropertyTypeManager(models.Manager):
             Q(subject_ctypes=as_ctype(ct_or_model))
             | Q(subject_ctypes__isnull=True)
         )
+
+    # TODO: split into 2 methods (smart_create & smart_update_or_create) ?
+    #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
+    #       (use a True model-form + improve CremePropertyType.save() ?) ?
+    def smart_update_or_create(
+        self, *,
+        str_pk: str,
+        generate_pk: bool = False,
+        text: str,
+        subject_ctypes: Iterable[Union[ContentType, CremeEntity]] = (),
+        is_custom: bool = False,
+        is_copiable: bool = True,
+    ) -> 'CremePropertyType':
+        """Helps the creation of new CremePropertyType instance.
+        @param str_pk: Used as ID value (or it's prefix -- see generate_pk).
+        @param generate_pk: If True, 'str_pk' argument is used as prefix to
+               generate the Primary Key.
+        @param text: Used to fill <CremePropertyType.text>.
+        @param subject_ctypes: Used to fill <CremePropertyType.subject_ctypes>.
+        @param is_custom: Used to fill <CremePropertyType.is_custom>.
+        @param is_copiable: Used to fill <CremePropertyType.is_copiable>.
+        """
+        if not generate_pk:
+            property_type = self.update_or_create(
+                id=str_pk,
+                defaults={
+                    'text': text,
+                    'is_custom': is_custom,
+                    'is_copiable': is_copiable,
+                },
+            )[0]
+        else:
+            from creme.creme_core.utils.id_generator import (
+                generate_string_id_and_save,
+            )
+
+            property_type = self.model(
+                text=text, is_custom=is_custom, is_copiable=is_copiable,
+            )
+            generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
+
+        get_ct = ContentType.objects.get_for_model
+        property_type.subject_ctypes.set([
+            model if isinstance(model, ContentType) else get_ct(model)
+            for model in subject_ctypes
+        ])
+
+        return property_type
 
 
 # TODO: factorise with RelationManager ?
@@ -188,47 +237,28 @@ class CremePropertyType(CremeModel):
     def get_lv_absolute_url():
         return reverse('creme_config__ptypes')
 
-    # TODO: move to manager ? + split into 2 methods (create & update_or_create) ?
-    #       avoid retrieving the instance again in CremePropertyTypeEditForm.save()
-    #       (use a True model-form + improve CremePropertyType.save() ?) ?
-    @staticmethod
-    def create(str_pk,
+    @classmethod
+    def create(cls,
+               str_pk,
                text,
                subject_ctypes=(),
                is_custom=False,
                generate_pk=False,
                is_copiable=True,
                ):
-        """Helps the creation of new CremePropertyType.
-        @param subject_ctypes: Sequence of CremeEntity classes/ContentType objects.
-        @param generate_pk: If True, str_pk is used as prefix to generate pk.
-        """
-        if not generate_pk:
-            property_type = CremePropertyType.objects.update_or_create(
-                id=str_pk,
-                defaults={
-                    'text': text,
-                    'is_custom': is_custom,
-                    'is_copiable': is_copiable,
-                },
-            )[0]
-        else:
-            from creme.creme_core.utils.id_generator import (
-                generate_string_id_and_save,
-            )
-
-            property_type = CremePropertyType(
-                text=text, is_custom=is_custom, is_copiable=is_copiable,
-            )
-            generate_string_id_and_save(CremePropertyType, [property_type], str_pk)
-
-        get_ct = ContentType.objects.get_for_model
-        property_type.subject_ctypes.set([
-            model if isinstance(model, ContentType) else get_ct(model)
-            for model in subject_ctypes
-        ])
-
-        return property_type
+        warnings.warn(
+            'CremePropertyType.create() is deprecated; '
+            'use CremePropertyType.objects.smart_update_or_create() instead.',
+            DeprecationWarning,
+        )
+        return cls.objects.smart_update_or_create(
+            str_pk=str_pk,
+            text=text,
+            subject_ctypes=subject_ctypes,
+            is_custom=is_custom,
+            generate_pk=generate_pk,
+            is_copiable=is_copiable,
+        )
 
 
 class CremeProperty(CremeModel):

@@ -63,7 +63,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
+        CremePropertyType.objects.smart_update_or_create(
+            str_pk='commercial-marketsegmenttestcase01', text=pname,
+        )
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(
@@ -144,7 +146,9 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.create('commercial-marketsegmenttestcase01', pname)
+        CremePropertyType.objects.smart_update_or_create(
+            str_pk='commercial-marketsegmenttestcase01', text=pname,
+        )
 
         response = self.assertPOST200(
             segment.get_edit_absolute_url(), data={'name': name},

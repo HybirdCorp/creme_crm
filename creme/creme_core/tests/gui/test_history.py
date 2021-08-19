@@ -1027,7 +1027,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
         text = 'Make anime series'
         ptype_id = 'test-prop_make_anime'
-        ptype = CremePropertyType.create(str_pk=ptype_id, text=text)
+        ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
         hline = self.get_hline()
@@ -1064,7 +1064,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
         text = 'Make anime series'
         ptype_id = 'test-prop_make_anime'
-        ptype = CremePropertyType.create(str_pk=ptype_id, text=text)
+        ptype = CremePropertyType.objects.smart_update_or_create(str_pk=ptype_id, text=text)
         prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
         prop.delete()
@@ -1101,7 +1101,7 @@ class HistoryRenderTestCase(CremeTestCase):
         user = self.create_user()
         gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_make_anime', text='Makes anime series')
         ptype2 = create_ptype(str_pk='test-prop_make_film', text='Makes film')
 

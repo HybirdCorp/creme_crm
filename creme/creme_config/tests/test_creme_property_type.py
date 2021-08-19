@@ -19,7 +19,7 @@ class PropertyTypeTestCase(CremeTestCase):
     def test_portal(self):
         self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_hairy', text='is hairy')
         ptype2 = create_ptype(str_pk='test-prop_beard', text='is bearded')
 
@@ -93,8 +93,9 @@ class PropertyTypeTestCase(CremeTestCase):
         self.login()
 
         get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.create(
-            'test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=False,
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful',
+            subject_ctypes=[get_ct(FakeContact)], is_custom=False,
         )
 
         self.assertGET404(self._build_edit_url(pt))
@@ -104,8 +105,9 @@ class PropertyTypeTestCase(CremeTestCase):
         self.login()
 
         get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.create(
-            'test-foobar', 'is beautiful', [get_ct(FakeContact)], is_custom=True,
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful',
+            subject_ctypes=[get_ct(FakeContact)], is_custom=True,
         )
         url = self._build_edit_url(pt)
         response = self.assertGET200(url)

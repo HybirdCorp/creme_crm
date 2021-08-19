@@ -1811,7 +1811,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(has_perm_to_create(CremePropertyType))
 
         entity = CremeEntity.objects.create(user=user)
-        ptype = CremePropertyType.create(str_pk='test-prop_foobar', text='text')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_foobar', text='text',
+        )
         prop  = CremeProperty.objects.create(type=ptype, creme_entity=entity)
         self.assertTrue(has_perm_to_create(prop))
         self.assertFalse(has_perm_to_create(ptype))

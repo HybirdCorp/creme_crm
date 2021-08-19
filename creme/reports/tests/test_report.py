@@ -2613,7 +2613,7 @@ class ReportTestCase(BaseReportsTestCase):
     def _aux_test_fetch_m2m(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         self.ptype1 = create_ptype(str_pk='test-prop_important',    text='Important')
         self.ptype2 = create_ptype(str_pk='test-prop_notimportant', text='Not important')
 
@@ -3063,7 +3063,9 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.login_as_basic_user()
         self._aux_test_fetch_persons()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Dwarf')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_dwarf', text='Dwarf',
+        )
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
         report_contact = self.report_contact
@@ -3128,7 +3130,9 @@ class ReportTestCase(BaseReportsTestCase):
         tyrion.image = tyrion_face
         tyrion.save()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_dwarf', text='Is a dwarf')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_dwarf', text='Is a dwarf',
+        )
         CremeProperty.objects.create(type=ptype, creme_entity=self.tyrion)
 
         dwarves_filter = EntityFilter.objects.smart_update_or_create(

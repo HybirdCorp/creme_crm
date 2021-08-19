@@ -380,7 +380,7 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_properties01(self):
         user = self.create_user()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
             str_pk='test-prop_spirit', text='Haunted by a spirit',
         )
@@ -445,7 +445,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (IDs)."
         user = self.create_user()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
             str_pk='test-prop_spirit',   text='Haunted by a spirit',
         )
@@ -473,7 +473,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes (instances)."
         user = self.create_user()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(
             str_pk='test-prop_spirit',   text='Haunted by a spirit',
         )
@@ -502,7 +502,9 @@ class CremeEntityFormTestCase(CremeTestCase):
         "Forced CremePropertyTypes + no <properties> field."
         user = self.create_user()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_spirit', text='Haunted by a spirit')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_spirit', text='Haunted by a spirit',
+        )
 
         form = FakeContactForm(
             user=user, forced_ptypes=[ptype.id],
@@ -1122,7 +1124,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
         ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
 
@@ -1253,7 +1255,7 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='Bebop')
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
         ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
 

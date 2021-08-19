@@ -875,7 +875,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             ('test-subject_recruited', 'Has recruited'),
             ('test-object_recruited',  'Has been recruited by'),
         )[0]
-        ptype = CremePropertyType.create(str_pk='test-prop_is_secret', text='Is secret')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_is_secret', text='Is secret',
+        )
         custom_field = CustomField.objects.create(
             name='Number of agents', content_type=ctype,
             field_type=CustomField.INT,
@@ -1317,7 +1319,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             ('test-subject_recruited', 'Has been recruited by'),
             ('test-object_recruited',  'Has recruited'),
         )[0]
-        ptype = CremePropertyType.create(str_pk='test-prop_is_nice', text='Is nice')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_is_nice', text='Is nice',
+        )
         custom_field = CustomField.objects.create(
             name='Number of ties', content_type=FakeContact,
             field_type=CustomField.INT,
@@ -1468,7 +1472,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         "Change existing ctype & filter + conditions on CustomField/Relation/CremeProperty."
         self.login()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_is_secret', text='Is secret')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_is_secret', text='Is secret',
+        )
 
         role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(
@@ -1641,7 +1647,9 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
     def test_edit_credentials_with_filter05(self):
         "Content type is CremeEntity."
         self.login()
-        ptype = CremePropertyType.create(str_pk='test-prop_is_secret', text='Is secret')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_is_secret', text='Is secret',
+        )
 
         role = UserRole.objects.create(name='CEO', allowed_apps=['creme_core'])
         efilter1 = EntityFilter.objects.create(

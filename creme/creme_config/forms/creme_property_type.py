@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,9 +63,10 @@ class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        ptype = CremePropertyType.create(
-            'creme_config-userproperty',
-            get_data('text'), get_data('subject_ctypes'),
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_config-userproperty',
+            text=get_data('text'),
+            subject_ctypes=get_data('subject_ctypes'),
             is_custom=True, generate_pk=True,
             is_copiable=get_data('is_copiable'),
         )
@@ -87,9 +88,10 @@ class CremePropertyTypeEditForm(_CremePropertyTypeBaseForm):
 
     def save(self):
         get_data = self.cleaned_data.get
-        ptype = CremePropertyType.create(
-            self.instance.id, get_data('text'),
-            get_data('subject_ctypes'),
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk=self.instance.id,
+            text=get_data('text'),
+            subject_ctypes=get_data('subject_ctypes'),
             is_custom=True,
             is_copiable=get_data('is_copiable'),
         )

@@ -104,7 +104,11 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        CremePropertyType.create(constants.PROP_IS_A_SALESMAN, _('is a salesman'), [Contact])
+        CremePropertyType.objects.smart_update_or_create(
+            str_pk=constants.PROP_IS_A_SALESMAN,
+            text=_('is a salesman'),
+            subject_ctypes=[Contact],
+        )
 
         # ---------------------------
         MarketSegment.objects.get_or_create(

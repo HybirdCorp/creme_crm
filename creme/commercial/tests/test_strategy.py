@@ -197,7 +197,9 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         name = 'Industry'
         pname = _('is in the segment «{}»').format(name)
-        CremePropertyType.create('commercial-test_segment_create02', pname)
+        CremePropertyType.objects.smart_update_or_create(
+            str_pk='commercial-test_segment_create02', text=pname,
+        )
 
         response = self.assertPOST200(
             self._build_add_segmentdesc_url(strategy), data={'name': name},

@@ -476,10 +476,12 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertFalse(equal(conditions1, [build_cond(values=['Katsuragi'])]))
         self.assertFalse(equal(
             conditions1,
-            [build_cond(operator=operators.CONTAINS)]
+            [build_cond(operator=operators.CONTAINS)],
         ))
 
-        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_kawaii', text='Kawaii',
+        )
         hates = RelationType.objects.smart_update_or_create(
             ('test-subject_hate', 'Is hating'),
             ('test-object_hate',  'Is hated by'),
@@ -2063,7 +2065,9 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertRaises(EntityFilter.CycleError, efilter01.set_conditions, conds)
 
     def test_properties01(self):
-        ptype = CremePropertyType.create(str_pk='test-prop_kawaii', text='Kawaii')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_kawaii', text='Kawaii',
+        )
         cute_ones = ('faye', 'rei', 'misato', 'asuka')
 
         for fn in cute_ones:
@@ -2087,7 +2091,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_properties02(self):
         "Several conditions on properties."
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
         ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
 
@@ -2115,7 +2119,7 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_property_deletion01(self):
         "Delete CremePropertyType => delete related conditions."
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
         ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
 

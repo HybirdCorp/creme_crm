@@ -240,7 +240,7 @@ class CreationTestCase(ViewsTestCase):
     def test_entity_creation_properties(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
         ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
         ptype03 = create_ptype(

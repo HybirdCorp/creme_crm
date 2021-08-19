@@ -884,14 +884,18 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
-        ptype1 = CremePropertyType.create(
-            'creme_config-test_import_relation_types01_1', 'Is very important',
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(
+            str_pk='creme_config-test_import_relation_types01_1',
+            text='Is very important',
         )
-        ptype2 = CremePropertyType.create(
-            'creme_config-test_import_relation_types01_2', 'Is important', is_custom=True,
+        ptype2 = create_ptype(
+            str_pk='creme_config-test_import_relation_types01_2',
+            text='Is important', is_custom=True,
         )
-        ptype3 = CremePropertyType.create(
-            'creme_config-test_import_relation_types01_3', 'Is hot', is_custom=True,
+        ptype3 = create_ptype(
+            str_pk='creme_config-test_import_relation_types01_3',
+            text='Is hot', is_custom=True,
         )
 
         pk_fmt = 'creme_config-subject_test_import_relations_types01_{}'.format
@@ -1053,8 +1057,9 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
-        ptype1 = CremePropertyType.create(
-            'creme_config-test_import_relation_types05_1', 'Is very important',
+        ptype1 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_config-test_import_relation_types05_1',
+            text='Is very important',
         )
         ptype2_id = 'creme_config-test_import_relations_types05_2'
 
@@ -1066,13 +1071,15 @@ class ImportingTestCase(CremeTestCase):
 
             'subject_properties': [ptype1.id, ptype2_id],
 
-            'symmetric':   {
+            'symmetric': {
                 'predicate': 'is loved by', 'is_copiable': False, 'minimal_display': True,
             },
         }]
         data = {
             'version': '1.1',
-            'property_types': [{'id': ptype2_id, 'text': 'Is important', 'is_copiable': True}],
+            'property_types': [
+                {'id': ptype2_id, 'text': 'Is important', 'is_copiable': True},
+            ],
             'relation_types': rtypes_data,
         }
 
@@ -1696,8 +1703,9 @@ class ImportingTestCase(CremeTestCase):
         rtype_id1 = 'creme_config-subject_test_import_entityfilter01'
         ptype_id1 = 'creme_config-test_import_entityfilter01'
 
-        ptype2 = CremePropertyType.create(
-            'creme_config-test_import_entityfilter01_1', 'Is very important',
+        ptype2 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_config-test_import_entityfilter01_1',
+            text='Is very important',
         )
 
         rtype2 = RelationType.objects.filter(is_internal=False).first()

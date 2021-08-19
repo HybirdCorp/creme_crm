@@ -287,7 +287,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self.subject01
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
         ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Is smart')
@@ -530,7 +530,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         subject = self.subject01
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
 
@@ -674,7 +674,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "ContentType & CremeProperty constraints on subject."
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_realm', text='Is a realm')
         ptype2 = create_ptype(str_pk='test-prop_nasty', text='Is nasty')
 
@@ -712,7 +712,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Subject does not respect CremeProperty constraints => error."
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
         ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
         ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
@@ -1038,7 +1038,7 @@ class RelationViewsTestCase(ViewsTestCase):
     def test_select_relations_objects03(self):
         self._aux_relation_objects_to_link_selection()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is lovable')
         ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is a girl')
 
@@ -1270,7 +1270,7 @@ class RelationViewsTestCase(ViewsTestCase):
         "Property constraint errors."
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         subject_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
         object_ptype  = create_ptype(str_pk='test-prop_foobar02', text='Contact property')
 
@@ -1285,7 +1285,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'manages',       [], [subject_ptype]),
-            ('test-object_foobar',  'is managed by', [], [object_ptype])
+            ('test-object_foobar',  'is managed by', [], [object_ptype]),
         )[0]
 
         self.assertPOST(
