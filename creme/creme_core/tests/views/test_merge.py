@@ -113,7 +113,7 @@ class MergeViewsTestCase(ViewsTestCase):
             ('test-object_hight_member',  'has as a hight member', [FakeOrganisation]),
         )[0]
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_manga', text='Manga related')
         ptype02 = create_ptype(str_pk='test-prop_anime', text='Anime related')
 

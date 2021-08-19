@@ -72,9 +72,15 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.subject_properties.all())
 
     def test_create02(self):
-        create_pt = CremePropertyType.create
-        pt_sub = create_pt('test-pt_sub', 'has cash', [FakeOrganisation])
-        pt_obj = create_pt('test-pt_obj', 'need cash', [FakeContact])
+        create_pt = CremePropertyType.objects.smart_update_or_create
+        pt_sub = create_pt(
+            str_pk='test-pt_sub', text='has cash',
+            subject_ctypes=[FakeOrganisation],
+        )
+        pt_obj = create_pt(
+            str_pk='test-pt_obj', text='need cash',
+            subject_ctypes=[FakeContact],
+        )
 
         get_ct = ContentType.objects.get_for_model
         ct_orga = get_ct(FakeOrganisation)

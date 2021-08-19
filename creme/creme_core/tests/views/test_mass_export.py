@@ -73,7 +73,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             ('test-object_pilots',  'is piloted by'),
         )[0]
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype_beautiful = create_ptype(str_pk='test-prop_beautiful', text='is beautiful')
         ptype_girl      = create_ptype(str_pk='test-prop_girl',      text='is a girl')
 

@@ -1113,11 +1113,13 @@ class ExportingTestCase(CremeTestCase):
         self.assertTrue(CremePropertyType.objects.filter(is_custom=False))
 
         pk_fmt = 'creme_config_export-test_export_property_types{}'.format
-        create_ptype = CremePropertyType.create
-        ptype1 = create_ptype(pk_fmt(1), 'Is important', is_custom=True)
-        ptype2 = create_ptype(pk_fmt(2), 'Is funny',     is_custom=True, is_copiable=False)
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk=pk_fmt(1), text='Is important', is_custom=True)
+        ptype2 = create_ptype(
+            str_pk=pk_fmt(2), text='Is funny', is_custom=True, is_copiable=False,
+        )
         ptype3 = create_ptype(
-            pk_fmt(3), 'Is cool', is_custom=True,
+            str_pk=pk_fmt(3), text='Is cool', is_custom=True,
             subject_ctypes=[FakeContact, FakeOrganisation],
         )
 
@@ -1153,8 +1155,9 @@ class ExportingTestCase(CremeTestCase):
         ptype1 = CremePropertyType.objects.create(
             pk='creme_config_export-test_export_relation_types', text='Sugoi !',
         )
-        ptype2 = CremePropertyType.create(
-            'creme_config_export-test_export_relation_types_1', 'Is important',
+        ptype2 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_config_export-test_export_relation_types_1',
+            text='Is important',
             is_custom=True,
         )
 

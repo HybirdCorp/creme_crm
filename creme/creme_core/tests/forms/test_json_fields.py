@@ -1225,7 +1225,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
         ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
@@ -1244,7 +1244,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
         ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
@@ -1620,7 +1620,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint_error(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
         ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
@@ -1647,7 +1647,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     def test_clean_properties_constraint(self):
         user = self.login()
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
         ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')

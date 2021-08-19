@@ -2010,10 +2010,14 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
         super().setUp()
 
-        create_ptype = CremePropertyType.create
-        self.ptype01 = create_ptype('test-prop_active', 'Is active')
-        self.ptype02 = create_ptype('test-prop_cute',   'Is cute', (FakeContact,))
-        self.ptype03 = create_ptype('test-prop_evil',   'Is evil', (FakeOrganisation,))
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        self.ptype01 = create_ptype(str_pk='test-prop_active', text='Is active')
+        self.ptype02 = create_ptype(
+            str_pk='test-prop_cute', text='Is cute', subject_ctypes=[FakeContact],
+        )
+        self.ptype03 = create_ptype(
+            str_pk='test-prop_evil', text='Is evil', subject_ctypes=[FakeOrganisation],
+        )
 
     def test_clean_empty_required(self):
         with self.assertNumQueries(0):

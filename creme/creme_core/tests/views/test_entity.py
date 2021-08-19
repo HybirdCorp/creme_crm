@@ -370,7 +370,9 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         rel2 = creat_rel(type=rtype2, object_entity=entity03)
         rel3 = creat_rel(type=rtype2, object_entity=entity03, subject_entity=entity02)
 
-        ptype = CremePropertyType.create(str_pk='test-prop_eva', text='has eva')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_eva', text='has eva',
+        )
         create_prop = partial(CremeProperty.objects.create, type=ptype)
         prop1 = create_prop(creme_entity=entity01)
         prop2 = create_prop(creme_entity=entity02)

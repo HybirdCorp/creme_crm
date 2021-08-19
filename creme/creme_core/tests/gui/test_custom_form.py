@@ -1310,7 +1310,7 @@ class FieldGroupListTestCase(CremeTestCase):
         user = self.create_user()
         model = FakeContact
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype01 = create_ptype(str_pk='test-prop_smokes',  text='Smokes')
         ptype02 = create_ptype(str_pk='test-prop_glasses', text='Wears glasses')
         ptype03 = create_ptype(
@@ -1642,7 +1642,9 @@ class FieldGroupListTestCase(CremeTestCase):
         "Properties constraints."
         user = self.create_user()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_bad',  text='Is bad')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_bad',  text='Is bad',
+        )
 
         orga = FakeOrganisation.objects.create(user=user, name='Technodrome')
         rtype = RelationType.objects.smart_update_or_create(

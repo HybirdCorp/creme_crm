@@ -158,10 +158,10 @@ class SegmentCreateForm(_SegmentForm):
 
         # TODO: factorise with market_segment.MarketSegmentForm ???
         # is_custom=False ==> CremePropertyType won't be deletable
-        ptype = CremePropertyType.create(
-            'commercial-segment',
-            MarketSegment.generate_property_text(name),
-            generate_pk=True, is_custom=False,
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='commercial-segment', generate_pk=True,
+            text=MarketSegment.generate_property_text(name),
+            is_custom=False,
         )
 
         segment_desc.segment = MarketSegment.objects.create(name=name, property_type=ptype)

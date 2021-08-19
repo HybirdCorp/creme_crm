@@ -639,7 +639,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         "Property creation (regular post creation handler should be called)"
         user = self.login()
 
-        ptype = CremePropertyType.create(str_pk='test-prop_imported', text='Has been imported')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_imported', text='Has been imported',
+        )
 
         title = 'Task#1'
         doc = self._build_csv_doc([(title, 'Aoi', 'Kunieda')])

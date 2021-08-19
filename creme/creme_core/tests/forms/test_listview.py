@@ -1138,12 +1138,16 @@ class SearchFieldsTestCase(CremeTestCase):
         from creme.creme_core.function_fields import PropertiesField
         from creme.creme_core.models import CremePropertyType
 
-        create_ptype = CremePropertyType.create
-        get_ct = ContentType.objects.get_for_model
-        ct_orga = get_ct(FakeOrganisation)
-        ptype1 = create_ptype('test-cool',       'is cool')
-        ptype2 = create_ptype('test-beautiful',  'is beautiful', [ct_orga, get_ct(FakeContact)])
-        ptype3 = create_ptype('test-is_a_trust', 'is a trust',   [ct_orga])
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
+        ptype1 = create_ptype(str_pk='test-cool', text='is cool')
+        ptype2 = create_ptype(
+            str_pk='test-beautiful', text='is beautiful',
+            subject_ctypes=[ct_orga, FakeContact],
+        )
+        ptype3 = create_ptype(
+            str_pk='test-is_a_trust', text='is a trust', subject_ctypes=[ct_orga],
+        )
 
         funfield = PropertiesField()
         cell = EntityCellFunctionField(model=FakeContact, func_field=funfield)

@@ -26,7 +26,9 @@ from .base import (
 @skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
     def _create_segment(self, name, label):  # TODO: inline ?
-        ptype = CremePropertyType.create(f'polls-prop_{name}', f'is from segment "{label}"')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk=f'polls-prop_{name}', text=f'is from segment "{label}"',
+        )
         return MarketSegment.objects.create(name=label, property_type=ptype)
 
     def test_detailview01(self):

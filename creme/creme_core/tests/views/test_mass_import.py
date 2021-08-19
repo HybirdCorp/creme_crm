@@ -258,7 +258,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         position_ids = [*FakePosition.objects.values_list('id', flat=True)]
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
-        ptype = CremePropertyType.create(str_pk='test-prop_cute', text='Really cute in her suit')
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_cute', text='Really cute in her suit',
+        )
 
         create_rtype = RelationType.objects.smart_update_or_create
         employed = create_rtype(
@@ -1116,7 +1118,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             ('test-object_loving',  'is loved by'),
         )[0]
 
-        create_ptype = CremePropertyType.create
+        create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_cute',   text='Really cute in her suit')
         ptype2 = create_ptype(str_pk='test-blue_haired', text='Has blue hairs')
 

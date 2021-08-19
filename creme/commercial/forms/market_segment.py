@@ -83,9 +83,9 @@ class MarketSegmentForm(CremeModelForm):
                 ptype.save()
         else:
             # is_custom=False ==> CremePropertyType won't be deletable
-            instance.property_type = CremePropertyType.create(
-                'commercial-segment', self.ptype_text,
-                generate_pk=True, is_custom=False,
+            instance.property_type = CremePropertyType.objects.smart_update_or_create(
+                str_pk='commercial-segment', generate_pk=True,
+                text=self.ptype_text, is_custom=False,
             )
 
         return super().save(*args, **kwargs)
