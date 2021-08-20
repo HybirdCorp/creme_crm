@@ -359,6 +359,8 @@
                 - In 'registry' :
                     - The attribute 'RecurrentRegistry._apps' has been replaced by '_template_forms'.
                     - The classes 'TemplateRecurrentRegistry' & 'AppRecurrentRegistry' have been removed.
+            * Recurrents :
+                - Several useless methods have been removed in 'vcf_lib.base'.
 
 
 == Version 2.2 ==

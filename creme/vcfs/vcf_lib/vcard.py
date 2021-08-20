@@ -125,13 +125,13 @@ class VCard3_0(VCardBehavior):
 
 @behavior_registry.register
 class FN(VCardTextBehavior):
-    name = "FN"
+    name = 'FN'
     description = 'Formatted name'
 
 
 @behavior_registry.register
 class Label(VCardTextBehavior):
-    name = "Label"
+    name = 'Label'
     description = 'Formatted address'
 
 

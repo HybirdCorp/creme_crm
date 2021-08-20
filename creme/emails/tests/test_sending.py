@@ -350,7 +350,8 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual('SAMEORIGIN', response2.get('X-Frame-Options'))
 
         # Detail view ----------------------------------------------------------
-        detail_url = reverse('emails__view_sending', args=(sending.id,))
+        # detail_url = reverse('emails__view_sending', args=(sending.id,))
+        detail_url = sending.get_absolute_url()
         self.assertPOST405(detail_url)
 
         response3 = self.assertGET200(detail_url)
