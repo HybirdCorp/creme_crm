@@ -307,7 +307,7 @@ class _CremeTestCase:
             return _AssertNoExceptionContext(self)
 
         try:
-            function(*args, **kwargs)
+            return function(*args, **kwargs)
         except Exception as e:
             print_traceback()
 
