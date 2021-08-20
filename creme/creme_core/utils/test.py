@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2020  Hybird
+#    Copyright (C) 2015-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -116,14 +116,30 @@ class CremeDiscoverRunner(DiscoverRunner):
             'httpd.serve_forever()'.format(port=http_port())
         )
 
-    def teardown_test_environment(self, **kwargs):
-        super().teardown_test_environment(**kwargs)
-        settings.MEDIA_ROOT = self._original_media_root
-
+    def _clean_mock_media(self):
         if self._mock_media_path:
+            settings.MEDIA_ROOT = self._original_media_root
+
             print('Deleting mock media directory...')
             rmtree(self._mock_media_path)
+            self._mock_media_path = None
 
+    def _clean_http_server(self):
         if self._http_server is not None:
             print('Shutting down HTTP server...')
             self._http_server.terminate()
+            self._http_server = None
+
+    def teardown_test_environment(self, **kwargs):
+        super().teardown_test_environment(**kwargs)
+        self._clean_mock_media()
+        self._clean_http_server()
+
+    def build_suite(self, *args, **kwargs):
+        try:
+            return super().build_suite(*args, **kwargs)
+        except Exception:
+            self._clean_mock_media()
+            self._clean_http_server()
+
+            raise
