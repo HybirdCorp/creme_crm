@@ -34,7 +34,8 @@ from ..utils.system import python_subprocess
 
 
 def http_port():
-    return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8000')
+    # return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8000')
+    return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
 
 
 class CremeTestSuite(unittest.TestSuite):
