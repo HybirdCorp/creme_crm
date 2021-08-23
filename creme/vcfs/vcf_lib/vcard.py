@@ -17,7 +17,9 @@ class Name:
         self.suffix     = suffix
 
     def __repr__(self):
-        return f'<Name: {self}>'
+        return '<Name({})>'.format(
+            ', '.join(f'{k}="{v}"' for k, v in self.__dict__.items())
+        )
 
 
 class Address:
@@ -33,7 +35,9 @@ class Address:
         self.country  = country
 
     def __repr__(self):
-        return '<Address: {}>'.format(repr(str(self))[1:-1])
+        return '<Address({})>'.format(
+            ', '.join(f'{k}="{v}"' for k, v in self.__dict__.items())
+        )
 
 
 # ------------------------ Registered Behavior subclasses ----------------------
