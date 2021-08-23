@@ -56,6 +56,7 @@ from django.utils.translation import pgettext
 
 from ..core.field_tags import FieldTag
 from ..global_info import (
+    cached_per_request,
     get_global_info,
     get_per_request_cache,
     set_global_info,
@@ -799,9 +800,11 @@ class _HLTRelatedEntity(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, entity: CremeEntity, related_line: 'HistoryLine'):
-        items = HistoryConfigItem.objects.values_list('relation_type', flat=True)  # TODO: cache ??
+        # rtypes_ids = HistoryConfigItem.objects.values_list('relation_type', flat=True)
         relations = Relation.objects.filter(
-            subject_entity=entity.id, type__in=items,
+            subject_entity=entity.id,
+            # type__in=rtypes_ids,
+            type__in=HistoryConfigItem.objects.configured_relation_type_ids(),
         ).select_related('object_entity')
 
         if relations:
@@ -1581,8 +1584,16 @@ def _log_deletion(sender, instance, **kwargs):
         logger.exception('Error in _log_deletion() ; HistoryLine may not be created.')
 
 
+class HistoryConfigItemManager(models.Manager):
+    @cached_per_request('creme_core-history_rtypes')
+    def configured_relation_type_ids(self):
+        return [*self.values_list('relation_type', flat=True)]
+
+
 class HistoryConfigItem(Model):
     relation_type = models.OneToOneField(RelationType, on_delete=models.CASCADE)
+
+    objects = HistoryConfigItemManager()
 
     class Meta:
         app_label = 'creme_core'
