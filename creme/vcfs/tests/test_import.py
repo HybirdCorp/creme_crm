@@ -128,21 +128,29 @@ class VcfImportTestCase(_DocumentsTestCase, CremeTestCase):
         self.assertIn('value="1"', str(form['vcf_step']))
 
     def test_parsing_vcf00(self):
+        "First & last names not separated."
         self.login()
 
-        content = 'BEGIN:VCARD\nFN:Prénom Nom\nEND:VCARD'
+        first_name = 'Yûna'
+        last_name = 'Akashi'
+        content = f'BEGIN:VCARD\nFN:{first_name} {last_name}\nEND:VCARD'
+        self.assertEqual(f'{first_name} {last_name}', read_vcf(content).fn.value)
+
         response = self._post_step0(content)
 
         with self.assertNoException():
             form = response.context['form']
+            fields = form.fields
+            first_name_f = fields['first_name']
+            last_name_f = fields['last_name']
 
         self.assertIn('value="1"', str(form['vcf_step']))
 
-        firt_name, sep, last_name = read_vcf(content).fn.value.partition(' ')
-        self.assertEqual(form['first_name'].field.initial, firt_name)
-        self.assertEqual(form['last_name'].field.initial,  last_name)
+        self.assertEqual(first_name, first_name_f.initial)
+        self.assertEqual(last_name, last_name_f.initial)
 
     def test_parsing_vcf01(self):  # TODO: use BDAY
+        "Contact with details & address."
         self.login()
 
         first_name = 'Yûna'
@@ -232,6 +240,7 @@ END:VCARD"""
         self.assertEqual(region, fields['homeaddr_region'].initial)
 
     def test_parsing_vcf02(self):
+        "Organisation."
         self.login()
 
         name = 'Negima'
@@ -291,7 +300,7 @@ END:VCARD"""
         self.assertEqual(country, fields['workaddr_country'].initial)
 
     def test_parsing_vcf03(self):
-        "Address without type."
+        "Address without type ; VCF tags are lower case."
         self.login()
 
         box = '852'
