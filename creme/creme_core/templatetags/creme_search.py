@@ -24,6 +24,7 @@ from django.contrib.contenttypes.models import ContentType
 from ..core.search import Searcher
 from ..registry import creme_registry
 from ..utils.unicode_collation import collator
+from ..views import search as search_views
 
 register = template.Library()
 
@@ -41,6 +42,7 @@ def search_form(*, user, selected_ct_id, search_terms):
     content_types.sort(key=lambda k: sort_key(k['verbose_name']))
 
     return {
+        'min_length':     search_views.MIN_RESEARCH_LENGTH,
         'content_types':  content_types,
         'selected_ct_id': selected_ct_id,
         'search_terms':   search_terms,
