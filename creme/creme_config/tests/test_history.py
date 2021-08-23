@@ -44,7 +44,7 @@ class HistoryConfigTestCase(CremeTestCase):
         )
 
     def test_add02(self):
-        "No duplicates"
+        "No duplicates."
         create_rt = RelationType.objects.smart_update_or_create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]

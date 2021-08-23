@@ -607,8 +607,8 @@ by a man named Tochiro.
 
         value = 456
         # with self.assertNumQueries(3):
-        # NB: 2x2 queries for history (create lines, get config) TODO: get config once
-        with self.assertNumQueries(7):
+        # NB: 2 queries to create history lines + 1 to retrieve config
+        with self.assertNumQueries(6):
             CustomFieldInteger.save_values_for_entities(
                 custom_field=cfield,
                 entities=[orga1, orga2],
@@ -625,8 +625,8 @@ by a man named Tochiro.
         orga3 = create_orga(name='Yamato')
 
         # with self.assertNumQueries(2):
-        # NB: 2 queries for history
-        with self.assertNumQueries(4):
+        # NB: 1 query to create history line
+        with self.assertNumQueries(3):
             CustomFieldInteger.save_values_for_entities(
                 custom_field=cfield,
                 entities=[orga1, orga3],
