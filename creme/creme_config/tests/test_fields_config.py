@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from json import loads as json_load
-
+# from json import loads as json_load
 # from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -123,6 +122,13 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertNotIn('cremeentity_ptr', fields1)
         self.assertNotIn('id', fields1)
 
+        # TODO: assertSorted
+        labels = [
+            elt.text
+            for elt in self.get_html_tree(response1.content).findall('.//label')
+        ]
+        self.assertListEqual(sorted(labels), labels)
+
         # ---
         # response2 = self.client.post(url, data={'hidden': ['phone', 'birthday']})
         response2 = self.client.post(
@@ -134,12 +140,15 @@ class FieldsConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response2)
 
-        fconf = self.refresh(fconf)
+        # fconf = self.refresh(fconf)
+        # self.assertListEqual(
+        #     [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
+        #     json_load(fconf.raw_descriptions),
+        # )
         self.assertListEqual(
-            # [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
-            [['phone', {'required': True}], ['birthday', {'hidden': True}]],
-            json_load(fconf.raw_descriptions),
-        )  # TODO: meh
+            [('birthday', {'hidden': True}), ('phone', {'required': True})],
+            self.refresh(fconf).descriptions,
+        )
 
         # test initial ------
         response3 = self.assertGET200(url)
@@ -283,12 +292,18 @@ class FieldsConfigTestCase(CremeTestCase):
         )
         self.assertNoFormError(response3)
 
-        config = FieldsConfig.objects.get(content_type=ctype)
+        config = self.get_object_or_fail(FieldsConfig, content_type=ctype)
+        # self.assertListEqual(
+        #     [
+        #         ('phone', {'hidden': True}),
+        #         ('birthday', {'hidden': True}),
+        #     ],
+        #     config.descriptions,
+        # )
         self.assertListEqual(
             [
-                # ('phone', {'hidden': True}),
-                ('phone', {'required': True}),
                 ('birthday', {'hidden': True}),
+                ('phone', {'required': True}),
             ],
             config.descriptions,
         )

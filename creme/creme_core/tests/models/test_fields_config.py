@@ -79,12 +79,12 @@ class FieldsConfigTestCase(CremeTestCase):
         # Not optional, M2M cannot be required at the moment
         self.assertNotIn('languages', conf_fields)
 
-        self.assertNotIn('address', conf_fields)
-        self.assertNotIn('is_user', conf_fields)  # not editable
+        self.assertNotIn('address',         conf_fields)
+        self.assertNotIn('is_user',         conf_fields)  # not editable
         self.assertNotIn('cremeentity_ptr', conf_fields)  # not viewable
-        self.assertNotIn('is_deleted', conf_fields)  # not viewable
-        self.assertNotIn('user', conf_fields)  # empty
-        self.assertNotIn('is_a_nerd', conf_fields)  # BooleanField
+        self.assertNotIn('is_deleted',      conf_fields)  # not viewable
+        self.assertNotIn('user',            conf_fields)  # empty
+        self.assertNotIn('is_a_nerd',       conf_fields)  # BooleanField
 
     def test_manager_configurable_fields02(self):
         conf_fields = {
@@ -99,8 +99,8 @@ class FieldsConfigTestCase(CremeTestCase):
 
     def test_manager_create01(self):
         "HIDDEN."
-        h_field1 = 'phone'
-        h_field2 = 'mobile'
+        h_field1 = 'mobile'
+        h_field2 = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
             descriptions=[
@@ -116,7 +116,13 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertTrue(fconf.is_field_hidden(get_field(h_field1)))
         self.assertTrue(fconf.is_field_hidden(get_field(h_field2)))
 
-        self.assertEqual(2, len(fconf.descriptions))
+        self.assertListEqual(
+            [
+                (h_field1, {FieldsConfig.HIDDEN: True}),
+                (h_field2, {FieldsConfig.HIDDEN: True}),
+            ],
+            fconf.descriptions,
+        )
 
     def test_manager_create02(self):
         "REQUIRED."
@@ -148,7 +154,14 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertFalse(is_fieldname_required('mobile'))
         self.assertFalse(is_fieldname_required('is_a_nerd'))
 
-        self.assertEqual(2, len(fconf.descriptions))
+        # NB: sorted by field name
+        self.assertListEqual(
+            [
+                (r_field2, {FieldsConfig.REQUIRED: True}),
+                (r_field1, {FieldsConfig.REQUIRED: True}),
+            ],
+            fconf.descriptions,
+        )
 
     def test_manager_create_errors_01(self):
         "Invalid field: ignored."

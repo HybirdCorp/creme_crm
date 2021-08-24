@@ -337,6 +337,9 @@ class FieldsConfig(CremeModel):
             if valid_conf:
                 safe_descriptions.append((field_name, valid_conf))
 
+        # NB: we sort by field name to keep a stable order through editions
+        safe_descriptions.sort(key=lambda t: t[0])
+
         return errors, safe_descriptions
 
     # @classmethod
