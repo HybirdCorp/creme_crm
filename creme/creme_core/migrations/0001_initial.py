@@ -1432,14 +1432,16 @@ class Migration(migrations.Migration):
                         'total_vat',
                         creme_fields.MoneyField(
                             decimal_places=2, default=0, editable=False, max_digits=14,
-                            blank=True, null=True, verbose_name='Total with VAT',
+                            null=True, verbose_name='Total with VAT',
+                            # blank=True
                         )
                     ),
                     (
                         'total_no_vat',
                         creme_fields.MoneyField(
                             decimal_places=2, default=0, editable=False, max_digits=14,
-                            blank=True, null=True, verbose_name='Total without VAT',
+                            null=True, verbose_name='Total without VAT',
+                            # blank=True
                         )
                     ),
                 ],
