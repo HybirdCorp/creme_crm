@@ -664,15 +664,17 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         if self._use_properties_fields() and not instance.pk:
             ptypes_f = self.fields['property_types']
-            ptypes_f.queryset = CremePropertyType.objects.compatible(type(instance))
+            ptypes_f.queryset = CremePropertyType.objects.compatible(
+                type(instance)
+            ).filter(enabled=True)
             ptypes_f.forced_values = forced_ptype_ids
         else:
             del self.fields['property_types']
 
-    def _build_relations_fields(self,
-                                forced_relations_info:
-                                    List[Tuple[RelationType, CremeEntity]],
-                                ) -> None:
+    def _build_relations_fields(
+        self,
+        forced_relations_info: List[Tuple[RelationType, CremeEntity]],
+    ) -> None:
         fields = self.fields
         instance = self.instance
         info: Optional[str] = None

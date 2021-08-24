@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2019  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,8 +19,12 @@
 ################################################################################
 
 from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.models import CremePropertyType
 from creme.persons.views import contact as contact_views
 
 from .. import gui
@@ -30,6 +34,19 @@ from ..constants import PROP_IS_A_SALESMAN
 class SalesManCreation(contact_views.ContactCreation):
     title = _('Create a salesman')
     submit_label = _('Save the salesman')
+
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        ptype = get_object_or_404(CremePropertyType, id=PROP_IS_A_SALESMAN)
+
+        if not ptype.enabled:
+            raise ConflictError(
+                gettext(
+                    'The property type «{}» is disabled; you should enable it '
+                    'or remove the menu entries referencing salesmen.'
+                ).format(ptype.text)
+            )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()

@@ -258,9 +258,22 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         position_ids = [*FakePosition.objects.values_list('id', flat=True)]
         sector_ids   = [*FakeSector.objects.values_list('id', flat=True)]
 
-        ptype = CremePropertyType.objects.smart_update_or_create(
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(
             str_pk='test-prop_cute', text='Really cute in her suit',
         )
+        ptype2 = create_ptype(
+            str_pk='test-prop_accurate', text='Great accuracy',
+            subject_ctypes=[FakeContact],
+        )
+        ptype3 = create_ptype(
+            str_pk='test-prop_international', text='International',
+            subject_ctypes=[FakeOrganisation],
+        )
+
+        ptype4 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        ptype4.enabled = False
+        ptype4.save()
 
         create_rtype = RelationType.objects.smart_update_or_create
         employed = create_rtype(
@@ -269,7 +282,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )[0]
         loves = create_rtype(
             ('test-subject_loving', 'is loving'),
-            ('test-object_loving',  'is loved by')
+            ('test-object_loving',  'is loved by'),
         )[0]
 
         nerv = FakeOrganisation.objects.create(user=self.user, name='Nerv')
@@ -285,7 +298,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         doc = builder(lines)
         url = self._build_import_url(FakeContact)
-        response = self.client.post(
+        response1 = self.client.post(
             url,
             data={
                 'step':       0,
@@ -293,14 +306,22 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'has_header': True,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response1)
 
-        form = response.context['form']
+        with self.assertNoException():
+            form = response1.context['form']
+            properties_choices = form.fields['property_types'].choices
+
         self.assertIn('value="1"',    str(form['step']))
         self.assertIn('value="True"', str(form['has_header']))
 
+        self.assertInChoices(value=ptype1.id, label=ptype1.text, choices=properties_choices)
+        self.assertInChoices(value=ptype2.id, label=ptype2.text, choices=properties_choices)
+        self.assertNotInChoices(value=ptype3.id, choices=properties_choices)
+        self.assertNotInChoices(value=ptype4.id, choices=properties_choices)
+
         default_descr = 'A cute pilot'
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 **self.lv_import_data,
@@ -321,7 +342,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'sector_defval': '',  # The browser POST an empty string
                 # sector_create=False,
 
-                'property_types': [ptype.id],
+                'property_types': [ptype1.id],
 
                 'fixed_relations': self.formfield_value_multi_relation_entity(
                     [loves.id, shinji]
@@ -333,9 +354,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'address_city_colselect': 5,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
-        job = self._execute_job(response)
+        job = self._execute_job(response2)
 
         lines_count = len(lines) - 1  # '-1' for header
         self.assertEqual(contact_count + lines_count, FakeContact.objects.count())
@@ -357,7 +378,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
             self.assertEqual(default_descr, contact.description)
             self.assertEqual(position,      contact.position)
-            self.get_object_or_fail(CremeProperty, type=ptype, creme_entity=contact.id)
+            self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=contact.id)
             self.assertRelationCount(1, contact, loves.id, shinji)
 
         self.assertRelationCount(1, created_contacts['Rei'],   employed.id, nerv)

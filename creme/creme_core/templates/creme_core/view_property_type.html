@@ -3,6 +3,8 @@
 
 {% block page_title %}«{{object}}» - {% endblock %}
 
+{% block body_classes %}{% if not object.enabled %}is_deleted{% endif %}{% endblock %}
+
 {% block global_buttons %}
     <li>
         <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Go to the configuration of types' as list_label %}
@@ -25,14 +27,21 @@
     <div class="hat-bar-container">
         <div class="hat-bar">{% translate 'Property type' as title %}
             <div class="bar-icon">{% widget_icon name='property' size='brick-hat-bar' label=title %}</div>
-            <div class="bar-title"><h1>{{title}} : {{object|capfirst}}</h1></div>
+            <div class="bar-title">
+                <h1>
+                    {{title}} : {{object|capfirst}}
+                    {% if not object.enabled %}<span class="bar-deleted-indicator">[{% translate 'Disabled' %}]</span>{% endif %}
+                </h1>
+            </div>
             {% if object.is_custom %}
             <div class="bar-actions">{% has_perm_to admin 'creme_config' as admin_perm %}{# TODO: creme_core ?! #}
+                {% if object.enabled %}
                 <div class='bar-action'>
                     <a href="{{object.get_edit_absolute_url}}" class="bar-button{% if not admin_perm %} forbidden is-disabled{% endif %}">
                         {% widget_icon name='edit' size='brick-hat-bar-button' label=_('Edit') %}
                     </a>
                 </div>
+                {% endif %}
                 <div class='bar-action'>
                     <a onclick="creme.utils.confirmSubmit(this, '{{confirm_msg|escapejs}}');" class="bar-button{% if not admin_perm %} forbidden is-disabled{% endif %}">
                         {% widget_icon name='delete' size='brick-hat-bar-button' %}

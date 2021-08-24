@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-27 14:08+0200\n"
+"POT-Creation-Date: 2021-09-01 11:07+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1306,6 +1306,14 @@ msgid "%(count)s entity with this property"
 msgid_plural "%(count)s entities with this property"
 msgstr[0] ""
 msgstr[1] ""
+
+# Already in creme_core
+msgid "Disable"
+msgstr ""
+
+# Already in creme_core
+msgid "Enable"
+msgstr ""
 
 msgid "Edit this property type"
 msgstr "Modifier ce type de propriété"

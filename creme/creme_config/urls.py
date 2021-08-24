@@ -200,6 +200,18 @@ property_type_patterns = [
         creme_property_type.PropertyTypeEdition.as_view(),
         name='creme_config__edit_ptype',
     ),
+
+    re_path(
+        r'^enable/(?P<ptype_id>[\w-]+)[/]?$',
+        creme_property_type.PropertyTypeEnabling.as_view(),
+        name='creme_config__enable_ptype',
+    ),
+    re_path(
+        r'^disable/(?P<ptype_id>[\w-]+)[/]?$',
+        creme_property_type.PropertyTypeEnabling.as_view(),
+        {'enabled': False},
+        name='creme_config__disable_ptype',
+    ),
 ]
 
 fields_config_patterns = [

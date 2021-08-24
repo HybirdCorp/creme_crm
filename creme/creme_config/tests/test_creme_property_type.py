@@ -88,19 +88,7 @@ class PropertyTypeTestCase(CremeTestCase):
         self.login(is_superuser=False)
         self.assertGET403(self.ADD_URL)
 
-    def test_edit01(self):
-        "Edit a not custom type +> error."
-        self.login()
-
-        get_ct = ContentType.objects.get_for_model
-        pt = CremePropertyType.objects.smart_update_or_create(
-            str_pk='test-foobar', text='is beautiful',
-            subject_ctypes=[get_ct(FakeContact)], is_custom=False,
-        )
-
-        self.assertGET404(self._build_edit_url(pt))
-
-    def test_edit02(self):
+    def test_edit(self):
         "Edit a custom type."
         self.login()
 
@@ -135,3 +123,56 @@ class PropertyTypeTestCase(CremeTestCase):
         pt = self.refresh(pt)
         self.assertEqual(text, pt.text)
         self.assertListEqual([ct_orga.id], [ct.id for ct in pt.subject_ctypes.all()])
+
+    def test_edit_error01(self):
+        "Edit a not custom type."
+        self.login()
+
+        get_ct = ContentType.objects.get_for_model
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful',
+            subject_ctypes=[get_ct(FakeContact)], is_custom=False,
+        )
+
+        self.assertGET404(self._build_edit_url(pt))
+
+    def test_edit_error02(self):
+        "Edit a disabled type."
+        self.login()
+
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        )
+
+        pt.enabled = False
+        pt.save()
+
+        self.assertGET404(self._build_edit_url(pt))
+
+    def test_disable(self):
+        self.login()
+
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        )
+
+        url = reverse('creme_config__disable_ptype', args=(pt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+        self.assertFalse(self.refresh(pt).enabled)
+
+    def test_enable(self):
+        self.login()
+
+        pt = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        )
+        pt.enabled = False
+        pt.save()
+
+        url = reverse('creme_config__enable_ptype', args=(pt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+        self.assertTrue(self.refresh(pt).enabled)

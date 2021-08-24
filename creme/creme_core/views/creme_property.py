@@ -97,7 +97,7 @@ class PropertyTypeCreation(generic.CremeModelCreation):
 
 class PropertyTypeEdition(generic.CremeModelEdition):
     # model = CremePropertyType
-    queryset = CremePropertyType.objects.filter(is_custom=True)
+    queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
     form_class = ptype_forms.CremePropertyTypeEditForm
     pk_url_kwarg = 'ptype_id'
     permissions = 'creme_core.can_admin'

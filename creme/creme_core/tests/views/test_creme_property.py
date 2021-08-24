@@ -55,6 +55,10 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             subject_ctypes=[FakeOrganisation],
         )
 
+        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        ptype05.enabled = False
+        ptype05.save()
+
         entity = FakeContact.objects.create(
             user=user, first_name='Spike', last_name='Spiegel',
         )
@@ -79,7 +83,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertLess(i1, i2)
         self.assertLess(i2, i3)
 
-        self.assertNotIn((ptype04.id, ptype04.text), choices)
+        self.assertNotInChoices(value=ptype04.id, choices=choices)
+        self.assertNotInChoices(value=ptype05.id, choices=choices)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
 
@@ -176,7 +181,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET403(self.ADD_TYPE_URL)
 
     def test_add_type04(self):
-        "Not super-user"
+        "Not super-user."
         self.login(is_superuser=False, admin_4_apps=('creme_core',))
         self.assertGET200(self.ADD_TYPE_URL)
 
@@ -241,6 +246,17 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             str_pk='test-foobar', text='is beautiful', is_custom=True,
         )
         self.assertGET200(ptype.get_edit_absolute_url())
+
+    def test_edit_type05(self):
+        "Disabled=True."
+        self.login()
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-foobar', text='is beautiful', is_custom=True,
+        )
+        ptype.enabled = False
+        ptype.save()
+
+        self.assertGET404(ptype.get_edit_absolute_url())
 
     def test_delete_related01(self):
         user = self.login(is_superuser=False)
@@ -335,27 +351,51 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST403(ptype.get_delete_absolute_url(), follow=True)
 
     def test_add_properties_bulk01(self):
-        self.login()
+        user = self.login()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='wears strange hats')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='wears strange pants')
-        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='wears strange shoes')
+        ptype01 = create_ptype(str_pk='test-prop_blip', text='Makes BLIPs')
+        ptype02 = create_ptype(str_pk='test-prop_holo', text='Projects holograms')
+        ptype03 = create_ptype(
+            str_pk='test-prop_droid', text='Is a droid', subject_ctypes=[FakeContact],
+        )
+        ptype04 = create_ptype(
+            str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
+        )
 
-        create_entity = CremeEntity.objects.create
-        entities = [create_entity(user=self.user) for i in range(15)]
+        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        ptype05.enabled = False
+        ptype05.save()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        entities = [
+            create_contact(first_name=f'R{i}', last_name=f'D{i}')
+            for i in range(1, 6)
+        ]
 
         for entity in entities:
             self.assertEqual(0, entity.properties.count())
 
         response = self.assertGET200(
-            self._build_bulk_url(self.centity_ct, *entities, GET=True)
+            self._build_bulk_url(entities[0].entity_type, *entities, GET=True)
         )
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
 
-        get_ctxt = response.context.get
+        context = response.context
+        get_ctxt = context.get
         self.assertEqual(_('Multiple adding of properties'), get_ctxt('title'))
         self.assertEqual(_('Add the properties'),            get_ctxt('submit_label'))
+
+        with self.assertNoException():
+            ptypes_choices = context['form'].fields['types'].choices
+
+        choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
+        self.assertInChoices(value=ptype03.id, label=ptype03.text, choices=choices)
+        self.assertInChoices(value=ptype01.id, label=ptype01.text, choices=choices)
+        self.assertInChoices(value=ptype02.id, label=ptype02.text, choices=choices)
+
+        self.assertNotInChoices(ptype04.id, choices)
+        self.assertNotInChoices(ptype05.id, choices)
 
         # ---
         url = self._build_bulk_url(self.centity_ct)

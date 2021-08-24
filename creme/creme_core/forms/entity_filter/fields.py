@@ -940,6 +940,8 @@ class PropertiesConditionsField(_ConditionsField):
         'invalidptype': _('This property type is invalid with this model.'),
     }
 
+    _non_disabled_ptype_ids = ()
+
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
@@ -948,7 +950,10 @@ class PropertiesConditionsField(_ConditionsField):
         )
 
     def _get_ptypes(self):
-        return CremePropertyType.objects.compatible(self._model)
+        # return CremePropertyType.objects.compatible(self._model)
+        return CremePropertyType.objects.compatible(self._model).filter(
+            Q(enabled=True) | Q(id__in=self._non_disabled_ptype_ids)
+        )
 
     def _value_to_jsonifiable(self, value):
         return [
@@ -991,7 +996,8 @@ class PropertiesConditionsField(_ConditionsField):
 
     def _set_initial_conditions(self, conditions):
         type_id = condition_handler.PropertyConditionHandler.type_id
-        self.initial = [c for c in conditions if c.type == type_id]
+        self.initial = f_conds = [c for c in conditions if c.type == type_id]
+        self._non_disabled_ptype_ids = {c.name for c in f_conds}
 
 
 # TODO: factorise with _ConditionsField (mixin ?)

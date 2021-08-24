@@ -2099,6 +2099,42 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(ptype.id,                         condition.name)
         self.assertEqual(EF_CREDENTIALS,                   condition.filter_type)
 
+    def test_disabled_ptype01(self):
+        "Disabled type are ignored."
+        ptype = self.ptype01
+        ptype.enabled = False
+        ptype.save()
+
+        field = PropertiesConditionsField(model=FakeContact)
+
+        self.assertFieldValidationError(
+            PropertiesConditionsField, 'invalidptype', field.clean,
+            json_dump([{'ptype': ptype.id, 'has': True}]),
+        )
+
+    def test_disabled_ptype02(self):
+        "Disabled type but already used => not ignored."
+        ptype = self.ptype01
+        ptype.enabled = False
+        ptype.save()
+
+        field = PropertiesConditionsField(model=FakeContact)
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            conditions=[
+                PropertyConditionHandler.build_condition(
+                    model=FakeContact, ptype=ptype,
+                ),
+            ],
+        )
+
+        conditions = field.clean(json_dump([{'ptype': ptype.id, 'has': True}]))
+        self.assertEqual(1, len(conditions))
+
+        condition1 = conditions[0]
+        self.assertEqual(ptype.id, condition1.name)
+        self.assertIs(condition1.value, True)
+
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
     def setUp(self):
