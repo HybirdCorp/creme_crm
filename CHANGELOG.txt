@@ -18,8 +18,9 @@
         - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.
         - Elements which are added & removed for ManyToManyFields are now stored.
         - CustomFields are now historized too.
-    # The global search can now search in Custom-Fields.
+    # The global search can now search in CustomFields.
     # Many blocks got descriptions, which are displayed as tool-tips.
+    # The field "modified" of entities is updated when you use inner/bulk edition with a CustomField.
     # Apps :
         * Creme_config :
             - The main menu can now be customised ; containers can be created,

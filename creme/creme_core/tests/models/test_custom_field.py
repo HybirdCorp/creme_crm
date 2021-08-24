@@ -60,7 +60,7 @@ class CustomFieldManagerTestCase(CremeTestCase):
             expected,
             [*CustomField.objects.compatible(
                 ContentType.objects.get_for_model(FakeOrganisation)
-            )]
+            )],
         )
 
     def test_get_for_model(self):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
 from urllib.parse import unquote, urlparse
@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.forms import CharField
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -2507,6 +2508,12 @@ class InnerEditTestCase(_BulkEditTestCase):
     def test_custom_field01(self):
         self.login()
         mario = self.create_contact()
+        old_created = mario.created - timedelta(days=1)
+        type(mario).objects.filter(id=mario.id).update(
+            created=old_created,
+            modified=mario.modified - timedelta(days=1),
+        )
+
         cfield = CustomField.objects.create(
             name='custom 1', content_type=mario.entity_type,
             field_type=CustomField.STR,
@@ -2522,7 +2529,11 @@ class InnerEditTestCase(_BulkEditTestCase):
         value = 'hihi'
         response = self.client.post(url, data={'field_value': value})
         self.assertNoFormError(response)
-        self.assertEqual(value, self.get_cf_values(cfield, self.refresh(mario)).value)
+
+        mario = self.refresh(mario)
+        self.assertEqual(value, self.get_cf_values(cfield, mario).value)
+        self.assertEqual(old_created, mario.created)
+        self.assertDatetimesAlmostEqual(now(), mario.modified)
 
     def test_custom_field02(self):
         user = self.login()

@@ -681,7 +681,9 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
             if forced_relations_info:
                 if len(forced_relations_info) == 1:
                     rel = forced_relations_info[0]
-                    info = _('This relationship will be added: {predicate} «{entity}»').format(
+                    info = _(
+                        'This relationship will be added: {predicate} «{entity}»'
+                    ).format(
                         predicate=rel[0].predicate,
                         entity=rel[1],
                     )

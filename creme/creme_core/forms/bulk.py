@@ -28,11 +28,12 @@ from django.db.models import FileField, ManyToManyField
 from django.forms.fields import ChoiceField
 from django.forms.forms import NON_FIELD_ERRORS
 from django.urls import reverse
+from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..gui import bulk_update
-from ..models import FieldsConfig, custom_field
+from ..models import CremeEntity, FieldsConfig, custom_field
 from .base import CremeForm
 
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
@@ -76,7 +77,7 @@ class BulkForm(CremeForm):
             model = self.model
             entities = self.entities
             # TODO: factorise
-            fieldname = (
+            field_name = (
                 f'{self.parent_field.name}__{self.field_name}'
                 if self.is_subfield else
                 self.field_name
@@ -85,7 +86,7 @@ class BulkForm(CremeForm):
             self.fields['_bulk_fieldname'] = ChoiceField(
                 choices=self._bulk_model_choices(model, entities),
                 label=_('Field to update'),
-                initial=self._bulk_field_url(model, fieldname, entities),
+                initial=self._bulk_field_url(model, field_name, entities),
                 required=False,
             )
 
@@ -303,6 +304,14 @@ class BulkDefaultEditForm(BulkForm):
                 custom_field.CustomFieldValue.save_values_for_entities(
                     self.model_field, entities, field_value,
                 )
+                # We ensure the field "modified" is updated (CremeEntity.save() is not called).
+                # TODO: smarter way? (to ensure "modified" is always updated
+                #       when a custom value is saved (beware to extra queries...)
+                # TODO: do not update if the values does not change?
+                #       (notice that this is not done even for regular fields...)
+                CremeEntity.objects.filter(
+                    id__in=[e.id for e in entities],
+                ).update(modified=now())
             elif getattr(self.model_field, 'many_to_many', False):
                 name = self.model_field.name
 
