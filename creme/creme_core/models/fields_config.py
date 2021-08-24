@@ -89,15 +89,17 @@ class FieldsConfigManager(models.Manager):
         meta = model._meta
 
         for field in chain(meta.fields, meta.many_to_many):
-            if not field.editable:
-                continue
-
             if not field.get_tag(FieldTag.VIEWABLE):
                 continue
 
             flags = []
 
-            if field.blank and not field.many_to_many and not isinstance(field, BooleanField):
+            if (
+                field.editable
+                and field.blank
+                and not field.many_to_many
+                and not isinstance(field, BooleanField)
+            ):
                 # TODO: allow ManyToManyFields ?
                 #   BEWARE: in CremeModel.full_clean() M2M cannot be checked,
                 #           so in mass import they have to be checked specifically.

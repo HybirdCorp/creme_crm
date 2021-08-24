@@ -16,6 +16,7 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeFolder,
     FakeImage,
+    FakeInvoice,
     FakeOrganisation,
     FakeSector,
     FieldsConfig,
@@ -96,6 +97,21 @@ class FieldsConfigTestCase(CremeTestCase):
         # Not REQUIRED for M2M
         self.assertTrue(FakeDocument._meta.get_field('categories').blank)
         self.assertEqual({FieldsConfig.HIDDEN}, conf_fields.get('categories'))
+
+    def test_manager_configurable_fields03(self):
+        "Not editable fields can be hidden (but not set required)."
+        conf_fields = {
+            field.name: {*values}
+            for field, values in FieldsConfig.objects.configurable_fields(FakeInvoice)
+        }
+        self.assertEqual(
+            {FieldsConfig.REQUIRED, FieldsConfig.HIDDEN},
+            conf_fields.get('expiration_date'),
+        )
+        self.assertNotIn('total_vat', conf_fields)  # Not editable, not optional
+
+        # Optional but not editable
+        self.assertEqual({FieldsConfig.HIDDEN}, conf_fields.get('total_no_vat'))
 
     def test_manager_create01(self):
         "HIDDEN."

@@ -587,11 +587,11 @@ else:
 
         total_vat = core_fields.MoneyField(
             _('Total with VAT'), max_digits=14, decimal_places=2,
-            blank=True, null=True, editable=False, default=0,
+            null=True, editable=False, default=0,  # blank=True
         )
         total_no_vat = core_fields.MoneyField(
             _('Total without VAT'), max_digits=14, decimal_places=2,
-            blank=True, null=True, editable=False, default=0,
+            null=True, editable=False, default=0,  # blank=True
         ).set_tags(optional=True)
 
         class Meta:
