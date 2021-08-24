@@ -433,7 +433,12 @@ urlpatterns = [
     ),
     re_path(r'^test_js[/]?$', testjs.test_js, name='creme_core__test_js'),
     re_path(
-        r'^test_widget(/|/(?P<widget>\w+)[/]?)?$',
+        r'^test_widget[/]?$',
+        testjs.test_widget,
+        name='creme_core__test_widget_home',
+    ),
+    re_path(
+        r'^test_widget/(?P<widget>[\w]+)[/]?$',
         testjs.test_widget,
         name='creme_core__test_widget',
     ),

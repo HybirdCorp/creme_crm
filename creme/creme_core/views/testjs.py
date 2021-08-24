@@ -46,11 +46,9 @@ from ..gui.field_printers import (
     print_duration,
     print_foreignkey_html,
     print_image_html,
-    print_many2many_html,
     print_url_html,
 )
 from ..http import is_ajax
-from ..models import CremeProperty
 
 logger = logging.getLogger(__name__)
 
@@ -72,9 +70,17 @@ class MockImage:
         self.url = url
         self.width = width
         self.height = height or width
+        self.name = url
 
     def html(self, entity):
-        return mark_safe(print_image_html(entity, self, entity.user, None))
+        return mark_safe(
+            print_image_html(
+                entity=entity,
+                fval=self,
+                user=entity.user,
+                field=self
+            )
+        )
 
 
 class MockManyToMany:
@@ -92,22 +98,23 @@ class Dummy:
     def __init__(self, name, user, image_url):
         self.user = user
         self.name = name
-        self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
         self.url = mark_safe(print_url_html(self, image_url, self.user, None))
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(
             self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None
         ))
-        property = CremeProperty.objects.first()
         self.foreignkey = (
             None
             if property is None else
             mark_safe(print_foreignkey_html(self, property, user, None))
         )
-        self.manytomany = mark_safe(
-            print_many2many_html(self, MockManyToMany(CremeProperty), user, None)
-        )
+        # API Breaking : TODO refactor this
+#         self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
+#         property = CremeProperty.objects.first()
+#         self.manytomany = mark_safe(
+#             print_many2many_html(self, MockManyToMany(CremeProperty), user, None)
+#         )
 
     def __str__(self):
         return self.name
@@ -117,7 +124,7 @@ class DummyListBrick(PaginatedBrick):
     id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
     verbose_name  = 'Dummies'
     dependencies  = ()
-    permission    = 'creme_config.can_admin'
+    permissions   = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
     configurable  = False
 
