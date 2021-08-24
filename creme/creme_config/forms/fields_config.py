@@ -140,24 +140,35 @@ class FieldsConfigEditForm(CremeModelForm):
             REQUIRED: _('Required'),
         }
 
-        # TODO: sort by verbose_name ?
+        new_formfields = []
         for field, flags in FieldsConfig.objects.configurable_fields(
             model=instance.content_type.model_class(),
         ):
             fname = field.name
-            fields[fname] = forms.ChoiceField(
-                label=field.verbose_name,
-                required=False,
-                choices=[
-                    ('', '---'),
-                    *((flag, choices_label.get(flag, '??')) for flag in flags),
-                ],
-                initial=(
-                    HIDDEN if instance.is_fieldname_hidden(fname) else
-                    REQUIRED if instance.is_fieldname_required(fname) else
-                    ''
-                ),
-            )
+            new_formfields.append((
+                fname,
+                forms.ChoiceField(
+                    label=str(field.verbose_name),
+                    required=False,
+                    choices=[
+                        ('', '---'),
+                        *((flag, choices_label.get(flag, '??')) for flag in flags),
+                    ],
+                    initial=(
+                        HIDDEN if instance.is_fieldname_hidden(fname) else
+                        REQUIRED if instance.is_fieldname_required(fname) else
+                        ''
+                    ),
+                )
+            ))
+
+        from creme.creme_core.utils.unicode_collation import collator
+        sort_key = collator.sort_key
+        new_formfields.sort(key=lambda t: sort_key(t[1].label))
+
+        # TODO: update() ?
+        for fname, form_field in new_formfields:
+            fields[fname] = form_field
 
     def clean(self, *args, **kwargs):
         cdata = super().clean(*args, **kwargs)
