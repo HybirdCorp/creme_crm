@@ -250,6 +250,10 @@ class CreationTestCase(ViewsTestCase):
             str_pk='test-prop_ship', text='Is a ship', subject_ctypes=[FakeOrganisation],
         )
 
+        ptype05 = create_ptype(str_pk='test-prop_disabled', text='Disabled')
+        ptype05.enabled = False
+        ptype05.save()
+
         url = reverse('creme_core__create_fake_contact')
 
         # GET ---
@@ -266,7 +270,8 @@ class CreationTestCase(ViewsTestCase):
         self.assertLess(i1, i2)
         self.assertLess(i2, i3)
 
-        self.assertNotIn((ptype04.id, ptype04.text), choices)
+        self.assertNotInChoices(ptype04.id, choices)
+        self.assertNotInChoices(ptype05.id, choices)
 
         # POST ---
         first_name = 'Spike'

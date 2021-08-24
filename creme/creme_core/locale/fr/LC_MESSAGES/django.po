@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2021-09-01 10:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1928,6 +1928,9 @@ msgstr "S'applique aux fiches des types suivants"
 msgid "Is copiable"
 msgstr "Est copiable"
 
+msgid "Enabled?"
+msgstr "Activé?"
+
 msgid "Create a type of property"
 msgstr "Créer un type de propriété"
 
@@ -3158,11 +3161,18 @@ msgstr "Supprimer cette vue personnalisée"
 msgid "First page"
 msgstr "Première page"
 
+#, python-format
+msgid "%(count)s items"
+msgstr "%(count)s éléments"
+
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
 
 msgid "Property type"
 msgstr "Type de propriété"
+
+msgid "Disabled"
+msgstr "Désactivé"
 
 msgid "Collapse block"
 msgstr "Replier le bloc"

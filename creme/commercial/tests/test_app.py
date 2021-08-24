@@ -5,7 +5,11 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import CremeProperty, RelationType
+from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
+    RelationType,
+)
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.tests.base import skipIfCustomContact
 
@@ -115,6 +119,16 @@ class CommercialTestCase(CremeTestCase):
         self.get_object_or_fail(
             CremeProperty, type=PROP_IS_A_SALESMAN, creme_entity=salesman.id,
         )
+
+    def test_salesman_create03(self):
+        "Property type is disabled => error."
+        self.login()
+
+        ptype = self.get_object_or_fail(CremePropertyType, id=PROP_IS_A_SALESMAN)
+        ptype.enabled = False
+        ptype.save()
+
+        self.assertGET409(self.ADD_SALESMAN_URL)
 
     @skipIfCustomContact
     def test_salesman_listview01(self):

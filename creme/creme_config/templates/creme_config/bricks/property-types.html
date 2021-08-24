@@ -17,7 +17,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='subject_ctypes' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_copiable'    status='nowrap' %}
     {% brick_table_column title=_('Statistics') %}
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -34,7 +34,16 @@
         </td>
         {% with action_enabled=admin_perm|and_op:prop_type.is_custom %}
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
+            {% if prop_type.enabled %}
+                {% brick_table_action id='update' url='creme_config__disable_ptype'|url:prop_type.id label=_('Disable') display='text' enabled=admin_perm %}
+            {% else %}
+                {% brick_table_action id='update' url='creme_config__enable_ptype'|url:prop_type.id  label=_('Enable')  display='text' enabled=admin_perm %}
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if prop_type.enabled %}
+                {% brick_table_action id='edit' url='creme_config__edit_ptype'|url:prop_type.id label=_('Edit this property type') enabled=action_enabled %}
+            {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=prop_type.get_delete_absolute_url label=_('Delete this property type') enabled=action_enabled %}

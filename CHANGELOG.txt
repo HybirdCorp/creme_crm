@@ -27,6 +27,7 @@
               re-ordered, removed, & their entries can be chosen too.
               All apps have been reworked to use the new system to provide a menu identical to the old one.
             - The fields can now be marked as required in fields' configuration (not ManyToManyFields for now).
+            - The instances of CremePropertyTypes can now be disabled (to not be proposed in forms).
             - The configuration form for blocks on detailed views has been redesigned
               (the pool of available blocks is now shared, blocks are draggable, descriptions are displayed).
             - A portal which displays all the filters (used by list-views) has been added.

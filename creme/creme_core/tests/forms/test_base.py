@@ -217,14 +217,14 @@ class CremeEntityFormTestCase(CremeTestCase):
     def test_basic(self):
         user = self.create_user()
 
-        form = FakeContactForm(user=user)
-        fields = form.fields
+        form1 = FakeContactForm(user=user)
+        fields = form1.fields
         self.assertIn('first_name', fields)
         self.assertIn('last_name', fields)
         self.assertNotIn('is_user', fields)
 
         # ---
-        blocks = form.get_blocks()
+        blocks = form1.get_blocks()
         with self.assertNoException():
             general_group = blocks['general']
 
@@ -234,7 +234,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         # ---
         first_name = 'Kanbaru'
         last_name = 'Suruga'
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -242,9 +242,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'last_name':  last_name,
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        contact = form.save()
+        contact = form2.save()
         self.assertIsInstance(contact, FakeContact)
         self.assertEqual(user,       contact.user)
         self.assertEqual(first_name, contact.first_name)
@@ -314,7 +314,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         # ---
         first_name = 'Karen'
         last_name = 'Araragi'
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -326,9 +326,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 f'custom_field-{cfield3.id}': '',
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        contact = form.save()
+        contact = form2.save()
         self.assertIsInstance(contact, FakeContact)
         self.assertEqual(first_name, contact.first_name)
         self.assertEqual(last_name,  contact.last_name)
@@ -396,10 +396,10 @@ class CremeEntityFormTestCase(CremeTestCase):
             subject_ctypes=[FakeOrganisation],
         )
 
-        form = FakeContactForm(user=user)
+        form1 = FakeContactForm(user=user)
 
         with self.assertNoException():
-            ptypes_choices = form.fields['property_types'].choices
+            ptypes_choices = form1.fields['property_types'].choices
 
         # Choices are sorted with 'text'
         choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
@@ -412,7 +412,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertNotIn((ptype04.id, ptype04.text), choices)
 
         # ---
-        blocks = form.get_blocks()
+        blocks = form1.get_blocks()
 
         with self.assertNoException():
             prop_group = blocks['properties']
@@ -424,7 +424,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertEqual('property_types', bound_fields[0].name)
 
         # ---
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -434,9 +434,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'property_types': [ptype01.id, ptype03.id],
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        contact = form.save()
+        contact = form2.save()
         self.assertSetEqual(
             {ptype01, ptype03}, {p.type for p in contact.properties.all()}
         )
@@ -539,14 +539,14 @@ class CremeEntityFormTestCase(CremeTestCase):
             ('test-object_heals',  'healed by',  [FakeContact]),
         )[1]
 
-        form = FakeContactForm(user=user)
-        fields = form.fields
+        form1 = FakeContactForm(user=user)
+        fields = form1.fields
         self.assertIn('relation_types', fields)
         self.assertNotIn('semifixed_rtypes', fields)
         self.assertNotIn('rtypes_info',      fields)
 
         # ---
-        blocks = form.get_blocks()
+        blocks = form1.get_blocks()
 
         with self.assertNoException():
             relation_group = blocks['relationships']
@@ -559,7 +559,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
         # ---
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -573,9 +573,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 ),
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        subject = form.save()
+        subject = form2.save()
         self.assertEqual(2, subject.relations.count())
         self.assertRelationCount(1, subject, rtype1, contact)
         self.assertRelationCount(1, subject, rtype2, orga)
@@ -607,8 +607,8 @@ class CremeEntityFormTestCase(CremeTestCase):
             predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
         )
 
-        form = FakeContactForm(user=user)
-        fields = form.fields
+        form1 = FakeContactForm(user=user)
+        fields = form1.fields
         self.assertIn('relation_types', fields)
         self.assertNotIn('rtypes_info', fields)
 
@@ -619,7 +619,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertInChoices(value=sfrt2.id, label=sfrt2.predicate, choices=sf_choices)
 
         # ---
-        blocks = form.get_blocks()
+        blocks = form1.get_blocks()
 
         with self.assertNoException():
             relation_group = blocks['relationships']
@@ -631,7 +631,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
         # ---
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -641,9 +641,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'semifixed_rtypes': [sfrt1.id, sfrt2.id],
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        subject = form.save()
+        subject = form2.save()
         self.assertEqual(2, subject.relations.count())
         self.assertRelationCount(1, subject, rtype1, contact)
         self.assertRelationCount(1, subject, rtype2, orga)
@@ -896,7 +896,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
         # ---
-        form = FakeContactForm(
+        form2 = FakeContactForm(
             user=user,
             data={
                 'user':       user.id,
@@ -909,9 +909,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'semifixed_rtypes': [sfrt.id],  # Idem
             },
         )
-        self.assertFalse(form.errors)
+        self.assertFalse(form2.errors)
 
-        subject = form.save()
+        subject = form2.save()
         self.assertFalse(subject.relations.count())
 
     def test_relations_credentials03(self):

@@ -18,17 +18,20 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.transaction import atomic
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremePropertyType
-from creme.creme_core.views.generic import BricksView
+from creme.creme_core.views import generic
 
 from ..forms import creme_property_type as ptype_forms
 from . import base
 
 
-class Portal(BricksView):
+class Portal(generic.BricksView):
     template_name = 'creme_config/portals/property-type.html'
 
 
@@ -40,7 +43,27 @@ class PropertyTypeCreation(base.ConfigModelCreation):
 
 class PropertyTypeEdition(base.ConfigModelEdition):
     # model = CremePropertyType
-    queryset = CremePropertyType.objects.filter(is_custom=True)
+    queryset = CremePropertyType.objects.filter(is_custom=True, enabled=True)
     form_class = ptype_forms.CremePropertyTypeEditForm
     pk_url_kwarg = 'ptype_id'
     title = pgettext_lazy('creme_config-property', 'Edit the type «{object}»')
+
+
+# TODO: factorise with Job ?
+class PropertyTypeEnabling(generic.CheckedView):
+    permissions = base._PERM
+    pk_url_kwarg = 'ptype_id'
+    enabled_arg = 'enabled'
+    enabled_default = True
+
+    @atomic
+    def post(self, *args, **kwargs):
+        ptype = get_object_or_404(
+            CremePropertyType.objects.select_for_update(),
+            id=kwargs[self.pk_url_kwarg],
+        )
+
+        ptype.enabled = kwargs.get(self.enabled_arg, self.enabled_default)
+        ptype.save()
+
+        return HttpResponse()

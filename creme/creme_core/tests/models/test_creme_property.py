@@ -95,6 +95,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertEqual(text, ptype.text)
         self.assertFalse(ptype.is_custom)
         self.assertTrue(ptype.is_copiable)
+        self.assertTrue(ptype.enabled)
         self.assertFalse(ptype.subject_ctypes.all())
 
     def test_manager_smart_update_or_create02(self):

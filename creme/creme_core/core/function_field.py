@@ -69,12 +69,18 @@ class FunctionFieldDecimal(FunctionFieldResult):
 
 
 class FunctionFieldLink(FunctionFieldResult):
-    def __init__(self, label: str, url: str):
+    def __init__(self, label: str, url: str, is_deleted=False):
         super().__init__(label)
         self._url = url
+        self._is_deleted = is_deleted
 
     def for_html(self) -> str:
-        return format_html('<a href="{}">{}</a>', self._url, self._data)
+        return format_html(
+            '<a href="{}" class="is_deleted">{}</a>'
+            if self._is_deleted else
+            '<a href="{}">{}</a>',
+            self._url, self._data,
+        )
 
 
 # TODO: other types (date, datetime...)

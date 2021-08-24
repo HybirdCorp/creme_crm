@@ -36,7 +36,9 @@ class PropertiesSearchField(BaseChoiceField):
         choices = super()._build_choices(null_label=null_label)
         choices.extend(
             {'value': ptype.id, 'label': str(ptype)}
-            for ptype in CremePropertyType.objects.compatible(self.cell.model)
+            for ptype in CremePropertyType.objects.compatible(
+                self.cell.model
+            ).exclude(enabled=False)
         )
 
         return choices
@@ -58,8 +60,11 @@ class PropertiesField(FunctionField):
         sort_key = collator.sort_key
 
         return FunctionFieldResultsList(
-            FunctionFieldLink(label=label, url=prop.type.get_absolute_url())
-            for label, prop in sorted(
+            FunctionFieldLink(
+                label=label,
+                url=prop.type.get_absolute_url(),
+                is_deleted=not prop.type.enabled,
+            ) for label, prop in sorted(
                 ((str(p), p) for p in entity.get_properties()),
                 key=lambda t: sort_key(t[0]),
             )

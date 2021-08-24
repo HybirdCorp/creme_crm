@@ -47,7 +47,7 @@ class AddPropertiesForm(_AddPropertiesForm):
         ).values_list('type', flat=True)
         self.fields['types'].queryset = CremePropertyType.objects.compatible(
             type(entity)
-        ).exclude(pk__in=excluded)
+        ).filter(enabled=True).exclude(pk__in=excluded)
 
     def save(self):
         create = CremeProperty.objects.safe_create
@@ -63,10 +63,13 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         super().__init__(*args, **kwargs)
         self.entities = entities
         fields = self.fields
+        user = self.user
 
-        fields['types'].queryset = CremePropertyType.objects.compatible(model)  # TODO: Sort?
+        fields['types'].queryset = CremePropertyType.objects.compatible(
+            model
+        ).filter(enabled=True)
         fields['entities_lbl'].initial = (
-            entities_to_str(entities, self.user)
+            entities_to_str(entities, user)
             if entities else
             gettext('NONE !')
         )
@@ -74,7 +77,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
         if forbidden_entities:
             fields['bad_entities_lbl'] = ReadonlyMessageField(
                 label=gettext('Uneditable entities'),
-                initial=entities_to_str(forbidden_entities, self.user),
+                initial=entities_to_str(forbidden_entities, user),
             )
 
     def save(self):

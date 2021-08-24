@@ -206,6 +206,10 @@ class CremePropertyType(CremeModel):
     # (ie: when cloning or converting an entity).
     is_copiable = models.BooleanField(_('Is copiable'), default=True)
 
+    # A disabled type should not be proposed for adding (and a property with
+    # this type should be visually marked as disabled in the UI).
+    enabled = models.BooleanField(_('Enabled?'), default=True, editable=False)
+
     objects = CremePropertyTypeManager()
 
     creation_label = _('Create a type of property')

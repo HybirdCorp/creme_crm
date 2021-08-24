@@ -19,7 +19,7 @@
     {% for property in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>
-            <a href="{{property.type.get_absolute_url}}">{{property}}</a>
+            <a href="{{property.type.get_absolute_url}}"{% if not property.type.enabled %} class="is_deleted"{% endif %}>{{property}}</a>
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=rm_url __id=property.id label=_('Remove this property') enabled=has_perm %}

@@ -3,9 +3,12 @@
 from decimal import Decimal
 from functools import partial
 
+from django.db.models import Q
 from django.urls import reverse
 from django.utils.formats import number_format
+from django.utils.translation import gettext as _
 
+from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import (
     FunctionField,
     FunctionFieldDecimal,
@@ -14,14 +17,17 @@ from creme.creme_core.core.function_field import (
     FunctionFieldResultsList,
     _FunctionFieldRegistry,
 )
+from creme.creme_core.forms.listview import SelectLVSWidget
 from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
+    FakeContact,
 )
 
 from ..base import CremeTestCase
+from ..fake_models import FakeOrganisation
 
 
 class FunctionFieldsTestCase(CremeTestCase):
@@ -228,15 +234,28 @@ class FunctionFieldsTestCase(CremeTestCase):
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')
-        ptype2 = create_ptype(str_pk='test-prop_bar', text='Bar')
+        ptype2 = create_ptype(
+            str_pk='test-prop_bar', text='Bar',
+            subject_ctypes=[FakeContact, FakeOrganisation],
+        )
 
-        create_entity = partial(CremeEntity.objects.create, user=user)
-        entity1 = create_entity()
-        entity2 = create_entity()
+        ptype3 = create_ptype(str_pk='test-prop_del', text='Deleted')
+        ptype3.enabled = False
+        ptype3.save()
+
+        ptype4 = create_ptype(
+            str_pk='test-prop_baz', text='Baz', subject_ctypes=[FakeOrganisation],
+        )
+
+        # --
+        create_contact = partial(FakeContact.objects.create, user=user)
+        entity1 = create_contact(first_name='Spike', last_name='Spiegel')
+        entity2 = create_contact(first_name='Faye',  last_name='Valentine')
 
         create_prop = CremeProperty.objects.create
         create_prop(creme_entity=entity1, type=ptype1)
         create_prop(creme_entity=entity1, type=ptype2)
+        create_prop(creme_entity=entity1, type=ptype3)
         create_prop(creme_entity=entity2, type=ptype1)
 
         ffield = PropertiesField()
@@ -246,7 +265,20 @@ class FunctionFieldsTestCase(CremeTestCase):
 
         self.assertIsInstance(result1, FunctionFieldResultsList)
         # self.assertEqual(f'{ptype1.text}/{ptype2.text}', result1.for_csv())
-        self.assertEqual(f'{ptype2.text}/{ptype1.text}', result1.for_csv())
+        self.assertEqual(
+            f'{ptype2.text}/{ptype3.text}/{ptype1.text}',
+            result1.for_csv(),
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
+            f' <li>'
+            f'  <a href="{ptype3.get_absolute_url()}" class="is_deleted">{ptype3.text}</a>'
+            f' </li>'
+            f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
+            f'</ul>',
+            result1.for_html(),
+        )
 
         with self.assertNumQueries(0):
             ffield(entity1, user)
@@ -266,3 +298,32 @@ class FunctionFieldsTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             ffield(entity1, user)
             ffield(entity2, user)
+
+        # ---
+        field_class = ffield.search_field_builder
+        self.assertIsNotNone(field_class)
+
+        field = field_class(
+            cell=EntityCellFunctionField(model=FakeContact, func_field=ffield),
+            user=user,
+        )
+        self.assertIsInstance(field.widget, SelectLVSWidget)
+
+        choices = field.widget.choices
+        self.assertIn({'value': 'NULL',    'label': _('* no property *')}, choices)
+
+        index1 = self.assertIndex({'value': ptype1.id, 'label': ptype1.text}, choices)
+        index2 = self.assertIndex({'value': ptype2.id, 'label': ptype2.text}, choices)
+        self.assertLess(index2, index1)
+
+        self.assertNotIn({'value': ptype4.id, 'label': ptype4.text}, choices)
+        self.assertNotIn({'value': ptype3.id, 'label': ptype3.text}, choices)
+
+        to_python = field.to_python
+        self.assertQEqual(Q(), to_python(value=None))
+        self.assertQEqual(Q(), to_python(value=''))
+
+        value = ptype1.id
+        self.assertQEqual(Q(properties__type=value), to_python(value=value))
+
+        self.assertQEqual(Q(properties__isnull=True), to_python(value='NULL'))
