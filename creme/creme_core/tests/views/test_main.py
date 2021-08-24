@@ -5,8 +5,10 @@ from io import BytesIO
 from django.conf import settings
 from django.http import Http404
 from django.test.client import RequestFactory
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 from PIL import Image
 
 from creme.creme_core.bricks import HistoryBrick, StatisticsBrick
@@ -148,6 +150,48 @@ class MiscViewsTestCase(ViewsTestCase):
 
         request.META['SERVER_NAME'] = 'otherserver'
         self.assertTrue(settings.FORCE_JS_TESTVIEW)
+
+    def test_js_widget_view_home__disabled(self):
+        self.login()
+
+        response = self.assertGET404(reverse('creme_core__test_widget_home'))
+
+        self.assertContains(
+            response,
+            "This is view is only reachable during javascript debug.",
+            status_code=404
+        )
+
+    @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
+    def test_js_widget_view_home(self):
+        self.login()
+        self.assertGET200(reverse('creme_core__test_widget_home'))
+
+    @parameterized.expand([
+        'actions',
+        'blocklist',
+        'checklistselect',
+        'chosen',
+        'colorpicker',
+        'combobox',
+        'editor',
+        'entityselector',
+        'filterselector',
+        'frame',
+        'jqplot',
+        'layout',
+        'listview',
+        'model',
+        'plotselector',
+        'polymorphicselector',
+        'popover',
+        'scrollactivator',
+        'toggle',
+    ])
+    @override_settings(FORCE_JS_TESTVIEW=True, TESTS_ON=False)
+    def test_js_widget_views(self, widget):
+        self.login()
+        self.assertGET200(reverse('creme_core__test_widget', args=(widget,)))
 
     def test_400_middleware(self):
         self.login()
