@@ -86,7 +86,8 @@ class _BulkUpdateRegistry:
             self._regularfields = {}
 
         def _reset_cache(self) -> None:
-            self._regularfields = {}
+            # self._regularfields = {}
+            self._regularfields.clear()
 
         def is_expandable(self, field: Field) -> bool:
             # if not isinstance(field, ForeignKey) or field.get_tag('enumerable'):
@@ -195,7 +196,8 @@ class _BulkUpdateRegistry:
 
         def get_form(self,
                      name: str,
-                     default: Optional[Type['BulkForm']] = None) -> Optional[Type['BulkForm']]:
+                     default: Optional[Type['BulkForm']] = None,
+                     ) -> Optional[Type['BulkForm']]:
             return self._innerforms.get(name, default)
 
     def __init__(self):
@@ -211,7 +213,8 @@ class _BulkUpdateRegistry:
 
     def _merge_innerforms(self,
                           parent_status: ModelBulkStatus,
-                          child_status: ModelBulkStatus) -> None:
+                          child_status: ModelBulkStatus,
+                          ) -> None:
         child_status._innerforms = {
             **parent_status._innerforms,
             **child_status._innerforms,
@@ -221,7 +224,8 @@ class _BulkUpdateRegistry:
                  model: Type[Model],
                  exclude: Sequence[str] = (),
                  expandables: Sequence[str] = (),
-                 innerforms: Optional[Mapping[str, Type['BulkForm']]] = None):
+                 innerforms: Optional[Mapping[str, Type['BulkForm']]] = None,
+                 ) -> ModelBulkStatus:
         """Register a CremeEntity class.
         @param model: Class inheriting CremeEntity.
         @param exclude: A sequence of field names (ie: strings) indicating

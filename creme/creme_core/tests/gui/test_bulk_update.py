@@ -45,7 +45,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.bulk_update_registry = _BulkUpdateRegistry()
         self.maxDiff = None
 
-    def sortFields(self, fields):
+    @staticmethod
+    def sort_fields(fields):
         sort_key = collator.sort_key
         return sorted(fields, key=lambda f: sort_key(f.verbose_name))
 
@@ -75,7 +76,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_updatable(field_name='is_deleted'))
 
     def test_bulk_update_registry03(self):
-        "Unique field"
+        "Unique field."
         registry = self.bulk_update_registry
         registry.register(FakeActivity)
 
@@ -153,16 +154,35 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertFalse(is_updatable(field_name='phone'))
 
     def test_regular_fields(self):
+        fields = {
+            field.name: field
+            for field in chain(
+                FakeContact._meta.fields,
+                FakeContact._meta.many_to_many,
+            )
+            if field.editable and not field.unique
+        }
+        self.assertIn('first_name', fields)
+        self.assertIn('last_name',  fields)
+        self.assertIn('sector',     fields)
+        self.assertIn('languages',  fields)  # M2M
+
+        self.assertNotIn('id',              fields)  # Unique
+        self.assertNotIn('cremeentity_ptr', fields)  # Unique
+        self.assertNotIn('is_user',         fields)  # Not editable
+
+        registry = self.bulk_update_registry
+
         self.assertListEqual(
-            self.sortFields([
-                field
-                for field in chain(
-                    FakeContact._meta.fields,
-                    FakeContact._meta.many_to_many,
-                )
-                if field.editable and not field.unique
-            ]),
-            self.bulk_update_registry.regular_fields(FakeContact),
+            self.sort_fields(fields.values()),
+            registry.regular_fields(FakeContact),
+        )
+
+        registry.register(FakeContact, exclude=['sector'])
+        del fields['sector']
+        self.assertListEqual(
+            self.sort_fields(fields.values()),
+            registry.regular_fields(FakeContact),
         )
 
     def test_regular_fields_ignore(self):
@@ -174,7 +194,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
     def test_regular_fields_include_unique(self):
         meta = FakeContact._meta
         self.assertListEqual(
-            self.sortFields([
+            self.sort_fields([
                 field
                 for field in chain(meta.fields, meta.many_to_many)
                 if field.editable
@@ -263,7 +283,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         registry.register(FakeContact)
 
         meta = FakeContact._meta
-        expected = self.sortFields([
+        expected = self.sort_fields([
             field
             for field in chain(meta.fields, meta.many_to_many)
             if field.editable and not field.unique
