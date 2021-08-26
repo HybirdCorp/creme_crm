@@ -219,7 +219,8 @@ class CremeEntity(CremeModel):
 
     def get_related_entities(self,
                              relation_type_id: str,
-                             real_entities: bool = True) -> List['CremeEntity']:
+                             real_entities: bool = True,
+                             ) -> List['CremeEntity']:
         return [
             relation.object_entity.get_real_entity()
             for relation in self.get_relations(relation_type_id, real_entities)
@@ -227,7 +228,8 @@ class CremeEntity(CremeModel):
 
     def get_relations(self,
                       relation_type_id: str,
-                      real_obj_entities: bool = False) -> List['Relation']:
+                      real_obj_entities: bool = False,
+                      ) -> List['Relation']:
         from . import Relation
 
         relations = self._relations_map.get(relation_type_id)
@@ -275,7 +277,8 @@ class CremeEntity(CremeModel):
 
     @staticmethod
     def populate_relations(entities: Sequence['CremeEntity'],
-                           relation_type_ids: Sequence[str]) -> None:
+                           relation_type_ids: Sequence[str],
+                           ) -> None:
         from . import Relation
 
         relations = Relation.objects.filter(
@@ -309,7 +312,8 @@ class CremeEntity(CremeModel):
 
     @staticmethod
     def populate_custom_values(entities: Sequence['CremeEntity'],
-                               custom_fields: Sequence['CustomField']) -> None:
+                               custom_fields: Sequence['CustomField'],
+                               ) -> None:
         from . import CustomField
 
         cvalues_map = CustomField.get_custom_values_map(entities, custom_fields)
@@ -323,9 +327,9 @@ class CremeEntity(CremeModel):
     def get_entity_summary(self, user) -> str:
         return escape(self.allowed_str(user))
 
-    def get_custom_fields_n_values(
-            self,
-            only_required: bool = False) -> List[Tuple['CustomField', Any]]:
+    def get_custom_fields_n_values(self,
+                                   only_required: bool = False,
+                                   ) -> List[Tuple['CustomField', Any]]:
         from . import CustomField
 
         # NB: we do not use <CustomField.objects.get_for_model()> because this method
@@ -461,10 +465,10 @@ class CremeEntity(CremeModel):
         ).values_list('type', flat=True):
             creme_property_create(type_id=type_id, creme_entity=self)
 
-    def _copy_relations(
-            self,
-            source: 'CremeEntity',
-            allowed_internal: Sequence[str] = ()) -> None:
+    def _copy_relations(self,
+                        source: 'CremeEntity',
+                        allowed_internal: Sequence[str] = (),
+                        ) -> None:
         """@param allowed_internal: Sequence of RelationTypes PK with <is_internal=True>.
                   Relationships with these types will be cloned anyway.
         """

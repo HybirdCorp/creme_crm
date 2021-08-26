@@ -1,13 +1,24 @@
 # -*- coding: utf-8 -*-
 
 from decimal import Decimal
+from functools import partial
 
+from django.urls import reverse
 from django.utils.formats import number_format
 
 from creme.creme_core.core.function_field import (
     FunctionField,
     FunctionFieldDecimal,
+    FunctionFieldLink,
+    FunctionFieldResult,
+    FunctionFieldResultsList,
     _FunctionFieldRegistry,
+)
+from creme.creme_core.function_fields import PropertiesField
+from creme.creme_core.models import (
+    CremeEntity,
+    CremeProperty,
+    CremePropertyType,
 )
 
 from ..base import CremeTestCase
@@ -155,6 +166,12 @@ class FunctionFieldsTestCase(CremeTestCase):
         with self.assertRaises(_FunctionFieldRegistry.RegistrationError):
             registry.unregister(Klass, TestFunctionField)
 
+    def test_result(self):
+        value = 'My value'
+        result = FunctionFieldResult(value)
+        self.assertEqual(value, result.for_csv())
+        self.assertEqual(value, result.for_html())
+
     def test_result_decimal(self):
         value = Decimal('1234.45')
         result = FunctionFieldDecimal(value)
@@ -167,4 +184,84 @@ class FunctionFieldsTestCase(CremeTestCase):
             result.for_csv(),
         )
 
-    # TODO: test other classes
+    def test_result_link(self):
+        label = 'My Contacts'
+        url = reverse('creme_core__list_fake_contacts')
+        result = FunctionFieldLink(label=label, url=url)
+        self.assertEqual(label, result.for_csv())
+        self.assertHTMLEqual(f'<a href="{url}">{label}</a>', result.for_html())
+
+    def test_result_list(self):
+        value1 = 'My value #1'
+        value2 = 'My value #2'
+        result = FunctionFieldResultsList([
+            FunctionFieldResult(value1),
+            FunctionFieldResult(value2),
+        ])
+        self.assertEqual(f'{value1}/{value2}', result.for_csv())
+        self.assertHTMLEqual(
+            f'<ul><li>{value1}</li><li>{value2}</li></ul>',
+            result.for_html(),
+        )
+
+    def test_field(self):
+        fname = 'get_delete_absolute_url'
+        label = 'URL'
+
+        class TestFunctionField(FunctionField):
+            name = fname
+            verbose_name = label
+
+        ffield = TestFunctionField()
+        self.assertEqual(fname, ffield.name)
+        self.assertEqual(label, ffield.verbose_name)
+        self.assertIs(False, ffield.is_hidden)
+
+        user = self.create_user()
+        entity = CremeEntity.objects.create(user=user)
+        result = ffield(entity, user)
+        self.assertIsInstance(result, FunctionFieldResult)
+        self.assertEqual(entity.get_delete_absolute_url(), result.for_csv())
+
+    def test_properties_field(self):
+        user = self.create_user()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_foo', text='Foo')
+        ptype2 = create_ptype(str_pk='test-prop_bar', text='Bar')
+
+        create_entity = partial(CremeEntity.objects.create, user=user)
+        entity1 = create_entity()
+        entity2 = create_entity()
+
+        create_prop = CremeProperty.objects.create
+        create_prop(creme_entity=entity1, type=ptype1)
+        create_prop(creme_entity=entity1, type=ptype2)
+        create_prop(creme_entity=entity2, type=ptype1)
+
+        ffield = PropertiesField()
+
+        with self.assertNumQueries(1):
+            result1 = ffield(entity1, user)
+
+        self.assertIsInstance(result1, FunctionFieldResultsList)
+        self.assertEqual(f'{ptype1.text}/{ptype2.text}', result1.for_csv())
+
+        with self.assertNumQueries(0):
+            ffield(entity1, user)
+
+        # ---
+        with self.assertNumQueries(1):
+            ffield(entity2, user)
+
+        # ---
+        # NB: clean internal caches
+        entity1 = self.refresh(entity1)
+        entity2 = self.refresh(entity2)
+
+        with self.assertNumQueries(1):
+            ffield.populate_entities([entity1, entity2], user)
+
+        with self.assertNumQueries(0):
+            ffield(entity1, user)
+            ffield(entity2, user)
