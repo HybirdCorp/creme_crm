@@ -1308,7 +1308,8 @@ class Migration(migrations.Migration):
                     ),
                     ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),  # null=True
-                    ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd', blank=True)),
+                    # ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd', blank=True)),
+                    ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
                     ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
                     ('mobile', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Mobile', blank=True)),
@@ -1510,7 +1511,8 @@ class Migration(migrations.Migration):
                     ('email', models.EmailField(max_length=100, null=True, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
-                    ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT', blank=True)),
+                    # ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT', blank=True)),
+                    ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
                     ('creation_date', models.DateField(null=True, verbose_name='Date of creation', blank=True)),
                     (
                         'address',

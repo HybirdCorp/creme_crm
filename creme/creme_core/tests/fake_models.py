@@ -312,7 +312,7 @@ else:
             _('First name'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
 
-        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False, blank=True)
+        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)  # blank=True
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
 
         phone = core_fields.PhoneField(
@@ -430,7 +430,7 @@ else:
         capital = models.PositiveIntegerField(
             _('Capital'), blank=True, null=True,
         ).set_tags(optional=True)
-        subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True, blank=True)
+        subject_to_vat = models.BooleanField(_('Subject to VAT'), default=True)  # blank=True
 
         legal_form = models.ForeignKey(
             FakeLegalForm, verbose_name=_('Legal form'),
