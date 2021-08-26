@@ -271,8 +271,24 @@ def widget_select_or_msg(items, void_msg):
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')
-def widget_enumerator(items, threshold=None, empty=''):
-    return {'items': items, 'threshold': threshold, 'empty_label': empty}
+# def widget_enumerator(items, threshold=None, empty=''):
+def widget_enumerator(items, threshold=3, empty='', summary=None):
+    """Enumerate a list of items in a compact manner.
+    If the number of items exceed a given threshold, another way to display the
+    items is used (currently an inner popup).
+    @param items: Sequence of objects.
+    @param threshold: Integer >= 2.
+    @param empty: Message (string) used when <items> is empty.
+    @param summary: Format string used when there are too much items.
+           It used the brace format with "count" name (ie: '{count} foobars').
+           If not given default one is provided.
+    """
+    return {
+        'items': items,
+        'threshold': threshold,
+        'empty_label': empty,
+        'summary': summary,
+    }
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/help-sign.html')

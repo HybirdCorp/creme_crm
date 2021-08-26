@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2021-08-27 13:10+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1135,6 +1135,10 @@ msgstr ""
 msgid "Type"
 msgstr "Type"
 
+#, python-brace-format
+msgid "{count} fields"
+msgstr "{count} champs"
+
 msgid "Edit this type of block"
 msgstr "Modifier ce type de bloc"
 
@@ -1256,6 +1260,10 @@ msgstr "Vue détaillée :"
 msgid "All types of entity"
 msgstr "Tous les types de fiche"
 
+#, python-brace-format
+msgid "{count} types of entity"
+msgstr "{count} types de fiche"
+
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
@@ -1287,6 +1295,10 @@ msgstr "Nouveau type de propriété personnalisé"
 
 msgid "No related type of resource"
 msgstr "Pas de type de ressource associé"
+
+#, python-brace-format
+msgid "{count} types of resource"
+msgstr "{count} types de ressource"
 
 # Already in creme_core
 #, python-format
@@ -1337,6 +1349,10 @@ msgstr "Pas de type"
 
 msgid "No property"
 msgstr "Pas de propriété"
+
+#, python-brace-format
+msgid "{count} types of property"
+msgstr "{count} types de propriété"
 
 msgid "The relationships are not copied when the subject entity is cloned"
 msgstr "Les relations ne sont pas copiées quand la fiche sujet est clonée"
@@ -1493,6 +1509,10 @@ msgstr ""
 
 msgid "No teammate"
 msgstr "Aucun Coéquipier"
+
+#, python-brace-format
+msgid "{count} users"
+msgstr "{count} utilisateurs"
 
 msgid "Edit this team"
 msgstr "Modifier cette équipe"

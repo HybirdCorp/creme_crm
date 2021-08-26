@@ -26,7 +26,7 @@
     <tr>
         <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
         <td class="property-subjects">
-            {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=10 empty=_('No related type of resource') %}
+            {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=8 empty=_('No related type of resource') summary=_('{count} types of resource') %}
         </td>
         <td class="property-copiable">{% print_field object=prop_type field='is_copiable' %}</td>
         <td class="property-count">

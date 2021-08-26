@@ -30,7 +30,7 @@ When an entity belongs to a team, each teammate has the same permissions on this
     {% for team in page.object_list %}
     <tr>
         <td>{{team.username}}</td>
-        <td>{% widget_enumerator team.teammates.values|uca_sort threshold=10 empty=_('No teammate') %}</td>
+        <td>{% widget_enumerator team.teammates.values|uca_sort threshold=10 empty=_('No teammate') summary=_('{count} users') %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='creme_config__edit_team'|url:team.id label=_('Edit this team') enabled=admin_perm %}
         </td>

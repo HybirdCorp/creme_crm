@@ -29,7 +29,7 @@
         <td>
             <ul>
                 {% if brick|has_attr:'home_display' %}<li>{% translate 'Home & «My page»' %}</li>{% endif %}
-                {% if brick|has_attr:'detailview_display' %}<li>{% translate 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</li>{% endif %}
+                {% if brick|has_attr:'detailview_display' %}<li>{% translate 'Detail views:' %}&nbsp;{% widget_enumerator brick.target_ctypes|verbose_models|uca_sort threshold=10 empty=_('All types of entity') summary=_('{count} types of entity') %}</li>{% endif %}
             </ul>
         </td>
         <td class="instancebrick-config-errors">

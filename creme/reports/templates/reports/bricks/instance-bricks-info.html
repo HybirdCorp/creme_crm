@@ -24,7 +24,7 @@
     {% with fetcher=ibci.brick.fetcher %}
     <tr>
         <td {% brick_table_data_status primary %}>{{fetcher.verbose_name}}</td>
-        <td>{% widget_enumerator fetcher.linked_models|verbose_models|uca_sort threshold=10 empty=_('All types of entity') %}</td>
+        <td>{% widget_enumerator fetcher.linked_models|verbose_models|uca_sort threshold=10 empty=_('All types of entity') summary=_('{count} types of entity') %}</td>
         <td>{{fetcher.error|default:'—'}}</td>
     </tr>
     {% endwith %}

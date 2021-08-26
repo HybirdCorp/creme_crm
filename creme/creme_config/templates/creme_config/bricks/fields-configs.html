@@ -38,10 +38,10 @@
         <td class="fieldconf-fields">
             <ul class="fieldconf-fields-flags">
             {% if field_conf.hidden_fields_vnames %}
-                <li class="fieldconf-fields-flag-hidden">{% translate 'Hidden fields:' %}&nbsp;{% widget_enumerator field_conf.hidden_fields_vnames|uca_sort %}</li>
+                <li class="fieldconf-fields-flag-hidden">{% translate 'Hidden fields:' %}&nbsp;{% widget_enumerator field_conf.hidden_fields_vnames|uca_sort threshold=10 summary=_('{count} fields') %}</li>
             {% endif %}
             {% if field_conf.required_fields_vnames %}
-                <li class="fieldconf-fields-flag-required">{% translate 'Required fields:' %}&nbsp;{% widget_enumerator field_conf.required_fields_vnames|uca_sort %}</li>
+                <li class="fieldconf-fields-flag-required">{% translate 'Required fields:' %}&nbsp;{% widget_enumerator field_conf.required_fields_vnames|uca_sort threshold=10 summary=_('{count} fields') %}</li>
             {% endif %}
             </ul>
             {% with errors=field_conf.errors_on_hidden %}
