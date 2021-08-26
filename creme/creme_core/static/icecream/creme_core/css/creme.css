@@ -446,6 +446,11 @@ span.enumerator-item {
     font-weight: 800;
 }
 
+span.enumerator-empty {
+    font-style: italic;
+    color: #333;
+}
+
 /* Title bar */
 
 .global-buttons + .hat-bar-container {

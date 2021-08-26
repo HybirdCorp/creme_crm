@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2021-08-27 13:41+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -534,8 +534,13 @@ msgstr ""
 "Ces blocs peuvent être placés sur l'Accueil & sur certaines vues détaillées "
 "dans la <a href=\"%(config_url)s\">configuration des blocs</a>."
 
-# Laready in 'creme_config'
+# Already in 'creme_config'
 msgid "All types of entity"
+msgstr ""
+
+# Already in 'creme_config'
+#, python-brace-format
+msgid "{count} types of entity"
 msgstr ""
 
 msgid "No brick for this graph"

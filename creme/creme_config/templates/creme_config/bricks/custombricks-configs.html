@@ -33,7 +33,7 @@
         {% if forloop.first %}<td class="custombrick-config-type" rowspan="{{ctw.items|length}}">{{ctw.ctype}}</td>{% endif %}
         <td {% brick_table_data_status primary %} class="custombrick-config-label">{{config_item.name}}</td>
         <td class="custombrick-config-fields">
-            {% widget_enumerator config_item.cells threshold=10 %}
+            {% widget_enumerator config_item.cells threshold=8 summary=_('{count} fields') %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='creme_config__edit_custom_brick'|url:config_item.id label=_('Edit this type of block') enabled=admin_perm %}

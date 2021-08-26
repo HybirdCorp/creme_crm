@@ -1,6 +1,25 @@
-{% load creme_widgets %}
+{% load i18n creme_core_tags creme_widgets %}
+{% with length=items|length %}
+{% if length < threshold %}
+    {% for item in items %}{% widget_join %}<span class="enumerator-item">{{item}}</span>{% end_widget_join %}{% empty %}<span class="enumerator-empty">{{empty_label}}</span>{% endfor %}
+{% else %}
+    <a data-action="popover">
+        {% if summary is None %}
+            {% blocktrans with count=length %}{{count}} items{% endblocktrans %}
+        {% else %}
+            {% format_string_brace_named summary count=length %}
+        {% endif %}
+        <details>
+            <ul>{% for item in items %}<li>{{item}}</li>{% endfor %}</ul>
+        </details>
+    </a>
+{% endif %}
+{% endwith %}
+
+{% comment %}
 {% if not threshold or items|length < threshold %}
     {% for item in items %}{% widget_join %}<span class="enumerator-item">{{item}}</span>{% end_widget_join %}{% empty %}<span class="enumerator-empty">{{empty_label}}</span>{% endfor %}
 {% else %}
     {% widget_select_or_msg items empty_label %}
 {% endif %}
+{% endcomment %}

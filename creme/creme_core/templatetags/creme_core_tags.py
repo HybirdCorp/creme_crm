@@ -252,6 +252,12 @@ def format_string(value, format_str):
     return format_str % value
 
 
+# TODO: other flavours -> brace_positional, classical_named...
+@register.simple_tag
+def format_string_brace_named(format_str, **kwargs):
+    return format_str.format(**kwargs)
+
+
 # NB: seems not used any more...
 @register.filter
 def to_timestamp(date):
