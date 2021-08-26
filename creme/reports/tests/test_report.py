@@ -86,8 +86,8 @@ class ReportTestCase(BaseReportsTestCase):
         user = self.user
 
         create_img = FakeImage.objects.create
-        self.ned_face   = create_img(name='Ned face',  user=self.other_user)
-        self.aria_face  = create_img(name='Aria face', user=user)
+        self.ned_face  = create_img(name='Ned face',  user=self.other_user)
+        self.aria_face = create_img(name='Aria face', user=user)
 
         create_contact = partial(FakeContact.objects.create, user=user)
         self.ned  = create_contact(first_name='Eddard', last_name='Stark', image=self.ned_face)
@@ -122,8 +122,7 @@ class ReportTestCase(BaseReportsTestCase):
 
     def _build_orga_report(self):
         orga_report = Report.objects.create(
-            user=self.user, name='Report on organisations',
-            ct=self.ct_orga,
+            user=self.user, name='Report on organisations', ct=self.ct_orga,
         )
 
         create_field = partial(
