@@ -232,7 +232,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url())
 
-        # TODO: sort the relations/properties by their verbose_name ??
+        # TODO: sort the relations by their verbose_name ??
         result = response.content.splitlines()
         it = (force_str(line) for line in result)
         self.assertEqual(next(it), ','.join(f'"{hfi.title}"' for hfi in hf.cells))
@@ -244,12 +244,9 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"","Spiegel","Spike","Swordfish/Bebop",""',
             )
         )
-        self.assertIn(
+        self.assertEqual(
             next(it),
-            (
-                '"","Valentine","Faye","","is a girl/is beautiful"',
-                '"","Valentine","Faye","","is beautiful/is a girl"',
-            )
+            '"","Valentine","Faye","","is a girl/is beautiful"',
         )
         self.assertEqual(next(it), '"","Wong","Edward","","is a girl"')
         with self.assertRaises(StopIteration):
@@ -303,7 +300,7 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         response = self.assertGET200(self._build_contact_dl_url(doc_type='scsv'))
 
-        # TODO: sort the relations/properties by their verbose_name ??
+        # TODO: sort the relations by their verbose_name ??
         it = (force_str(line) for line in response.content.splitlines())
         self.assertEqual(next(it), ';'.join(f'"{hfi.title}"' for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
@@ -314,12 +311,9 @@ class MassExportViewsTestCase(ViewsTestCase):
                 '"";"Spiegel";"Spike";"Swordfish/Bebop";""',
             )
         )
-        self.assertIn(
+        self.assertEqual(
             next(it),
-            (
-                '"";"Valentine";"Faye";"";"is a girl/is beautiful"',
-                '"";"Valentine";"Faye";"";"is beautiful/is a girl"',
-            )
+            '"";"Valentine";"Faye";"";"is a girl/is beautiful"',
         )
         self.assertEqual(next(it), '"";"Wong";"Edward";"";"is a girl"')
         with self.assertRaises(StopIteration):
@@ -565,8 +559,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
-        self.assertEqual(next(it), [hfi.title for hfi in cells])
-        self.assertEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
+        self.assertListEqual(next(it), [hfi.title for hfi in cells])
+        self.assertListEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
         self.assertIn(
             next(it),
             (
@@ -574,14 +568,11 @@ class MassExportViewsTestCase(ViewsTestCase):
                 ['', 'Spiegel', 'Spike', 'Swordfish/Bebop', ''],
             )
         )
-        self.assertIn(
+        self.assertListEqual(
             next(it),
-            (
-                ['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
-                ['', 'Valentine', 'Faye', '', 'is beautiful/is a girl'],
-            )
+            ['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
         )
-        self.assertEqual(next(it), ['', 'Wong', 'Edward', '', 'is a girl'])
+        self.assertListEqual(next(it), ['', 'Wong', 'Edward', '', 'is a girl'])
         with self.assertRaises(StopIteration):
             next(it)
 
@@ -698,8 +689,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         lines = {force_str(line) for line in response.content.splitlines()}
-        self.assertIn('"Bebop","{}"'.format(_('Percent')),    lines)
-        self.assertIn('"Swordfish","{}"'.format(_('Amount')), lines)
+        self.assertIn(f'''"Bebop","{_('Percent')}"''',    lines)
+        self.assertIn(f'''"Swordfish","{_('Amount')}"''', lines)
 
     # TODO: factorise with ListViewTestCase
     def _get_lv_content(self, response):

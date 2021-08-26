@@ -169,7 +169,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
         self.assertIn(
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
-            response.content.decode()
+            response.content.decode(),
         )
 
     def test_choices_no_app_credentials(self):

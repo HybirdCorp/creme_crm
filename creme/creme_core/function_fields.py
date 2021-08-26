@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from .core.function_field import (
 )
 from .forms.listview import BaseChoiceField
 from .models import CremeEntity, CremePropertyType
+from .utils.unicode_collation import collator
 
 
 class PropertiesSearchField(BaseChoiceField):
@@ -48,15 +49,20 @@ class PropertiesSearchField(BaseChoiceField):
 
 
 class PropertiesField(FunctionField):
-    name         = 'get_pretty_properties'
+    name = 'get_pretty_properties'
     verbose_name = _('Properties')
-    result_type  = FunctionFieldResultsList
+    result_type = FunctionFieldResultsList
     search_field_builder = PropertiesSearchField
 
     def __call__(self, entity, user):
+        sort_key = collator.sort_key
+
         return FunctionFieldResultsList(
-            FunctionFieldLink(label=str(p), url=p.type.get_absolute_url())
-            for p in entity.get_properties()
+            FunctionFieldLink(label=label, url=prop.type.get_absolute_url())
+            for label, prop in sorted(
+                ((str(p), p) for p in entity.get_properties()),
+                key=lambda t: sort_key(t[0]),
+            )
         )
 
     @classmethod
