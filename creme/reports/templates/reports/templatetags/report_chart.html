@@ -2,7 +2,7 @@
 <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
     <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect" />
     <ul class="ui-layout hbox" style="padding:2px;">
-        {% report_chart_selector object %}
+        {% reports_chart_selector object %}
     </ul>
     {% include 'reports/frags/graph_errors.html' with hand=object.hand %}
     <div chained-name="plot" class="ui-creme-chainedselect-item">
@@ -11,7 +11,7 @@
              plot-name="${graph}"
              style="width:100%;">
                 {% for name, chart in report_charts %} 
-                    {% blockjsondata name=name %}{% report_chart_json object chart %}{% endblockjsondata %}
+                    {% blockjsondata name=name %}{% reports_chart_json object chart %}{% endblockjsondata %}
                 {% endfor %}
             <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" 
                  savable="true" style="height:300px;padding:5px 10px 5px 5px;border:0px;" format="creme.graphael.BargraphData">

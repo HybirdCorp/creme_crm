@@ -308,6 +308,10 @@
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.
                     - An 'TextChoices' class for : RGA_*, AGGREGATOR_TYPES.
+                - Several templatetags have been renamed (for consistency) :
+                    - 'report_chart_json' became 'reports_chart_json'.
+                    - 'report_chart_selector' became 'reports_chart_selector'.
+                    - 'report_chart_labels' became 'reports_chart_labels'.
             * Activities :
                 - The global dictionary 'views.activity._TYPES_MAP' has been transformed in the class attribute 'ActivityCreation.allowed_activity_types'.
             * Billing :

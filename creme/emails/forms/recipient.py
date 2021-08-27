@@ -120,7 +120,6 @@ class MailingListAddCSVForm(CremeForm):
 
         uploaded_file = self.cleaned_data['recipients']
 
-        # TODO: genexpr
         def addresses():
             for line in uploaded_file:
                 address = self.filter_mail_chunk(line)

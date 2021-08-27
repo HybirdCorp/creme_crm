@@ -7,7 +7,7 @@
     <script type="text/javascript">
          $('.brick[id="{{brick_id}}"]').on('brick-ready', function() {
              var properties = {
-                 charts: {{report_charts|report_chart_labels|jsonify|safe}},
+                 charts: {{report_charts|reports_chart_labels|jsonify|safe}},
                  sorts: {
                      'ASC':  "{% translate 'Ascending' %}",
                      'DESC': "{% translate 'Descending' %}"
@@ -138,7 +138,7 @@
                      plot-name="${chart}"
                      style="width:100%;margin:0px;padding:0px;border:0px;">
                      {% for name, chart in report_charts %}
-                        {% blockjsondata name=name %}{% report_chart_json graph chart is_small=True %}{% endblockjsondata %}
+                        {% blockjsondata name=name %}{% reports_chart_json graph chart is_small=True %}{% endblockjsondata %}
                      {% endfor %}
                     <div class="ui-widget-content ui-creme-widget ui-creme-jqueryplot ui-creme-resizable" widget="ui-creme-jqueryplot" 
                          savable="false" style="height:300px;padding:5px;border:0px;" format="creme.graphael.BargraphData">
