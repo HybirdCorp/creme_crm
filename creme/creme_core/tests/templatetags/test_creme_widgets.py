@@ -5,6 +5,11 @@ from django.template import Context, Template
 from django.test import override_settings
 from django.utils.translation import gettext as _
 
+from creme.creme_core.templatetags.creme_widgets import (
+    JoinNode,
+    enum_comma_and,
+)
+
 from ..base import CremeTestCase
 from ..fake_models import FakeOrganisation, FakeSector
 
@@ -200,7 +205,27 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
+    def test_widget_join(self):
+        self.assertIs(enum_comma_and, JoinNode.behaviours.get(''))
+        self.assertIs(enum_comma_and, JoinNode.behaviours.get('en'))
+
+        items = ['Cat', 'Dog', 'Fish']
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% for item in items %}'
+                r'{% widget_join %}<span>{{item}}</span>{% end_widget_join %}'
+                r'{% endfor %}'
+            ).render(Context({'items': items, 'LANGUAGE_CODE': ''}))
+
+        self.assertEqual(
+            f'''<span>{items[0]}</span>'''
+            f''',&emsp14;<span>{items[1]}</span>'''
+            f'''&emsp14;{_('and')}&emsp14;<span>{items[2]}</span>''',
+            render.strip(),
+        )
+
     # TODO: complete:
     #   - widget_icon
-    #   - widget_join
     #   - widget_help_sign
