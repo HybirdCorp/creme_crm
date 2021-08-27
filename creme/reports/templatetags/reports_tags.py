@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,27 +18,31 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.template import Library, loader
+from django import template
+from django.template.loader import render_to_string
 
-register = Library()
+register = template.Library()
 
 
 @register.simple_tag
-def report_chart_json(rgraph, chart, is_small=False):  # TODO: reportS
-    return loader.render_to_string(
+# def report_chart_json(rgraph, chart, is_small=False):
+def reports_chart_json(rgraph, chart, is_small=False):
+    return render_to_string(
         chart.template,
         {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
     )
 
 
 @register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
-def report_chart_selector(context, rgraph):  # TODO: reportS
+# def report_chart_selector(context, rgraph):
+def reports_chart_selector(context, rgraph):
     context['rgraph'] = rgraph
     return context
 
 
 @register.filter
-def report_chart_labels(charts):
+# def report_chart_labels(charts):
+def reports_chart_labels(charts):
     return {name: chart.label for name, chart in charts}
 
 
