@@ -65,6 +65,8 @@
                     - In 'FieldsConfig.LocalCache', the methods 'get_4_model()' & 'get_4_models()' are deprecated ;
                       use 'get_for_model()' & 'get_for_models()' instead.
                 - The method 'RelationType.create()' is deprecated ; use 'RelationType.objects.smart_update_or_create()' instead.
+            - The templatetag '{% widget_select_or_msg %}' (in library "creme_widgets") & its template file are deprecated ;
+              use '{% widget_enumerator %}' instead.
             - In Javascript:
                 * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead:
                     - creme.ajax.ajax()

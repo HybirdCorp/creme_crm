@@ -23,7 +23,7 @@
     {% for rnode in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink rnode.entity user %}</td>
-        <td>{% widget_select_or_msg rnode.get_relation_types _('No type of relation') %}</td>
+        <td>{% widget_enumerator rnode.get_relation_types threshold=4 summary=_('{count} types of relationship') empty=_('No type of relationship') %}</td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=rnode.get_edit_absolute_url label=_('Edit this node') enabled=has_perm %}
         </td>
