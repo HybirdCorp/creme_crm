@@ -58,8 +58,8 @@ class CreditNotePopupEditForm(base.CremeModelForm):
         fields = ('comment',)
 
 
-# TODO: rename RelatedCreditNote_s_Form ?
-class CreditNoteRelatedForm(base.CremeForm):
+# class CreditNoteRelatedForm(base.CremeForm):
+class CreditNotesRelatedForm(base.CremeForm):
     credit_notes = MultiCreatorEntityField(label=_('Credit notes'), model=CreditNote)
 
     def __init__(self, entity, *args, **kwargs):

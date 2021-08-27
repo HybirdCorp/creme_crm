@@ -30,7 +30,7 @@ from creme.creme_core.utils import replace_related_object
 from ..models import MarketSegment
 
 
-# TODO: save/check unicity only if name has changed
+# TODO: save/check uniqueness only if name has changed
 class MarketSegmentForm(CremeModelForm):
     error_messages = {
         'duplicated_name':     _('A segment with this name already exists'),
@@ -41,7 +41,7 @@ class MarketSegmentForm(CremeModelForm):
         model = MarketSegment
         fields = '__all__'
 
-    # TODO: move to MarketSegment.clean() [but the error would be global, & not for 'name' field]
+    # TODO: move to MarketSegment.clean()? (beware tp <self.ptype_text>)
     def clean_name(self):
         name = self.cleaned_data['name']
         ptype_text = MarketSegment.generate_property_text(name)

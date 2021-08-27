@@ -316,6 +316,7 @@
                 - The global dictionary 'views.activity._TYPES_MAP' has been transformed in the class attribute 'ActivityCreation.allowed_activity_types'.
             * Billing :
                 - The constants 'DISCOUNT_*' have been replaced by an 'django.db.models.IntegerChoices' : 'model.Line.Discount'.
+                - The class 'forms.credit_note.CreditNoteRelatedForm' has been renamed "CreditNotesRelatedForm".
             * Emails :
                 - In 'constants' :
                     - 'MAIL_STATUS*' have been replaced by a 'django.db.models.IntegerChoices' : 'model._Email.Status'.

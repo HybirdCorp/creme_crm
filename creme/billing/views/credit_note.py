@@ -60,7 +60,7 @@ class CommentEdition(generic.EntityEditionPopup):
 
 
 class CreditNotesLinking(generic.RelatedToEntityFormPopup):
-    form_class = cnote_forms.CreditNoteRelatedForm
+    form_class = cnote_forms.CreditNotesRelatedForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
     title = _('Credit notes for «{entity}»')
     submit_label = _('Link the credit notes')
