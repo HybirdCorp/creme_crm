@@ -26,10 +26,10 @@
     {% for role in page.object_list %}
     <tr>
         <td class="role-name">{{role.name}}</td>
-        <td class="role-apps">{% widget_select_or_msg role.get_allowed_apps_verbose _('No allowed application') %}</td>
-        <td class="role-admin-apps">{% widget_select_or_msg role.get_admin_4_apps_verbose _('No administrated application') %}</td>
-        <td class="role-creation-creds">{% widget_select_or_msg role.creatable_ctypes.all|uca_sort _('No creation credential') %}</td>
-        <td class="role-export-creds">{% widget_select_or_msg role.exportable_ctypes.all|uca_sort  _('No export credential') %}</td>
+        <td class="role-apps">{% widget_enumerator role.get_allowed_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No allowed application') %}</td>
+        <td class="role-admin-apps">{% widget_enumerator role.get_admin_4_apps_verbose threshold=2 summary=_('{count} applications') empty=_('No administrated application') %}</td>
+        <td class="role-creation-creds">{% widget_enumerator role.creatable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No creation credential') %}</td>
+        <td class="role-export-creds">{% widget_enumerator role.exportable_ctypes.all|uca_sort threshold=2 summary=_('{count} types of entity') empty=_('No export credential') %}</td>
         <td class="role-creds">
             <ul>
             {% for sc in role.credentials.all %}

@@ -19,6 +19,7 @@
 ################################################################################
 
 import logging
+import warnings
 from typing import Dict, Tuple, Type
 
 from django.conf import settings
@@ -267,6 +268,11 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False):
 
 @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
 def widget_select_or_msg(items, void_msg):
+    warnings.warn(
+        'The templatetag {% widget_select_or_msg %} is deprecated; '
+        'use {% widget_enumerator %} instead.',
+        DeprecationWarning,
+    )
     return {'items': items, 'void_msg': void_msg}
 
 

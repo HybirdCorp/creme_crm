@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-27 13:10+0200\n"
+"POT-Creation-Date: 2021-08-27 14:08+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1592,6 +1592,10 @@ msgstr "Droits d'export"
 
 msgid "Entities credentials"
 msgstr "Droits des fiches"
+
+#, python-brace-format
+msgid "{count} applications"
+msgstr "{count} applications"
 
 msgid "No allowed application"
 msgstr "Pas d'application autorisée"
