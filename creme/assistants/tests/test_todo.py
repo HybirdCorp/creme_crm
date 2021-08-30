@@ -303,9 +303,13 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(Q(assistants_todos__title__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertQEqual(
+            Q(
+                assistants_todos__title__icontains=value,
+                assistants_todos__is_ok=False,
+            ),
+            to_python(value=value),
+        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')

@@ -176,9 +176,13 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(Q(assistants_alerts__title__icontains=value),
-                         to_python(value=value)
-                        )
+        self.assertQEqual(
+            Q(
+                assistants_alerts__title__icontains=value,
+                assistants_alerts__is_validated=False,
+            ),
+            to_python(value=value),
+        )
 
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
