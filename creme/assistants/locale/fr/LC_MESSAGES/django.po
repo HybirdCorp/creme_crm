@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2021-08-30 10:21+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -140,6 +140,15 @@ msgstr ""
 "Lorsque vous sélectionnez une équipe, une message est envoyé à chacun des "
 "membres de l'équipe (pas de souci, les doublons sont éliminés)."
 
+msgid "Active alerts"
+msgstr "Alertes actives"
+
+msgid "Active Todos"
+msgstr "Todos actifs"
+
+msgid "Owner user"
+msgstr "Utilisateur propriétaire"
+
 msgid "Title"
 msgstr "Titre"
 
@@ -161,9 +170,6 @@ msgstr "Échéance"
 msgid "Validation date"
 msgstr "Date de validation"
 
-msgid "Owner user"
-msgstr "Utilisateur propriétaire"
-
 msgid "Create an action"
 msgstr "Créer une action"
 
@@ -182,11 +188,11 @@ msgstr "Description"
 msgid "Validated"
 msgstr "Validée"
 
-msgid "Notification sent"
-msgstr "Notification envoyée"
-
 msgid "Trigger date"
 msgstr "Date de déclenchement de l'alerte"
+
+msgid "Notification sent"
+msgstr "Notification envoyée"
 
 msgid "Create an alert"
 msgstr "Créer une alerte"

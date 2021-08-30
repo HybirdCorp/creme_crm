@@ -314,8 +314,11 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(
-            Q(assistants_todos__title__icontains=value),
+        self.assertQEqual(
+            Q(
+                assistants_todos__title__icontains=value,
+                assistants_todos__is_ok=False,
+            ),
             to_python(value=value),
         )
 
