@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,9 @@
 
 from collections import defaultdict
 
+# from django.db.models import Count, Exists, OuterRef, Subquery
+from django.db.models import F, Window
+from django.db.models.functions import DenseRank
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
 
@@ -134,6 +137,7 @@ class TodosField(_CachedFunctionField):
     verbose_name = _('Active Todos')
     result_type = FunctionFieldResultsList
     search_field_builder = TodosSearchField
+    limit = 5  # Max number of Todos per entity
 
     def __call__(self, entity, user):
         cache = self._cache
@@ -142,21 +146,81 @@ class TodosField(_CachedFunctionField):
 
         if cached is None:
             cached = cache[e_id] = [
+                # *ToDo.objects
+                #      .filter(entity_id=entity.id, is_ok=False)
+                #      .order_by('-creation_date')
+                #      .values_list('title', flat=True)
                 *ToDo.objects
                      .filter(entity_id=entity.id, is_ok=False)
-                     .order_by('-creation_date')
-                     .values_list('title', flat=True)
+                     .order_by('-id')
+                     .values_list('title', flat=True)[:self.limit + 1]
             ]
 
-        return FunctionFieldResultsList(
-            FunctionFieldResult(title) for title in cached
-        )
+        # return FunctionFieldResultsList(
+        #     FunctionFieldResult(title) for title in cached
+        # )
+        titles = [FunctionFieldResult(title) for title in cached]
+        if len(titles) > self.limit:
+            titles[-1] = FunctionFieldResult('…')
+
+        return FunctionFieldResultsList(titles)
 
     def populate_entities(self, entities, user):
         cache = self._cache
 
+        # for title, e_id in ToDo.objects.filter(
+        #     entity_id__in=[e.id for e in entities if e.id not in cache],
+        #     is_ok=False,
+        # ).order_by('-creation_date').values_list('title', 'entity_id'):
+        #     cache[e_id].append(title)
+
+        # NB: just order by ID to use index
+        # for title, e_id in ToDo.objects.filter(
+        #     entity_id__in=[e.id for e in entities if e.id not in cache],
+        #     is_ok=False,
+        # ).order_by('-id').values_list('title', 'entity_id'):
+        #     cache[e_id].append(title)
+
+        # # NB: we use an ugly way to count inside a SubQuery
+        # #  https://docs.djangoproject.com/en/3.2/ref/models/expressions/
+        # #  #using-aggregates-within-a-subquery-expression
+        # for title, e_id in ToDo.objects.filter(
+        #     entity_id__in=[e.id for e in entities if e.id not in cache],
+        #     is_ok=False,
+        # ).order_by(
+        #     'entity_id', '-id',
+        # ).filter(
+        #     ~Exists(
+        #         Subquery(
+        #             ToDo.objects.filter(
+        #                 entity_id=OuterRef('entity_id'),
+        #                 is_ok=False,
+        #                 id__gt=OuterRef('id'),
+        #             ).values(
+        #                 'entity',
+        #             ).annotate(
+        #                 before_count=Count('id'),
+        #             ).values(
+        #                 'before_count',
+        #             ).exclude(
+        #                 # 'ltE' to retrieve an extra element to display '…'
+        #                 before_count__lte=self.limit,
+        #             )
+        #         )
+        #     )
+        # ).values_list('title', 'entity_id'):
+        #     cache[e_id].append(title)
+
         for title, e_id in ToDo.objects.filter(
             entity_id__in=[e.id for e in entities if e.id not in cache],
             is_ok=False,
-        ).order_by('-creation_date').values_list('title', 'entity_id'):
+        ).annotate(
+            per_entity_order=Window(
+                expression=DenseRank(),
+                order_by=[F('id').desc()],
+                partition_by=[F('entity_id')],
+            ),
+        ).filter(
+            per_entity_order__lte=self.limit + 1,
+        ).order_by('-id').values_list('title', 'entity_id'):
             cache[e_id].append(title)
