@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,10 @@ class AlertsSearchField(lv_form.ListViewSearchField):
     widget = lv_form.TextLVSWidget
 
     def to_python(self, value):
-        return Q(assistants_alerts__title__icontains=value) if value else Q()
+        return Q(
+            assistants_alerts__title__icontains=value,
+            assistants_alerts__is_validated=False,
+        ) if value else Q()
 
 
 class MemosSearchField(lv_form.ListViewSearchField):
@@ -51,7 +54,10 @@ class TodosSearchField(lv_form.ListViewSearchField):
     widget = lv_form.TextLVSWidget
 
     def to_python(self, value):
-        return Q(assistants_todos__title__icontains=value) if value else Q()
+        return Q(
+            assistants_todos__title__icontains=value,
+            assistants_todos__is_ok=False,
+        ) if value else Q()
 
 
 class _CachedFunctionField(FunctionField):
@@ -61,9 +67,9 @@ class _CachedFunctionField(FunctionField):
 
 
 class AlertsField(_CachedFunctionField):
-    name         = 'assistants-get_alerts'
-    verbose_name = _('Alerts')
-    result_type  = FunctionFieldResultsList
+    name = 'assistants-get_alerts'
+    verbose_name = _('Active alerts')
+    result_type = FunctionFieldResultsList
     search_field_builder = AlertsSearchField
 
     def __call__(self, entity, user):
@@ -94,9 +100,9 @@ class AlertsField(_CachedFunctionField):
 
 
 class MemosField(_CachedFunctionField):
-    name         = 'assistants-get_memos'
+    name = 'assistants-get_memos'
     verbose_name = _('Memos')
-    result_type  = FunctionFieldResultsList
+    result_type = FunctionFieldResultsList
     search_field_builder = MemosSearchField
 
     def __call__(self, entity, user):
@@ -126,9 +132,9 @@ class MemosField(_CachedFunctionField):
 
 
 class TodosField(_CachedFunctionField):
-    name         = 'assistants-get_todos'
-    verbose_name = _('Todos')
-    result_type  = FunctionFieldResultsList
+    name = 'assistants-get_todos'
+    verbose_name = _('Active Todos')
+    result_type = FunctionFieldResultsList
     search_field_builder = TodosSearchField
 
     def __call__(self, entity, user):

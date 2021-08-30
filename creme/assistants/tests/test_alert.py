@@ -186,8 +186,11 @@ class AlertTestCase(AssistantsTestCase):
         self.assertEqual(Q(), to_python(value=''))
 
         value = 'foobar'
-        self.assertEqual(
-            Q(assistants_alerts__title__icontains=value),
+        self.assertQEqual(
+            Q(
+                assistants_alerts__title__icontains=value,
+                assistants_alerts__is_validated=False,
+            ),
             to_python(value=value),
         )
 
