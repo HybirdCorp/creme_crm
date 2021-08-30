@@ -3,6 +3,9 @@
   Users side :
   ------------
     # Apps :
+        * Assistants :
+            - The Alerts & Todos which are searched from list-views are the ones which are not validated (& so, displayed).
+              The names of the related function-fields have been fixed ("Active alerts" & "Active todos").
         * VCFs :
             - The form to import a VCF file ignored the required CustomFields.
 
