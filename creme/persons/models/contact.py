@@ -74,11 +74,12 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
-    language = models.ManyToManyField(
+    # language = models.ManyToManyField(
+    languages = models.ManyToManyField(
         Language,
         verbose_name=_('Spoken language(s)'),
-        blank=True, editable=False,
-    ).set_tags(viewable=False)  # TODO: remove this field
+        blank=True,  # editable=False,
+    ).set_tags(optional=True)  # viewable=False
 
     is_user = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('Related user'),

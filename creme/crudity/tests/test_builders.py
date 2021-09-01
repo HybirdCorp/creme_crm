@@ -221,7 +221,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_manifest_xsf_03(self):
         "Test M2M field."
-        body_map = {'user_id': 1, 'language': ''}
+        # body_map = {'user_id': 1, 'language': ''}
+        body_map = {'user_id': 1, 'languages': ''}
         backend = self._get_backend(
             ContactFakeBackend,
             subject='create_contact', body_map=body_map, model=Contact,
@@ -237,9 +238,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
         xml2edit_node = XML(content).find(f'{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit')
         self.assertIsNotNone(xml2edit_node)
-        self.assertEqual('language', xml2edit_node.get('name'))
+        # self.assertEqual('language', xml2edit_node.get('name'))
+        self.assertEqual('languages', xml2edit_node.get('name'))
         self.assertEqual(
-            '/my:CremeCRMCrudity/my:language/my:language_value',
+            # '/my:CremeCRMCrudity/my:language/my:language_value',
+            '/my:CremeCRMCrudity/my:languages/my:languages_value',
             xml2edit_node.get('item')
         )
 
@@ -256,7 +259,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'created':     '',  # TODO: ignore this (editable=False)
             'url_site':    '',
             'image':       '',
-            'language':    '',
+            # 'language':    '',
+            'languages':    '',
         }
         backend = self._get_backend(
             ContactFakeBackend,
@@ -279,7 +283,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             for node in xml.findall(f'{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element')
         }
         # chain() because language_value is not declared in body_map, only language has to (m2m)
-        expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['language_value'])}
+        # expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['language_value'])}
+        expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['languages_value'])}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
         xsd_elements = {
@@ -328,9 +333,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
             'image': {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
 
-            'language': {'name': 'language'},
-            'language_value': {
-                'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true',
+            # 'language': {'name': 'language'},
+            'languages': {'name': 'languages'},
+            # 'language_value': {
+            #     'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true',
+            # },
+            'languages_value': {
+                'name': 'languages_value', 'type': 'xsd:integer', 'nillable': 'true',
             },
         }
 
@@ -499,7 +508,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_upgrade_xsl02(self):
         "Many2Many."
-        body_map = {'user_id': 1, 'language': ''}
+        # body_map = {'user_id': 1, 'language': ''}
+        body_map = {'user_id': 1, 'languages': ''}
         builder = self._get_builder(self._get_backend(
             ContactFakeBackend,
             subject='create_contact', body_map=body_map, model=Contact,
@@ -524,9 +534,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertTrue(template_nodes)
 
         when_node = template_nodes[0].find(f'{xsl}copy/{xsl}choose/{xsl}when')
-        self.assertEqual('my:language', when_node.get('test'))
+        # self.assertEqual('my:language', when_node.get('test'))
+        self.assertEqual('my:languages', when_node.get('test'))
 
-        expected_names = {'my:language', 'my:language_value'}
+        # expected_names = {'my:language', 'my:language_value'}
+        expected_names = {'my:languages', 'my:languages_value'}
         self.assertSetEqual(
             expected_names,
             {
@@ -744,7 +756,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsl = '{http://www.w3.org/1999/XSL/Transform}'
         xd = '{http://schemas.microsoft.com/office/infopath/2003}'
 
-        field_name = 'language'
+        # field_name = 'language'
+        field_name = 'languages'
         backend = self._get_backend(
             ContactFakeBackend,
             subject='create_contact', body_map={field_name: ''}, model=Contact,
@@ -769,11 +782,13 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             {input_node.get('title') for input_node in input_nodes}
         )
         self.assertSetEqual(
-            {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
+            # {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
+            {f'my:languages/my:languages_value[.="{lang.id}"][1]' for lang in languages},
             {input_node.get(f'{xd}binding') for input_node in input_nodes},
         )
         self.assertEqual(
-            {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
+            # {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
+            {f'my:languages/my:languages_value[.="{lang.id}"][1]' for lang in languages},
             {
                 input_node.get('select')
                 for input_node in target_node.findall(
@@ -783,7 +798,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         )
 
         self.assertSetEqual(
-            {f'my:language/my:language_value="{lang.id}"' for lang in languages},
+            # {f'my:language/my:language_value="{lang.id}"' for lang in languages},
+            {f'my:languages/my:languages_value="{lang.id}"' for lang in languages},
             {
                 input_node.get('test')
                 for input_node in target_node.findall(
@@ -795,7 +811,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         for_each_node = target_node.find(f'{xsl}choose/{xsl}when/span/{xsl}for-each')
         self.assertIsNotNone(for_each_node)
         self.assertEqual(
-            'my:language/my:language_value[{}]'.format(
+            # 'my:language/my:language_value[{}]'.format(
+            'my:languages/my:languages_value[{}]'.format(
                 ' and '.join(f'.!="{lang.id}"' for lang in languages)
             ),
             for_each_node.get('select'),

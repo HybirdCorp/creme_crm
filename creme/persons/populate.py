@@ -250,6 +250,7 @@ class Populator(BasePopulator):
                     (EntityCellRegularField, {'name': 'sector'}),
                     (EntityCellRegularField, {'name': 'birthday'}),
                     (EntityCellRegularField, {'name': 'image'}),
+                    (EntityCellRegularField, {'name': 'languages'}),
                     (
                         EntityCellCustomFormSpecial,
                         {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
@@ -532,6 +533,7 @@ class Populator(BasePopulator):
                     build_cell(Contact, 'is_user'),
                     build_cell(Contact, 'birthday'),
                     build_cell(Contact, 'image'),
+                    build_cell(Contact, 'languages'),
                     # --
                     build_cell(Contact, 'description'),
                     # --
@@ -562,6 +564,7 @@ class Populator(BasePopulator):
                     build_cell(Contact, 'full_position'),
                     build_cell(Contact, 'birthday'),
                     build_cell(Contact, 'image'),
+                    build_cell(Contact, 'languages'),
                     # --
                     build_cell(Contact, 'description'),
                     # --

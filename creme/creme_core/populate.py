@@ -157,8 +157,22 @@ class Populator(BasePopulator):
                 local_symbol=_('$'), international_symbol=_('USD'),
             )
 
-            create_if_needed(Language, {'pk': 1}, name=_('French'),  code='FRA')
-            create_if_needed(Language, {'pk': 2}, name=_('English'), code='EN')
+            # create_if_needed(Language, {'pk': 1}, name=_('French'),  code='FRA')
+            # create_if_needed(Language, {'pk': 2}, name=_('English'), code='EN')
+            Language.objects.bulk_create([
+                Language(name=name)
+                for name in [
+                    _('English'),
+                    _('French'),
+                    _('German'),
+                    _('Spanish'),
+                    _('Chinese'),
+                    _('Japanese'),
+                    _('Italian'),
+                    _('Portuguese'),
+                    _('Dutch'),
+                ]
+            ])
 
             # ---------------------------
             BrickDetailviewLocation.objects.multi_create(

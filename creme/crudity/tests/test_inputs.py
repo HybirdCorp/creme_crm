@@ -1366,11 +1366,11 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
     <my:url_site>http://mario.com</my:url_site>
     <my:email>mario@bros.com</my:email>
     <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
-    <my:language>
-        <my:language_value xsi:nil="true"></my:language_value>
-        <my:language_value>{}</my:language_value>
-        <my:language_value>{}</my:language_value>
-    </my:language>
+    <my:languages>
+        <my:languages_value xsi:nil="true"></my:languages_value>
+        <my:languages_value>{}</my:languages_value>
+        <my:languages_value>{}</my:languages_value>
+    </my:languages>
     <my:description>
         <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
     </my:description>
@@ -1389,7 +1389,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 'birthday':    '',
                 'created':     '',
                 'url_site':    '',
-                'language':    ''
+                # 'language':    ''
+                'languages':    ''
             },
             model=Contact,
         )
@@ -1413,7 +1414,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             'last_name': 'Bros', 'first_name': 'Mario',
             'email': 'mario@bros.com', 'url_site': 'http://mario.com',
             'birthday': '02/08/1987', 'description': 'A plumber',
-            'language': f'\n{languages[0].id}\n{languages[1].id}',
+            # 'language': f'\n{languages[0].id}\n{languages[1].id}',
+            'languages': f'\n{languages[0].id}\n{languages[1].id}',
         }
         self.assertEqual(expected_data, wa.data)
 
@@ -1430,7 +1432,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        self.assertSetEqual({languages[0], languages[1]}, {*contact.language.all()})
+        # self.assertSetEqual({languages[0], languages[1]}, {*contact.language.all()})
+        self.assertSetEqual({languages[0], languages[1]}, {*contact.languages.all()})
 
     def test_create_contact03(self):
         "Unsandboxed with M2M."
@@ -1438,23 +1441,23 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         languages = self._get_languages()
 
         xml_content = r"""
-        <?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
-            <my:user_id>{}</my:user_id>
-            <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
-            <my:first_name>Mario</my:first_name>
-            <my:last_name>Bros</my:last_name>
-            <my:url_site>http://mario.com</my:url_site>
-            <my:email>mario@bros.com</my:email>
-            <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
-            <my:language>
-                <my:language_value xsi:nil="true"></my:language_value>
-                <my:language_value>{}</my:language_value>
-                <my:language_value>{}</my:language_value>
-            </my:language>
-            <my:description>
-                <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
-            </my:description>
-        </my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)  # NOQA
+<?xml version="1.0" encoding="UTF-8"?><?mso-infoPathSolution solutionVersion="1.0.0.14" productVersion="12.0.0" PIVersion="1.0.0.0" href="file:///C:\Users\User\Desktop\Infopath\create_contact.xsn" name="urn:schemas-microsoft-com:office:infopath:create-contact:-myXSD-2011-07-04T07-44-13" ?><?mso-application progid="InfoPath.Document" versionProgid="InfoPath.Document.2"?><my:CremeCRMCrudity xmlns:my="http://schemas.microsoft.com/office/infopath/2003/myXSD/2011-07-04T07:44:13" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xml:lang="fr">
+    <my:user_id>{}</my:user_id>
+    <my:created xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">2003-02-01</my:created>
+    <my:first_name>Mario</my:first_name>
+    <my:last_name>Bros</my:last_name>
+    <my:url_site>http://mario.com</my:url_site>
+    <my:email>mario@bros.com</my:email>
+    <my:birthday xsi:nil="true" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">02/08/1987</my:birthday>
+    <my:languages>
+        <my:languages_value xsi:nil="true"></my:languages_value>
+        <my:languages_value>{}</my:languages_value>
+        <my:languages_value>{}</my:languages_value>
+    </my:languages>
+    <my:description>
+        <div xmlns="http://www.w3.org/1999/xhtml">A plumber</div>
+    </my:description>
+</my:CremeCRMCrudity>""".format(user.id, languages[0].id, languages[1].id)  # NOQA
 
         infopath_input = self._get_infopath_input(
             ContactFakeBackend,
@@ -1469,7 +1472,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 'birthday':    '',
                 'created':     '',
                 'url_site':    '',
-                'language':    ''
+                # 'language':    ''
+                'languages':    ''
             },
             model=Contact,
             in_sandbox=False,
@@ -1494,7 +1498,8 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        self.assertSetEqual({*languages[:2]}, {*contact.language.all()})
+        # self.assertSetEqual({*languages[:2]}, {*contact.language.all()})
+        self.assertSetEqual({*languages[:2]}, {*contact.languages.all()})
 
     @skipIfCustomFolder
     @skipIfCustomDocument

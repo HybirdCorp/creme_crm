@@ -230,13 +230,14 @@ class FieldInfoTestCase(CremeTestCase):
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
         self.assertEqual([], FieldInfo(FakeContact, 'languages').value_from(al))
-        self.assertEqual([], FieldInfo(FakeContact, 'languages__code').value_from(al))
+        # self.assertEqual([], FieldInfo(FakeContact, 'languages__code').value_from(al))
+        self.assertEqual([], FieldInfo(FakeContact, 'languages__name').value_from(al))
 
         # ----
         create_language = Language.objects.create
-        l1 = create_language(name='English', code='EN')
-        create_language(name='French', code='FRA')
-        l3 = create_language(name='Japanese', code='JP')
+        l1 = create_language(name='English')  # code='EN'
+        create_language(name='French')  # code='FRA'
+        l3 = create_language(name='Japanese')  # code='JP'
 
         al.languages.set([l1, l3])
         self.assertListEqual(
