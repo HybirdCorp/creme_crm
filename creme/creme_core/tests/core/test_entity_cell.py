@@ -516,20 +516,48 @@ class EntityCellTestCase(CremeTestCase):
     def test_relation(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
-        loves = RelationType.objects.smart_update_or_create(
-            ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+        loved = RelationType.objects.smart_update_or_create(
+            ('test-object_loved', 'Is loved by'),
+            ('test-subject_loved', 'Is loving'),
         )[0]
-        cell = EntityCellRelation(model=FakeContact, rtype=loves)
+        cell = EntityCellRelation(model=FakeContact, rtype=loved)
         self.assertIsInstance(cell, EntityCellRelation)
         self.assertEqual(FakeContact,     cell.model)
-        self.assertEqual(str(loves.id),   cell.value)
-        self.assertEqual(loves.predicate, cell.title)
-        self.assertEqual(f'relation-{loves.id}', cell.key)
+        self.assertEqual(str(loved.id),   cell.value)
+        self.assertEqual(loved.predicate, cell.title)
+        self.assertEqual(f'relation-{loved.id}', cell.key)
         self.assertIs(cell.is_multiline, True)
-        self.assertEqual(loves, cell.relation_type)
+        self.assertEqual(loved, cell.relation_type)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
+
+        # Render ---
+        user = self.create_user()
+        create_contact = partial(FakeContact.objects.create, user=user)
+        contacts = [
+            create_contact(first_name='Nagate',  last_name='Tanikaze'),
+            create_contact(first_name='Shizuka', last_name='Hoshijiro'),
+            create_contact(first_name='Izana',   last_name='Shinatose'),
+        ]
+
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, subject_entity=contacts[0], type=loved,
+        )
+        create_rel(object_entity=contacts[1])
+        create_rel(object_entity=contacts[2])
+
+        self.assertEqual(
+            f'{contacts[2]}/{contacts[1]}',
+            cell.render_csv(entity=contacts[0], user=user),
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li><a href="{contacts[2].get_absolute_url()}">{contacts[2]}</li>'
+            f' <li><a href="{contacts[1].get_absolute_url()}">{contacts[1]}</li>'
+            f'</ul>',
+            cell.render_html(entity=contacts[0], user=user),
+        )
 
     def test_functionfield01(self):
         self.assertEqual(_('Computed fields'), EntityCellFunctionField.verbose_name)

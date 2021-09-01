@@ -2233,7 +2233,7 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
     def test_fetch_field_03(self):
-        "View credentials"
+        "View credentials."
         user = self.login_as_basic_user()
         other_user = self.other_user
 
@@ -2421,15 +2421,15 @@ class ReportTestCase(BaseReportsTestCase):
                 [doc1.title, cat.name],
                 [doc2.title, ''],
             ],
-            report.fetch_all_lines()
+            report.fetch_all_lines(),
         )
 
     def test_fetch_fk_06(self):
-        "M2M at depth=2"
+        "M2M at <depth=2>."
         user = self.login()
 
         create_cat = FakeImageCategory.objects.create
-        cat1 = create_cat(name='Selfy')
+        cat1 = create_cat(name='Selfie')
         cat2 = create_cat(name='Official')
 
         create_img = partial(FakeImage.objects.create, user=user)
@@ -2676,12 +2676,12 @@ class ReportTestCase(BaseReportsTestCase):
                 [name2, ml3.name],
                 [name3, ''],
             ],
-            report_camp.fetch_all_lines()
+            report_camp.fetch_all_lines(),
         )
 
         self.assertListEqual(
             [[ml1.name, ptype1.text], [ml2.name, ptype2.text], [ml3.name, '']],
-            report_ml.fetch_all_lines()
+            report_ml.fetch_all_lines(),
         )
 
         # Let's go for the sub-report
@@ -2774,7 +2774,7 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
     def test_fetch_m2m_05(self):
-        "FK at depth=2."
+        "FK at <depth=2>."
         user = self.login()
 
         create_positon = FakePosition.objects.create
