@@ -10,8 +10,6 @@ from creme.documents.models.fields import ImageEntityForeignKey
 
 
 class Migration(migrations.Migration):
-    # Memo: last migration is '0025_v2_1__move_description_to_entity_3'
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),

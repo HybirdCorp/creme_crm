@@ -33,6 +33,7 @@
             - A portal which displays all the filters (used by list-views) has been added.
             - A portal which displays all the views (of list-views) has been added.
         * Persons :
+            - A many-to-many field "Spoken language(s)" has been added to Contacts ; it's hidden for old installations.
             - The setting PERSONS_MENU_CUSTOMERS_ENABLED has been removed (you can add/remove the entry menu in 'creme_config').
         * Emails :
             - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
@@ -274,6 +275,7 @@
             - In 'fields_config', the method 'FieldsConfigManager.field_enumerator()' has been removed.
             - In 'history', all code related to history line rendering is deprecated ;
               use the new rendering system 'creme_core.gui.history' instead.
+            - The field 'Language.code' has been removed.
             - In 'search' :
                 - The class 'SearchField' has been removed.
                 - In the model 'SearchConfigItem' :
@@ -304,6 +306,11 @@
             * Persons :
                 - The method 'forms.merge._PersonMergeForm._handle_addresses()' has been removed ;
                   work has been split cleanly between clean & save steps (notably by the new method '_clean_addresses()').
+                - The field 'AbstractContact.language' has changed :
+                    - It has been renamed "languages".
+                    - It is no tagged as <viewable=False> any more (we did not know if we should remove this field).
+                    - It is now editable.
+                    - A data migration hides it (ie: with 'FieldsConfig') in existing installation when you upgrade.
                 - The class 'views.organisation.OrganisationCreationBase' has been removed (merged with 'OrganisationCreation').
             * Reports :
                 - Some constants have been replaced by 'django.db.models.*Choices' :

@@ -348,16 +348,16 @@ class LanguageTestCase(ViewsTestCase):
         self.assertGET200(url)
 
         name = 'Klingon'
-        code = 'KLN'
-        response = self.assertPOST200(url, data={'name': name, 'code': code})
+        # code = 'KLN'
+        response = self.assertPOST200(url, data={'name': name})  # 'code': code
         self.assertNoFormError(response)
 
-        self.get_object_or_fail(Language, name=name, code=code)
+        self.get_object_or_fail(Language, name=name)  # code=code
 
     def test_edit(self):
         name = 'klingon'
-        code = 'KLGN'
-        language = Language.objects.create(name=name, code=code)
+        # code = 'KLGN'
+        language = Language.objects.create(name=name)  # code=code
 
         url = reverse(
             'creme_config__edit_instance',
@@ -366,16 +366,16 @@ class LanguageTestCase(ViewsTestCase):
         self.assertGET200(url)
 
         name = name.title()
-        code = 'KLN'
-        response = self.assertPOST200(url, data={'name': name, 'code': code})
+        # code = 'KLN'
+        response = self.assertPOST200(url, data={'name': name})  # 'code': code
         self.assertNoFormError(response)
 
         language = self.refresh(language)
         self.assertEqual(name, language.name)
-        self.assertEqual(code, language.code)
+        # self.assertEqual(code, language.code)
 
     def test_delete(self):
-        language = Language.objects.create(name='Klingon', code='KLN')
+        language = Language.objects.create(name='Klingon')  # code='KLN'
 
         response = self.client.post(
             reverse(

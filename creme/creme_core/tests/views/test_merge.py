@@ -340,7 +340,7 @@ class MergeViewsTestCase(ViewsTestCase):
         contact02 = create_contact(first_name='Makoto', last_name='Kousaka', image=image2)
 
         language1, language2 = Language.objects.all()[:2]
-        language3 = Language.objects.create(name='Klingon', code='KLN')
+        language3 = Language.objects.create(name='Klingon')  # code='KLN'
 
         contact01.languages.set([language1])
         contact02.languages.set([language1, language2])

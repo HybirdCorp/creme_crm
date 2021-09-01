@@ -1492,9 +1492,9 @@ class EntityFiltersTestCase(CremeTestCase):
 
     def test_filter_m2m(self):
         create_language = Language.objects.create
-        l1 = create_language(name='Japanese', code='JP')
-        l2 = create_language(name='German',   code='G')
-        l3 = create_language(name='Engrish',  code='EN')
+        l1 = create_language(name='Japanese')  # code='JP'
+        l2 = create_language(name='German')  # code='G'
+        l3 = create_language(name='Engrish')  # code='EN'
 
         contacts = self.contacts
 
@@ -1511,7 +1511,8 @@ class EntityFiltersTestCase(CremeTestCase):
         yui   = build_contact('yui',   [l3])
 
         filter_contacts = FakeContact.objects.filter
-        self.assertEqual(3, filter_contacts(languages__code='JP').count())
+        # self.assertEqual(3, filter_contacts(languages__code='JP').count())
+        self.assertEqual(3, filter_contacts(languages__name='Japanese').count())
 
         # BEWARE: duplicates !!
         self.assertEqual(5, filter_contacts(languages__name__contains='an').count())
@@ -1526,7 +1527,8 @@ class EntityFiltersTestCase(CremeTestCase):
             build_cond(
                 model=FakeContact,
                 operator=operators.IEQUALS,
-                field_name='languages__code', values=['JP'],
+                # field_name='languages__code', values=['JP'],
+                field_name='languages__name', values=['Japanese'],
             ),
         ])
         self.assertFalse(efilter.entities_are_distinct)

@@ -27,15 +27,18 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
 
         'civility_colselect':      0,
         'description_colselect':   0,
+
         'skype_colselect':         0,
         'phone_colselect':         0,
         'mobile_colselect':        0,
         'fax_colselect':           0,
+        'email_colselect':         0,
+        'url_site_colselect':      0,
+
         'position_colselect':      0,
         'full_position_colselect': 0,
         'sector_colselect':        0,
-        'email_colselect':         0,
-        'url_site_colselect':      0,
+        'languages_colselect':     0,
         'birthday_colselect':      0,
         'image_colselect':         0,
 

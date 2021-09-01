@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-01 10:52+0200\n"
+"POT-Creation-Date: 2021-09-02 10:34+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2316,9 +2316,6 @@ msgstr "Ligne d'historique"
 msgid "Lines of history"
 msgstr "Lignes d'historique"
 
-msgid "Code"
-msgstr "Code"
-
 msgid "Languages"
 msgstr "Langues"
 
@@ -2450,11 +2447,32 @@ msgstr "$"
 msgid "USD"
 msgstr "USD"
 
+msgid "English"
+msgstr "Anglais"
+
 msgid "French"
 msgstr "Français"
 
-msgid "English"
-msgstr "Anglais"
+msgid "German"
+msgstr "Allemand"
+
+msgid "Spanish"
+msgstr "Espagnol"
+
+msgid "Chinese"
+msgstr "Chinois"
+
+msgid "Japanese"
+msgstr "Japonais"
+
+msgid "Italian"
+msgstr "Italien"
+
+msgid "Portuguese"
+msgstr "Portugais"
+
+msgid "Dutch"
+msgstr "Néerlandais"
 
 msgid "Restricted to superusers"
 msgstr "Réservé aux super-utilisateurs"
@@ -3552,6 +3570,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Code"
+#~ msgstr "Code"
 
 #~ msgid "Edition of :"
 #~ msgstr "Modification de :"
