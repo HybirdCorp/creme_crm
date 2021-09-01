@@ -100,7 +100,8 @@ class EntityCell:
                  model: Type[Model],
                  value: str = '',
                  is_hidden: bool = False,
-                 is_excluded: bool = False):
+                 is_excluded: bool = False,
+                 ):
         """Constructor.
 
         @param model: Related model.
@@ -399,7 +400,8 @@ class EntityCellRegularField(EntityCell):
     def build(cls,
               model: Type[Model],
               name: str,
-              is_hidden: bool = False):
+              is_hidden: bool = False,
+              ):
         """ Helper function to build EntityCellRegularField instances.
 
         @param model: Class inheriting <django.db.models.Model>.
@@ -664,7 +666,11 @@ class EntityCellRelation(EntityCell):
     type_id = 'relation'
     verbose_name = _('Relationships')
 
-    def __init__(self, model: Type[Model], rtype: RelationType, is_hidden: bool = False):
+    def __init__(self,
+                 model: Type[Model],
+                 rtype: RelationType,
+                 is_hidden: bool = False,
+                 ):
         self._rtype = rtype
         super().__init__(
             model=model,
@@ -676,7 +682,8 @@ class EntityCellRelation(EntityCell):
     def build(cls,
               model: Type[Model],
               rtype_id: str,
-              is_hidden: bool = False) -> Optional['EntityCellRelation']:
+              is_hidden: bool = False,
+              ) -> Optional['EntityCellRelation']:
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:
@@ -714,6 +721,9 @@ class EntityCellRelation(EntityCell):
         if len(related_entities) == 1:
             return widget_entity_hyperlink(related_entities[0], user)
 
+        sort_key = collator.sort_key
+        related_entities.sort(key=lambda e: sort_key(str(e)))
+
         return format_html(
             '<ul>{}</ul>',
             format_html_join(
@@ -724,11 +734,14 @@ class EntityCellRelation(EntityCell):
 
     def render_csv(self, entity, user):
         has_perm = user.has_perm_to_view
-        return '/'.join(
-            str(o)
-            for o in entity.get_related_entities(self.value, True)
-            if has_perm(o)
-        )
+        return '/'.join(sorted(
+            (
+                str(o)
+                for o in entity.get_related_entities(self.value, True)
+                if has_perm(o)
+            ),
+            key=collator.sort_key,
+        ))
 
     @property
     def title(self):

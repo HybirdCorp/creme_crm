@@ -237,17 +237,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_str(line) for line in result)
         self.assertEqual(next(it), ','.join(f'"{hfi.title}"' for hfi in hf.cells))
         self.assertEqual(next(it), '"","Black","Jet","Bebop",""')
-        self.assertIn(
-            next(it),
-            (
-                '"","Spiegel","Spike","Bebop/Swordfish",""',
-                '"","Spiegel","Spike","Swordfish/Bebop",""',
-            )
-        )
-        self.assertEqual(
-            next(it),
-            '"","Valentine","Faye","","is a girl/is beautiful"',
-        )
+        self.assertEqual(next(it), '"","Spiegel","Spike","Bebop/Swordfish",""')
+        self.assertEqual(next(it), '"","Valentine","Faye","","is a girl/is beautiful"')
         self.assertEqual(next(it), '"","Wong","Edward","","is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
@@ -304,17 +295,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = (force_str(line) for line in response.content.splitlines())
         self.assertEqual(next(it), ';'.join(f'"{hfi.title}"' for hfi in cells))
         self.assertEqual(next(it), '"";"Black";"Jet";"Bebop";""')
-        self.assertIn(
-            next(it),
-            (
-                '"";"Spiegel";"Spike";"Bebop/Swordfish";""',
-                '"";"Spiegel";"Spike";"Swordfish/Bebop";""',
-            )
-        )
-        self.assertEqual(
-            next(it),
-            '"";"Valentine";"Faye";"";"is a girl/is beautiful"',
-        )
+        self.assertEqual(next(it), '"";"Spiegel";"Spike";"Bebop/Swordfish";""')
+        self.assertEqual(next(it), '"";"Valentine";"Faye";"";"is a girl/is beautiful"')
         self.assertEqual(next(it), '"";"Wong";"Edward";"";"is a girl"')
         with self.assertRaises(StopIteration):
             next(it)
@@ -561,17 +543,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         it = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
         self.assertListEqual(next(it), [hfi.title for hfi in cells])
         self.assertListEqual(next(it), ['', 'Black', 'Jet', 'Bebop', ''])
-        self.assertIn(
-            next(it),
-            (
-                ['', 'Spiegel', 'Spike', 'Bebop/Swordfish', ''],
-                ['', 'Spiegel', 'Spike', 'Swordfish/Bebop', ''],
-            )
-        )
-        self.assertListEqual(
-            next(it),
-            ['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'],
-        )
+        self.assertListEqual(next(it), ['', 'Spiegel', 'Spike', 'Bebop/Swordfish', ''])
+        self.assertListEqual(next(it), ['', 'Valentine', 'Faye', '', 'is a girl/is beautiful'])
         self.assertListEqual(next(it), ['', 'Wong', 'Edward', '', 'is a girl'])
         with self.assertRaises(StopIteration):
             next(it)
