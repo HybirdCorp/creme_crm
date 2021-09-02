@@ -201,7 +201,7 @@ class SendingCreateForm(CremeModelForm):
                 for varname in varlist:
                     val = getattr(recipient_entity, varname, None)
                     if val:
-                        context[varname] = val  # TODO: str(val) ?
+                        context[varname] = str(val)
 
                 if context:
                     mail.body = json_dump(context, separators=(',', ':'))
