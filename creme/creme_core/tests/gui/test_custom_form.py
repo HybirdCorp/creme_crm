@@ -1185,12 +1185,23 @@ class FieldGroupListTestCase(CremeTestCase):
             field_names1,
             [bfield.name for bfield in listified_blocks[0].bound_fields],
         )
-
-        block_fields2 = listified_blocks[1].bound_fields
-        self.assertEqual('phone',       block_fields2[0].name)  # Explicit
-        self.assertEqual('description', block_fields2[1].name)
-        self.assertEqual('civility',    block_fields2[2].name)
-        self.assertEqual('is_a_nerd',   block_fields2[3].name)
+        self.assertListEqual(
+            [
+                'phone',  # Explicit
+                'description',
+                'civility',
+                'is_a_nerd',
+                'loves_comics',
+                'mobile',
+                'position',
+                'email',
+                'url_site',
+                'birthday',
+                'image',
+                'languages',
+            ],
+            [bfield.name for bfield in listified_blocks[1].bound_fields],
+        )
 
     def test_form_remaining_custom_fields(self):
         user = self.create_user()
