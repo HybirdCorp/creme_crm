@@ -531,7 +531,7 @@ class FieldGroupList:
         ):
             remaining_field_names = [
                 field.name
-                for field in model._meta.fields
+                for field in chain(model._meta.fields, model._meta.many_to_many)
                 if (
                     field.editable
                     and not field.auto_created
