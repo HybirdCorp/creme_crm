@@ -21,6 +21,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
+from creme.persons.models import Civility
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -342,22 +343,39 @@ class SendingsTestCase(_EmailsTestCase):
     def test_create02(self):
         "Test template."
         user = self.login()
-        first_name = 'Spike'
-        last_name  = 'Spiegel'
+        first_name1 = 'Spike'
+        last_name1 = 'Spiegel'
 
-        camp    = EmailCampaign.objects.create(user=user, name='camp01')
-        mlist   = MailingList.objects.create(user=user, name='ml01')
-        contact = Contact.objects.create(
-            user=user, first_name=first_name,
-            last_name=last_name, email='spike.spiegel@bebop.com',
+        first_name2 = 'Faye'
+        last_name2 = 'Valentine'
+
+        civ = Civility.objects.first()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        contact1 = create_contact(
+            civility=civ, first_name=first_name1, last_name=last_name1,
+            email='spike.spiegel@bebop.com',
+        )
+        contact2 = create_contact(
+            # civility=civ,  Nope
+            first_name=first_name2, last_name=last_name2,
+            email='faye.valentine@bebop.com',
         )
 
+        camp = EmailCampaign.objects.create(user=user, name='camp01')
+        mlist = MailingList.objects.create(user=user, name='ml01')
+
         camp.mailing_lists.add(mlist)
-        mlist.contacts.add(contact)
+        mlist.contacts.set([contact1, contact2])
 
         subject = 'Hello'
-        body    = 'Your first name is: {{first_name}} !'
-        body_html = '<p>Your last name is: {{last_name}} !</p>'
+        body = 'Your first name is: {{first_name}} !'
+        body_html = (
+            '<div>'
+            '<p>Your last name is: {{last_name}} !</p>'
+            '<p>Your civility is: {{civility}} !</p>'
+            '</div>'
+        )
         template = EmailTemplate.objects.create(
             user=user, name='name', subject=subject, body=body, body_html=body_html,
         )
@@ -377,22 +395,36 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(sending.subject, subject)
 
         with self.assertNoException():
-            mail = sending.mails_set.all()[0]
+            mail1 = sending.mails_set.get(recipient_entity=contact1)
+            mail2 = sending.mails_set.get(recipient_entity=contact2)
 
-        self.assertEqual(f'Your first name is: {first_name} !', mail.rendered_body)
+        self.assertEqual(f'Your first name is: {first_name1} !', mail1.rendered_body)
 
-        html = f'<p>Your last name is: {last_name} !</p>'
-        self.assertEqual(html, mail.rendered_body_html)
+        html1 = (
+            f'<div>'
+            f'<p>Your last name is: {last_name1} !</p>'
+            f'<p>Your civility is: {civ.title} !</p>'
+            f'</div>'
+        )
+        self.assertHTMLEqual(html1, mail1.rendered_body_html)
+        self.assertHTMLEqual(
+            f'<div>'
+            f'<p>Your last name is: {last_name2} !</p>'
+            f'<p>Your civility is:  !</p>'
+            f'</div>',
+            mail2.rendered_body_html,
+        )
+
         self.assertEqual(
-            html.encode(),
-            self.client.get(reverse('emails__lw_mail_body', args=(mail.id,))).content
+            html1.encode(),
+            self.client.get(reverse('emails__lw_mail_body', args=(mail1.id,))).content,
         )
 
         # View template --------------------------------------------------------
         response = self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
         self.assertEqual(template.body_html.encode(), response.content)
 
-        # test delete sending --------------------------------------------------
+        # Delete sending -------------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
         self.assertPOST(
             302,
@@ -400,7 +432,7 @@ class SendingsTestCase(_EmailsTestCase):
             data={'id': sending.pk}
         )
         self.assertDoesNotExist(sending)
-        self.assertDoesNotExist(mail)
+        self.assertDoesNotExist(mail1)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation

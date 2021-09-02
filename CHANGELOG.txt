@@ -4,6 +4,8 @@
   ------------
     # The special item "remaining fields" in custom forms ignored 'ManyToManyFields'.
     # Apps :
+        * Emails :
+            - A crash, when using the template variable '{{civility}}' in a campaign, has been fixed.
         * Assistants :
             - The Alerts & Todos which are searched from list-views are the ones which are not validated (& so, displayed).
               The names of the related function-fields have been fixed ("Active alerts" & "Active todos").
