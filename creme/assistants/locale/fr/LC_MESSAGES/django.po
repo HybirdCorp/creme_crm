@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-30 10:21+0200\n"
+"POT-Creation-Date: 2021-09-03 17:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -15,8 +15,8 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-msgid "Assistants (Todos, Memos, ...)"
-msgstr "Assistants (Todos, Mémos, ...)"
+msgid "Assistants (Todos, Memos, …)"
+msgstr "Assistants (Todos, Mémos, …)"
 
 msgid "Todos"
 msgstr "Todos"
@@ -483,6 +483,18 @@ msgstr "Supprimer ce todo"
 
 msgid "No Todo for the moment"
 msgstr "Aucun Todo enregistré pour le moment"
+
+msgid "Hide validated alerts"
+msgstr "Cacher les alertes validées"
+
+msgid "Show validated alerts"
+msgstr "Montrer les alertes validées"
+
+msgid "Hide validated todos"
+msgstr "Cacher les todos validés"
+
+msgid "Show validated todos"
+msgstr "Montrer les todos validés"
 
 #, python-brace-format
 msgid "New action for «{entity}»"

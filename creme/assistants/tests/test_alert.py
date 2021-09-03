@@ -17,8 +17,15 @@ from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.forms.listview import TextLVSWidget
-from creme.creme_core.models import CremeEntity, DateReminder, FakeOrganisation
+from creme.creme_core.models import (
+    BrickState,
+    CremeEntity,
+    DateReminder,
+    FakeOrganisation,
+)
 
+from ..bricks import AlertsBrick
+from ..constants import BRICK_STATE_HIDE_VALIDATED_ALERTS
 from ..models import Alert
 from .base import AssistantsTestCase
 
@@ -28,10 +35,12 @@ class AlertTestCase(AssistantsTestCase):
     def _build_add_url(entity):
         return reverse('assistants__create_alert', args=(entity.id,))
 
-    def _create_alert(self, title='TITLE',
+    def _create_alert(self,
+                      title='TITLE',
                       description='DESCRIPTION',
                       trigger_date='2010-9-29',
-                      entity=None):
+                      entity=None,
+                      ):
         entity = entity or self.entity
         response = self.client.post(
             self._build_add_url(entity),
@@ -100,7 +109,7 @@ class AlertTestCase(AssistantsTestCase):
         )
 
     def test_edit(self):
-        title       = 'Title'
+        title = 'Title'
         description = 'Description'
         alert = self._create_alert(title, description, '2010-9-29')
 
@@ -112,7 +121,7 @@ class AlertTestCase(AssistantsTestCase):
         )
 
         # ---
-        title       += '_edited'
+        title += '_edited'
         description += '_edited'
         response = self.client.post(
             url,
@@ -152,7 +161,7 @@ class AlertTestCase(AssistantsTestCase):
             reverse('creme_core__delete_related_to_entity', args=(ct.id,)),
             data={'id': alert.id},
         )
-        self.assertEqual(0, Alert.objects.count())
+        self.assertFalse(Alert.objects.all())
 
     def test_validate(self):
         alert = self._create_alert()
@@ -361,3 +370,30 @@ class AlertTestCase(AssistantsTestCase):
         alerts = Alert.objects.filter_by_user(user=user)
         self.assertSetEqual({alert1, alert3}, {*alerts})
         self.assertEqual(2, len(alerts))
+
+    def test_brick_hide_validated_alerts(self):
+        user = self.user
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('assistants__hide_validated_alerts')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(BRICK_STATE_HIDE_VALIDATED_ALERTS),
+            True,
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(BRICK_STATE_HIDE_VALIDATED_ALERTS),
+            False,
+        )

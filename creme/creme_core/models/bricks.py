@@ -891,8 +891,8 @@ class BrickState(CremeModel):
     def del_extra_data(self, key: str) -> None:
         del self._extra_data[key]
 
-    def get_extra_data(self, key: str):
-        return self._extra_data.get(key)
+    def get_extra_data(self, key: str, default=None):
+        return self._extra_data.get(key, default)
 
     def set_extra_data(self, key: str, value) -> bool:
         old_value = self._extra_data.get(key)

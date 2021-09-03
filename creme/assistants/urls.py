@@ -38,6 +38,11 @@ urlpatterns = [
                 alert.validate,
                 name='assistants__validate_alert',
             ),
+            re_path(
+                r'^bricks/hide_validated[/]?$',
+                alert.HideValidatedAlerts.as_view(),
+                name='assistants__hide_validated_alerts',
+            ),
         ]),
     ),
     re_path(
@@ -56,6 +61,11 @@ urlpatterns = [
                 r'^validate/(?P<todo_id>\d+)[/]?$',
                 todo.validate,
                 name='assistants__validate_todo',
+            ),
+            re_path(
+                r'^bricks/hide_validated[/]?$',
+                todo.HideValidatedToDos.as_view(),
+                name='assistants__hide_validated_todos',
             ),
         ]),
     ),

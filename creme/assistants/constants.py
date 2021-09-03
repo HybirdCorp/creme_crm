@@ -13,3 +13,6 @@ USERMESSAGE_PRIORITIES = {
 }
 
 MIN_HOUR_4_TODO_REMINDER = 'assistants-min_hour_4_todo_reminder'
+
+BRICK_STATE_HIDE_VALIDATED_ALERTS = 'assistants-hide_validated_alerts'
+BRICK_STATE_HIDE_VALIDATED_TODOS  = 'assistants-hide_validated_todos'
