@@ -1085,6 +1085,7 @@ class BrickTestCase(CremeTestCase):
         state = BrickState.objects.create(user=user, brick_id=TestBrick.id_)
         key1 = 'creme_core-foo'
         self.assertIsNone(state.get_extra_data(key1))
+        self.assertIs(True, state.get_extra_data(key1, default=True))
 
         foo_value = 'bar'
         changed1 = state.set_extra_data(key1, foo_value)

@@ -22,6 +22,7 @@ from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
+    BrickState,
     CremeEntity,
     DateReminder,
     FakeContact,
@@ -37,7 +38,10 @@ from creme.creme_core.models.history import (
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import TodosBrick
-from ..constants import MIN_HOUR_4_TODO_REMINDER
+from ..constants import (
+    BRICK_STATE_HIDE_VALIDATED_TODOS,
+    MIN_HOUR_4_TODO_REMINDER,
+)
 from ..function_fields import TodosField
 from ..models import Alert, ToDo
 from .base import AssistantsTestCase
@@ -754,3 +758,30 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
 
         self.assertSetEqual({todo1, todo3}, {*todos})
         self.assertEqual(2, len(todos))
+
+    def test_brick_hide_validated_todos(self):
+        user = self.user
+
+        def get_state():
+            return BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+
+        self.assertIsNone(get_state().pk)
+
+        url = reverse('assistants__hide_validated_todos')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'value': 'true'})
+        state1 = get_state()
+        self.assertIsNotNone(state1.pk)
+        self.assertIs(
+            state1.get_extra_data(BRICK_STATE_HIDE_VALIDATED_TODOS),
+            True,
+        )
+
+        # ---
+        self.assertPOST200(url, data={'value': '0'})
+        self.assertIs(
+            get_state().get_extra_data(BRICK_STATE_HIDE_VALIDATED_TODOS),
+            False,
+        )

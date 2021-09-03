@@ -1,7 +1,13 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks creme_widgets %}
+{% load i18n creme_core_tags creme_bricks creme_widgets assistants_tags %}
 
 {% block brick_extra_class %}{{block.super}} assistants-alerts-brick{% endblock %}
+
+{% block brick_menu_actions %}
+    {{block.super}}
+    <hr/>
+    {% assistants_brick_menu_hide_validated_alerts_action url='assistants__hide_validated_alerts'|url hidden=hide_validated %}
+{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=_('{count} Alert') plural=_('{count} Alerts') empty=verbose_name icon='alert' %}

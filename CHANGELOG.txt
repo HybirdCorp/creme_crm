@@ -38,6 +38,8 @@
         * Emails :
             - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
               (the other one is automatically filled from it).
+        * Assistants :
+            - In Alerts & ToDos bricks, the validated lines can be shown/hidden. The default behaviour is still the same.
 
   Developers side :
   -----------------
