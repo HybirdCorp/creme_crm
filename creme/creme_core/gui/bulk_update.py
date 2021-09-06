@@ -101,9 +101,13 @@ class _BulkUpdateRegistry:
 
         def is_updatable(self, field: Union[Field, CustomField]) -> bool:
             return (
-                isinstance(field, CustomField) or (
-                    field.editable and not
-                    FieldsConfig.objects.get_for_model(self._model).is_field_hidden(field)
+                isinstance(field, CustomField)
+                or (
+                    field.editable
+                    and not field.auto_created
+                    and not FieldsConfig.objects
+                                        .get_for_model(self._model)
+                                        .is_field_hidden(field)
                 )
             )
 
@@ -289,7 +293,8 @@ class _BulkUpdateRegistry:
 
     def get_field(self,
                   model: Type[Model],
-                  field_name: str) -> Union[Field, CustomField]:
+                  field_name: str,
+                  ) -> Union[Field, CustomField]:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -301,10 +306,12 @@ class _BulkUpdateRegistry:
 
         return field
 
+    # TODO: rename "(get_)form_class"
     def get_form(self,
                  model: Type[Model],
                  field_name: str,
-                 default: Optional[Type['BulkForm']] = None) -> Optional[Type['BulkForm']]:
+                 default: Optional[Type['BulkForm']] = None,
+                 ) -> Optional[Type['BulkForm']]:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -323,7 +330,8 @@ class _BulkUpdateRegistry:
     def is_updatable(self,
                      model: Type[Model],
                      field_name: str,
-                     exclude_unique: bool = True) -> bool:
+                     exclude_unique: bool = True,
+                     ) -> bool:
         try:
             field = self.get_field(model, field_name)
         except (FieldDoesNotExist, FieldNotAllowed):
@@ -334,7 +342,8 @@ class _BulkUpdateRegistry:
     def is_expandable(self,
                       model: Type[Model],
                       field_name: str,
-                      exclude_unique: bool = True) -> bool:
+                      exclude_unique: bool = True,
+                      ) -> bool:
         try:
             field = self.status(model).get_expandable_field(field_name)
         except (FieldDoesNotExist, FieldNotAllowed):
@@ -342,11 +351,11 @@ class _BulkUpdateRegistry:
 
         return not (exclude_unique and field.unique)
 
-    def regular_fields(
-            self,
-            model: Type[Model],
-            expand: bool = False,
-            exclude_unique: bool = True) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
+    def regular_fields(self,
+                       model: Type[Model],
+                       expand: bool = False,
+                       exclude_unique: bool = True,
+                       ) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
         sort_key = collator.sort_key
 
         status = self.status(model)

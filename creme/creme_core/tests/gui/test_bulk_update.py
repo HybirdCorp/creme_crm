@@ -60,6 +60,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertTrue(is_updatable(field_name='name'))
         self.assertTrue(is_updatable(field_name='phone'))
 
+        self.assertFalse(is_updatable(field_name='id'))
+        self.assertFalse(is_updatable(field_name='cremeentity_ptr'))
         self.assertFalse(is_updatable(field_name='created'))  # Editable = False
         self.assertFalse(is_updatable(field_name='address'))  # Editable = False
         self.assertFalse(is_updatable(field_name='emails'))  # Excluded field
@@ -185,6 +187,28 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             registry.regular_fields(FakeContact),
         )
 
+        # ---
+        get_field = FakeActivity._meta.get_field
+        self.assertListEqual(
+            self.sort_fields([
+                get_field(fname) for fname in
+                [
+                    # 'cremeentity_ptr',
+                    # 'id',
+                    'user',
+                    'description',
+
+                    # 'title',  Unique
+                    'place',
+                    'minutes',
+                    'start',
+                    'end',
+                    'type',
+                ]
+            ]),
+            registry.regular_fields(FakeActivity),
+        )
+
     def test_regular_fields_ignore(self):
         registry = self.bulk_update_registry
 
@@ -192,25 +216,63 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertListEqual([], registry.regular_fields(FakeContact))
 
     def test_regular_fields_include_unique(self):
-        meta = FakeContact._meta
+        # meta = FakeContact._meta
+        get_field = FakeActivity._meta.get_field
         self.assertListEqual(
             self.sort_fields([
-                field
-                for field in chain(meta.fields, meta.many_to_many)
-                if field.editable
+                # field
+                # for field in chain(meta.fields, meta.many_to_many)
+                # if field.editable
+                get_field(fname) for fname in
+                [
+                    # 'cremeentity_ptr',
+                    # 'id',
+                    'user',
+                    'description',
+
+                    'title',
+                    'place',
+                    'minutes',
+                    'start',
+                    'end',
+                    'type',
+                ]
             ]),
-            self.bulk_update_registry.regular_fields(FakeContact, exclude_unique=False),
+            # self.bulk_update_registry.regular_fields(FakeContact, exclude_unique=False),
+            self.bulk_update_registry.regular_fields(FakeActivity, exclude_unique=False),
         )
 
     def test_get_regular_field_not_editable(self):
         registry = self.bulk_update_registry
         registry.register(FakeContact)
+        status = registry.status(FakeContact)
+        get_field = FakeContact._meta.get_field
+
+        self.assertFalse(status.is_updatable(get_field('address')))
 
         with self.assertRaises(FieldNotAllowed):
-            registry.status(FakeContact).get_field('address')
+            status.get_field('address')
 
         with self.assertRaises(FieldNotAllowed):
             registry.get_field(FakeContact, 'address')
+
+        # ---
+        self.assertFalse(status.is_updatable(get_field('id')))
+
+        with self.assertRaises(FieldNotAllowed):
+            status.get_field('id')
+
+        with self.assertRaises(FieldNotAllowed):
+            registry.get_field(FakeContact, 'id')
+
+        # ---
+        self.assertFalse(status.is_updatable(get_field('cremeentity_ptr')))
+
+        with self.assertRaises(FieldNotAllowed):
+            status.get_field('cremeentity_ptr')
+
+        with self.assertRaises(FieldNotAllowed):
+            registry.get_field(FakeContact, 'cremeentity_ptr')
 
     def test_get_regular_subfield_expandable(self):
         registry = self.bulk_update_registry
