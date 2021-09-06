@@ -372,3 +372,54 @@ class BrickStateSetting(generic.CheckedView):
                     break
 
         return HttpResponse()
+
+
+class BrickStateExtraDataSetting(generic.CheckedView):
+    """Base view to set the extra data of a BrickState instance.
+     The default behaviour is too set boolean values, but you can customise your
+     view by overriding the method 'cast_value()' in your own view.
+
+     In your custom view you should at least set the classes attributes
+     "brick_cls" & "data_key".
+     """
+    value_arg: str = 'value'
+    brick_cls: Type[Brick] = Brick
+    data_key: str = ''
+
+    @staticmethod
+    def cast_value(value):
+        return utils.bool_from_str_extended(value)
+
+    def get_value(self):
+        return utils.get_from_POST_or_404(
+            self.request.POST, key=self.value_arg, cast=self.cast_value,
+        )
+
+    def post(self, request, **kwargs):
+        value = self.get_value()
+
+        # NB: we can still have a race condition because we do not use
+        #     select_for_update ; but it's a state related to one user & one brick,
+        #     so it would not be a real world problem.
+        for _i in range(10):
+            state = BrickState.objects.get_for_brick_id(
+                brick_id=self.brick_cls.id_, user=request.user,
+            )
+
+            try:
+                if value is None:  # TODO: self.delete_on_none ?
+                    try:
+                        state.del_extra_data(self.data_key)
+                    except KeyError:
+                        pass
+                    else:
+                        state.save()
+                elif state.set_extra_data(key=self.data_key, value=value):
+                    state.save()
+            except IntegrityError:
+                logger.exception('Avoid a duplicate.')
+                continue
+            else:
+                break
+
+        return HttpResponse()
