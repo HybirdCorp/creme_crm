@@ -2312,9 +2312,14 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         self.assertFalse(mario._meta.get_field('is_user').editable)
 
-        url = self.build_inneredit_url(mario, 'is_user')
+        build_url = self.build_inneredit_url
+        url = build_url(mario, 'is_user')
         self.assertGET(400, url)
         self.assertPOST(400, url, data={'field_value': self.other_user.id})
+
+        # Fields without form-field
+        self.assertGET(400, build_url(mario, 'id'))
+        self.assertGET(400, build_url(mario, 'cremeentity_ptr'))
 
     def test_regular_field_fields_config_hidden(self):
         self.login()

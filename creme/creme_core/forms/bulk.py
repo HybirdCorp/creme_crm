@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 import re
 from functools import partial
 from itertools import chain
@@ -36,6 +37,7 @@ from ..gui import bulk_update
 from ..models import CremeEntity, FieldsConfig, custom_field
 from .base import CremeForm
 
+logger = logging.getLogger(__name__)
 _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
 
@@ -155,6 +157,16 @@ class BulkForm(CremeForm):
 
     def _bulk_updatable_formfield(self, model_field, user, instance=None):
         form_field = model_field.formfield()
+
+        if form_field is None:
+            # Should never happen
+            logger.critical(
+                'creme_core.forms.bulk.BulkForm._bulk_updatable_formfield(): '
+                'the model-field <%s> cannot be edited, & should have been '
+                'rejected by te view ; a bug report would be a nice thing to do.',
+                model_field,
+            )
+            raise ValueError('This field cannot be edited.')
 
         if FieldsConfig.objects.get_for_model(model_field.model).is_field_required(model_field):
             form_field.required = True
