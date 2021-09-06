@@ -1010,6 +1010,38 @@ class ContactTestCase(_BaseTestCase):
             field_printers_registry.get_html_field_value(deunan, 'user', user),
         )
 
+    def test_fk_user_printer03(self):
+        "Cannot see the contact => fallback to user + no <a>."
+        user = self.login(is_superuser=False)
+        other_user = self.other_user
+
+        SetCredentials.objects.create(
+            role=self.role,
+            set_type=SetCredentials.ESET_OWN,
+            value=EntityCredentials.VIEW,
+        )
+
+        mireille = user.linked_contact
+        self.assertEqual(user, mireille.user)
+
+        kirika = other_user.linked_contact
+        self.assertEqual(other_user, kirika.user)
+
+        get_html_val = field_printers_registry.get_html_field_value
+        self.assertHTMLEqual(
+            f'<a href="{mireille.get_absolute_url()}">'
+            f'{mireille.first_name} {mireille.last_name}'
+            f'</a>',
+            get_html_val(mireille, 'user', user),
+        )
+        self.assertEqual(
+            _('{first_name} {last_name}.').format(
+                first_name=other_user.first_name,
+                last_name=other_user.last_name[0],
+            ),
+            get_html_val(kirika, 'user', user),
+        )
+
     @skipIfCustomOrganisation
     def test_get_employers(self):
         user = self.login()
