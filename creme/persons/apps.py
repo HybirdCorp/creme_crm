@@ -109,17 +109,28 @@ class PersonsConfig(CremeAppConfig):
 
     def register_field_printers(self, field_printers_registry):
         from django.contrib.auth import get_user_model
+        from django.utils.html import format_html
 
+        # from creme.creme_core.templatetags.creme_widgets import (
+        #     widget_entity_hyperlink,
+        # )
         from creme.creme_core.gui.field_printers import print_foreignkey_html
-        from creme.creme_core.templatetags.creme_widgets import (
-            widget_entity_hyperlink,
-        )
 
         def print_fk_user_html(entity, fval, user, field) -> str:
-            if fval.is_team:
-                return str(fval)
+            # if fval.is_team:
+            #     return str(fval)
+            #
+            # return widget_entity_hyperlink(fval.linked_contact, user)
+            if not fval.is_team:
+                contact = fval.linked_contact
+                if user.has_perm_to_view(contact):
+                    return format_html(
+                        '<a href="{url}">{label}</a>',
+                        url=contact.get_absolute_url(),
+                        label=contact,
+                    )
 
-            return widget_entity_hyperlink(fval.linked_contact, user)
+            return str(fval)
 
         print_foreignkey_html.register(get_user_model(), print_fk_user_html)
 

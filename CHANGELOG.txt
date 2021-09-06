@@ -4,6 +4,9 @@
   ------------
     # The special item "remaining fields" in custom forms ignored 'ManyToManyFields'.
     # Apps :
+        * Persons :
+            - The field printer for users has been improved to display the user
+              if a link to the linked contact is not relevant (ie: you are not allowed to see this contact).
         * Emails :
             - A crash, when using the template variable '{{civility}}' in a campaign, has been fixed.
         * Assistants :
