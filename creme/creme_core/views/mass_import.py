@@ -162,8 +162,10 @@ def download_errors(request, job_id):
             smart_str(_('Errors')),
         ])
 
-    for job_result in MassImportJobResult.objects.filter(job=job) \
-                                                 .exclude(raw_messages=None):  # TODO: '' too ?
+    # for job_result in MassImportJobResult.objects.filter(job=job).exclude(raw_messages=None):
+    for job_result in MassImportJobResult.objects.filter(
+        job=job, messages__isnull=False,
+    ):
         writerow([
             *(smart_str(i) for i in job_result.line),
             smart_str('/'.join(job_result.messages)),
