@@ -556,7 +556,8 @@ class FieldsConfigTestCase(CremeTestCase):
         hitagi = self.get_object_or_fail(FakeContact, last_name=last_name)
         self.assertEqual(first_name, hitagi.first_name)
         self.assertIsNone(hitagi.phone)
-        self.assertIsNone(hitagi.mobile)
+        # self.assertIsNone(hitagi.mobile)
+        self.assertEqual('', hitagi.mobile)
 
     def test_form_update_hidden03(self):
         "Field not in form."

@@ -307,22 +307,23 @@ else:
             # on_delete=models.SET_NULL,
             on_delete=deletion.CREME_REPLACE_NULL,
         ).set_tags(optional=True)
-        last_name   = models.CharField(_('Last name'), max_length=100)
-        first_name  = models.CharField(
+        last_name  = models.CharField(_('Last name'), max_length=100)
+        first_name = models.CharField(
             _('First name'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
 
         is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)  # blank=True
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
 
+        # NB: keep nullable for some tests
         phone = core_fields.PhoneField(
             _('Phone number'), max_length=100, blank=True, null=True,
         ).set_tags(optional=True)
         mobile = core_fields.PhoneField(
-            _('Mobile'), max_length=100, blank=True, null=True,
+            _('Mobile'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
-        email = models.EmailField(_('Email address'), max_length=100, blank=True, null=True)
-        url_site = models.URLField(_('Web Site'), max_length=500, blank=True, null=True)
+        email = models.EmailField(_('Email address'), max_length=100, blank=True)  # null=True
+        url_site = models.URLField(_('Web Site'), max_length=500, blank=True)  # null=True
 
         position = models.ForeignKey(
             FakePosition, verbose_name=_('Position'),
@@ -411,10 +412,10 @@ else:
     class FakeOrganisation(CremeEntity):
         name = models.CharField(_('Name'), max_length=200)
         phone = core_fields.PhoneField(
-            _('Phone number'), max_length=100, blank=True, null=True,
+            _('Phone number'), max_length=100, blank=True,  # null=True,
         )
         email = models.EmailField(
-            _('Email address'), max_length=100, blank=True, null=True,
+            _('Email address'), max_length=100, blank=True,  # null=True,
         )
 
         # NB: keep nullable for some tests
@@ -485,7 +486,7 @@ else:
             return reverse('creme_core__list_fake_organisations')
 
     class FakeActivityType(CremeModel):
-        name  = models.CharField(_('Name'), max_length=100, unique=True)
+        name = models.CharField(_('Name'), max_length=100, unique=True)
         order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
 
         def __str__(self):

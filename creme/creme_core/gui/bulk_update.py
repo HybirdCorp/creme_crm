@@ -402,8 +402,7 @@ class _BulkUpdateRegistry:
             key=lambda f: sort_key(f.name)
         )
 
-    # TODO: we need a better system, so we could also inner edit other type of cells
-    #      (maybe _BulkUpdateRegistry should only
+    # TODO: better system which allow inner edit other type of cells?
     # TODO: remove "user" arg
     def inner_uri(self, cell: EntityCell, instance: Model, user) -> Optional[str]:
         uri = None
