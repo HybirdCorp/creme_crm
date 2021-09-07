@@ -139,6 +139,7 @@ class PollReplyLine(CremeModel, _PollLine):
 
     question = models.TextField(_('Question'))
 
+    # TODO: use a JSONField ?
     # NULL == not answered  [tip: use the property 'answer']
     raw_answer = models.TextField(_('Answer'), null=True)
 

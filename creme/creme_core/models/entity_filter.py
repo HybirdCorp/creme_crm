@@ -866,7 +866,6 @@ class EntityFilterCondition(models.Model):
     type = models.PositiveSmallIntegerField()
 
     name = models.CharField(max_length=100)
-    # value  = models.TextField()
     raw_value = models.TextField()  # TODO: use a JSONField ?
 
     _handler = None  # Cache for FilterConditionHandler instance.

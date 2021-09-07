@@ -442,7 +442,8 @@ class JobErrorsBrick(JobResultsBrick):
     template_name = 'creme_core/bricks/job-errors.html'
 
     def _build_queryset(self, job):
-        return super()._build_queryset(job).filter(raw_messages__isnull=False)
+        # return super()._build_queryset(job).filter(raw_messages__isnull=False)
+        return super()._build_queryset(job).filter(messages__isnull=False)
 
     def _extra_context(self, job):
         return {'JOB_ERROR': Job.STATUS_ERROR}

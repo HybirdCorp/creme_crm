@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from json import dumps as json_dump
-
+# from json import dumps as json_dump
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
@@ -68,10 +67,14 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             type_id=batch_process_type.id,
             language='en',
             status=status,
-            raw_data=json_dump({
+            # raw_data=json_dump({
+            #     'ctype': self.ct_orga_id,
+            #     'actions': [],
+            # }),
+            data={
                 'ctype': self.ct_orga_id,
                 'actions': [],
-            }),
+            },
         )
 
     def _create_invalid_job(self, user=None, status=Job.STATUS_WAIT):
@@ -80,7 +83,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             type_id=JobType.generate_id('creme_core', 'invalid'),
             language='en',
             status=status,
-            raw_data='[]',
+            # raw_data='[]',
+            data=[],
         )
 
     def test_detailview01(self):

@@ -274,9 +274,18 @@
                 - The global instance 'creme_menu' has been removed.
                 - The function '_validate_id()' has been removed.
         # In 'creme_core.models' :
+            - The field 'DeletionCommand.json_replacers' has been transformed to a 'JSONField'.
             - In 'fields_config', the method 'FieldsConfigManager.field_enumerator()' has been removed.
             - In 'history', all code related to history line rendering is deprecated ;
               use the new rendering system 'creme_core.gui.history' instead.
+            - In 'job' :
+                - The field 'Job.raw_data' has been transform into a nullable 'JSONField' named "data" ;
+                  the property 'Job.data' has been removed since it's useless now.
+                - The field 'BaseJobResult.raw_messages' (& so in the concrete child models: JobResult, EntityJobResult & MassImportJobResult)
+                  has been transform into a 'JSONField' named "messages" ;
+                  the property 'BaseJobResult.messages' has been removed since it's useless now.
+                - The field 'MassImportJobResult.raw_line' has been transform into a 'JSONField' named "line" ;
+                  the property 'MassImportJobResult.line' has been removed since it's useless now.
             - The field 'Language.code' has been removed.
             - In 'search' :
                 - The class 'SearchField' has been removed.

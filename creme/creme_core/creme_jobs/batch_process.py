@@ -165,7 +165,8 @@ class _BatchProcessType(JobType):
         return desc
 
     def get_stats(self, job):
-        count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
+        # count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
+        count = EntityJobResult.objects.filter(job=job, messages__isnull=True).count()
 
         return [
             ngettext(
