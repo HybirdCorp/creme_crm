@@ -142,7 +142,7 @@ class CellProxy:
         """
         raise NotImplementedError
 
-    def build_cell(self) -> entity_cell.EntityCell:
+    def build_cell(self) -> Optional[entity_cell.EntityCell]:
         """
         @return: an EntityCell instance.
         """
@@ -920,7 +920,8 @@ class ConditionProxy:
                  model: Type[CremeEntity],
                  name: str,
                  value: Any,
-                 validated_data: ValidatedData):
+                 validated_data: ValidatedData,
+                 ):
         """Constructor.
 
         @param efilter_id: ID of related EntityFilter instance
@@ -1424,7 +1425,10 @@ class CustomFormsImporter(Importer):
         data = {}
 
         cform_id = cform_item_info.get('id')
-        desc = self.registry.get(cform_id)
+        if cform_id is None:
+            raise ValidationError('The custom-form ID is missing')
+
+        desc = self.registry.get(str(cform_id))
         if desc is None:
             raise ValidationError(f'The custom-form ID is invalid: {cform_id}')
 

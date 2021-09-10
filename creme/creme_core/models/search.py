@@ -361,6 +361,8 @@ class SearchConfigItem(CremeModel):
                     model, '__'.join(field.name for field in field_parts),
                 )
         else:
+            assert self._cells is not None
+
             for cell in self._cells:
                 if not cell.is_excluded:
                     yield cell

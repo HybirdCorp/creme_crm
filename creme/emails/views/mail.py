@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import List, Type
+from typing import List, Type, Union
 
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
@@ -31,6 +31,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import RelationType
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.utils import get_from_POST_or_404
@@ -61,7 +62,7 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
 
 class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     model = EntityEmail
-    form_list: List[Type[BaseForm]] = [
+    form_list: List[Union[Type[BaseForm], CustomFormDescriptor]] = [
         mail_forms.TemplateSelectionFormStep,
         mail_forms.EntityEmailForm,
     ]

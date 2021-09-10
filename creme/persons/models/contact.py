@@ -164,7 +164,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         return reverse('persons__list_contacts')
 
     # TODO: use FilteredRelation ?
-    def get_employers(self):
+    def get_employers(self) -> models.QuerySet:
         return get_organisation_model().objects.filter(
             is_deleted=False,
             relations__type__in=(constants.REL_OBJ_EMPLOYED_BY, constants.REL_OBJ_MANAGES),
@@ -193,7 +193,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         super().trash()
 
     @classmethod
-    def _create_linked_contact(cls, user, **kwargs):
+    def _create_linked_contact(cls, user, **kwargs) -> 'AbstractContact':
         # TODO: assert user is not a team + enforce non team clean() ?
         owner = user
 

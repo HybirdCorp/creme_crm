@@ -176,11 +176,12 @@ class EntityRelatedMixin:
         if entity_classes is not None:
             has_perm = user.has_perm_to_access_or_die
 
-            if isinstance(entity_classes, (list, tuple)):  # Sequence of classes
+            if isinstance(entity_classes, type):  # CremeEntity sub-model
+                # assert issubclass(entity_classes, CremeEntity)
+                has_perm(entity_classes._meta.app_label)
+            else:  # Sequence of classes
                 for app_label in {c._meta.app_label for c in entity_classes}:
                     has_perm(app_label)
-            else:  # CremeEntity sub-model
-                has_perm(entity_classes._meta.app_label)
 
     def get_related_entity_id(self) -> str:
         return self.kwargs[self.entity_id_url_kwarg]

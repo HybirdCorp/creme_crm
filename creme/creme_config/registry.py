@@ -60,7 +60,8 @@ class _ModelConfigAction:
 
     def __init__(self, *,
                  model: Type[Model],
-                 model_name: str):
+                 model_name: str,
+                 ):
         self._model = model
         self._model_name = model_name
         self._form_class: Optional[Type[ModelForm]] = None
@@ -86,7 +87,7 @@ class _ModelConfigAction:
         return self._default_form_class() if form_class is None else form_class
 
     @form_class.setter
-    def form_class(self, form_cls: Optional[Type[ModelForm]]):
+    def form_class(self, form_cls: Optional[Type[ModelForm]]) -> None:
         self._form_class = form_cls
 
     @property

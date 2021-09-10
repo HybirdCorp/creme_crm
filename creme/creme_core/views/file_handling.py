@@ -45,7 +45,8 @@ MAXINT = 100000
 def handle_uploaded_file(f: File,
                          path: Optional[List[str]] = None,
                          name: Optional[str] = None,
-                         max_length: Optional[int] = None) -> str:
+                         max_length: Optional[int] = None,
+                         ) -> str:
     """Handle an uploaded file by a form and return the complete file's path
     path has to be iterable
     """
@@ -64,7 +65,9 @@ def handle_uploaded_file(f: File,
 
     dir_path_length = 1  # For the final '/'
 
-    if not hasattr(path, '__iter__'):  # TODO: path is None  (or add support for only one string)
+    # TODO: add support for only one string?
+    # if not hasattr(path, '__iter__'):
+    if path is None:
         relative_dir_path = 'upload'
         dir_path = join(settings.MEDIA_ROOT, relative_dir_path)
         dir_path_length += len(relative_dir_path)

@@ -41,7 +41,8 @@ class BaseCreation(generic.EntityCreation):
 
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
-    permissions: Union[str, Sequence[str], None] = 'billing'  # Need creation perm too
+    # permissions: Union[str, Sequence[str], None] = 'billing'
+    permissions: Union[str, Sequence[str]] = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
     entity_classes = [

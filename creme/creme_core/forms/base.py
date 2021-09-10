@@ -100,6 +100,7 @@ class _FieldBlock:
     )
 
     default_template_name = 'creme_core/generics/blockform/field-block.html'
+    field_names: Union[str, List[str]]
 
     def __init__(self,
                  *,
@@ -368,8 +369,8 @@ class FieldBlockManager:
                     )
 
                 field_block.field_names.extend(block_field_names)
-                # if block_layout: # TODO ?
-                field_block.layout = block_layout
+                if block_layout:  # TODO: 'loyout' property with checking?
+                    field_block.layout = block_layout
             else:
                 field_block = _FieldBlock(
                     id=block_id, label=block_label,
@@ -382,7 +383,7 @@ class FieldBlockManager:
                 else:
                     blocks_to_insert.append((block_order, field_block))
 
-        final_blocks = OrderedDict()
+        final_blocks: Dict[str, _FieldBlock] = OrderedDict()
 
         blocks_to_insert.sort(key=lambda t: t[0], reverse=True)
 

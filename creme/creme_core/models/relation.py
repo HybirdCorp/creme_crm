@@ -45,7 +45,8 @@ logger = logging.getLogger(__name__)
 class RelationTypeManager(models.Manager):
     def compatible(self,
                    ct_or_model: Union[ContentType, Type[CremeEntity]],
-                   include_internals: bool = False):
+                   include_internals: bool = False,
+                   ) -> models.QuerySet:
         types = self.filter(
             Q(subject_ctypes=as_ctype(ct_or_model))
             | Q(subject_ctypes__isnull=True)

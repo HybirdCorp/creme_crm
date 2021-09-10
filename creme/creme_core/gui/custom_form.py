@@ -338,7 +338,8 @@ class FieldGroupList:
     def __init__(self,
                  model: Type[Model],
                  groups: Iterable[AbstractFieldGroup],
-                 cell_registry: EntityCellsRegistry):
+                 cell_registry: EntityCellsRegistry,
+                 ):
         self._model = model
         self._groups = [*groups]
         self._cell_registry = cell_registry
@@ -346,10 +347,10 @@ class FieldGroupList:
     def __len__(self):
         return len(self._groups)
 
-    def __getitem__(self, item: int) -> FieldGroup:
+    def __getitem__(self, item: int) -> AbstractFieldGroup:
         return self._groups[item]
 
-    def __iter__(self) -> Iterator[FieldGroup]:
+    def __iter__(self) -> Iterator[AbstractFieldGroup]:
         yield from self._groups
 
     def __repr__(self):
@@ -506,6 +507,7 @@ class FieldGroupList:
             if isinstance(group, ExtraFieldGroup):
                 extra_groups.append(group)
             else:
+                assert isinstance(group, FieldGroup)
                 cells_groups.append(group)
 
         field_names = OrderedSet()
@@ -865,7 +867,7 @@ class CustomFormDescriptor:
         yield from self._excluded_fields
 
     @excluded_fields.setter
-    def excluded_fields(self, field_names: Iterable[str]):
+    def excluded_fields(self, field_names: Iterable[str]) -> None:
         get_field = self._model._meta.get_field
 
         # NB: get_field() to raise exception
@@ -910,7 +912,7 @@ class CustomFormDescriptor:
         return self._form_type
 
     @form_type.setter
-    def form_type(self, form_type):
+    def form_type(self, form_type) -> None:
         if form_type not in self.FORM_TYPES:
             raise ValueError(f'form_type: {form_type} not in {self.FORM_TYPES}')
 

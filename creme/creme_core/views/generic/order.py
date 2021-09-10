@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from typing import Optional, Sequence
+
 from django.core.exceptions import ImproperlyConfigured
+from django.db.models import Model, QuerySet
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.views.generic import View
@@ -47,14 +50,14 @@ class ReorderInstances(View):
     (so even if the global ordering of an instance has not changed, the value
     of its order-field could change).
     """
-    model = None
-    queryset = None
-    pk_url_kwarg = 'object_id'
-    target_order_post_argument = 'target'
-    order_field_name = 'order'
+    model: Optional[Model] = None
+    queryset: Optional[QuerySet] = None
+    pk_url_kwarg: str = 'object_id'
+    target_order_post_argument: str = 'target'
+    order_field_name: str = 'order'
     use_select_for_update = True
 
-    def get_moved_instance_index(self, instances):
+    def get_moved_instance_index(self, instances: Sequence[Model]) -> Optional[int]:
         """Returns the index of the instance we want to move.
 
         @param instances: List of instances we will re-order.
@@ -68,7 +71,9 @@ class ReorderInstances(View):
                 if pk == instance.pk:
                     return index
 
-    def get_queryset(self):
+        return None
+
+    def get_queryset(self) -> QuerySet:
         """Returns all the instances which will been re-ordered.
 
         Notice: no need to order this queryset (it's done automatically).
@@ -86,7 +91,7 @@ class ReorderInstances(View):
 
         return self.queryset.all()
 
-    def get_target_order(self):
+    def get_target_order(self) -> int:
         """Returns the future order (starting at 1) of the instance we want to move."""
         order = get_from_POST_or_404(self.request.POST, self.target_order_post_argument, int)
         if order < 1:
