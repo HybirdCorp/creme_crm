@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional
+from typing import Sequence, Union
 
 from django.http import HttpResponse
 from django.utils.translation import gettext_lazy as _
@@ -29,32 +29,32 @@ _PERM = 'creme_core.can_admin'
 
 
 class ConfigCreation(generic.CremeFormPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
     submit_label = _('Save the configuration')
 
 
 class ConfigModelCreation(generic.CremeModelCreationPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
 
 class ConfigModelCreationWizard(generic.CremeModelCreationWizardPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
 
 class ConfigModelEditionWizard(generic.CremeModelEditionWizardPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
 
 class ConfigEdition(generic.CremeEditionPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
 
 class ConfigModelEdition(generic.CremeModelEditionPopup):
-    permissions: Optional[str] = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
 
 class ConfigDeletion(generic.CheckedView):
-    permissions = _PERM
+    permissions: Union[str, Sequence[str]] = _PERM
 
     def perform_deletion(self, request):
         raise NotImplementedError

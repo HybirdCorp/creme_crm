@@ -149,6 +149,8 @@ class AbstractReportGraph(CremeEntity):
 
     @abscissa_info.setter
     def abscissa_info(self, abs_info: AbscissaInfo):
+        assert abs_info.cell is not None
+
         self.abscissa_cell_value = abs_info.cell.value
         self.abscissa_type = abs_info.graph_type
         self.abscissa_parameter = abs_info.parameter

@@ -100,7 +100,8 @@ class _AddPersonsFromFilterForm(CremeForm):
         required=False,
     )
 
-    person_model = None  # Contact/Organisation
+    # person_model = None  # Contact/Organisation
+    person_model = Contact  # Contact/Organisation
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -132,7 +133,7 @@ class AddContactsFromFilterForm(_AddPersonsFromFilterForm):
         'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
     })
 
-    person_model = Contact
+    # person_model = Contact
 
     def get_persons_m2m(self):
         return self.ml.contacts

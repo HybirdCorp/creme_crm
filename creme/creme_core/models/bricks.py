@@ -697,15 +697,14 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
             return None
 
         try:
-            ibci_id = int(ibci_id)
+            return int(ibci_id)
         except ValueError:
             logger.critical(
                 '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
                 cls.__name__, brick_id,
             )
-            return None
 
-        return ibci_id
+        return None
 
     @classmethod
     def generate_base_id(cls, app_name: str, name: str) -> str:

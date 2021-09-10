@@ -19,19 +19,11 @@
 ################################################################################
 
 import bz2
+import logging
 import re
 import time
 from collections import defaultdict
-from logging import (
-    CRITICAL,
-    DEBUG,
-    ERROR,
-    INFO,
-    WARNING,
-    Filter,
-    Formatter,
-    getLevelName,
-)
+from logging import getLevelName
 from logging.handlers import TimedRotatingFileHandler
 from os import makedirs
 from os import remove as delete_file
@@ -39,28 +31,31 @@ from os import rename as rename_file
 from os.path import dirname, exists, expanduser, join, splitext
 from sys import path as syspath  # getfilesystemencoding
 from threading import Thread
+from typing import DefaultDict, Optional, Sequence, Tuple
 
 try:
     from termcolor import colored
 except ImportError:
-    def colored(str, *args, **kwargs):
-        return str
+    def colored(text, *args, **kwargs):
+        return text
 
 
-class CremeFormatter(Formatter):
-    _COLORS = defaultdict(
+class CremeFormatter(logging.Formatter):
+    _COLORS: DefaultDict[int, Tuple[Optional[str], Sequence[str]]] = defaultdict(
         lambda: (None, []),
         [
-            (CRITICAL, ('magenta', ['bold'])),
-            (ERROR,    ('red',     [])),
-            (WARNING,  ('yellow',  [])),
-            (INFO,     ('white',   [])),
-            (DEBUG,    ('grey',    [])),
+            (logging.CRITICAL, ('magenta', ['bold'])),
+            (logging.ERROR,    ('red',     [])),
+            (logging.WARNING,  ('yellow',  [])),
+            (logging.INFO,     ('white',   [])),
+            (logging.DEBUG,    ('grey',    [])),
         ]
     )
 
-    def __init__(self, format=None, datefmt=None, colorize=False, colors=None):
-        Formatter.__init__(self, fmt=format, datefmt=datefmt)
+    # def __init__(self, format=None, datefmt=None, colorize=False, colors=None):
+    def __init__(self, format=None, datefmt=None, colors=None):
+        # Formatter.__init__(self, fmt=format, datefmt=datefmt)
+        super().__init__(fmt=format, datefmt=datefmt)
         creme_path = dirname(__file__)[:-len(join('creme', 'creme_core'))]
 
         self.prefixes = [
@@ -113,19 +108,21 @@ class CremeFormatter(Formatter):
 
         if record.exc_text:
             log = log if log.endswith('\n') else log + '\n'
-            log = log + record.exc_text
+            log += record.exc_text
 
         return log
 
 
-class RegexFilter(Filter):
+class RegexFilter(logging.Filter):
     def __init__(self, name='', pattern=None, exclude=False):
-        Filter.__init__(self, name=name)
+        # Filter.__init__(self, name=name)
+        super().__init__(name=name)
         self.pattern = re.compile(pattern) if pattern else None
         self.exclude = exclude
 
     def filter(self, record):
-        if Filter.filter(self, record) == 0:
+        # if Filter.filter(self, record) == 0:
+        if super().filter(record) == 0:
             return 0
 
         if self.pattern:

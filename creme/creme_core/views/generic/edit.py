@@ -137,7 +137,7 @@ class EntityEdition(CremeModelEdition):
     It's based on CremeModelEdition & adds the credentials checking.
     """
     model = models.CremeEntity
-    form_class = forms.CremeEntityForm
+    form_class: Union[Type[BaseForm], CustomFormDescriptor] = forms.CremeEntityForm
     pk_url_kwarg = 'entity_id'
 
     def check_instance_permissions(self, instance, user):

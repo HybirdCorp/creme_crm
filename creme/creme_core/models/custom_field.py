@@ -21,7 +21,7 @@
 import uuid
 # import warnings
 from collections import OrderedDict, defaultdict
-from typing import Any, DefaultDict, Dict, Iterable, Type
+from typing import Any, DefaultDict, Dict, Iterable, Sequence, Type
 
 from django import forms
 from django.core.validators import EMPTY_VALUES
@@ -77,11 +77,11 @@ class CustomField(CremeModel):
     ENUM        = 100
     MULTI_ENUM  = 101
 
-    uuid         = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
-    name         = models.CharField(_('Field name'), max_length=100)
+    uuid = models.UUIDField(unique=True, editable=False, default=uuid.uuid4)
+    name = models.CharField(_('Field name'), max_length=100)
     content_type = CTypeForeignKey(verbose_name=_('Related type'))
-    field_type   = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
-    is_required  = models.BooleanField(
+    field_type = models.PositiveSmallIntegerField(_('Field type'))  # See INT, FLOAT etc...
+    is_required = models.BooleanField(
         _('Is required?'), default=False,
         help_text=_(
             'A required custom-field must be filled when a new entity is created ; '
@@ -158,9 +158,9 @@ class CustomField(CremeModel):
     #     return str(cf_values[0]) if cf_values else ''
 
     @staticmethod
-    def get_custom_values_map(
-            entities: Iterable[CremeEntity],
-            custom_fields: Iterable['CustomField']) -> DefaultDict[int, Dict[int, Any]]:
+    def get_custom_values_map(entities: Iterable[CremeEntity],
+                              custom_fields: Iterable['CustomField'],
+                              ) -> DefaultDict[int, Dict[int, Any]]:
         """
         @return { Entity's id -> { CustomField's id -> CustomValue } }
         """
@@ -168,7 +168,7 @@ class CustomField(CremeModel):
         for cfield in custom_fields:
             cfield_map[cfield.field_type].append(cfield)
 
-        cvalues_map = defaultdict(dict)
+        cvalues_map: DefaultDict[int, Dict[int, Any]] = defaultdict(dict)
         # NB: 'list(entities)' ==> made strangely a query for every entity ;(
         entities = [e.id for e in entities]
 
@@ -181,7 +181,7 @@ class CustomField(CremeModel):
 
 class CustomFieldValue(CremeModel):
     custom_field = models.ForeignKey(CustomField, on_delete=models.CASCADE)
-    entity       = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
+    entity = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
     # value       = FoobarField()  --> implement in inherited classes
 
     class Meta:
@@ -219,10 +219,13 @@ class CustomFieldValue(CremeModel):
     #             cvalue.delete()
 
     @staticmethod
-    def _build_formfield(custom_field, formfield, user=None):
+    def _build_formfield(custom_field: CustomField,
+                         formfield: forms.Field,
+                         user=None,
+                         ) -> None:
         pass
 
-    def _set_formfield_value(self, field):
+    def _set_formfield_value(self, field: forms.Field) -> None:
         field.initial = self.value
 
     @staticmethod
@@ -230,7 +233,11 @@ class CustomFieldValue(CremeModel):
         raise NotImplementedError()
 
     @classmethod
-    def get_formfield(cls, custom_field, custom_value, user=None):
+    def get_formfield(cls,
+                      custom_field: CustomField,
+                      custom_value,
+                      user=None,
+                      ) -> forms.Field:
         field = cls._get_formfield(
             label=custom_field.name,
             required=custom_field.is_required,
@@ -241,17 +248,21 @@ class CustomFieldValue(CremeModel):
 
         return field
 
-    def set_value_n_save(self, value):
+    def set_value_n_save(self, value) -> None:
         if self.value != value:
             self.value = value
             self.save()
 
     @staticmethod
-    def is_empty_value(value):
+    def is_empty_value(value) -> bool:
         return value in EMPTY_VALUES
 
     @classmethod
-    def save_values_for_entities(cls, custom_field, entities, value):
+    def save_values_for_entities(cls,
+                                 custom_field: CustomField,
+                                 entities: Sequence[CremeEntity],
+                                 value,
+                                 ) -> None:
         cfv_klass = custom_field.value_class
 
         cf_values_qs = cfv_klass.objects.filter(

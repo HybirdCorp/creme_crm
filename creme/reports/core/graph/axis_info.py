@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,9 +25,10 @@ from creme.creme_core.core.entity_cell import EntityCell
 
 class AbscissaInfo:
     def __init__(self,
-                 cell: EntityCell,
+                 cell: Optional[EntityCell],
                  graph_type: int,
-                 parameter: Optional[Any] = None):
+                 parameter: Optional[Any] = None,
+                 ):
         self.cell = cell
         self.graph_type = graph_type
         self.parameter = parameter
@@ -45,7 +46,8 @@ class AbscissaInfo:
 class OrdinateInfo:
     def __init__(self,
                  aggr_id: str,
-                 cell: Optional[EntityCell] = None):
+                 cell: Optional[EntityCell] = None,
+                 ):
         self.aggr_id = aggr_id
         self.cell = cell
 

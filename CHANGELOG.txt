@@ -5,6 +5,8 @@
       (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -e .[mysql|pgsql]" of course.
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
+    - The undocumented (and unused) option "colorize" of 'creme.utils.loggers.CremeFormatter' has been removed ;
+      fix your settings if you used it (probably not).
 
   Users side :
   ------------

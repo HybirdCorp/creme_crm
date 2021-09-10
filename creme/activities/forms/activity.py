@@ -40,7 +40,7 @@ from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model
-from ..models import ActivitySubType, ActivityType, Calendar
+from ..models import AbstractActivity, ActivitySubType, ActivityType, Calendar
 # from ..setting_keys import form_user_messages_key
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
@@ -286,7 +286,7 @@ class DatetimeAlertSubCell(_AssistantSubCell):
     def _concrete_formfield(self, instance, user, **kwargs):
         return forms.DateTimeField(**kwargs)
 
-    def post_save_instance(self, *, instance: Activity, value, form):
+    def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
             self._create_alert(instance, value)
 
@@ -312,14 +312,14 @@ class PeriodAlertSubCell(_AssistantSubCell):
             **kwargs,
         )
 
-    def post_clean_instance(self, *, instance: Activity, value, form):
+    def post_clean_instance(self, *, instance: AbstractActivity, value, form):
         if value and instance.floating_type == constants.FLOATING:
             raise ValidationError(
                 self.error_messages['alert_on_floating'],
                 code='alert_on_floating',
             )
 
-    def post_save_instance(self, *, instance: Activity, value, form):
+    def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
             self._create_alert(instance, instance.start - value.as_timedelta())
 
@@ -336,7 +336,7 @@ class UserMessagesSubCell(_AssistantSubCell):
             **kwargs
         )
 
-    def post_save_instance(self, *, instance: Activity, value, form):
+    def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
             from creme.assistants.constants import PRIO_NOT_IMP_PK
             from creme.assistants.models import UserMessage
