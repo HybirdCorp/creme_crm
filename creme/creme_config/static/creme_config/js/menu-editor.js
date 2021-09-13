@@ -114,6 +114,12 @@ creme.MenuEditor = creme.component.Component.sub({
     _regularEntriesDialog: function(choices) {
         var self = this;
 
+        // TODO: var excluded = new Set( ... );
+        // TODO: factorise ?
+        var excluded = $.map(this._element.find('.menu-edit-entry'), function(e) {
+            return JSON.parse($(e).attr('data-value')).id;
+        });
+
         // TODO: multi-select
         var html = (
             '<form>' +
@@ -122,7 +128,10 @@ creme.MenuEditor = creme.component.Component.sub({
             '</form>'
         ).template({
             label: gettext('Add entries'),
-            choices: choices.map(function(c) {
+            choices: choices.filter(function(c) {
+                // return !excluded.has(c[0]);
+                return excluded.indexOf(c[0]) === -1;
+            }).map(function(c) {
                 return '<option value="${value}">${label}</option>'.template({
                     value: c[0],
                     label: c[1]
