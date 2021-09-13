@@ -66,7 +66,8 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
         # Not in field declaration because default value can change
-        self.fields['vat'].initial = Vat.get_default_vat()
+        # self.fields['vat'].initial = Vat.get_default_vat()
+        self.fields['vat'].initial = Vat.objects.default()
 
     def save(self):
         cdata = self.cleaned_data
@@ -178,7 +179,8 @@ class LineEditForm(core_forms.CremeModelForm):
         discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
-        fields['vat_value'].initial = Vat.get_default_vat()
+        # fields['vat_value'].initial = Vat.get_default_vat()
+        fields['vat_value'].initial = Vat.objects.default()
 
     def save(self, *args, **kwargs):
         instance = self.instance

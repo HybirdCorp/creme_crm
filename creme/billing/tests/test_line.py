@@ -1167,7 +1167,8 @@ class LineTestCase(_BillingTestCase):
 
         ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
-            vat_value=Vat.get_default_vat(),
+            # vat_value=Vat.get_default_vat(),
+            vat_value=Vat.objects.default(),
             related_document=invoice,
             on_the_fly_item='Flyyyyy',
         )
@@ -1387,7 +1388,8 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
         pline = ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
-            vat_value=Vat.get_default_vat(),
+            # vat_value=Vat.get_default_vat(),
+            vat_value=Vat.objects.default(),
             related_document=invoice,
             on_the_fly_item='Flyyyyy',
             comment='I believe',
