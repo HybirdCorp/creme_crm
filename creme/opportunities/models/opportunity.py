@@ -182,7 +182,8 @@ class AbstractOpportunity(core_models.CremeEntity):
             return self.estimated_sales or 0
 
     def get_total_with_tax(self):
-        tax = 1 + core_models.Vat.get_default_vat().value / 100
+        # tax = 1 + core_models.Vat.get_default_vat().value / 100
+        tax = 1 + core_models.Vat.objects.default().value / 100
 
         if self.made_sales:
             return self.made_sales * tax
