@@ -370,10 +370,12 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         except Exception:
             print(f'{cls.__name__}: test-data backup problem')
 
-    def _build_edit_container_url(self, item):
+    @staticmethod
+    def _build_edit_container_url(item):
         return reverse('creme_config__edit_menu_container', args=(item.id,))
 
-    def _build_special_level1_url(self, entry_id):
+    @staticmethod
+    def _build_special_level1_url(entry_id):
         return reverse('creme_config__add_menu_special_level1', args=(entry_id,))
 
     def test_portal(self):
