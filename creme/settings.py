@@ -417,7 +417,7 @@ LOGGING_FORMATTERS = {
 # LOGGING_FILTERS = {
 #     'media': {
 #         '()':      'creme.utils.loggers.RegexFilter',
-#         'pattern': '.*(\/static_media\/).*',
+#         'pattern': r'.*(/static_media/).*',
 #         'exclude': True,
 #     }
 # }
@@ -435,7 +435,7 @@ LOGGING_CONSOLE_HANDLER = {
 #   - the "filename" create the directories in path if they do not exist,
 #     & expand the user directory
 # See the documentation of the options :
-#     https://docs.python.org/release/2.7/library/logging.html#timedrotatingfilehandler
+#     https://docs.python.org/3/library/logging.handlers.html#logging.handlers.TimedRotatingFileHandler
 # LOGGING_FILE_HANDLER = {
 #     'level': 'INFO',
 #     '()': 'creme.utils.loggers.CompressedTimedRotatingFileHandler',
