@@ -124,6 +124,19 @@
     margin-top: 10px;
 }
 
+form.menu-edit-regular-entries select {
+    min-height: 240px;
+    min-width: 320px;
+}
+
+form.menu-edit-regular-entries .help-text {
+    margin: 3px;
+
+    color: #666;
+    font-style: italic;
+    font-size: 12.5px;
+}
+
 /* Menu editor - end */
 
 /* Bricks config editor */

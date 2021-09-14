@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-04-23 16:22+0200\n"
+"POT-Creation-Date: 2021-09-14 14:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -19,8 +19,17 @@ msgstr ""
 msgid "Delete"
 msgstr "Supprimer"
 
+msgid "All menu entries are already used."
+msgstr "Toutes les entrées de menu sont déjà utilisées."
+
 msgid "Add entries"
 msgstr "Ajouter des entrées"
+
+# Copied from Django (contrib/admin/locale/fr/LC_MESSAGES/django.po)
+msgid "Hold down “Control”, or “Command” on a Mac, to select more than one."
+msgstr ""
+"Maintenez appuyé « Ctrl », ou « Commande (touche pomme) » sur un Mac, pour "
+"en sélectionner plusieurs."
 
 msgid "New entries"
 msgstr "Nouvelles entrées"
