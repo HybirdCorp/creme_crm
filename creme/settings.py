@@ -506,9 +506,12 @@ LOGGING_FORMATTERS = {
     },
     'simple': {
         '()': 'creme.utils.loggers.CremeFormatter',
-        # Hint: for colored level names in the terminal install the python package "termcolor".
         'format': '[%(asctime)s] %(colored_levelname)s - %(name)s : %(message)s',
         'datefmt': '%Y-%m-%d %H:%M:%S',
+        # To customise the palette, the option "palette" can be set to:
+        #  - A palette name. Available: 'dark', 'light'
+        #  - A palette dictionary (see 'creme.utils.loggers.CremeFormatter.PALETTES')
+        #  The default value is "dark".
     },
     'django.server': {
         '()': 'django.utils.log.ServerFormatter',
