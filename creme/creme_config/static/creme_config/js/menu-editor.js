@@ -119,50 +119,62 @@ creme.MenuEditor = creme.component.Component.sub({
         var excluded = $.map(this._element.find('.menu-edit-entry'), function(e) {
             return JSON.parse($(e).attr('data-value')).id;
         });
-
-        // TODO: multi-select
-        var html = (
-            '<form>' +
-                '<select name="entry_type">${choices}</select>' +
-                '<button class="ui-creme-dialog-action" type="submit">${label}</button>' +
-            '</form>'
-        ).template({
-            label: gettext('Add entries'),
-            choices: choices.filter(function(c) {
-                // return !excluded.has(c[0]);
-                return excluded.indexOf(c[0]) === -1;
-            }).map(function(c) {
-                return '<option value="${value}">${label}</option>'.template({
-                    value: c[0],
-                    label: c[1]
-                });
-            }).join('')
-        });
-
-        var dialog = new creme.dialog.FormDialog({
-            title: gettext('New entries'),
-
-            fitFrame:   false,
-            height: 150,
-            width:  400,
-            noValidate: true,
-            html: $(html)
-        });
-
-        // All custom logic for buttons & widget is done BEFORE the frame-activated event
-        dialog.on('frame-activated', function() {
-            this.button('send').on('click', function() {
-                var option = dialog.form().find('[name="entry_type"] option:selected');
-
-                self._appendEntries([{
-                    label: option.text(),
-                    value: {id: option.val()}
-                }]);
-                dialog.close();
+        var options = choices.filter(function(c) {
+            // return !excluded.has(c[0]);
+            return excluded.indexOf(c[0]) === -1;
+        }).map(function(c) {
+            return '<option value="${value}">${label}</option>'.template({
+                value: c[0],
+                label: c[1]
             });
         });
 
-        return dialog;
+        if (options.length === 0) {
+            return new creme.dialog.ConfirmDialog(gettext('All menu entries are already used.'));
+        } else {
+            var html = (
+                '<form class="menu-edit-regular-entries">' +
+                    '<div class="help-text">${help}</div>' +
+                    '<select name="entry_type" multiple>${choices}</select>' +
+                    '<button class="ui-creme-dialog-action" type="submit">${label}</button>' +
+                '</form>'
+            ).template({
+                label: gettext('Add entries'),
+                help: gettext('Hold down “Control”, or “Command” on a Mac, to select more than one.'),
+                choices: options.join('')
+            });
+
+            var formDialog = new creme.dialog.FormDialog({
+                title: gettext('New entries'),
+
+                fitFrame:   false,
+                height: 400,
+                width:  500,
+                noValidate: true,
+                html: $(html)
+            });
+
+            // All custom logic for buttons & widget is done BEFORE the frame-activated event
+            formDialog.on('frame-activated', function() {
+                this.button('send').on('click', function() {
+                    var newEntries = [];
+                    formDialog.form().find('[name="entry_type"] option:selected').each(function() {
+                        var option = $(this);
+
+                        newEntries.push({
+                            label: option.text(),
+                            value: {id: option.val()}
+                        });
+                    });
+
+                    self._appendEntries(newEntries);
+
+                    formDialog.close();
+                });
+            });
+
+            return formDialog;
+        }
     },
 
     _specialEntriesDialog: function(button) {
