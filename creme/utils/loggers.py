@@ -22,7 +22,7 @@ import bz2
 import logging
 import re
 import time
-from collections import defaultdict
+# from collections import defaultdict
 from logging import getLevelName
 from logging.handlers import TimedRotatingFileHandler
 from os import makedirs
@@ -31,29 +31,48 @@ from os import rename as rename_file
 from os.path import dirname, exists, expanduser, join, splitext
 from sys import path as syspath  # getfilesystemencoding
 from threading import Thread
-from typing import DefaultDict, Optional, Sequence, Tuple
 
-try:
-    from termcolor import colored
-except ImportError:
-    def colored(text, *args, **kwargs):
-        return text
+# try:
+#     from termcolor import colored
+# except ImportError:
+#     def colored(text, *args, **kwargs):
+#         return text
+from django.core.exceptions import ImproperlyConfigured
+from django.utils import termcolors
 
 
 class CremeFormatter(logging.Formatter):
-    _COLORS: DefaultDict[int, Tuple[Optional[str], Sequence[str]]] = defaultdict(
-        lambda: (None, []),
-        [
-            (logging.CRITICAL, ('magenta', ['bold'])),
-            (logging.ERROR,    ('red',     [])),
-            (logging.WARNING,  ('yellow',  [])),
-            (logging.INFO,     ('white',   [])),
-            (logging.DEBUG,    ('grey',    [])),
-        ]
-    )
+    # _COLORS = defaultdict(
+    #     lambda: (None, []),
+    #     [
+    #         (logging.CRITICAL, ('magenta', ['bold'])),
+    #         (logging.ERROR,    ('red',     [])),
+    #         (logging.WARNING,  ('yellow',  [])),
+    #         (logging.INFO,     ('white',   [])),
+    #         (logging.DEBUG,    ('grey',    [])),
+    #     ]
+    # )
+    DARK_PALETTE = 'dark'
+    LIGHT_PALETTE = 'light'
+    PALETTES = {
+        DARK_PALETTE: {
+            logging.CRITICAL: {'fg': 'magenta', 'opts': ('bold',)},
+            logging.ERROR:    {'fg': 'red'},
+            logging.WARNING:  {'fg': 'yellow'},
+            logging.INFO:     {'fg': 'white', 'opts': ('bold',)},
+            logging.DEBUG:    {'fg': 'white'},
+        },
+        LIGHT_PALETTE: {
+            logging.CRITICAL: {'fg': 'magenta', 'opts': ('bold',)},
+            logging.ERROR:    {'fg': 'red'},
+            logging.WARNING:  {'fg': 'yellow', 'opts': ('bold',)},
+            logging.INFO:     {'fg': 'black', 'opts': ('bold',)},
+            logging.DEBUG:    {'fg': 'black'},
+        }
+    }
 
     # def __init__(self, format=None, datefmt=None, colorize=False, colors=None):
-    def __init__(self, format=None, datefmt=None, colors=None):
+    def __init__(self, format=None, datefmt=None, palette=DARK_PALETTE):
         # Formatter.__init__(self, fmt=format, datefmt=datefmt)
         super().__init__(fmt=format, datefmt=datefmt)
         creme_path = dirname(__file__)[:-len(join('creme', 'creme_core'))]
@@ -63,12 +82,27 @@ class CremeFormatter(logging.Formatter):
             *(('python-packages', path) for path in syspath),
         ]
 
-        self.colorize = 'colored' in format
-        self.colors = {**self._COLORS}
+        # self.colorize = 'colored' in format
+        # self.colors = {**self._COLORS}
+        #
+        # if colors is not None:
+        #     for key, color in colors.items():
+        #         self.colors[getLevelName(key)] = color
+        self.colorize = colorize = 'colored' in format
 
-        if colors is not None:
-            for key, color in colors.items():
-                self.colors[getLevelName(key)] = color
+        if colorize:
+            if isinstance(palette, str):
+                palette = self.PALETTES[palette]
+            else:
+                if not isinstance(palette, dict):
+                    raise ImproperlyConfigured(
+                        'The "palette" argument for the logging configuration must be a dict'
+                    )
+
+            self._colorizators = {
+                level: termcolors.make_style(**kw)
+                for level, kw in palette.items()
+            }
 
     def formatModulepath(self, record):
         module_path = splitext(record.pathname)[0]
@@ -97,8 +131,10 @@ class CremeFormatter(logging.Formatter):
         record.asctime = self.formatTime(record, self.datefmt)
 
         if self.colorize:
-            color, attrs = self.colors[record.levelno]
-            record.colored_levelname = colored(getLevelName(record.levelno), color, attrs=attrs)
+            # color, attrs = self.colors[record.levelno]
+            # record.colored_levelname = colored(getLevelName(record.levelno), color, attrs=attrs)
+            level = record.levelno
+            record.colored_levelname = self._colorizators[level](getLevelName(level))
 
         if record.exc_info and not record.exc_text:
             # record.exc_text = self.formatEncodedException(record)
