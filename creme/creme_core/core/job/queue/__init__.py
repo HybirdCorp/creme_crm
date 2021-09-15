@@ -28,6 +28,7 @@ from .base import BaseJobSchedulerQueue, Command  # NOQA
 __queue = None
 QUEUE_CLASSES = {
     'redis': 'creme.creme_core.core.job.queue.redis.RedisQueue',
+    'unix_socket': 'creme.creme_core.core.job.queue.unix_socket.UnixSocketQueue',
 }
 
 if settings.TESTS_ON:

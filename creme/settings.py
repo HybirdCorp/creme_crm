@@ -98,8 +98,27 @@ MAX_USER_JOBS = 5
 # the effects of an hypothetical redis problem).
 PSEUDO_PERIOD = 1  # In hours
 
-# URL with the pattern: redis://[:password]@host:port/db
-# (password is optional; port & db are integers)
+# Broker's URL (communication between the views and the job scheduler)
+# It's a URL which starts by "type://".
+# Currently there are 2 queue types:
+#  - Redis (type: "redis"):
+#     It needs a Redis server to be launched, and the python package "redis".
+#     It's multi-platform & distributed, so it's currently the default choice.
+#     The URL follows this pattern: redis://[:password]@host:port/db
+#     (password is optional; port & db are integers)
+#  - Unix socket (type: "unix_socket"):
+#     It needs a POSIX Operating System (*Linux, *BSD, ...).
+#     The web servers & the job scheduler must run on the same machine.
+#     Example of URL: unix_socket:///tmp/creme/
+#      Remarks:
+#         - The directories of the URL which do not exist will be created by
+#           the scheduler (here "creme/", you do don't have to create it &
+#           simply use /tmp as usual).
+#         - The system user who runs Creme must have the permission to read &
+#           write in the given directory of course.
+#         - An additional/temporary directory "private-{username}/", containing
+#           a file named "socket", will be created dynamically. So your URL just
+#           have to indicate the parent directory.
 JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
 
 

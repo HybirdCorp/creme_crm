@@ -42,6 +42,7 @@ from .queue import Command, get_queue
 logger = logging.getLogger(__name__)
 
 
+# TODO: should we rely on a watch dog?
 class JobScheduler:
     """It should run it its own process (see 'creme_job_manager' command),
     receive command (START...) from an inter-process queue, and spawn jobs
@@ -202,6 +203,7 @@ class JobScheduler:
 
     def _handle_kill(self, *args):
         logger.info('Job manager stops: %d running job(s)', len(self._procs))
+        self._queue.destroy()
         exit()
 
     def _handle_command_end(self, cmd: Command):
@@ -241,7 +243,8 @@ class JobScheduler:
     def _handle_command_ping(self, cmd: Command) -> None:
         ping_uid = cmd.data_id
         logger.info('JobScheduler.handle_command_ping() -> PING id "%s"', ping_uid)
-        self._queue.pong(ping_uid)
+        # self._queue.pong(ping_uid)
+        self._queue.pong(cmd)
 
     def _handle_command_refresh(self, cmd: Command) -> None:
         job_id = cmd.data_id
@@ -392,7 +395,6 @@ class JobScheduler:
                 timeout = int((wakeup - now_value).total_seconds())
 
                 if timeout < 1:
-                    # job = heappop(system_jobs)[1]
                     job = heappop(system_jobs)[2]
 
                     if isinstance(job, self._DeferredJob):

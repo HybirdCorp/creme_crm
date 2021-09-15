@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from json import loads as json_load
 from typing import Optional
 
 from django.utils.translation import gettext
@@ -36,11 +37,41 @@ class Command:
     REFRESH = 'REFRESH'
     PING    = 'PING'
 
-    def __init__(self, cmd_type, data_id=None, data=None):
+    def __init__(self, cmd_type: str, data_id=None, data=None):
         # self.type = cmd_type  # see CMD_*
         self.type = cmd_type  # START/END/REFRESH/PING
         self.data_id = data_id
         self.data = data
+
+    @classmethod
+    def _build_START_command(cls, data) -> 'Command':
+        return cls(cmd_type=cls.START, data_id=int(data))
+
+    @classmethod
+    def _build_END_command(cls, data) -> 'Command':
+        return cls(cmd_type=cls.END, data_id=int(data))
+
+    @classmethod
+    def _build_REFRESH_command(cls, data) -> 'Command':
+        job_id, refresh_data = data.split('-', 1)
+
+        return cls(
+            cmd_type=cls.REFRESH,
+            data_id=int(job_id),
+            data=json_load(refresh_data),
+        )
+
+    @classmethod
+    def _build_PING_command(cls, data) -> 'Command':
+        return cls(cmd_type=cls.PING, data_id=data)
+
+    @classmethod
+    def build(cls, cmd_type, data) -> 'Command':
+        method = getattr(cls, f'_build_{cmd_type}_command', None)
+        if method is None:
+            raise ValueError(f'The command type "{cmd_type}" is invalid.')
+
+        return method(data)
 
 
 # class _BaseJobSchedulerQueue:
@@ -68,6 +99,10 @@ class BaseJobSchedulerQueue:
 
     def clear(self):
         raise NotImplementedError
+
+    def destroy(self):
+        """Call it of the server side when quitting to clean resources."""
+        pass
 
     # @classmethod
     # def get_main_queue(cls):
@@ -118,5 +153,6 @@ class BaseJobSchedulerQueue:
         """
         raise NotImplementedError
 
-    def pong(self, ping_value):
+    # def pong(self, ping_value):
+    def pong(self, ping_cmd: Command):
         raise NotImplementedError
