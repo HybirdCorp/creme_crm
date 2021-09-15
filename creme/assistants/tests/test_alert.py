@@ -15,7 +15,8 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
     BrickState,
@@ -58,7 +59,8 @@ class AlertTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(Alert.objects.exists())
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         entity = self.entity

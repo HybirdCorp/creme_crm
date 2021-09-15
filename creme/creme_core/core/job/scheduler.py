@@ -23,325 +23,23 @@ from collections import deque
 from datetime import MAXYEAR, datetime, timedelta
 from heapq import heapify, heappop, heappush
 from typing import Optional, Set
-from uuid import uuid1
 
 from django.conf import settings
 from django.db.models import Q
 from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
-from django.utils.translation import activate, gettext
-from django.utils.translation import gettext_lazy as _
 
-from ..creme_jobs.base import JobType
-from ..global_info import set_global_info
-from ..models import Job
-from ..utils.dates import make_aware_dt
-from ..utils.imports import import_apps_sub_modules
-from ..utils.system import enable_exit_handler, python_subprocess
+from creme.creme_core.creme_jobs.base import JobType
+from creme.creme_core.models import Job
+from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.utils.system import (
+    enable_exit_handler,
+    python_subprocess,
+)
+
+from .queue import Command, get_queue
 
 logger = logging.getLogger(__name__)
-
-
-class _JobTypeRegistry:
-    class Error(Exception):
-        pass
-
-    def __init__(self):
-        self._job_types = {}
-
-    def __call__(self, job_id: int) -> None:
-        job = Job.objects.get(id=job_id)
-        job_type = self.get(job.type_id)
-
-        if job_type is None:
-            raise _JobTypeRegistry.Error(f'Invalid job type ID: {job.type_id}')
-
-        # Configure environment
-        activate(job.language)
-        set_global_info(user=job.user)
-
-        job_type.execute(job)
-
-    def get(self, job_type_id: str) -> Optional[JobType]:
-        try:
-            return self._job_types[job_type_id]
-        except KeyError:
-            logger.critical('Unknown JobType: %s', job_type_id)
-
-        return None
-
-    def register(self, job_type: JobType) -> None:
-        jtype_id = job_type.id
-
-        if not jtype_id:
-            raise _JobTypeRegistry.Error(f'Empty JobType id: {job_type}')
-
-        if self._job_types.setdefault(jtype_id, job_type) is not job_type:
-            raise _JobTypeRegistry.Error(f"Duplicated job type id: {jtype_id}")
-
-    def autodiscover(self) -> None:
-        register = self.register
-
-        for jobs_import in import_apps_sub_modules('creme_jobs'):
-            for job in getattr(jobs_import, 'jobs', ()):
-                register(job)
-
-
-job_type_registry = _JobTypeRegistry()
-job_type_registry.autodiscover()
-
-CMD_START   = 'START'
-CMD_END     = 'END'
-CMD_REFRESH = 'REFRESH'
-CMD_PING    = 'PING'
-
-
-class Command:
-    def __init__(self, cmd_type, data_id=None, data=None):
-        self.type = cmd_type  # see CMD_*
-        self.data_id = data_id
-        self.data = data
-
-
-class _BaseJobSchedulerQueue:
-    verbose_name = 'Abstract queue'  # Overload me
-    _main_queue = None
-    _manager_error = _(
-        'The job manager does not respond.\n'
-        'Please contact your administrator.'
-    )
-
-    @classmethod
-    def _queue_error(cls, msg):
-        return gettext('There is a connection error with the job manager.\n'
-                       'Please contact your administrator.\n'
-                       '[Original error from «{queue}»:\n{message}]').format(
-            queue=cls.verbose_name,
-            message=msg,
-        )
-
-    def clear(self):
-        raise NotImplementedError
-
-    @classmethod
-    def get_main_queue(cls):
-        if cls._main_queue is None:
-            cls._main_queue = cls()
-
-        return cls._main_queue
-
-    def start_job(self, job: Job) -> bool:
-        """Send a command to start the given Job.
-        Abstract method ; should be overloaded.
-        Overloading method should not raise exception, and raise 'False' instead.
-        @param job: Instance of creme_core.models.Job.
-        @return Boolean ; 'True' means 'error'.
-        """
-        raise NotImplementedError
-
-    def end_job(self, job: Job):
-        "@param job: Instance of creme_core.models.Job"
-        raise NotImplementedError
-
-    def refresh_job(self, job: Job, data: dict) -> bool:
-        """The setting of the Job have changed (periodicity, enabled...).
-        Abstract method ; should be overridden.
-        Overriding method should not raise exception, and raise 'False' instead.
-        @param job: Instance of creme_core.models.Job.
-        @param data: JSON-compliant dictionary containing new values for fields.
-        @return Boolean ; 'True' means 'error'.
-        """
-        raise NotImplementedError
-
-    # def stop_job(self, job): TODO ?
-
-    def get_command(self, timeout):
-        """Retrieved the sent command.
-        @param timeout: Integer, in seconds.
-        @return: An instance of Command or None (which means "time out").
-                 The command's type is in {CMD_START, CMD_END, CMD_REFRESH, CMD_PING}.
-                 The command's id is the related Job's id, excepted for the command CMD_PING,
-                 where it is a string which should be given to the pong() method.
-                 The command's data is only for CMD_REFRESH (dictionary with new values).
-        """
-        raise NotImplementedError
-
-    def ping(self) -> Optional[str]:
-        """ Check if the queue & the job manager are running.
-        @return Returns an error string, or 'None'.
-        """
-        raise NotImplementedError
-
-    def pong(self, ping_value):
-        raise NotImplementedError
-
-
-if settings.TESTS_ON:
-    class JobSchedulerQueue(_BaseJobSchedulerQueue):
-        "Mocking JobSchedulerQueue."
-        verbose_name = 'Test queue'
-
-        def __init__(self):
-            self.started_jobs = []
-            self.refreshed_jobs = []
-
-        def clear(self):
-            "Useful for test cases ; clear the internal lists."
-            self.started_jobs.clear()
-            self.refreshed_jobs.clear()
-
-        def start_job(self, job):
-            self.started_jobs.append(job)
-            return False
-
-        def end_job(self, job):
-            pass
-
-        def refresh_job(self, job, data):
-            self.refreshed_jobs.append((job, data))
-            return False
-
-        def get_command(self, timeout):
-            pass  # TODO: use in test
-
-        def ping(self):
-            pass
-
-        def pong(self, ping_value):
-            pass
-else:
-    import traceback
-    from functools import wraps
-    from json import loads as json_load
-    from time import sleep
-
-    from redis import StrictRedis  # TODO: "Redis" with redis3
-    from redis.exceptions import RedisError
-
-    from creme.creme_core.utils.serializers import json_encode
-
-    def _redis_errors_2_bool(f):
-        @wraps(f)
-        def _aux(*args, **kwargs):
-            try:
-                f(*args, **kwargs)
-            except RedisError as e:
-                logger.critical('Error when sending command to Redis [%s]', e)
-                return True
-
-            return False
-
-        return _aux
-
-    def _build_start_command(data):
-        return Command(cmd_type=CMD_START, data_id=int(data))
-
-    def _build_end_command(data):
-        return Command(cmd_type=CMD_END, data_id=int(data))
-
-    def _build_refresh_command(data):
-        job_id, refresh_data = data.split('-', 1)
-
-        return Command(cmd_type=CMD_REFRESH, data_id=int(job_id), data=json_load(refresh_data))
-
-    def _build_ping_command(data):
-        return Command(cmd_type=CMD_PING, data_id=data)
-
-    COMMANDS = {
-        CMD_START:   _build_start_command,
-        CMD_END:     _build_end_command,
-        CMD_REFRESH: _build_refresh_command,
-        CMD_PING:    _build_ping_command,
-    }
-
-    # NB: we do not need to build a reliable redis queue (see http://redis.io/commands/rpoplpush )
-    #     because the only reliable data come from our RDBMS; Redis is just used an
-    #     event broker. If there is a crash, the jobs list is rebuilt from the RDBMS.
-
-    # TODO: should we rely on a watch dog ??
-    # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
-    # TODO: base class -> children: Redis, AMQP, etc...
-    class JobSchedulerQueue(_BaseJobSchedulerQueue):
-        verbose_name = _('Redis queue')
-        JOBS_COMMANDS_KEY = 'creme_jobs'
-        JOBS_PONG_KEY_PREFIX = 'creme_jobs_pong'
-
-        def __init__(self):
-            self._redis = StrictRedis.from_url(settings.JOBMANAGER_BROKER)
-
-        def clear(self):
-            self._redis.delete(self.JOBS_COMMANDS_KEY)
-            # print(dir(self._redis))
-
-        @_redis_errors_2_bool
-        def start_job(self, job):
-            logger.info('Job scheduler queue: request START "%s"', job)
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_START}-{job.id}')
-
-        # def stop_job(self, job): TODO: ?
-
-        def end_job(self, job):  # TODO: factorise
-            logger.info('Job scheduler queue: request END "%s"', job)
-            self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_END}-{job.id}')
-
-        @_redis_errors_2_bool
-        def refresh_job(self, job, data):  # TODO: factorise
-            logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
-            self._redis.lpush(
-                self.JOBS_COMMANDS_KEY,
-                f'{CMD_REFRESH}-{job.id}-{json_encode(data)}'
-            )
-
-        def get_command(self, timeout):
-            # NB: can raise RedisError (ConnectionError, TimeoutError, other ?!)
-            # TODO: wrap in _BaseJobSchedulerQueue.Error ??
-
-            cmd = None
-            result = self._redis.brpop(self.JOBS_COMMANDS_KEY, timeout)
-
-            if result is not None:  # None == timeout
-                # NB: result == (self.JOBS_KEY, command)
-                try:
-                    cmd_type, data = result[1].decode().split('-', 1)
-                    cmd = COMMANDS[cmd_type](data)
-                except Exception:
-                    logger.warning(
-                        'Job scheduler queue: invalid command "%s"\n%s',
-                        result, traceback.format_exc(),
-                    )
-
-            return cmd
-
-        def ping(self):
-            value = str(uuid1())
-            logger.info('Job scheduler queue: request PING id="%s"', value)
-            _redis = self._redis
-            pong_result = None
-
-            try:
-                _redis.ping()
-                _redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_PING}-{value}')
-
-                # TODO: meh. Use a push/pull method instead of polling ?
-                for i in range(3):
-                    sleep(1)
-                    pong_result = _redis.get(self._build_pong_key(value))
-
-                    if pong_result is not None:
-                        break
-            except RedisError as e:
-                return self._queue_error(f'{e.__module__}.{e.__class__}: {e}')
-
-            if pong_result is None:
-                return str(self._manager_error)
-
-        def _build_pong_key(self, ping_value):
-            return f'{self.JOBS_PONG_KEY_PREFIX}-{ping_value}'
-
-        def pong(self, ping_value):
-            # NB: '1' has no special meaning, because only the existence of the key is used.
-            # TODO: '10' in settings ?
-            self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
 
 
 class JobScheduler:
@@ -366,7 +64,8 @@ class JobScheduler:
     """
     def __init__(self):
         self._max_user_jobs = settings.MAX_USER_JOBS
-        self._queue = JobSchedulerQueue.get_main_queue()
+        # self._queue = JobSchedulerQueue.get_main_queue()
+        self._queue = get_queue()
         self._procs = {}  # key: job.id; value: subprocess.Popen instance
 
         # Heap, which elements are (wakeup_date, job_instance)
@@ -418,14 +117,18 @@ class JobScheduler:
             jtype = job.type
 
             if jtype is None:
-                logger.info('JobScheduler: job id="%s" has an invalid type -> ignored.', job.id)
+                logger.info(
+                    'JobScheduler: job id="%s" has an invalid type -> ignored.',
+                    job.id,
+                )
                 continue
 
             if job.user:
                 if jtype.periodic != JobType.NOT_PERIODIC:
                     logger.warning(
                         'JobScheduler: job "%s" is a user job and should be'
-                        ' not periodic -> period is ignored.', repr(job),
+                        ' not periodic -> period is ignored.',
+                        repr(job),
                     )
 
                 users_jobs.appendleft(job)
@@ -435,12 +138,14 @@ class JobScheduler:
                 else:
                     logger.warning(
                         'JobScheduler: job "%s" is a system job and should be'
-                        ' (pseudo-)periodic -> job is ignored.', repr(job),
+                        ' (pseudo-)periodic -> job is ignored.',
+                        repr(job),
                     )
 
     def _next_wakeup(self,
                      job: Job,
-                     reference_run: Optional[datetime] = None) -> datetime:
+                     reference_run: Optional[datetime] = None,
+                     ) -> datetime:
         """Computes the next valid wake up, which must be on the form of
         reference_run + N * period, & be > now_value.
         """
@@ -475,7 +180,8 @@ class JobScheduler:
         else:
             logger.warning(
                 'JobScheduler: try to start the job "%s", which is a'
-                ' system job -> command is ignored.', repr(user_job),
+                ' system job -> command is ignored.',
+                repr(user_job),
             )
 
     def _start_job(self, job: Job):
@@ -668,10 +374,14 @@ class JobScheduler:
 
         MAX_USER_JOBS = self._max_user_jobs
         get_handler = {
-            CMD_END:     self._handle_command_end,
-            CMD_PING:    self._handle_command_ping,
-            CMD_REFRESH: self._handle_command_refresh,
-            CMD_START:   self._handle_command_start,
+            # CMD_END:     self._handle_command_end,
+            # CMD_PING:    self._handle_command_ping,
+            # CMD_REFRESH: self._handle_command_refresh,
+            # CMD_START:   self._handle_command_start,
+            Command.END:     self._handle_command_end,
+            Command.PING:    self._handle_command_ping,
+            Command.REFRESH: self._handle_command_refresh,
+            Command.START:   self._handle_command_start,
         }.get
 
         while True:

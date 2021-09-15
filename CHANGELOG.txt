@@ -258,10 +258,21 @@
           you must now register them in your 'apps.py' in the method 'CremeAppConfig.register_fields_config()'
           (use the method 'fields_config_registry.register_models()').
         # In the method 'creme_core.bricks.HistoryBrick._populate_related_real_entities()', the argument "user" has been removed.
-        # In the class 'creme_core.core.search.Searcher' :
-            - The attribute '_search_map' stores now 'EntityCell' instances as values.
-            - The method '_build_query()' takes a parameter "cells" instead of "fields".
-            - The method 'get_fields()' has been removed (use 'get_cells()' instead).
+        # In 'creme_core.core' :
+            - The module 'job' has been reworked :
+                - It has been split in several files, so some imports may have been broken.
+                - The constants 'CMD_*' have been replaced by constants 'Command.{START, END, REFRESH, PING}'.
+                - The class '_BaseJobSchedulerQueue' :
+                    - has been renamed 'BaseJobSchedulerQueue'.
+                    - its class-method 'get_main_queue()' (& the related attribute '_main_queue') has been removed ;
+                      use the function 'get_queue()' instead.
+                    - its constructor takes an argument "setting" now.
+                - The class 'JobSchedulerQueue' (which had different definitions) has been removed ;
+                  use the function 'get_queue()' to get the concrete instance of the queue.
+            - In the class 'search.Searcher' :
+                - The attribute '_search_map' stores now 'EntityCell' instances as values.
+                - The method '_build_query()' takes a parameter "cells" instead of "fields".
+                - The method 'get_fields()' has been removed (use 'get_cells()' instead).
         # In 'creme_core.forms' :
             - The attribute 'ActionButtonList.actions' is not a list of tuples anymore (it's a list of 'WidgetAction' instances).
             - The method 'ActionButtonList._get_button_context()' has been removed.

@@ -29,7 +29,8 @@ from django.utils.translation import gettext_lazy as _
 from ..auth import SUPERUSER_PERM
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
-from ..core.job import JobSchedulerQueue
+# from ..core.job import JobSchedulerQueue
+from ..core.job import get_queue
 from ..http import CremeJsonResponse
 from ..models import Job
 from . import bricks as bricks_views
@@ -186,7 +187,8 @@ class JobsInformation(generic.CheckedView):
 
     def get_jobs_info(self):
         info = {}
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
 
         error = queue.ping()
         if error is not None:
