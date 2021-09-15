@@ -15,6 +15,8 @@
       they are used in the default configuration (see the setting 'ROOT_MEDIA_FILTERS') in order to remove the dependency to Java by default.
         - The package "csscompressor" is used to minify the CSS files.
         - The package "rjsmin" is used to minify the JavaScript files.
+    # The job scheduler can now use a UNIX socket (when they are available) to
+      communicate with the views, instead of a Redis server.
     # The history has been improved :
         - The messages in the the history block are prettier.
         - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.
@@ -267,6 +269,7 @@
                     - its class-method 'get_main_queue()' (& the related attribute '_main_queue') has been removed ;
                       use the function 'get_queue()' instead.
                     - its constructor takes an argument "setting" now.
+                    - its method 'pong()' takes now an instance of 'job.Command'.
                 - The class 'JobSchedulerQueue' (which had different definitions) has been removed ;
                   use the function 'get_queue()' to get the concrete instance of the queue.
             - In the class 'search.Searcher' :
@@ -394,6 +397,9 @@
 
         # The method 'creme_core.apps.CremeCoreConfig.tag_ctype()' has been removed.
         # The function 'creme_core.checks.check_secret_key()' has been removed.
+        # In 'creme_core.core.job' :
+            - the functions '_build_*_command()' have been removed.
+            - the global variable 'COMMANDS' has been removed.
         # The class attribute 'creme_core.utils.meta._FilterModelFieldQuery._TAGS' has been removed.
         # There were several changes in 'creme.utils.loggers.CremeFormatter'.
         # Apps :

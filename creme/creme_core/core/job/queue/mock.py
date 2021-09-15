@@ -34,5 +34,6 @@ class MockQueue(base.BaseJobSchedulerQueue):
     def ping(self):
         pass
 
-    def pong(self, ping_value):
+    # def pong(self, ping_value):
+    def pong(self, ping_cmd):
         pass

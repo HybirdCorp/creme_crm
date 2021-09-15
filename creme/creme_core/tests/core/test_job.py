@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
+import os
 from datetime import timedelta
+from shutil import rmtree
+from tempfile import mkdtemp
+from unittest import skipIf
 
+from django.core.exceptions import ImproperlyConfigured
 from django.test.utils import override_settings
 from django.utils.timezone import now
 
 from creme.creme_core.core.job import JobScheduler, _JobTypeRegistry
+from creme.creme_core.core.job.queue.unix_socket import UnixSocketQueue
 from creme.creme_core.core.reminder import Reminder, reminder_registry
 from creme.creme_core.creme_jobs import reminder_type
 from creme.creme_core.creme_jobs.base import JobType
@@ -14,6 +20,43 @@ from creme.creme_core.utils.date_period import HoursPeriod
 from creme.creme_core.utils.dates import round_hour
 
 from ..base import CremeTestCase
+
+
+class UnixSocketQueueTestCase(CremeTestCase):
+    def setUp(self):
+        super().setUp()
+        self.temp_dir_path = None
+
+    def tearDown(self):
+        super().tearDown()
+
+        if self.temp_dir_path is not None:
+            rmtree(self.temp_dir_path)
+            self.temp_dir = None
+
+    @skipIf(os.name != 'posix', 'Your OS is not POSIX, so there is no unix socket.')
+    def test_init(self):
+        self.temp_dir_path = dir_path = mkdtemp(prefix='creme_test_socket_broken')
+
+        queue = UnixSocketQueue(setting=f'unix_socket://{dir_path}')
+        self.assertIsNone(queue._server)
+        self.assertEqual(dir_path, queue._base_dir_path)
+
+        priv_path = queue._private_dir_path
+        self.assertTrue(priv_path.startswith(f'{dir_path}/private-'))
+
+        self.assertEqual(f'{priv_path}/socket', queue._socket_path)
+
+    @skipIf(os.name != 'nt', 'Your OS is not Windows, so you may have unix socket.')
+    def test_init_error01(self):
+        with self.assertRaises(ImproperlyConfigured):
+            UnixSocketQueue(setting='unix_socket:///tmp/creme/creme_socket')
+
+    @skipIf(os.name != 'posix', 'Your OS is not POSIX, so there is no unix socket.')
+    def test_init_error02(self):
+        "Empty path."
+        with self.assertRaises(ImproperlyConfigured):
+            UnixSocketQueue(setting='unix_socket://')
 
 
 class JobTypeRegistryTestCase(CremeTestCase):
@@ -28,7 +71,7 @@ class JobTypeRegistryTestCase(CremeTestCase):
             job_type = registry.get(TestJobType.id)
 
         self.assertIsNone(job_type)
-        self.assertEqual(
+        self.assertListEqual(
             logs_manager.output,
             # [f'CRITICAL:creme.creme_core.core.job:Unknown JobType: {TestJobType.id}'],
             [f'CRITICAL:creme.creme_core.core.job.registry:Unknown JobType: {TestJobType.id}'],

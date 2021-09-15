@@ -21,7 +21,7 @@
 import logging
 import traceback
 from functools import wraps
-from json import loads as json_load
+# from json import loads as json_load
 from time import sleep
 from uuid import uuid1
 
@@ -51,49 +51,36 @@ def _redis_errors_2_bool(f):
     return _aux
 
 
-def _build_start_command(data):
-    # return Command(cmd_type=CMD_START, data_id=int(data))
-    return Command(cmd_type=Command.START, data_id=int(data))
-
-
-def _build_end_command(data):
-    # return Command(cmd_type=CMD_END, data_id=int(data))
-    return Command(cmd_type=Command.END, data_id=int(data))
-
-
-def _build_refresh_command(data):
-    job_id, refresh_data = data.split('-', 1)
-
-    # return Command(cmd_type=CMD_REFRESH, data_id=int(job_id), data=json_load(refresh_data))
-    return Command(
-        cmd_type=Command.REFRESH,
-        data_id=int(job_id),
-        data=json_load(refresh_data),
-    )
-
-
-def _build_ping_command(data):
-    # return Command(cmd_type=CMD_PING, data_id=data)
-    return Command(cmd_type=Command.PING, data_id=data)
-
-
-COMMANDS = {
-    # CMD_START: _build_start_command,
-    # CMD_END: _build_end_command,
-    # CMD_REFRESH: _build_refresh_command,
-    # CMD_PING: _build_ping_command,
-    Command.START:   _build_start_command,
-    Command.END:     _build_end_command,
-    Command.REFRESH: _build_refresh_command,
-    Command.PING:    _build_ping_command,
-}
+# def _build_start_command(data):
+#     return Command(cmd_type=CMD_START, data_id=int(data))
+#
+#
+# def _build_end_command(data):
+#     return Command(cmd_type=CMD_END, data_id=int(data))
+#
+#
+# def _build_refresh_command(data):
+#     job_id, refresh_data = data.split('-', 1)
+#
+#     return Command(cmd_type=CMD_REFRESH, data_id=int(job_id), data=json_load(refresh_data))
+#
+#
+# def _build_ping_command(data):
+#     return Command(cmd_type=CMD_PING, data_id=data)
+#
+#
+# COMMANDS = {
+#     CMD_START: _build_start_command,
+#     CMD_END: _build_end_command,
+#     CMD_REFRESH: _build_refresh_command,
+#     CMD_PING: _build_ping_command,
+# }
 
 
 # NB: we do not need to build a reliable redis queue (see http://redis.io/commands/rpoplpush )
 #     because the only reliable data come from our RDBMS; Redis is just used an
 #     event broker. If there is a crash, the jobs list is rebuilt from the RDBMS.
 
-# TODO: should we rely on a watch dog ??
 # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
 # class JobSchedulerQueue(_BaseJobSchedulerQueue):
 class RedisQueue(BaseJobSchedulerQueue):
@@ -116,8 +103,6 @@ class RedisQueue(BaseJobSchedulerQueue):
         logger.info('Job scheduler queue: request START "%s"', job)
         # self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_START}-{job.id}')
         self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{Command.START}-{job.id}')
-
-    # def stop_job(self, job): TODO: ?
 
     def end_job(self, job):  # TODO: factorise
         logger.info('Job scheduler queue: request END "%s"', job)
@@ -144,7 +129,8 @@ class RedisQueue(BaseJobSchedulerQueue):
             # NB: result == (self.JOBS_KEY, command)
             try:
                 cmd_type, data = result[1].decode().split('-', 1)
-                cmd = COMMANDS[cmd_type](data)
+                # cmd = COMMANDS[cmd_type](data)
+                cmd = Command.build(cmd_type, data)
             except Exception:
                 logger.warning(
                     'Job scheduler queue: invalid command "%s"\n%s',
@@ -180,7 +166,9 @@ class RedisQueue(BaseJobSchedulerQueue):
     def _build_pong_key(self, ping_value):
         return f'{self.JOBS_PONG_KEY_PREFIX}-{ping_value}'
 
-    def pong(self, ping_value):
+    # def pong(self, ping_value):
+    def pong(self, ping_cmd):
         # NB: '1' has no special meaning, because only the existence of the key is used.
         # TODO: '10' in settings ?
-        self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
+        # self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
+        self._redis.setex(self._build_pong_key(ping_cmd.data_id), value=1, time=10)
