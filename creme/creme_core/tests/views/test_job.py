@@ -17,7 +17,8 @@ from creme.creme_core.bricks import (
     JobErrorsBrick,
 )
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.creme_jobs import (
     batch_process_type,
     reminder_type,
@@ -40,7 +41,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        cls.queue = queue = JobSchedulerQueue.get_main_queue()
+        # cls.queue = queue = JobSchedulerQueue.get_main_queue()
+        cls.queue = queue = get_queue()
         cls._original_queue_ping = queue.ping
 
         cls.ct_orga_id = ContentType.objects.get_for_model(FakeOrganisation).id
@@ -52,13 +54,16 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def _assertCount(self, response, found, count):
         self.assertEqual(count, smart_str(response.content).count(found))
 
-    def _build_enable_url(self, job):
+    @staticmethod
+    def _build_enable_url(job):
         return reverse('creme_core__enable_job', args=(job.id,))
 
-    def _build_delete_url(self, job):
+    @staticmethod
+    def _build_delete_url(job):
         return reverse('creme_core__delete_job', args=(job.id,))
 
-    def _build_disable_url(self, job):
+    @staticmethod
+    def _build_disable_url(job):
         return reverse('creme_core__disable_job', args=(job.id,))
 
     def _create_batchprocess_job(self, user=None, status=Job.STATUS_WAIT):
@@ -179,8 +184,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertGET409(job.get_edit_absolute_url())
 
     def test_editview03(self):
-        "Periodic: edit periodicity + specific data"
-        queue = JobSchedulerQueue.get_main_queue()
+        "Periodic: edit periodicity + specific data."
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = self.queue
         queue.clear()
 
         self.login()
@@ -250,12 +256,13 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_editview04(self):
-        "Periodic: edit reference_run"
-        queue = JobSchedulerQueue.get_main_queue()
+        "Periodic: edit reference_run."
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = self.queue
         queue.clear()
 
         self.login()
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
 
@@ -286,8 +293,9 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTrue(queue.refreshed_jobs)
 
     def test_editview05(self):
-        "No change of periodicity/reference_run"
-        queue = JobSchedulerQueue.get_main_queue()
+        "No change of periodicity/reference_run."
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = self.queue
         queue.clear()
 
         self.login()
@@ -296,7 +304,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         old_reference_run = job.reference_run
 
         pdict = {'type': 'days', 'value': 1}
-        self.assertEqual(pdict, job.periodicity.as_dict())
+        self.assertDictEqual(pdict, job.periodicity.as_dict())
 
         response = self.client.post(
             job.get_edit_absolute_url(),
@@ -317,7 +325,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self.refresh(job)
         self.assertEqual(pdict, job.periodicity.as_dict())
         self.assertEqual(old_reference_run, job.reference_run)
-        self.assertEqual({'delay': {'type': 'weeks', 'value': 1}}, job.data)
+        self.assertDictEqual({'delay': {'type': 'weeks', 'value': 1}}, job.data)
 
         self.assertListEqual([], queue.refreshed_jobs)
 
@@ -530,7 +538,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = self.queue
         queue.clear()
 
         self.login()
@@ -538,7 +547,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         job = Job.objects.create(type_id=batch_process_type.id)  # No user -> system job
         self.assertIs(job.enabled, True)
-        self.assertEqual([], queue.refreshed_jobs)
+        self.assertListEqual([], queue.refreshed_jobs)
 
         disable_url = self._build_disable_url(job)
         self.assertGET405(disable_url)
@@ -570,11 +579,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     'reference_run': dt_to_ISO8601(job.reference_run),
                 },
             )],
-            queue.refreshed_jobs
+            queue.refreshed_jobs,
         )
 
     def test_disable02(self):
-        "Cannot disable a non-system job"
+        "Cannot disable a non-system job."
         self.login()
 
         job = self._create_batchprocess_job()
@@ -609,7 +618,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     },
                 }
             },
-            response.json()
+            response.json(),
         )
 
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
@@ -629,20 +638,20 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     },
                 }
             },
-            response.json()
+            response.json(),
         )
 
         job = self._create_batchprocess_job(user=self.other_user)
         response = self.assertGET200(url, data={'id': [job.id]})
-        self.assertEqual({str(job.id): 'Job is not allowed'}, response.json())
+        self.assertDictEqual({str(job.id): 'Job is not allowed'}, response.json())
 
         invalid_id = Job.objects.aggregate(Max('id'))['id__max'] + 1
         response = self.assertGET200(url, data={'id': [invalid_id]})
-        self.assertEqual({str(invalid_id): 'Invalid job ID'}, response.json())
+        self.assertDictEqual({str(invalid_id): 'Invalid job ID'}, response.json())
 
         invalid_id = 'invalid'
         response = self.assertGET200(url, data={'id': [invalid_id]})
-        self.assertEqual({}, response.json())
+        self.assertDictEqual({}, response.json())
 
     def test_status02(self):
         "Several jobs"
@@ -672,7 +681,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     'percentage': None,
                 },
             },
-            content[str(job1.id)]
+            content[str(job1.id)],
         )
         self.assertDictEqual(
             {
@@ -683,7 +692,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     'percentage': None,
                 },
             },
-            content[str(job2.id)]
+            content[str(job2.id)],
         )
         self.assertEqual('Job is not allowed', content[str(job3.id)])
 
@@ -721,7 +730,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                     },
                 },
             },
-            response.json()
+            response.json(),
         )
 
     def _aux_test_reload(self, job, brick_id):

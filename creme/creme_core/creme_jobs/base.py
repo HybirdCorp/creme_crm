@@ -129,8 +129,10 @@ class JobType:
         # job.last_run = now()
         job.save()
 
-        from ..core.job import JobSchedulerQueue
-        JobSchedulerQueue.get_main_queue().end_job(job)
+        # from ..core.job import JobSchedulerQueue
+        # JobSchedulerQueue.get_main_queue().end_job(job)
+        from ..core.job import get_queue
+        get_queue().end_job(job)
 
     @staticmethod
     def generate_id(app_label: str, name: str) -> str:

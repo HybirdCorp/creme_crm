@@ -15,7 +15,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
@@ -77,10 +78,12 @@ class EntityEmailTestCase(_EmailsTestCase):
             *args, **kwargs
         )
 
-    def _build_send_from_template_url(self, entity):
+    @staticmethod
+    def _build_send_from_template_url(entity):
         return reverse('emails__create_email_from_template', args=(entity.id,))
 
-    def _build_link_emails_url(self, entity):
+    @staticmethod
+    def _build_link_emails_url(entity):
         return reverse('emails__link_emails', args=(entity.id,))
 
     def _get_job(self):
@@ -93,7 +96,8 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_createview01(self):
         user = self.login()
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         recipient = 'vincent.law@immigrates.rmd'
@@ -676,7 +680,8 @@ better &amp; lighter than the previous one.
         "Mail sending error"
         user = self.login()
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         self.send_messages_called = False
@@ -1171,7 +1176,8 @@ better &amp; lighter than the previous one.
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)
         email.trash()
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         email.restore()
@@ -1194,7 +1200,8 @@ better &amp; lighter than the previous one.
 
         email = self.refresh(email)
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         email.restore()

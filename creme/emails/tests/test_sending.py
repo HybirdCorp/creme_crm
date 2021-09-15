@@ -13,7 +13,8 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
     FakeOrganisation,
@@ -478,7 +479,8 @@ class SendingsTestCase(_EmailsTestCase):
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Job + outbox."
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         job = self._get_job()
@@ -918,7 +920,8 @@ class SendingsTestCase(_EmailsTestCase):
             sending_date=now() - timedelta(hours=1),
         )
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         camp.restore()
@@ -940,7 +943,8 @@ class SendingsTestCase(_EmailsTestCase):
             sending_date=now() - timedelta(hours=1),
         )
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         camp.restore()

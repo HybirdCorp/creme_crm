@@ -9,7 +9,8 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import Job, JobResult
 
 from ..creme_jobs import usermessages_send_type
@@ -62,7 +63,8 @@ class UserMessageTestCase(AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         entity = self.entity

@@ -14,7 +14,8 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import FakeContact, FakeImage, Job, JobResult
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -610,7 +611,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertFalse(FakeContact.objects.filter(last_name=last_name))
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         job = self.get_object_or_fail(Job, type_id=crudity_synchronize_type.id)
@@ -649,7 +651,8 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login()
         other_user = self.other_user
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         self.SwallowInput.force_not_handle = True

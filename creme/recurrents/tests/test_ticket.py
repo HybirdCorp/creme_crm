@@ -10,7 +10,8 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 
 # Should be a test queue
-from creme.creme_core.core.job import JobSchedulerQueue
+# from creme.creme_core.core.job import JobSchedulerQueue
+from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import Job
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
@@ -75,7 +76,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         url = reverse('recurrents__create_generator')
         self.assertGET200(url)
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         name = 'Recurrent tickets'
@@ -174,7 +176,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         url = gen.get_edit_absolute_url()
         self.assertGET200(url)
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         name = gen.name.upper()
@@ -290,7 +293,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         )
         self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now_value))
 
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         queue.clear()
 
         self._generate_docs(job)
@@ -388,7 +392,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         self.assertDatetimesAlmostEqual(now_value + timedelta(hours=14), wakeup)
 
     def test_refresh_job(self):
-        queue = JobSchedulerQueue.get_main_queue()
+        # queue = JobSchedulerQueue.get_main_queue()
+        queue = get_queue()
         job = self._get_job()
         tpl = self._create_ticket_template()
         now_value = now()
