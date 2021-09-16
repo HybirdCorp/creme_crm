@@ -24,7 +24,7 @@
         "karma-qunit": "1.2.1",
         "minimist": "1.2.5",
         "qunitjs": "1.18.0",
-        "set-value": "~2.0.1",
+        "set-value": "~4.0.1",
         "socket.io": "^3",
         "which": "1.2.14",
         "yarn": "1.22.10"
