@@ -36,7 +36,8 @@ textarea.line-comment {
 }
 
 select.line-vat {
-    text-align: right;
+/*    text-align: right; */
+    text-align: center;
 }
 
 .linetable {
