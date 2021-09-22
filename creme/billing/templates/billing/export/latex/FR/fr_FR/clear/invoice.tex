@@ -1,9 +1,7 @@
 {% extends 'billing/export/latex/FR/fr_FR/clear/base.tex' %}
 
 {% block doc_header  %}
-        \hline Numéro & {#1} \\
-        \hline Date & {\EditDate}\\
-        \hline Réglement & {{object.payment_type|default:'À 30 jours'}} \\
+{{block.super}}
         {% if object.buyers_order_number %}\hline Bon de commande acheteur & {{object.buyers_order_number}} \\{% endif %}
 {% endblock %}
 

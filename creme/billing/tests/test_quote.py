@@ -20,7 +20,7 @@ from creme.persons.tests.base import (
 
 from ..actions import ExportQuoteAction
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
-from ..models import QuoteStatus, SimpleBillingAlgo
+from ..models import QuoteStatus, SettlementTerms, SimpleBillingAlgo
 from .base import (
     Address,
     Invoice,
@@ -110,11 +110,14 @@ class QuoteTestCase(_BillingTestCase):
             number_f.help_text,
         )
 
-        quote, source, target = self.create_quote_n_orgas('My Quote')
+        # ---
+        terms = SettlementTerms.objects.all()[0]
+        quote, source, target = self.create_quote_n_orgas('My Quote', payment_type=terms.id)
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
-        self.assertEqual('0', quote.number)
+        self.assertEqual('0',   quote.number)
+        self.assertEqual(terms, quote.payment_type)
 
         self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target)
@@ -138,11 +141,12 @@ class QuoteTestCase(_BillingTestCase):
         )
         self.assertEqual([0], [*algo_qs.values_list('last_number', flat=True)])
 
-        quote = self.create_quote('My Quote', source, target1)
+        quote = self.create_quote('My Quote', source=source, target=target1)
 
         self.assertEqual(date(year=2012, month=4, day=22), quote.expiration_date)
         self.assertIsNone(quote.acceptation_date)
         self.assertEqual('DE1', quote.number)
+        self.assertIsNone(quote.payment_type)
 
         self.assertRelationCount(1, quote,  REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, quote,  REL_SUB_BILL_RECEIVED, target1)

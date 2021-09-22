@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# NB: this file should be named "0078_v2_ 3 __menuconfigitem.py".
+#     The following files are badly named too, but the error has been viewed lately...
 
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE

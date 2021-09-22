@@ -48,13 +48,9 @@ from ..constants import (
     REL_SUB_BILL_RECEIVED,
     REL_SUB_HAS_LINE,
 )
+from . import other_models
 from .algo import ConfigBillingAlgo
 from .fields import BillingDiscountField
-from .other_models import (
-    AdditionalInformation,
-    PaymentInformation,
-    PaymentTerms,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +67,8 @@ class Base(CremeEntity):
     ).set_tags(optional=True)
 
     discount = BillingDiscountField(
-        _('Overall discount'), default=DEFAULT_DECIMAL, max_digits=10, decimal_places=2,
+        _('Overall discount'),
+        default=DEFAULT_DECIMAL, max_digits=10, decimal_places=2,
     )
 
     billing_address = models.ForeignKey(
@@ -104,25 +101,32 @@ class Base(CremeEntity):
     )
 
     additional_info = models.ForeignKey(
-        AdditionalInformation,
+        other_models.AdditionalInformation,
         verbose_name=_('Additional Information'),
         related_name='+',
-        blank=True, null=True,
-        on_delete=CREME_REPLACE_NULL,
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(clonable=False, optional=True)
     payment_terms = models.ForeignKey(
-        PaymentTerms, verbose_name=_('Payment Terms'),
-        blank=True, null=True,
-        related_name='+', on_delete=CREME_REPLACE_NULL,
+        other_models.PaymentTerms,
+        verbose_name=_('Payment Terms'),
+        related_name='+',
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(clonable=False, optional=True)
     payment_info = models.ForeignKey(
-        PaymentInformation, verbose_name=_('Payment information'),
-        blank=True, null=True, editable=False, on_delete=models.SET_NULL,
+        other_models.PaymentInformation,
+        verbose_name=_('Payment information'),
+        null=True, on_delete=models.SET_NULL,
+        blank=True, editable=False,
+    ).set_tags(optional=True)
+    payment_type = models.ForeignKey(
+        other_models.SettlementTerms,
+        verbose_name=_('Settlement terms'),
+        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
     creation_label = _('Create an accounting document')
 
-    generate_number_in_create = True  # TODO: use settings instead ???
+    generate_number_in_create = True  # TODO: use settings/SettingValue instead ???
 
     # Caches
     _source = None
@@ -458,7 +462,9 @@ class Base(CremeEntity):
                 self.payment_info = None
 
             if self.payment_info is None:  # Optimization
-                source_pis = PaymentInformation.objects.filter(organisation=source.id)[:2]
+                source_pis = other_models.PaymentInformation.objects.filter(
+                    organisation=source.id,
+                )[:2]
                 if len(source_pis) == 1:
                     self.payment_info = source_pis[0]
 

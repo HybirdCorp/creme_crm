@@ -100,8 +100,8 @@ class XLSExporter(base.BillingExporter):
         write(address_as_list(entity.billing_address))
         write(address_as_list(entity.shipping_address))
 
-        # payment_type = entity.payment_type  # TODO: when payment_type in Base
-        payment_type = getattr(entity, 'payment_type', None)
+        # payment_type = getattr(entity, 'payment_type', None)
+        payment_type = entity.payment_type
         write([
             entity.number,
             str(payment_type) if payment_type else '',

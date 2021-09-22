@@ -39,6 +39,10 @@
         * Persons :
             - A many-to-many field "Spoken language(s)" has been added to Contacts ; it's hidden for old installations.
             - The setting PERSONS_MENU_CUSTOMERS_ENABLED has been removed (you can add/remove the entry menu in 'creme_config').
+        * Billing :
+            - The field 'payment_type' ("Settlement terms") is now present in all 'billing' entity types (Quote, SalesOrder...).
+              Notice that if you upgrade your Creme installation, if you want to display this field in the detail-views, you
+              have to edit your block configuration (excepted for 'Invoice' of course).
         * Emails :
             - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
               (the other one is automatically filled from it).

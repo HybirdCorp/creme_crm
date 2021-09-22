@@ -74,7 +74,7 @@
     {% block doc_header  %}
         \hline Numéro & {#1} \\
         \hline Date & {\EditDate}\\
-        \hline Réglement & À 30 jours \\
+        \hline Réglement & {{object.payment_type|default:'À 30 jours'}} \\
     {% endblock %}
         \hline 
         \end{tabular}
