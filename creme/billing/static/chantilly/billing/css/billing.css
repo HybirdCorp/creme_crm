@@ -51,7 +51,8 @@ ul.bline-error-list > li {
 }
 
 select.line-vat {
-    text-align: right;
+/*    text-align: right; */
+    text-align: center;
 }
 
 .linetable {
