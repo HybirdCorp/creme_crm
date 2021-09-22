@@ -1,8 +1,7 @@
 {% extends 'billing/export/xhtml2pdf/FR/fr_FR/cappuccino/base.html' %}
 
 {% block doc_info %}
-    <li><span class="doc-info-key">DATE</span>: {{object.issuing_date}}</li>
-    <li><span class="doc-info-key">RÉGLEMENT</span>: {{object.payment_type|default:'À 30 jours'}}</li>
+    {{block.super}}
     <li><span class="doc-info-key">BON DE CMD ACHETEUR</span>: {{object.buyers_order_number|default:'—'}}</li>
 {% endblock %}
 

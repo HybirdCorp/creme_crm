@@ -1,3 +1,6 @@
+# NB: this file should be named "0025_v2_ 3 __contact_languages01.py".
+#     The following file is badly named too, but the error has been viewed lately...
+
 from django.db import migrations, models
 
 

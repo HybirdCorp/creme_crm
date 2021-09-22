@@ -34,7 +34,7 @@
                     <ul>
                         {% block doc_info %}
                         <li><span class="doc-info-key">DATE</span>: {{object.issuing_date|date:'d-m-Y'}}</li>
-                        <li><span class="doc-info-key">RÉGLEMENT</span>: À 30 jours</li>
+                        <li><span class="doc-info-key">RÉGLEMENT</span>: {{object.payment_type|default:'À 30 jours'}}</li>
                         {% endblock %}
                     </ul>
                 </td>

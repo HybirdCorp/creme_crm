@@ -40,6 +40,7 @@ from ..models import (
     Line,
     PaymentInformation,
     PaymentTerms,
+    SettlementTerms,
 )
 from .base import (
     Address,
@@ -206,15 +207,21 @@ class InvoiceTestCase(_BillingTestCase):
         # ---
         name = 'Invoice001'
         currency = Currency.objects.all()[0]
+        terms = SettlementTerms.objects.all()[0]
 
         source, target = self.create_orgas()
 
         self.assertFalse(target.billing_address)
         self.assertFalse(target.shipping_address)
 
-        invoice = self.create_invoice(name, source, target, currency)
+        invoice = self.create_invoice(
+            name=name,
+            source=source, target=target,
+            currency=currency, payment_type=terms.id,
+        )
         self.assertEqual(1,        invoice.status_id)
         self.assertEqual(currency, invoice.currency)
+        self.assertEqual(terms,    invoice.payment_type)
         self.assertEqual(date(year=2010, month=10, day=13), invoice.expiration_date)
         self.assertEqual('', invoice.description)
         self.assertIsNone(invoice.payment_info)
@@ -294,6 +301,7 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertEqual(description, invoice.description)
         self.assertEqual(b_order,     invoice.buyers_order_number)
+        self.assertIsNone(invoice.payment_type)
 
         self.assertAddressContentEqual(target.billing_address, invoice.billing_address)
         self.assertEqual(invoice, invoice.billing_address.owner)
