@@ -1,0 +1,42 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}{# creme_widgets #}
+{% load has_perm_to url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} crudity-fetchers-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='{count} Fetcher' plural='{count} Fetchers' empty='Fetchers' icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'crudity' as admin_perm %}
+    {% brick_header_action id='add' url='crudity__create_fetcher_item'|url label=_('New fetcher') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'Fetchers retrieve external data (from emails, from files on the server…). Once a fetcher is created, it is available in the configuration of machines (see below).' %}
+    </div>
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type') status='primary' %}
+    {% brick_table_column title=_('Options') %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for item in page.object_list %}
+    <tr>
+        {% with fetcher=item.fetcher %}
+        <td>{{fetcher.verbose_name}}</td>
+        <td><ul>{% for option in fetcher.verbose_options %}<li>{{option}}</li>{% endfor%}</ul></td>
+        {# TODO: edition #}
+        {# TODO: deletion #}
+        {% endwith %}
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No fetcher for the moment' %}
+{% endblock %}

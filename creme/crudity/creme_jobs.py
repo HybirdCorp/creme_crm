@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,7 +70,7 @@ class _CruditySynchronizeType(JobType):
         )
 
     def get_config_form_class(self, job):
-        from .forms import CruditySynchronizeJobForm
+        from creme.crudity.forms.creme_jobs import CruditySynchronizeJobForm
         return CruditySynchronizeJobForm
 
     @property

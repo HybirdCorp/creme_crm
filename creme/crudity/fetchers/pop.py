@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,20 @@
 
 from __future__ import annotations
 
-import email
+# import email
 import logging
-import poplib
-import re
+# import poplib
+# import re
 from datetime import datetime
 from typing import Iterable
 
-from django.conf import settings
-from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
+# from django.conf import settings
+from django.core.files.uploadedfile import UploadedFile  # SimpleUploadedFile
+from django.utils.translation import gettext as _
 
-from creme.creme_core.utils import safe_unicode
-
-from .base import CrudityFetcher
+# from creme.creme_core.utils import safe_unicode
+# from .base import CrudityFetcher
+from .base import NEWCrudityFetcher
 
 logger = logging.getLogger(__name__)
 
@@ -60,127 +61,146 @@ class PopEmail:
         self.attachments: list[tuple[str, UploadedFile]] = [*attachments]
 
 
-class PopFetcher(CrudityFetcher):
-    def fetch(self, delete=True):  # TODO: args read from configuration instead ?
-        client = None
-        emails = []
+# class PopFetcher(CrudityFetcher):
+#     def fetch(self, delete=True):  # TODO: args read from configuration instead ?
+#         client = None
+#         emails = []
+#
+#         CREME_GET_EMAIL_SERVER = settings.CREME_GET_EMAIL_SERVER
+#         CREME_GET_EMAIL_PORT   = settings.CREME_GET_EMAIL_PORT
+#
+#         if not CREME_GET_EMAIL_SERVER:
+#             logger.info(
+#                 'PopFetcher.fetch(): POP server is not configured '
+#                 '(see CREME_GET_EMAIL_SERVER etc...).'
+#             )
+#             return emails
+#
+#         try:
+#             if settings.CREME_GET_EMAIL_SSL:
+#                 client = poplib.POP3_SSL(
+#                     CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT,
+#                     settings.CREME_GET_EMAIL_SSL_KEYFILE,
+#                     settings.CREME_GET_EMAIL_SSL_CERTFILE,
+#                 )
+#             else:
+#                 client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
+#
+#             client.user(settings.CREME_GET_EMAIL_USERNAME)
+#             client.pass_(settings.CREME_GET_EMAIL_PASSWORD)
+#
+#             client.stat()  # TODO: useful ?
+#             response, messages, total_size = client.list()
+#         except Exception:  # TODO: Define better exception
+#             logger.exception(
+#                 'PopFetcher.fetch(): POP connection error with server=%s',
+#                 CREME_GET_EMAIL_SERVER,
+#             )
+#
+#             if client is not None:
+#                 client.quit()
+#
+#             return []
+#
+#         getaddresses = email.utils.getaddresses
+#         parsedate    = email.utils.parsedate
+#
+#         for msg_info in messages:
+#             attachments = []
+#             message_number, message_size = msg_info.split()
+#             message_number = int(message_number)
+#             r, raw_message_lines, message_size = client.retr(message_number)
+#
+#             out_str = b'\n'.join(raw_message_lines)
+#             out_str = re.sub(b'\r(?!=\n)', b'\r\n', out_str)
+#
+#             email_message = email.message_from_bytes(out_str)
+#             get_all = email_message.get_all
+#
+#             to_emails   = [addr for name, addr in getaddresses(get_all('to', []))]
+#             from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
+#             cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
+#
+#             subject = ''.join(
+#                 s.decode(enc) if enc is not None else safe_unicode(s)
+#                 for s, enc in email.header.decode_header(email_message.get('subject', []))
+#             )
+#
+#             dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
+#
+#             body_html = ''
+#             body = ''
+#             # CONTENT HTML / PLAIN
+#             if email_message.is_multipart():
+#                 for part in email_message.walk():
+#                     payload = part.get_payload(decode=True)
+#
+#                     mct = part.get_content_maintype()
+#                     cst = part.get_content_subtype()
+#
+#                     if mct == 'multipart':
+#                         continue
+#
+#                     filename = part.get_filename()
+#
+#                     if mct != 'text' or (mct == 'text' and filename is not None):
+#                         attachments.append((
+#                             filename,
+#                             SimpleUploadedFile(
+#                                 filename, payload, content_type=part.get_content_type(),
+#                             ),
+#                         ))
+#
+#                     else:
+#                         content = payload
+#                         if cst == 'html':
+#                             body_html = safe_unicode(content)
+#                         elif cst == 'plain':
+#                             body = safe_unicode(content)
+#                         # else:  TODO ??
+#             else:
+#                 cst = email_message.get_content_subtype()
+#                 content = email_message.get_payload(decode=True)
+#                 if cst == 'plain':
+#                     body = safe_unicode(content)
+#                 elif cst == 'html':
+#                     body_html = body = safe_unicode(content)
+#
+#             emails.append(PopEmail(
+#                 body=body,
+#                 body_html=body_html,
+#                 senders=from_emails,
+#                 tos=to_emails,
+#                 ccs=cc_emails,
+#                 subject=subject,
+#                 dates=dates,
+#                 attachments=attachments,
+#             ))
+#
+#             if delete:
+#                 # We delete the mail from the server when treated
+#                 # TODO: delete only when we are sure it has been saved (clean() method ?)
+#                 client.dele(message_number)
+#
+#         client.quit()
+#
+#         return emails
 
-        CREME_GET_EMAIL_SERVER = settings.CREME_GET_EMAIL_SERVER
-        CREME_GET_EMAIL_PORT   = settings.CREME_GET_EMAIL_PORT
 
-        if not CREME_GET_EMAIL_SERVER:
-            logger.info(
-                'PopFetcher.fetch(): POP server is not configured '
-                '(see CREME_GET_EMAIL_SERVER etc...).'
-            )
-            return emails
+class NEWPopFetcher(NEWCrudityFetcher):
+    id = NEWCrudityFetcher.generate_id('crudity', 'pop')
+    verbose_name = _('Emails (POP)')
 
-        try:
-            if settings.CREME_GET_EMAIL_SSL:
-                client = poplib.POP3_SSL(
-                    CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT,
-                    settings.CREME_GET_EMAIL_SSL_KEYFILE,
-                    settings.CREME_GET_EMAIL_SSL_CERTFILE,
-                )
-            else:
-                client = poplib.POP3(CREME_GET_EMAIL_SERVER, CREME_GET_EMAIL_PORT)
+    @classmethod
+    def options_form(cls, **kwargs):
+        from ..forms.fetchers.pop import PopFetcherOptionsForm
 
-            client.user(settings.CREME_GET_EMAIL_USERNAME)
-            client.pass_(settings.CREME_GET_EMAIL_PASSWORD)
+        return PopFetcherOptionsForm(**kwargs)
 
-            client.stat()  # TODO: useful ?
-            response, messages, total_size = client.list()
-        except Exception:  # TODO: Define better exception
-            logger.exception(
-                'PopFetcher.fetch(): POP connection error with server=%s',
-                CREME_GET_EMAIL_SERVER,
-            )
-
-            if client is not None:
-                client.quit()
-
-            return []
-
-        getaddresses = email.utils.getaddresses
-        parsedate    = email.utils.parsedate
-
-        for msg_info in messages:
-            attachments = []
-            message_number, message_size = msg_info.split()
-            message_number = int(message_number)
-            r, raw_message_lines, message_size = client.retr(message_number)
-
-            out_str = b'\n'.join(raw_message_lines)
-            out_str = re.sub(b'\r(?!=\n)', b'\r\n', out_str)
-
-            email_message = email.message_from_bytes(out_str)
-            get_all = email_message.get_all
-
-            to_emails   = [addr for name, addr in getaddresses(get_all('to', []))]
-            from_emails = [addr for name, addr in getaddresses(get_all('from', []))]
-            cc_emails   = [addr for name, addr in getaddresses(get_all('cc', []))]
-
-            subject = ''.join(
-                s.decode(enc) if enc is not None else safe_unicode(s)
-                for s, enc in email.header.decode_header(email_message.get('subject', []))
-            )
-
-            dates = [datetime(*parsedate(d)[:-3]) for d in get_all('date', []) if d is not None]
-
-            body_html = ''
-            body = ''
-            # CONTENT HTML / PLAIN
-            if email_message.is_multipart():
-                for part in email_message.walk():
-                    payload = part.get_payload(decode=True)
-
-                    mct = part.get_content_maintype()
-                    cst = part.get_content_subtype()
-
-                    if mct == 'multipart':
-                        continue
-
-                    filename = part.get_filename()
-
-                    if mct != 'text' or (mct == 'text' and filename is not None):
-                        attachments.append((
-                            filename,
-                            SimpleUploadedFile(
-                                filename, payload, content_type=part.get_content_type(),
-                            ),
-                        ))
-
-                    else:
-                        content = payload
-                        if cst == 'html':
-                            body_html = safe_unicode(content)
-                        elif cst == 'plain':
-                            body = safe_unicode(content)
-                        # else:  TODO ??
-            else:
-                cst = email_message.get_content_subtype()
-                content = email_message.get_payload(decode=True)
-                if cst == 'plain':
-                    body = safe_unicode(content)
-                elif cst == 'html':
-                    body_html = body = safe_unicode(content)
-
-            emails.append(PopEmail(
-                body=body,
-                body_html=body_html,
-                senders=from_emails,
-                tos=to_emails,
-                ccs=cc_emails,
-                subject=subject,
-                dates=dates,
-                attachments=attachments,
-            ))
-
-            if delete:
-                # We delete the mail from the server when treated
-                # TODO: delete only when we are sure it has been saved (clean() method ?)
-                client.dele(message_number)
-
-        client.quit()
-
-        return emails
+    def verbose_options(self):
+        get_opt = self.options.get
+        yield _('URL: {}').format(get_opt('url'))
+        yield _('Username: {}').format(get_opt('username'))
+        yield _('Password: ***')
+        yield _('Port: {}').format(get_opt('port'))
+        yield _('Use SSL: {}').format(_('yes') if get_opt('use_ssl') else _('no'))

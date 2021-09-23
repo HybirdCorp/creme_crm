@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -32,6 +33,44 @@ class CrudityConfig(CremeAppConfig):
 
         from . import signals  # NOQA
 
+    def all_apps_ready(self):
+        super().all_apps_ready()
+
+        from . import registry
+        self.populate_crudity_registry(registry.NEW_crudity_registry)
+
+    def populate_crudity_registry(self, crudity_registry):
+        from creme.creme_core.apps import creme_app_configs
+
+        for app_config in creme_app_configs():
+            register_crudity = getattr(app_config, 'register_crudity', None)
+
+            if register_crudity is not None:
+                register_crudity(crudity_registry)
+
+    def register_bricks(self, brick_registry):
+        from . import bricks
+
+        brick_registry.register(
+            bricks.FetcherConfigItemsBrick,
+            bricks.MachinesConfigItemsBrick,
+        )
+
+    def register_creme_config(self, config_registry):
+        from . import bricks
+
+        config_registry.register_app_bricks(
+            'crudity',
+            bricks.FetcherConfigItemsBrick,
+            bricks.MachinesConfigItemsBrick,
+        )
+
+    def register_crudity(self, config_registry):
+        if settings.TESTS_ON:
+            from creme.creme_core.models import FakeContact
+
+            config_registry.register(FakeContact)
+
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -40,7 +79,7 @@ class CrudityConfig(CremeAppConfig):
             menu.CrudityHistoryEntry,
         )
 
-    def register_setting_keys(self, setting_key_registry):
-        from . import setting_keys
-
-        setting_key_registry.register(setting_keys.sandbox_key)
+    # def register_setting_keys(self, setting_key_registry):
+    #     from . import setting_keys
+    #
+    #     setting_key_registry.register(setting_keys.sandbox_key)

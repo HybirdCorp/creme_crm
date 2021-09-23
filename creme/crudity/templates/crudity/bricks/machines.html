@@ -1,0 +1,60 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load has_perm_to url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} crudity-machines-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title='{count} Configured resource' plural='{count} Configured resources' empty='Configured resources' icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% has_perm_to admin 'crudity' as admin_perm %}
+    {% brick_header_action id='add' url='crudity__create_machine_item'|url label=_('New machine') enabled=admin_perm %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">
+        {% translate 'Machines create, update or delete entities using data retrieved by fetchers.' %}
+    </div>
+{% endblock %}
+
+{% block brick_list_content %}
+{% has_perm_to admin 'crudity' as admin_perm %}{# TODO {% url 'creme_config__delete_detailview_bricks' as delete_url %} #}
+    {% for ctw in page.object_list %}
+        {% with ctype=ctw.ctype %}
+    <div class="brick-list-item crudity-machine-item">
+        <div class="crudity-machine-group crudity-machine-summary-group">
+            <div class="crudity-machine-group-title">{% widget_icon ctype=ctype size='brick-list' class='crudity-machine-type-icon' %} {{ctype}}</div>
+            <div class="crudity-machine-group-action">
+{# TODO                {% brick_action id='add' url='creme_config__create_detailviews_bricks'|url:ctype.id label=_('Create for a role') enabled=admin_perm display='text' %} #}
+            </div>
+        </div>
+        <div class="crudity-machine-group brick-table">
+            <table class="brick-table-content">
+                <tbody>
+                    {% for item in ctw.items %}
+                    <tr>
+                        <td class="crudity-machine-item">TODO: description of item</td>
+                        <td {% brick_table_data_status action %}>
+{% comment %}
+                            {% url 'creme_config__edit_detailview_bricks' ctype.id role_arg as edit_role_url %}
+                            {% brick_table_action id='edit' url=edit_role_url enabled=admin_perm %}
+{% endcomment %}
+                        </td>
+                        <td {% brick_table_data_status action %}>
+{#                            {% brick_table_action id='delete' url=delete_url __id=ctype.id __role=role_arg enabled=admin_perm %} #}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{% block brick_list_empty %}
+    {% translate 'No machine for the moment' %}
+{% endblock %}

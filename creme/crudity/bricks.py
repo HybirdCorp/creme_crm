@@ -16,15 +16,90 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from collections import defaultdict
+
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import QuerysetBrick
+from creme.creme_core.gui.bricks import PaginatedBrick, QuerysetBrick
+from creme.creme_core.utils.unicode_collation import collator
 
-from .models import History, WaitingAction
-from .utils import is_sandbox_by_user
+# from .utils import is_sandbox_by_user
+from .models import (
+    FetcherConfigItem,
+    History,
+    MachineConfigItem,
+    WaitingAction,
+)
+
+
+class FetcherConfigItemsBrick(QuerysetBrick):
+    id_ = PaginatedBrick.generate_id('crudity', 'fetchers')
+    # verbose_name = _('...')
+    template_name = 'crudity/bricks/fetchers.html'
+    dependencies = (FetcherConfigItem,)
+    configurable = False
+    permissions = 'crudity'
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context, self.dependencies[0].objects.all(),
+        ))
+
+#     def detailview_display(self, context):
+#         class _ContentTypeWrapper:
+#             __slots__ = ('ctype', 'items')
+#
+#             def __init__(self, ctype, items):
+#                 self.ctype = ctype
+#                 self.items = items
+#
+#         items_per_ct_id = defaultdict(list)
+#         for item in ExtractorsConfigItem.objects.all():
+#             items_per_ct_id[item.content_type_id].append(item)
+#
+#         get_ct = ContentType.objects.get_for_id
+#         ctypes = [
+#             _ContentTypeWrapper(get_ct(ct_id), ct_items)
+#             for ct_id, ct_items in items_per_ct_id.items()
+#         ]
+#         sort_key = collator.sort_key
+#         ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+#
+#         return self._render(self.get_template_context(context, ctypes))
+
+
+class MachinesConfigItemsBrick(PaginatedBrick):
+    id_ = PaginatedBrick.generate_id('crudity', 'machines')
+    # verbose_name = _('...')
+    template_name = 'crudity/bricks/machines.html'
+    dependencies = (MachineConfigItem,)
+    configurable = False
+    permissions = 'crudity'
+
+    def detailview_display(self, context):
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'items')
+
+            def __init__(self, ctype, items):
+                self.ctype = ctype
+                self.items = items
+
+        items_per_ct_id = defaultdict(list)
+        for item in MachineConfigItem.objects.all():
+            items_per_ct_id[item.content_type_id].append(item)
+
+        get_ct = ContentType.objects.get_for_id
+        ctypes = [
+            _ContentTypeWrapper(get_ct(ct_id), ct_items)
+            for ct_id, ct_items in items_per_ct_id.items()
+        ]
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+
+        return self._render(self.get_template_context(context, ctypes))
 
 
 class CrudityQuerysetBrick(QuerysetBrick):
@@ -77,8 +152,8 @@ class WaitingActionsBrick(BaseWaitingActionsBrick):
             ct=ct, source=backend.source, subject=backend.subject,
         )
 
-        if is_sandbox_by_user:
-            waiting_actions = waiting_actions.filter(user=context['user'])
+        # if is_sandbox_by_user:
+        #     waiting_actions = waiting_actions.filter(user=context['user'])
 
         crud_input = backend.crud_input
 
@@ -115,7 +190,7 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)
-        if is_sandbox_by_user:
-            histories = histories.filter(user=context['user'])
+        # if is_sandbox_by_user:
+        #     histories = histories.filter(user=context['user'])
 
         return self._render(self.get_template_context(context, histories, ct=ct))

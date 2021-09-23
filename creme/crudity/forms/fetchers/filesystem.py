@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,40 +16,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
-
-from django.contrib.auth import get_user_model
-from django.forms import ModelChoiceField
+from django.conf import settings
+from django.forms import ChoiceField
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms.job import JobForm
-
-logger = logging.getLogger(__name__)
+from creme.creme_core.forms import CremeForm
 
 
-class CruditySynchronizeJobForm(JobForm):
-    user = ModelChoiceField(
-        label=_('Default owner user'),
-        empty_label=None, queryset=None,
-        help_text=_(
-            'Eg: user owning emails/folder/documents '
-            'created during the emails synchronization.'
-        ),
-    )
+class FileSystemFetcherOptionsForm(CremeForm):
+    # TODO: help text for setting
+    path = ChoiceField(label=_('Path'))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        user_f = self.fields['user']
-        user_f.queryset = get_user_model().objects.filter(is_staff=False)
 
-        try:
-            user_f.initial = self.instance.data['user']
-        except Exception:
-            logger.exception(
-                'Error in CruditySynchronizeJobForm.__init__() with user initialisation.'
-            )
-
-    def save(self, *args, **kwargs):
-        self.instance.data = {'user': self.cleaned_data['user'].id}
-
-        return super().save(*args, **kwargs)
+        # TODO: check the paths' validity
+        # TODO: remove used paths
+        self.fields['path'].choices = [
+            (path, path) for path in settings.CRUDITY_FILESYS_FETCHER_DIRS
+        ]

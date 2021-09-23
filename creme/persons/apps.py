@@ -97,6 +97,9 @@ class PersonsConfig(CremeAppConfig):
 
         config_registry.register_portal_bricks(bricks.ManagedOrganisationsBrick)
 
+    def register_crudity(self, config_registry):
+        config_registry.register(self.Contact, self.Organisation)
+
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 

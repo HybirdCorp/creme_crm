@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,60 +16,76 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import os.path
 import logging
-import os.path
 
-from django.conf import settings
+# from django.conf import settings
+from django.utils.translation import gettext as _
 
-from .base import CrudityFetcher
+# from .base import CrudityFetcher
+from .base import NEWCrudityFetcher
 
 logger = logging.getLogger(__name__)
 
 
-class FileSystemFetcher(CrudityFetcher):
-    class FileSystemFetcherError(Exception):
-        pass
+# class FileSystemFetcher(CrudityFetcher):
+#     class FileSystemFetcherError(Exception):
+#         pass
+#
+#     def __init__(self, setting_name='CRUDITY_FILESYS_FETCHER_DIR', *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         self.setting_name = setting_name
+#
+#     def fetch(self, *args, **kwargs):
+#         paths = []
+#
+#         try:
+#             dir_path = self._get_path()
+#         except self.FileSystemFetcherError as e:
+#             logger.warning('FileSystemFetcher.fetch(): %s', e)
+#         else:
+#             for filename in os.listdir(dir_path):
+#                 path = os.path.join(dir_path, filename)
+#
+#                 if not os.path.isdir(path):
+#                     paths.append(path)
+#
+#         return paths
+#
+#     def _get_path(self):
+#         setting_name = self.setting_name
+#         # todo: validate it's a str
+#         dir_path = getattr(settings, setting_name, None)
+#
+#         if not dir_path:
+#             raise self.FileSystemFetcherError(
+#                 f'setting.{setting_name} has not been set.'
+#             )
+#
+#         if not os.path.exists(dir_path):
+#             raise self.FileSystemFetcherError(
+#                 f'settings.{setting_name} = "{dir_path}" does not exist.'
+#             )
+#
+#         if not os.path.isdir(dir_path):
+#             raise self.FileSystemFetcherError(
+#                 f'settings.{setting_name} = "{dir_path}" is not a directory.'
+#             )
+#
+#         # todo: credentials ??
+#
+#         return dir_path
 
-    def __init__(self, setting_name='CRUDITY_FILESYS_FETCHER_DIR', *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.setting_name = setting_name
 
-    def fetch(self, *args, **kwargs):
-        paths = []
+class NEWFileSystemFetcher(NEWCrudityFetcher):
+    id = NEWCrudityFetcher.generate_id('crudity', 'filesystem')
+    verbose_name = _("Files on the server's file system")
 
-        try:
-            dir_path = self._get_path()
-        except self.FileSystemFetcherError as e:
-            logger.warning('FileSystemFetcher.fetch(): %s', e)
-        else:
-            for filename in os.listdir(dir_path):
-                path = os.path.join(dir_path, filename)
+    @classmethod
+    def options_form(cls, **kwargs):
+        from ..forms.fetchers.filesystem import FileSystemFetcherOptionsForm
 
-                if not os.path.isdir(path):
-                    paths.append(path)
+        return FileSystemFetcherOptionsForm(**kwargs)
 
-        return paths
-
-    def _get_path(self):
-        setting_name = self.setting_name
-        # TODO: validate it's a str
-        dir_path = getattr(settings, setting_name, None)
-
-        if not dir_path:
-            raise self.FileSystemFetcherError(
-                f'setting.{setting_name} has not been set.'
-            )
-
-        if not os.path.exists(dir_path):
-            raise self.FileSystemFetcherError(
-                f'settings.{setting_name} = "{dir_path}" does not exist.'
-            )
-
-        if not os.path.isdir(dir_path):
-            raise self.FileSystemFetcherError(
-                f'settings.{setting_name} = "{dir_path}" is not a directory.'
-            )
-
-        # TODO: credentials ??
-
-        return dir_path
+    def verbose_options(self):
+        yield _('Directory: {}').format(self.options.get('path'))
