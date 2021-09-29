@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.models import BrickDetailviewLocation, FakeContact
 
@@ -55,7 +56,10 @@ class ActionTestCase(AssistantsTestCase):
             _('New action for «{entity}»').format(entity=entity),
             context.get('title'),
         )
-        self.assertEqual(_('Save the action'), context.get('submit_label'))
+        self.assertEqual(
+            pgettext('assistants', 'Save the action'),
+            context.get('submit_label'),
+        )
 
         title = 'TITLE'
         descr = 'DESCRIPTION'

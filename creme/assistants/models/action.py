@@ -21,6 +21,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core import models as creme_models
 from creme.creme_core.models import fields as creme_fields
@@ -57,8 +58,8 @@ class Action(creme_models.CremeModel):
 
     objects = ActionManager()
 
-    creation_label = _('Create an action')
-    save_label     = _('Save the action')
+    creation_label = pgettext_lazy('assistants', 'Create an action')
+    save_label     = pgettext_lazy('assistants', 'Save the action')
 
     class Meta:
         app_label = 'assistants'
