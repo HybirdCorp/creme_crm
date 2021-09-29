@@ -40,7 +40,8 @@ class DatePeriodTestCase(CremeTestCase):
             YearsPeriod,
         )
 
-    def _get_comparable_data(self, rrule):
+    @staticmethod
+    def _get_comparable_data(rrule):
         rrule__dict__ = rrule.__dict__
         rrule__dict__.pop('_bysecond')
         rrule__dict__.pop('_dtstart')

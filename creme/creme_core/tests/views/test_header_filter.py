@@ -42,10 +42,12 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         super().setUpClass()
         cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
 
-    def _build_add_url(self, ctype):
+    @staticmethod
+    def _build_add_url(ctype):
         return reverse('creme_core__create_hfilter', args=(ctype.id,))
 
-    def _build_get4ctype_url(self, ctype):
+    @staticmethod
+    def _build_get4ctype_url(ctype):
         return '{}?ct_id={}'.format(reverse('creme_core__hfilters'), ctype.id)
 
     @override_settings(FILTERS_INITIAL_PRIVATE=False)

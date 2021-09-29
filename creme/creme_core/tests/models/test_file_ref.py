@@ -26,7 +26,8 @@ class FileRefTestCase(base.CremeTestCase):
 
         return job
 
-    def _oldify_temp_file(self, temp_file, days):
+    @staticmethod
+    def _oldify_temp_file(temp_file, days):
         "Make the instance older."
         FileRef.objects.filter(
             id=temp_file.id,
@@ -72,7 +73,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertTrue(exists(temp_file.filedata.path))
 
     def test_job02(self):
-        "File is old enough to be deleted"
+        "File is old enough to be deleted."
         days = 1
         job = self._get_job(days=days)
         path = self.create_uploaded_file(
@@ -89,7 +90,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertFalse(exists(full_path))
 
     def test_job03(self):
-        "File is too young to be deleted"
+        "File is too young to be deleted."
         job = self._get_job(days=2)
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job03.txt',
@@ -103,7 +104,7 @@ class FileRefTestCase(base.CremeTestCase):
         self.assertStillExists(file_ref)
 
     def test_job04(self):
-        "File is not temporary"
+        "File is not temporary."
         job = self._get_job(days=1)
         path = self.create_uploaded_file(
             file_name='FileRefTestCase_test_job04.txt',

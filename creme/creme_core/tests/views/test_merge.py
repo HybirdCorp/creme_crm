@@ -31,10 +31,12 @@ from .base import ViewsTestCase
 
 
 class MergeViewsTestCase(ViewsTestCase):
-    def _build_select_url(self, e1):
+    @staticmethod
+    def _build_select_url(e1):
         return reverse('creme_core__select_entity_for_merge') + f'?id1={e1.id}'
 
-    def _oldify(self, entity, hours_delta=1):
+    @staticmethod
+    def _oldify(entity, hours_delta=1):
         mdate = entity.modified - timedelta(hours=hours_delta)
         entity.__class__.objects.filter(pk=entity.pk).update(modified=mdate)
 

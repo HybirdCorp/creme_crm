@@ -25,7 +25,8 @@ from .base import (
 
 @skipIfCustomPollCampaign
 class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
-    def _create_segment(self, name, label):  # TODO: inline ?
+    @staticmethod
+    def _create_segment(name, label):  # TODO: inline ?
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk=f'polls-prop_{name}', text=f'is from segment "{label}"',
         )

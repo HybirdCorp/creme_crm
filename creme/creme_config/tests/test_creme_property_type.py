@@ -13,7 +13,8 @@ from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
 class PropertyTypeTestCase(CremeTestCase):
     ADD_URL = reverse('creme_config__create_ptype')
 
-    def _build_edit_url(self, ptype):
+    @staticmethod
+    def _build_edit_url(ptype):
         return reverse('creme_config__edit_ptype', args=(ptype.id,))
 
     def test_portal(self):

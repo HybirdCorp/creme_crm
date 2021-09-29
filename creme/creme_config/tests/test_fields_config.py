@@ -27,13 +27,15 @@ class FieldsConfigTestCase(CremeTestCase):
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-    def _build_edit_url(self, fconf):
+    @staticmethod
+    def _build_edit_url(fconf):
         return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
     def _create_fconf(self):
         return FieldsConfig.objects.create(content_type=self.ct, descriptions=())
 
-    def _configure_all_models(self):
+    @staticmethod
+    def _configure_all_models():
         used_ct_ids = {*FieldsConfig.objects.values_list('content_type', flat=True)}
         FieldsConfig.objects.bulk_create([
             FieldsConfig(content_type=ct, descriptions=())

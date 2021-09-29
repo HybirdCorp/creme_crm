@@ -31,7 +31,8 @@ from .base import (
 @skipIfCustomContact
 @skipIfCustomOrganisation
 class RelatedContactTestCase(OpportunitiesBaseTestCase):
-    def _build_url(self, opp):
+    @staticmethod
+    def _build_url(opp):
         return reverse('opportunities__create_related_contact', args=(opp.id,))
 
     def test_create_related_contact01(self):
@@ -43,7 +44,7 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         context = self.assertGET200(url).context
         self.assertEqual(
             _('Create a contact linked to «{opportunity}»').format(opportunity=opp),
-            context.get('title')
+            context.get('title'),
         )
 
         with self.assertNoException():

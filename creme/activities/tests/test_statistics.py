@@ -21,7 +21,7 @@ from .base import Activity, skipIfCustomActivity
 
 class StatisticsTestCase(CremeTestCase):
     def test_average_per_month01(self):
-        "Empty"
+        "Empty."
         self.assertListEqual(
             [
                 _('No meeting since one year'),

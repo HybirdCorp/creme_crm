@@ -30,7 +30,8 @@ class RelationViewsTestCase(ViewsTestCase):
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
-    def _build_get_ctypes_url(self, rtype_id):
+    @staticmethod
+    def _build_get_ctypes_url(rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
 
     def test_get_ctypes_of_relation01(self):

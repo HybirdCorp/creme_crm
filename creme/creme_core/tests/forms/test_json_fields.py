@@ -83,7 +83,8 @@ class _JSONFieldBaseTestCase(FieldTestCase):
         user = user or self.user
         return FakeOrganisation.objects.create(user=user, name=name, **kwargs)
 
-    def create_loves_rtype(self, subject_ptypes=(), object_ptypes=()):
+    @staticmethod
+    def create_loves_rtype(subject_ptypes=(), object_ptypes=()):
         if isinstance(subject_ptypes, CremePropertyType):
             subject_ptypes = (subject_ptypes,)
 
@@ -95,19 +96,22 @@ class _JSONFieldBaseTestCase(FieldTestCase):
             ('test-object_loves',  'loved by',  (), object_ptypes),
         )
 
-    def create_hates_rtype(self):
+    @staticmethod
+    def create_hates_rtype():
         return RelationType.objects.smart_update_or_create(
             ('test-subject_hates', 'is hating'),
             ('test-object_hates',  'hated by'),
         )
 
-    def create_employed_rtype(self):
+    @staticmethod
+    def create_employed_rtype():
         return RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'is an employee of', [FakeContact]),
             ('test-object_employed_by',  'employs',           [FakeOrganisation]),
         )
 
-    def create_customer_rtype(self):
+    @staticmethod
+    def create_customer_rtype():
         return RelationType.objects.smart_update_or_create(
             ('test-subject_customer', 'is a customer of', [FakeContact, FakeOrganisation]),
             ('test-object_customer',  'is a supplier of', [FakeContact, FakeOrganisation]),
@@ -192,7 +196,8 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    def build_field_data(self, ctype_id, entity_id, label=None):
+    @staticmethod
+    def build_field_data(ctype_id, entity_id, label=None):
         return json_dump(
             {
                 'ctype': {
@@ -573,7 +578,8 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 
 class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
-    def _build_quick_forms_url(self, ct_id):
+    @staticmethod
+    def _build_quick_forms_url(ct_id):
         return reverse('creme_core__quick_form', args=(ct_id,))
 
     @classmethod
@@ -1286,7 +1292,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('linknotallowed', cm.exception.code)
 
     def test_clean_incomplete01(self):
-        'Not required'
+        "Not required."
         self.login()
         rtype = self.create_loves_rtype()[0]
         contact = self.create_contact()
@@ -1406,7 +1412,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(MultiRelationEntityField, 'required', clean, '[]')
 
     def test_clean_empty_not_required(self):
-        MultiRelationEntityField(required=False).clean(None)
+        with self.assertNoException():
+            MultiRelationEntityField(required=False).clean(None)
 
     def test_clean_invalid_json(self):
         field = MultiRelationEntityField(required=False)
@@ -2473,7 +2480,7 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual([contact], field.clean(f'[{contact.id}]'))
 
     def test_clean_with_permission01(self):
-        "Perm checking OK"
+        "Perm checking OK."
         user = self.login_as_basic_user()
 
         orga1 = self.create_orga('Orga #1')

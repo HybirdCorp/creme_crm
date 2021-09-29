@@ -314,7 +314,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertHTMLEqual(html, select.render(name, value=None))
 
     def test_render_filter01(self):
-        "Automatic/default behaviour"
+        "Automatic/default behaviour."
         name = 'my_choice_field'
         select = UnorderedMultipleChoiceWidget(
             choices=[(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D')],
@@ -416,7 +416,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertFalse(select.creation_allowed)
         self.assertHTMLEqual(
             _('No choice available.'),
-            select.render('field', [], {'checkall': True})
+            select.render('field', [], {'checkall': True}),
         )
 
     def test_render_empty_with_creation(self):
@@ -914,7 +914,8 @@ class EntitySelectorTestCase(CremeTestCase):
 class EntityCreatorWidgetTestCase(CremeTestCase):
     maxDiff = None
 
-    def _build_reset_action(self, enabled=True, value=''):
+    @staticmethod
+    def _build_reset_action(enabled=True, value=''):
         # return (
         #     'reset', _('Clear'), enabled,
         #     {'action': 'reset', 'title': _('Clear'), 'value': value},
@@ -930,7 +931,8 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
             value=value,
         )
 
-    def _build_create_action(self, label, title, url='', enabled=True):
+    @staticmethod
+    def _build_create_action(label, title, url='', enabled=True):
         # return 'create', label, enabled, {'title': title, 'popupUrl': url}
         return WidgetAction(
             name='create',

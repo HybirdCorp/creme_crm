@@ -19,7 +19,8 @@ from .base import (
 
 @skipIfCustomSMSCampaign
 class SMSCampaignTestCase(CremeTestCase):
-    def _build_remove_list(self, campaign):
+    @staticmethod
+    def _build_remove_list(campaign):
         return reverse('sms__remove_mlist_from_campaign', args=(campaign.id,))
 
     def test_createview01(self):

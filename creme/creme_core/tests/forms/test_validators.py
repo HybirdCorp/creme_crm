@@ -15,7 +15,8 @@ from ..base import CremeTestCase
 
 
 class CredsValidatorTestCase(CremeTestCase):
-    def _set_user_credentials(self, user, credentials, coverage):
+    @staticmethod
+    def _set_user_credentials(user, credentials, coverage):
         SetCredentials.objects.create(
             role=user.role, value=credentials, set_type=coverage,
         )

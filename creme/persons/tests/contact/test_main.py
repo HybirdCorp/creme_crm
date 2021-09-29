@@ -41,7 +41,8 @@ from ..base import (
 
 @skipIfCustomContact
 class ContactTestCase(_BaseTestCase):
-    def _build_addrelated_url(self, orga_id, rtype_id=None):
+    @staticmethod
+    def _build_addrelated_url(orga_id, rtype_id=None):
         kwargs = {'orga_id': orga_id}
 
         if rtype_id:

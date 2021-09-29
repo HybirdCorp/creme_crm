@@ -282,7 +282,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
 
         self.assertEqual(
             f'Only one wildcard is allowed: {TestForm}',
-            str(cm.exception)
+            str(cm.exception),
         )
 
     def test_new01(self):
@@ -313,7 +313,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual('Names', names_group.label)
         self.assertListEqual(
             ['last_name', 'first_name'],
-            [bfield.name for bfield in names_group.bound_fields]
+            [bfield.name for bfield in names_group.bound_fields],
         )
 
         with self.assertNoException():
@@ -452,7 +452,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_DUAL_FIRST, names_group.layout)
         self.assertListEqual(
             ['last_name', 'first_name'],
-            [bfield.name for bfield in names_group.bound_fields]
+            [bfield.name for bfield in names_group.bound_fields],
         )
 
         with self.assertNoException():
@@ -462,7 +462,7 @@ class FieldBlockManagerTestCase(CremeTestCase):
         self.assertEqual(LAYOUT_DUAL_SECOND, details_group.layout)
         self.assertListEqual(
             ['cell', 'phone', 'fax'],
-            [bfield.name for bfield in details_group.bound_fields]
+            [bfield.name for bfield in details_group.bound_fields],
         )
 
         self.assertEqual(LAYOUT_REGULAR,    blocks['address'].layout)

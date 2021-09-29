@@ -21,7 +21,8 @@ from ..base import CremeTestCase
 
 class DownloadTestCase(CremeTestCase):
     # TODO: factorise
-    def _create_file_for_tempfile(self, name):
+    @staticmethod
+    def _create_file_for_tempfile(name):
         rel_media_dir_path = join('upload', 'creme_core-tests')
         abs_path = FileCreator(
             dir_path=join(settings.MEDIA_ROOT, rel_media_dir_path),

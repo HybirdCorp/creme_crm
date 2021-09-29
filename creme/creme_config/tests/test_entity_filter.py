@@ -18,13 +18,16 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
 class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
-    def _build_add_url(self, ct):
+    @staticmethod
+    def _build_add_url(ct):
         return reverse('creme_config__create_efilter', args=(ct.id,))
 
-    def _build_edit_url(self, efilter):
+    @staticmethod
+    def _build_edit_url(efilter):
         return reverse('creme_config__edit_efilter', args=(efilter.id,))
 
-    def _build_rfields_data(self, name, operator, value):
+    @staticmethod
+    def _build_rfields_data(name, operator, value):
         return json_dump([{
             'field':    {'name': name},
             'operator': {'id': str(operator)},

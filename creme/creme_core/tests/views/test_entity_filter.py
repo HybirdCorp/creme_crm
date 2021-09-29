@@ -58,45 +58,55 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         cls.ct_contact = get_ct(FakeContact)
         cls.ct_orga    = get_ct(FakeOrganisation)
 
-    def _build_add_url(self, ct):
+    @staticmethod
+    def _build_add_url(ct):
         return reverse('creme_core__create_efilter', args=(ct.id,))
 
-    def _build_get_ct_url(self, rtype):
+    @staticmethod
+    def _build_get_ct_url(rtype):
         return reverse('creme_core__ctypes_compatible_with_rtype_as_choices', args=(rtype.id,))
 
-    def _build_get_filter_url(self, ct):
+    @staticmethod
+    def _build_get_filter_url(ct):
         return reverse('creme_core__efilters') + f'?ct_id={ct.id}'
 
-    def _build_rfields_data(self, name, operator, value):
+    @staticmethod
+    def _build_rfields_data(name, operator, value):
         return json_dump([{
             'field':    {'name': name},
             'operator': {'id': str(operator)},
             'value':    value,
         }])
 
-    def _build_rdatefields_data(self, name, type, start, end):
+    @staticmethod
+    def _build_rdatefields_data(name, type, start, end):
         return json_dump([{
             'field': {'name': name, 'type': 'date'},
             'range': {'type': type, 'start': start, 'end': end},
         }])
 
-    def _build_cfields_data(self, cfield_id, operator, value):
+    @staticmethod
+    def _build_cfields_data(cfield_id, operator, value):
         return json_dump([{
             'field':    {'id': str(cfield_id)},
             'operator': {'id': str(operator)},
             'value':    value,
         }])
 
-    def _build_cdatefields_data(self, cfield_id, type):
+    @staticmethod
+    def _build_cdatefields_data(cfield_id, type):
         return json_dump([{'field': str(cfield_id), 'range': {'type': type}}])
 
-    def _build_relations_data(self, rtype_id):
+    @staticmethod
+    def _build_relations_data(rtype_id):
         return json_dump([{'has': True, 'rtype': rtype_id, 'ctype': 0, 'entity': None}])
 
-    def _build_properties_data(self, has, ptype_id):
+    @staticmethod
+    def _build_properties_data(has, ptype_id):
         return json_dump([{'has': has, 'ptype': ptype_id}])
 
-    def _build_subfilters_data(self, rtype_id, ct_id, efilter_id):
+    @staticmethod
+    def _build_subfilters_data(rtype_id, ct_id, efilter_id):
         return json_dump([{
             'rtype': rtype_id, 'has': False, 'ctype': ct_id, 'filter': efilter_id,
         }])

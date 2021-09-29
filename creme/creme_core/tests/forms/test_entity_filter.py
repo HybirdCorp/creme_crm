@@ -1313,7 +1313,8 @@ class CustomFieldsConditionsFieldTestCase(FieldTestCase):
         self.cfield_multienum_G = create_evalue(value='G')
         self.cfield_multienum_H = create_evalue(value='H')
 
-    def _get_allowed_types(self, operator_id):
+    @staticmethod
+    def _get_allowed_types(operator_id):
         return ' '.join(efilter_registry.get_operator(operator_id).allowed_fieldtypes)
 
     def test_frompython_custom_int(self):
@@ -1928,7 +1929,7 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_empty(self):
-        "Emty operator + filter_type."
+        "Empty operator + filter_type."
         with self.assertNumQueries(0):
             field = DateCustomFieldsConditionsField(efilter_type=EF_CREDENTIALS)
             field.model = FakeContact
@@ -2344,7 +2345,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
         jsondict['entity'] = None
         jsondict['ctype'] = 0
-        self.assertEqual(
+        self.assertListEqual(
             [jsondict],
             json_load(field.from_python([*efilter.conditions.all()])),
         )

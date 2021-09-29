@@ -14,7 +14,8 @@ from .base import ViewsTestCase
 
 
 class EnumerableViewsTestCase(ViewsTestCase):
-    def _build_choices_url(self, model, field_name):
+    @staticmethod
+    def _build_choices_url(model, field_name):
         return reverse(
             'creme_core__enumerable_choices',
             args=(ContentType.objects.get_for_model(model).id, field_name),
@@ -211,7 +212,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET200(
             reverse('creme_core__cfield_enums', args=(custom_field.id,))
         )
-        self.assertEqual(
+        self.assertListEqual(
             [
                 [eva00.id, eva00.value],
                 [eva01.id, eva01.value],

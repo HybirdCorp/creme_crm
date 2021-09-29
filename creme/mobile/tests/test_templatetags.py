@@ -21,7 +21,8 @@ Contact = get_contact_model()
 
 
 class MobileTemplatetagsTestCase(MobileBaseTestCase):
-    def create_address(self, user):
+    @staticmethod
+    def create_address(user):
         return Address.objects.create(
             address='154 hopper avenue',
             zipcode='61045',

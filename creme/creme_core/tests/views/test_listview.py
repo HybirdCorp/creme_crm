@@ -231,7 +231,8 @@ class ListViewTestCase(ViewsTestCase):
 
         return {*entities_page.object_list}
 
-    def _get_options_for_select_node(self, select_node):
+    @staticmethod
+    def _get_options_for_select_node(select_node):
         return {
             (option_node.attrib.get('value'), option_node.text)
             for option_node in select_node.findall('option')
@@ -242,7 +243,8 @@ class ListViewTestCase(ViewsTestCase):
         page = response.context['page_obj']
         return page.paginator.object_list.query.get_compiler('default').as_sql()[0]
 
-    def _build_hf(self, *cells):
+    @staticmethod
+    def _build_hf(*cells):
         return HeaderFilter.objects.create_if_needed(
             pk='test-hf_orga', name='Orga view',
             model=FakeOrganisation,

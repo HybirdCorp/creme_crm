@@ -183,7 +183,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_address_as_dict_missing_geoaddress02(self):
-        "With select_related"
+        "With select_related."
         user = self.create_user()
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
@@ -288,7 +288,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 (45.0 - 0.09046499004885108, 5.0 - 0.12704038469036066),
                 (45.0 + 0.09046499004885108, 5.0 + 0.12704038469036066),
             ),
-            location_bounding_box(45.0, 5.0, 10000)
+            location_bounding_box(45.0, 5.0, 10000),
         )
 
         # 10 km ~ 0.09046499004885108 lat, 0.09559627851921597 long (for 20° lat)
@@ -297,5 +297,5 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 (20.0 - 0.09046499004885108, 5.0 - 0.09559627851921597),
                 (20.0 + 0.09046499004885108, 5.0 + 0.09559627851921597),
             ),
-            location_bounding_box(20.0, 5.0, 10000)
+            location_bounding_box(20.0, 5.0, 10000),
         )

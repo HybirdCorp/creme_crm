@@ -31,7 +31,8 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
         self.contacts_title      = str(Contact._meta.verbose_name_plural)
         self.organisations_title = str(Organisation._meta.verbose_name_plural)
 
-    def create_filter(self, pk, name, owner, model, field, operator, *values):
+    @staticmethod
+    def create_filter(pk, name, owner, model, field, operator, *values):
         return EntityFilter.objects.smart_update_or_create(
             pk, name, model=model,
             user=owner,
@@ -63,7 +64,7 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
 
     def test_filter_choices01(self):
         user = self.user
-        self.assertEqual([], self.brick.get_filter_choices(user))
+        self.assertListEqual([], self.brick.get_filter_choices(user))
 
         get_efilter = EntityFilter.objects.get
         contact_me    = get_efilter(pk=FILTER_CONTACT_ME)

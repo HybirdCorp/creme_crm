@@ -47,13 +47,16 @@ class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         super().setUp()
         self.login()
 
-    def _build_add_url(self, ctype):
+    @staticmethod
+    def _build_add_url(ctype):
         return reverse('creme_config__create_search_config', args=(ctype.id,))
 
-    def _build_edit_url(self, sci):
+    @staticmethod
+    def _build_edit_url(sci):
         return reverse('creme_config__edit_search_config', args=(sci.id,))
 
-    def _get_first_entity_ctype(self):
+    @staticmethod
+    def _get_first_entity_ctype():
         ctypes = [*entity_ctypes()]
         ctypes.sort(key=lambda ct: collator.sort_key(str(ct)))
 

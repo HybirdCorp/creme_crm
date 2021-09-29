@@ -38,10 +38,12 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomCreditNote
 class CreditNoteTestCase(_BillingTestCase):
-    def _build_editcomment_url(self, credit_note):
+    @staticmethod
+    def _build_editcomment_url(credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
 
-    def _build_deleterelated_url(self, credit_note, invoice):
+    @staticmethod
+    def _build_deleterelated_url(credit_note, invoice):
         return reverse('billing__delete_related_cnote', args=(credit_note.id, invoice.id))
 
     def assertInvoiceTotalToPay(self, invoice, total):

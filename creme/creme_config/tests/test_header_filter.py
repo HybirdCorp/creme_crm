@@ -13,10 +13,12 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
 class HeaderFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
-    def _build_add_url(self, ct):
+    @staticmethod
+    def _build_add_url(ct):
         return reverse('creme_config__create_hfilter', args=(ct.id,))
 
-    def _build_edit_url(self, hfilter):
+    @staticmethod
+    def _build_edit_url(hfilter):
         return reverse('creme_config__edit_hfilter', args=(hfilter.id,))
 
     def _ctype_labels_from_brick(self, response):

@@ -15,13 +15,16 @@ from .base import Invoice, Organisation, _BillingTestCase, skipIfCustomInvoice
 
 @skipIfCustomOrganisation
 class PaymentInformationTestCase(_BillingTestCase):
-    def _build_add_url(self, orga):
+    @staticmethod
+    def _build_add_url(orga):
         return reverse('billing__create_payment_info', args=(orga.id,))
 
-    def _build_add_related_url(self, invoice):
+    @staticmethod
+    def _build_add_related_url(invoice):
         return reverse('billing__create_related_payment_info', args=(invoice.id,))
 
-    def _build_setdefault_url(self, pi, invoice):
+    @staticmethod
+    def _build_setdefault_url(pi, invoice):
         return reverse('billing__set_default_payment_info', args=(pi.id, invoice.id))
 
     def test_createview01(self):
