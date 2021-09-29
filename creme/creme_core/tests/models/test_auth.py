@@ -68,10 +68,12 @@ class CredentialsTestCase(CremeTestCase):
 
         self.client.login(username=user.username, password=self.password)
 
-    def _ids_list(self, iterable):
+    @staticmethod
+    def _ids_list(iterable):
         return [e.id for e in iterable]
 
-    def _create_role(self, name, allowed_apps=(), admin_4_apps=(), set_creds=(), users=()):
+    @staticmethod
+    def _create_role(name, allowed_apps=(), admin_4_apps=(), set_creds=(), users=()):
         role = UserRole(name=name)
         role.allowed_apps = allowed_apps
         role.admin_4_apps = admin_4_apps

@@ -431,7 +431,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
     @skipIfCustomOrganisation
     @skipIfCustomAddress
     def test_populate_empty(self):
-        "No zipcode, no city"
+        "No zipcode, no city."
         user = self.login()
         self.command.import_town_database(
             [self.HEADER, self.OZAN, self.PERON, self.ACOUA, self.STBONNET],
@@ -440,7 +440,7 @@ class TownPopulatorTestCase(GeoLocationBaseTestCase):
 
         orga = Organisation.objects.create(name='Orga 1', user=user)
         address = Address.objects.create(
-            name='Addresse',
+            name='My address',
             address='13 rue du yahourt',
             po_box='',
             zipcode='',

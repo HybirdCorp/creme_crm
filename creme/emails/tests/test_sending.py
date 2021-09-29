@@ -57,7 +57,8 @@ from .base import (
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
 class SendingsTestCase(_EmailsTestCase):
-    def _build_add_url(self, campaign):
+    @staticmethod
+    def _build_add_url(campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
 
     def _get_job(self):

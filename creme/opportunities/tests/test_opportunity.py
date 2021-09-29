@@ -55,7 +55,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         except Exception as e:
             print(f'Error in OpportunitiesTestCase.setUpClass(): {e}')
 
-    def _build_addrelated_url(self, entity, popup=False):
+    @staticmethod
+    def _build_addrelated_url(entity, popup=False):
         return reverse(
             'opportunities__create_related_opportunity_popup' if popup else
             'opportunities__create_related_opportunity',

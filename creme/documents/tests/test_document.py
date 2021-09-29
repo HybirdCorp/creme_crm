@@ -39,7 +39,8 @@ from .base import (
 @skipIfCustomDocument
 @skipIfCustomFolder
 class DocumentTestCase(_DocumentsTestCase):
-    def _buid_addrelated_url(self, entity):
+    @staticmethod
+    def _build_addrelated_url(entity):
         return reverse('documents__create_related_document', args=(entity.id,))
 
     def test_populate(self):
@@ -293,7 +294,7 @@ class DocumentTestCase(_DocumentsTestCase):
         Folder.objects.create(user=user, title='Creme')  # Should not be used
 
         entity = CremeEntity.objects.create(user=user)
-        url = self._buid_addrelated_url(entity)
+        url = self._build_addrelated_url(entity)
         context = self.assertGET200(url).context
         self.assertEqual(
             _('New document for «{entity}»').format(entity=entity),
@@ -351,7 +352,7 @@ class DocumentTestCase(_DocumentsTestCase):
         )
 
         entity = CremeEntity.objects.create(user=self.user)
-        self.assertGET403(self._buid_addrelated_url(entity))
+        self.assertGET403(self._build_addrelated_url(entity))
 
     def test_add_related_document03(self):
         "Link credentials."
@@ -379,7 +380,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        url = self._buid_addrelated_url(orga)
+        url = self._build_addrelated_url(orga)
         self.assertGET403(url)
 
         get_ct = ContentType.objects.get_for_model
@@ -442,7 +443,7 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertTrue(user.has_perm_to_view(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        url = self._buid_addrelated_url(orga)
+        url = self._build_addrelated_url(orga)
         self.assertGET403(url)
 
     def test_add_related_document05(self):
@@ -467,7 +468,7 @@ class DocumentTestCase(_DocumentsTestCase):
         orga = FakeOrganisation.objects.create(user=self.other_user, name='NERV')
         self.assertTrue(user.has_perm_to_link(orga))
         self.assertFalse(user.has_perm_to_view(orga))
-        self.assertGET403(self._buid_addrelated_url(orga))
+        self.assertGET403(self._build_addrelated_url(orga))
 
     def test_add_related_document06(self):
         "The Folder containing all the Documents related to the entity has a too long name."
@@ -483,7 +484,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'Related doc'
         response = self.client.post(
-            self._buid_addrelated_url(entity),
+            self._build_addrelated_url(entity),
             follow=True,
             data={
                 'user': user.id,
@@ -519,7 +520,7 @@ class DocumentTestCase(_DocumentsTestCase):
 
         title = 'Related doc'
         response = self.client.post(
-            self._buid_addrelated_url(entity),
+            self._build_addrelated_url(entity),
             follow=True,
             data={
                 'user':         user.pk,

@@ -1113,8 +1113,8 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
 
         clean = field.clean
         self.assertListEqual([sector], [*clean([sector.id])])
-        self.assertFalse([], clean(''))
-        self.assertFalse([], clean([]))
+        self.assertFalse(clean(''))
+        self.assertFalse(clean([]))
 
     def test_invalid(self):
         field_builder = partial(

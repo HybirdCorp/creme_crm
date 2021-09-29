@@ -47,5 +47,5 @@ class EmailsTestCase(_EmailsTestCase):
                     field=_('Email address'),
                 ),
             ],
-            fconf.errors_on_hidden
+            fconf.errors_on_hidden,
         )

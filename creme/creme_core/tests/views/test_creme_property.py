@@ -32,7 +32,8 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def assertEntityHasntProperty(self, ptype, entity):
         self.assertFalse(entity.properties.filter(type=ptype).exists())
 
-    def _build_bulk_url(self, ct, *entities, **kwargs):
+    @staticmethod
+    def _build_bulk_url(ct, *entities, **kwargs):
         url = reverse('creme_core__add_properties_bulk', args=(ct.id,))
 
         if kwargs.get('GET', False):

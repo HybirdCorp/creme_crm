@@ -78,22 +78,28 @@ class ProjectsTestCase(CremeTestCase):
             is_superuser, allowed_apps=allowed_apps, *args, **kwargs
         )
 
-    def _build_add_task_url(self, project):
+    @staticmethod
+    def _build_add_task_url(project):
         return reverse('projects__create_task', args=(project.id,))
 
-    def _build_add_parent_task_url(self, task):
+    @staticmethod
+    def _build_add_parent_task_url(task):
         return reverse('projects__add_parent_task', args=(task.id,))
 
-    def _build_add_resource_url(self, task):
+    @staticmethod
+    def _build_add_resource_url(task):
         return reverse('projects__create_resource', args=(task.id,))
 
-    def _build_add_activity_url(self, task):
+    @staticmethod
+    def _build_add_activity_url(task):
         return reverse('projects__create_activity', args=(task.id,))
 
-    def _build_edit_activity_url(self, activity):
+    @staticmethod
+    def _build_edit_activity_url(activity):
         return reverse('projects__edit_activity', args=(activity.id,))
 
-    def _build_type_value(self, atype=ACTIVITYTYPE_TASK, sub_type=None):
+    @staticmethod
+    def _build_type_value(atype=ACTIVITYTYPE_TASK, sub_type=None):
         return json_dump({'type': atype, 'sub_type': sub_type})
 
     def create_resource(self, task, contact, hourly_cost=100, error=False):

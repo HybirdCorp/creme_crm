@@ -74,10 +74,12 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     SEARCHNVIEW_URL  = reverse('creme_core__search_n_view_entities')
     RESTRICT_URL     = reverse('creme_core__restrict_entity_2_superusers')
 
-    def _build_delete_url(self, entity):
+    @staticmethod
+    def _build_delete_url(entity):
         return reverse('creme_core__delete_entity', args=(entity.id,))
 
-    def _build_restore_url(self, entity):
+    @staticmethod
+    def _build_restore_url(entity):
         return reverse('creme_core__restore_entity', args=(entity.id,))
 
     def test_json_entity_get01(self):
@@ -1342,7 +1344,8 @@ class _BulkEditTestCase(ViewsTestCase):
     def get_cf_values(cf, entity):
         return cf.value_class.objects.get(custom_field=cf, entity=entity)
 
-    def create_image(self, name, user, categories=()):
+    @staticmethod
+    def create_image(name, user, categories=()):
         image = FakeImage.objects.create(user=user, name=name)
         image.categories.set(categories)
 

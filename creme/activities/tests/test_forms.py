@@ -35,7 +35,8 @@ class ActivityTypeFieldTestCase(FieldTestCase):
             id='rendezvous', name='Rendez-vous', type=cls.atype,
         )
 
-    def _build_value(self, act_type_id, subtype_id=None):
+    @staticmethod
+    def _build_value(act_type_id, subtype_id=None):
         return json_dump(
             {'type': act_type_id, 'sub_type': subtype_id},
             separators=(',', ':'),
@@ -86,7 +87,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         )
 
     def test_clean_unknown_type(self):
-        "Data injections"
+        "Data injections."
         atype1 = self.atype
         atype2 = ActivityType.objects.create(
             id='phonecall', name='phone Call',
@@ -139,7 +140,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         )
 
     def test_clean03(self):
-        "Not required"
+        "Not required."
         atype = self.atype
         field = ActivityTypeField(
             types=ActivityType.objects.filter(pk=atype.id),
@@ -151,7 +152,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         )
 
     def test_clean04(self):
-        "No related ActivitySubType"
+        "No related ActivitySubType."
         atype2 = ActivityType.objects.create(
             id='custom', name='Custom',
             default_day_duration=0,

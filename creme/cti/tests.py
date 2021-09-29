@@ -35,7 +35,8 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
         cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
 
-    def _buid_add_pcall_url(self, contact):
+    @staticmethod
+    def _build_add_pcall_url(contact):
         return reverse('cti__create_phonecall', args=(contact.id,))
 
     def login(self, *args, **kwargs):
@@ -296,7 +297,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         user = self.login()
 
         contact = Contact.objects.create(user=user, first_name='Bean', last_name='Bandit')
-        self.assertPOST(302, self._buid_add_pcall_url(contact))
+        self.assertPOST(302, self._build_add_pcall_url(contact))
 
         pcalls = Activity.objects.filter(type=a_constants.ACTIVITYTYPE_PHONECALL)
         self.assertEqual(1, len(pcalls))
@@ -320,7 +321,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create_phonecall02(self):
         user = self.login()
 
-        self.assertPOST(302, self._buid_add_pcall_url(self.contact))
+        self.assertPOST(302, self._build_add_pcall_url(self.contact))
 
         activities = Activity.objects.all()
         self.assertEqual(1, len(activities))
@@ -335,7 +336,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
     def test_create_phonecall03(self):
         user = self.login()
 
-        self.assertPOST(302, self._buid_add_pcall_url(self.contact_other_user))
+        self.assertPOST(302, self._build_add_pcall_url(self.contact_other_user))
 
         self.assertEqual(1, Activity.objects.count())
 

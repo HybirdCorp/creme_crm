@@ -51,16 +51,19 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     ADD_URL = reverse('creme_config__create_user')
     ADD_TEAM_URL = reverse('creme_config__create_team')
 
-    def _build_delete_url(self, user):
+    @staticmethod
+    def _build_delete_url(user):
         return reverse('creme_config__delete_user', args=(user.id,))
 
-    def _build_edit_url(self, user_id, password=False):
+    @staticmethod
+    def _build_edit_url(user_id, password=False):
         return reverse(
             'creme_config__change_user_password' if password else 'creme_config__edit_user',
             args=(user_id,)
         )
 
-    def _build_activation_url(self, user_id, activation=True):
+    @staticmethod
+    def _build_activation_url(user_id, activation=True):
         return reverse(
             'creme_config__activate_user' if activation else 'creme_config__deactivate_user',
             args=(user_id,)

@@ -55,7 +55,7 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertEqual(imprint.user, user)
 
     def test_create02(self):
-        "Delay is not passed"
+        "Delay is not passed."
         manager = _ImprintManager()
         manager.register(FakeContact, minutes=60)
 
@@ -80,7 +80,7 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))
 
     def test_create03(self):
-        "Delay_is passed"
+        "Delay_is passed."
         manager = _ImprintManager()
         manager.register(FakeContact, minutes=30)
 
@@ -93,7 +93,7 @@ class ImprintManagerTestCase(CremeTestCase):
         self.assertIsNotNone(manager.create_imprint(entity=willy, user=user))
 
     def test_create04(self):
-        "Model not registered"
+        "Model not registered."
         manager = _ImprintManager()
         manager.register(FakeDocument, minutes=60)
 

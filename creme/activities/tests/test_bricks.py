@@ -32,10 +32,12 @@ from .base import (
 class ActivityBricksTestCase(_ActivitiesTestCase):
     RM_PARTICIPANT_URL = reverse('activities__remove_participant')
 
-    def _buid_add_participants_url(self, activity):
+    @staticmethod
+    def _build_add_participants_url(activity):
         return reverse('activities__add_participants', args=(activity.id,))
 
-    def _buid_add_subjects_url(self, activity):
+    @staticmethod
+    def _build_add_subjects_url(activity):
         return reverse('activities__add_subjects', args=(activity.id,))
 
     @skipIfCustomContact
@@ -47,7 +49,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
-        url = self._buid_add_participants_url(activity)
+        url = self._build_add_participants_url(activity)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
@@ -87,7 +89,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         self.assertTrue(user.has_perm_to_change(activity))
         self.assertFalse(user.has_perm_to_link(activity))
-        self.assertGET403(self._buid_add_participants_url(activity))
+        self.assertGET403(self._build_add_participants_url(activity))
 
     @skipIfCustomContact
     def test_add_participants03(self):
@@ -104,7 +106,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertTrue(user.has_perm_to_change(contact))
         self.assertFalse(user.has_perm_to_link(contact))
 
-        uri = self._buid_add_participants_url(activity)
+        uri = self._build_add_participants_url(activity)
         self.assertGET200(uri)
 
         response = self.assertPOST200(
@@ -129,7 +131,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
-        uri = self._buid_add_participants_url(activity)
+        uri = self._build_add_participants_url(activity)
         response = self.assertGET200(uri)
 
         with self.assertNoException():
@@ -164,7 +166,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
         c2 = create_contact(first_name='Kojiro',  last_name='Sasaki')
 
-        uri = self._buid_add_participants_url(activity)
+        uri = self._build_add_participants_url(activity)
         self.assertGET200(uri)
         self.assertNoFormError(self.client.post(
             uri,
@@ -199,7 +201,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         team.teammates = [musashi, kojiro, user]
 
         response = self.client.post(
-            self._buid_add_participants_url(activity),
+            self._build_add_participants_url(activity),
             data={
                 'my_participation_0':  True,
                 'my_participation_1':  Calendar.objects.get_default_calendar(user).pk,
@@ -233,7 +235,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
 
         self.assertNoFormError(self.client.post(
-            self._buid_add_participants_url(activity),
+            self._build_add_participants_url(activity),
             data={'participants': self.formfield_value_multi_creator_entity(akane)},
         ))
 
@@ -266,7 +268,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
 
         self.assertPOST200(
-            self._buid_add_participants_url(phone_call), follow=True,
+            self._build_add_participants_url(phone_call), follow=True,
             data={
                 'my_participation_0':  True,
                 'my_participation_1':  Calendar.objects.get_default_calendar(logged.is_user).pk,
@@ -387,7 +389,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         orga = Organisation.objects.create(user=user, name='Ghibli')
 
-        url = self._buid_add_subjects_url(activity)
+        url = self._build_add_subjects_url(activity)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
@@ -436,7 +438,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         self.assertTrue(user.has_perm_to_change(activity))
         self.assertFalse(user.has_perm_to_link(activity))
-        self.assertGET403(self._buid_add_subjects_url(activity))
+        self.assertGET403(self._build_add_subjects_url(activity))
 
     @skipIfCustomOrganisation
     def test_add_subjects03(self):
@@ -451,7 +453,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertTrue(user.has_perm_to_change(orga))
         self.assertFalse(user.has_perm_to_link(orga))
 
-        uri = self._buid_add_subjects_url(activity)
+        uri = self._build_add_subjects_url(activity)
         self.assertGET200(uri)
 
         response = self.assertPOST200(
@@ -476,7 +478,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         bad_subject = create_meeting(title="I'm bad heeheeeee")
 
         response = self.assertPOST200(
-            self._buid_add_subjects_url(activity),
+            self._build_add_subjects_url(activity),
             data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)},
         )
         self.assertFormError(

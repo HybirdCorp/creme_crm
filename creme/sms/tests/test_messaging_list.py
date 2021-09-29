@@ -26,10 +26,12 @@ from .base import Contact, MessagingList, skipIfCustomMessagingList
 
 @skipIfCustomMessagingList
 class MessagingListTestCase(CremeTestCase):
-    def _build_addcontact_url(self, mlist):
+    @staticmethod
+    def _build_addcontact_url(mlist):
         return reverse('sms__add_contacts_to_mlist', args=(mlist.id,))
 
-    def _build_addcontactfilter_url(self, mlist):
+    @staticmethod
+    def _build_addcontactfilter_url(mlist):
         return reverse('sms__add_contacts_to_mlist_from_filter', args=(mlist.id,))
 
     def test_createview(self):

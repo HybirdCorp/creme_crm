@@ -17,7 +17,8 @@ class MutexTestCase(CremeTransactionTestCase):
         super().tearDown()
         Mutex.graceful_release('dummy_lock')
 
-    def _get_ids(self):
+    @staticmethod
+    def _get_ids():
         return [*Mutex.objects.order_by('id').values_list('id', flat=True)]
 
     def test_mutex_lock(self):

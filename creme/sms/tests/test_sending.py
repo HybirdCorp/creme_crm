@@ -36,7 +36,8 @@ from .base import (
 @skipIfCustomMessageTemplate
 @skipIfCustomMessagingList
 class SendingsTestCase(CremeTestCase):
-    def _build_add_url(self, campaign):
+    @staticmethod
+    def _build_add_url(campaign):
         return reverse('sms__create_sending', args=(campaign.id,))
 
     @skipIfCustomContact

@@ -213,7 +213,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             status=GeoAddress.Status.PARTIAL,
         )
 
-    def test_update_unkown_city(self):
+    def test_update_unknown_city(self):
         town = self.marseille1
         address = Address.objects.create(owner=self.orga, city=town.name)
         self.assertGeoAddress(

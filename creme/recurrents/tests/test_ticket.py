@@ -67,7 +67,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
             criticity=Criticity.objects.all()[0],
         )
 
-    def _get_weekly(self):
+    @staticmethod
+    def _get_weekly():
         return date_period_registry.get_period('weeks', 1)
 
     @skipIfCustomTicketTemplate

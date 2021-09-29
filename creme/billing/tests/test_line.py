@@ -39,7 +39,8 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
 class LineTestCase(_BillingTestCase):
-    def _build_msave_url(self, bdocument):
+    @staticmethod
+    def _build_msave_url(bdocument):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
 
     def test_clean01(self):

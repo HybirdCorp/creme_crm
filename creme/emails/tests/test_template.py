@@ -16,7 +16,8 @@ from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 @skipIfCustomEmailTemplate
 class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
-    def _build_rm_attachment_url(self, template):
+    @staticmethod
+    def _build_rm_attachment_url(template):
         return reverse('emails__remove_attachment_from_template', args=(template.id,))
 
     def test_createview01(self):

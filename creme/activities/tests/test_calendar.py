@@ -179,10 +179,7 @@ class CalendarManagerTestCase(_ActivitiesTestCase):
         with self.assertNumQueries(2):
             calendars = Calendar.objects.get_default_calendars([user])
 
-        self.assertDictEqual(
-            {user.id: cal1},
-            calendars,
-        )
+        self.assertDictEqual({user.id: cal1}, calendars)
         self.assertTrue(self.refresh(cal1).is_default)
         self.assertFalse(self.refresh(cal2).is_default)
 
@@ -193,13 +190,16 @@ class CalendarTestCase(_ActivitiesTestCase):
     CALENDAR_URL = reverse('activities__calendar')
     UPDATE_URL = reverse('activities__set_activity_dates')
 
-    def _build_ts(self, dt):
+    @staticmethod
+    def _build_ts(dt):
         return float(dt.strftime('%s')) * 1000  # Simulates JS that sends milliseconds
 
-    def build_link_url(self, activity_id):
+    @staticmethod
+    def build_link_url(activity_id):
         return reverse('activities__link_calendar', args=(activity_id,))
 
-    def build_delete_calendar_url(self, calendar):
+    @staticmethod
+    def build_delete_calendar_url(calendar):
         return reverse('activities__delete_calendar', args=(calendar.id,))
 
     def _get_cal_activities(self, calendars, start=None, end=None, status=200):

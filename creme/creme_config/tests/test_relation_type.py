@@ -23,7 +23,8 @@ class RelationTypeTestCase(CremeTestCase):
         super().setUp()
         self.login()
 
-    def _build_edit_url(self, rtype):
+    @staticmethod
+    def _build_edit_url(rtype):
         return reverse('creme_config__edit_rtype', args=(rtype.id,))
 
     def test_portal(self):

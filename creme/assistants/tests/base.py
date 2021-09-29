@@ -16,9 +16,9 @@ from creme.creme_core.tests.fake_models import FakeContact
 class AssistantsTestCase(CremeTestCase):
     def setUp(self):
         super().setUp()
-        self.login()
+        user = self.login()
         self.entity = FakeContact.objects.create(
-            user=self.user, first_name='Ranma', last_name='Saotome',
+            user=user, first_name='Ranma', last_name='Saotome',
         )
 
     def aux_test_merge(self, creator, assertor, moved_count=1):

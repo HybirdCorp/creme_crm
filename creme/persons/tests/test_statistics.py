@@ -16,7 +16,7 @@ class PersonsStatisticsTestCase(CremeTestCase):
         user = self.login()
 
         stat = cls(Organisation)
-        self.assertEqual([], stat())
+        self.assertListEqual([], stat())
 
         create_orga = partial(Organisation.objects.create, user=user)
         managed2 = create_orga(name='Managed#2', is_managed=True)

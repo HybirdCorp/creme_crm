@@ -201,10 +201,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         super().setUp()
         gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
 
-    def _build_adddetail_url(self, ct):
+    @staticmethod
+    def _build_adddetail_url(ct):
         return reverse('creme_config__create_detailviews_bricks', args=(ct.id,))
 
-    def _build_editdetail_url(self, ct=None, role=None, superuser=False):
+    @staticmethod
+    def _build_editdetail_url(ct=None, role=None, superuser=False):
         return reverse(
             'creme_config__edit_detailview_bricks',
             args=(
@@ -213,16 +215,19 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ),
         )
 
-    def _build_rbrick_addctypes_wizard_url(self, rbi):
+    @staticmethod
+    def _build_rbrick_addctypes_wizard_url(rbi):
         return reverse('creme_config__add_cells_to_rtype_brick', args=(rbi.id,))
 
-    def _build_rbrick_editctype_url(self, rbi, model):
+    @staticmethod
+    def _build_rbrick_editctype_url(rbi, model):
         return reverse(
             'creme_config__edit_cells_of_rtype_brick',
             args=(rbi.id, ContentType.objects.get_for_model(model).id,),
         )
 
-    def _build_custombrick_edit_url(self, cbc_item):
+    @staticmethod
+    def _build_custombrick_edit_url(cbc_item):
         return reverse('creme_config__edit_custom_brick', args=(cbc_item.id,))
 
     # def _find_field_index(self, formfield, name):

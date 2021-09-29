@@ -332,7 +332,7 @@ class CustomFieldExtractorTestCase(CremeTestCase):
                     'create new choices.'
                 ).format(column=3, value=line[2]),
             ),
-            extractor.extract_value(line, self.user)
+            extractor.extract_value(line, self.user),
         )
 
     def test_extract_enum04(self):

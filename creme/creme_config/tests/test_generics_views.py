@@ -62,7 +62,8 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             ],
         )
 
-    def _build_finish_deletor_url(self, job):
+    @staticmethod
+    def _build_finish_deletor_url(job):
         return reverse('creme_config__finish_deletor', args=(job.id,))
 
     def test_portals(self):
@@ -160,7 +161,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
                 'added': [[instance.id, str(instance)]],
                 'value': instance.id
             },
-            response.json()
+            response.json(),
         )
 
     def test_add01_from_widget(self):

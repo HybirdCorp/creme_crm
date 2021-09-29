@@ -53,13 +53,15 @@ else:
 class BillingTestCase(OpportunitiesBaseTestCase):
     SELECTION_URL = reverse('opportunities__select_billing_objs_to_link')
 
-    def _build_currentquote_url(self, opportunity, quote, action='set_current'):
+    @staticmethod
+    def _build_currentquote_url(opportunity, quote, action='set_current'):
         return reverse(
             'opportunities__linked_quote_is_current',
             args=(opportunity.id, quote.id, action),
         )
 
-    def _build_gendoc_url(self, opportunity, model=None):
+    @staticmethod
+    def _build_gendoc_url(opportunity, model=None):
         model = model or Quote
         return reverse(
             'opportunities__generate_billing_doc',
@@ -70,7 +72,8 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         create_orga = partial(Organisation.objects.create, user=self.user)
         return create_orga(name='Source'), create_orga(name='Target')
 
-    def _set_quote_config(self, use_current_quote):
+    @staticmethod
+    def _set_quote_config(use_current_quote):
         sv = SettingValue.objects.get_4_key(setting_keys.quote_key)
         sv.value = use_current_quote
         sv.save()

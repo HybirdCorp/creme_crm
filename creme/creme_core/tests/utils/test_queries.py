@@ -45,7 +45,8 @@ class QueriesTestCase(CremeTestCase):
             model.objects.filter(q), entities, transform=lambda e: e,
         )
 
-    def _create_activity_type(self):
+    @staticmethod
+    def _create_activity_type():
         return FakeActivityType.objects.create(name='Tournament')
 
     def _create_contacts(self):

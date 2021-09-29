@@ -43,13 +43,16 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
     WF_LASTED5MIN_URL = reverse('mobile__pcall_wf_lasted_5_minutes')
     WF_JUSTDONE_URL   = reverse('mobile__pcall_wf_just_done')
 
-    def _build_start_url(self, activity):
+    @staticmethod
+    def _build_start_url(activity):
         return reverse('mobile__start_activity', args=(activity.id,))
 
-    def _build_stop_url(self, activity):
+    @staticmethod
+    def _build_stop_url(activity):
         return reverse('mobile__stop_activity', args=(activity.id,))
 
-    def _existing_pcall_ids(self):
+    @staticmethod
+    def _existing_pcall_ids():
         return [
             *Activity.objects
                      .filter(type=ACTIVITYTYPE_PHONECALL)

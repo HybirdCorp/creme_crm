@@ -94,10 +94,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         cls.ct = ContentType.objects.get_for_model(FakeContact)
 
-    def _build_dl_errors_url(self, job):
+    @staticmethod
+    def _build_dl_errors_url(job):
         return reverse('creme_core__dl_mass_import_errors', args=(job.id,))
 
-    def _dyn_relations_value(self, rtype, model, column, subfield):
+    @staticmethod
+    def _dyn_relations_value(rtype, model, column, subfield):
         return json_dump([{
             'rtype':       rtype.id,
             'ctype':       str(ContentType.objects.get_for_model(model).id),

@@ -39,7 +39,8 @@ class QuickFormTestCase(CremeTestCase):
             f'form-{id}-user':         self.user.id,
         })
 
-    def _build_quickform_url(self, model):
+    @staticmethod
+    def _build_quickform_url(model):
         return reverse(
             'creme_core__quick_form',
             args=(ContentType.objects.get_for_model(model).pk,),
