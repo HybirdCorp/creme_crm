@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-21 13:04+0200\n"
+"POT-Creation-Date: 2021-10-13 12:15+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1943,6 +1943,9 @@ msgstr "Enregistrer le type de propriété"
 msgid "Types of property"
 msgstr "Types de propriété"
 
+msgid "Entity"
+msgstr "Fiche"
+
 msgid "Property"
 msgstr "Propriété"
 
@@ -2018,6 +2021,21 @@ msgstr "Liste de choix"
 
 msgid "Multiple choice list"
 msgstr "Liste de choix multiples"
+
+msgid "Type of form"
+msgstr "Type de formulaire"
+
+msgid "Create a custom form"
+msgstr "Créer un formulaire personnalisé"
+
+msgid "Save the custom form"
+msgstr "Enregistrer le formulaire personnalisé"
+
+msgid "Custom form"
+msgstr "Formulaire personnalisé"
+
+msgid "Custom forms"
+msgstr "Formulaires personnalisés"
 
 #, python-brace-format
 msgid ""
@@ -2531,9 +2549,6 @@ msgstr "{count} Erreur"
 #, python-brace-format
 msgid "{count} Errors"
 msgstr "{count} Erreurs"
-
-msgid "Entity"
-msgstr "Fiche"
 
 msgid "Induced error"
 msgstr "Erreur provoquée"
@@ -3498,6 +3513,14 @@ msgstr ""
 
 msgid "You are not allowed to access this view."
 msgstr "Vous n'êtes autorisé à accéder à cette page."
+
+#, python-brace-format
+msgid ""
+"No default form has been created in DataBase for the model «{model}». "
+"Contact your administrator."
+msgstr ""
+"Aucun formulaire par défaut n'a été créé dans la Base de Données pour le "
+"modèle «{model}». Contactez votre administrateur."
 
 #, python-brace-format
 msgid "Edit «{object}»"

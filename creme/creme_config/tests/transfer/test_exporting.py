@@ -304,7 +304,7 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertIsInstance(content, dict)
         # self.assertEqual('1.0', content.get('version'))
-        self.assertEqual('1.1', content.get('version'))
+        self.assertEqual('1.2', content.get('version'))
 
         roles_info = content.get('roles')
         self.assertIsList(roles_info, length=1)
@@ -1595,14 +1595,15 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         with self.assertNoException():
-            loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+            # loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+            loaded_cforms = {d['descriptor']: d for d in content.get('custom_forms')}
 
         # self.maxDiff = None
-
-        cform_id = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM.id
+        descriptor_id = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM.id
         self.assertDictEqual(
             {
-                'id': cform_id,
+                # 'id': cform_id,
+                'descriptor': descriptor_id,
                 'groups': [
                     {
                         'name':  'General',
@@ -1615,15 +1616,17 @@ class ExportingTestCase(CremeTestCase):
                     },
                 ],
             },
-            loaded_cforms.get(cform_id),
+            loaded_cforms.get(descriptor_id),
         )
 
     def test_customforms02(self):
         self.login(is_staff=True)
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
-        cform_id = desc.id
-        CustomFormConfigItem.objects.filter(cform_id=cform_id).delete()
+        # cform_id = desc.id
+        descriptor_id = desc.id
+        # CustomFormConfigItem.objects.filter(cform_id=cform_id).delete()
+        CustomFormConfigItem.objects.filter(descriptor_id=descriptor_id).delete()
 
         cfield = CustomField.objects.create(
             content_type=FakeOrganisation, field_type=CustomField.STR, name='Headline',
@@ -1650,35 +1653,126 @@ class ExportingTestCase(CremeTestCase):
             ],
         )
 
+        gname2 = 'Fields'
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=desc,
+            groups_desc=[
+                {
+                    'name': gname2,
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                },
+            ],
+            role='superuser',
+        )
+
+        gname3 = 'Regular fields'
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=desc,
+            groups_desc=[
+                {
+                    'name': gname3,
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'phone'}),
+                    ],
+                },
+            ],
+            role=self.role,
+        )
+
         response = self.assertGET200(self.URL)
         content = response.json()
 
+        loaded_cforms = defaultdict(list)
+
         with self.assertNoException():
-            loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+            # loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
+            for d in content.get('custom_forms'):
+                loaded_cforms[d['descriptor']].append(d)
 
         # self.maxDiff = None
-        self.assertDictEqual(
-            {
-                'id': cform_id,
-                'groups': [
-                    {
-                        'name':  gname1,
-                        'layout':  LAYOUT_DUAL_FIRST,
-                        'cells': [
-                            {'type': EntityCellRegularField.type_id, 'value': 'user'},
-                            {'type': EntityCellRegularField.type_id, 'value': 'name'},
-                            {'type': EntityCellCustomField.type_id,  'value': str(cfield.uuid)},
-                            {
-                                'type': EntityCellCustomFormSpecial.type_id,
-                                'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
-                            },
-                        ],
-                    },
-                    {
-                        'group_id': FakeAddressGroup.extra_group_id,
-                        'layout': LAYOUT_DUAL_SECOND,
-                    },
-                ],
-            },
-            loaded_cforms.get(cform_id),
+        # self.assertDictEqual(
+        #     {
+        #         'id': cform_id,
+        #         'groups': [
+        #             {
+        #                 'name':  gname1,
+        #                 'layout':  LAYOUT_DUAL_FIRST,
+        #                 'cells': [
+        #                     {'type': EntityCellRegularField.type_id, 'value': 'user'},
+        #                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
+        #                     {'type': EntityCellCustomField.type_id,  'value': str(cfield.uuid)},
+        #                     {
+        #                         'type': EntityCellCustomFormSpecial.type_id,
+        #                         'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+        #                     },
+        #                 ],
+        #             },
+        #             {
+        #                 'group_id': FakeAddressGroup.extra_group_id,
+        #                 'layout': LAYOUT_DUAL_SECOND,
+        #             },
+        #         ],
+        #     },
+        #     loaded_cforms.get(cform_id),
+        # )
+        self.assertCountEqual(
+            [
+                {
+                    'descriptor': descriptor_id,
+                    'groups': [
+                        {
+                            'name':  gname1,
+                            'layout':  LAYOUT_DUAL_FIRST,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                                {'type': EntityCellCustomField.type_id, 'value': str(cfield.uuid)},
+                                {
+                                    'type': EntityCellCustomFormSpecial.type_id,
+                                    'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+                                },
+                            ],
+                        },
+                        {
+                            'group_id': FakeAddressGroup.extra_group_id,
+                            'layout': LAYOUT_DUAL_SECOND,
+                        },
+                    ],
+                }, {
+                    'descriptor': descriptor_id,
+                    'superuser': True,
+                    'groups': [
+                        {
+                            'name':  gname2,
+                            'layout':  LAYOUT_REGULAR,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'description'},
+                            ],
+                        },
+                    ],
+                }, {
+                    'descriptor': descriptor_id,
+                    'role': self.role.name,
+                    'groups': [
+                        {
+                            'name':  gname3,
+                            'layout':  LAYOUT_REGULAR,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'phone'},
+                            ],
+                        },
+                    ],
+                }
+            ],
+            loaded_cforms.get(descriptor_id),
         )

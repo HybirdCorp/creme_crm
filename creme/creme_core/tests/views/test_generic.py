@@ -3,6 +3,8 @@
 from functools import partial
 
 from django.contrib.sessions.models import Session
+from django.http import Http404
+from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
@@ -12,7 +14,11 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
+from creme.creme_core.gui.custom_form import (
+    CustomFormDescriptor,
+    FieldGroup,
+    FieldGroupList,
+)
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.models import (
     CremePropertyType,
@@ -30,6 +36,7 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
 )
+from creme.creme_core.views.generic import EntityCreation
 
 from .. import fake_forms
 from .base import BrickTestCaseMixin, ViewsTestCase
@@ -434,7 +441,9 @@ class CreationTestCase(ViewsTestCase):
         user = self.login()
 
         cfci = self.get_object_or_fail(
-            CustomFormConfigItem, cform_id=FAKEACTIVITY_CREATION_CFORM.id,
+            # CustomFormConfigItem, cform_id=FAKEACTIVITY_CREATION_CFORM.id,
+            CustomFormConfigItem,
+            descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
         cfci.store_groups(
@@ -492,6 +501,72 @@ class CreationTestCase(ViewsTestCase):
         )
         self.assertIsNone(activity.end)
         self.assertFalse(activity.minutes)
+
+    def test_entity_creation_customform03(self):
+        "Super-user's form."
+        self.login()
+
+        cfci = CustomFormConfigItem.objects.create(
+            descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=True,
+        )
+        build_cell = partial(EntityCellRegularField.build, model=FakeActivity)
+        cfci.store_groups(
+            FieldGroupList(
+                model=FakeActivity,
+                cell_registry=FAKEACTIVITY_CREATION_CFORM.build_cell_registry(),
+                groups=[
+                    FieldGroup(
+                        name='My fields',
+                        cells=[
+                            *(
+                                build_cell(name=name)
+                                for name in ('user', 'title', 'place', 'type', 'minutes')
+                            ),
+                            fake_forms.FakeActivityStartSubCell().into_cell(),
+                            fake_forms.FakeActivityEndSubCell().into_cell(),
+                        ],
+                    ),
+                ],
+            )
+        )
+        cfci.save()
+
+        url = reverse('creme_core__create_fake_activity')
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+
+        self.assertIn('user', fields)
+        self.assertIn('minutes', fields)
+        self.assertIn('cform_extra-fakeactivity_end', fields)
+
+    def test_entity_creation_customform04(self):
+        "No item exists."
+        form_desc = CustomFormDescriptor(
+            id='creme_core-tests_fakeorga',
+            model=FakeOrganisation,
+            verbose_name='Creation form for FakeOrganisation',
+        )
+
+        class NoItemContactCreation(EntityCreation):
+            model = FakeOrganisation
+            form_class = form_desc
+
+        view = NoItemContactCreation.as_view()
+        request = RequestFactory().get(reverse('creme_core__create_fake_organisation'))
+        request.user = self.create_user()
+
+        with self.assertRaises(Http404) as cm:
+            view(request)
+
+        self.assertEqual(
+            _(
+                'No default form has been created in DataBase for the '
+                'model «{model}». Contact your administrator.'
+            ).format(model='Test Organisation'),
+            str(cm.exception),
+        )
 
     def test_adding_to_entity(self):
         user = self.login()

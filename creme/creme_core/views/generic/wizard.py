@@ -24,13 +24,15 @@ from typing import List, Type, Union
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
 from django.forms import BaseForm, ModelForm
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.views.generic.detail import SingleObjectMixin
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core import models
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
+from creme.creme_core.models import CustomFormConfigItem
 
 from . import base
 
@@ -96,7 +98,24 @@ class CremeWizardView(base.PermissionsMixin,
                     fields = ()
 
                 def __new__(inner_cls, *inner_args, **inner_kwargs):
-                    return descriptor.build_form_class()(*inner_args, **inner_kwargs)
+                    # return descriptor.build_form_class()(*inner_args, **inner_kwargs)
+                    try:
+                        form_cls = descriptor.build_form_class(
+                            item=CustomFormConfigItem.objects.get_for_user(
+                                descriptor=descriptor,
+                                user=inner_kwargs['user'],
+                            ),
+                        )
+                    except CustomFormConfigItem.DoesNotExist as e:
+                        # TODO: unit test
+                        raise Http404(
+                            gettext(
+                                'No default form has been created in DataBase for the '
+                                'model «{model}». Contact your administrator.'
+                            ).format(model=descriptor.model._meta.verbose_name)
+                        ) from e
+
+                    return form_cls(*inner_args, **inner_kwargs)
 
             return _CustomFormProxy
 

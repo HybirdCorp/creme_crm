@@ -43,7 +43,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.bricks import Brick, brick_registry
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
-from creme.creme_core.models import CremeEntity
+from creme.creme_core.models import CremeEntity, CustomFormConfigItem
 from creme.creme_core.utils.content_type import get_ctype_or_404
 
 from ..utils import build_cancel_path
@@ -298,11 +298,25 @@ class CustomFormMixin:
     """Mixin for form-views which want to retrieve their form class as a
     classical class, or from a CustomFormDescriptor.
     """
-    @staticmethod
-    def get_custom_form_class(form_class):
+    # @staticmethod
+    # def get_custom_form_class(form_class):
+    def get_custom_form_class(self, form_class):
         if isinstance(form_class, CustomFormDescriptor):
             # TODO: raise 404 if invalid item ID ????
-            return form_class.build_form_class()
+            # return form_class.build_form_class()
+            try:
+                return form_class.build_form_class(
+                    item=CustomFormConfigItem.objects.get_for_user(
+                        descriptor=form_class, user=self.request.user,
+                    ),
+                )
+            except CustomFormConfigItem.DoesNotExist as e:
+                raise Http404(
+                    gettext(
+                        'No default form has been created in DataBase for the '
+                        'model «{model}». Contact your administrator.'
+                    ).format(model=form_class.model._meta.verbose_name)
+                ) from e
 
         return form_class
 

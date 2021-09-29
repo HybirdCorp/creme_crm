@@ -18,13 +18,16 @@ class RecurrentsAppTestCase(CremeTestCase):
         ))
 
     def test_registry(self):
+        user = self.create_user()
         get_ct = ContentType.objects.get_for_model
 
         registry = RecurrentRegistry()
         self.assertFalse([*registry.ctypes])
         self.assertFalse([*registry.models])
-        self.assertIsNone(registry.get_form_of_template(get_ct(FakeRecurrentDoc)))
-        self.assertIsNone(registry.get_template_form_class(FakeRecurrentDoc))
+        # self.assertIsNone(registry.get_form_of_template(get_ct(FakeRecurrentDoc)))
+        self.assertIsNone(
+            registry.get_template_form_class(model=FakeRecurrentDoc, user=user)
+        )
 
         class FakeRecurrentTemplateForm(CremeEntityForm):
             class Meta(CremeEntityForm.Meta):
@@ -35,13 +38,13 @@ class RecurrentsAppTestCase(CremeTestCase):
         )
         self.assertListEqual([get_ct(FakeRecurrentDoc)], [*registry.ctypes])
         self.assertListEqual([FakeRecurrentDoc], [*registry.models])
+        # self.assertEqual(
+        #     FakeRecurrentTemplateForm,
+        #     registry.get_form_of_template(get_ct(FakeRecurrentDoc)),
+        # )
         self.assertEqual(
             FakeRecurrentTemplateForm,
-            registry.get_form_of_template(get_ct(FakeRecurrentDoc)),
-        )
-        self.assertEqual(
-            FakeRecurrentTemplateForm,
-            registry.get_template_form_class(FakeRecurrentDoc),
+            registry.get_template_form_class(model=FakeRecurrentDoc, user=user),
         )
 
     # TODO: test with CustomForm

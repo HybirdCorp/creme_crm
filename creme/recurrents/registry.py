@@ -26,6 +26,7 @@ from django.db.models import Model
 from django.forms import ModelForm
 
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
+from creme.creme_core.models import CustomFormConfigItem
 from creme.creme_core.utils.imports import import_apps_sub_modules
 
 # class TemplateRecurrentRegistry:
@@ -102,34 +103,31 @@ class RecurrentRegistry:
         """Get the models which can be generated recurrently."""
         yield from self._template_forms.keys()
 
-    def get_form_of_template(self, ct_template: ContentType) -> Optional[Type[ModelForm]]:
-        "Get the form class from the ContentType of a template model."
-        # model = ct_template.model_class()
-        #
-        # for app_registry in self._apps.values():
-        #     for template_entry in app_registry:
-        #         if template_entry.model == model:
-        #             form_class = template_entry.template_form
-        #
-        #             return (
-        #                 form_class.build_form_class()
-        #                 if isinstance(form_class, CustomFormDescriptor) else
-        #                 form_class
-        #             )
-        warnings.warn(
-            'The method RecurrentRegistry.get_form_of_template() is deprecated ; '
-            'use get_template_form_class() instead.',
-            DeprecationWarning,
-        )
+    # def get_form_of_template(self, ct_template: ContentType) -> Optional[Type[ModelForm]]:
+    #     "Get the form class from the ContentType of a template model."
+    #     model = ct_template.model_class()
+    #
+    #     for app_registry in self._apps.values():
+    #         for template_entry in app_registry:
+    #             if template_entry.model == model:
+    #                 form_class = template_entry.template_form
+    #
+    #                 return (
+    #                     form_class.build_form_class()
+    #                     if isinstance(form_class, CustomFormDescriptor) else
+    #                     form_class
+    #                 )
 
-        return self.get_template_form_class(ct_template.model_class())
-
-    def get_template_form_class(self, model: Type[Model]) -> Optional[Type[ModelForm]]:
+    def get_template_form_class(self, *, model: Type[Model], user) -> Optional[Type[ModelForm]]:
         """Get the form class (for a template model) related to a given model."""
         form_class = self._template_forms.get(model)
         if form_class:
             return (
-                form_class.build_form_class()
+                form_class.build_form_class(
+                    item=CustomFormConfigItem.objects.get_for_user(
+                        descriptor=form_class, user=user,
+                    ),
+                )
                 if isinstance(form_class, CustomFormDescriptor) else
                 form_class
             )

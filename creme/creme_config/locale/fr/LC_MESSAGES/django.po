@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-07 14:46+0200\n"
+"POT-Creation-Date: 2021-10-13 12:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -42,6 +42,16 @@ msgstr "Champ personnalisé obligatoire manquant : {}"
 
 msgid "Missing required special field: {}"
 msgstr "Champ spécial obligatoire manquant : {}"
+
+msgid "Form for super-user"
+msgstr "Formulaire pour super-utilisateur"
+
+#, python-brace-format
+msgid "Form for role «{role}»"
+msgstr "Formulaire pour le rôle «{role}»"
+
+msgid "Default form"
+msgstr "Formulaire par défaut"
 
 msgid "Users"
 msgstr "Utilisateurs"
@@ -248,6 +258,10 @@ msgid "The filter with id=\"{id}\" already exists."
 msgstr "Le filtre avec id=\"{id}\" existe déjà."
 
 #, python-brace-format
+msgid "custom-form with id=\"{id}\""
+msgstr "formulaire personnalisé avec id=\"{id}\""
+
+#, python-brace-format
 msgid "block for relation-type id=\"{id}\""
 msgstr "bloc pour le type de relation id=\"{id}\""
 
@@ -396,6 +410,16 @@ msgstr "Groupe"
 
 msgid "Sorry no extra group is available any more."
 msgstr "Désolé il n'y a plus aucun groupe spécial de disponible."
+
+msgid "Form to copy"
+msgstr "Formulaire à copier"
+
+msgid ""
+"You can copy an existing form in order to avoid creating your new form from "
+"scratch."
+msgstr ""
+"Vous pouvez copier un formulaire existant pour éviter de créer votre nouveau "
+"formulaire depuis zéro."
 
 msgid "Create a choice"
 msgstr "Créer un choix"
@@ -1083,6 +1107,9 @@ msgstr "Cacher les détails"
 
 msgid "Drag and drop the groups to order them."
 msgstr "Glissez-déposez les groupes pour les réordonner."
+
+msgid "Add a form for a role"
+msgstr "Ajouter un formulaire pour un rôle"
 
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"
@@ -2134,6 +2161,10 @@ msgid "A deletion process for a choice already exists."
 msgstr "Il y a déjà un processus de suppression pour un choix."
 
 #, python-brace-format
+msgid "Add a configuration to «{descriptor.verbose_name}» for a role"
+msgstr "Ajouter une configuration à «{descriptor.verbose_name}» pour un rôle"
+
+#, python-brace-format
 msgid "Add a group to «{form}»"
 msgstr "Ajouter un groupe à «{form}»"
 
@@ -2457,9 +2488,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "Portal"
 #~ msgstr "Portail"
-
-#~ msgid "Default"
-#~ msgstr "Par défaut"
 
 #~ msgid "Login"
 #~ msgstr "Nom d'utilisateur"

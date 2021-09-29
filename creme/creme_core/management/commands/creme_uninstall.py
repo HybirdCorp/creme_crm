@@ -210,7 +210,8 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
 @uninstall_handler('Deleting custom forms...')
 def _uninstall_custom_forms(sender, **kwargs):
     CustomFormConfigItem.objects.filter(
-        cform_id__startswith=f'{sender.label}-',
+        # cform_id__startswith=f'{sender.label}-',
+        descriptor_id__startswith=f'{sender.label}-',
     ).delete()
 
 

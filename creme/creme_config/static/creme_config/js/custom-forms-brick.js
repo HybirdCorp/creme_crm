@@ -39,13 +39,16 @@ creme.FormGroupsController = creme.component.Component.sub({
              .post(state);
     },
 
-    _toggleItem: function(item, state) {
+    // TODO: rename argument item
+//    _toggleItem: function(item, state) {
+    _toggleCType: function(item, state) {
         if (state === undefined) {
             state = !item.is('.customform-config-collapsed');
         }
 
         // collapse all other items
-        this.items().addClass('customform-config-collapsed');
+//        this.items().addClass('customform-config-collapsed');
+        this.ctypes().addClass('customform-config-collapsed');
 
         // toggle item state
         item.toggleClass('customform-config-collapsed', !state);
@@ -56,16 +59,21 @@ creme.FormGroupsController = creme.component.Component.sub({
         }
     },
 
-    items: function() {
+//    items: function() {
+    ctypes: function() {
         Assert.that(this.isBound(), 'FormGroupsController is not bound');
-        return this._brick.element().find('.customform-config-item');
+//        return this._brick.element().find('.customform-config-item');
+        return this._brick.element().find('.customform-config-ctype');
     },
 
-    item: function(id) {
+    // Only used by unit tests
+//    item: function(id) {
+    ctype: function(id) {
         Assert.that(this.isBound(), 'FormGroupsController is not bound');
         return this._brick.element()
                           .find('.customform-config-show-details[data-ct-id="${id}"]:first'.template({id: id}))
-                          .parents('.customform-config-item:first');
+//                          .parents('.customform-config-item:first');
+                          .parents('.customform-config-ctype:first');
     },
 
     bind: function(brick) {
@@ -73,7 +81,8 @@ creme.FormGroupsController = creme.component.Component.sub({
 
         this._brick = brick;
 
-        var toggleItem = this._toggleItem.bind(this);
+//        var toggleItem = this._toggleItem.bind(this);
+        var toggleCType = this._toggleCType.bind(this);
         var saveState = this._saveState.bind(this);
         var element = brick.element();
 
@@ -92,13 +101,15 @@ creme.FormGroupsController = creme.component.Component.sub({
 
         element.on('click', '.customform-config-show-details', function(e) {
             e.preventDefault();
-            toggleItem($(this).parents('.customform-config-item:first'), true);
+//            toggleItem($(this).parents('.customform-config-item:first'), true);
+            toggleCType($(this).parents('.customform-config-ctype:first'), true);
             saveState({ct_id: $(this).data('ct-id')});
         });
 
         element.on('click', '.customform-config-hide-details', function(e) {
             e.preventDefault();
-            toggleItem($(this).parents('.customform-config-item:first'), false);
+//            toggleItem($(this).parents('.customform-config-item:first'), false);
+            toggleCType($(this).parents('.customform-config-ctype:first'), false);
             saveState({ct_id: '0'});
         });
 

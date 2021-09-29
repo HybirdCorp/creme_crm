@@ -35,7 +35,11 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
-from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
+from creme.creme_core.forms import (
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
+    LAYOUT_REGULAR,
+)
 from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
@@ -50,6 +54,7 @@ from creme.creme_core.models import (
     CremePropertyType,
     CustomBrickConfigItem,
     CustomField,
+    CustomFormConfigItem,
     EntityFilter,
     EntityFilterCondition,
     FakeActivity,
@@ -74,6 +79,7 @@ from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
 class ImportingTestCase(CremeTestCase):
     URL = reverse('creme_config__transfer_import')
+    VERSION = '1.2'
 
     def test_creds(self):
         "Not staff."
@@ -272,7 +278,7 @@ class ImportingTestCase(CremeTestCase):
         name = 'Role#1'
         data = {
             # 'version': '1.0',
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': name,
 
@@ -384,7 +390,7 @@ class ImportingTestCase(CremeTestCase):
 
         data = {
             # 'version': '1.0',
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': role.name,
 
@@ -445,7 +451,7 @@ class ImportingTestCase(CremeTestCase):
         role_name = 'Lover users'
 
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': role_name,
 
@@ -533,7 +539,7 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
         efilter_id = 'creme_config-test_import_role_error'
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': 'Lover users',
 
@@ -588,7 +594,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'menu': menu_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'menu': menu_data}))
         json_file.name = 'config-26-04-2021.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -646,7 +652,7 @@ class ImportingTestCase(CremeTestCase):
             {'order': 2, 'button_id': gen_bid(6), 'ctype': ct_str},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'buttons': buttons_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'buttons': buttons_data}))
         json_file.name = 'config-25-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -701,7 +707,7 @@ class ImportingTestCase(CremeTestCase):
 
         # json_file = StringIO(json_dump({'version': '1.0', 'search': search_data}))
         json_file = StringIO(json_dump({
-            'version': '1.1',
+            'version': self.VERSION,
             'search': search_data,
             'custom_fields': [
                 {
@@ -745,7 +751,7 @@ class ImportingTestCase(CremeTestCase):
         )
 
     def test_search02(self):
-        "Related role is imported"
+        "Related role is imported."
         self.login(is_staff=True)
 
         role_name = 'Super-hero'
@@ -762,7 +768,7 @@ class ImportingTestCase(CremeTestCase):
         ]
         data = {
             # 'version': '1.0',
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': role_name,
 
@@ -824,7 +830,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'property_types': ptypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
         json_file.name = 'config-25-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -853,7 +859,7 @@ class ImportingTestCase(CremeTestCase):
             {'id': pk, 'text': 'Is funny',     'is_copiable': False},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'property_types': ptypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
         json_file.name = 'config-25-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -871,7 +877,7 @@ class ImportingTestCase(CremeTestCase):
         )
 
         ptypes_data = [{'id': ptype.id, 'text': 'Is important', 'is_copiable': True}]
-        json_file = StringIO(json_dump({'version': '1.1', 'property_types': ptypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'property_types': ptypes_data}))
         json_file.name = 'config-25-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -928,7 +934,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'relation_types': rtypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'relation_types': rtypes_data}))
         json_file.name = 'config-26-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -992,7 +998,7 @@ class ImportingTestCase(CremeTestCase):
             },
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'relation_types': rtypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'relation_types': rtypes_data}))
         json_file.name = 'config-26-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1016,7 +1022,7 @@ class ImportingTestCase(CremeTestCase):
             },
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'relation_types': rtypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'relation_types': rtypes_data}))
         json_file.name = 'config-26-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1043,7 +1049,7 @@ class ImportingTestCase(CremeTestCase):
             },
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'relation_types': rtypes_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'relation_types': rtypes_data}))
         json_file.name = 'config-30-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1076,7 +1082,7 @@ class ImportingTestCase(CremeTestCase):
             },
         }]
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'property_types': [
                 {'id': ptype2_id, 'text': 'Is important', 'is_copiable': True},
             ],
@@ -1112,7 +1118,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'fields_config': fconfs_data,
         }
 
@@ -1147,7 +1153,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'fields_config': fconfs_data,
         }
 
@@ -1189,7 +1195,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'custom_fields': cfields_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_fields': cfields_data}))
         json_file.name = 'config-27-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -1235,7 +1241,7 @@ class ImportingTestCase(CremeTestCase):
             'name': 'Rating', 'type': unknown_cfield_type,
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'custom_fields': cfields_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_fields': cfields_data}))
         json_file.name = 'config-27-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1259,7 +1265,7 @@ class ImportingTestCase(CremeTestCase):
             'name': name, 'type': CustomField.INT,
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'custom_fields': cfields_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_fields': cfields_data}))
         json_file.name = 'config-01-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1283,7 +1289,7 @@ class ImportingTestCase(CremeTestCase):
             'name': 'Rank', 'type': CustomField.INT,
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'custom_fields': cfields_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_fields': cfields_data}))
         json_file.name = 'config-06-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1340,7 +1346,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-27-10-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -1410,7 +1416,7 @@ class ImportingTestCase(CremeTestCase):
             'cells': [],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-27-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1440,7 +1446,7 @@ class ImportingTestCase(CremeTestCase):
             ],
         }
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'relation_types': [
                 {
                     'id':              rtype_id1,
@@ -1511,7 +1517,7 @@ class ImportingTestCase(CremeTestCase):
             ],
         }
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'custom_fields': [
                 {
                     'uuid': cf_uuid, 'ctype': ct_str,
@@ -1554,7 +1560,7 @@ class ImportingTestCase(CremeTestCase):
         cell_type = 'invalid'
         hf_id = 'creme_config-test_import_headerfilters_error01'
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'header_filters': [{
                 'id':    hf_id,
                 'name':  'Contact view',
@@ -1589,7 +1595,7 @@ class ImportingTestCase(CremeTestCase):
             'cells': [EntityCellRegularField.build(FakeOrganisation, fname).to_dict()],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-27-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1616,7 +1622,7 @@ class ImportingTestCase(CremeTestCase):
             'cells': [{'type': EntityCellCustomField.type_id,  'value': cf_uuid}],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-06-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1646,7 +1652,7 @@ class ImportingTestCase(CremeTestCase):
             ],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-01-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1676,7 +1682,7 @@ class ImportingTestCase(CremeTestCase):
             ],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'header_filters': hfilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'header_filters': hfilters_data}))
         json_file.name = 'config-01-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -1816,7 +1822,7 @@ class ImportingTestCase(CremeTestCase):
         ]
 
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'entity_filters': efilters_data,
             'custom_fields':  [
                 {
@@ -2037,7 +2043,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-28-10-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2109,7 +2115,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2197,7 +2203,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2246,7 +2252,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-06-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2272,7 +2278,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2299,7 +2305,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2330,7 +2336,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2363,7 +2369,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2393,7 +2399,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2423,7 +2429,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
@@ -2451,7 +2457,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2489,7 +2495,7 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2538,7 +2544,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2556,30 +2562,103 @@ class ImportingTestCase(CremeTestCase):
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938d6'
 
+        role_name = 'Super-hero'
         gname1 = 'Main'
+        gname2 = 'General'
+        gname3 = 'Info'
         data = {
-            'version': '1.1',
-            'custom_forms': [{
-                'id': desc.id,
-                'groups': [
+            'version': self.VERSION,
+            # 'custom_forms': [{
+            #     'id': desc.id,
+            #     'groups': [
+            #         {
+            #             'name': gname1,
+            #             'layout': LAYOUT_DUAL_FIRST,
+            #             'cells': [
+            #                 {'type': EntityCellRegularField.type_id, 'value': 'user'},
+            #                 {'type': EntityCellRegularField.type_id, 'value': 'name'},
+            #                 {'type': EntityCellCustomField.type_id, 'value': cf_uuid},
+            #                 {
+            #                     'type': EntityCellCustomFormSpecial.type_id,
+            #                     'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+            #                 },
+            #             ],
+            #         }, {
+            #             'group_id': FakeAddressGroup.extra_group_id,
+            #             'layout': LAYOUT_DUAL_SECOND,
+            #         },
+            #     ],
+            # }],
+            'roles': [{
+                'name': role_name,
+
+                'allowed_apps': ['persons'],
+                'admin_4_apps': [],
+
+                'creatable_ctypes':  ['creme_core.fakecontact'],
+                'exportable_ctypes': [],
+
+                'credentials': [
                     {
-                        'name': gname1,
-                        'layout': LAYOUT_DUAL_FIRST,
-                        'cells': [
-                            {'type': EntityCellRegularField.type_id, 'value': 'user'},
-                            {'type': EntityCellRegularField.type_id, 'value': 'name'},
-                            {'type': EntityCellCustomField.type_id, 'value': cf_uuid},
-                            {
-                                'type': EntityCellCustomFormSpecial.type_id,
-                                'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
-                            },
-                        ],
-                    }, {
-                        'group_id': FakeAddressGroup.extra_group_id,
-                        'layout': LAYOUT_DUAL_SECOND,
+                        'value': (
+                            EntityCredentials.VIEW
+                            | EntityCredentials.CHANGE
+                            | EntityCredentials.DELETE
+                        ),
+                        'type':  SetCredentials.ESET_ALL,
                     },
                 ],
             }],
+            'custom_forms': [
+                {
+                    'descriptor': desc.id,
+                    'groups': [
+                        {
+                            'name': gname1,
+                            'layout': LAYOUT_DUAL_FIRST,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                                {'type': EntityCellCustomField.type_id, 'value': cf_uuid},
+                                {
+                                    'type': EntityCellCustomFormSpecial.type_id,
+                                    'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+                                },
+                            ],
+                        }, {
+                            'group_id': FakeAddressGroup.extra_group_id,
+                            'layout': LAYOUT_DUAL_SECOND,
+                        },
+                    ],
+                }, {
+                    'descriptor': desc.id,
+                    'superuser': True,
+                    'groups': [
+                        {
+                            'name': gname2,
+                            'layout': LAYOUT_REGULAR,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            ],
+                        },
+                    ],
+                }, {
+                    'descriptor': desc.id,
+                    'role': role_name,
+                    'groups': [
+                        {
+                            'name': gname3,
+                            'layout': LAYOUT_DUAL_FIRST,
+                            'cells': [
+                                {'type': EntityCellRegularField.type_id, 'value': 'user'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                                {'type': EntityCellRegularField.type_id, 'value': 'phone'},
+                            ],
+                        },
+                    ],
+                }
+            ],
             'custom_fields': [
                 {
                     'uuid': cf_uuid, 'ctype': 'creme_core.fakeorganisation',
@@ -2596,12 +2675,40 @@ class ImportingTestCase(CremeTestCase):
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
-        groups = desc.groups()
-        self.assertEqual(2, len(groups))
+        # groups = desc.groups()
+        # self.assertEqual(2, len(groups))
+        #
+        # group1 = groups[0]
+        # self.assertEqual(gname1, group1.name)
+        # self.assertEqual(LAYOUT_DUAL_FIRST, group1.layout)
+        #
+        # self.assertListEqual(
+        #     [
+        #         EntityCellRegularField.build(model=FakeOrganisation, name='user'),
+        #         EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+        #         EntityCellCustomField(cfield),
+        #         EntityCellCustomFormSpecial(
+        #             model=FakeOrganisation,
+        #             name=EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
+        #         ),
+        #     ],
+        #     [*group1.cells],
+        # )
+        #
+        # group2 = groups[1]
+        # self.assertIsInstance(group2, FakeAddressGroup)
+        # self.assertEqual(LAYOUT_DUAL_SECOND, group2.layout)
+        cfci01 = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=desc.id, role=None, superuser=False,
+        )
 
-        group1 = groups[0]
-        self.assertEqual(gname1,            group1.name)
-        self.assertEqual(LAYOUT_DUAL_FIRST, group1.layout)
+        groups1 = desc.groups(cfci01)
+        self.assertEqual(2, len(groups1), groups1)
+
+        group11 = groups1[0]
+        self.assertEqual(gname1,            group11.name)
+        self.assertEqual(LAYOUT_DUAL_FIRST, group11.layout)
 
         self.assertListEqual(
             [
@@ -2613,29 +2720,59 @@ class ImportingTestCase(CremeTestCase):
                     name=EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
                 ),
             ],
-            [*group1.cells],
+            [*group11.cells],
         )
 
-        group2 = groups[1]
-        self.assertIsInstance(group2, FakeAddressGroup)
-        self.assertEqual(LAYOUT_DUAL_SECOND, group2.layout)
+        group21 = groups1[1]
+        self.assertIsInstance(group21, FakeAddressGroup)
+        self.assertEqual(LAYOUT_DUAL_SECOND, group21.layout)
+
+        # ---
+        cfci02 = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=desc.id, role=None, superuser=True,
+        )
+
+        groups2 = desc.groups(cfci02)
+        self.assertEqual(1, len(groups2))
+
+        group21 = groups2[0]
+        self.assertEqual(gname2,         group21.name)
+        self.assertEqual(LAYOUT_REGULAR, group21.layout)
+        self.assertListEqual(
+            [
+                EntityCellRegularField.build(model=FakeOrganisation, name='user'),
+                EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+            ],
+            [*group21.cells],
+        )
+
+        # ---
+        role = self.get_object_or_fail(UserRole, name=role_name)
+        self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=desc.id, role=role, superuser=False,
+        )
 
     def test_customforms_error(self):
         self.login(is_staff=True)
 
-        cform_id = 'INVALID'
+        # cform_id = 'INVALID'
+        descriptor_id = 'INVALID'
         cforms_data = [{
-            'id': cform_id,
+            # 'id': cform_id,
+            'descriptor': descriptor_id,
             'groups': [],
         }]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'custom_forms': cforms_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'custom_forms': cforms_data}))
         json_file.name = 'config-14-12-2020.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            f'The custom-form ID is invalid: {cform_id}'
+            # f'The custom-form ID is invalid: {cform_id}',
+            f"The custom-form descriptor ID is invalid: {descriptor_id}",
         )
 
     def test_relation_bricks(self):
@@ -2713,7 +2850,7 @@ class ImportingTestCase(CremeTestCase):
         ]
 
         json_file = StringIO(json_dump({
-            'version': '1.1',
+            'version': self.VERSION,
             'rtype_bricks': rbi_data,
             'relation_types': rtypes_data,
             'custom_fields': cfields_data,
@@ -2785,7 +2922,7 @@ class ImportingTestCase(CremeTestCase):
         ]
 
         json_file = StringIO(json_dump({
-            'version': '1.1',
+            'version': self.VERSION,
             'custom_bricks': cbci_data,
             'custom_fields': cfields_data,
         }))
@@ -2870,7 +3007,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'detail_bricks': bricks_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'detail_bricks': bricks_data}))
         json_file.name = 'config-24-10-2017.csv'  # Django uses this
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -2982,7 +3119,7 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': role_name,
 
@@ -3038,7 +3175,7 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.StatisticsBrick.id_, 'order': 15},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'home_bricks': bricks_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
         json_file.name = 'config-24-10-2017.csv'  # Django uses this
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -3061,7 +3198,7 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.StatisticsBrick.id_, 'order': 15, 'role': role.name},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'home_bricks': bricks_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
         json_file.name = 'config-02-03-2020.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -3085,7 +3222,7 @@ class ImportingTestCase(CremeTestCase):
         ]
 
         data = {
-            'version': '1.1',
+            'version': self.VERSION,
             'roles': [{
                 'name': role_name,
 
@@ -3131,7 +3268,7 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.StatisticsBrick.id_, 'order': 15, 'superuser': True},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'home_bricks': bricks_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'home_bricks': bricks_data}))
         json_file.name = 'config-02-03-2020.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
@@ -3155,7 +3292,7 @@ class ImportingTestCase(CremeTestCase):
             {'id': bricks.StatisticsBrick.id_, 'order': 15},
         ]
 
-        json_file = StringIO(json_dump({'version': '1.1', 'mypage_bricks': bricks_data}))
+        json_file = StringIO(json_dump({'version': self.VERSION, 'mypage_bricks': bricks_data}))
         json_file.name = 'config-24-10-2017.csv'  # Django uses this
 
         response = self.client.post(self.URL, data={'config': json_file})
