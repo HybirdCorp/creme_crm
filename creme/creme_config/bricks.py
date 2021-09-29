@@ -381,13 +381,30 @@ class CustomFormsBrick(PaginatedBrick):
     def get_ctype_descriptors(self, user, expanded_ctype_id):
         get_ct = ContentType.objects.get_for_model
 
-        class _ExtendedDescriptor:
-            def __init__(this, descriptor, item):
-                this.id = descriptor.id
-                this.verbose_name = descriptor.verbose_name
-                this.groups = descriptor.groups(item)
+        # class _ExtendedDescriptor:
+        class _ExtendedConfigItem:
+            # def __init__(this, descriptor, item):
+            def __init__(this, *, item, descriptor):
                 this._descriptor = descriptor
                 this._item = item
+                this.groups = descriptor.groups(item)
+                # this.id = descriptor.id
+                this.id = item.id
+
+                # this.verbose_name = descriptor.verbose_name
+                # TODO: factorise with CustomFormConfigItemChoiceField
+                if item.superuser:
+                    this.verbose_name = _('Form for super-user')
+                elif item.role:
+                    this.verbose_name = gettext('Form for role «{role}»').format(role=item.role)
+                else:
+                    this.verbose_name = _('Default form')
+
+            @property
+            def can_be_deleted(self):
+                item = self._item
+
+                return item.superuser or item.role_id
 
             @property
             def has_extra_groups(this):
@@ -421,25 +438,63 @@ class CustomFormsBrick(PaginatedBrick):
 
                 return errors
 
+        class _ExtendedDescriptor:
+            def __init__(this, *, descriptor, items):
+                this.id = descriptor.id
+                this.verbose_name = descriptor.verbose_name
+                this.items = sorted(
+                    (
+                        _ExtendedConfigItem(item=item, descriptor=descriptor)
+                        for item in items
+                    ),
+                    key=this._item_sort_key,
+                )
+
+            @staticmethod
+            def _item_sort_key(ext_item):
+                item = ext_item._item
+
+                if item.superuser:
+                    return 1, ''
+
+                if item.role:
+                    return 2, item.role.name
+
+                return 0, ''
+
         desc_per_model = defaultdict(list)
         for desc in self.registry:
             desc_per_model[desc.model].append(desc)
 
-        items = CustomFormConfigItem.objects.in_bulk(
-            descriptor.id
-            for descriptors in desc_per_model.values()
-            for descriptor in descriptors
-        )
+        # items = CustomFormConfigItem.objects.in_bulk(
+        #     descriptor.id
+        #     for descriptors in desc_per_model.values()
+        #     for descriptor in descriptors
+        # )
+        items_per_desc = defaultdict(list)
+        for cfci in CustomFormConfigItem.objects.filter(
+            descriptor_id__in=[
+                descriptor.id
+                for descriptors in desc_per_model.values()
+                for descriptor in descriptors
+            ],
+        ).select_related('role'):
+            items_per_desc[cfci.descriptor_id].append(cfci)
 
         class _ContentTypeWrapper:
             __slots__ = ('ctype', 'descriptors', 'collapsed')
 
             def __init__(this, model, descriptors):
                 this.ctype = ctype = get_ct(model)
-                # TODO: manage item not created ?
+                # TODO: manage default item not created?
+                # this.descriptors = [
+                #     _ExtendedDescriptor(descriptor=desc, item=items[desc.id])
+                #     for desc in descriptors
+                # ]
                 this.descriptors = [
-                    _ExtendedDescriptor(descriptor=desc, item=items[desc.id])
-                    for desc in descriptors
+                    _ExtendedDescriptor(
+                        descriptor=descriptor, items=items_per_desc[descriptor.id],
+                    ) for descriptor in descriptors
                 ]
                 this.collapsed = (expanded_ctype_id != ctype.id)
 
@@ -465,6 +520,9 @@ class CustomFormsBrick(PaginatedBrick):
             LAYOUT_REGULAR=base_forms.LAYOUT_REGULAR,
             LAYOUT_DUAL_FIRST=base_forms.LAYOUT_DUAL_FIRST,
             LAYOUT_DUAL_SECOND=base_forms.LAYOUT_DUAL_SECOND,
+
+            # NB: '+ 2' is for default config + super-users config.
+            max_conf_count=UserRole.objects.count() + 2,
         ))
 
 

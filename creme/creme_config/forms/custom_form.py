@@ -19,6 +19,7 @@
 ################################################################################
 
 from django import forms
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
@@ -36,7 +37,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
     base_cell_registry,
 )
-from creme.creme_core.models import CustomFormConfigItem
+from creme.creme_core.models import CustomFormConfigItem, UserRole
 
 
 class FieldIgnoringBase:
@@ -329,6 +330,84 @@ class CustomFormExtraGroupCreationForm(CremeModelForm):
                 extra_group_class(model=model),
             ],
         ))
+
+        return super().save(*args, **kwargs)
+
+
+class CustomFormConfigItemChoiceField(forms.ModelChoiceField):
+    def __init__(self, queryset=CustomFormConfigItem.objects.none(), **kwargs):
+        super().__init__(queryset=queryset, **kwargs)
+
+    def label_from_instance(self, obj):
+        if obj.superuser:
+            return _('Form for super-user')
+
+        if obj.role:
+            return gettext('Form for role «{role}»').format(role=obj.role)
+
+        return _('Default form')
+
+
+class CustomFormCreationForm(CremeModelForm):
+    role = forms.ModelChoiceField(
+        label=_('Role'),
+        queryset=UserRole.objects.none(),
+        empty_label=None, required=False,
+    )
+    instance_to_copy = CustomFormConfigItemChoiceField(
+        label=_('Form to copy'),
+        help_text=_(
+            'You can copy an existing form in order to avoid creating your new form from scratch.'
+        ),
+        required=False,
+    )
+
+    class Meta:
+        model = CustomFormConfigItem
+        fields = ('role',)
+
+    def __init__(self, descriptor, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        instance = self.instance
+        instance.descriptor_id = descriptor.id
+        instance.content_type = descriptor.model
+        instance.store_groups([])  # TODO: remove when JSONField with default
+
+        fields = self.fields
+        item_model = type(instance)
+
+        # ---
+        role_f = fields['role']
+        used_role_ids = {
+            *item_model.objects
+                       .filter(descriptor_id=instance.descriptor_id)
+                       .exclude(role__isnull=True, superuser=False)
+                       .values_list('role', flat=True),
+        }
+
+        try:
+            used_role_ids.remove(None)
+        except KeyError:
+            # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))
+
+        role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+        # ---
+        # TODO: do only one query (see used_role_ids) (convert ModelChoiceField to ChoiceField?)
+        fields['instance_to_copy'].queryset = item_model.objects.filter(
+            descriptor_id=instance.descriptor_id,
+        ).select_related('role')
+
+    def save(self, *args, **kwargs):
+        c_data = self.cleaned_data
+        instance = self.instance
+
+        instance.superuser = (c_data['role'] is None)
+
+        instance_to_copy = c_data.get('instance_to_copy')
+        if instance_to_copy is not None:
+            instance.json_groups = instance_to_copy.json_groups
 
         return super().save(*args, **kwargs)
 

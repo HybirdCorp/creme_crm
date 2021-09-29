@@ -57,17 +57,21 @@ class Portal(generic.BricksView):
 class CustomFormMixin:
     cform_registry = customform_descriptor_registry
     group_id_url_kwarg = 'group_id'
-    cfci_pk_url_kwarg = 'form_id'
+    # cfci_pk_url_kwarg = 'form_id'
+    cfci_pk_url_kwarg = 'item_id'
 
     def get_customform_descriptor(self):
         try:
             desc = getattr(self, 'descriptor')
         except AttributeError:
-            cform_id = self.object.cform_id
-            desc = self.cform_registry.get(cform_id)
+            # cform_id = self.object.cform_id
+            descriptor_id = self.object.descriptor_id
+            # desc = self.cform_registry.get(cform_id)
+            desc = self.cform_registry.get(descriptor_id)
 
             if desc is None:
-                raise ConflictError(f'The custom form "{cform_id}" is invalid.')
+                # raise ConflictError(f'The custom form "{cform_id}" is invalid.')
+                raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
 
             self.descriptor = desc
 
@@ -92,13 +96,68 @@ class CustomFormMixin:
     def get_cfci_for_update(self):
         return get_object_or_404(
             CustomFormConfigItem.objects.select_for_update(),
-            cform_id=self.kwargs[self.cfci_pk_url_kwarg],
+            # cform_id=self.kwargs[self.cfci_pk_url_kwarg],
+            id=self.kwargs[self.cfci_pk_url_kwarg],
         )
+
+
+class CustomFormCreation(base.ConfigModelCreation):
+    model = CustomFormConfigItem
+    form_class = forms.CustomFormCreationForm
+    desc_id_url_kwarg = 'desc_id'
+    title = _('Add a configuration to «{descriptor.verbose_name}» for a role')
+    cform_registry = customform_descriptor_registry
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.descriptor = None
+
+    def get_customform_descriptor(self):
+        desc = self.descriptor
+        if desc is None:
+            descriptor_id = self.kwargs[self.desc_id_url_kwarg]
+            desc = self.cform_registry.get(descriptor_id)
+
+            if desc is None:
+                raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
+
+            self.descriptor = desc
+
+        return desc
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['descriptor'] = self.get_customform_descriptor()
+
+        return kwargs
+
+    def get_title_format_data(self):
+        data = super().get_title_format_data()
+        data['descriptor'] = self.get_customform_descriptor()
+
+        return data
+
+
+class CustomFormBrickDeletion(base.ConfigDeletion):
+    id_arg = 'id'
+    model = CustomFormConfigItem
+
+    def perform_deletion(self, request):
+        cfci = get_object_or_404(
+            self.model,
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        )
+
+        if not cfci.superuser and not cfci.role_id:
+            raise ConflictError('Cannot delete a default form')
+
+        cfci.delete()
 
 
 class _BaseCustomFormGroupCreation(CustomFormMixin, base.ConfigModelEdition):
     model = CustomFormConfigItem
-    pk_url_kwarg = 'form_id'
+    # pk_url_kwarg = 'form_id'
+    pk_url_kwarg = 'item_id'
     submit_label = _('Save the configuration')
 
     def get_form_kwargs(self):
@@ -136,7 +195,8 @@ class CustomFormExtraGroupCreation(_BaseCustomFormGroupCreation):
 class CustomFormGroupEdition(CustomFormMixin, base.ConfigModelEdition):
     model = CustomFormConfigItem
     form_class = forms.CustomFormGroupEditionForm
-    pk_url_kwarg = 'form_id'
+    # pk_url_kwarg = 'form_id'
+    pk_url_kwarg = 'item_id'
     title = _('Edit the group «{group}»')
     submit_label = _('Save the configuration')
 

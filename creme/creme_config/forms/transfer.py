@@ -77,7 +77,7 @@ class ImportForm(CremeForm):
                 )
 
             # see ..views.transfer.ConfigExport
-            if deserialized_data.get('version') != '1.1':
+            if deserialized_data.get('version') != '1.2':
                 raise ValidationError(
                     self.error_messages['invalid_version'], code='invalid_version',
                 )

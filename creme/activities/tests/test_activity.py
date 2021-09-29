@@ -646,7 +646,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     def test_createview_light_customform(self):
         "Start/end fields are missing."
-        cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
+        # cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
+        cfci = CustomFormConfigItem.objects.get(descriptor_id=ACTIVITY_CREATION_CFORM.id)
         new_groups = FieldGroupList.from_cells(
             model=Activity,
             cell_registry=ACTIVITY_CREATION_CFORM.build_cell_registry(),
@@ -911,7 +912,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         # TODO: improve FieldGroupList API (eg .extend()) ?
         umsg_cell = UserMessagesSubCell(model=Activity).into_cell()
-        cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
+        # cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
+        cfci = CustomFormConfigItem.objects.get(descriptor_id=ACTIVITY_CREATION_CFORM.id)
         old_groups = ACTIVITY_CREATION_CFORM.groups(item=cfci)
         new_groups = FieldGroupList(
             model=old_groups.model,
@@ -2212,7 +2214,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         "Sub-type field is missing."
         user = self.login()
 
-        cfci = CustomFormConfigItem.objects.get(cform_id=UNAVAILABILITY_CREATION_FROM.id)
+        # cfci = CustomFormConfigItem.objects.get(cform_id=UNAVAILABILITY_CREATION_FROM.id)
+        cfci = CustomFormConfigItem.objects.get(descriptor_id=UNAVAILABILITY_CREATION_FROM.id)
         new_groups = FieldGroupList.from_cells(
             model=Activity,
             cell_registry=UNAVAILABILITY_CREATION_FROM.build_cell_registry(),

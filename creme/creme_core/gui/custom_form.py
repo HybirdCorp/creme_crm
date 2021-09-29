@@ -926,22 +926,22 @@ class CustomFormDescriptor:
     def model(self) -> Type[Model]:
         return self._model
 
-    def groups(self, item: Optional[CustomFormConfigItem] = None) -> FieldGroupList:
+    # def groups(self, item: Optional[CustomFormConfigItem] = None) -> FieldGroupList:
+    def groups(self, item: CustomFormConfigItem) -> FieldGroupList:
         """Return a groups list built from the data stored in the related
         CustomFormConfigItem.
-        You can pass the item to avoid an SQL query.
+        REMOVED: You can pass the item to avoid an SQL query.
         """
-        # TODO: cache per request in manager ??
-        item_model = self.item_model
-        try:
-            item = item or item_model.objects.get(cform_id=self.id)
-        except item_model.DoesNotExist:
-            logger.critical(
-                'CustomFormDescriptor.groups(): it seems no instance of %s with '
-                'the id="%s" has been populated.',
-                item_model.__name__, self.id,
-            )
-            raise
+        # item_model = self.item_model
+        # try:
+        #     item = item or item_model.objects.get(cform_id=self.id)
+        # except item_model.DoesNotExist:
+        #     logger.critical(
+        #         'CustomFormDescriptor.groups(): it seems no instance of %s with '
+        #         'the id="%s" has been populated.',
+        #         item_model.__name__, self.id,
+        #     )
+        #     raise
 
         return FieldGroupList.from_dicts(
             model=self.model,
@@ -950,12 +950,13 @@ class CustomFormDescriptor:
             allowed_extra_group_classes=self._extra_groups,
         )
 
-    def build_form_class(self,
-                         item: Optional[CustomFormConfigItem] = None,
-                         ) -> Type[CremeEntityForm]:
+    # def build_form_class(self,
+    #                      item: Optional[CustomFormConfigItem] = None,
+    #                      ) -> Type[CremeEntityForm]:
+    def build_form_class(self, item: CustomFormConfigItem) -> Type[CremeEntityForm]:
         """Return a form class built from the data stored in the related
         CustomFormConfigItem.
-        You can pass the item to avoid an SQL query.
+        REMOVED: You can pass the item to avoid an SQL query.
         """
         return self.groups(item).form_class(
             base_form_class=self.base_form_class,

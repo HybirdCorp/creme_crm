@@ -721,7 +721,8 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
         } if isinstance(group, FieldGroup) else group.as_dict()
 
     def dump_groups(self, item):
-        descriptor = self.cform_registry.get(item.cform_id)
+        # descriptor = self.cform_registry.get(item.cform_id)
+        descriptor = self.cform_registry.get(item.descriptor_id)
 
         return [
             self.dump_group(group)
@@ -736,8 +737,19 @@ class CustomFormsExporter(CellsExporterMixin, Exporter):
     def dump_instance(self, instance):
         assert isinstance(instance, models.CustomFormConfigItem)
 
-        return {
-            'id': instance.cform_id,
-            # 'groups': instance.groups_as_dicts(),
+        # return {
+        #     'id': instance.cform_id,
+        #     # 'groups': instance.groups_as_dicts(),
+        #     'groups': self.dump_groups(instance),
+        # }
+        data = {
+            'descriptor': instance.descriptor_id,
             'groups': self.dump_groups(instance),
         }
+
+        if instance.superuser:
+            data['superuser'] = True
+        elif instance.role:
+            data['role'] = instance.role.name
+
+        return data
