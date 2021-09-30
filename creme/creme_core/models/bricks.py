@@ -127,7 +127,7 @@ class BrickDetailviewLocationManager(models.Manager):
         )
 
     def filter_for_model(self, model: Type[CremeEntity]) -> models.QuerySet:
-        return BrickDetailviewLocation.objects.filter(
+        return self.filter(
             content_type=ContentType.objects.get_for_model(model),
         )
 
