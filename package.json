@@ -4,7 +4,7 @@
     "license": "AGPL-3.0",
     "dependencies": {
         "argparse": "1.0.9",
-        "axios": "^0.21.1",
+        "axios": "^0.21",
         "colors": "^1.4.0",
         "eslint": "7.1.0",
         "eslint-plugin-standard": "4.0.1",
@@ -24,7 +24,7 @@
         "karma-qunit": "1.2.1",
         "minimist": "1.2.5",
         "qunitjs": "1.18.0",
-        "set-value": "~2.0.1",
+        "set-value": "^4",
         "socket.io": "^3",
         "which": "1.2.14",
         "yarn": "1.22.10"
