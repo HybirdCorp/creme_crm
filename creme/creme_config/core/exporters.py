@@ -31,6 +31,11 @@ from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_filter import condition_handler
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.bricks import brick_registry
+from creme.creme_core.gui.custom_form import (
+    FieldGroup,
+    FieldGroupList,
+    customform_descriptor_registry,
+)
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import constants
@@ -704,13 +709,35 @@ class EntityFilterExporter(Exporter):
 
 
 @EXPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)
-class CustomFormsExporter(Exporter):
+class CustomFormsExporter(CellsExporterMixin, Exporter):
     model = models.CustomFormConfigItem
+    cform_registry = customform_descriptor_registry
+
+    def dump_group(self, group):
+        return {
+            'name': group.name,
+            'layout': group.layout,
+            'cells': [self.dump_cell(cell) for cell in group.cells],
+        } if isinstance(group, FieldGroup) else group.as_dict()
+
+    def dump_groups(self, item):
+        descriptor = self.cform_registry.get(item.cform_id)
+
+        return [
+            self.dump_group(group)
+            for group in FieldGroupList.from_dicts(
+                model=descriptor.model,
+                data=item.groups_as_dicts(),
+                cell_registry=descriptor.build_cell_registry(),
+                allowed_extra_group_classes=(*descriptor.extra_group_classes,)
+            )
+        ]
 
     def dump_instance(self, instance):
         assert isinstance(instance, models.CustomFormConfigItem)
 
         return {
             'id': instance.cform_id,
-            'groups': instance.groups_as_dicts(),
+            # 'groups': instance.groups_as_dicts(),
+            'groups': self.dump_groups(instance),
         }
