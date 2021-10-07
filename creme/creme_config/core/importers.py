@@ -46,6 +46,7 @@ from creme.creme_core.core.entity_filter.condition_handler import (
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.custom_form import (
+    EntityCellCustomFormSpecial,
     FieldGroupList,
     customform_descriptor_registry,
 )
@@ -1417,11 +1418,28 @@ class EntityFiltersImporter(Importer):
             ef.set_conditions(conditions)
 
 
+class CellProxyCustomFormSpecial(CellProxy):
+    cell_cls = EntityCellCustomFormSpecial
+
+    def _validate(self, validated_data):
+        pass
+
+
+custom_forms_cells_registry = CellProxiesRegistry()
+# TODO: add a method 'register()' ??
+custom_forms_cells_registry(CellProxyRegularField)
+custom_forms_cells_registry(CellProxyCustomField)
+custom_forms_cells_registry(CellProxyCustomFormSpecial)
+
+
 @IMPORTERS.register(data_id=constants.ID_CUSTOM_FORMS)
 class CustomFormsImporter(Importer):
+    dependencies = [constants.ID_CUSTOM_FIELDS]
     registry = customform_descriptor_registry
+    cells_proxies_registry = custom_forms_cells_registry
 
-    def load_cform_item(self, cform_item_info: dict) -> dict:
+    # def load_cform_item(self, cform_item_info: dict) -> dict:
+    def load_cform_item(self, cform_item_info: dict, validated_data) -> dict:
         data = {}
 
         cform_id = cform_item_info.get('id')
@@ -1433,15 +1451,50 @@ class CustomFormsImporter(Importer):
             raise ValidationError(f'The custom-form ID is invalid: {cform_id}')
 
         data['descriptor'] = desc
-        data['groups'] = cform_item_info['groups']
+        # data['groups'] = cform_item_info['groups']
+
+        def load_group(group_info):
+            if 'cells' in group_info:
+                return {
+                    **group_info,
+                    'cells': self.cells_proxies_registry.build_proxies_from_dicts(
+                        model=desc.model,
+                        container_label=_('custom-form with id="{id}"').format(id=desc.id),
+                        cell_dicts=group_info['cells'],
+                        validated_data=validated_data,
+                    ),
+                }
+            else:
+                return group_info
+
+        data['groups'] = [load_group(g) for g in cform_item_info['groups']]
 
         return data
 
     def _validate_section(self, deserialized_section, validated_data):
-        self._data = [*map(self.load_cform_item, deserialized_section)]
+        # self._data = [*map(self.load_cform_item, deserialized_section)]
+        self._data = [
+            self.load_cform_item(
+                cform_item_info=item_info, validated_data=validated_data
+            ) for item_info in deserialized_section
+        ]
 
     def save(self):
         instances = CustomFormConfigItem.objects.in_bulk()
+
+        # NB: yes we build cell from dicts a then rebuild dicts ;
+        #     it's not optimal but we avoid doing things manually.
+        def finalize_group_info(group_info):
+            if 'cells' in group_info:
+                return {
+                    **group_info,
+                    'cells': [
+                        cell_proxy.build_cell().to_dict()
+                        for cell_proxy in group_info['cells']
+                    ],
+                }
+            else:
+                return group_info
 
         for data in self._data:
             # TODO: is this a problem that if instance does not exist there is an error ?
@@ -1456,7 +1509,8 @@ class CustomFormsImporter(Importer):
                 groups=[
                     *FieldGroupList.from_dicts(
                         model=model,
-                        data=data['groups'],
+                        # data=data['groups'],
+                        data=[finalize_group_info(d) for d in data['groups']],
                         cell_registry=cell_registry,
                         allowed_extra_group_classes=(*descriptor.extra_group_classes,)
                     ),
