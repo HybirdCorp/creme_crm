@@ -1,5 +1,20 @@
 == Version 2.2.7 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Creme_config :
+            - The import & export of Custom-Forms with specified Custom-Fields have been fixed.
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # Apps :
+            * Creme_config :
+                - The method 'core.importers.CustomFormsImporter.load_cform_item()' takes an additional argument.
+
 
 == Version 2.2.6 ==
 

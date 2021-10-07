@@ -2444,12 +2444,12 @@ class ImportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
+        cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938d6'
 
         gname1 = 'Main'
         data = {
             'version': '1.0',
             'custom_forms': [{
-
                 'id': desc.id,
                 'groups': [
                     {
@@ -2458,6 +2458,7 @@ class ImportingTestCase(CremeTestCase):
                         'cells': [
                             {'type': EntityCellRegularField.type_id, 'value': 'user'},
                             {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            {'type': EntityCellCustomField.type_id, 'value': cf_uuid},
                             {
                                 'type': EntityCellCustomFormSpecial.type_id,
                                 'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
@@ -2469,6 +2470,12 @@ class ImportingTestCase(CremeTestCase):
                     },
                 ],
             }],
+            'custom_fields': [
+                {
+                    'uuid': cf_uuid, 'ctype': 'creme_core.fakeorganisation',
+                    'name': 'Rating', 'type': CustomField.INT,
+                },
+            ],
         }
 
         json_file = StringIO(json_dump(data))
@@ -2476,6 +2483,8 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
+
+        cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
         groups = desc.groups()
         self.assertEqual(2, len(groups))
@@ -2488,6 +2497,7 @@ class ImportingTestCase(CremeTestCase):
             [
                 EntityCellRegularField.build(model=FakeOrganisation, name='user'),
                 EntityCellRegularField.build(model=FakeOrganisation, name='name'),
+                EntityCellCustomField(cfield),
                 EntityCellCustomFormSpecial(
                     model=FakeOrganisation,
                     name=EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
