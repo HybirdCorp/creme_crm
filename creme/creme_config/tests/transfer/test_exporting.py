@@ -1534,6 +1534,10 @@ class ExportingTestCase(CremeTestCase):
         cform_id = desc.id
         CustomFormConfigItem.objects.filter(cform_id=cform_id).delete()
 
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation, field_type=CustomField.STR, name='Headline',
+        )
+
         gname1 = 'Main'
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=desc,
@@ -1544,6 +1548,7 @@ class ExportingTestCase(CremeTestCase):
                     'cells': [
                         (EntityCellRegularField, {'name': 'user'}),
                         (EntityCellRegularField, {'name': 'name'}),
+                        EntityCellCustomField(cfield),
                         (
                             EntityCellCustomFormSpecial,
                             {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
@@ -1571,6 +1576,7 @@ class ExportingTestCase(CremeTestCase):
                         'cells': [
                             {'type': EntityCellRegularField.type_id, 'value': 'user'},
                             {'type': EntityCellRegularField.type_id, 'value': 'name'},
+                            {'type': EntityCellCustomField.type_id,  'value': str(cfield.uuid)},
                             {
                                 'type': EntityCellCustomFormSpecial.type_id,
                                 'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
