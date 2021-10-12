@@ -314,8 +314,20 @@ class Migration(migrations.Migration):
             name='CremeProperty',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('creme_entity', models.ForeignKey(related_name='properties', to='creme_core.CremeEntity', on_delete=models.CASCADE)),
-                ('type', models.ForeignKey(to='creme_core.CremePropertyType', on_delete=models.CASCADE)),
+                (
+                    'creme_entity',
+                    models.ForeignKey(
+                        verbose_name='Entity',
+                        related_name='properties', to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                    )
+                ),
+                (
+                    'type',
+                    models.ForeignKey(
+                        verbose_name='Type of property',
+                        to='creme_core.CremePropertyType', on_delete=models.CASCADE,
+                    )
+                ),
             ],
             options={
                 'verbose_name': 'Property',

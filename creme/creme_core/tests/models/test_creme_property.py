@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.db.models.query import QuerySet
+from django.utils.translation import gettext as _
 
 from creme.creme_core.models import (
     CremeEntity,
@@ -204,8 +206,24 @@ class CremePropertyTestCase(CremeTestCase):
         self.assertEqual(text, ptype.text)
 
         # Uniqueness
+        prop02 = CremeProperty(type=ptype, creme_entity=entity)
+        with self.assertRaises(ValidationError) as cm:
+            prop02.full_clean()
+
+        self.assertDictEqual(
+            {
+                '__all__': [
+                    _('%(model_name)s with this %(field_labels)s already exists.') % {
+                        'model_name': _('Property'),
+                        'field_labels': f"{_('Type of property')} {_('and')} {_('Entity')}",
+                    }
+                ],
+            },
+            cm.exception.message_dict,
+        )
+
         with self.assertRaises(IntegrityError):
-            CremeProperty.objects.create(type=ptype, creme_entity=entity)
+            prop02.save()
 
     def test_manager_safe_create(self):
         text = 'is happy'
