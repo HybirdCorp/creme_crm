@@ -43,8 +43,11 @@
                 </div>
                 <div class="customform-config-items">
                 {% for item in descriptor.items %}
-                    <div class="customform-config-item">
+                    <div class="customform-config-item customform-config-item-collapsed">
                         <div class="customform-config-item-title">
+                            <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Show this form' %}"><div class="toggle-icon"></div></div>
+                            <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Hide this form' %}"><div class="toggle-icon"></div></div>
+
                             {{item.verbose_name}}
                             {% if item.can_be_deleted %}{% brick_action id='delete' url=delete_url __id=item.id enabled=admin_perm %}{% endif %}
                         </div>

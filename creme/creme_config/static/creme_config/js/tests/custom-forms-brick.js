@@ -91,8 +91,12 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
                             '<span>Creation form</span>' +
                         '</div>' +
                         '<div class="customform-config-items">' +
-                            '<div class="customform-config-item">' +
-                                '<div class="customform-config-item-title">Default form</div>' +
+                            '<div class="customform-config-item customform-config-item-collapsed">' +
+                                '<div class="customform-config-item-title">' +
+                                    '<div class="toggle-icon-container toggle-icon-expand" title="Show this form"><div class="toggle-icon"></div></div>' +
+                                    '<div class="toggle-icon-container toggle-icon-collapse" title="Hide this form"><div class="toggle-icon"></div></div>' +
+                                    'Default form' +
+                                 '</div>' +
                                 '<div class="customform-config-item-content">' +
                                     '<div class="customform-config-fields">' +
                                         '<table><tbody class="customform-config-blocks">' +
@@ -210,7 +214,7 @@ QUnit.test('creme.FormGroupsController (items)', function(assert) {
     equal(controller.ctype('unknown').length, 0);
 });
 
-QUnit.test('creme.FormGroupsController (toggle)', function(assert) {
+QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) {
     var ctypeIdA = 12;
     var ctypeIdB = 25;
     var brick = this.createFormGroupsBrick({
@@ -372,6 +376,31 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
         ['mock/group/reorder/0/fail', 'POST', {target: group.index()}, {delay: 0, enableUriSearch: false, sync: true}],
         ['mock/brick/all/reload', 'GET', {"brick_id": ["brick-for-test"], "extra_data": "{}"}, {dataType: "json", delay: 0, enableUriSearch: false, sync: true}]
     ], this.mockBackendCalls());
+});
+
+QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
+    var ctypeIdA = 12;
+    var brick = this.createFormGroupsBrick({
+        models: [{
+            ctypeId: ctypeIdA,
+            ctypeName: 'Type A',
+            collapsed: true
+        }]
+    }).brick();
+    var controller = new creme.FormGroupsController({
+        expandUrl: 'mock/group/expand'
+    });
+
+    controller.bind(brick);
+
+    var item = controller.ctype(ctypeIdA).find('.customform-config-item:first');
+    equal(item.is('.customform-config-item-collapsed'), true);
+
+    item.find('.toggle-icon-expand').click();
+    equal(item.is('.customform-config-item-collapsed'), false);
+
+    item.find('.toggle-icon-collapse').click();
+    equal(item.is('.customform-config-item-collapsed'), true);
 });
 
 }(jQuery));

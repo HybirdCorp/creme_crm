@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-13 12:24+0200\n"
+"POT-Creation-Date: 2021-10-15 14:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1110,6 +1110,12 @@ msgstr "Glissez-déposez les groupes pour les réordonner."
 
 msgid "Add a form for a role"
 msgstr "Ajouter un formulaire pour un rôle"
+
+msgid "Show this form"
+msgstr "Montrer ce formulaire"
+
+msgid "Hide this form"
+msgstr "Cacher ce formulaire"
 
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"

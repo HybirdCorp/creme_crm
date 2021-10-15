@@ -340,7 +340,10 @@
                 - There are several changes about Custom-Forms :
                     - In the views, the argument to retrieve the instance of 'CustomFormConfigItem' has been renamed "item_id" (instead of "form_id").
                     - The objects injected in the template of 'bricks.CustomFormsBrick' have changed (to get several items by descriptor) ;
-                      So 'creme_config/bricks/custom-forms.html', the related CSS classes & the JS class 'creme.FormGroupsController' have changed too.
+                      So 'creme_config/bricks/custom-forms.html', the related CSS classes have changed too.
+                      In the JS class 'creme.FormGroupsController' :
+                        - The code has been updated to retrieve the new CSS classes correctly.
+                        - The methods '_toggleItem()', 'items()' & 'item()' have been renamed respectively '_toggleCType()', 'ctypes()' & 'ctype()'.
                 - In 'forms.search' :
                     - These classes have been removed/replaced by new ones : _SearchForm, SearchAddForm, SearchEditForm.
                       The related views have been updated.
