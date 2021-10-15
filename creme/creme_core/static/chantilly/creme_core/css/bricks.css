@@ -481,8 +481,10 @@
     padding: 6px 10px 3px 10px;
 }
 
-.brick-table .brick-table-content .brick-table-action:hover,
-.brick-list .brick-list-item .brick-action:hover {
+/* .brick-table .brick-table-content .brick-table-action:hover, */
+.brick-table .brick-table-content .brick-table-action:hover .brick-table-action-icon,
+/*.brick-list .brick-list-item .brick-action:hover { */
+.brick-list .brick-list-item .brick-action:hover .brick-action-icon {
     filter: brightness(2);
 }
 
