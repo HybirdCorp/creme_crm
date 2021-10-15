@@ -113,6 +113,16 @@ creme.FormGroupsController = creme.component.Component.sub({
             saveState({ct_id: '0'});
         });
 
+        element.on('click', '.toggle-icon-container', function(e) {
+            e.stopPropagation();
+
+            var icon = $(this);
+            var expand = icon.is('.toggle-icon-expand');
+
+            icon.parents('.customform-config-item:first')
+                .toggleClass('customform-config-item-collapsed', !expand);
+        });
+
         return this;
     },
 
