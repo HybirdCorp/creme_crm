@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # In theme 'chantilly', the style of some <a> was broken on hover.
     # Apps :
         * Creme_config :
             - The import & export of Custom-Forms with specified Custom-Fields have been fixed.
