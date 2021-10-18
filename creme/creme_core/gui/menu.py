@@ -741,17 +741,16 @@ class CreationMenuRegistry:
         """
         self._groups.remove(*group_ids)
 
-    # TODO: unit test
     @property
     def verbose_str(self) -> str:
         """Returns a detailed description of groups/links ; useful to get priorities/IDs."""
-        res = f'{self}\n'
+        res = f'{type(self).__name__}:\n'
 
         for group in self._groups:
             res += f'  {group}\n'
 
             for link in group:
-                res += f'     {link}\n'
+                res += f'    {link}\n'
 
         return res
 
