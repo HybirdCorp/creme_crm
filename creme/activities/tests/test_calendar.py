@@ -2,6 +2,7 @@
 
 from datetime import date, timedelta
 from functools import partial
+from io import StringIO
 
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.sessions.models import Session
@@ -1532,10 +1533,18 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
 
     @parameterized.expand([
-        (True,),
-        (False,),
+        (
+            True,
+            0,  # verbosity
+            '',  # message
+        ),
+        (
+            False,
+            1,  # verbosity
+            '2 calendar(s) created.\n',
+        ),
     ])
-    def test_command_create_default_calendar_creation(self, is_public):
+    def test_command_create_default_calendar_creation(self, is_public, verbosity, msg):
         create_user = CremeUser.objects.create
 
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
@@ -1562,8 +1571,11 @@ class CalendarTestCase(_ActivitiesTestCase):
             is_default=False, user=user5, is_public=False,
         )
 
+        stdout = StringIO()
+        stderr = StringIO()
+
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
-            call_command(CalCommand(), verbosity=0)
+            call_command(CalCommand(stdout=stdout, stderr=stderr), verbosity=verbosity)
 
         cal1 = self.get_object_or_fail(Calendar, is_default=True, user=user1)
         self.assertEqual(is_public, cal1.is_public)
@@ -1579,17 +1591,43 @@ class CalendarTestCase(_ActivitiesTestCase):
             {*Calendar.objects.filter(user=user5)},
         )
 
+        self.assertFalse(stderr.getvalue())
+        self.assertEqual(msg, stdout.getvalue())
+
     @parameterized.expand([
-        (None,),
-        ('invalid',),
+        (
+            None,
+            'ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is None => no calendar created.',
+        ),
+        (
+            'invalid',
+            'ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC is invalid '
+            '(not in {None, True, False}) => no calendar created.',
+        ),
     ])
-    def test_command_create_default_calendar_nocreation(self, is_public):
+    def test_command_create_default_calendar_nocreation(self, is_public, err_msg):
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None):
             user = self.create_user()
 
         self.assertFalse(Calendar.objects.filter(user=user))
 
+        stdout0 = StringIO()
+        stderr0 = StringIO()
+
         with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
-            call_command(CalCommand(), verbosity=0)
+            call_command(CalCommand(stdout=stdout0, stderr=stderr0), verbosity=0)
 
         self.assertFalse(Calendar.objects.filter(user=user))
+        self.assertFalse(stdout0.getvalue())
+        self.assertFalse(stderr0.getvalue())
+
+        # verbosity ---
+        stdout1 = StringIO()
+        stderr1 = StringIO()
+
+        with override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=is_public):
+            call_command(CalCommand(stdout=stdout1, stderr=stderr1), verbosity=1)
+
+        self.assertFalse(Calendar.objects.filter(user=user))
+        self.assertFalse(stdout1.getvalue())
+        self.assertEqual(f'{err_msg}\n', stderr1.getvalue())
