@@ -19,6 +19,7 @@ def ready():
     from ..gui.bricks import brick_registry
     from ..gui.custom_form import customform_descriptor_registry
     from ..gui.fields_config import fields_config_registry
+    from ..gui.icons import icon_registry
     from ..gui.listview import smart_columns_registry
     from ..gui.mass_import import import_form_registry
     from ..gui.menu import menu_registry
@@ -68,6 +69,12 @@ def ready():
 
         # No (see creme_config.tests.test_fields_config.FieldsConfigTestCase.test_edit03)
         # fake_models.FakeActivity,
+    )
+
+    icon_registry.register(
+        fake_models.FakeContact, 'images/contact_%(size)s.png',
+    ).register(
+        fake_models.FakeOrganisation, 'images/organisation_%(size)s.png',
     )
 
     imprint_manager.register(

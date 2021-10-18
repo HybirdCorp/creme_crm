@@ -49,8 +49,8 @@ class RFieldCellNode(TemplateNode):
         if cell is None:
             # TODO: in EntityCellRegularField.build ??
             raise ValueError(
-                '{{% cell_4_regularfield %}}: the field seems invalid '
-                f'(model={model}, field={field_name})'
+                r'{% cell_4_regularfield %}: the field seems invalid '
+                f'(model={model}, field="{field_name}")'
             )
 
         asvar_name = self.asvar_name
@@ -128,34 +128,40 @@ def do_cell_4_regularfield(parser, token):
             )
 
         if bits[3] != 'as':
-            raise TemplateSyntaxError('Keyword "as" of "cell_4_regularfield" tag is missing.')
+            raise TemplateSyntaxError(
+                f'"{bits[0]}" tag expected a keyword "as" here, found "{bits[3]}".'
+            )
 
         asvar_name = bits[4]
 
     # First argument --------------
     match = KWARG_RE.match(bits[1])
     if not match:
-        raise TemplateSyntaxError('Malformed 1rst argument to "cell_4_regularfield" tag.')
+        raise TemplateSyntaxError(
+            f'"cell_4_regularfield" tag has a malformed 1rst argument: <{bits[1]}>.'
+        )
 
     fa_name, fa_value = match.groups()
     try:
         first_arg_name, rf_cell_node_cls = _RFIELD_CELL_NODES[fa_name]
     except KeyError as e:
         raise TemplateSyntaxError(
-            f'Invalid 1rst argument of "cell_4_regularfield" tag ; '
-            f'it must be in {_RFIELD_CELL_NODES.keys()}.'
+            f'"cell_4_regularfield" tag has an invalid 1rst argument; '
+            f'it must be in {[*_RFIELD_CELL_NODES.keys()]}.'
         ) from e
 
     # Second argument -------------
     match = KWARG_RE.match(bits[2])
     if not match:
-        raise TemplateSyntaxError('Malformed 2nd argument to "cell_4_regularfield" tag.')
+        raise TemplateSyntaxError(
+            f'"cell_4_regularfield" tag a malformed 2nd argument: <{bits[2]}>.'
+        )
 
     sa_name, sa_value = match.groups()
     if sa_name != 'field':
         raise TemplateSyntaxError(
-            'Invalid second argument of "cell_4_regularfield" tag ;'
-            ' it must be "field".'
+            '"cell_4_regularfield" tag has an invalid 2nd argument; '
+            'it must be "field".'
         )
 
     return rf_cell_node_cls(
@@ -198,7 +204,7 @@ def do_render(parser, token):
     bits = token.split_contents()
     if len(bits) < 4:
         raise TemplateSyntaxError(
-            f'"{bits[0]}" takes at least 3 arguments (cell, instance, user)'
+            f'"{bits[0]}" tag takes at least 3 arguments (cell, instance, user)'
         )
 
     kwargs = {}
@@ -211,13 +217,17 @@ def do_render(parser, token):
     for bit in bits:
         match = KWARG_RE.match(bit)
         if not match:
-            raise TemplateSyntaxError(f'Malformed arguments for "cell_render" tag: {bit}')
+            raise TemplateSyntaxError(
+                f'"cell_render" tag has a malformed arguments: <{bit}>.'
+            )
 
         name, value = match.groups()
 
         arg_name = __RENDER_ARGS_MAP.get(name)
         if arg_name is None:
-            raise TemplateSyntaxError(f'Invalid argument name for "cell_render" tag: {name}')
+            raise TemplateSyntaxError(
+                f'"cell_render" tag has an invalid argument name: <{name}>.'
+            )
 
         kwargs[arg_name] = parser.compile_filter(value)
 
@@ -250,8 +260,8 @@ class CellRenderNode(TemplateNode):
         method_name = self.RENDER_METHODS.get(output)
         if method_name is None:
             raise ValueError(
-                f'{{% cell_render %}}: invalid output "{output}" '
-                f'(must be in ["html", "csv"])'
+                r'{% cell_render %}: '
+                f'invalid output "{output}" (must be in {[*self.RENDER_METHODS.keys()]}).'
             )
 
         try:

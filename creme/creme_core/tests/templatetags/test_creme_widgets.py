@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.template import Context, Template
+from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template, TemplateSyntaxError
 from django.test import override_settings
 from django.utils.translation import gettext as _
 
@@ -9,6 +10,7 @@ from creme.creme_core.templatetags.creme_widgets import (
     JoinNode,
     enum_comma_and,
 )
+from creme.creme_core.utils.media import get_creme_media_url
 
 from ..base import CremeTestCase
 from ..fake_models import FakeOrganisation, FakeSector
@@ -43,7 +45,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink01(self):
         "Escaping."
-        user = self.login()
+        user = self.create_user()
 
         name = 'NERV'
         orga = FakeOrganisation.objects.create(user=user, name=name + '<br/>')  # escaping OK ??
@@ -76,7 +78,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
     def test_widget_entity_hyperlink03(self):
         "Is deleted."
-        user = self.login()
+        user = self.create_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
 
         with self.assertNoException():
@@ -205,7 +207,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
-    def test_widget_join(self):
+    def test_widget_join01(self):
         self.assertIs(enum_comma_and, JoinNode.behaviours.get(''))
         self.assertIs(enum_comma_and, JoinNode.behaviours.get('en'))
 
@@ -226,6 +228,219 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    # TODO: complete:
-    #   - widget_icon
-    #   - widget_help_sign
+    def test_widget_join_error01(self):
+        "Argument passed."
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% for item in items %}'
+                r'{% widget_join "annoying_arg" %}<span>{{item}}</span>{% end_widget_join %}'
+                r'{% endfor %}'
+            ).render(Context({'items': ['Cat', 'Dog'], 'LANGUAGE_CODE': ''}))
+
+        self.assertEqual(
+            '"widget_join" tag takes no argument',
+            str(cm.exception),
+        )
+
+    def test_widget_join_error02(self):
+        "Not inside {% for %}."
+        with self.assertRaises(ValueError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_join %}<span>{{item}}</span>{% end_widget_join %}'
+            ).render(Context({'items': ['Cat', 'Dog'], 'LANGUAGE_CODE': ''}))
+
+        self.assertEqual(
+            'The tag {% widget_join %} must be used inside a {% for %} loop.',
+            str(cm.exception),
+        )
+
+    def test_widget_icon_named01(self):
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="add" %}'
+            ).render(Context({'THEME_NAME': theme}))
+
+        self.assertHTMLEqual(
+            '<img src="{}" title="" alt="" width="22px"/>'.format(
+                get_creme_media_url(theme, 'images/add_22.png'),
+            ),
+            render,
+        )
+
+    def test_widget_icon_named02(self):
+        theme = 'chantilly'
+        label = "My beautiful icon"
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="edit" size="global-button" label=label %}'
+            ).render(Context({'THEME_NAME': theme, 'label': label}))
+
+        self.assertHTMLEqual(
+            '<img src="{path}" title="{label}" alt="{label}" width="32px"/>'.format(
+                path=get_creme_media_url(theme, 'images/edit_32.png'),
+                label=label,
+            ),
+            render,
+        )
+
+    def test_widget_icon_ctype(self):
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon ctype=ctype %}'
+            ).render(Context({
+                'THEME_NAME': theme,
+                'ctype': ContentType.objects.get_for_model(FakeOrganisation),
+            }))
+
+        self.assertHTMLEqual(
+            '<img src="{path}" title="{title}" alt="{title}" width="22px"/>'.format(
+                path=get_creme_media_url(theme, 'images/organisation_22.png'),
+                title='Test Organisation',
+            ),
+            render,
+        )
+
+    def test_widget_icon_instance(self):
+        user = self.create_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Seele')
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon instance=orga %}'
+            ).render(Context({'THEME_NAME': theme, 'orga': orga}))
+
+        self.assertHTMLEqual(
+            '<img src="{path}" title="{title}" alt="{title}" width="22px"/>'.format(
+                path=get_creme_media_url(theme, 'images/organisation_22.png'),
+                title='Test Organisation',
+            ),
+            render,
+        )
+
+    def test_widget_icon_named_error01(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon %}'
+            ).render(Context({'THEME_NAME': 'icecream'}))
+
+        self.assertEqual(
+            '"widget_icon" takes at least one argument (name/ctype/instance=...)',
+            str(cm.exception),
+        )
+
+    def test_widget_icon_named_error02(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon "add" %}'
+            ).render(Context({'THEME_NAME': 'icecream'}))
+
+        self.assertEqual(
+            'Malformed 1rst argument to "widget_icon" tag.',
+            str(cm.exception),
+        )
+
+    def test_widget_icon_named_error03(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon invalid="add" %}'
+            ).render(Context({'THEME_NAME': 'icecream'}))
+
+        self.assertEqual(
+            '''Invalid 1rst argument to "widget_icon" tag ; '''
+            '''it must be in dict_keys(['name', 'ctype', 'instance'])''',
+            str(cm.exception),
+        )
+
+    def test_widget_icon_named_error04(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="add" 12 %}'
+            ).render(Context({'THEME_NAME': 'icecream'}))
+
+        self.assertEqual(
+            'Malformed arguments to "widget_icon" tag: 12',
+            str(cm.exception),
+        )
+
+    def test_widget_icon_named_error05(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="add" invalid="whatever" %}'
+            ).render(Context({'THEME_NAME': 'icecream'}))
+
+        self.assertEqual(
+            'Invalid argument name to "widget_icon" tag: invalid',
+            str(cm.exception),
+        )
+
+    def test_widget_render_icon(self):
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="add" as my_icon %}'
+                r'<span>{% widget_render_icon my_icon class="brick-action-icon" %}</span>'
+            ).render(Context({'THEME_NAME': theme}))
+
+        self.assertHTMLEqual(
+            '<span>'
+            '<img src="{}" class="brick-action-icon" title="" alt="" width="22px"/>'
+            '</span>'.format(
+                get_creme_media_url(theme, 'images/add_22.png'),
+            ),
+            render,
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon name="add" as my_icon %}'
+                r'<span>{% widget_render_icon my_icon %}</span>'
+            ).render(Context({'THEME_NAME': theme}))
+
+        self.assertEqual(
+            '"widget_render_icon" takes 2 arguments (icon & class)',
+            str(cm.exception),
+        )
+
+    def test_widget_help_sign(self):
+        theme = 'icecream'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_help_sign message=help_msg %}'
+            ).render(Context({
+                'THEME_NAME': theme,
+                'help_msg': 'Be careful:\ndo not duplicate entities!',
+            }))
+
+        self.assertHTMLEqual(
+            '<div class="help-sign">'
+            '<img src="{}" title="" alt="" width="16px"><p>'
+            'Be careful:<br>do not duplicate entities!'
+            '</p>'
+            '</div>'.format(
+                get_creme_media_url(theme, 'images/info_16.png'),
+            ),
+            render,
+        )

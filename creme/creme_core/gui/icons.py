@@ -192,10 +192,10 @@ class Icon(BaseIcon):
         final_css_class = self.css_class + css_class
 
         return format_html(
-            '<img src="{url}" {attrs} title="{label}" alt="{label}" width="{size}px"/>',
+            '<img src="{url}" {attrs}title="{label}" alt="{label}" width="{size}px"/>',
             size=self.size,
             label=self.label,
-            attrs=format_html(' class="{}"', final_css_class) if final_css_class else '',
+            attrs=format_html('class="{}" ', final_css_class) if final_css_class else '',
             url=self.url,
         )
 
@@ -230,7 +230,8 @@ def get_icon_by_name(name: str,
                      theme: str,
                      size_px: int,
                      label: str,
-                     css_class: str = '') -> BaseIcon:
+                     css_class: str = '',
+                     ) -> BaseIcon:
     try:
         svg_info = _SVG_ICONS[theme][name]
     except KeyError:
@@ -286,10 +287,10 @@ class IconRegistry:
 
         return self
 
-    def register_4_instance(
-            self,
-            model: Type[Model],
-            info_function: _IconInfoFunc) -> 'IconRegistry':
+    def register_4_instance(self,
+                            model: Type[Model],
+                            info_function: _IconInfoFunc,
+                            ) -> 'IconRegistry':
         """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
 
@@ -309,7 +310,8 @@ class IconRegistry:
     def get_4_model(self,
                     model: Type[Model],
                     theme: str,
-                    size_px: int) -> Icon:
+                    size_px: int,
+                    ) -> Icon:
         url = ''
         path_fmt = self._icons.get(model)
 
@@ -323,11 +325,7 @@ class IconRegistry:
 
         return Icon(url=url, size=size_px, label=model._meta.verbose_name)
 
-    def get_4_instance(
-            self,
-            instance: Model,
-            theme: str,
-            size_px: int) -> Icon:
+    def get_4_instance(self, instance: Model, theme: str, size_px: int) -> Icon:
         url = ''
         label = ''
         path_fmt: Optional[str] = ''

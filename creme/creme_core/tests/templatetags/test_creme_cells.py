@@ -3,7 +3,7 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.template import Context, Template
+from django.template import Context, Template, TemplateSyntaxError
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -89,23 +89,108 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(_('First name'), render.strip())
 
-    def test_cell_4_regularfield05(self):
-        "Errors."
+    def test_cell_4_regularfield_syntax_errors(self):
+        ctxt = Context({'ct': ContentType.objects.get_for_model(Currency)})
+
+        with self.assertRaises(TemplateSyntaxError) as cm1:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield ctype=ct as inv_cell %}'
+            ).render(ctxt)
+
+        self.assertEqual(
+            '"cell_4_regularfield" takes 2 arguments (ctype/instance=... & field=...), '
+            '& then optionally "as my_var".',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm2:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield ctype=ct field="name" assign inv_cell %}'
+            ).render(ctxt)
+
+        self.assertEqual(
+            '"cell_4_regularfield" tag expected a keyword "as" here, found "assign".',
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm3:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield ct field="name" as inv_cell %}'
+            ).render(ctxt)
+
+        self.assertEqual(
+            '"cell_4_regularfield" tag has a malformed 1rst argument: <ct>.',
+            str(cm3.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm4:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield class=ct field="name" as inv_cell %}'
+            ).render(ctxt)
+
+        self.assertStartsWith(
+            str(cm4.exception),
+            '"cell_4_regularfield" tag has an invalid 1rst argument; it must be in [\'',
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm5:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield ctype=ct "name" as inv_cell %}'
+            ).render(ctxt)
+
+        self.assertEqual(
+            '"cell_4_regularfield" tag a malformed 2nd argument: <"name">.',
+            str(cm5.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm6:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_4_regularfield ctype=ct field_name="name" as inv_cell %}'
+            ).render(ctxt)
+
+        self.assertEqual(
+            '"cell_4_regularfield" tag has an invalid 2nd argument; it must be "field".',
+            str(cm6.exception),
+        )
+
+    def test_cell_4_regularfield_render_errors(self):
         # Invalid field
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm1:
             template = Template(
                 r'{% load creme_cells %}'
                 r'{% cell_4_regularfield ctype=ct field="invalid" as inv_cell %}'
             )
             template.render(Context({'ct': ContentType.objects.get_for_model(Currency)}))
 
-        # Invalid content type
-        with self.assertRaises(AttributeError):
+        self.assertEqual(
+            r'''{% cell_4_regularfield %}: the field seems invalid '''
+            r'''(model=<class 'creme.creme_core.models.currency.Currency'>, field="invalid")''',
+            str(cm1.exception),
+        )
+
+        # Invalid content type ---
+        with self.assertRaises(AttributeError) as cm2:
             template = Template(
                 r'{% load creme_cells %}'
                 r'{% cell_4_regularfield ctype=ct field="name" as inv_cell %}'
             )
             template.render(Context({}))
+
+        self.assertEqual(
+            "'str' object has no attribute 'model_class'",
+            str(cm2.exception),
+        )
 
     def test_cell_render01(self):
         "Direct render ; default output."
@@ -186,6 +271,70 @@ class CremeCellsTagsTestCase(CremeTestCase):
         self.assertEqual(
             '<a href="mailto:hripley@nostromo.corp">hripley@nostromo.corp</a>',
             render.strip()
+        )
+
+    def test_cell_render_syntax_errors(self):
+        user = self.create_user()
+        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
+        cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
+
+        with self.assertRaises(TemplateSyntaxError) as cm1:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell instance=helen %}'
+            ).render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
+
+        self.assertEqual(
+            '"cell_render" tag takes at least 3 arguments (cell, instance, user)',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm2:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell helen user=user %}'
+            ).render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
+
+        self.assertEqual(
+            '"cell_render" tag has a malformed arguments: <helen>.',
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm3:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell object=helen user=user %}'
+            ).render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
+
+        self.assertEqual(
+            '"cell_render" tag has an invalid argument name: <object>.',
+            str(cm3.exception),
+        )
+
+    def test_cell_render_dyn_errors(self):
+        user = self.create_user()
+        ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
+        cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
+
+        with self.assertRaises(ValueError) as cm:
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell instance=helen user=user output="ini" %}'
+            ).render(Context({
+                'cell': cell, 'helen': ripley, 'user': user,
+            }))
+
+        self.assertStartsWith(
+            str(cm.exception),
+            '{% cell_render %}: invalid output "ini" (must be in [\'',
         )
 
     def test_cell_is_sortable(self):
