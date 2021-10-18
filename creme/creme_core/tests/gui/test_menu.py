@@ -825,6 +825,7 @@ class MenuTestCase(CremeTestCase):
 
         registry = CreationMenuRegistry()
         self.assertEqual([], [*registry])
+        self.assertEqual('CreationMenuRegistry:\n', registry.verbose_str)
 
         entry.creation_menu_registry = registry
 
@@ -835,6 +836,12 @@ class MenuTestCase(CremeTestCase):
             perm='creme_core.add_fakecontact',
         )
         self.assertEqual(1, len([*registry]))
+        self.assertEqual(
+            'CreationMenuRegistry:\n'
+            '  <Group: id="persons" label="Directory" priority=1>\n'
+            '    <Link: id="add_contact" label="Contact" priority=1>\n',
+            registry.verbose_str,
+        )
         self.assertListEqual(
             [
                 [
