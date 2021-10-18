@@ -6,7 +6,7 @@ from functools import partial
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
-from django.template import Context, Template
+from django.template import Context, Template, TemplateSyntaxError
 from django.urls import reverse
 from django.utils.translation import gettext, gettext_lazy
 
@@ -211,13 +211,49 @@ class CremeCoreTagsTestCase(CremeTestCase):
     def test_templatize(self):
         with self.assertNoException():
             template = Template(
-                '{% load creme_core_tags %}'
-                '{% templatize "{{columns|length}}" as colspan %}'
-                '<h1>{{colspan}}</h1>'
+                r'{% load creme_core_tags %}'
+                r'{% templatize "{{columns|length}}" as colspan %}'
+                r'<h1>{{colspan}}</h1>'
             )
             render = template.render(Context({'columns': range(3)}))
 
         self.assertEqual('<h1>3</h1>', render.strip())
+
+    def test_templatize_error01(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% templatize %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"templatize" tag requires arguments',
+            str(cm.exception),
+        )
+
+    def test_templatize_error02(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% templatize "{{1|add:2}}" as %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"templatize" tag has invalid arguments: <"{{1|add:2}}" as>',
+            str(cm.exception),
+        )
+
+    def test_templatize_error03(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% templatize #{{1|add:2}}# as result %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '''"templatize" tag's argument should be in quotes.''',
+            str(cm.exception),
+        )
 
     # TODO: complete with other field types
     def test_print_field(self):
@@ -242,6 +278,30 @@ class CremeCoreTagsTestCase(CremeTestCase):
             '<li><a href="www.amestris.org" target="_blank">www.amestris.org</a></li>'
             '</ul>',
             render.strip()
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% print_field %}'
+            )
+
+        self.assertEqual(
+            '"print_field" tag requires arguments.',
+            str(cm.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% print_field entity "url_site" %}'
+            )
+
+        self.assertEqual(
+            '"print_field" tag has invalid arguments.',
+            str(cm.exception),
         )
 
     def test_has_perm_to01(self):
@@ -334,6 +394,42 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self.assertEqual(
             'True' + 'False' * 4 + 'True' * 2 + 'False' * 2 + 'True' + 'False',
             render.strip()
+        )
+
+    def test_has_perm_to_errors(self):
+        with self.assertRaises(TemplateSyntaxError) as cm1:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% has_perm_to %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"has_perm_to" tag requires arguments',
+            str(cm1.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm2:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% has_perm_to view as vperm %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"has_perm_to" tag had invalid arguments: <view as vperm>',
+            str(cm2.exception),
+        )
+
+        # ---
+        with self.assertRaises(TemplateSyntaxError) as cm3:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% has_perm_to visualize entity as vperm %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"has_perm_to" invalid permission tag: "visualize"',
+            str(cm3.exception),
         )
 
     def _assertJsonifyFilter(self, expected, data):
@@ -604,21 +700,28 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip(),
         )
 
-    def test_url_join1(self):
-        "No GET parameter."
+    def test_url_join_empty(self):
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_core_tags %}'
+                r'{% url_join %}'
+            ).render(Context({}))
+
+        self.assertFalse(render2.strip())
+
+    def test_url_join_no_argument(self):
         url = '/creme_core/foobar'
 
         with self.assertNoException():
-            render = Template(
-                '{% load creme_core_tags %}'
-                '{% url_join my_url as my_uri %}'
-                '<a href="{{my_uri}}">Link</a>'
+            render2 = Template(
+                r'{% load creme_core_tags %}'
+                r'{% url_join my_url as my_uri %}'
+                r'<a href="{{my_uri}}">Link</a>'
             ).render(Context({'my_url': url}))
 
-        self.assertEqual(f'<a href="{url}">Link</a>', render.strip())
+        self.assertHTMLEqual(f'<a href="{url}">Link</a>', render2.strip())
 
-    def test_url_join2(self):
-        "Several arguments."
+    def test_url_join_several_arguments(self):
         url = '/creme_core/foobar'
         brick_id1 = 'brick-core-entities'
         brick_id2 = 'brick-core-properties'
@@ -641,7 +744,19 @@ class CremeCoreTagsTestCase(CremeTestCase):
             ),
         )
 
-    def test_url_join3(self):
+    def test_url_join_error(self):
+        with self.assertRaises(TemplateSyntaxError) as cm:
+            Template(
+                r'{% load creme_core_tags %}'
+                r'{% url_join "/creme_core/foobar" 1 %}'
+            ).render(Context({}))
+
+        self.assertEqual(
+            '"url_join" takes one & only one positional argument (the base URL)',
+            str(cm.exception),
+        )
+
+    def test_url_join_list(self):
         "List arguments."
         url = '/creme_core/foobar'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
@@ -660,7 +775,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join4(self):
+    def test_url_join_append_argument(self):
         "Already a GET parameter"
         url = '/creme_core/foobar?arg1=value'
         brick_id = 'brick-core-entities'
@@ -678,7 +793,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join5(self):
+    def test_url_join_append_list_arg(self):
         "Already a GET parameter + list parameter."
         url = '/creme_core/foobar?arg1=value'
         brick_ids = ['brick-core-entities', 'brick-core-properties']
@@ -697,8 +812,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_url_join6(self):
-        "Escaping."
+    def test_url_join_escaping(self):
         url = '/creme_core/search'
         search = 'orange & lemons'
 

@@ -182,6 +182,7 @@ def _bool(object1):
     return bool(object1)
 
 
+# NB: seems unused...
 @register.filter(name='str')
 def _str(object1):
     return str(object1)
@@ -392,7 +393,7 @@ def url_join(*args, **params):
     # NB: we take the base URL with *args in order to allow all values for GET keys.
     if len(args) > 1:
         raise TemplateSyntaxError(
-            'url_join takes one & only one positional argument (the base URL)'
+            '"url_join" takes one & only one positional argument (the base URL)'
         )
 
     base = args[0]
@@ -422,18 +423,22 @@ def do_templatize(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '{!r} tag requires arguments'.format(token.contents.split()[0])
+            '"{}" tag requires arguments'.format(token.contents.split()[0])
         ) from e
 
     match = _templatize_re.search(arg)
     if not match:
-        raise TemplateSyntaxError(f'"{tag_name}" tag had invalid arguments: {arg !r}')
+        raise TemplateSyntaxError(
+            f'"{tag_name}" tag has invalid arguments: <{arg}>'
+        )
 
     template_string, var_name = match.groups()
 
     first_char = template_string[0]
     if not (first_char == template_string[-1] and first_char in {'"', "'"}):
-        raise TemplateSyntaxError(f'"{tag_name}" tag\'s argument should be in quotes')
+        raise TemplateSyntaxError(
+            f'''"{tag_name}" tag's argument should be in quotes.'''
+        )
 
     return TemplatizeNode(template_string[1:-1], var_name)
 
@@ -444,7 +449,7 @@ class TemplatizeNode(TemplateNode):
         self.var_name = var_name
 
     def __repr__(self):
-        return "<Templatize node>"
+        return '<Templatize node>'
 
     def render(self, context):
         context[self.var_name] = self.inner_template.render(context)
@@ -463,12 +468,12 @@ def do_print_field(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            "{!r} tag requires arguments".format(token.contents.split()[0])
+            '"{}" tag requires arguments.'.format(token.contents.split()[0])
         ) from e
 
     match = _PRINT_FIELD_RE.search(arg)
     if not match:
-        raise TemplateSyntaxError(f'"{tag_name}" tag had invalid arguments')
+        raise TemplateSyntaxError(f'"{tag_name}" tag has invalid arguments.')
 
     obj_str, field_str = match.groups()
     compile_filter = parser.compile_filter
@@ -485,7 +490,7 @@ class FieldPrinterNode(TemplateNode):
         self.field_var = field_var
 
     def render(self, context):
-        obj        = self.obj_var.eval(context)
+        obj = self.obj_var.eval(context)
         field_name = self.field_var.eval(context)
 
         # TODO: pass the registry in the context ?
@@ -550,13 +555,13 @@ def do_has_perm_to(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '{!r} tag requires arguments'.format(token.contents.split()[0])
+            '"{}" tag requires arguments'.format(token.contents.split()[0])
         ) from e
 
     match = _haspermto_re.search(arg)
     if not match:
         raise TemplateSyntaxError(
-            f'"{tag_name}" tag had invalid arguments: {arg !r}'
+            f'"{tag_name}" tag had invalid arguments: <{arg}>'
         )
 
     perm_type, entity_path, var_name = match.groups()
@@ -564,7 +569,7 @@ def do_has_perm_to(parser, token):
     perm_func = _PERMS_FUNCS.get(perm_type)
     if not perm_func:
         raise TemplateSyntaxError(
-            f'"{tag_name}" invalid permission tag: {perm_type !r}'
+            f'"{tag_name}" invalid permission tag: "{perm_type}"'
         )
 
     entity_var = TemplateLiteral(parser.compile_filter(entity_path), entity_path)
@@ -579,10 +584,10 @@ class HasPermToNode(TemplateNode):
         self.var_name = var_name
 
     def __repr__(self):
-        return "<HasPermTo node>"
+        return '<HasPermTo node>'
 
     def render(self, context):
-        var  = self.entity_var.eval(context)  # Can raise template.VariableDoesNotExist...
+        var = self.entity_var.eval(context)  # Can raise template.VariableDoesNotExist...
         user = context['user']
         context[self.var_name] = self.perm_func(var, user)
 

@@ -207,7 +207,7 @@ def do_render_icon(parser, token):
     bits = token.split_contents()
 
     if len(bits) != 3:
-        raise TemplateSyntaxError(f"'{bits[0]}' takes 2 arguments (icon & class)")
+        raise TemplateSyntaxError(f'"{bits[0]}" takes 2 arguments (icon & class)')
 
     def compile_arg(token, prefix):
         if token.startswith(prefix):
