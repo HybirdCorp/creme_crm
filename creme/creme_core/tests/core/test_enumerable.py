@@ -32,6 +32,7 @@ class EnumerableTestCase(CremeTestCase):
     def test_basic_choices_fk(self):
         user = self.login()
         registry = _EnumerableRegistry()
+        self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum1 = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         expected = [
@@ -39,6 +40,12 @@ class EnumerableTestCase(CremeTestCase):
             for id, title in FakeCivility.objects.values_list('id', 'title')
         ]
         self.assertListEqual(expected, enum1.choices(user))
+        self.assertEqual(
+            '_EnumerableRegistry:\n'
+            '  * Field types:\n'
+            '    - django.db.models.fields.related.ForeignKey -> None',
+            str(registry),
+        )
 
         # --
         field = FakeContact._meta.get_field('civility')
@@ -135,6 +142,14 @@ class EnumerableTestCase(CremeTestCase):
 
         registry = _EnumerableRegistry()
         registry.register_related_model(FakeCivility, FakeCivilityEnumerator1)
+        self.assertEqual(
+            '_EnumerableRegistry:\n'
+            '  * Related models:\n'
+            '    - creme_core.FakeCivility -> '
+            'creme.creme_core.tests.core.test_enumerable.EnumerableTestCase'
+            '.test_register_related_model.<locals>.FakeCivilityEnumerator1',
+            str(registry),
+        )
 
         enumerator = partial(registry.enumerator_by_fieldname, model=FakeContact)
         self.assertIsInstance(
@@ -198,10 +213,17 @@ class EnumerableTestCase(CremeTestCase):
             EntityCTypeForeignKey,
             enumerator_class=EntityCTypeForeignKeyEnumerator,
         )
-
         self.assertIsInstance(
             registry.enumerator_by_fieldname(model=FakeReport, field_name='ctype'),
             EntityCTypeForeignKeyEnumerator,
+        )
+        self.assertEqual(
+            '_EnumerableRegistry:\n'
+            '  * Field types:\n'
+            '    - creme.creme_core.models.fields.EntityCTypeForeignKey -> '
+            'creme.creme_core.tests.core.test_enumerable.EnumerableTestCase.'
+            'test_register_field_type01.<locals>.EntityCTypeForeignKeyEnumerator',
+            str(registry),
         )
 
     def test_register_field_type02(self):
