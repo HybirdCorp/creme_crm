@@ -9,10 +9,15 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import DEFAULT_VAT
 from creme.creme_core.models import Currency, Vat
-from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+# from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.persons import get_address_model, get_organisation_model
 
-from .base import CTYPE_KEY, RecurrentGenerator, skipIfCustomGenerator
+from .base import (  # CTYPE_KEY
+    RecurrentGenerator,
+    RecurrentsTestCase,
+    skipIfCustomGenerator,
+)
 
 Address = get_address_model()
 Organisation = get_organisation_model()
@@ -61,7 +66,8 @@ else:
 
 @skipIfNotInstalled('creme.billing')
 @skipIfCustomGenerator
-class RecurrentsBillingTestCase(CremeTestCase):
+# class RecurrentsBillingTestCase(CremeTestCase):
+class RecurrentsBillingTestCase(RecurrentsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -75,9 +81,9 @@ class RecurrentsBillingTestCase(CremeTestCase):
         url = self.ADD_URL
         self.assertGET200(url)
 
-        gen_name = 'Recurrent invoice'
+        gen_name = f'Recurrent {model.__name__}'
         ct = ContentType.objects.get_for_model(model)
-        response = self.client.post(
+        response1 = self.client.post(
             url,
             data={
                 'recurrent_generator_wizard-current_step': 0,
@@ -88,13 +94,14 @@ class RecurrentsBillingTestCase(CremeTestCase):
                 '0-periodicity_0':    'months',
                 '0-periodicity_1':    '1',
 
-                CTYPE_KEY: ct.id,
+                # CTYPE_KEY: ct.id,
+                self.CTYPE_KEY: ct.id,
             },
         )
-        self.assertNoWizardFormError(response)
+        self.assertNoWizardFormError(response1)
 
         with self.assertNoException():
-            number_f = response.context['form'].fields['number']
+            number_f = response1.context['form'].fields['number']
 
         self.assertEqual(
             _(
@@ -132,7 +139,7 @@ class RecurrentsBillingTestCase(CremeTestCase):
         status = status_model.objects.all()[0]
         currency = Currency.objects.all()[0]
         discount = 0
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'recurrent_generator_wizard-current_step': 1,
@@ -148,19 +155,19 @@ class RecurrentsBillingTestCase(CremeTestCase):
                 '1-cform_extra-billing_target': self.formfield_value_generic_entity(target),
             },
         )
-        self.assertNoWizardFormError(response)
+        self.assertNoWizardFormError(response2)
 
         gen = self.get_object_or_fail(RecurrentGenerator, name=gen_name)
         tpl = self.get_object_or_fail(TemplateBase, name=tpl_name)
 
-        self.assertEqual(user,        gen.user)
-        self.assertEqual(ct,          gen.ct)
+        self.assertEqual(user, gen.user)
+        self.assertEqual(ct,   gen.ct)
         self.assertDictEqual(
             {'type': 'months', 'value': 1}, gen.periodicity.as_dict(),
         )
         self.assertEqual(
             self.create_datetime(year=2014, month=7, day=8, hour=11),
-            gen.first_generation
+            gen.first_generation,
         )
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
@@ -195,6 +202,13 @@ class RecurrentsBillingTestCase(CremeTestCase):
 
             self.assertEqual(_('Shipping address'), shipping_address.name)
             self.assertFalse(shipping_address.city)
+
+        self._generate_docs()
+
+        # new_tickets = Ticket.objects.all()
+        new_entities = model.objects.all()
+        # self.assertEqual(1, len(new_tickets))
+        self.assertEqual(1, len(new_entities))
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):

@@ -12,12 +12,17 @@ from django.utils.timezone import now
 # Should be a test queue
 # from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
-from creme.creme_core.models import Job
-from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+# from creme.creme_core.models import Job
+# from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
 
-from ..creme_jobs import recurrents_gendocs_type
-from .base import CTYPE_KEY, RecurrentGenerator, skipIfCustomGenerator
+# from ..creme_jobs import recurrents_gendocs_type
+from .base import (  # CTYPE_KEY
+    RecurrentGenerator,
+    RecurrentsTestCase,
+    skipIfCustomGenerator,
+)
 
 if apps.is_installed('creme.tickets'):
     from creme.tickets import get_ticket_model, get_tickettemplate_model
@@ -41,7 +46,8 @@ else:
 
 @skipIfNotInstalled('creme.tickets')
 @skipIfCustomGenerator
-class RecurrentsTicketsTestCase(CremeTestCase):
+# class RecurrentsTicketsTestCase(CremeTestCase):
+class RecurrentsTicketsTestCase(RecurrentsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -52,11 +58,11 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         super().setUp()
         self.login()
 
-    def _get_job(self):
-        return self.get_object_or_fail(Job, type_id=recurrents_gendocs_type.id)
-
-    def _generate_docs(self, job=None):
-        recurrents_gendocs_type.execute(job or self._get_job())
+    # def _get_job(self):
+    #     return self.get_object_or_fail(Job, type_id=recurrents_gendocs_type.id)
+    #
+    # def _generate_docs(self, job=None):
+    #     recurrents_gendocs_type.execute(job or self._get_job())
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(
@@ -93,7 +99,8 @@ class RecurrentsTicketsTestCase(CremeTestCase):
                 '0-periodicity_0':    'days',
                 '0-periodicity_1':    '4',
 
-                CTYPE_KEY: self.ct.id,
+                # CTYPE_KEY: self.ct.id,
+                self.CTYPE_KEY: self.ct.id,
             },
         )
         self.assertNoWizardFormError(response)
@@ -306,7 +313,7 @@ class RecurrentsTicketsTestCase(CremeTestCase):
         ticket = new_tickets[0]
         self.assertEqual(
             '{} {}'.format(tpl.title, date_format(now_value.date(), 'DATE_FORMAT')),
-            ticket.title
+            ticket.title,
         )
 
         gen = self.refresh(gen)

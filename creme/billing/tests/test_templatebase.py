@@ -25,6 +25,7 @@ from .base import (
     SalesOrder,
     TemplateBase,
     _BillingTestCase,
+    skipIfCustomCreditNote,
     skipIfCustomInvoice,
     skipIfCustomQuote,
     skipIfCustomSalesOrder,
@@ -201,6 +202,19 @@ class TemplateBaseTestCase(_BillingTestCase):
             order = tpl.create_entity()
 
         self.assertEqual(1, order.status.id)
+
+    @skipIfCustomCreditNote
+    def test_create_cnote(self):
+        cnote_status = self.get_object_or_fail(CreditNoteStatus, pk=2)
+        comment = '*Insert an nice comment here*'
+        tpl = self._create_templatebase(CreditNote, cnote_status.id, comment)
+
+        with self.assertNoException():
+            cnote = tpl.create_entity()
+
+        self.assertIsInstance(cnote, CreditNote)
+        self.assertEqual(comment, cnote.comment)
+        self.assertEqual(cnote_status, cnote.status)
 
     def test_editview(self):
         user = self.user
