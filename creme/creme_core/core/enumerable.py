@@ -135,11 +135,11 @@ class _EnumerableRegistry:
         if self._enums_4_field_types:
             res += '\n  * Field types:'
             for field_type, enumerator_cls in self._enums_4_field_types.items():
-                res += '\n    - {f_module}.{f_type} -> {e_module}.{e_type}'.format(
+                res += '\n    - {f_module}.{f_type} -> {e_cls}'.format(
                     f_module=field_type.__module__,
                     f_type=field_type.__name__,
-                    e_module=enumerator_cls.__module__,
-                    e_type=enumerator_cls.__qualname__,
+                    e_cls=f'{enumerator_cls.__module__}.{enumerator_cls.__qualname__}'
+                          if enumerator_cls else None,
                 )
 
         if self._enums_4_models:
