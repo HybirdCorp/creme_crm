@@ -21,6 +21,10 @@ _generated_media_names.py
 
 # Python package
 *.egg-info
+build/*
+sdist/*
+dist/*
+
 
 # NetBeans
 nbproject/*
