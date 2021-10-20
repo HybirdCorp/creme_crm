@@ -104,13 +104,12 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             ],
         )
 
-    def test_edit01(self):
-        "Edit empty configuration => error."
+    def test_edit_not_existing(self):
+        "Edit Content type without configuration => error."
         ct = self.contact_ct
         self.assertGET404(reverse('creme_config__edit_ctype_buttons', args=(ct.id,)))
 
-    def test_edit02(self):
-        "Edit the default configuration."
+    def test_edit_default(self):
         class TestButton(Button):
             id_ = Button.generate_id('creme_config', 'test_edit02')
             verbose_name = 'Testing purpose'
@@ -118,10 +117,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         button_registry.register(TestButton)
 
         url = reverse('creme_config__edit_ctype_buttons', args=(0,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(_('Edit default configuration'), context.get('title'))
         self.assertEqual(_('Save the modifications'),     context.get('submit_label'))
 
@@ -134,13 +133,9 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             choices=choices,
         )
 
-        response = self.client.post(
-            url,
-            data={
-                'button_ids': TestButton.id_,
-            },
-        )
-        self.assertNoFormError(response)
+        # ---
+        response2 = self.client.post(url, data={'button_ids': TestButton.id_})
+        self.assertNoFormError(response2)
         self.assertListEqual(
             [(TestButton.id_, 1)],
             [
@@ -150,7 +145,7 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             ],
         )
 
-    def test_edit03(self):
+    def test_edit_ctype(self):
         ct = self.contact_ct
 
         class TestButton01(Button):
@@ -173,7 +168,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         button_registry.register(TestButton01, TestButton02, TestButton03)
 
-        ButtonMenuItem.objects.create(content_type=ct, order=1)
+        # ButtonMenuItem.objects.create(content_type=ct, order=1)
+        ButtonMenuItem.objects.create_if_needed(
+            model=FakeContact, button=TestButton02, order=1,
+        )
 
         url = reverse('creme_config__edit_ctype_buttons', args=(ct.id,))
         context = self.assertGET200(url).context
@@ -199,15 +197,43 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         # NB: Button03 is incompatible with Contact
         self.assertNotInChoices(value=TestButton03.id_, choices=choices)
 
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'button_ids': [TestButton01.id_, TestButton02.id_],
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertListEqual(
             [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
+            [
+                *ButtonMenuItem.objects
+                               .filter(content_type=ct)
+                               .order_by('order')
+                               .values_list('button_id', 'order'),
+            ],
+        )
+
+    def test_edit_set_empty(self):
+        ct = self.contact_ct
+
+        class TestButton01(Button):
+            id_ = Button.generate_id('creme_config', 'test_edit_set_empty')
+            verbose_name = 'Test button'
+
+        button_registry.register(TestButton01)
+
+        ButtonMenuItem.objects.create_if_needed(
+            model=FakeContact, button=TestButton01, order=1,
+        )
+
+        self.assertNoFormError(
+            self.client.post(
+                reverse('creme_config__edit_ctype_buttons', args=(ct.id,)),
+                data={'button_ids': []},
+            )
+        )
+        self.assertListEqual(
+            [('', 1)],
             [
                 *ButtonMenuItem.objects
                                .filter(content_type=ct)

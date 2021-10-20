@@ -35,11 +35,11 @@ if TYPE_CHECKING:
 
 
 class ButtonMenuItemManager(models.Manager):
-    def create_if_needed(self,
-                         *,
+    def create_if_needed(self, *,
                          model: Optional[Type[CremeEntity]] = None,
                          button: Union[Type['Button'], str],
-                         order: int) -> 'ButtonMenuItem':
+                         order: int,
+                         ) -> 'ButtonMenuItem':
         """Creation helper ; useful for populate.py scripts.
         @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".
