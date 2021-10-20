@@ -103,7 +103,8 @@ class EntityFilterManager(models.Manager):
 
         VERSION_RE = compile_re(
             r'([\w,-]+)(\[(?P<version_num>\d[\d\.]+)'
-            r'( (?P<version_mod>alpha|beta|rc)(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
+            r'(([ ,-]+)(?P<version_mod>alpha|beta|rc)'
+            r'(?P<version_modnum>\d+)?)?\](?P<copy_num>\d+)?)?$'
         )
 
         def key(efilter):
