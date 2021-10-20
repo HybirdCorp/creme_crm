@@ -45,6 +45,7 @@ class ButtonMenuAddForm(CremeForm):
         ct_field = self.fields['ctype']
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
+    # NB: never called
     def save(self, commit=True):
         bmi = ButtonMenuItem(content_type=self.cleaned_data['ctype'], button_id='', order=1)
         if commit:
@@ -57,9 +58,11 @@ class ButtonMenuEditForm(CremeForm):
     button_ids = MultipleChoiceField(
         label=_('Buttons to display'), required=False,
         choices=(), widget=ButtonMenuEditionWidget,
-        help_text=_("Drag and drop the buttons between the available buttons and "
-                    "the selected buttons sections to enable or disable the buttons, "
-                    "or within the selected buttons section to change the order.")
+        help_text=_(
+            'Drag and drop the buttons between the available buttons and '
+            'the selected buttons sections to enable or disable the buttons, '
+            'or within the selected buttons section to change the order.'
+        ),
     )
 
     def __init__(self, button_menu_items, ct_id, button_registry=None, *args, **kwargs):
