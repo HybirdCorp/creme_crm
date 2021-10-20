@@ -28,13 +28,95 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
 class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
-    def test_portal(self):
+    def test_portal01(self):
+        "Do not hide deleted fields."
         self.login()
+
+        cfield1 = CustomField.objects.create(
+            content_type=FakeContact,
+            name='Programming languages',
+            field_type=CustomField.MULTI_ENUM,
+        )
+        cfield2 = CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Developed software',
+            field_type=CustomField.ENUM,
+        )
+        cfield3 = CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Baseline',
+            field_type=CustomField.STR,
+            is_deleted=True,
+        )
+
         response = self.assertGET200(reverse('creme_config__custom_fields'))
         self.assertTemplateUsed(response, 'creme_config/custom_field/portal.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
             response.context.get('bricks_reload_url'),
+        )
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.CustomFieldsBrick.id_,
+        )
+        self.assertEqual(
+            _('{count} Configured types of resource').format(count=2),
+            self.get_brick_title(brick_node),
+        )
+        self.assertSetEqual(
+            {cfield1.name, cfield2.name, cfield3.name},
+            {
+                n.text
+                for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+            },
+        )
+
+        def choices_node(cfield):
+            url = reverse('creme_config__custom_enums', args=(cfield.id,))
+            return brick_node.find(f'.//a[@href="{url}"]')
+
+        self.assertIsNotNone(choices_node(cfield1))
+        self.assertIsNotNone(choices_node(cfield2))
+        self.assertIsNone(choices_node(cfield3))
+
+    def test_portal02(self):
+        "Hide deleted fields."
+        user = self.login()
+        brick_id = bricks.CustomFieldsBrick.id_
+
+        state = BrickState(user=user, brick_id=brick_id)
+        state.set_extra_data(BRICK_STATE_HIDE_DELETED_CFIELDS, True)
+        state.save()
+
+        cfield = CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Developed software',
+            field_type=CustomField.MULTI_ENUM,
+        )
+        CustomField.objects.create(
+            content_type=FakeOrganisation,
+            name='Baseline',
+            field_type=CustomField.STR,
+            is_deleted=True,
+        )
+
+        response = self.assertGET200(reverse('creme_config__custom_fields'))
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id,
+        )
+        self.assertEqual(
+            _('{count} Configured type of resource').format(count=1),
+            self.get_brick_title(brick_node),
+        )
+        self.assertListEqual(
+            [cfield.name],
+            [
+                n.text
+                for n in brick_node.findall('.//td[@class="cfields-config-name"]')
+            ],
         )
 
     def test_add_ct01(self):
