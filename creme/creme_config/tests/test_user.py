@@ -59,37 +59,134 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
     def _build_edit_url(user_id, password=False):
         return reverse(
             'creme_config__change_user_password' if password else 'creme_config__edit_user',
-            args=(user_id,)
+            args=(user_id,),
         )
 
     @staticmethod
     def _build_activation_url(user_id, activation=True):
         return reverse(
             'creme_config__activate_user' if activation else 'creme_config__deactivate_user',
-            args=(user_id,)
+            args=(user_id,),
         )
 
     def login_not_as_superuser(self):
         apps = ('creme_config',)
         return self.login(is_superuser=False, allowed_apps=apps, admin_4_apps=apps)
 
+    @skipIfNotCremeUser
     @parameterized.expand([
         (False,),
         (True,),
     ])
     def test_portal(self, superuser):
-        self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
+        user = self.login(is_superuser=superuser, admin_4_apps=['creme_config'])
+        User.objects.create(username='A-Team', is_team=True)
+        User.objects.create(
+            username='StaffMan', is_staff=True, first_name='Staff', last_name='Man',
+        )
+
+        other_user = self.other_user
+        other_user.is_active = False
+        other_user.save()
 
         response = self.assertGET200(reverse('creme_config__users'))
         self.assertTemplateUsed(response, 'creme_config/portals/user.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
-            response.context.get('bricks_reload_url')
+            response.context.get('bricks_reload_url'),
         )
 
+        # ---
         doc = self.get_html_tree(response.content)
-        self.get_brick_node(doc, UsersBrick.id_)
-        self.get_brick_node(doc, TeamsBrick.id_)
+        users_brick_node = self.get_brick_node(doc, UsersBrick.id_)
+        self.assertEqual(
+            _('{count} Users').format(count=3),
+            self.get_brick_title(users_brick_node),
+        )
+        self.assertSetEqual(
+            {
+                n.text
+                for n in users_brick_node.findall('.//td[@class="user-username"]')
+            },
+            {'root', user.username, other_user.username},
+        )
+
+        self.assertIsNone(users_brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+
+        # ---
+        teams_brick_node = self.get_brick_node(doc, TeamsBrick.id_)
+        self.assertEqual(
+            _('{count} Team').format(count=1),
+            self.get_brick_title(teams_brick_node),
+        )
+
+    def test_portal_hide_inactive(self):
+        user = self.login()
+
+        other_user = self.other_user
+        other_user.is_active = False
+        other_user.save()
+
+        brick_id = UsersBrick.id_
+
+        state = BrickState(user=user, brick_id=brick_id)
+        state.set_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS, True)
+        state.save()
+
+        response = self.assertGET200(reverse('creme_config__users'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id,
+        )
+
+        usernames = {
+            n.text
+            for n in brick_node.findall('.//td[@class="user-username"]')
+        }
+        self.assertIn(user.username, usernames)
+        self.assertNotIn(other_user.username, usernames)
+
+    def test_portal_display_tz(self):
+        user = self.login()
+
+        time_zone = settings.TIME_ZONE
+        user.time_zone = (
+            'Europe/Paris'
+            if time_zone != 'Europe/Paris' else
+            'Asia/Tokyo'
+        )
+        user.save()
+
+        response = self.assertGET200(reverse('creme_config__users'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            UsersBrick.id_,
+        )
+
+        self.assertIsNotNone(brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
+        self.assertSetEqual(
+            {time_zone, user.time_zone},
+            {
+                n.text
+                for n in brick_node.findall('.//td[@class="user-timezone"]')
+            },
+        )
+
+    def test_portal_staff(self):
+        user = self.login(is_staff=True)
+
+        response = self.assertGET200(reverse('creme_config__users'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            UsersBrick.id_,
+        )
+
+        usernames = {
+            n.text
+            for n in brick_node.findall('.//td[@class="user-username"]')
+        }
+        self.assertIn(user.username, usernames)
+        self.assertIn(self.other_user.username, usernames)
 
     @skipIfNotCremeUser
     @skipIfCustomContact
