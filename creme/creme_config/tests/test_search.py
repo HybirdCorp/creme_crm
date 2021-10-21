@@ -30,7 +30,7 @@ from creme.creme_core.utils.unicode_collation import collator
 from ..bricks import SearchConfigBrick
 
 
-class SearchConfigTestCase(CremeTestCase, BrickTestCaseMixin):
+class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     PORTAL_URL = reverse('creme_config__search')
 
     @classmethod

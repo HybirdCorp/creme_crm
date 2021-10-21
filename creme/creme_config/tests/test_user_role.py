@@ -74,7 +74,23 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
             reverse('creme_core__reload_bricks'),
             response.context.get('bricks_reload_url'),
         )
-        self.get_brick_node(self.get_html_tree(response.content), UserRolesBrick.id_)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), UserRolesBrick.id_,
+        )
+        self.assertEqual(
+            _('{count} Role').format(count=1),
+            self.get_brick_title(brick_node),
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node),
+            url=self.ROLE_CREATION_URL,
+            label=_('New role'),
+        )
+        self.assertListEqual(
+            [self.role.name],
+            [n.text for n in brick_node.findall('.//td[@class="role-name"]')],
+        )
 
     @skipIfNotInstalled('creme.persons')
     @skipIfNotInstalled('creme.documents')
