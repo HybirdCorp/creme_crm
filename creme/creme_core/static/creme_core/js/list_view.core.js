@@ -215,7 +215,8 @@
                 var target = $(e.target);
 
                 // Ignore clicks on links, they should not select the row
-                var isClickFromLink = target.is('a') || target.parents('a:first').length === 1;
+//                var isClickFromLink = target.is('a') || target.parents('a:first').length === 1;
+                var isClickFromLink = target.is('a') || target.parents('a').first().length === 1;
 
                 if (!isClickFromLink) {
                     self.toggle($(this));
@@ -571,7 +572,8 @@
                 e.preventDefault();
                 e.stopPropagation();
 
-                var column = $(this).parent('.lv-column:first');
+//                var column = $(this).parent('.lv-column:first');
+                var column = $(this).parent('.lv-column').first();
                 self.toggleSort(column.attr('data-column-key'));
             });
         },

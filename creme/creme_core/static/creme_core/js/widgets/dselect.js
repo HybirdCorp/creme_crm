@@ -343,12 +343,14 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     selectfirst: function(element) {
-        element.val($('option:not(:disabled):first', element).attr('value'));
+//        element.val($('option:not(:disabled):first', element).attr('value'));
+        element.val($('option:not(:disabled)', element).first().attr('value'));
         this._onSelectionChange(element);
     },
 
     firstchoice: function(element) {
-        var choices = $('option:not(:disabled):first', element);
+//        var choices = $('option:not(:disabled):first', element);
+        var choices = $('option:not(:disabled)', element).first();
         return choices.length ? [choices.attr('value'), choices.text()] : null;
     },
 
@@ -358,7 +360,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         }
 
         var choices = $('option' + (key ? ':not(:disabled)' : ''), element).filter(function() {
-            return $(this).parents('select:first').is(element);
+//            return $(this).parents('select:first').is(element);
+            return $(this).parents('select').first().is(element);
         });
 
         if (Object.isEmpty(key) && !strict) {
@@ -376,7 +379,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         }
 
         var groups = $('optgroup' + (key ? ':not(:disabled)' : ''), element).filter(function() {
-            return $(this).parents('select:first').is(element);
+//            return $(this).parents('select:first').is(element);
+            return $(this).parents('select').first().is(element);
         });
 
         if (Object.isEmpty(key) && !strict) {

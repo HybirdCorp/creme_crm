@@ -457,7 +457,8 @@ creme.activities.CalendarController = creme.component.Component.sub({
             .onDone(function() {
                  calendar.fullCalendar('renderEvent', newEvent);
 
-                 var group = item.parents('.menu-group:first');
+//                 var group = item.parents('.menu-group:first');
+                 var group = item.parents('.menu-group').first();
                  item.detach();
 
                  group.toggleClass('is-empty-group', group.find('.floating-event').length === 0);

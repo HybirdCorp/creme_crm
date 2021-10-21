@@ -89,7 +89,8 @@ creme.widget.SelectorList = creme.widget.declare('ui-creme-selectorlist', {
         }
 
         selector.creme().destroy();
-        selector.parents('li.selector:first').remove();
+//        selector.parents('li.selector:first').remove();
+        selector.parents('li.selector').first().remove();
         this._update(element);
 
         return selector;

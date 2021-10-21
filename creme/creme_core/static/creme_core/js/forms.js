@@ -304,13 +304,15 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
 
                 var sel_name = $sel.attr('name');
 
-                if (sel_name === $chosen.find('li:first').attr('name')) {
+//                if (sel_name === $chosen.find('li:first').attr('name')) {
+                if (sel_name === $chosen.find('li').first().attr('name')) {
                     $up_button.prop('disabled', true);
                 } else {
                     $up_button.prop('disabled', false);
                 }
 
-                if (sel_name === $chosen.find('li:last').attr('name')) {
+//                if (sel_name === $chosen.find('li:last').attr('name')) {
+                if (sel_name === $chosen.find('li').last().attr('name')) {
                     $down_button.prop('disabled', true);
                 } else {
                     $down_button.prop('disabled', false);

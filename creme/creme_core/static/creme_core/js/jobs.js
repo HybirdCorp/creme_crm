@@ -238,7 +238,8 @@ creme.jobs.BrickJobsMonitor = creme.jobs.BaseJobsMonitor.sub({
 
 creme.jobs.PopupJobWaitingController = creme.widget.declare('job-waiting-ctrl', {
     _create: function(element, options, cb, sync, args) {
-        var dialog = element.parents('.ui-dialog:first');
+//        var dialog = element.parents('.ui-dialog:first');
+        var dialog = element.parents('.ui-dialog').first();
         var buttons = dialog.find('.ui-dialog-buttonset');
 
         var close_button = buttons.find('[name="cancel"]');

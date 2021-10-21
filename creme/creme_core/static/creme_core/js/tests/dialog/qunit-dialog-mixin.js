@@ -167,7 +167,8 @@
                              return $(this).text().indexOf(label) !== -1;
                          })
                          .map(function() {
-                             return $(this).parents('button:first').get(0);
+//                             return $(this).parents('button:first').get(0);
+                             return $(this).parents('button').first().get(0);
                          });
         },
 

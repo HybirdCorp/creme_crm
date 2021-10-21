@@ -506,7 +506,8 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
         $(document).on('click', '.underlay .selector_close', function(e) {
             e.preventDefault();
 
-            var column = $(this).parents('.underlay:first').attr('data-column');
+//            var column = $(this).parents('.underlay:first').attr('data-column');
+            var column = $(this).parents('.underlay').first().attr('data-column');
             var target = div.find('.selector[data-column="' + column + '"] .sub_selector_toggle');
 
             self._toggleSelectorUnderlay(target);

@@ -29,7 +29,8 @@ creme.bricks.dialogCenterPosition = function(dialog) {
      */
     var outer_height = $('.header-menu').outerHeight();
 
-    if (dialog.dialog().parents('.ui-dialog:first').position().top < outer_height) {
+//    if (dialog.dialog().parents('.ui-dialog:first').position().top < outer_height) {
+    if (dialog.dialog().parents('.ui-dialog').first().position().top < outer_height) {
         dialog.position({
             my: 'center top',
             at: 'center top+' + (2 * outer_height),
@@ -289,7 +290,8 @@ creme.bricks.BrickTable = creme.component.Component.sub({
         });
 
         element.delegate('td[data-selectable-selector-column]', 'click', function(e) {
-            var row = $(this).parents('tr:first');
+//            var row = $(this).parents('tr:first');
+            var row = $(this).parents('tr').first();
             self.toggleSelection(row.attr('data-row-index'), !row.is('.is-selected'));
         });
 

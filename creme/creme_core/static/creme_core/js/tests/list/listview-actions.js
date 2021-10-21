@@ -919,7 +919,8 @@ QUnit.test('creme.listview.row-action (redirect)', function(assert) {
 QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
-    var rows = widget.element.find('table:first tr.selectable');
+//    var rows = widget.element.find('table:first tr.selectable');
+    var rows = widget.element.find('table').first().find('tr.selectable');
 
     equal(5, rows.length);
 
@@ -941,7 +942,8 @@ QUnit.test('creme.listview.header-actions (no selection)', function(assert) {
 QUnit.test('creme.listview.header-actions (open menu, 1 selection)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
-    var rows = widget.element.find('table:first tr.selectable');
+//    var rows = widget.element.find('table:first tr.selectable');
+    var rows = widget.element.find('table').first().find('tr.selectable');
 
     equal(5, rows.length);
 
@@ -965,7 +967,8 @@ QUnit.test('creme.listview.header-actions (open menu, 1 selection)', function(as
 QUnit.test('creme.listview.header-actions (open menu, 2 selections)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
-    var rows = widget.element.find('table:first tr.selectable');
+//    var rows = widget.element.find('table:first tr.selectable');
+    var rows = widget.element.find('table').first().find('tr.selectable');
 
     equal(5, rows.length);
 
@@ -989,7 +992,8 @@ QUnit.test('creme.listview.header-actions (open menu, 2 selections)', function(a
 QUnit.test('creme.listview.header-actions (open menu, all selections)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
-    var rows = widget.element.find('table:first tr.selectable');
+//    var rows = widget.element.find('table:first tr.selectable');
+    var rows = widget.element.find('table').first().find('tr.selectable');
 
     equal(5, rows.length);
 
@@ -1012,7 +1016,8 @@ QUnit.test('creme.listview.header-actions (open menu, all selections)', function
 QUnit.test('creme.listview.header-actions (open menu, click)', function(assert) {
     var widget = this.createHeaderActionsListView();
     var list = widget.controller();
-    var rows = widget.element.find('table:first tr.selectable');
+//    var rows = widget.element.find('table:first tr.selectable');
+    var rows = widget.element.find('table').first().find('tr.selectable');
 
     $(rows[0]).trigger('click');
     $(rows[2]).trigger('click');

@@ -71,9 +71,11 @@ creme.FormGroupsController = creme.component.Component.sub({
     ctype: function(id) {
         Assert.that(this.isBound(), 'FormGroupsController is not bound');
         return this._brick.element()
-                          .find('.customform-config-show-details[data-ct-id="${id}"]:first'.template({id: id}))
+//                          .find('.customform-config-show-details[data-ct-id="${id}"]:first'.template({id: id}))
+                          .find('.customform-config-show-details[data-ct-id="${id}"]'.template({id: id}))
+                          .first()
 //                          .parents('.customform-config-item:first');
-                          .parents('.customform-config-ctype:first');
+                          .parents('.customform-config-ctype').first();
     },
 
     bind: function(brick) {
@@ -102,14 +104,14 @@ creme.FormGroupsController = creme.component.Component.sub({
         element.on('click', '.customform-config-show-details', function(e) {
             e.preventDefault();
 //            toggleItem($(this).parents('.customform-config-item:first'), true);
-            toggleCType($(this).parents('.customform-config-ctype:first'), true);
+            toggleCType($(this).parents('.customform-config-ctype').first(), true);
             saveState({ct_id: $(this).data('ct-id')});
         });
 
         element.on('click', '.customform-config-hide-details', function(e) {
             e.preventDefault();
 //            toggleItem($(this).parents('.customform-config-item:first'), false);
-            toggleCType($(this).parents('.customform-config-ctype:first'), false);
+            toggleCType($(this).parents('.customform-config-ctype').first(), false);
             saveState({ct_id: '0'});
         });
 
@@ -119,7 +121,8 @@ creme.FormGroupsController = creme.component.Component.sub({
             var icon = $(this);
             var expand = icon.is('.toggle-icon-expand');
 
-            icon.parents('.customform-config-item:first')
+            icon.parents('.customform-config-item')
+                .first()
                 .toggleClass('customform-config-item-collapsed', !expand);
         });
 
