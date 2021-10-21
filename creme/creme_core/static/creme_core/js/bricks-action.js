@@ -97,7 +97,8 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
             var state = toggle().state()[key];
 
             if (!Object.isNone(event)) {
-                var link = $(event.target).parents('[data-action]:first');
+//                var link = $(event.target).parents('[data-action]:first');
+                var link = $(event.target).parents('[data-action]').first();
                 link.find('.brick-action-title').text(state ? inactive_label : active_label);
             }
 
@@ -166,7 +167,8 @@ creme.bricks.BrickActionBuilders = creme.action.DefaultActionBuilderRegistry.sub
 
     _build_popover: function(url, options, data, e) {
         var target = $(e.target);
-        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
+//        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
+        var link = target.is('[data-action]') ? target : target.parents('[data-action]').first();
 
         return new creme.dialog.PopoverAction({
             title: link.find('summary').text(),

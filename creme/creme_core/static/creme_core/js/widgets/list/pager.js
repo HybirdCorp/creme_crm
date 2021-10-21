@@ -82,7 +82,8 @@ creme.list.Pager = creme.component.Component.sub({
 
     _initializeChooseLink: function(choose) {
         var self = this;
-        var input = $('input:first', choose);
+//        var input = $('input:first', choose);
+        var input = $('input', choose).first();
 
         var debounce = function(cb) {
             if (self._options.debounceDelay > 0) {

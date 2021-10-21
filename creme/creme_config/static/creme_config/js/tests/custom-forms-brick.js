@@ -393,7 +393,8 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
 
     controller.bind(brick);
 
-    var item = controller.ctype(ctypeIdA).find('.customform-config-item:first');
+//    var item = controller.ctype(ctypeIdA).find('.customform-config-item:first');
+    var item = controller.ctype(ctypeIdA).find('.customform-config-item').first();
     equal(item.is('.customform-config-item-collapsed'), true);
 
     item.find('.toggle-icon-expand').click();

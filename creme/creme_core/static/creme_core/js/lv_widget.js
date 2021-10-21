@@ -442,7 +442,8 @@ creme.lv_widget.ListViewActionLink = creme.action.ActionLink.sub({
         this._list = list;
 
         this.on('action-link-start', function(event, url, options, data, e) {
-            $(e.target).parents('.popover:first').trigger('modal-close');
+//            $(e.target).parents('.popover:first').trigger('modal-close');
+            $(e.target).parents('.popover').first().trigger('modal-close');
         });
 
         this.builders(list.actionBuilders());
@@ -471,7 +472,8 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
 
     _build_popover: function(url, options, data, e) {
         var target = $(e.target);
-        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
+//        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
+        var link = target.is('[data-action]') ? target : target.parents('[data-action]').first();
 
         return new creme.dialog.PopoverAction({
             title: link.find('summary').text(),
@@ -794,12 +796,13 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
         // Only init the $.fn.list_view once per form, not on every listview reload
         if (!listview) {
-            var inPopup = element.parents('.ui-dialog-content:first').length > 0;
+//            var inPopup = element.parents('.ui-dialog-content:first').length > 0;
+            var inPopup = element.parents('.ui-dialog-content').first().length > 0;
             var reloadUrl = options.reloadurl || window.location.href;
 
             listview = element.list_view({
-                selectionMode:    options.selectionMode,
-                reloadUrl:        reloadUrl
+                selectionMode: options.selectionMode,
+                reloadUrl:     reloadUrl
             });
 
             if (inPopup === false) {

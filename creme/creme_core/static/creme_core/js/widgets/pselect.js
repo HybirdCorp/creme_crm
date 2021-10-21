@@ -90,7 +90,8 @@ creme.widget.PolymorphicSelect = creme.widget.declare('ui-creme-polymorphicselec
         var self = this;
 
         this._target = $('<span>').addClass('delegate').html(model).appendTo(element);
-        var selector = $('> .delegate > .ui-creme-widget:first', element);
+//        var selector = $('> .delegate > .ui-creme-widget:first', element);
+        var selector = $('> .delegate > .ui-creme-widget', element).first();
 
         if (selector.length === 1) {
             creme.widget.create(selector, {}, function(delegate) {

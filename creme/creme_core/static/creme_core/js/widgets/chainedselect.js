@@ -166,14 +166,21 @@ creme.widget.ChainedSelect = creme.widget.declare('ui-creme-chainedselect', {
     },
 
     selector: function(element, name) {
-        return $('[chained-name="' + name + '"].ui-creme-chainedselect-item:last > .ui-creme-widget', element).filter(function() {
-            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+        return $(
+            '[chained-name="' + name + '"].ui-creme-chainedselect-item:last > .ui-creme-widget',
+            element
+        ).filter(function() {
+//            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+            return $(this).parents('.ui-creme-chainedselect').first().is(element);
         });
     },
 
     selectors: function(element) {
-        return $('.ui-creme-chainedselect-item > .ui-creme-widget', element).filter(function() {
-            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+        return $(
+            '.ui-creme-chainedselect-item > .ui-creme-widget', element
+        ).filter(function() {
+//            return $(this).parents('.ui-creme-chainedselect:first').is(element);
+            return $(this).parents('.ui-creme-chainedselect').first().is(element);
         });
     },
 

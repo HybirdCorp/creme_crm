@@ -38,7 +38,8 @@ creme.widget.DateRange = creme.widget.declare('ui-creme-daterange', {
         var isCustomrange = Object.isEmpty(value);
 
         element.find('[data-daterange-field]').each(function() {
-            $(this).parents('.daterange-field:first').toggleClass('hidden', !isCustomrange);
+//            $(this).parents('.daterange-field:first').toggleClass('hidden', !isCustomrange);
+            $(this).parents('.daterange-field').first().toggleClass('hidden', !isCustomrange);
         });
 
         if (!isCustomrange) {

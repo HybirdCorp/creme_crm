@@ -1381,7 +1381,8 @@ QUnit.test('creme.activities.CalendarController.external (ok, allDay)', function
         id: '3'
     }], this.getCalendarEvents(element));
 
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(false, element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group'));
     equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
@@ -1419,7 +1420,11 @@ QUnit.test('creme.activities.CalendarController.external (ok, allDay)', function
 
     // floating event has been removed from menu
     equal(0, element.find('.floating-event[data-id="52"]').length);
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(2, element.find('.floating-event').length);
 });
 
@@ -1449,7 +1454,11 @@ QUnit.test('creme.activities.CalendarController.external (ok, hour)', function(a
         id: '3'
     }], this.getCalendarEvents(element));
 
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
@@ -1487,7 +1496,11 @@ QUnit.test('creme.activities.CalendarController.external (ok, hour)', function(a
 
     // floating event has been removed from menu
     equal(0, element.find('.floating-event[data-id="52"]').length);
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(2, element.find('.floating-event').length);
 });
 
@@ -1518,7 +1531,11 @@ QUnit.test('creme.activities.CalendarController.external (fail)', function(asser
         id: '3'
     }], this.getCalendarEvents(element));
 
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(3, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="52"]');
@@ -1551,7 +1568,11 @@ QUnit.test('creme.activities.CalendarController.external (fail)', function(asser
 
     // floating event remains in menu
     equal(1, element.find('.floating-event[data-id="52"]').length);
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(3, element.find('.floating-event').length);
 });
 
@@ -1586,7 +1607,11 @@ QUnit.test('creme.activities.CalendarController.external (ok, none remains)', fu
         id: '3'
     }], this.getCalendarEvents(element));
 
-    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(false, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        false,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(1, element.find('.floating-event').length);
 
     var dragSource = element.find('.floating-event[data-id="51"]');
@@ -1624,7 +1649,11 @@ QUnit.test('creme.activities.CalendarController.external (ok, none remains)', fu
 
     // floating event has been removed from menu
     equal(0, element.find('.floating-event[data-id="51"]').length);
-    equal(true, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+//    equal(true, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
+    equal(
+        true,
+        element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')
+    );
     equal(0, element.find('.floating-event').length);
 });
 

@@ -160,7 +160,8 @@ creme.widget.EntitySelector = creme.widget.declare('ui-creme-entityselector', {
     },
 
     parentSelectorList: function(element) {
-        return element.parents('.ui-creme-selectorlist:first');
+//        return element.parents('.ui-creme-selectorlist:first');
+        return element.parents('.ui-creme-selectorlist').first();
     },
 
     qfilter: function(element, value) {

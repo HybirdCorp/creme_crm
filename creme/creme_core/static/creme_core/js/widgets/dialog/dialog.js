@@ -97,8 +97,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (this.options.useFrameTitleBar) {
-            var dialogHeader = this._dialog.parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
-            var header = $('.ui-creme-dialog-titlebar:first', this.frame().delegate());
+//            var dialogHeader = this._dialog.parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
+            var dialogHeader = this._dialog.parents('.ui-dialog').first().find('.ui-dialog-titlebar .ui-dialog-title');
+//            var header = $('.ui-creme-dialog-titlebar:first', this.frame().delegate());
+            var header = $('.ui-creme-dialog-titlebar', this.frame().delegate()).first();
 
             if (header.length > 0) {
                 header.appendTo(dialogHeader.empty());
@@ -277,7 +279,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _dialogContainer: function() {
-        return $(this._dialog).parent('.ui-dialog:first');
+//        return $(this._dialog).parent('.ui-dialog:first');
+        return $(this._dialog).parent('.ui-dialog').first();
     },
 
     _resizeDialog: function(width, height) {
@@ -607,7 +610,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     }
 });
 
-// TODO : Remove this hack later after finding a better way to do this in the bulk edit field selector.
 /*
 creme.dialog.redirect = function(url, from) {
     if (from === undefined) {
@@ -739,7 +741,8 @@ creme.dialogs = $.extend(creme.dialogs, {
         if (Object.isEmpty(selected.value) === false) {
             selector.val(selected.value);
         } else if (options.required) {
-            selector.val($('option:first', selector).attr('value'));
+//            selector.val($('option:first', selector).attr('value'));
+            selector.val($('option', selector).first().attr('value'));
         }
 
         if (message) {
@@ -748,14 +751,15 @@ creme.dialogs = $.extend(creme.dialogs, {
 
         content.append($('<p>').append(selector));
 
-        return new creme.dialog.SelectionDialog(options)
-                                    .fill(content)
-                                    .validator(function(value) {
-                                         return Object.isEmpty(creme.forms.validateHtml5Field(selector));
-                                     })
-                                    .selector(function(frame) {
-                                         return selector.val();
-                                     });
+        return new creme.dialog
+                        .SelectionDialog(options)
+                        .fill(content)
+                        .validator(function(value) {
+                             return Object.isEmpty(creme.forms.validateHtml5Field(selector));
+                        })
+                        .selector(function(frame) {
+                             return selector.val();
+                        });
     },
 
     alert: function(message, options) {
