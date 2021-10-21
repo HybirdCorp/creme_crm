@@ -5,12 +5,14 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+from creme.creme_config.bricks import PropertyTypesBrick
 from creme.creme_core.models import CremePropertyType
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
-class PropertyTypeTestCase(CremeTestCase):
+class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
     ADD_URL = reverse('creme_config__create_ptype')
 
     @staticmethod
@@ -34,8 +36,11 @@ class PropertyTypeTestCase(CremeTestCase):
             response.context.get('bricks_reload_url')
         )
 
-        self.assertContains(response, str(ptype1))
-        self.assertContains(response, str(ptype2))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), PropertyTypesBrick.id_,
+        )
+        self.assertInstanceLink(brick_node, ptype1)
+        self.assertInstanceLink(brick_node, ptype2)
 
     def _find_property_type(self, prop_types, text):
         for prop_type in prop_types:
