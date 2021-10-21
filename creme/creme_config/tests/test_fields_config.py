@@ -6,6 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_config.bricks import FieldsConfigsBrick
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import (
@@ -15,10 +16,12 @@ from creme.creme_core.models import (
     FieldsConfig,
 )
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import FakeActivity
+from creme.creme_core.tests.fake_models import FakeActivity, FakeSector
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.translation import plural
 
 
-class FieldsConfigTestCase(CremeTestCase):
+class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     WIZARD_URL = reverse('creme_config__create_fields_config')
 
     @classmethod
@@ -31,8 +34,8 @@ class FieldsConfigTestCase(CremeTestCase):
     def _build_edit_url(fconf):
         return reverse('creme_config__edit_fields_config', args=(fconf.pk,))
 
-    def _create_fconf(self):
-        return FieldsConfig.objects.create(content_type=self.ct, descriptions=())
+    def _create_fconf(self, model=None):
+        return FieldsConfig.objects.create(content_type=model or self.ct, descriptions=())
 
     @staticmethod
     def _configure_all_models():
@@ -50,9 +53,29 @@ class FieldsConfigTestCase(CremeTestCase):
     def test_portal01(self):
         self.login()
 
+        self._create_fconf()
+
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertTemplateUsed(response, 'creme_config/portals/fields-config.html')
-        self.assertContains(response, self.WIZARD_URL)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), FieldsConfigsBrick.id_,
+        )
+
+        count = FieldsConfig.objects.count()
+        msg = (
+            _('{count} Configured types of resource')
+            if plural(count) else
+            _('{count} Configured type of resource')
+        )
+        self.assertEqual(
+            msg.format(count=count),
+            self.get_brick_title(brick_node),
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node),
+            url=self.WIZARD_URL, label=_('New fields configuration'),
+        )
 
     def test_portal02(self):
         "All CTypes are already configured."
@@ -61,6 +84,27 @@ class FieldsConfigTestCase(CremeTestCase):
 
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertNotContains(response, self.WIZARD_URL)
+
+    def test_portal_errors(self):
+        self.login()
+
+        self._create_fconf(FakeSector)
+
+        response = self.assertGET200(reverse('creme_config__fields'))
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), FieldsConfigsBrick.id_,
+        )
+
+        error_node = brick_node.find('.//ul[@class="errorlist"]/li')
+        self.assertIsNotNone(error_node)
+        self.assertEqual(
+            _(
+                'This type of resource cannot be configured ; '
+                'please contact your administrator.'
+            ),
+            error_node.text,
+        )
 
     def test_edit01(self):
         self.login()
