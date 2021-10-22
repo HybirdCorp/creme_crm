@@ -233,7 +233,10 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (load addresses)', [
             ], this.mockBackendUrlCalls());
 
             equal('A1', brick.element().find('.brick-geoaddress-filter').val());
-            equal(gettext('%0$d addresses from').format(3), brick.element().find('.brick-geoaddress-counter').text());
+            equal(
+                ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
+                brick.element().find('.brick-geoaddress-counter').text()
+            );
             equal(3, controller.mapController().markers().length);
 
             deepEqual([
@@ -342,7 +345,10 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (google, click, redire
             deepEqual([], this.mockListenerCalls('marker-click'));
 
             equal('A1', brick.element().find('.brick-geoaddress-filter').val());
-            equal(gettext('%0$d addresses from').format(3), brick.element().find('.brick-geoaddress-counter').text());
+            equal(
+                ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
+                brick.element().find('.brick-geoaddress-counter').text()
+            );
             equal(3, controller.mapController().markers().length);
 
             this.triggerMarkerClick(controller.mapController().getMarker('Address_C'));
@@ -411,7 +417,10 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter)', [
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal(gettext('%0$d addresses from').format(3), brick.element().find('.brick-geoaddress-counter').text());
+            equal(
+                ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
+                brick.element().find('.brick-geoaddress-counter').text()
+             );
             equal(3, mapController.markers().length);
 
             filter.val('B1').trigger('change');
@@ -485,7 +494,10 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter, fail)'
                 ['mock/addresses', 'GET', {id: 'A1'}]
             ], this.mockBackendUrlCalls());
 
-            equal(gettext('%0$d addresses from').format(3), brick.element().find('.brick-geoaddress-counter').text());
+            equal(
+                ngettext('%0$d address from', '%0$d addresses from', 3).format(3),
+                brick.element().find('.brick-geoaddress-counter').text()
+             );
             equal(3, mapController.markers().length);
 
             controller.addressesUrl('mock/addresses/fail');
