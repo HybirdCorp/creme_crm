@@ -377,17 +377,6 @@ ul.multi-select {
     cursor: pointer;
 }
 
-.form-block-field-value input[type="button"]:hover,
-.select-wrapper select:hover {
-    background: linear-gradient(#ffffff, #f3f3f3);
-    color: #4d4d4d;
-}
-
-.form-block-field-value input[type="button"][disabled]:hover,
-.select-wrapper select[disabled]:hover {
-    background-color: #ebebeb; /* desaturate and lighten */
-}
-
 /* Not used by all browsers... */
 .select-wrapper option {
     background-color: #fff;
@@ -410,6 +399,7 @@ ul.multi-select {
     pointer-events: none;
 }
 
+.form-block-field-value input[type="button"][disabled],
 .select-wrapper select:disabled,
 .select-wrapper select:disabled + .select-arrow  {
     opacity: .50;
@@ -422,6 +412,18 @@ ul.multi-select {
     cursor: default;
     cursor: not-allowed;
 }
+
+.form-block-field-value input[type="button"]:hover,
+.select-wrapper select:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
+}
+
+.form-block-field-value input[type="button"][disabled]:hover,
+.select-wrapper select[disabled]:hover {
+    background-color: #ebebeb; /* desaturate and lighten */
+}
+
 
 /*
 table.block-form thead tr th {
