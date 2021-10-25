@@ -103,7 +103,7 @@ class GuiTestCase(CremeTestCase):
         with override_settings(MAX_LAST_ITEMS=1):
             self.assertGET200(FakeContact.get_lv_absolute_url())
 
-        self.assertEqual([contact02.pk], [i.pk for i in get_items()])
+        self.assertListEqual([contact02.pk], [i.pk for i in get_items()])
 
     def test_statistics01(self):
         user = self.create_user()

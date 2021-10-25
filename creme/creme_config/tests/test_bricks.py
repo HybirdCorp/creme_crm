@@ -163,7 +163,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         cls._original_brick_registry = gui_bricks.brick_registry
 
-        cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
+        # cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
+        cls._cls_brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
         brick_registry.register(
             CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
             HomeOnlyBrick1,
@@ -199,7 +200,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
+        # gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
+        gui_bricks.brick_registry = self.brick_registry = deepcopy(self._cls_brick_registry)
 
     @staticmethod
     def _build_adddetail_url(ct):

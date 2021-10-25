@@ -121,12 +121,12 @@ class Dummy:
 
 
 class DummyListBrick(PaginatedBrick):
-    id_           = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
-    verbose_name  = 'Dummies'
-    dependencies  = ()
-    permissions   = 'creme_config.can_admin'
+    id_ = PaginatedBrick.generate_id('creme_core', 'test_dummy_list')
+    verbose_name = 'Dummies'
+    dependencies = ()
+    permissions = 'creme_config.can_admin'
     template_name = join(TEST_TEMPLATE_BRICK_PATH, 'dummy-list.html')
-    configurable  = False
+    configurable = False
 
     def detailview_display(self, context):
         request = context['request']

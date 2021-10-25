@@ -26,10 +26,11 @@ from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
+from ..core import sorter
 from ..core.entity_cell import EntityCellRegularField
-from ..core.sorter import cell_sorter_registry
-from ..gui.bricks import Brick, BricksManager, brick_registry
-from ..gui.bulk_update import bulk_update_registry
+# NB: do not import registries directly to facilitate unit tests
+from ..gui import bricks, bulk_update
+from ..gui.bricks import Brick, BricksManager
 from ..gui.pager import PagerContext
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
@@ -43,12 +44,14 @@ logger = logging.getLogger(__name__)
 # TODO: 'selection_title' really need to be hard coded ? kwargs + html attr instead ?
 #       (generate an 'indicator' as loading => merge this concepts ??)
 @register.inclusion_tag('creme_core/templatetags/bricks/title.html', takes_context=True)
-def brick_header_title(
-        context, title, plural=None, empty=None, icon='info',
-        count=None, selection_title=None, selection_plural=None):
+def brick_header_title(context, title,
+                       plural=None, empty=None, icon='info',
+                       count=None, selection_title=None, selection_plural=None,
+                       ):
     """Display the title of a brick.
     Should be used in the template block 'brick_header_title'.
 
+    @param context: Template context.
     @param title: Title of the brick. If you want to display a number of items
            (eg: number of lines in this brick) & so pluralize the title, use a
            format variable '{count}' and the parameter 'plural'.
@@ -140,11 +143,11 @@ _DISPLAY_VALUES = frozenset(('text', 'icon', 'both'))
 
 
 @register.inclusion_tag('creme_core/templatetags/bricks/action.html', takes_context=True)
-def brick_action(
-        context, id, url='',
-        label=None, icon=None, icon_size='brick-action', display='icon',
-        enabled=True,
-        confirm=None, loading=None, help_text=None, **kwargs):
+def brick_action(context, id, url='',
+                 label=None, icon=None, icon_size='brick-action', display='icon',
+                 enabled=True,
+                 confirm=None, loading=None, help_text=None,
+                 **kwargs):
     """Create a Creme-action (ie: link/button related to JavaScript code) made
     for use in a brick.
     (see  creme/creme_core/static/creme_core/js/bricks.js).
@@ -154,6 +157,7 @@ def brick_action(
     context (brick header, table-brick):
       {% brick_header_action .. %}, {% brick_table_action ... %}...
 
+    @param context: Template context.
     @param id: ID of the action. An ID 'foo-bar' will correspond to the method
            '_action_foo_bar' of the brick.
            Description of the actions defined by the core (some apps define their
@@ -295,7 +299,10 @@ def brick_action(
     return data
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/header-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/header-action.html',
+    takes_context=True
+)
 def brick_header_action(context, display='both', **kwargs):
     """Action (see brick_brick_action()) for brick's header.
 
@@ -315,10 +322,13 @@ def brick_header_action(context, display='both', **kwargs):
     return brick_action(context, display=display, **kwargs)
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/card-button.html', takes_context=True)
-def brick_card_button(
-        context, action, url, label, icon=None, enabled=True, confirm=None,
-        **kwargs):
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/card-button.html',
+    takes_context=True,
+)
+def brick_card_button(context, action, url, label,
+                      icon=None, enabled=True, confirm=None,
+                      **kwargs):
     """Action (see brick_brick_action()) for "card" (hat) bricks.
 
     Notice that the size of instanced Icons should be "brick-hat-card-button".
@@ -332,8 +342,13 @@ def brick_card_button(
     )
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/bar-button.html', takes_context=True)
-def brick_bar_button(context, action, url, label, icon, enabled=True, confirm=None, **kwargs):
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/bar-button.html',
+    takes_context=True,
+)
+def brick_bar_button(context, action, url, label, icon,
+                     enabled=True, confirm=None,
+                     **kwargs):
     """Action (see brick_brick_action()) for "bar" (hat) bricks.
 
     Notice that the size of instanced Icons should be "brick-hat-bar-button".
@@ -347,7 +362,10 @@ def brick_bar_button(context, action, url, label, icon, enabled=True, confirm=No
     )
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/menu-action.html',
+    takes_context=True,
+)
 def brick_menu_action(context, id, **kwargs):
     """Action (see brick_brick_action()) for the (hidden menu) of a brick.
 
@@ -383,7 +401,10 @@ def _brick_menu_state_action(
     )
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/menu-action.html',
+    takes_context=True,
+)
 def brick_menu_collapse_action(context, state):
     return _brick_menu_state_action(
         context,
@@ -393,7 +414,10 @@ def brick_menu_collapse_action(context, state):
     )
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/menu-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/menu-action.html',
+    takes_context=True,
+)
 def brick_menu_reduce_action(context, state):
     return _brick_menu_state_action(
         context,
@@ -442,10 +466,14 @@ def brick_table_column(title, status='', **attrs):
 
 
 # TODO: attrs => only 'class' & 'colspan' ? (+ 'ATTR:colspan' ?)
-@register.inclusion_tag('creme_core/templatetags/bricks/table-column.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/table-column.html',
+    takes_context=True,
+)
 def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
     """Column header for table-bricks (see brick_table_column()) related to an EntityCell.
 
+    @param context: Template context.
     @param cell: Instance of EntityCellRegularField
            (tips: you can use the templatetag lib 'creme_cells').
     @param title: Title of the column (string). By default, the cell's title is used.
@@ -462,7 +490,7 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
     # TODO: only if the brick manages sorting (QuerysetBrick) ??
     # TODO: take the registry from the context ? the arguments ?
     # if cell.sortable:
-    if cell_sorter_registry.get_field_name(cell):
+    if sorter.cell_sorter_registry.get_field_name(cell):
         current_sort = context.get('order_by')
 
         if current_sort:
@@ -498,10 +526,14 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
     }
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/table-column.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/table-column.html',
+    takes_context=True,
+)
 def brick_table_column_for_field(context, ctype, field, title='', status='', **attrs):
     """Column header for table-bricks (see brick_table_column()) related to a model field.
 
+    @param context: Template context.
     @param ctype: Instance of ContentType. Tips:
            - you can use the templatetag lib 'creme_ctype'.
            - QuerysetBrick fill the template variable 'objects_ctype'.
@@ -532,7 +564,10 @@ def brick_table_column_for_field(context, ctype, field, title='', status='', **a
     return brick_table_column_for_cell(context, cell=cell, title=title, status=status, **attrs)
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/table-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/table-action.html',
+    takes_context=True,
+)
 def brick_table_action(context, id, **kwargs):
     """Action
     (see brick_brick_action()) for the content of a table-brick (see brick_table_column()).
@@ -602,7 +637,10 @@ def brick_state_classes(state):
     return ' '.join(classes)
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/tile-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/tile-action.html',
+    takes_context=True,
+)
 def brick_tile_action(context, id, **kwargs):
     """Action (see brick_action()) for the content of a tiles-brick
     (see creme/creme_core/templates/creme_core/bricks/base/tiles.html).
@@ -700,12 +738,17 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
         'multiline': cell.is_multiline,
 
         # TODO: pass the registry in context ?
-        'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        'edit_url':  bulk_update.bulk_update_registry.inner_uri(
+            cell=cell, instance=instance, user=user,
+        ),
         'edit_perm': _bulk_has_perm(instance, user),
     }
 
 
-@register.inclusion_tag('creme_core/templatetags/bricks/card-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/card-action.html',
+    takes_context=True,
+)
 def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs):
     """Action (see brick_action()) for the content of a hat-card-brick
     (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
@@ -739,7 +782,10 @@ def brick_card_action(context, url, enabled, id='edit', display='both', **kwargs
 
 
 # TODO: use a brick_card_action_for_cell tag ??
-@register.inclusion_tag('creme_core/templatetags/bricks/card-action.html', takes_context=True)
+@register.inclusion_tag(
+    'creme_core/templatetags/bricks/card-action.html',
+    takes_context=True,
+)
 def brick_card_action_for_field(context, instance, field, user, **kwargs):
     """Inner-edition action (see brick_action()) for a field in a hat-card-brick
     (see creme/creme_core/templates/creme_core/bricks/base/hat-card.html).
@@ -770,7 +816,9 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
     # TODO: pass the registry in context ?
     return brick_card_action(
         context,
-        url=bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        url=bulk_update.bulk_update_registry.inner_uri(
+            cell=cell, instance=instance, user=user,
+        ),
         enabled=_bulk_has_perm(instance, user),
         **kwargs
     )
@@ -837,14 +885,14 @@ def brick_import(context, app=None, name=None, object=None):
                 'you cannot give app/name parameters.'
             )
 
-        brick = brick_registry.get_brick_4_object(object)
+        brick = bricks.brick_registry.get_brick_4_object(object)
     else:
         if app is None or name is None:
             raise TemplateSyntaxError(
                 '{% brick_import %}: you have to give "app" AND "name" parameters.'
             )
 
-        brick = brick_registry[Brick.generate_id(app, name)]()
+        brick = bricks.brick_registry[Brick.generate_id(app, name)]()
 
     BricksManager.get(context).add_group(brick.id_, brick)
 
@@ -918,7 +966,7 @@ def brick_get_by_ids(*brick_ids, **kwargs):
 
         {% brick_get_by_ids brick_id1 brick_id2 entity=my_instance as bricks %}
     """
-    return [*brick_registry.get_bricks(brick_ids, entity=kwargs.get('entity'))]
+    return [*bricks.brick_registry.get_bricks(brick_ids, entity=kwargs.get('entity'))]
 
 
 _DISPLAY_METHODS = {
