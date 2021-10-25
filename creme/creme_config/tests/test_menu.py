@@ -25,6 +25,7 @@ from creme.creme_core.tests.fake_menu import (
     FakeOrganisationCreationEntry,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils import split_filter
 
 from ..bricks import MenuBrick
 from ..forms.fields import MenuEntriesField
@@ -365,10 +366,17 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         MenuConfigItem.objects.all().delete()
 
+        create_items = MenuConfigItem.objects.bulk_create
+        parent_items, child_items = split_filter(
+            (lambda item: item.parent_id is None),
+            cls._items_backup,
+        )
+
         try:
-            MenuConfigItem.objects.bulk_create(cls._items_backup)
-        except Exception:
-            print(f'{cls.__name__}: test-data backup problem')
+            create_items(parent_items)
+            create_items(child_items)
+        except Exception as e:
+            print(f'{cls.__name__}: test-data backup problem ({e})')
 
     @staticmethod
     def _build_edit_container_url(item):

@@ -31,7 +31,7 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             id_ = Brick.generate_id('creme_core', name)
             verbose_name = 'Testing purpose'
 
-            def detailview_display(self, context):
+            def detailview_display(this, context):
                 return brick_str
 
         brick_registry.register(FooBrick)
@@ -80,8 +80,8 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             verbose_name = 'Testing purpose'
             brick_str = 'OVERLOAD ME'
 
-            def detailview_display(self, context):
-                return self.brick_str
+            def detailview_display(this, context):
+                return this.brick_str
 
         prefix = 'CremeBricksTagsTestCase__brick_test_brick_declare_n_display01'
 
@@ -156,8 +156,8 @@ class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             verbose_name = 'Testing purpose'
             brick_str = '<div>FOO</div>'
 
-            def detailview_display(self, context):
-                return self.brick_str
+            def detailview_display(this, context):
+                return this.brick_str
 
         context = RequestContext(self.build_request(), {'my_brick': FooBrick()})
 
