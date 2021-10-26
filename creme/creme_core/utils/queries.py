@@ -41,7 +41,7 @@ from django.core.serializers.base import SerializationError
 from django.db.models import Model, Q
 from django.db.models.query import QuerySet
 
-from .dates import DATE_ISO8601_FMT, DATETIME_ISO8601_FMT
+from . import dates
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +56,15 @@ class QSerializer:
     def _serialize_value(self, value):
         if isinstance(value, date):
             # TODO: same format for deserialization...
-            return value.strftime(
-                DATETIME_ISO8601_FMT
-                if isinstance(value, datetime) else
-                DATE_ISO8601_FMT
-            )
+            # return value.strftime(
+            #     DATETIME_ISO8601_FMT
+            #     if isinstance(value, datetime) else
+            #     DATE_ISO8601_FMT
+            # )
+            if isinstance(value, datetime):
+                return dates.to_utc(value).strftime(dates.DATETIME_ISO8601_FMT)
+            else:
+                return value.strftime(dates.DATE_ISO8601_FMT)
 
         if isinstance(value, Model):
             return value.pk
