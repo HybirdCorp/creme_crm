@@ -19,7 +19,8 @@ from ..base import CremeTestCase
 from ..views.base import BrickTestCaseMixin
 
 
-class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
+# class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
+class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick_import_n_display01(self):
         "Named Brick."
         self.login()

@@ -125,7 +125,6 @@ def persons_contact_first_employer(contact, user):
     return info
 
 
-# TODO: unit test
 @register.simple_tag
 def persons_addresses_formblock_fields(form, address_fks, zip_fields=True):
     if not address_fks:

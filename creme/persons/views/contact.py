@@ -190,7 +190,8 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    form_class: Type[forms.BaseForm] = custom_forms.CONTACT_EDITION_CFORM
+    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+        custom_forms.CONTACT_EDITION_CFORM
     pk_url_kwarg = 'contact_id'
 
 
