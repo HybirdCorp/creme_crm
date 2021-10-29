@@ -75,13 +75,14 @@ logger = logging.getLogger(__name__)
 
 
 class SearchConfigItemManager(models.Manager):
-    def create_if_needed(
-            self,
-            model: Type[CremeEntity],
-            fields: Iterable[str],
-            role: Union[UserRole, str, None] = None,
-            disabled: bool = False) -> 'SearchConfigItem':
+    def create_if_needed(self,
+                         model: Type[CremeEntity],
+                         fields: Iterable[str],
+                         role: Union[UserRole, str, None] = None,
+                         disabled: bool = False,
+                         ) -> 'SearchConfigItem':
         """Create a config item & its fields if one does not already exists.
+        @param model: Model class the configuration is related to.
         @param fields: Sequence of strings representing regular field names.
         @param role: UserRole instance; or 'superuser'; or None, for default configuration.
         @param disabled: Boolean.
@@ -115,10 +116,10 @@ class SearchConfigItemManager(models.Manager):
 
         return sci
 
-    def iter_for_models(
-            self,
-            models: Iterable[Type[CremeEntity]],
-            user) -> Iterator['SearchConfigItem']:
+    def iter_for_models(self,
+                        models: Iterable[Type[CremeEntity]],
+                        user,
+                        ) -> Iterator['SearchConfigItem']:
         "Get the SearchConfigItem instances corresponding to the given models (generator)."
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]

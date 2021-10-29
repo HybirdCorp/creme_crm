@@ -763,6 +763,14 @@ class _CremeTestCase:
     def get_html_tree(content):
         return html5lib.parse(content, namespaceHTMLElements=False)
 
+    def get_html_node_or_fail(self, tree, path):
+        node = tree.find(path)
+
+        if node is None:
+            self.fail(f'The HTML node with path <{path}> has not been found.')
+
+        return node
+
     @staticmethod
     def get_icon(name, size, label=''):
         theme = get_current_theme()
