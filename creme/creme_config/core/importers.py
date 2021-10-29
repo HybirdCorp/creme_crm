@@ -1490,7 +1490,7 @@ class CustomFormsImporter(Importer):
         # self._data = [*map(self.load_cform_item, deserialized_section)]
         self._data = [
             self.load_cform_item(
-                cform_item_info=item_info, validated_data=validated_data
+                cform_item_info=item_info, validated_data=validated_data,
             ) for item_info in deserialized_section
         ]
 

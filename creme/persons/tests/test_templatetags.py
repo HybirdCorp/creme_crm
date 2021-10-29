@@ -417,6 +417,6 @@ class PersonsTagsTestCase(CremeTestCase):
             f'     <input type="text" maxlength="100" name="shipping_address-zipcode"'
             f'            id="id_shipping_address-zipcode">'
             f'  </div>'
-            f'  </form>',
+            f'</form>',
             render2,
         )
