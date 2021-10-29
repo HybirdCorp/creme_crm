@@ -127,8 +127,9 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
-        volatile_span = brick_node.find('.//span[@class="graph-volatile-value"]')
-        self.assertIsNotNone(volatile_span)
+        volatile_span = self.get_html_node_or_fail(
+            brick_node, './/span[@class="graph-volatile-value"]',
+        )
         self.assertEqual(vname, volatile_span.text)
 
         # --

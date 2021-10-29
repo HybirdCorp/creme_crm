@@ -65,8 +65,7 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
         document = self.get_html_tree(render)
         brick_node = self.get_brick_node(document, MODELBRICK_ID)
 
-        content_node = brick_node.find('.//div[@class="brick-content "]')
-        self.assertIsNotNone(content_node)
+        content_node = self.get_html_node_or_fail(brick_node, './/div[@class="brick-content "]')
         self.assertEqual(
             motoko.last_name,
             self.get_brick_tile(content_node, 'regular_field-last_name').text

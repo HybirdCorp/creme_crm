@@ -2856,8 +2856,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             self.get_html_tree(response.content),
             brick_id=InstanceBricksInfoBrick.id_,
         )
-        vname_node = brick_node.find('.//td[@data-table-primary-column]')
-        self.assertIsNotNone(vname_node)
+        vname_node = self.get_html_node_or_fail(brick_node, './/td[@data-table-primary-column]')
         self.assertEqual(_('No volatile column'), vname_node.text)
 
         # ----------------------------------------------------------------------

@@ -160,11 +160,8 @@ class ListViewTestCase(ViewsTestCase):
         return node
 
     def _get_lv_header_titles(self, lv_node):
-        thead_node = lv_node.find('.//thead')
-        self.assertIsNotNone(thead_node)
-
-        tr_node = thead_node.find(".//tr[@class='lv-columns-header']")
-        self.assertIsNotNone(tr_node)
+        thead_node = self.get_html_node_or_fail(lv_node, './/thead')
+        tr_node = self.get_html_node_or_fail(thead_node, ".//tr[@class='lv-columns-header']")
 
         return [
             span_node.text
@@ -174,11 +171,8 @@ class ListViewTestCase(ViewsTestCase):
         ]
 
     def _get_lv_header_widget_nodes(self, lv_node, cell_key, input_type='input', count=1):
-        thead_node = lv_node.find('.//thead')
-        self.assertIsNotNone(thead_node)
-
-        tr_node = thead_node.find(".//tr[@class='lv-search-header']")
-        self.assertIsNotNone(tr_node)
+        thead_node = self.get_html_node_or_fail(lv_node, './/thead')
+        tr_node = self.get_html_node_or_fail(thead_node, ".//tr[@class='lv-search-header']")
 
         widget_nodes = tr_node.findall(f".//{input_type}[@name='search-{cell_key}']")
         self.assertEqual(count, len(widget_nodes))
@@ -186,18 +180,14 @@ class ListViewTestCase(ViewsTestCase):
         return widget_nodes
 
     def _assert_no_lv_header_widget_node(self, lv_node, cell_key):
-        tr_node = lv_node.find(".//thead//tr[@class='lv-search-header']")
-        self.assertIsNotNone(tr_node)
+        tr_node = self.get_html_node_or_fail(lv_node, ".//thead//tr[@class='lv-search-header']")
 
         input_node = tr_node.find(f".//*[@name='{cell_key}']")
         self.assertIsNone(input_node)
 
     def _get_lv_inputs_content(self, lv_node):
-        thead_node = lv_node.find(".//thead")
-        self.assertIsNotNone(thead_node)
-
-        th_node = thead_node.find(".//tr/th")
-        self.assertIsNotNone(th_node)
+        thead_node = self.get_html_node_or_fail(lv_node, './/thead')
+        th_node = self.get_html_node_or_fail(thead_node, './/tr/th')
 
         return [
             (input_node.attrib.get('name'), input_node.attrib.get('value'))
@@ -205,9 +195,7 @@ class ListViewTestCase(ViewsTestCase):
         ]
 
     def _get_lv_content(self, lv_node):
-        tbody_node = lv_node.find('.//tbody')
-        self.assertIsNotNone(tbody_node)
-
+        tbody_node = self.get_html_node_or_fail(lv_node, './/tbody')
         content = []
 
         for tr_node in tbody_node.findall('tr'):
@@ -1171,8 +1159,9 @@ class ListViewTestCase(ViewsTestCase):
         )
 
         page_tree = self.get_html_tree(response.content)
-        buttons_node = page_tree.find(".//div[@class='list-header-buttons clearfix']")
-        self.assertIsNotNone(buttons_node)
+        buttons_node = self.get_html_node_or_fail(
+            page_tree, ".//div[@class='list-header-buttons clearfix']",
+        )
 
         hrefs = [
             button_node.attrib.get('href')

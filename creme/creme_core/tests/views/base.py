@@ -55,29 +55,32 @@ class ViewsTestCase(CremeTestCase):
 class BrickTestCaseMixin:
     def get_brick_node(self, tree, brick_id):
         brick_node = tree.find(f".//div[@id='{brick_id}']")
-        self.assertIsNotNone(brick_node, f'The brick id="{brick_id}" is not found.')
+        if brick_node is None:
+            self.fail(f'The brick id="{brick_id}" is not found.')
 
         classes = brick_node.attrib.get('class')
-        self.assertIsNotNone(
-            classes,
-            f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
-        )
-        self.assertIn(
-            'brick', classes.split(),
-            f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
-        )
+        if classes is None:
+            self.fail(
+                f'The brick id="{brick_id}" is not a valid brick (no "class" attribute).'
+            )
+
+        if 'brick' not in classes.split():
+            self.fail(
+                f'The brick id="{brick_id}" is not a valid brick (no "brick" class).'
+            )
 
         return brick_node
 
     def assertNoBrick(self, tree, brick_id):
-        self.assertIsNone(
-            tree.find(f".//div[@id='{brick_id}']"),
-            f'The brick id="{brick_id}" has been unexpectedly found.'
-        )
+        if tree.find(f".//div[@id='{brick_id}']") is not None:
+            self.fail(
+                f'The brick id="{brick_id}" has been unexpectedly found.'
+            )
 
     def assertInstanceLink(self, brick_node, entity):
-        link_node = brick_node.find(f".//a[@href='{entity.get_absolute_url()}']")
-        self.assertIsNotNone(link_node)
+        link_node = self.get_html_node_or_fail(
+            brick_node, f".//a[@href='{entity.get_absolute_url()}']"
+        )
         self.assertEqual(str(entity), link_node.text)
 
     def assertNoInstanceLink(self, brick_node, entity):
@@ -90,25 +93,17 @@ class BrickTestCaseMixin:
         self.assertNotIn(css_class, brick_node.attrib.get('class').split())
 
     def get_brick_tile(self, content_node, key):
-        tile_node = content_node.find(f'.//div[@data-key="{key}"]')
-        self.assertIsNotNone(tile_node)
+        tile_node = self.get_html_node_or_fail(content_node, f'.//div[@data-key="{key}"]')
 
-        value_node = tile_node.find('.//span[@class="brick-tile-value"]')
-        self.assertIsNotNone(value_node)
-
-        return value_node
+        return self.get_html_node_or_fail(tile_node, './/span[@class="brick-tile-value"]')
 
     def get_brick_title(self, brick_node):
-        span_node = brick_node.find('.//span[@class="brick-title"]')
-        self.assertIsNotNone(span_node)
-
-        return span_node.text.strip()
+        return self.get_html_node_or_fail(
+            brick_node, './/span[@class="brick-title"]',
+        ).text.strip()
 
     def get_brick_header_buttons(self, brick_node):
-        buttons_node = brick_node.find('.//div[@class="brick-header-buttons"]')
-        self.assertIsNotNone(buttons_node)
-
-        return buttons_node
+        return self.get_html_node_or_fail(brick_node, './/div[@class="brick-header-buttons"]')
 
     def assertBrickHeaderHasButton(self, buttons_node, url, label):
         button_node = buttons_node.find(f'.//a[@href="{url}"]')
