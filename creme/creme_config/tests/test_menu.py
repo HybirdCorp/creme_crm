@@ -311,8 +311,7 @@ class MenuEntriesTestCase(CremeTestCase):
             '<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">'
         )
 
-        ul_node = self.get_html_tree(render).find('.//ul')
-        self.assertIsNotNone(ul_node)
+        ul_node = self.get_html_node_or_fail(self.get_html_tree(render), './/ul')
 
         links = []
         for li_node in ul_node.findall('li'):

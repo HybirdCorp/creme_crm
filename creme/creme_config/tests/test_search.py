@@ -78,8 +78,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(response.content),
             SearchConfigBrick.id_,
         )
-        title_node = brick_node.find(".//div[@class='search-config-group-title']")
-        self.assertIsNotNone(title_node)
+        title_node = self.get_html_node_or_fail(
+            brick_node, ".//div[@class='search-config-group-title']",
+        )
         self.assertEqual([str(ctype)], [text.strip() for text in title_node.itertext()])
 
         # Missing default configurations are built

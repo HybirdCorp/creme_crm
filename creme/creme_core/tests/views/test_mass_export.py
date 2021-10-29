@@ -674,9 +674,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
         self.assertIsNotNone(content_node, 'The table listviews is not found.')
 
-        tbody = content_node.find('.//tbody')
-        self.assertIsNotNone(tbody)
-
+        tbody = self.get_html_node_or_fail(content_node, './/tbody')
         content = []
 
         for tr_node in tbody.findall('tr'):

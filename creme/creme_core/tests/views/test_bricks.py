@@ -675,10 +675,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         document = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(document, brick_id)
 
-        content_node = brick_node.find('.//div[@class="brick-content "]')
-        self.assertIsNotNone(content_node)
-
-        return content_node
+        return self.get_html_node_or_fail(brick_node, './/div[@class="brick-content "]')
 
     def _assertNoBrickTile(self, content_node, key):
         self.assertIsNone(content_node.find(f'.//div[@data-key="{key}"]'))

@@ -96,8 +96,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(response.content), FieldsConfigsBrick.id_,
         )
 
-        error_node = brick_node.find('.//ul[@class="errorlist"]/li')
-        self.assertIsNotNone(error_node)
+        error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')
         self.assertEqual(
             _(
                 'This type of resource cannot be configured ; '
