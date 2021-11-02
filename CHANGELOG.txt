@@ -16,7 +16,7 @@
         - The package "csscompressor" is used to minify the CSS files.
         - The package "rjsmin" is used to minify the JavaScript files.
     # The history has been improved :
-        - The messages in the the history block are prettier.
+        - The messages in the history block are prettier.
         - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.
         - Elements which are added & removed for ManyToManyFields are now stored.
         - CustomFields are now historized too.
@@ -369,6 +369,8 @@
             * Billing :
                 - The constants 'DISCOUNT_*' have been replaced by an 'django.db.models.IntegerChoices' : 'model.Line.Discount'.
                 - The class 'forms.credit_note.CreditNoteRelatedForm' has been renamed "CreditNotesRelatedForm".
+            * Commercial :
+                - In the model 'AbstractStrategy', in the methods 'get_asset_score()' & 'get_charm_score()', the argument "segment" has been renamed "segment_desc".
             * Emails :
                 - In 'constants' :
                     - 'MAIL_STATUS*' have been replaced by a 'django.db.models.IntegerChoices' : 'model._Email.Status'.

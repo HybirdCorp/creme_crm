@@ -43,7 +43,8 @@ def skipIfCustomStrategy(test_func):
 class CommercialBaseTestCase(CremeTestCase):
     ADD_SEGMENT_URL = reverse('commercial__create_segment')
 
-    def _build_add_segmentdesc_url(self, strategy):
+    @staticmethod
+    def _build_add_segmentdesc_url(strategy):
         return reverse('commercial__create_segment_desc', args=(strategy.id,))
 
     def _create_segment(self, name='Segment#1'):
@@ -65,3 +66,25 @@ class CommercialBaseTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         return strategy.segment_info.get(segment__name=name)
+
+    def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
+        self.assertPOST200(
+            reverse('commercial__set_asset_score', args=(strategy.id,)),
+            data={
+                'model_id':        asset.id,
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'score':           score,
+            },
+        )
+
+    def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
+        self.assertPOST200(
+            reverse('commercial__set_charm_score', args=(strategy.id,)),
+            data={
+                'model_id':        charm.id,
+                'segment_desc_id': segment_desc.id,
+                'orga_id':         orga.id,
+                'score':           score,
+            },
+        )
