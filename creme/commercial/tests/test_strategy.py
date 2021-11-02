@@ -43,28 +43,6 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def _build_edit_segmentdesc_url(segment_desc):
         return reverse('commercial__edit_segment_desc', args=(segment_desc.id,))
 
-    def _set_asset_score(self, strategy, orga, asset, segment_desc, score):
-        self.assertPOST200(
-            reverse('commercial__set_asset_score', args=(strategy.id,)),
-            data={
-                'model_id':        asset.id,
-                'segment_desc_id': segment_desc.id,
-                'orga_id':         orga.id,
-                'score':           score,
-            },
-        )
-
-    def _set_charm_score(self, strategy, orga, charm, segment_desc, score):
-        self.assertPOST200(
-            reverse('commercial__set_charm_score', args=(strategy.id,)),
-            data={
-                'model_id':        charm.id,
-                'segment_desc_id': segment_desc.id,
-                'orga_id':         orga.id,
-                'score':           score,
-            },
-        )
-
     def test_strategy_create(self):
         user = self.login()
         url = reverse('commercial__create_strategy')

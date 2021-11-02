@@ -23,8 +23,10 @@ from django.template import Library
 register = Library()
 
 
+# TODO: keyword arguments only ?
+# TODO: rename (segment_descriptions?) ?
 @register.simple_tag
-def commercial_segments_for_category(strategy, orga, category):  # TODO: keyword arguments only ?
+def commercial_segments_for_category(strategy, orga, category):
     return strategy.get_segments_for_category(orga, category)
 
 
@@ -35,19 +37,25 @@ def commercial_widget_asset_score(context, segment_desc, asset):  # TODO: keywor
 
     context['score'] = strategy.get_asset_score(orga, asset, segment_desc)
     context['view_name'] = 'commercial__set_asset_score'
+    context['segment_desc'] = segment_desc
     context['scored_instance'] = asset
     context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
     return context
 
 
+# TODO: keyword arguments only ?
+# TODO: factorise
 @register.inclusion_tag('commercial/templatetags/widget-score.html', takes_context=True)
-def commercial_widget_charm_score(context, segment, charm):  # TODO: keyword arguments only ?
+# def commercial_widget_charm_score(context, segment, charm):
+def commercial_widget_charm_score(context, segment_desc, charm):
     strategy = context['strategy']
     orga     = context['orga']
 
-    context['score'] = strategy.get_charm_score(orga, charm, segment)
+    # context['score'] = strategy.get_charm_score(orga, charm, segment)
+    context['score'] = strategy.get_charm_score(orga, charm, segment_desc)
     context['view_name'] = 'commercial__set_charm_score'
+    context['segment_desc'] = segment_desc
     context['scored_instance'] = charm
     context['has_perm'] = context['user'].has_perm_to_change(strategy)
 
