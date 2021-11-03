@@ -33,7 +33,11 @@ def reports_chart_json(rgraph, chart, is_small=False):
     )
 
 
-@register.inclusion_tag('reports/templatetags/report_chart_selectors.html', takes_context=True)
+# TODO: "report_charts" argument instead of 'takes_context'?
+@register.inclusion_tag(
+    'reports/templatetags/report_chart_selectors.html',
+    takes_context=True,
+)
 # def report_chart_selector(context, rgraph):
 def reports_chart_selector(context, rgraph):
     context['rgraph'] = rgraph
