@@ -1,5 +1,14 @@
 == Version 2.2.8 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+    Internal breaking changes :
+    ---------------------------
+        # Apps :
+            * Commercial :
+                - The internal cache 'models.AbstractStrategy._segments_categories' used Organisation instances as keys ;
+                  Organisation IDs are now used instead.
+
 
 == Version 2.2.7 ==
 
