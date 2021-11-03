@@ -218,7 +218,8 @@ class AbstractStrategy(CremeEntity):
         """@return A dictionary with key= Category (int, between 1 & 4) and
                    value=list of MarketSegmentDescription.
         """
-        categories = self._segments_categories.get(orga)
+        # categories = self._segments_categories.get(orga)
+        categories = self._segments_categories.get(orga.id)
 
         if categories is None:
             categories = {i: [] for i in range(1, 5)}
@@ -259,7 +260,8 @@ class AbstractStrategy(CremeEntity):
                 ):
                     categories[_get_category(segment, asset_total, charm_total)].append(segment)
 
-            self._segments_categories[orga] = categories
+            # self._segments_categories[orga] = categories
+            self._segments_categories[orga.id] = categories
 
         return categories
 
