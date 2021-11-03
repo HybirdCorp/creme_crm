@@ -125,6 +125,8 @@
                 * Persons :
                     - The function 'forms.base._get_address_field_names()' is deprecated.
                     - The class 'forms.address._AuxiliaryAddressForm' is deprecated.
+                * Commercial :
+                    - The method 'AbstractStrategy.get_segment_category()' is deprecated.
                 * Recurrents :
                     - The property 'registry.RecurrentRegistry.ctypes' is deprecated ; use "models" instead.
                 * Crudity :
