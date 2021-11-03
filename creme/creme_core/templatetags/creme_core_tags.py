@@ -368,7 +368,8 @@ def get_entity_html_attrs(context, entity):
     return format_html_join(' ', '{}="{}"', entity.get_html_attrs(context).items())
 
 
-# See grouper implementation: https://docs.python.org/2/library/itertools.html#recipes
+# TODO: move to <creme.creme_core.utils> ?
+# See grouper implementation: https://docs.python.org/3/library/itertools.html#itertools-recipes
 @register.filter
 def grouper(value, n):
     args = [iter(value)] * n
