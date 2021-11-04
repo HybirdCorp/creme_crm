@@ -50,10 +50,12 @@ class AutoIncr:
 class _PollsTestCase(CremeTestCase):
     ADD_REPLY_URL = reverse('polls__create_reply')
 
-    def _build_stats_url(self, pform):
+    @staticmethod
+    def _build_stats_url(pform):
         return reverse('polls__form_stats', args=(pform.id,))
 
-    def _get_formline_creator(self, pform):
+    @staticmethod
+    def _get_formline_creator(pform):
         get_order = AutoIncr()
 
         def create_line(

@@ -1,6 +1,6 @@
-{% load i18n creme_core_tags creme_widgets %}{% translate 'Invoice number' as img_title %}
+{% load i18n creme_widgets %}{% load blockjsondata from creme_core_tags %}
 <a class="menu_button menu-button-icon{% if not has_perm %} is-disabled{% endif %}" title="{{description}}" data-action="billing-hatmenubar-invoice-number" href="{% url 'billing__generate_invoice_number' object.id %}">
-    {% widget_icon name='invoice' size='instance-button' label=img_title %}
+    {% widget_icon name='invoice' size='instance-button' label=_('Invoice number') %}
     {% translate 'Generate the number of the Invoice' %}
     {% blockjsondata %}{
         "options": {

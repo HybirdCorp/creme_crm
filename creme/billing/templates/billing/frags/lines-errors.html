@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load get_meta_value from creme_core_tags %}
 {% for line_errors in errors %}
     {% if line_errors.item %}
         {% blocktranslate with item=line_errors.item %}Errors on the line <strong>«{{item}}»:</strong>{% endblocktranslate %}

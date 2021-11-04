@@ -1,5 +1,6 @@
 {% extends 'creme_core/bricks/base/list.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks polls_tags %}
+{% load i18n creme_bricks creme_widgets polls_tags %}
+{% load and_op has_perm_to mult print_field url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} polls-list-brick polls-reply-lines-brick{% endblock %}
 

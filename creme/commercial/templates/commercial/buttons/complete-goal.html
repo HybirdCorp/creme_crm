@@ -1,6 +1,7 @@
-{% load i18n creme_core_tags creme_widgets %}{% has_perm_to link object as link_perm %}{% translate 'Commercial Action' as img_title %}
+{% load i18n creme_widgets %}
+{% load blockjsondata has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
 <a class="menu_button menu-button-icon {% if not has_perm or not link_perm %}is-disabled{% endif %}" title="{{description}}" data-action="creme_core-hatmenubar-addrelationships">
-    {% widget_icon name='commercial' size='instance-button' label=img_title %}
+    {% widget_icon name='commercial' size='instance-button' label=_('Commercial Action') %}
     {% translate 'Completes a goal' %}
     {% blockjsondata %}{
         "data": {

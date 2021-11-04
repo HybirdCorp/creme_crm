@@ -1,5 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks creme_widgets %}
+{% load i18n creme_bricks creme_widgets %}
+{% load uca_sort url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-teams-brick{% endblock %}
 

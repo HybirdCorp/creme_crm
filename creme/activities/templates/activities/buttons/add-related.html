@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}{% has_perm_to link object as link_perm %}
+{% load i18n %}{% load has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
 {% if has_perm and link_perm %}
     <a class="menu_button menu-button-icon" title="{{description}}" href="{% url 'activities__create_related_activity' object.id %}{% if activity_type %}?activity_type={{activity_type}}{% endif %}">
         {{icon.render}}{{verbose_name}}

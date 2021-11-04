@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags persons_tags %}
+{% load i18n persons_tags %}{% load get_by_index sub from creme_core_tags %}
 {% persons_addresses_formblock_fields form=form address_fks=form_block.template_context.address_fields zip_fields=False as fields_info %}
 {% if fields_info %}
     {% with meta=fields_info.grouped_meta grouped_fields=fields_info.grouped_fields %}
