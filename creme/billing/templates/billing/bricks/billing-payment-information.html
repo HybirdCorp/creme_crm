@@ -1,5 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-list.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_widgets creme_bricks %}
+{% load and_op has_perm_to url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-list-brick billing-payment-info-brick{% endblock %}
 

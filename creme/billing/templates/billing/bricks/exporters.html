@@ -1,5 +1,6 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n media creme_core_tags creme_bricks %}
+{% load i18n media creme_bricks %}
+{% load url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} billing-exporters-brick{% endblock %}
 

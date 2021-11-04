@@ -1,4 +1,5 @@
-{% load i18n creme_core_tags creme_widgets creme_bricks %}
+{% load i18n creme_widgets creme_bricks %}
+{% load has_perm_to format_amount url from creme_core_tags %}
 {% has_perm_to change object as edit_perm %}
 {% with line=form.instance currency=object.currency %}
 <table class="linetable linetable_{{ct_id}}{% if not edit_perm %} readonly{% endif %}">

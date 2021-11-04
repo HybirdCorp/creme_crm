@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load jsondata from creme_core_tags %}
 {% with id=widget.attrs.id %}
 {% if widget.propose_creation %}
 <label for="{{id}}_create">

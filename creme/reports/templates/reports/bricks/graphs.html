@@ -1,5 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_bricks reports_tags %}{# creme_widgets #}
+{% load i18n creme_bricks reports_tags %}{# creme_widgets #}
+{% load blockjsondata has_perm_to jsonify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
