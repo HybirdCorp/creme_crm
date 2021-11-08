@@ -12,6 +12,7 @@ from creme.creme_core.models import FakeOrganisation, SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import constants
 from creme.documents.actions import ExploreFolderAction
+from creme.documents.bricks import ChildFoldersBrick, FolderDocsBrick
 from creme.documents.models import FolderCategory
 
 from .base import (
@@ -24,7 +25,7 @@ from .base import (
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
+class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -33,7 +34,7 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         cls.LIST_URL = reverse('documents__list_folders')
 
     def test_createview01(self):
-        "No parent folder"
+        "No parent folder."
         user = self.login()
         url = self.ADD_URL
         response = self.assertGET200(url)
@@ -630,20 +631,23 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
 
         self.assertPOST409(folder.get_delete_absolute_url())
 
-    def test_brick(self):
-        "Brick which display contained docs."
-        from creme.documents.bricks import FolderDocsBrick
-
+    def test_bricks(self):
         user = self.login()
 
         FolderDocsBrick.page_size = max(4, settings.BLOCK_SIZE)
+        ChildFoldersBrick.page_size = max(4, settings.BLOCK_SIZE)
 
-        folder = Folder.objects.create(
-            user=user, title='PDF',
+        create_folder = partial(
+            Folder.objects.create,
+            user=user, category=FolderCategory.objects.all()[0],
             description='Contains PDF files',
-            parent_folder=None,
-            category=FolderCategory.objects.all()[0],
         )
+        folder = create_folder(title='PDF', description='Contains PDF files')
+
+        child1 = create_folder(title='PDF (tutorial)', parent_folder=folder)
+        child2 = create_folder(title='PDF (specifications)', parent_folder=folder)
+
+        child3 = create_folder(title='PDF (creme)', parent_folder=child1)
 
         create_doc = self._create_doc
         doc1 = create_doc('Test doc #1', folder=folder)
@@ -654,11 +658,18 @@ class FolderTestCase(_DocumentsTestCase, BrickTestCaseMixin):
         doc4.trash()
 
         response = self.assertGET200(folder.get_absolute_url())
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), FolderDocsBrick.id_)
-        self.assertInstanceLink(brick_node, doc1)
-        self.assertInstanceLink(brick_node, doc2)
-        self.assertInstanceLink(brick_node, doc4)  # TODO: see bricks.py
-        self.assertNoInstanceLink(brick_node, doc3)
+        tree = self.get_html_tree(response.content)
+
+        brick_node1 = self.get_brick_node(tree, FolderDocsBrick.id_)
+        self.assertInstanceLink(brick_node1, doc1)
+        self.assertInstanceLink(brick_node1, doc2)
+        self.assertInstanceLink(brick_node1, doc4)  # TODO: see bricks.py
+        self.assertNoInstanceLink(brick_node1, doc3)
+
+        brick_node2 = self.get_brick_node(tree, ChildFoldersBrick.id_)
+        self.assertInstanceLink(brick_node2, child1)
+        self.assertInstanceLink(brick_node2, child2)
+        self.assertNoInstanceLink(brick_node2, child3)
 
     def test_merge01(self):
         user = self.login()
