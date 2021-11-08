@@ -31,7 +31,9 @@ class _DocumentsTestCase(CremeTestCase):
         super().setUpClass()
         cls.ADD_DOC_URL = reverse('documents__create_document')
 
-    def _create_doc(self, title, file_obj=None, folder=None, description=None, user=None):
+    def _create_doc(self, title,
+                    file_obj=None, folder=None, description=None, user=None,
+                    **extra_data):
         file_obj = file_obj or self.build_filedata(f'{title} : Content')
         folder = folder or Folder.objects.all()[0]
         user = user or self.user
@@ -40,6 +42,7 @@ class _DocumentsTestCase(CremeTestCase):
             'title': title,
             'filedata': file_obj,
             'linked_folder': folder.id,
+            **extra_data
         }
 
         if description is not None:

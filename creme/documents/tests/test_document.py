@@ -11,19 +11,23 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     CremeEntity,
+    FakeOrganisation,
     HeaderFilter,
     RelationType,
     SetCredentials,
 )
-from creme.creme_core.tests.fake_models import FakeOrganisation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model
 from creme.persons.tests.base import skipIfCustomContact
 
 from ..actions import DownloadAction
+from ..bricks import LinkedDocsBrick
 from ..constants import REL_SUB_RELATED_2_DOC, UUID_FOLDER_RELATED2ENTITIES
 from ..models import DocumentCategory, FolderCategory
 from ..utils import get_csv_folder_or_create
@@ -38,7 +42,7 @@ from .base import (
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class DocumentTestCase(_DocumentsTestCase):
+class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     @staticmethod
     def _build_addrelated_url(entity):
         return reverse('documents__create_related_document', args=(entity.id,))
@@ -96,6 +100,10 @@ class DocumentTestCase(_DocumentsTestCase):
 
         ext = settings.ALLOWED_EXTENSIONS[0]
 
+        create_cat = DocumentCategory.objects.create
+        cat1 = create_cat(name='Text')
+        cat2 = create_cat(name='No image')
+
         title = 'Test doc'
         description = 'Test description'
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
@@ -110,6 +118,7 @@ class DocumentTestCase(_DocumentsTestCase):
                 'filedata':      file_obj,
                 'linked_folder': folder.id,
                 'description':   description,
+                'categories':    [cat1.id, cat2.id],
             },
         )
         self.assertNoFormError(response)
@@ -121,9 +130,8 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual(title,       doc.title)
         self.assertEqual(description, doc.description)
         self.assertEqual(folder,      doc.linked_folder)
-
-        mime_type = doc.mime_type
-        self.assertIsNotNone(mime_type)
+        self.assertIsNotNone(doc.mime_type)
+        self.assertCountEqual([cat1, cat2], [*doc.categories.all()])
 
         self.assertRedirects(response, doc.get_absolute_url())
 
@@ -243,6 +251,36 @@ class DocumentTestCase(_DocumentsTestCase):
         self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
 
+    def test_detailview(self):
+        self.login()
+
+        create_cat = DocumentCategory.objects.create
+        cat1 = create_cat(name='Text')
+        cat2 = create_cat(name='No image')
+
+        doc = self._create_doc(title='Test doc', categories=[cat1.id, cat2.id])
+
+        response = self.assertGET200(doc.get_absolute_url())
+        self.assertTemplateUsed(response, 'documents/bricks/document-hat-bar.html')
+
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), MODELBRICK_ID)
+        self.assertEqual(
+            _('Information on the document'),
+            self.get_brick_title(brick_node),
+        )
+        self.assertEqual(
+            doc.title,
+            self.get_brick_tile(brick_node, 'regular_field-title').text,
+        )
+        self.assertCountEqual(
+            [cat1.name, cat2.name],
+            [
+                n.text
+                for n in self.get_brick_tile(brick_node, 'regular_field-categories')
+                             .findall('.//li')
+            ],
+        )
+
     def test_editview(self):
         user = self.login()
 
@@ -293,7 +331,8 @@ class DocumentTestCase(_DocumentsTestCase):
 
         Folder.objects.create(user=user, title='Creme')  # Should not be used
 
-        entity = CremeEntity.objects.create(user=user)
+        # entity = CremeEntity.objects.create(user=user)
+        entity = FakeOrganisation.objects.create(user=user, name='NERV')
         url = self._build_addrelated_url(entity)
         context = self.assertGET200(url).context
         self.assertEqual(
@@ -327,13 +366,30 @@ class DocumentTestCase(_DocumentsTestCase):
 
         ct_folder = entity_folder.parent_folder
         self.assertIsNotNone(ct_folder)
-        self.assertEqual(str(CremeEntity._meta.verbose_name), ct_folder.title)
+        # self.assertEqual(str(CremeEntity._meta.verbose_name), ct_folder.title)
+        self.assertEqual(str(FakeOrganisation._meta.verbose_name), ct_folder.title)
         self.assertEqual(root_folder, ct_folder.parent_folder)
 
         doc2 = post('Related doc #2')
         entity_folder2 = doc2.linked_folder
         self.assertEqual(entity_folder, entity_folder2)
         self.assertEqual(ct_folder,     entity_folder2.parent_folder)
+
+        # ---
+        LinkedDocsBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=LinkedDocsBrick,
+            model=type(entity),
+            order=50,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        response = self.assertGET200(entity.get_absolute_url())
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, LinkedDocsBrick.id_)
+        self.assertInstanceLink(brick_node, doc1)
+        self.assertInstanceLink(brick_node, doc2)
 
     def test_add_related_document02(self):
         "Creation credentials."
@@ -685,13 +741,6 @@ class DocumentTestCase(_DocumentsTestCase):
         HIDDEN_VALUE = settings.HIDDEN_VALUE
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', other_user))
         self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__description', other_user))
-
-    # TODO: (block not yet injected in all apps)
-    # def test_orga_block(self):
-    #     self.login()
-    #     orga = Organisation.objects.create(user=self.user, name='NERV')
-    #     response = self.assertGET200(orga.get_absolute_url())
-    #     self.assertTemplateUsed(response, 'documents/templatetags/block_linked_docs.html')
 
     # TODO: complete
 

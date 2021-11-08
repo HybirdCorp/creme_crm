@@ -104,10 +104,11 @@ class LinkedDocsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
+        rtype_id = self.relation_type_deps[0]
         btc = self.get_template_context(
             context,
-            Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC),
-            predicate_id=REL_SUB_RELATED_2_DOC,
+            Relation.objects.filter(subject_entity=entity.id, type=rtype_id),
+            predicate_id=rtype_id,
         )
         relations = btc['page'].object_list
         docs = Document.objects.filter(
