@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from datetime import timedelta
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 from django.utils.timezone import now
@@ -10,15 +12,39 @@ from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
-from creme.creme_core.models import Relation, SetCredentials
-from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    Relation,
+    SetCredentials,
+    SettingValue,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
-from .. import constants
+from ..bricks import (
+    FutureActivitiesBrick,
+    ParticipantsBrick,
+    PastActivitiesBrick,
+    RelatedCalendarBrick,
+    SubjectsBrick,
+    UserCalendarsBrick,
+)
+from ..constants import (
+    ACTIVITYSUBTYPE_MEETING_NETWORK,
+    ACTIVITYTYPE_MEETING,
+    ACTIVITYTYPE_PHONECALL,
+    FLOATING,
+    REL_SUB_ACTIVITY_SUBJECT,
+    REL_SUB_LINKED_2_ACTIVITY,
+    REL_SUB_PART_2_ACTIVITY,
+)
 from ..models import Calendar
+from ..setting_keys import review_key
 from .base import (
     Activity,
     Contact,
@@ -29,7 +55,7 @@ from .base import (
 
 
 @skipIfCustomActivity
-class ActivityBricksTestCase(_ActivitiesTestCase):
+class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     RM_PARTICIPANT_URL = reverse('activities__remove_participant')
 
     @staticmethod
@@ -39,6 +65,320 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
     @staticmethod
     def _build_add_subjects_url(activity):
         return reverse('activities__add_subjects', args=(activity.id,))
+
+    @skipIfCustomContact
+    def test_bricks_activity(self):
+        ParticipantsBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        user = self.login()
+        activity = self._create_meeting()
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = user.linked_contact
+        c2 = create_contact(first_name='Musashi', last_name='Miyamoto')
+        c3 = create_contact(first_name='Kojiro',  last_name='Sasaki')
+        c4 = create_contact(first_name='Seijuro', last_name='Yoshioka')
+        c5 = self.other_user.linked_contact
+
+        create_rel = partial(
+            Relation.objects.create,
+            user=user, object_entity=activity,
+        )
+        create_rel(subject_entity=c1, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(subject_entity=c2, type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(subject_entity=c3, type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=c4, type_id=REL_SUB_ACTIVITY_SUBJECT)
+
+        cal = Calendar.objects.get_default_calendar(user)
+        activity.calendars.add(cal)
+
+        response = self.assertGET200(activity.get_absolute_url())
+        self.assertTemplateUsed(response, 'activities/bricks/activity-hat-bar.html')
+
+        tree = self.get_html_tree(response.content)
+
+        brick_node1 = self.get_brick_node(tree, ParticipantsBrick.id_)
+        self.assertInstanceLink(brick_node1, c1)
+        self.assertInstanceLink(brick_node1, c2)
+        self.assertNoInstanceLink(brick_node1, c3)
+        self.assertNoInstanceLink(brick_node1, c4)
+        self.assertNoInstanceLink(brick_node1, c5)
+
+        brick_node2 = self.get_brick_node(tree, SubjectsBrick.id_)
+        self.assertInstanceLink(brick_node2, c3)
+        self.assertInstanceLink(brick_node2, c4)
+        self.assertNoInstanceLink(brick_node2, c1)
+        self.assertNoInstanceLink(brick_node2, c2)
+        self.assertNoInstanceLink(brick_node2, c5)
+
+        brick_node3 = self.get_brick_node(tree, RelatedCalendarBrick.id_)
+        self.assertListEqual(
+            [f'background-color:#{cal.get_color};'],
+            [
+                n.attrib.get('style')
+                for n in brick_node3.findall('.//div[@class="activity-calendar-color-square"]')
+            ]
+        )
+
+    @skipIfCustomContact
+    def test_bricks_future_n_past01(self):
+        "Contacts + display minutes."
+        FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+        PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+
+        user = self.login()
+
+        now_value = now()
+        create_dt = partial(
+            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        )
+        tomorrow = create_dt(day=now_value.day + 1)
+        yesterday = create_dt(day=now_value.day - 1)
+
+        create_activity = partial(
+            Activity.objects.create,
+            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+        )
+
+        future = [
+            create_activity(
+                title=f'Future #{i}',
+                minutes=f'Very interesting info about Future #{i}',
+                start=tomorrow + timedelta(hours=i),
+                end=tomorrow + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+        past = [
+            create_activity(
+                title=f'Past #{i}',
+                minutes=f'Very interesting info about Past #{i}',
+                start=yesterday + timedelta(hours=i),
+                end=yesterday + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+
+        contact = self.other_user.linked_contact
+        create_rel = partial(Relation.objects.create, user=user, subject_entity=contact)
+        create_rel(object_entity=future[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=future[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=future[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        create_rel(object_entity=past[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        create_brick_detail = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=Contact, zone=BrickDetailviewLocation.RIGHT,
+        )
+        create_brick_detail(brick=FutureActivitiesBrick, order=50)
+        create_brick_detail(brick=PastActivitiesBrick,   order=51)
+
+        sv = SettingValue.objects.get_4_key(review_key)
+        sv.value = True
+        sv.save()
+
+        response = self.assertGET200(contact.get_absolute_url())
+        tree = self.get_html_tree(response.content)
+
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        self.assertInstanceLink(future_brick_node, future[0])
+        self.assertInstanceLink(future_brick_node, future[1])
+        self.assertInstanceLink(future_brick_node, future[2])
+        self.assertNoInstanceLink(future_brick_node, future[3])
+        self.assertNoInstanceLink(future_brick_node, past[0])
+
+        future_minutes = {
+            n.text
+            for n in future_brick_node.findall('.//div[@class="activity-group-value"]')
+        }
+        self.assertIn(future[0].minutes, future_minutes)
+        self.assertIn(future[1].minutes, future_minutes)
+        self.assertIn(future[2].minutes, future_minutes)
+        self.assertNotIn(future[3].minutes, future_minutes)
+
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        self.assertInstanceLink(past_brick_node, past[0])
+        self.assertInstanceLink(past_brick_node, past[1])
+        self.assertInstanceLink(past_brick_node, past[2])
+        self.assertNoInstanceLink(past_brick_node, past[3])
+        self.assertNoInstanceLink(past_brick_node, future[0])
+
+        past_minutes = {
+            n.text
+            for n in past_brick_node.findall('.//div[@class="activity-group-value"]')
+        }
+        self.assertIn(past[0].minutes, past_minutes)
+        self.assertIn(past[1].minutes, past_minutes)
+        self.assertIn(past[2].minutes, past_minutes)
+        self.assertNotIn(past[3].minutes, past_minutes)
+
+    @skipIfCustomContact
+    def test_bricks_future_n_past02(self):
+        "Home."
+        FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+        PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+
+        user = self.login()
+
+        now_value = now()
+        create_dt = partial(
+            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        )
+        tomorrow = create_dt(day=now_value.day + 1)
+        yesterday = create_dt(day=now_value.day - 1)
+
+        create_activity = partial(
+            Activity.objects.create,
+            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+        )
+
+        future = [
+            create_activity(
+                title=f'Future #{i}',
+                start=tomorrow + timedelta(hours=i),
+                end=tomorrow + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+        past = [
+            create_activity(
+                title=f'Past #{i}',
+                start=yesterday + timedelta(hours=i),
+                end=yesterday + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+
+        contact = user.linked_contact
+        create_rel = partial(Relation.objects.create, user=user, subject_entity=contact)
+        create_rel(object_entity=future[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=future[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=future[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        create_rel(object_entity=past[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=FutureActivitiesBrick.id_, defaults={'order': 10},
+        )
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=PastActivitiesBrick.id_, defaults={'order': 11},
+        )
+
+        response1 = self.assertGET200(reverse('creme_core__home'))
+        tree = self.get_html_tree(response1.content)
+
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        self.assertInstanceLink(future_brick_node, future[0])
+        self.assertInstanceLink(future_brick_node, future[1])
+        self.assertInstanceLink(future_brick_node, future[2])
+        self.assertNoInstanceLink(future_brick_node, future[3])
+        self.assertNoInstanceLink(future_brick_node, past[0])
+
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        self.assertInstanceLink(past_brick_node, past[0])
+        self.assertInstanceLink(past_brick_node, past[1])
+        self.assertInstanceLink(past_brick_node, past[2])
+        self.assertNoInstanceLink(past_brick_node, past[3])
+        self.assertNoInstanceLink(past_brick_node, future[0])
+
+    @skipIfCustomOrganisation
+    @skipIfCustomContact
+    def test_bricks_future_n_past03(self):
+        "Organisations & Contacts + do not display minutes."
+        FutureActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+        PastActivitiesBrick.page_size = max(10, settings.BLOCK_SIZE)
+
+        create_brick_detail = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=Organisation, zone=BrickDetailviewLocation.RIGHT,
+        )
+        create_brick_detail(brick=FutureActivitiesBrick, order=50)
+        create_brick_detail(brick=PastActivitiesBrick,   order=51)
+
+        sv = SettingValue.objects.get_4_key(review_key)
+        sv.value = False
+        sv.save()
+
+        user = self.login()
+
+        now_value = now()
+        create_dt = partial(
+            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        )
+        tomorrow = create_dt(day=now_value.day + 1)
+        yesterday = create_dt(day=now_value.day - 1)
+
+        create_activity = partial(
+            Activity.objects.create,
+            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+        )
+
+        future = [
+            create_activity(
+                title=f'Future #{i}',
+                minutes=f'Very interesting info about Future #{i}',
+                start=tomorrow + timedelta(hours=i),
+                end=tomorrow + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+        past = [
+            create_activity(
+                title=f'Past #{i}',
+                minutes=f'Very interesting info about Past #{i}',
+                start=yesterday + timedelta(hours=i),
+                end=yesterday + timedelta(hours=i, minutes=30),
+            ) for i in range(1, 5)
+        ]
+
+        orga = Organisation.objects.create(user=user, name='Yoshioka')
+
+        create_contact = partial(Contact.objects.create, user=user)
+        c1 = create_contact(first_name='Seijuro',     last_name='Yoshioka')
+        c2 = create_contact(first_name='Denshichiro', last_name='Yoshioka')
+
+        create_rel = partial(Relation.objects.create, user=user)
+        create_rel(subject_entity=c1, object_entity=orga, type_id=REL_SUB_MANAGES)
+        create_rel(subject_entity=c2, object_entity=orga, type_id=REL_SUB_EMPLOYED_BY)
+
+        create_rel(subject_entity=c1,   object_entity=future[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(subject_entity=orga, object_entity=future[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=c2, object_entity=future[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        create_rel(subject_entity=c1,   object_entity=past[0], type_id=REL_SUB_PART_2_ACTIVITY)
+        create_rel(subject_entity=orga, object_entity=past[1], type_id=REL_SUB_ACTIVITY_SUBJECT)
+        create_rel(subject_entity=c2,   object_entity=past[2], type_id=REL_SUB_LINKED_2_ACTIVITY)
+
+        response = self.assertGET200(orga.get_absolute_url())
+        tree = self.get_html_tree(response.content)
+
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        self.assertInstanceLink(future_brick_node, future[0])
+        self.assertInstanceLink(future_brick_node, future[1])
+        self.assertInstanceLink(future_brick_node, future[2])
+        self.assertNoInstanceLink(future_brick_node, future[3])
+        self.assertNoInstanceLink(future_brick_node, past[0])
+        self.assertNotIn(
+            future[0].minutes,
+            {
+                n.text
+                for n in future_brick_node.findall('.//div[@class="activity-group-value"]')
+            },
+        )
+
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        self.assertInstanceLink(past_brick_node, past[0])
+        self.assertInstanceLink(past_brick_node, past[1])
+        self.assertInstanceLink(past_brick_node, past[2])
+        self.assertNoInstanceLink(past_brick_node, past[3])
+        self.assertNoInstanceLink(past_brick_node, future[0])
+        self.assertNotIn(
+            past[0].minutes,
+            {
+                n.text
+                for n in past_brick_node.findall('.//div[@class="activity-group-value"]')
+            },
+        )
 
     @skipIfCustomContact
     def test_add_participants01(self):
@@ -67,10 +407,10 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         ))
 
         relations = Relation.objects.filter(
-            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
         )
         self.assertEqual(2, len(relations))
-        self.assertSetEqual({c1.id, c2.id}, {r.object_entity_id for r in relations})
+        self.assertSetEqual({c1.id, c2.id}, {r.subject_entity_id for r in relations})
 
     def test_add_participants02(self):
         "Credentials error with the activity."
@@ -118,8 +458,8 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             _('Some entities are not linkable: {}').format(contact),
         )
         self.assertFalse(Relation.objects.filter(
-            subject_entity=activity.id,
-            type=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=activity.id,
+            type=REL_SUB_PART_2_ACTIVITY,
         ))
 
     @skipIfCustomContact
@@ -146,12 +486,12 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         ))
 
         relations = Relation.objects.filter(
-            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
         )
         self.assertEqual(3, len(relations))
         self.assertSetEqual(
             {c1.id, c2.id, self.user.linked_contact.id},
-            {r.object_entity_id for r in relations},
+            {r.subject_entity_id for r in relations},
         )
 
     @skipIfCustomContact
@@ -160,7 +500,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_activity_by_view()
         self.assertIsNone(activity.start)
         self.assertIsNone(activity.end)
-        self.assertEqual(constants.FLOATING, activity.floating_type)
+        self.assertEqual(FLOATING, activity.floating_type)
 
         create_contact = partial(Contact.objects.create, user=self.user)
         c1 = create_contact(first_name='Musashi', last_name='Miyamoto')
@@ -174,12 +514,12 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         ))
 
         relations = Relation.objects.filter(
-            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
         )
         self.assertEqual(3, len(relations))
         self.assertSetEqual(
             {c1.id, c2.id, self.user.linked_contact.id},
-            {r.object_entity_id for r in relations},
+            {r.subject_entity_id for r in relations},
         )
 
     def test_add_participants06(self):
@@ -211,12 +551,12 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertNoFormError(response)
 
         relations = Relation.objects.filter(
-            subject_entity=activity.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
+            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
         )
         self.assertEqual(3, len(relations))
         self.assertSetEqual(
             {musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
-            {r.object_entity.get_real_entity() for r in relations},
+            {r.subject_entity.get_real_entity() for r in relations},
         )
 
     @skipIfCustomContact
@@ -239,7 +579,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(akane)},
         ))
 
-        self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT, activity)
+        self.assertRelationCount(1, dojo, REL_SUB_ACTIVITY_SUBJECT, activity)
 
     @skipIfCustomContact
     def test_remove_participants01(self):
@@ -264,7 +604,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         phone_call = Activity.objects.create(
             title='a random activity',
             start=dt_now, end=dt_now,
-            user=user, type_id=constants.ACTIVITYTYPE_PHONECALL,
+            user=user, type_id=ACTIVITYTYPE_PHONECALL,
         )
 
         self.assertPOST200(
@@ -278,16 +618,16 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
 
         # Logged user, set in his calendar
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, logged)
+        self.assertRelationCount(1, logged,   REL_SUB_PART_2_ACTIVITY, phone_call)
         # Other contact user, set in his calendar too
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, other)
+        self.assertRelationCount(1, other,    REL_SUB_PART_2_ACTIVITY, phone_call)
         # Regular contact, has no calendar
-        self.assertRelationCount(1, phone_call, constants.REL_OBJ_PART_2_ACTIVITY, contact3)
+        self.assertRelationCount(1, contact3, REL_SUB_PART_2_ACTIVITY, phone_call)
         self.assertEqual(2, phone_call.calendars.count())
 
         sym_rel = Relation.objects.get(
             subject_entity=logged,
-            type=constants.REL_SUB_PART_2_ACTIVITY,
+            type=REL_SUB_PART_2_ACTIVITY,
             object_entity=phone_call,
         )
 
@@ -297,12 +637,15 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.get_object_or_fail(Relation, pk=sym_rel.pk)
 
         qs = Relation.objects.filter(
-            type=constants.REL_OBJ_PART_2_ACTIVITY, subject_entity=phone_call,
+            type=REL_SUB_PART_2_ACTIVITY, object_entity=phone_call,
         )
 
         for participant_rel in qs.all():
             self.assertGET405(del_url)
-            response = self.client.post(del_url, data={'id': participant_rel.pk})
+
+            response = self.client.post(
+                del_url, data={'id': participant_rel.symmetric_relation_id},
+            )
             self.assertRedirects(response, phone_call.get_absolute_url())
 
         self.assertFalse(qs.all())
@@ -332,22 +675,22 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
 
         phone_call = Activity.objects.create(
             title='A random activity',
-            user=user, type_id=constants.ACTIVITYTYPE_PHONECALL,
+            user=user, type_id=ACTIVITYTYPE_PHONECALL,
         )
         self.assertTrue(user.has_perm_to_unlink(phone_call))
 
         rel = Relation.objects.create(
             user=user,
-            subject_entity=phone_call,
-            type_id=constants.REL_OBJ_PART_2_ACTIVITY,
-            object_entity=contact,
+            subject_entity=contact,
+            type_id=REL_SUB_PART_2_ACTIVITY,
+            object_entity=phone_call,
         )
 
-        self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.id})
+        self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.symmetric_relation_id})
 
     @skipIfCustomContact
     def test_remove_participants03(self):
-        "Cannot unlink the activity"
+        "Cannot unlink the activity."
         user = self.login(is_superuser=False)
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(
@@ -369,18 +712,18 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
 
         phone_call = Activity.objects.create(
             title='A random activity',
-            user=self.other_user, type_id=constants.ACTIVITYTYPE_PHONECALL,
+            user=self.other_user, type_id=ACTIVITYTYPE_PHONECALL,
         )
         self.assertFalse(user.has_perm_to_unlink(phone_call))
 
         rel = Relation.objects.create(
             user=user,
-            subject_entity=phone_call,
-            type_id=constants.REL_OBJ_PART_2_ACTIVITY,
-            object_entity=contact,
+            subject_entity=contact,
+            type_id=REL_SUB_PART_2_ACTIVITY,
+            object_entity=phone_call,
         )
 
-        self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.id})
+        self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.symmetric_relation_id})
 
     @skipIfCustomOrganisation
     def test_add_subjects01(self):
@@ -405,10 +748,10 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.client.post(url, data=data))
 
         relations = Relation.objects.filter(
-            subject_entity=activity.id, type=constants.REL_OBJ_ACTIVITY_SUBJECT,
+            object_entity=activity.id, type=REL_SUB_ACTIVITY_SUBJECT,
         )
         self.assertEqual(1, len(relations))
-        self.assertEqual(orga.id, relations[0].object_entity_id)
+        self.assertEqual(orga.id, relations[0].subject_entity_id)
 
         # Avoid duplicates
         response = self.assertPOST200(url, data=data)
@@ -465,8 +808,8 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             _('Some entities are not linkable: {}').format(orga)
         )
         self.assertFalse(Relation.objects.filter(
-            subject_entity=activity.id,
-            type=constants.REL_OBJ_ACTIVITY_SUBJECT,
+            object_entity=activity.id,
+            type=REL_SUB_ACTIVITY_SUBJECT,
         ))
 
     def test_add_subjects04(self):
@@ -507,9 +850,9 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             Relation.objects.create,
             subject_entity=contact, object_entity=activity, user=user,
         )
-        r1 = create_rel(type_id=constants.REL_SUB_PART_2_ACTIVITY)
-        r2 = create_rel(type_id=constants.REL_SUB_ACTIVITY_SUBJECT)
-        r3 = create_rel(type_id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        r1 = create_rel(type_id=REL_SUB_PART_2_ACTIVITY)
+        r2 = create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT)
+        r3 = create_rel(type_id=REL_SUB_LINKED_2_ACTIVITY)
         r4 = create_rel(type_id=REL_SUB_HAS)
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
@@ -543,7 +886,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         activity = self._create_meeting()
         contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
         relation = Relation.objects.create(
-            subject_entity=contact, type_id=constants.REL_SUB_PART_2_ACTIVITY,
+            subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=activity, user=user,
         )
 
@@ -585,7 +928,7 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
         )
         relation = Relation.objects.create(
             subject_entity=contact,
-            type_id=constants.REL_SUB_PART_2_ACTIVITY,
+            type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=activity, user=user,
         )
 
@@ -594,3 +937,24 @@ class ActivityBricksTestCase(_ActivitiesTestCase):
             data={'id': activity.id, 'object_id': contact.id},
         )
         self.get_object_or_fail(Relation, pk=relation.id)
+
+    def test_user_calendars(self):
+        user = self.login()
+        UserCalendarsBrick.page_size = max(3, settings.BLOCK_SIZE)
+
+        cal1 = Calendar.objects.get_default_calendar(user)
+        cal2 = Calendar.objects.create(user=user, name='Other calendar')
+
+        response = self.assertGET200(reverse('creme_config__user_settings'))
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, UserCalendarsBrick.id_)
+
+        self.assertCountEqual(
+            [f'background-color:#{cal.get_color};' for cal in [cal1, cal2]],
+            [
+                n.attrib.get('style')
+                # TODO: make uniform?
+                # for n in brick_node.findall('.//div[@class="activity-calendar-color-square"]')
+                for n in brick_node.findall('.//div[@class="colored-square"]')
+            ],
+        )

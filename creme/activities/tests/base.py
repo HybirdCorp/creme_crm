@@ -57,7 +57,8 @@ class _ActivitiesTestCase(CremeTestCase):
             *args, **kwargs
         )
 
-    def _acttype_field_value(self, atype_id, subtype_id=None):
+    @staticmethod
+    def _acttype_field_value(atype_id, subtype_id=None):
         return json_dump({'type': atype_id, 'sub_type': subtype_id})
 
     def assertUserHasDefaultCalendar(self, user):
