@@ -44,7 +44,9 @@ Address      = persons.get_address_model()
 class _MapBrick(Brick):
     dependencies: BrickDependencies = (Address,)
 
-    def get_filter_choices(self, user, *models):
+    @staticmethod
+    # def get_filter_choices(self, user, *models):
+    def get_filter_choices(user, *models):
         choices = []
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]
@@ -66,7 +68,9 @@ class _MapBrick(Brick):
 
         return choices
 
-    def get_addresses_as_dict(self, entity):
+    @staticmethod
+    # def get_addresses_as_dict(self, entity):
+    def get_addresses_as_dict(entity):
         return [
             {
                 k: (escape(v) if isinstance(v, str) else v)
@@ -110,8 +114,8 @@ class _DetailMapBrick(_MapBrick):
 
 
 class GoogleDetailMapBrick(_DetailMapBrick):
-    id_           = Brick.generate_id('geolocation', 'detail_google_maps')
-    verbose_name  = _('Addresses on Google Maps ®')
+    id_ = Brick.generate_id('geolocation', 'detail_google_maps')
+    verbose_name = _('Addresses on Google Maps ®')
     template_name = 'geolocation/bricks/google/detail-map.html'
 
     def get_api_key(self):
@@ -119,8 +123,8 @@ class GoogleDetailMapBrick(_DetailMapBrick):
 
 
 class OpenStreetMapDetailMapBrick(_DetailMapBrick):
-    id_           = Brick.generate_id('geolocation', 'detail_openstreetmap')
-    verbose_name  = _('Addresses on OpenStreetMap ®')
+    id_ = Brick.generate_id('geolocation', 'detail_openstreetmap')
+    verbose_name = _('Addresses on OpenStreetMap ®')
     template_name = 'geolocation/bricks/osm/detail-map.html'
 
     def get_map_settings(self):
@@ -138,8 +142,8 @@ class _FilteredMapBrick(_MapBrick):
 
 
 class GoogleFilteredMapBrick(_FilteredMapBrick):
-    id_           = Brick.generate_id('geolocation', 'filtered_google_maps')
-    verbose_name  = _('Filtered addresses on Google Maps ®')
+    id_ = Brick.generate_id('geolocation', 'filtered_google_maps')
+    verbose_name = _('Filtered addresses on Google Maps ®')
     template_name = 'geolocation/bricks/google/filtered-map.html'
 
     def get_api_key(self):
@@ -147,8 +151,8 @@ class GoogleFilteredMapBrick(_FilteredMapBrick):
 
 
 class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
-    id_           = Brick.generate_id('geolocation', 'filtered_openstreetmap')
-    verbose_name  = _('Filtered addresses on OpenStreetMap ®')
+    id_ = Brick.generate_id('geolocation', 'filtered_openstreetmap')
+    verbose_name = _('Filtered addresses on OpenStreetMap ®')
     template_name = 'geolocation/bricks/osm/filtered-map.html'
 
     def get_map_settings(self):
@@ -156,16 +160,15 @@ class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
 
 
 class _NeighboursMapBrick(_MapBrick):
-    dependencies  = (Address, GeoAddress,)
+    dependencies = (Address, GeoAddress,)
     target_ctypes = (Contact, Organisation)
 
     # Specific use case
-    # Add a new "ungeolocatable"
-    # the person bloc will show an error message
-    # this bloc will show an empty select
-    # edit this address with a geolocatable address
-    # the person block is reloaded and the address is asynchronously geocoded
-    # This block is reloaded in the same time and the address has no info yet.
+    #  Add a new "ungeolocatable"; the person brick will show an error message
+    #  This brick will show an empty <select>
+    #  Edit this address with a geolocatable address ; the person brick is
+    #  reloaded and the address is asynchronously geocoded
+    #  This brick is reloaded in the same time and the address has no info yet.
 
     def detailview_display(self, context):
         entity = context['object']
@@ -182,20 +185,20 @@ class _NeighboursMapBrick(_MapBrick):
 
 
 class GoogleNeighboursMapBrick(_NeighboursMapBrick):
-    id_           = Brick.generate_id('geolocation', 'google_whoisaround')
-    verbose_name  = _('Neighbours on Google Maps ®')
+    id_ = Brick.generate_id('geolocation', 'google_whoisaround')
+    verbose_name = _('Neighbours on Google Maps ®')
     template_name = 'geolocation/bricks/google/neighbours-map.html'
-    detail_map    = GoogleDetailMapBrick
+    detail_map = GoogleDetailMapBrick
 
     def get_api_key(self):
         return get_google_api_key()
 
 
 class OpenStreetMapNeighboursMapBrick(_NeighboursMapBrick):
-    id_           = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
-    verbose_name  = _('Neighbours on OpenStreetMap ©')
+    id_ = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
+    verbose_name = _('Neighbours on OpenStreetMap ©')
     template_name = 'geolocation/bricks/osm/neighbours-map.html'
-    detail_map    = OpenStreetMapDetailMapBrick
+    detail_map = OpenStreetMapDetailMapBrick
 
     def get_map_settings(self):
         return get_openstreetmap_settings()

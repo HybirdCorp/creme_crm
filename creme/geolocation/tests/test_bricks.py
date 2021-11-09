@@ -1,28 +1,41 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
+from django.test.utils import override_settings
+from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_filter import condition_handler, operators
-from creme.creme_core.models.entity_filter import EntityFilter
-from creme.creme_core.tests.base import OverrideSettingValueContext
-from creme.geolocation.bricks import (
-    GoogleDetailMapBrick,
-    OpenStreetMapDetailMapBrick,
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    EntityFilter,
 )
+from creme.creme_core.tests.base import OverrideSettingValueContext
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.constants import FILTER_CONTACT_ME, FILTER_MANAGED_ORGA
 from creme.persons.tests.base import (
+    skipIfCustomAddress,
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
 from .. import setting_keys
-from ..bricks import _MapBrick
+from ..bricks import (
+    GoogleDetailMapBrick,
+    GoogleFilteredMapBrick,
+    GoogleNeighboursMapBrick,
+    OpenStreetMapDetailMapBrick,
+    OpenStreetMapFilteredMapBrick,
+    OpenStreetMapNeighboursMapBrick,
+    _MapBrick,
+)
 from .base import Contact, GeoLocationBaseTestCase, Organisation
 
 
 @skipIfCustomContact
 @skipIfCustomOrganisation
-class MapBrickTestCase(GeoLocationBaseTestCase):
+class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
     def setUp(self):
         super().setUp()
         self.login()
@@ -182,4 +195,196 @@ class MapBrickTestCase(GeoLocationBaseTestCase):
             value=efilter.pk,
             label=f'{title} - {efilter.name}',
             choices=orga_opt,
+        )
+
+    @skipIfCustomAddress
+    def test_google_detail(self):
+        contact = self.user.linked_contact
+        self.create_address(contact)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=GoogleDetailMapBrick,
+            model=type(contact),
+            order=50,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+
+        api_key = 'thegoldenticket'
+        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+            response = self.assertGET200(contact.get_absolute_url())
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/google/detail-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, GoogleDetailMapBrick.id_)
+        self.assertEqual(_('Map'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"apiKey: '{api_key}'", script_node.text)
+
+    @skipIfCustomAddress
+    def test_osm_detail(self):
+        contact = self.user.linked_contact
+        self.create_address(contact)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=OpenStreetMapDetailMapBrick,
+            model=type(contact),
+            order=50,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+
+        nominatim_url = 'https://nominatim.openstreetmap.org/search'
+        tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
+        cright_url = '{s}othermap.com/copyright'
+        cright_title = 'OpenStreetMap contributors'
+
+        with override_settings(
+            GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
+            GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
+            GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,
+            GEOLOCATION_OSM_COPYRIGHT_TITLE=cright_title,
+        ):
+            response = self.assertGET200(contact.get_absolute_url())
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/osm/detail-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, OpenStreetMapDetailMapBrick.id_)
+        self.assertEqual(_('Map'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
+        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
+        self.assertIn(
+            f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
+            script_node.text,
+        )
+
+    def test_google_filtered(self):
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=GoogleFilteredMapBrick.id_,
+            defaults={'order': 50},
+        )
+
+        api_key = 'thegoldenticket'
+        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+            response = self.assertGET200(reverse('creme_core__home'))
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/google/filtered-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, GoogleFilteredMapBrick.id_)
+        self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"apiKey: '{api_key}'", script_node.text)
+
+    def test_osm_filtered(self):
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=OpenStreetMapFilteredMapBrick.id_,
+            defaults={'order': 50},
+        )
+
+        nominatim_url = 'https://nominatim.openstreetmap.org/search'
+        tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
+        cright_url = '{s}othermap.com/copyright'
+        cright_title = 'OpenStreetMap contributors'
+
+        with override_settings(
+            GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
+            GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
+            GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,
+            GEOLOCATION_OSM_COPYRIGHT_TITLE=cright_title,
+        ):
+            response = self.assertGET200(reverse('creme_core__home'))
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/osm/filtered-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, OpenStreetMapFilteredMapBrick.id_)
+        self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
+        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
+        self.assertIn(
+            f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
+            script_node.text,
+        )
+
+    @skipIfCustomAddress
+    def test_google_neighbours(self):
+        contact = self.user.linked_contact
+        self.create_address(contact)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=GoogleNeighboursMapBrick,
+            model=type(contact),
+            order=50,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+
+        api_key = 'thegoldenticket'
+        with OverrideSettingValueContext(setting_keys.GOOGLE_API_KEY, api_key):
+            response = self.assertGET200(contact.get_absolute_url())
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/google/neighbours-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, GoogleNeighboursMapBrick.id_)
+        self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"apiKey: '{api_key}'", script_node.text)
+
+    @skipIfCustomAddress
+    def test_osm_neighbours(self):
+        contact = self.user.linked_contact
+        self.create_address(contact)
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=OpenStreetMapNeighboursMapBrick,
+            model=type(contact),
+            order=50,
+            zone=BrickDetailviewLocation.BOTTOM,
+        )
+
+        nominatim_url = 'https://nominatim.openstreetmap.org/search'
+        tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
+        cright_url = '{s}othermap.com/copyright'
+        cright_title = 'OpenStreetMap contributors'
+
+        with override_settings(
+            GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
+            GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
+            GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,
+            GEOLOCATION_OSM_COPYRIGHT_TITLE=cright_title,
+        ):
+            response = self.assertGET200(contact.get_absolute_url())
+
+        self.assertTemplateUsed(response, 'geolocation/bricks/osm/neighbours-map.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, OpenStreetMapNeighboursMapBrick.id_)
+        self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
+
+        script_node = self.get_html_node_or_fail(
+            brick_node, './/script[@type="text/javascript"]',
+        )
+        self.assertIn(f"nominatimUrl: '{nominatim_url}'", script_node.text)
+        self.assertIn(f"tileMapUrl: '{tilemap_url}'", script_node.text)
+        self.assertIn(
+            f"""tileMapAttribution: '&copy; <a href="{cright_url}">{cright_title}</a>'""",
+            script_node.text,
         )

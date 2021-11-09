@@ -177,7 +177,7 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 'status': GeoAddress.Status.UNDEFINED,
                 'url': orga.get_absolute_url(),
             },
-            address_as_dict(address)
+            address_as_dict(address),
         )
 
     @skipIfCustomOrganisation
@@ -260,12 +260,15 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
             self.assertEqual(get_google_api_key(), 'thegoldenticket')
 
     def test_get_openstreetmap_settings(self):
-        self.assertEqual(get_openstreetmap_settings(), {
-            'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
-            'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
-            'copyright_url': settings.GEOLOCATION_OSM_COPYRIGHT_URL,
-            'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
-        })
+        self.assertDictEqual(
+            {
+                'nominatim_url': settings.GEOLOCATION_OSM_NOMINATIM_URL,
+                'tilemap_url': settings.GEOLOCATION_OSM_TILEMAP_URL,
+                'copyright_url': settings.GEOLOCATION_OSM_COPYRIGHT_URL,
+                'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
+            },
+            get_openstreetmap_settings(),
+        )
 
         tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
         copyright_url = '{s}othermap.com/copyright'
@@ -274,12 +277,15 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
                 GEOLOCATION_OSM_NOMINATIM_URL='',
                 GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
                 GEOLOCATION_OSM_COPYRIGHT_URL=copyright_url):
-            self.assertEqual(get_openstreetmap_settings(), {
-                'nominatim_url': '',
-                'tilemap_url': tilemap_url,
-                'copyright_url': copyright_url,
-                'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
-            })
+            self.assertDictEqual(
+                {
+                    'nominatim_url': '',
+                    'tilemap_url': tilemap_url,
+                    'copyright_url': copyright_url,
+                    'copyright_title': settings.GEOLOCATION_OSM_COPYRIGHT_TITLE,
+                },
+                get_openstreetmap_settings(),
+            )
 
     def test_location_bounding_box(self):
         # 10 km ~ 0.09046499004885108 lat, 0.12704038469036066 long (for 45° lat)
