@@ -3,6 +3,7 @@
 from datetime import timedelta
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -10,14 +11,20 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
-from creme.creme_core.models import BrickDetailviewLocation, FakeContact
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    FakeContact,
+    FakeOrganisation,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import ActionsNotOnTimeBrick, ActionsOnTimeBrick
 from ..models import Action
 from .base import AssistantsTestCase
 
 
-class ActionTestCase(AssistantsTestCase):
+class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -158,9 +165,96 @@ class ActionTestCase(AssistantsTestCase):
         self.assertRedirects(response, self.entity.get_absolute_url())
 
     def test_delete_action02(self):
-        "Ajax version"
+        "Ajax version."
         response = self._aux_test_delete(ajax=True)
         self.assertEqual(200, response.status_code)
+
+    def test_brick(self):
+        entity1 = self.entity
+        entity2 = FakeOrganisation.objects.create(user=self.user, name='Acme')
+
+        now_value = now()
+
+        create_action = self._create_action
+        action_ok1 = create_action(
+            entity=entity1, deadline=now_value + timedelta(days=1), title='Recall',
+        )
+        action_ok2 = create_action(
+            entity=entity1, deadline=now_value + timedelta(days=2), title="It's important",
+        )
+        action_ok3 = create_action(
+            entity=entity2, deadline=now_value + timedelta(days=2), title='Other',
+        )
+
+        action_ko1 = create_action(
+            entity=entity1, deadline=now_value - timedelta(days=1), title='Too late',
+        )
+        action_ko2 = create_action(
+            entity=entity1, deadline=now_value - timedelta(days=2), title='Damned',
+        )
+        action_ko3 = create_action(
+            entity=entity2, deadline=now_value - timedelta(days=2), title='Other old',
+        )
+
+        ActionsOnTimeBrick.page_size = ActionsNotOnTimeBrick.page_size = max(
+            4, settings.BLOCK_SIZE
+        )
+
+        def action_found(brick_node, action):
+            title = action.title
+            return any(n.text == title for n in brick_node.findall('.//td'))
+
+        create_detail = partial(
+            BrickDetailviewLocation.objects.create_if_needed,
+            model=type(entity1), zone=BrickDetailviewLocation.RIGHT,
+        )
+        create_detail(brick=ActionsOnTimeBrick,    order=50)
+        create_detail(brick=ActionsNotOnTimeBrick, order=51)
+
+        response1 = self.assertGET200(self.entity.get_absolute_url())
+
+        detail_brick_node_ok = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            ActionsOnTimeBrick.id_,
+        )
+        self.assertTrue(action_found(detail_brick_node_ok, action_ok1))
+        self.assertTrue(action_found(detail_brick_node_ok, action_ok2))
+        self.assertFalse(action_found(detail_brick_node_ok, action_ok3))
+
+        detail_brick_node_ko = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            ActionsNotOnTimeBrick.id_,
+        )
+        self.assertTrue(action_found(detail_brick_node_ko, action_ko1))
+        self.assertTrue(action_found(detail_brick_node_ko, action_ko2))
+        self.assertFalse(action_found(detail_brick_node_ko, action_ko3))
+
+        # ---
+        create_home = BrickHomeLocation.objects.get_or_create
+        create_home(brick_id=ActionsOnTimeBrick.id_,    defaults={'order': 50})
+        create_home(brick_id=ActionsNotOnTimeBrick.id_, defaults={'order': 51})
+
+        response2 = self.assertGET200(reverse('creme_core__home'))
+
+        home_brick_node_ok = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            ActionsOnTimeBrick.id_,
+        )
+        self.assertTrue(action_found(home_brick_node_ok, action_ok1))
+        self.assertTrue(action_found(home_brick_node_ok, action_ok2))
+        self.assertTrue(action_found(home_brick_node_ok, action_ok3))
+        self.assertInstanceLink(home_brick_node_ok, entity1)
+        self.assertInstanceLink(home_brick_node_ok, entity2)
+
+        home_brick_node_ko = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            ActionsNotOnTimeBrick.id_,
+        )
+        self.assertTrue(action_found(home_brick_node_ko, action_ko1))
+        self.assertTrue(action_found(home_brick_node_ko, action_ko2))
+        self.assertTrue(action_found(home_brick_node_ko, action_ko3))
+        self.assertInstanceLink(home_brick_node_ko, entity1)
+        self.assertInstanceLink(home_brick_node_ko, entity2)
 
     def test_validate(self):
         action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')

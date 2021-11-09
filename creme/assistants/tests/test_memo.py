@@ -3,6 +3,7 @@
 from datetime import timedelta
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
@@ -13,13 +14,20 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms.listview import TextLVSWidget
-from creme.creme_core.models import CremeEntity, FakeOrganisation
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    CremeEntity,
+    FakeOrganisation,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
+from ..bricks import MemosBrick
 from ..models import Memo
 from .base import AssistantsTestCase
 
 
-class MemoTestCase(AssistantsTestCase):
+class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @staticmethod
     def _build_add_url(entity):
         return reverse('assistants__create_memo', args=(entity.id,))
@@ -65,7 +73,7 @@ class MemoTestCase(AssistantsTestCase):
         self.assertEqual(content, str(memo))
 
     def test_edit(self):
-        content  = 'content'
+        content = 'content'
         homepage = True
         memo = self._create_memo(content, homepage)
 
@@ -141,7 +149,8 @@ class MemoTestCase(AssistantsTestCase):
             to_python(value=value),
         )
 
-    def _oldify_memo(self, memo):
+    @staticmethod
+    def _oldify_memo(memo):
         cdate = memo.creation_date
         memo.creation_date = cdate - timedelta(days=1)
         memo.save()
@@ -202,6 +211,66 @@ class MemoTestCase(AssistantsTestCase):
                 self.assertEqual(contact01, memo.creme_entity)
 
         self.aux_test_merge(creator, assertor)
+
+    def test_brick(self):
+        user = self.user
+
+        entity1 = self.entity
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity2 = create_orga(name='Acme')
+        entity3 = create_orga(name='Deleted', is_deleted=True)
+
+        def create_memo(content, entity, on_homepage=True):
+            return Memo.objects.create(
+                user=user, content=content, creme_entity=entity, on_homepage=on_homepage,
+            )
+
+        memo1 = create_memo('Recall',         entity1)
+        memo2 = create_memo("It's important", entity1, on_homepage=False)
+        memo3 = create_memo('Other',          entity2)
+        memo4 = create_memo('Ignored',        entity3)
+
+        MemosBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        def memo_found(brick_node, memo):
+            content = memo.content
+            return any(n.text == content for n in brick_node.findall('.//p'))
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=MemosBrick,
+            model=type(entity1),
+            order=50,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        response1 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            MemosBrick.id_,
+        )
+
+        self.assertTrue(memo_found(detail_brick_node, memo1))
+        self.assertTrue(memo_found(detail_brick_node, memo2))
+        self.assertFalse(memo_found(detail_brick_node, memo3))
+
+        # ---
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=MemosBrick.id_, defaults={'order': 50},
+        )
+
+        response2 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            MemosBrick.id_,
+        )
+
+        self.assertTrue(memo_found(home_brick_node, memo1))
+        self.assertFalse(memo_found(home_brick_node, memo2))
+        self.assertTrue(memo_found(home_brick_node, memo3))
+        self.assertFalse(memo_found(home_brick_node, memo4))
+        self.assertInstanceLink(home_brick_node, entity1)
+        self.assertInstanceLink(home_brick_node, entity2)
 
     def test_manager_filter_by_user(self):
         "Teams."
