@@ -23,10 +23,13 @@ from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
     BrickState,
     CremeEntity,
     DateReminder,
     FakeContact,
+    FakeOrganisation,
     HistoryLine,
     JobResult,
     SettingValue,
@@ -48,7 +51,7 @@ from ..models import Alert, ToDo
 from .base import AssistantsTestCase
 
 
-class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
+class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -238,8 +241,95 @@ class TodoTestCase(AssistantsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, self.entity.get_absolute_url())
         self.assertIs(True, self.refresh(todo).is_ok)
 
+    def test_brick(self):
+        user = self.user
+        entity1 = self.entity
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity2 = create_orga(name='Acme')
+        entity3 = create_orga(name='Deleted', is_deleted=True)
+
+        def create_todo(title, entity, is_ok=False):
+            return ToDo.objects.create(
+                user=user, title=title, creme_entity=entity, is_ok=is_ok,
+            )
+
+        todo1 = create_todo('Recall',         entity1)
+        todo2 = create_todo("It's important", entity1, is_ok=True)
+        todo3 = create_todo('Other',          entity2)
+        todo4 = create_todo('Ignore me',      entity3)
+
+        TodosBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        def todo_found(brick_node, todo):
+            title = todo.title
+            return any(n.text == title for n in brick_node.findall('.//td'))
+
+        # Detail + do not hide ---
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=TodosBrick,
+            model=type(entity1),
+            order=50,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        response1 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            TodosBrick.id_,
+        )
+
+        self.assertTrue(todo_found(detail_brick_node,  todo1))
+        self.assertTrue(todo_found(detail_brick_node,  todo2))
+        self.assertFalse(todo_found(detail_brick_node, todo3))
+
+        # Home + do no hide ---
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=TodosBrick.id_, defaults={'order': 50},
+        )
+
+        response2 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            TodosBrick.id_,
+        )
+
+        self.assertTrue(todo_found(home_brick_node, todo1))
+        self.assertTrue(todo_found(home_brick_node, todo2))
+        self.assertTrue(todo_found(home_brick_node, todo3))
+        self.assertFalse(todo_found(home_brick_node, todo4))
+        self.assertInstanceLink(home_brick_node, entity1)
+        self.assertInstanceLink(home_brick_node, entity2)
+
+        # Detail + hide validated ---
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=TodosBrick.id_)
+        state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_TODOS, value=True)
+        state.save()
+
+        response3 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node_hidden = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            TodosBrick.id_,
+        )
+
+        self.assertTrue(todo_found(detail_brick_node_hidden, todo1))
+        self.assertFalse(todo_found(detail_brick_node_hidden, todo2))
+        self.assertFalse(todo_found(detail_brick_node_hidden, todo3))
+
+        # Home + hide validated ---
+        response4 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node_hidden = self.get_brick_node(
+            self.get_html_tree(response4.content),
+            TodosBrick.id_,
+        )
+
+        self.assertTrue(todo_found(home_brick_node_hidden, todo1))
+        self.assertFalse(todo_found(home_brick_node_hidden, todo2))
+        self.assertTrue(todo_found(home_brick_node_hidden, todo3))
+        self.assertFalse(todo_found(home_brick_node_hidden, todo4))
+
     def test_brick_reload01(self):
-        "Detailview."
+        "Detail-view."
         for i in range(1, 4):
             self._create_todo(f'Todo{i}', f'Description {i}')
 

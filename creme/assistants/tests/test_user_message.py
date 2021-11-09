@@ -11,8 +11,16 @@ from django.utils.translation import gettext as _
 # Should be a test queue
 # from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
-from creme.creme_core.models import Job, JobResult
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    FakeOrganisation,
+    Job,
+    JobResult,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
+from ..bricks import UserMessagesBrick
 from ..creme_jobs import usermessages_send_type
 from ..models import UserMessage, UserMessagePriority
 from .base import AssistantsTestCase
@@ -20,7 +28,7 @@ from .base import AssistantsTestCase
 User = get_user_model()  # TODO: self.User
 
 
-class UserMessageTestCase(AssistantsTestCase):
+class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -182,7 +190,7 @@ class UserMessageTestCase(AssistantsTestCase):
         self.assertIsNone(message.creme_entity)
 
     def test_create04(self):
-        "One team"
+        "One team."
         create_user = User.objects.create_user
         users = [
             create_user(
@@ -223,6 +231,69 @@ class UserMessageTestCase(AssistantsTestCase):
         messages = UserMessage.objects.all()
         self.assertEqual(4, len(messages))
         self.assertSetEqual({*users}, {msg.recipient for msg in messages})
+
+    def test_brick(self):
+        user = self.user
+        priority = UserMessagePriority.objects.first()
+
+        entity1 = self.entity
+        entity2 = FakeOrganisation.objects.create(user=user, name='Acme')
+        # TODO: deleted entity
+
+        def create_message(entity, title):
+            return UserMessage.objects.create(
+                title=title,
+                body='My body is ready',
+                creation_date=now(),
+                priority=priority,
+                sender=self.other_user,
+                recipient=user,
+                creme_entity=entity,
+            )
+
+        msg1 = create_message(entity1, 'Recall')
+        msg2 = create_message(entity1, "It's important")
+        msg3 = create_message(entity2, 'Other message')
+
+        UserMessagesBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        def message_found(brick_node, msg):
+            title = msg.title
+            return any(n.text == title for n in brick_node.findall('.//td'))
+
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=UserMessagesBrick,
+            model=type(entity1),
+            order=50,
+            zone=BrickDetailviewLocation.TOP,
+        )
+
+        response1 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            UserMessagesBrick.id_,
+        )
+
+        self.assertTrue(message_found(detail_brick_node, msg1))
+        self.assertTrue(message_found(detail_brick_node, msg2))
+        self.assertFalse(message_found(detail_brick_node, msg3))
+
+        # ---
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=UserMessagesBrick.id_, defaults={'order': 50},
+        )
+
+        response2 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            UserMessagesBrick.id_,
+        )
+
+        self.assertTrue(message_found(home_brick_node, msg1))
+        self.assertTrue(message_found(home_brick_node, msg2))
+        self.assertTrue(message_found(home_brick_node, msg3))
+        self.assertInstanceLink(home_brick_node, entity1)
+        self.assertInstanceLink(home_brick_node, entity2)
 
     def test_delete_related01(self):
         priority = UserMessagePriority.objects.create(title='Important')

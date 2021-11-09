@@ -3,6 +3,7 @@
 from datetime import datetime, timedelta
 from functools import partial
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
@@ -19,11 +20,14 @@ from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
     BrickState,
     CremeEntity,
     DateReminder,
     FakeOrganisation,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from ..bricks import AlertsBrick
 from ..constants import BRICK_STATE_HIDE_VALIDATED_ALERTS
@@ -31,7 +35,7 @@ from ..models import Alert
 from .base import AssistantsTestCase
 
 
-class AlertTestCase(AssistantsTestCase):
+class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     @staticmethod
     def _build_add_url(entity):
         return reverse('assistants__create_alert', args=(entity.id,))
@@ -372,6 +376,100 @@ class AlertTestCase(AssistantsTestCase):
         alerts = Alert.objects.filter_by_user(user=user)
         self.assertSetEqual({alert1, alert3}, {*alerts})
         self.assertEqual(2, len(alerts))
+
+    def test_brick(self):
+        user = self.user
+        entity1 = self.entity
+
+        state = BrickState.objects.get_for_brick_id(user=user, brick_id=AlertsBrick.id_)
+        state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=False)
+        state.save()
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        entity2 = create_orga(name='Acme')
+        entity3 = create_orga(name='Deleted', is_deleted=True)
+
+        def create_alert(title, entity, is_validated=False):
+            return Alert.objects.create(
+                user=user,
+                title=title,
+                creme_entity=entity,
+                trigger_date=now() + timedelta(days=5),
+                is_validated=is_validated,
+            )
+
+        alert1 = create_alert('Recall',         entity1)
+        alert2 = create_alert("It's important", entity1, is_validated=True)
+        alert3 = create_alert('Other',          entity2)
+        alert4 = create_alert('Ignored',        entity3)
+
+        AlertsBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        def alert_found(brick_node, alert):
+            title = alert.title
+            return any(n.text == title for n in brick_node.findall('.//td'))
+
+        # Detail + do not hide ---
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=AlertsBrick,
+            model=type(entity1),
+            order=50,
+            zone=BrickDetailviewLocation.RIGHT,
+        )
+
+        response1 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            AlertsBrick.id_,
+        )
+
+        self.assertTrue(alert_found(detail_brick_node, alert1))
+        self.assertTrue(alert_found(detail_brick_node, alert2))
+        self.assertFalse(alert_found(detail_brick_node, alert3))
+
+        # Home + do not hide ---
+        BrickHomeLocation.objects.get_or_create(
+            brick_id=AlertsBrick.id_, defaults={'order': 50},
+        )
+
+        response2 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            AlertsBrick.id_,
+        )
+
+        self.assertTrue(alert_found(home_brick_node, alert1))
+        self.assertTrue(alert_found(home_brick_node, alert2))
+        self.assertTrue(alert_found(home_brick_node, alert3))
+        self.assertFalse(alert_found(home_brick_node, alert4))
+        self.assertInstanceLink(home_brick_node, entity1)
+        self.assertInstanceLink(home_brick_node, entity2)
+
+        # Detail + hide validated ---
+        state.set_extra_data(key=BRICK_STATE_HIDE_VALIDATED_ALERTS, value=True)
+        state.save()
+
+        response3 = self.assertGET200(self.entity.get_absolute_url())
+        detail_brick_node_hidden = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            AlertsBrick.id_,
+        )
+
+        self.assertTrue(alert_found(detail_brick_node_hidden, alert1))
+        self.assertFalse(alert_found(detail_brick_node_hidden, alert2))
+        self.assertFalse(alert_found(detail_brick_node_hidden, alert3))
+
+        # Home + hide validated ---
+        response4 = self.assertGET200(reverse('creme_core__home'))
+        home_brick_node_hidden = self.get_brick_node(
+            self.get_html_tree(response4.content),
+            AlertsBrick.id_,
+        )
+
+        self.assertTrue(alert_found(home_brick_node_hidden, alert1))
+        self.assertFalse(alert_found(home_brick_node_hidden, alert2))
+        self.assertTrue(alert_found(home_brick_node_hidden, alert3))
+        self.assertFalse(alert_found(home_brick_node_hidden, alert4))
 
     def test_brick_hide_validated_alerts(self):
         user = self.user
