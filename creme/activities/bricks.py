@@ -111,27 +111,13 @@ class SubjectsBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class FutureActivitiesBrick(QuerysetBrick):
-    id_ = QuerysetBrick.generate_id('activities', 'future_activities')
-    verbose_name = _('Future activities')
-    description = _(
-        'Displays activities which:\n'
-        '- are linked to the current entity with a relationship «participates»,'
-        ' «is subject» or «related to the activity» (if the current entity is an'
-        ' Organisation, activities linked to managers & employees are displayed too)\n'
-        '- are ending in the future\n'
-        'Hint: the block uses the setting value «Display minutes information in activities blocks»'
-        ' which is configurable in the configuration of the app «Activities».'
-    )
-
+class _RelatedActivitiesBrick(QuerysetBrick):
     dependencies = (Relation, Activity)
     relation_type_deps = (
         constants.REL_SUB_LINKED_2_ACTIVITY,
         constants.REL_SUB_ACTIVITY_SUBJECT,
         constants.REL_SUB_PART_2_ACTIVITY,
     )
-
-    template_name = 'activities/bricks/future-activities.html'
 
     _RTYPES_2_POP = (
         constants.REL_OBJ_PART_2_ACTIVITY,
@@ -140,10 +126,7 @@ class FutureActivitiesBrick(QuerysetBrick):
     )
 
     def _get_queryset_for_entity(self, entity, context):
-        if isinstance(entity, Organisation):
-            return Activity.objects.future_linked_to_organisation(entity, context['today'])
-        else:
-            return Activity.objects.future_linked(entity=entity, today=context['today'])
+        raise NotImplementedError
 
     def get_template_context(self, *args, **kwargs):
         ctxt = super().get_template_context(*args, **kwargs)
@@ -189,7 +172,30 @@ class FutureActivitiesBrick(QuerysetBrick):
         ))
 
 
-class PastActivitiesBrick(FutureActivitiesBrick):
+# class FutureActivitiesBrick(QuerysetBrick):
+class FutureActivitiesBrick(_RelatedActivitiesBrick):
+    id_ = QuerysetBrick.generate_id('activities', 'future_activities')
+    verbose_name = _('Future activities')
+    description = _(
+        'Displays activities which:\n'
+        '- are linked to the current entity with a relationship «participates»,'
+        ' «is subject» or «related to the activity» (if the current entity is an'
+        ' Organisation, activities linked to managers & employees are displayed too)\n'
+        '- are ending in the future\n'
+        'Hint: the block uses the setting value «Display minutes information in activities blocks»'
+        ' which is configurable in the configuration of the app «Activities».'
+    )
+    template_name = 'activities/bricks/future-activities.html'
+
+    def _get_queryset_for_entity(self, entity, context):
+        if isinstance(entity, Organisation):
+            return Activity.objects.future_linked_to_organisation(entity, context['today'])
+        else:
+            return Activity.objects.future_linked(entity=entity, today=context['today'])
+
+
+# class PastActivitiesBrick(FutureActivitiesBrick):
+class PastActivitiesBrick(_RelatedActivitiesBrick):
     id_ = QuerysetBrick.generate_id('activities', 'past_activities')
     verbose_name = _('Past activities')
     description = _(
