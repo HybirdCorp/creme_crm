@@ -367,6 +367,7 @@
                     - 'report_chart_selector' became 'reports_chart_selector'.
                     - 'report_chart_labels' became 'reports_chart_labels'.
             * Activities :
+                - The class 'bricks.PastActivitiesBrick' now inherits a new base class called '_RelatedActivitiesBrick'.
                 - The global dictionary 'views.activity._TYPES_MAP' has been transformed in the class attribute 'ActivityCreation.allowed_activity_types'.
             * Billing :
                 - The constants 'DISCOUNT_*' have been replaced by an 'django.db.models.IntegerChoices' : 'model.Line.Discount'.
