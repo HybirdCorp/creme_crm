@@ -1,5 +1,5 @@
 <!DOCTYPE html>{% load i18n mobile_tags %}
-<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html class="{% mobile_document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -41,7 +41,7 @@ if (navigator.userAgent.match(/Android/i)) {
         <div class="more-info">
           {% for phone_call in phone_calls %}
             <div class="card-container">
-              {% activity_card phone_call 'done' %}
+              {% mobile_activity_card phone_call 'done' %}
             </div>
           {% endfor %}
         </div>
@@ -69,7 +69,7 @@ if (navigator.userAgent.match(/Android/i)) {
         <div class="more-info">
           {% for activity in floating_activities %}
             <div class="card-container">
-              {% activity_card activity %}
+              {% mobile_activity_card activity %}
             </div>
           {% endfor %}
         </div>
@@ -91,7 +91,7 @@ if (navigator.userAgent.match(/Android/i)) {
         <div class="more-info">
           {% for activity in tomorrow_activities %}
             <div class="card-container">
-              {% activity_card activity 'no-button' never_edit_pcall=1 %}
+              {% mobile_activity_card activity 'no-button' never_edit_pcall=1 %}
             </div>
           {% endfor %}
         </div>
@@ -106,7 +106,7 @@ if (navigator.userAgent.match(/Android/i)) {
   </section>
 
   <div id="workflow_panel" />
-  {% get_footer %}
+  {% mobile_footer %}
 
   <script type="text/javascript">
     document.addEventListener('click', function(e) {

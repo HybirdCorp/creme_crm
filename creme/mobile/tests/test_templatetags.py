@@ -10,7 +10,7 @@ from creme.creme_core.tests.base import (
 )
 from creme.mobile import setting_keys
 from creme.mobile.templatetags.mobile_tags import (
-    document_class,
+    mobile_document_class,
     mobile_location_map_url,
 )
 from creme.mobile.tests.base import MobileBaseTestCase
@@ -87,4 +87,4 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         request = RequestFactory().get(reverse('mobile__portal'))
         request.META['HTTP_USER_AGENT'] = useragent
 
-        self.assertEqual(document_class(request), expected)
+        self.assertEqual(mobile_document_class(request), expected)

@@ -57,7 +57,8 @@ def mobile_location_map_url(address):
 
 # TODO: move to creme_core ??
 @register.simple_tag(takes_context=True)
-def prepare_fields(context, instance, *field_names):
+# def prepare_fields(context, instance, *field_names):
+def mobile_prepare_fields(context, instance, *field_names):
     is_hidden = context['fields_configs'].get_for_model(instance.__class__).is_fieldname_hidden
 
     for field_name in field_names:
@@ -74,7 +75,8 @@ _DOCUMENT_CLASSES = [
 
 
 @register.simple_tag
-def document_class(request):
+# def document_class(request):
+def mobile_document_class(request):
     agent = request.META.get('HTTP_USER_AGENT')  # TODO: request.headers['User-Agent'] ??
 
     if agent is not None:
@@ -87,7 +89,8 @@ def document_class(request):
 
 # TODO: remove when Organisations can participate
 @register.filter
-def orga_subjects(activity):
+# def orga_subjects(activity):
+def mobile_organisation_subjects(activity):
     return Organisation.objects.filter(
         relations__type=REL_SUB_ACTIVITY_SUBJECT,
         relations__object_entity=activity.id,
@@ -105,12 +108,13 @@ _BUTTONS = {
 
 
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)
-def activity_card(context, activity,
-                  button_panel=START_STOP_BUTTONS,
-                  show_date=True,
-                  shortcut=False,
-                  never_edit_pcall=False,
-                  ):
+# def activity_card(context, activity,
+def mobile_activity_card(context, activity,
+                         button_panel=START_STOP_BUTTONS,
+                         show_date=True,
+                         shortcut=False,
+                         never_edit_pcall=False,
+                         ):
     extra_classes = ''
 
     if activity.type_id == ACTIVITYTYPE_PHONECALL:
@@ -137,7 +141,8 @@ def activity_card(context, activity,
 
 
 @register.inclusion_tag('mobile/templatetags/footer.html')
-def get_footer(show_delog=True):
+# def get_footer(show_delog=True):
+def mobile_footer(show_delog=True):
     return {
         'REDIRECT_FIELD_NAME':    REDIRECT_FIELD_NAME,
         'NON_MOBILE_SITE_DOMAIN': settings.NON_MOBILE_SITE_DOMAIN or '/',

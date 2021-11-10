@@ -58,7 +58,8 @@ from creme.persons.views.organisation import OrganisationCreation
 
 from . import forms as mobile_forms
 from .models import MobileFavorite
-from .templatetags.mobile_tags import orga_subjects
+# from .templatetags.mobile_tags import orga_subjects
+from .templatetags.mobile_tags import mobile_organisation_subjects
 
 logger = logging.getLogger(__name__)
 Activity = get_activity_model()
@@ -460,7 +461,8 @@ def phonecall_panel(request):
             r.object_entity.get_real_entity()
             for r in pcall.get_participant_relations()
         ]
-        context['participant_organisations'] = [*orga_subjects(pcall)]
+        # context['participant_organisations'] = [*orga_subjects(pcall)]
+        context['participant_organisations'] = [*mobile_organisation_subjects(pcall)]
 
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()
     user.has_perm_to_view_or_die(person)
