@@ -382,6 +382,13 @@
                 - In 'models.sending', some constants have been replaced by 'django.db.models.IntegerChoices' :
                     - 'SENDING_TYPE*' by 'EmailSending.Type'.
                     - 'SENDING_STATE*' by 'EmailSending.State'.
+            * Mobile :
+                - The templatetags without prefix have been prefixed :
+                    - {% prepare_fields %} => {% mobile_prepare_fields %}
+                    - {% document_class %} => {% mobile_document_class %}
+                    - {% activity_card %} => {% mobile_activity_card %}
+                    - {% get_footer %} => {% mobile_footer %}
+                    - |orga_subjects => |mobile_organisation_subjects
             * Projects :
                 - In 'models.AbstractProjectTask' :
                     - The field 'order' is not 'null=True' any more.

@@ -1,5 +1,5 @@
 <!DOCTYPE html>{% load i18n mobile_tags %}
-<html class="{% document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html class="{% mobile_document_class request %}" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -74,7 +74,7 @@ if (navigator.userAgent.match(/Android/i)) {
 
       {% for activity in hot_activities %}
         <div class="card-container">
-          {% activity_card activity show_date=0 %}
+          {% mobile_activity_card activity show_date=0 %}
         </div>
       {% endfor %}
     </div>
@@ -90,14 +90,14 @@ if (navigator.userAgent.match(/Android/i)) {
 
       {% for activity in today_activities %}
         <div class="card-container">
-          {% activity_card activity show_date=0 shortcut=1 %}
+          {% mobile_activity_card activity show_date=0 shortcut=1 %}
         </div>
       {% endfor %}
     </div>
   </section>
 
   <div id="workflow_panel" />
-  {% get_footer %}
+  {% mobile_footer %}
 
   <script data-no-instant>
     document.addEventListener('click', function(e) {
