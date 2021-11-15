@@ -3,15 +3,17 @@
 from decimal import Decimal
 from functools import partial
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import SetCredentials
-from creme.creme_core.tests.fake_models import FakeContact
+from creme.creme_core.models import FakeContact, SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import get_document_model, get_folder_model
 
 from .. import get_product_model
+from ..bricks import ImagesBrick
 from ..models import Category, SubCategory
 from .base import _ProductsTestCase, skipIfCustomProduct
 
@@ -19,7 +21,7 @@ Product = get_product_model()
 
 
 @skipIfCustomProduct
-class ProductTestCase(_ProductsTestCase):
+class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
     def test_populate(self):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
@@ -41,6 +43,77 @@ class ProductTestCase(_ProductsTestCase):
         self.assertListEqual(
             [[subcat1.id, name1], [subcat2.id, name2]],
             response.json(),
+        )
+
+    @skipIfCustomProduct
+    def test_detailview01(self):
+        "No image."
+        user = self.login()
+
+        sub_cat = SubCategory.objects.all()[0]
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        response = self.assertGET200(product.get_absolute_url())
+        self.assertTemplateUsed(response, 'products/view_product.html')
+        self.assertTemplateUsed(response, 'products/bricks/images.html')
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            ImagesBrick.id_,
+        )
+        self.assertEqual(_('Images'), self.get_brick_title(brick_node))
+
+        buttons_node = self.get_brick_header_buttons(brick_node)
+        self.assertBrickHeaderHasButton(
+            buttons_node=buttons_node,
+            url=reverse('products__add_images_to_product', args=(product.id,)),
+            label=_('Add images'),
+        )
+
+        msg_node = self.get_html_node_or_fail(brick_node, './/div[@class="brick-tiles-empty"]')
+        self.assertEqual(_('No image for the moment'), msg_node.text)
+
+    @skipIfCustomProduct
+    def test_detailview02(self):
+        "With image."
+        user = self.login()
+
+        sub_cat = SubCategory.objects.all()[0]
+        product = Product.objects.create(
+            user=user, name='Eva00', description='A fake god',
+            unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        create_image = partial(
+            self._create_image, user=user,
+            folder=get_folder_model().objects.create(user=user, title=_('My Images')),
+        )
+        img_1 = create_image(ident=1)
+        img_2 = create_image(ident=2)
+
+        product.images.set([img_1, img_2])
+
+        ImagesBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        response = self.assertGET200(product.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            ImagesBrick.id_,
+        )
+        self.assertEqual(
+            _('{count} Images').format(count=2),
+            self.get_brick_title(brick_node),
+        )
+        self.get_html_node_or_fail(
+            brick_node, f".//a[@href='{img_1.get_absolute_url()}']"
+        )
+        self.get_html_node_or_fail(
+            brick_node, f".//a[@href='{img_2.get_absolute_url()}']"
         )
 
     @skipIfCustomProduct
@@ -86,8 +159,6 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(sub_cat,             product.sub_category)
 
         self.assertRedirects(response, product.get_absolute_url())
-        self.assertTemplateUsed(response, 'products/view_product.html')
-        self.assertTemplateUsed(response, 'products/bricks/images.html')
 
     @skipIfCustomProduct
     def test_createview02(self):
@@ -126,15 +197,15 @@ class ProductTestCase(_ProductsTestCase):
                 },
             )
 
-        response = post(img_1, img_3)
-        self.assertEqual(200, response.status_code)
+        response1 = post(img_1, img_3)
+        self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response, 'form', 'images',
+            response1, 'form', 'images',
             _('Some entities are not linkable: {}').format(img_3),
         )
 
-        response = post(img_1, img_2)
-        self.assertNoFormError(response)
+        response2 = post(img_1, img_2)
+        self.assertNoFormError(response2)
 
         product = self.get_object_or_fail(Product, name=name)
         self.assertSetEqual({img_1, img_2}, {*product.images.all()})
@@ -262,11 +333,11 @@ class ProductTestCase(_ProductsTestCase):
         product, cat, sub_cat = self._build_product_cat_subcat()
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
-            args=('products', 'category', cat.id)
+            args=('products', 'category', cat.id),
         ))
         self.assertFormError(
             response, 'form', 'replace_products__product_category',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     def test_edit_inner_category(self):
@@ -375,7 +446,7 @@ class ProductTestCase(_ProductsTestCase):
         create_product = partial(
             Product.objects.create,
             user=user, description='A fake god', unit_price=Decimal('1.23'),
-            category=sub_cat.category, sub_category=sub_cat
+            category=sub_cat.category, sub_category=sub_cat,
         )
 
         product = create_product(name='Eva00', code=42)
@@ -398,7 +469,7 @@ class ProductTestCase(_ProductsTestCase):
         )
         self.assertFormError(
             response, 'form', 'sub_category',
-            _('This sub-category causes constraint error.')
+            _('This sub-category causes constraint error.'),
         )
 
         product = self.refresh(product)
@@ -477,7 +548,7 @@ class ProductTestCase(_ProductsTestCase):
         )
         self.assertFormError(
             response, 'form', 'sub_category',
-            _('This sub-category causes constraint error.')
+            _('This sub-category causes constraint error.'),
         )
 
         product1 = self.refresh(product1)
@@ -511,10 +582,10 @@ class ProductTestCase(_ProductsTestCase):
         product.images.set([img_3])
 
         url = reverse('products__add_images_to_product', args=(product.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New images for «{entity}»').format(entity=product),
             context.get('title'),
@@ -527,25 +598,25 @@ class ProductTestCase(_ProductsTestCase):
                 data={'images': self.formfield_value_multi_creator_entity(*images)},
             )
 
-        response = post(img_1, img_4)
-        self.assertEqual(200, response.status_code)
+        response2 = post(img_1, img_4)
+        self.assertEqual(200, response2.status_code)
         self.assertFormError(
-            response, 'form', 'images',
+            response2, 'form', 'images',
             _('Some entities are not linkable: {}').format(img_4),
         )
 
-        response = post(img_1, img_2)
-        self.assertNoFormError(response)
+        response3 = post(img_1, img_2)
+        self.assertNoFormError(response3)
         self.assertSetEqual({img_1, img_2, img_3}, {*product.images.all()})
 
         # ------------
         img_5 = create_image(ident=5, user=user)
-        response = post(img_1, img_5)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _('This entity does not exist.'))
+        response4 = post(img_1, img_5)
+        self.assertEqual(200, response4.status_code)
+        self.assertFormError(response4, 'form', 'images', _('This entity does not exist.'))
 
     def test_add_images02(self):
-        "Related is not a Product"
+        "Related is not a Product."
         user = self.login()
         rei = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
         self.assertGET404(reverse('products__add_images_to_product', args=(rei.id,)))
@@ -594,7 +665,7 @@ class ProductTestCase(_ProductsTestCase):
         self.assertPOST403(url, data={'id': img_2.id})
 
     def test_mass_import01(self):
-        "Categories not in CSV"
+        "Categories not in CSV."
         user = self.login()
 
         count = Product.objects.count()
@@ -643,26 +714,26 @@ class ProductTestCase(_ProductsTestCase):
 
         # Validation errors ------------------------
         msg = _('Select a valid sub-category.')
-        response = self.assertPOST200(url, follow=True, data=data)
-        self.assertFormError(response, 'form', 'categories', msg)
+        response1 = self.assertPOST200(url, follow=True, data=data)
+        self.assertFormError(response1, 'form', 'categories', msg)
 
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_subcat_defval': self.UNUSED_PK},
         )
-        self.assertFormError(response, 'form', 'categories', msg)
+        self.assertFormError(response2, 'form', 'categories', msg)
 
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_subcat_defval': 'not a int'},
         )
-        self.assertFormError(response, 'form', 'categories', msg)
+        self.assertFormError(response3, 'form', 'categories', msg)
 
         # OK ------------------------
-        response = self.client.post(
+        response4 = self.client.post(
             url, follow=True, data={**data, 'categories_subcat_defval': sub_cat.id},
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response4)
 
-        job = self._execute_job(response)
+        job = self._execute_job(response4)
         self.assertEqual(count + len(lines), Product.objects.count())
 
         for i, l in enumerate(lines):
@@ -748,19 +819,19 @@ class ProductTestCase(_ProductsTestCase):
         }
 
         # Validation error ------------------------
-        response = self.assertPOST200(
+        response1 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_subcat_colselect': 0},
         )
         self.assertFormError(
-            response, 'form', 'categories',
+            response1, 'form', 'categories',
             _('Select a column for the sub-category if you select a column for the category.')
         )
 
         # OK --------------------------------------
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
+        response2 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response2)
 
-        job = self._execute_job(response)
+        job = self._execute_job(response2)
         self.assertEqual(count + 3, Product.objects.count())
 
         def get_product(i):
@@ -926,7 +997,7 @@ class ProductTestCase(_ProductsTestCase):
         self._assertNoResultError(results)
 
     def test_mass_import04(self):
-        "Categories in CSV ; want to create Category but not it is allowed"
+        "Categories in CSV ; want to create Category but not it is allowed."
         user = self.login(
             is_superuser=False,
             allowed_apps=['products', 'documents'],
@@ -997,16 +1068,16 @@ class ProductTestCase(_ProductsTestCase):
         }
 
         # Validation error -----------
-        response = self.assertPOST200(
+        response1 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_create': 'on'},
         )
         self.assertFormError(
-            response, 'form', 'categories', 'You cannot create Category or SubCategory',
+            response1, 'form', 'categories', 'You cannot create Category or SubCategory',
         )
 
         # OK --------------------------
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
+        response2 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response2)
 
-        self._execute_job(response)
+        self._execute_job(response2)
         self.assertEqual(count + 2, Product.objects.count())

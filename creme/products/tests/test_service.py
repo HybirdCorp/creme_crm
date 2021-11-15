@@ -6,9 +6,11 @@ from functools import partial
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import get_document_model, get_folder_model
 
 from .. import get_service_model
+from ..bricks import ImagesBrick
 from ..models import Category, SubCategory
 from .base import _ProductsTestCase, skipIfCustomService
 
@@ -17,7 +19,34 @@ Service = get_service_model()
 
 
 @skipIfCustomService
-class ServiceTestCase(_ProductsTestCase):
+class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
+    def test_detailview(self):
+        user = self.login()
+
+        sub_cat = SubCategory.objects.all()[0]
+        service = Service.objects.create(
+            user=user, name='Eva washing', reference='42', description='Blabla',
+            unit_price=Decimal('1.23'),  unit='A wash',
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+
+        response = self.assertGET200(service.get_absolute_url())
+        self.assertTemplateUsed(response, 'products/view_service.html')
+        self.assertTemplateUsed(response, 'products/bricks/images.html')
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            ImagesBrick.id_,
+        )
+        self.assertEqual(_('Images'), self.get_brick_title(brick_node))
+
+        buttons_node = self.get_brick_header_buttons(brick_node)
+        self.assertBrickHeaderHasButton(
+            buttons_node=buttons_node,
+            url=reverse('products__add_images_to_service', args=(service.id,)),
+            label=_('Add images'),
+        )
+
     def test_createview(self):
         self.login()
         self.assertEqual(0, Service.objects.count())
@@ -68,11 +97,10 @@ class ServiceTestCase(_ProductsTestCase):
 
         name = 'Eva washing'
         sub_cat = SubCategory.objects.all()[0]
-        cat = sub_cat.category
         service = Service.objects.create(
             user=user, name=name, reference='42', description='Blabla',
             unit_price=Decimal('1.23'),  unit='A wash',
-            category=cat, sub_category=sub_cat,
+            category=sub_cat.category, sub_category=sub_cat,
         )
 
         url = service.get_edit_absolute_url()
@@ -153,7 +181,7 @@ class ServiceTestCase(_ProductsTestCase):
         self.assertFormError(
             response, 'form',
             'replace_products__service_sub_category',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     def test_delete_category(self):
@@ -162,11 +190,11 @@ class ServiceTestCase(_ProductsTestCase):
         service, cat, sub_cat = self._build_service_cat_subcat()
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
-            args=('products', 'category', cat.id)
+            args=('products', 'category', cat.id),
         ))
         self.assertFormError(
             response, 'form', 'replace_products__service_category',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     def test_add_images(self):
@@ -214,7 +242,8 @@ class ServiceTestCase(_ProductsTestCase):
         response = post(img_1, img_4)
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response, 'form', 'images', _('Some entities are not linkable: {}').format(img_4)
+            response, 'form', 'images',
+            _('Some entities are not linkable: {}').format(img_4),
         )
 
         response = post(img_1, img_2)
