@@ -127,11 +127,16 @@
                     - The class 'forms.address._AuxiliaryAddressForm' is deprecated.
                 * Commercial :
                     - The method 'AbstractStrategy.get_segment_category()' is deprecated.
+                * Reports :
+                    - The template file "reports/templatetags/report_chart.html" is deprecated.
                 * Recurrents :
                     - The property 'registry.RecurrentRegistry.ctypes' is deprecated ; use "models" instead.
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' is deprecated ;
                       use 'creme_core.utils.html.strip_html()' instead.
+        # Apps :
+            * Reports :
+              - The template file "templates/reports/view_graph.html" use smaller '{% block %}' tags to be easier to extend.
 
     Breaking changes :
     ------------------

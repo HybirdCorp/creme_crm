@@ -1,4 +1,7 @@
-{% load reports_tags %}{% load blockjsondata from creme_core_tags %}
+{% load reports_tags %}{% load blockjsondata log from creme_core_tags %}
+
+{% log 'The template file "reports/templatetags/report_chart.html" is deprecated.' level='WARN' %}
+
 <div class="ui-creme-widget ui-creme-chainedselect widget-auto" widget="ui-creme-chainedselect">
     <input type="hidden" name="" class="ui-creme-input ui-creme-chainedselect" />
     <ul class="ui-layout hbox" style="padding:2px;">
