@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.models import SalesPhase
@@ -28,6 +29,7 @@ from creme.persons.tests.base import (
 )
 
 from . import constants, event_model_is_custom, get_event_model
+from .bricks import ResultsBrick
 from .models import EventType
 from .views.event import AddRelatedOpportunityAction
 
@@ -45,7 +47,7 @@ def skipIfCustomEvent(test_func):
 
 
 @skipIfCustomEvent
-class EventsTestCase(CremeTestCase):
+class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -53,8 +55,16 @@ class EventsTestCase(CremeTestCase):
         cls.ADD_URL = reverse('events__create_event')
 
     @staticmethod
+    def _build_invitation_url(event, contact):
+        return reverse('events__set_invitation_status', args=(event.id, contact.id))
+
+    @staticmethod
     def _build_link_contacts_url(event):
         return reverse('events__link_contacts', args=(event.id,))
+
+    @staticmethod
+    def _build_presence_url(event, contact):
+        return reverse('events__set_presence_status', args=(event.id, contact.id))
 
     @staticmethod
     def _build_related_opp_url(event, contact):
@@ -78,19 +88,39 @@ class EventsTestCase(CremeTestCase):
     def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
         etype = etype or EventType.objects.all()[0]
 
-        data = {
-            'user':       self.user.id,
-            'name':       name,
-            'type':       etype.pk,
-            'start_date': start_date,
-        }
-        data.update(extra_data)
-
-        self.assertNoFormError(self.client.post(self.ADD_URL, follow=True, data=data))
+        self.assertNoFormError(self.client.post(
+            self.ADD_URL,
+            follow=True,
+            data={
+                'user':       self.user.id,
+                'name':       name,
+                'type':       etype.pk,
+                'start_date': start_date,
+                **extra_data
+            },
+        ))
 
         return self.get_object_or_fail(Event, name=name)
 
-    def test_event_createview01(self):
+    def test_detailview(self):
+        user = self.login()
+        event = Event.objects.create(
+            user=user, name='Eclipse',
+            type=EventType.objects.all()[0],
+            start_date=self.create_datetime(year=2021, month=11, day=15),
+        )
+
+        response = self.assertGET200(event.get_absolute_url())
+        self.assertTemplateUsed(response, 'events/view_event.html')
+        self.assertTemplateUsed(response, 'events/bricks/event-hat-bar.html')
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            ResultsBrick.id_,
+        )
+        self.assertEqual(_('Results'), self.get_brick_title(brick_node))
+
+    def test_createview01(self):
         self.login()
         self.assertGET200(self.ADD_URL)
 
@@ -102,10 +132,7 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(self.create_datetime(2010, 11, 3), event.start_date)
         self.assertIsNone(event.end_date)
 
-        response = self.assertGET200(event.get_absolute_url())
-        self.assertTemplateUsed(response, 'events/view_event.html')
-
-    def test_event_createview02(self):
+    def test_createview02(self):
         "End data, hours."
         self.login()
 
@@ -126,7 +153,7 @@ class EventsTestCase(CremeTestCase):
             event.end_date,
         )
 
-    def test_event_createview03(self):
+    def test_createview03(self):
         "start > end."
         user = self.login()
         etype = EventType.objects.all()[1]
@@ -145,7 +172,7 @@ class EventsTestCase(CremeTestCase):
             _('The end date must be after the start date.'),
         )
 
-    def test_event_createview04(self):
+    def test_createview04(self):
         "FieldsConfig: end is hidden."
         self.login()
 
@@ -163,7 +190,7 @@ class EventsTestCase(CremeTestCase):
         )
         self.assertIsNone(event.end_date)
 
-    def test_event_editview(self):
+    def test_editview(self):
         user = self.login()
 
         name = 'Eclipse'
@@ -279,9 +306,6 @@ class EventsTestCase(CremeTestCase):
         self.assertEqual(1, stats['accepted_count'])
         self.assertEqual(2, stats['refused_count'])
         self.assertEqual(3, stats['visitors_count'])
-
-    def _build_invitation_url(self, event, contact):
-        return reverse('events__set_invitation_status', args=(event.id, contact.id))
 
     def _set_invitation_status(self, event, contact, status_id):
         self.client.post(
@@ -447,10 +471,6 @@ class EventsTestCase(CremeTestCase):
             self._build_invitation_url(event, guts),
             data={'status': constants.INV_STATUS_REFUSED},
         )
-
-    @staticmethod
-    def _build_presence_url(event, contact):
-        return reverse('events__set_presence_status', args=(event.id, contact.id))
 
     def _set_presence_status(self, event, contact, status_id):
         return self.client.post(
@@ -634,7 +654,7 @@ class EventsTestCase(CremeTestCase):
             [constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event),
         )
         self.assertRedirects(
-            response, reverse('events__list_related_contacts', args=(event.id,))
+            response, reverse('events__list_related_contacts', args=(event.id,)),
         )
 
     @skipIfCustomContact
