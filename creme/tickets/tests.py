@@ -9,12 +9,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.models import HeaderFilter, RelationType
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views.base import MassImportBaseTestCaseMixin
+from creme.creme_core.tests.views import base as views_base
 from creme.persons import get_contact_model
 
 from . import (
@@ -23,6 +24,7 @@ from . import (
     ticket_model_is_custom,
     tickettemplate_model_is_custom,
 )
+from .bricks import TicketBrick
 from .models import Criticity, Priority, Status, TicketNumber
 from .models.status import BASE_STATUS, CLOSED_PK, INVALID_PK, OPEN_PK
 
@@ -42,7 +44,9 @@ def skipIfCustomTicketTemplate(test_func):
 
 
 @skipIfCustomTicket
-class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
+class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
+                     views_base.BrickTestCaseMixin,
+                     CremeTestCase):
     def test_populate(self):
         for pk, name, is_closed in BASE_STATUS:
             try:
@@ -111,6 +115,22 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
             f'#{ticket.number} - {title}', str(retr_ticket),
         )
 
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            TicketBrick.id_,
+        )
+        self.assertEqual(
+            _('Information on the ticket'),
+            self.get_brick_title(brick_node)
+        )
+        self.assertEqual(
+            priority.name,
+            self.get_brick_tile(brick_node, 'regular_field-priority').text,
+        )
+        self.assertIsNone(
+            self.get_brick_tile(brick_node, 'function_field-get_resolving_duration').text,
+        )
+
     def test_detailview02(self):
         self.login()
         self.assertGET404(reverse('tickets__view_ticket', args=(self.UNUSED_PK,)))
@@ -155,7 +175,6 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
-
         self.assertEqual('', funf(ticket, user).for_html())
 
         self.assertRedirects(response, ticket.get_absolute_url())
@@ -205,7 +224,7 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(
             timedelta_pprint(ticket.closing_date - ticket.created),
-            funf(ticket, user).for_html()
+            funf(ticket, user).for_html(),
         )
 
     def test_get_resolving_duration02(self):
@@ -389,17 +408,17 @@ class TicketTestCase(CremeTestCase, MassImportBaseTestCaseMixin):
 
         url = ticket.get_delete_absolute_url()
         self.assertTrue(url)
-        response = self.assertPOST200(url, follow=True)
+        response1 = self.assertPOST200(url, follow=True)
 
         with self.assertNoException():
             ticket = self.refresh(ticket)
 
         self.assertTrue(ticket.is_deleted)
-        self.assertRedirects(response, Ticket.get_lv_absolute_url())
+        self.assertRedirects(response1, Ticket.get_lv_absolute_url())
 
-        response = self.assertPOST200(url, follow=True)
+        response2 = self.assertPOST200(url, follow=True)
         self.assertDoesNotExist(ticket)
-        self.assertRedirects(response, Ticket.get_lv_absolute_url())
+        self.assertRedirects(response2, Ticket.get_lv_absolute_url())
 
     def test_clone(self):
         "The cloned ticket is open."
@@ -730,7 +749,7 @@ class TicketTemplateTestCase(CremeTestCase):
         "Several generations -> 'title' column must be unique."
         self.login()
 
-        self.assertEqual(0, Ticket.objects.count())
+        self.assertFalse(Ticket.objects.count())
 
         template = self.create_template('Title')
 
