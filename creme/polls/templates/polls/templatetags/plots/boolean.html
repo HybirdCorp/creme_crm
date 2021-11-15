@@ -1,3 +1,4 @@
+{% load blockjsondata from creme_core_tags %}
 <div class="poll-stat-chart ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="min-height: 60px;">
     {% blockjsondata %}
 {
@@ -16,7 +17,7 @@
                 "hideZeros": true,
                 "location": "w",
                 "escapeHTML": false,
-                "formatString": "<b style=\"color:white;\">%s %%</b>"
+                "formatString": "<b style='color:white;'>%s %%</b>"
             }
         },
         "stackSeries": true,
