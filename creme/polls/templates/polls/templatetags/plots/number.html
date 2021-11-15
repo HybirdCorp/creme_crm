@@ -1,4 +1,4 @@
-{% load creme_core_tags %}
+{% load blockjsondata mult from creme_core_tags %}
 <div class="poll-stat-chart ui-widget-content ui-creme-widget ui-creme-jqueryplot" widget="ui-creme-jqueryplot" style="min-height: {{count|mult:26|add:14}}px;">
     {% blockjsondata %}
 {
@@ -6,7 +6,7 @@
         "seriesColors": ["#6666ff", "#8888ff", "#aaaaff"],
         "seriesDefaults": {
             "shadow": false,
-            "renderer": "jqplot.BarRenderer", 
+            "renderer": "jqplot.BarRenderer",
             "rendererOptions": {
                 "fillToZero": true,
                 "varyBarColor": true,
@@ -18,7 +18,7 @@
                 "hideZeros": true,
                 "escapeHTML": false,
                 "location": "w",
-                "formatString": "<b style=\"color:white;\">%s %%</b>"
+                "formatString": "<b style='color:white;'>%s %%</b>"
             }
         },
         "grid": {
@@ -34,12 +34,12 @@
                 "max": 100.0,
                 "tickOptions": {
                     "formatString": "%d %%",
-                    "textColor":  "black",
-                    "fontSize":   "8pt",
-                    "showMark":   false
+                    "textColor": "black",
+                    "fontSize": "8pt",
+                    "showMark": false
                 },
                 "labelOptions": {
-                    "show":       false
+                    "show": false
                 }
             },
             "yaxis": {
@@ -47,11 +47,11 @@
                 "renderer": "jqplot.CategoryAxisRenderer",
                 "tickRenderer": "jqplot.AxisTickRenderer",
                 "tickOptions": {
-                    "textColor":  "black",
-                    "fontSize":   "8pt"
+                    "textColor": "black",
+                    "fontSize": "8pt"
                 },
                 "labelOptions": {
-                    "show":       false
+                    "show": false
                 }
             }
         }
