@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2020  Hybird
+#    Copyright (C) 2012-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from collections import defaultdict
 
 
 class _PollLine:
-    type      = None  # OVERLOAD ME (INT: See PollLineType)
-    type_args = None  # OVERLOAD ME (JSON string: See PollLineType)
+    type      = None  # OVERRIDE ME (INT: See PollLineType)
+    type_args = None  # OVERRIDE ME (JSON string: See PollLineType)
 
     _conditions_cache     = None
     _rev_conditions_cache = None
