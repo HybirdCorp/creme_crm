@@ -18,8 +18,10 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 from . import get_graph_model, graph_model_is_custom
+from .bricks import OrbitalRelationTypesBrick, RootNodesBrick
 from .models import RootNode
 
 skip_graph_tests = graph_model_is_custom()
@@ -38,7 +40,7 @@ def skipIfCustomGraph(test_func):
 
 
 @skipIfCustomGraph
-class GraphsTestCase(CremeTestCase):
+class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
     def login(self, allowed_apps=('graphs',), *args, **kwargs):
         return super().login(allowed_apps=allowed_apps, *args, **kwargs)
 
@@ -57,6 +59,12 @@ class GraphsTestCase(CremeTestCase):
         graphs = Graph.objects.all()
         self.assertEqual(1,    len(graphs))
         self.assertEqual(name, graphs[0].name)
+
+        self.assertTemplateUsed(response, 'graphs/bricks/graph-hat-bar.html')
+
+        tree = self.get_html_tree(response.content)
+        self.get_brick_node(tree, RootNodesBrick.id_)
+        self.get_brick_node(tree, OrbitalRelationTypesBrick.id_)
 
     def test_graph_edit(self):
         user = self.login()
