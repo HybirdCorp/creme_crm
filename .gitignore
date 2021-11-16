@@ -3,21 +3,20 @@ syntax: glob
 *~
 *.blend1
 *.pyc
-*.db
-local_settings*.py
-django.wsgi
+
+# Still useful?
 *.orig
 .project*
 .settings*
 
+# DEPRECATED with new project layout
 creme/media/upload/*/*
 creme/media/static/*
+django.wsgi
+local_settings*.py
 _generated_media_names.py
 *.sqlite
 *.db
-
-# creme/activesync/SyncEngine/*
-# creme/activesync/backup/*
 
 # Python package
 *.egg-info
@@ -25,9 +24,10 @@ build/*
 sdist/*
 dist/*
 
-
 # NetBeans
 nbproject/*
+
+# PyCharm
 .idea/*
 
 # PyDev
@@ -42,21 +42,14 @@ artifacts/*
 # mypy
 .mypy_cache/*
 
-# HG
-\.orig\..*$
-\.orig$
-\.chg\..*$
-\.rej$
-\.conflict\~$
+# # HG
+# \.orig\..*$
+# \.orig$
+# \.chg\..*$
+# \.rej$
+# \.conflict\~$
 
 # nodejs
 node_modules/
 .coverage-karma/
 .eslint.*
-
-# setup (eg: Windows)
-build/*
-dist/*
-
-#syntax: regexp
-#^creme/billing/templates/billing/templates/hyinvoice\.tex$

@@ -1,0 +1,60 @@
+[metadata]
+name = {{ project_name }}
+author = my_awesome_compagny.com
+author_email = contact@my_awesome_compagny.com
+url = https://www.my_awesome_compagny.com
+version = attr: {{ project_name }}.__version__
+
+description = Describe briefly your wonderful project here
+long_description = file: README
+
+license = AGPL-3.0
+license_file = AGPL-3.0.txt
+
+# Place holder values ; edit them as you want.
+keywords = CRM
+classifiers =
+    Development Status :: 5 - Production/Stable
+    Environment :: Web Environment
+    Framework :: Django
+    Framework :: creme-crm
+    Intended Audience :: Customer Service
+    Intended Audience :: End Users/Desktop
+    License :: OSI Approved :: GNU Affero General Public License v3
+    Natural Language :: English
+    Operating System :: OS Independent
+    Programming Language :: Python :: 3.6
+    Topic :: Office/Business
+
+[options]
+zip_safe = False
+include_package_data = True
+packages = find:
+install_requires =
+    creme-crm ~={{ creme_version }}
+
+[options.extras_require]
+dev=
+    creme-crm[dev] ~={{ creme_version }}
+mysql=
+    creme-crm[mysql] ~={{ creme_version }}
+pgsql=
+    creme-crm[pgsql] ~={{ creme_version }}
+
+# Here are the settings used by Creme ; edit them as you want.
+[isort]
+include_trailing_comma = True
+multi_line_output = 3
+use_parentheses = True
+
+# Here are the settings used by Creme ; edit them as you want.
+[flake8]
+exclude =
+    */migrations/*
+    {{ project_name }}/_generated_media_names.py
+max-line-length = 99
+ignore =
+    E221 ;multiple spaces before operator
+    E241 ;multiple spaces after ':', ','
+    E272 ;multiple spaces before keyword
+    W503 ;line break before binary operator  # Anti-pattern: https://www.flake8rules.com/rules/W503.html

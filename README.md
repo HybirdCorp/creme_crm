@@ -116,64 +116,42 @@ Global remarks:
    (eg: do not try to upgrade from 2.0 to 2.2, upgrade to 2.1 and then 2.2).
 
 Database configuration:
-For a new install, you have to create a new database & a new DB user (who is allowed to create/drop tables, indices...).
-For an upgrade from the previous major version, duplicate your existing DB (and backup 'creme/media/upload').
+For a new installation, you have to create a new database & a new DB user
+(who is allowed to create/drop tables, indices...).
+For an upgrade from the previous major version, back up your existing DB
+(of course you should back up regularly, even when you do not upgrade Creme...).
 
-Settings:
-See the file creme/settings.py and set your parameters in a new file called 'creme/local_settings.py'.
-Here the minimal information you must fill :
+Project creation:
+In Creme 2.3, the project layout has changed: Creme is now used a regular Python package,
+and your instance is cleanly separated.
 
-```python
-# -*- coding: utf-8 -*-
-
-DATABASES = {
-    'default': {
-        'ENGINE':   'django.db.backends.mysql',  # NB: 'django.db.backends.postgresql' for PGSQL
-        'NAME':     'name_of_your_db',           # <== TO BE REPLACED
-        'USER':     'name_of_your_user',         # <== TO BE REPLACED
-        'PASSWORD': 'password_of_the_user',      # <== TO BE REPLACED
-        'HOST':     '',                          # Leave empty for localhost.
-        'PORT':     '',                          # Leave empty for default port.
-    },
-}
-
-# SECRET_KEY = ''  # <== TO BE FILLED & UN-COMMENTED (see below).
-LANGUAGE_CODE = 'en'  # Also available : 'fr'
-TIME_ZONE = 'Europe/Paris'  # See http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
+For new installations AND for upgrades from Creme 2.3, create a new project ;
+with the virtualenv activated, use the following command which creates a new folder:
+```sh
+>> creme creme_start_project my_project
 ```
 
-To generate the value of SECRET_KEY, run the following command in the root directory & copy its result:
-```sh
->> python creme/manage.py build_secret_key
- ```
-
-You can choose precisely the Creme apps you want, by copying INSTALLED_CREME_APPS & commenting the unwanted apps.
-Beware: comment only app which are in the 'optional' section, & respect the dependencies which are indicated.
-
-The information from the section "EMAILS [internal]" of 'settings.py' should be overridden in
-your 'local_settings.py' if you want that your users receive e-mails from Creme (ToDos, Alerts...).
-Information can be filled/changed later.
+Settings:
+The newly created file "my_project/settings.py" gives all the information for a
+basic installation with the minimal information you must fill.
 
 For an upgrade from the previous version of Creme :
- - Copy the file local_settings.py of your existing installation :
-   - do not forget to change NAME in order to use your duplicated DB.
-   - do not remove apps in INSTALLED_CREME_APPS now (because they are installed in your DB) ;
-     complete you installation & then un-install apps you do not want anymore (see below).
- - Copy the sub-folders (& their content of course) of the folder creme/media/upload from your
-   existing installation to the one of your new install (if you did not use the app documents your may
-   have nothing to copy).
+ - See the section "UPGRADE NOTE" corresponding to the new version in the file CHANGELOG.txt.
+ - Do not remove apps in INSTALLED_APPS during the upgrade (because they are installed in your DB) ;
+   complete your installation & then un-install apps you do not want anymore (see below).
 
-Filling the DB tables:
-Run the following commands in the root directory:
+
+Filling the DB tables & creating the static asset:
+Run the following commands (new installations AND upgrades from Creme 2.2):
 ```sh
->> python creme/manage.py migrate
->> python creme/manage.py generatemedia
->> python creme/manage.py creme_populate
+>> creme migrate --settings=my_project.settings
+>> creme creme_populate --settings=my_project.settings
+>> creme generatemedia --settings=my_project.settings
 ```
 
 If you are upgrading the version, clean all existing sessions, for example like this:
 ```sh
->> python creme/manage.py shell
+>> creme shell --settings=my_project.settings
 > from django.contrib.sessions.models import Session
 > Session.objects.all().delete()
 ```
@@ -190,15 +168,17 @@ Note for MySQL users: you should load the time zone tables.
 
 To run the development server, you just have to run this command:
 ```sh
->> python creme/manage.py runserver
+>> creme runserver --settings=my_project.settings
 ```
 You can then go to http://localhost:8000 & log in with root/root.
 
-For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.11/howto/deployment/
+For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/3.2/howto/deployment/
 
-In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
+In order to get a completely functional instance, the job manager must be launched
+(some features need it: sending emails campaign, CSV import...).
+To run it, use this command (in a production environment a watch dog is advised):
 ```sh
->> python creme/manage.py creme_job_manager
+>> creme creme_job_manager --settings=my_project.settings
 ```
 
 

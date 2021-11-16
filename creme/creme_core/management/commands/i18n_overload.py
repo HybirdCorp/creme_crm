@@ -35,7 +35,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import smart_str
 
-APP_NAME = 'locale_overload'  # TODO: can configure it with command options ??
+# APP_NAME = 'locale_overload'
 
 
 # TODO: factorise with i18n_duplicates ?
@@ -49,6 +49,12 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         add_arg = parser.add_argument
+        add_arg(
+            '-d', '--directory',
+            action='store', dest='directory', default='locale_overload',
+            help='Local directory of your project used to store the .po file(s). '
+                 '[default: %(default)s]',
+        )
         add_arg(
             '-l', '--language',
             action='store', dest='language', default='en',
@@ -86,9 +92,15 @@ class Command(BaseCommand):
         get_opt = options.get
         verbosity = get_opt('verbosity')
 
+        # print(options.get('settings'))
+        # return
+        settings_opt = get_opt('settings')
+        self.settings_arg = f'--settings={settings_opt}' if settings_opt else ''
+
         if verbosity >= 2:
             self.stdout.write('OK "polib" library is installed.')
 
+        self.directory = get_opt('directory')
         language = get_opt('language')
         file_name = 'djangojs.po'if get_opt('javascript') else 'django.po'
 
@@ -99,7 +111,8 @@ class Command(BaseCommand):
 
     def _get_catalog_paths(self, language, file_name):
         catalog_dirpath = join(
-            settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES',
+            # settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES',
+            settings.BASE_DIR, self.directory, language, 'LC_MESSAGES',
         )
         catalog_path = join(catalog_dirpath, file_name)
 
@@ -172,6 +185,9 @@ class Command(BaseCommand):
                 self.stdout.write(f'Create catalog at {catalog_path}')
 
             if not exists(catalog_dirpath):
+                if verbosity >= 2:
+                    self.stdout.write(f'Create the folder "{catalog_dirpath}"')
+
                 makedirs(catalog_dirpath)
             elif not isdir(catalog_dirpath):
                 self.stderr.write(f'"{catalog_dirpath}" exists and is not a directory.')
@@ -184,6 +200,7 @@ class Command(BaseCommand):
                 'PO-Revision-Date':          'YEAR-MO-DA HO:MI+ZONE',
                 'Last-Translator':           'FULL NAME <EMAIL@ADDRESS>',
                 'Language-Team':             'LANGUAGE <LL@li.org>',
+                'Language':                  language,
                 'MIME-Version':              '1.0',
                 'Content-Type':              'text/plain; charset=UTF-8',
                 'Content-Transfer-Encoding': '8bit',
@@ -258,4 +275,11 @@ class Command(BaseCommand):
         catalog.save(catalog_path)
 
         if verbosity >= 1:
-            self.stdout.write(f'Number of examined entries: {entry_count}')
+            self.stdout.write(
+                f"Number of examined entries: {entry_count}.\n"
+                f"To use the overloading .po file(s), edit your settings to add a line like:\n"
+                f" > LOCALE_PATHS.insert(0, BASE_DIR / '{self.directory}')\n"
+                f"Once you have edited '{catalog_path}' (set the <msgstr>, "
+                f"remove the <#fuzzy>...), create the .mo file with the command:\n"
+                f" > creme compilemessages {self.settings_arg}"
+            )

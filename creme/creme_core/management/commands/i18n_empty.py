@@ -24,11 +24,13 @@
 #
 ################################################################################
 
-import importlib
+# import importlib
 from collections import defaultdict
-from os import listdir
-from os.path import dirname, exists, join
+# from os import listdir
+# from os.path import dirname, exists, join
+from pathlib import Path
 
+import django
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -79,28 +81,42 @@ class Command(BaseCommand):
                  '[default: %(default)s]',
         )
 
-    def _iter_locale_base_paths(self):
-        django_package = importlib.import_module('django.conf')
+    # def _iter_locale_base_paths(self):
+    #     django_package = importlib.import_module('django.conf')
+    #
+    #     yield 'django', dirname(django_package.__file__)
+    #
+    #     CREME_ROOT = settings.CREME_ROOT
+    #     yield 'creme', CREME_ROOT
+    #     yield 'creme', join(CREME_ROOT, 'locale_overload')
+    #
+    #     for app_config in apps.get_app_configs():
+    #         yield app_config.label, app_config.path
+    @staticmethod
+    def _iter_locale_base_paths():
+        yield 'django', Path(django.__file__).resolve().parent / 'conf' / 'locale'
 
-        yield 'django', dirname(django_package.__file__)
-
-        CREME_ROOT = settings.CREME_ROOT
-        yield 'creme', CREME_ROOT
-        yield 'creme', join(CREME_ROOT, 'locale_overload')
+        for local_path in settings.LOCALE_PATHS:
+            yield 'local', Path(local_path)
 
         for app_config in apps.get_app_configs():
-            yield app_config.label, app_config.path
+            yield app_config.label, Path(app_config.path, 'locale')
 
     def _iter_pofiles(self, language, polib, file_name):
+        # for label, base_path in self._iter_locale_base_paths():
+        #     dir_path = join(base_path, 'locale', language, 'LC_MESSAGES')
+        #
+        #     if exists(dir_path):
+        #         for fname in listdir(dir_path):
+        #             if fname == file_name:
+        #                 path = join(dir_path, fname)
+        #
+        #                 yield _POFileInfo(label, path, polib.pofile(path))
         for label, base_path in self._iter_locale_base_paths():
-            dir_path = join(base_path, 'locale', language, 'LC_MESSAGES')
+            po_path = base_path / language / 'LC_MESSAGES' / file_name
 
-            if exists(dir_path):
-                for fname in listdir(dir_path):
-                    if fname == file_name:
-                        path = join(dir_path, fname)
-
-                        yield _POFileInfo(label, path, polib.pofile(path))
+            if po_path.exists():
+                yield _POFileInfo(label, po_path, polib.pofile(po_path))
 
     def handle(self, *args, **options):
         try:

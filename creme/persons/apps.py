@@ -36,19 +36,22 @@ class PersonsConfig(CremeAppConfig):
     dependencies = ['creme.creme_core']
 
     def all_apps_ready(self):
-        from creme import persons
+        # NB: check MIGRATION_MODE to avoid error with empty SECRET_KEY with
+        #     the command 'creme_start_project'
+        if not self.MIGRATION_MODE:
+            from creme import persons
 
-        self.Contact      = persons.get_contact_model()
-        self.Organisation = persons.get_organisation_model()
-        self.Address      = persons.get_address_model()
-        super().all_apps_ready()
-        self.hook_user()
-        self.hook_user_form()
+            self.Contact      = persons.get_contact_model()
+            self.Organisation = persons.get_organisation_model()
+            self.Address      = persons.get_address_model()
+            super().all_apps_ready()
+            self.hook_user()
+            self.hook_user_form()
 
-        from . import signals  # NOQA
+            from . import signals  # NOQA
 
-        if apps.is_installed('creme.reports'):
-            self.register_reports_graph_fetchers()
+            if apps.is_installed('creme.reports'):
+                self.register_reports_graph_fetchers()
 
     def register_entity_models(self, creme_registry):
         creme_registry.register_entity_models(self.Contact, self.Organisation)
