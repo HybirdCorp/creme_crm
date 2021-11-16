@@ -31,7 +31,7 @@
                         <span>{{node.question}}</span>
                     </div>
                 </div>
-                {% if node.answer_stats %}
+                {% if node.answer_stats %}{# TODO: move to tag "poll_stats_chart" ?? #}
                     {% poll_stats_chart node %}
                 {% endif %}
             </div>
