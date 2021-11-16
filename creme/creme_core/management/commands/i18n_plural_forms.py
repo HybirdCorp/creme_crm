@@ -24,12 +24,10 @@
 #
 ################################################################################
 
-import importlib
 from collections import defaultdict
-from glob import glob
-from os import listdir
-from os.path import dirname, exists, join
+from pathlib import Path
 
+import django
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -50,27 +48,22 @@ class Command(BaseCommand):
 
     @staticmethod
     def _iter_locale_base_paths():
-        django_package = importlib.import_module('django.conf')
+        yield Path(django.__file__).resolve().parent / 'conf' / 'locale'
 
-        yield dirname(django_package.__file__)
-
-        CREME_ROOT = settings.CREME_ROOT
-        yield CREME_ROOT
-        yield join(CREME_ROOT, 'locale_overload')
+        for local_path in settings.LOCALE_PATHS:
+            yield Path(local_path)
 
         for app_config in apps.get_app_configs():
-            yield app_config.path
+            yield Path(app_config.path, 'locale')
 
     def _iter_po_paths(self, accept_language):
         for base_path in self._iter_locale_base_paths():
-            locale_dir_path = join(base_path, 'locale')
+            if base_path.exists():
+                for language_dir in base_path.iterdir():
+                    language = language_dir.name
 
-            if exists(locale_dir_path):
-                for language in listdir(locale_dir_path):
                     if accept_language(language):
-                        for path in glob(
-                            join(base_path, 'locale', language, 'LC_MESSAGES', '*.po')
-                        ):
+                        for path in (language_dir / 'LC_MESSAGES').glob('*.po'):
                             yield language, path
 
     def handle(self, *languages, **options):

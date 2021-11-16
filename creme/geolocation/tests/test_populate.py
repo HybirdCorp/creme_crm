@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
+from pathlib import Path
+
+from django.conf import settings
 
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.tests.base import (
@@ -158,7 +161,10 @@ class CSVPopulatorTestCase(CremeTestCase):
         populator = MockCSVPopulator([*columns])
 
         with self.assertRaises(CSVPopulator.ParseError) as error:
-            populator.populate('creme/geolocation/populate.py')
+            # populator.populate('creme/geolocation/populate.py')
+            populator.populate(str(
+                Path(settings.CREME_ROOT) / 'geolocation' / 'apps.py'
+            ))
 
         self.assertEqual(
             str(error.exception),
@@ -179,7 +185,10 @@ class CSVPopulatorTestCase(CremeTestCase):
 
     def test_populate_from_file(self):
         populator = MockCSVPopulator(['name', 'code'])
-        populator.populate('creme/geolocation/tests/data/valid.csv')
+        # populator.populate('creme/geolocation/tests/data/valid.csv')
+        populator.populate(str(
+            Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv'
+        ))
 
         self.assertListEqual(
             populator.mock_saved,
@@ -192,10 +201,12 @@ class CSVPopulatorTestCase(CremeTestCase):
 
     def test_populate_from_invalid_zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])
-        url = 'creme/geolocation/tests/data/not_archive.csv.zip'
+        # url = 'creme/geolocation/tests/data/not_archive.csv.zip'
+        url = Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'not_archive.csv.zip'
 
         with self.assertRaises(CSVPopulator.ReadError) as error:
-            populator.populate(url)
+            # populator.populate(url)
+            populator.populate(str(url))
 
         self.assertEqual(
             str(error.exception),
@@ -204,7 +215,10 @@ class CSVPopulatorTestCase(CremeTestCase):
 
     def test_populate_from_zip_file(self):
         populator = MockCSVPopulator(['name', 'code'])
-        populator.populate('creme/geolocation/tests/data/valid.csv.zip')
+        # populator.populate('creme/geolocation/tests/data/valid.csv.zip')
+        populator.populate(str(
+            Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv.zip'
+        ))
 
         self.assertListEqual(
             populator.mock_saved,

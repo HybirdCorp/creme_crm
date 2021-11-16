@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from os.path import join
+# from os.path import join
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import views as auth_views
@@ -57,7 +58,9 @@ urlpatterns = [
 
     # TODO: remove this line when the Rich Text Editor is generated like other static media
     re_path(
-        r'^tiny_mce/(?P<path>.*)$', serve, {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
+        r'^tiny_mce/(?P<path>.*)$', serve,
+        # {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
+        {'document_root': Path(__file__).resolve().parent / 'media' / 'tiny_mce'},
     ),
 
     # NB: in production, you can configure your web server to statically serve

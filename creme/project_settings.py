@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Here we declare project specific settings which need to be versionned.
+# DEPRECATED with new project layout (will be removed in creme 2.4)
+
+# Here we declare project specific settings which need to be versioned.
 # For example
 #
 # from .settings import INSTALLED_CREME_APPS

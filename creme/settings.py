@@ -2,7 +2,8 @@
 # Django settings for creme project.
 
 import warnings
-from os.path import abspath, dirname, exists, join
+# from os.path import exists
+from os.path import abspath, dirname, join
 from sys import argv
 
 from django.utils.translation import gettext_lazy as _
@@ -21,14 +22,20 @@ NO_SQL_COMMANDS = (
     'migrate',
     'generatemedia',
     'build_secret_key',
+    'creme_start_project',
 )
 
+# People who get code error notifications.
 # ADMINS = [
-#     ('Your Name', 'your_email@domain.com'),
+#     ('Full Name', 'email@example.com'),
+#     ('Full Name', 'anotheremail@example.com')
 # ]
 
-BASE_DIR = dirname(dirname(__file__))
-CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
+# BASE_DIR = dirname(dirname(__file__))
+# CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
+# BASE_DIR should be define in the project's settings
+# TODO: use pathlib.Path
+CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
 
 # Define 'MANAGERS' if you use BrokenLinkEmailsMiddleware
 # MANAGERS = ADMINS
@@ -234,7 +241,7 @@ MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 STATIC_ROOT = join(CREME_ROOT, 'media', 'static')
 
 # Make this unique, and don't share it with anybody.
-# Use 'python creme/manage.py build_secret_key' to generate it.
+# Use the command 'build_secret_key' to generate it.
 # eg: SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 SECRET_KEY = ''
 
@@ -1461,19 +1468,35 @@ try:
     from .project_settings import *  # NOQA
 except ImportError:
     pass
+else:
+    from . import project_settings as __project_settings
+
+    if any(not symbol.startswith('__') for symbol in dir(__project_settings)):
+        warnings.warn(
+            "Use of file 'project_settings.py' in creme/ is deprecated ; "
+            "use the new project layout <see command 'creme_start_project'>.",
+            DeprecationWarning,
+        )
 
 try:
     from .local_settings import *  # NOQA
 except ImportError:
     pass
+else:
+    warnings.warn(
+        "Use of file 'local_settings.py' in creme/ is deprecated ; "
+        "use the new project layout <see command 'creme_start_project'>.",
+        DeprecationWarning,
+    )
 
 # GENERAL [FINAL SETTINGS]------------------------------------------------------
+# TODO: move up this code & remove this whole section in Creme 2.4 when
+#       local_settings/project_settings loading has been removed.
 
-_LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
+# _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
 
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
-if exists(_LOCALE_OVERLOAD):
-    # LOCALE_PATHS.append(_LOCALE_OVERLOAD)
-    LOCALE_PATHS.insert(0, _LOCALE_OVERLOAD)
+# if exists(_LOCALE_OVERLOAD):
+#     LOCALE_PATHS.insert(0, _LOCALE_OVERLOAD)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS

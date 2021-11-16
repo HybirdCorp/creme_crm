@@ -111,10 +111,14 @@ class CremeDiscoverRunner(DiscoverRunner):
             'import http.server;'
             'import os;'
             'from socketserver import TCPServer;'
+            'os.chdir("{path}");'
             'TCPServer.allow_reuse_address = True;'
             'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-            'print("Test HTTP server: serving localhost at port {port} with process ID:", os.getpid());'  # NOQA
-            'httpd.serve_forever()'.format(port=http_port())
+            'print("Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
+            'httpd.serve_forever()'.format(
+                path=dirname(settings.CREME_ROOT),
+                port=http_port(),
+            )
         )
 
     def _clean_mock_media(self):

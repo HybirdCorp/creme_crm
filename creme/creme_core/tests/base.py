@@ -784,6 +784,9 @@ class _CremeTestCase:
 
     @staticmethod
     def http_file(file_path):
+        """Get the HTTP URL to retrieve a static static file.
+        @param file_path: path ('/' separated) relative to "creme/"'s parent.
+        """
         from creme.creme_core.utils.test import http_port
         return f'http://localhost:{http_port()}/{file_path}'
 

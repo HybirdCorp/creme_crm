@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 19-08-2021 pour la version 2.3 de Creme
+:Version: 26-11-2021 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -24,7 +24,7 @@ Pré-requis
 
 - Avoir des bases en programmation de manière générale ; connaître le langage Python_ est un gros plus.
 - Connaître un minimum le langage HTML.
-- Connaître le logiciel git_.
+- Connaître le logiciel git_ ou un autre gestionnaire de version.
 
 Creme est développé en utilisant un cadriciel (framework) Python spécialisé dans
 la création de sites et applications Web : Django_.
@@ -66,36 +66,60 @@ Pour des raisons de brièveté, nous parlerons nous aussi d'"app" pour notre mod
 
 Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
- - Fork du dépôt *git* officiel pour avoir votre dépôt.
- - Clone de votre dépôt *git* (en se plaçant sur la branche "v2.2").
- - Configuration de votre SGBDR.
- - Configuration de votre serveur Web (le serveur de développement livré avec
-   Django est un bon choix ici).
+ - Vous avez un *virtualenv* dans lequel Creme 2.3 est installé ;
+   dans le reste du document nous partirons du principe que notre *virtualenv*
+   est activé (c'est nécessaire pour avoir accès à la commande ``creme``).
+ - Vous avez créé un projet (on considérera dans le reste du document qu'il
+   s'appelle «my_project») avec la commande ``creme creme_start_project my_project``.
+ - Vous avez modifié le fichier ``my_project/settings.py`` à votre convenance.
+ - Vous avez configuré votre SGBDR ; notez que dans le cas du développement
+   d'un module comme ici, utiliser *SQLite* la majorité du temps est tout à fait
+   adapté (mais veillez à tester avec le SGBDR utilisé en production avant la
+   mise en production évidemment).
+ - Vous avez créé la base de données (``creme migrate --settings=my_project.settings``),
+   et rempli avec les données par défaut (``creme creme_populate --settings=my_project.settings``).
+ - Vous avez créé les fichiers de media statiques
+   (``creme generatemedia --settings=my_project.settings``).
+ - Vous avez configuré votre serveur Web ; le serveur de développement livré avec
+   Django est un bon choix lors du développement.
+
+À ce stade vous pouvez donc lancer sans erreur votre instance en local avec
+``creme runserver --settings=my_project.settings``, vous connecter et avoir la
+page d'accueil.
 
 
 Configuration du fichier ``local_settings.py``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Il ne vaut mieux pas utiliser le système de cache des templates quand vous
+Comme vous avez pu le voir dans le fichier ``my_project/settings.py`` généré
+par la commande ``creme_start_project``, il y a des valeurs partagées au niveau
+du projet (donc toutes les instances, pour le développement ou pour la
+production), et des valeurs spécifique à une instance. Ici nous allons partir
+du principe, pour des raisons de simplicité, que vous utilisez un fichier
+``my_project/local_settings.py``. Donc dans ``my_project/settings.py`` vous
+avez un bout de code tel que : ::
+
+    try:
+        from .local_settings import *  # NOQA
+    except ImportError:
+        pass
+
+
+Afin d'avoir des informations plus complète en cas d'erreur, ajoutons dans
+``my_project/local_settings.py``  : ::
+
+    DEBUG = True
+
+Il ne vaut mieux pas utiliser le système de cache des *templates* quand vous
 développez, afin de ne pas avoir à relancer le serveur à chaque modification
-de template : ::
+de template. Dans ``my_project/local_settings.py`` ajoutez : ::
 
     from .settings import TEMPLATES
+
     TEMPLATES[0]['OPTIONS']['loaders'] = (
         'django.template.loaders.app_directories.Loader',
         'django.template.loaders.filesystem.Loader',
     )
-
-Activer les *warnings* vous permettra par exemple de voir que vous utilisez
-du code obsolète (*deprecated*), ce qui vous sera utile lors vous mettrez à
-jour la version sous-jacente de Creme (ledit code obsolète étant en général
-supprimé dans la version suivante -- notez que le message va souvent
-indiquer quelle fonction/classe utiliser à la place). La configuration
-suivante permet d'afficher les *warnings*, mais chacun une seule fois
-(ce qui évite de polluer votre terminal d'informations redondantes) : ::
-
-    import warnings
-    warnings.simplefilter('once')
 
 
 Outils supplémentaires
@@ -109,44 +133,82 @@ qui apporte des commandes supplémentaires intéressantes (``runserver_plus``,
 Utilisation de git
 ~~~~~~~~~~~~~~~~~~
 
-Bien que le code que vous écrirez résidera dans son propre répertoire, ce
-répertoire sera parmi les autres modules de Creme. Dans une future version de
-Creme, la séparation entre votre code et celui de Creme devrait être plus
-facile et sera documentée.
+Il est fortement conseillé de versionner ``my_project/`` (avec *git* ici, mais
+vous pouvez utilisez l'outil de votre choix évidemment) même dans le cas
+d'un déploiement *vanilla*. C'est d'autant plus vrai dans le cas où vous créez
+du code personnalisé. L'utilisation complète de *git* sort du cadre de ce
+document, mais voici une petite introduction.
 
-Pour le moment on va se contenter de travailler dans une branche à part : ::
+Initions notre dépot : ::
 
-    > git checkout -b beavers
+    > cd my_project
+    > git init
 
-À chaque fois que vous aurez ajouté une nouvelle fonctionnalité, vous pourrez
-créer un *commit* : ::
+
+Regardons l'état de nos fichier avec : ::
+
+    > git status
+
+Cela devrait nous afficher dans notre terminal qu'il n'y a aucun *commit*,
+ainsi que la liste des fichiers non suivis, ressemblant à ça : ::
+
+	.gitignore
+	AGPL-3.0.txt
+	README.md
+	__init__.py
+	media/
+	settings.py
+	setup.cfg
+	setup.py
+
+
+On va créer un *commit* initial correspondant à notre version *vanilla* fonctionnelle : ::
+
+    > git add .
+    > git commit
+
+La première commande ajoute tous les fichiers listés précédemment, la seconde
+créé le *commit* (n'oubliez pas de rentrer un message non vide, genre
+"Commit initial").
+
+À chaque fois que vous aurez ajouté une nouvelle fonctionnalité, vous devrez
+utiliser la commande ``git add mon_nouveau_fichier`` pour tous les nouveaux
+fichiers que vous voulez versionner, puis vous pourrez créer un *commit* : ::
 
     > git commit -a
+
 
 À n'importe quel moment nous pouvez visualiser les modifications faites depuis
 le dernier *commit* : ::
 
     > git diff
 
-À la fin de votre session de travail, vous pouvez sauvegarder votre travail
+
+Afin d'avoir des sauvegardes de votre travail, de permettre le travail
+collaboratif et de faciliter le déploiement, vous devriez avoir votre dépot sur un
+serveur centralisé (que ce soit sur github.com/gitlab.com/… ou en auto-hébergé).
+À la fin de votre session de travail, vous pourrez sauvegarder votre travail
 dans votre  dépôt : ::
 
-    > git push origin beavers
+    > git push origin my_branch
 
-Lorsque vous voudrez resynchroniser votre code avec celui de Creme (pour
-avoir la dernière mise-à-jour mineure par exemple), il faudra passer par une
-classique phase de **rebase**.
+
+**Conseil** : lorsque vous voudrez mettre à jour la version majeure de Creme,
+travaillez d'abord dans une branche à part afin de facilement pouvoir revenir à
+la version précédente en cas de problème.
 
 
 Création du répertoire parent
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Plaçons nous dans notre projet, dans le répertoire ``creme/`` : ::
+Plaçons nous dans notre projet si ça n'est pas déjà fait : ::
 
-    > cd creme_crm/creme
+    > cd my_project
 
-Il existe une commande pour créer une app (``django-admin startapp``), cependant
-la tâche étant très simple, nous allons faire ce travail nous-mêmes, petit à petit.
+
+Il existe une commande pour créer une app (``creme startapp``), cependant
+la tâche étant très simple, nous allons faire ce travail nous-mêmes pour notre
+première app, petit à petit, afin de mieux comprendre ce que ça implique.
 D'abord nous créons le répertoire contenant notre app : ::
 
     > mkdir beavers
@@ -157,6 +219,7 @@ nous mettons le terme "beaver" ("castor") au pluriel.
 Plaçons nous, dans notre répertoire fraîchement créé : ::
 
     > cd beavers
+
 
 Afin que le répertoire *beavers* soit considéré par Python comme un module, nous
 devons y mettre un fichier (qui peut tout à fait être vide) nommé ``__init__.py`` : ::
@@ -173,20 +236,20 @@ Maintenant créons un autre répertoire, ``models/``, dans lequel nous nous pla�
     > cd models
 
 
-Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'aide notre
-éditeur de texte préféré, contenant le texte suivant : ::
+Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'aide
+notre éditeur de texte préféré, contenant le texte suivant : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.db.models import CharField, DateField
+    from django.db import models
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.models import CremeEntity
 
 
     class Beaver(CremeEntity):
-        name     = CharField(_('Name'), max_length=100)
-        birthday = DateField(_('Birthday'))
+        name = models.CharField(_('Name'), max_length=100)
+        birthday = models.DateField(_('Birthday'))
 
         class Meta:
             app_label = 'beavers'
@@ -208,7 +271,7 @@ dans une vue en liste, ainsi que beaucoup d'autres services.
 En plus des champs contenus en base (fields), nous déclarons :
 
 - La classe ``Meta`` qui permet d'indiquer notamment l'app à laquelle appartient notre modèle.
-- La méhode ``__str__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
+- La méthode ``__str__`` qui permet d'afficher de manière agréable les objets ``Beavers``.
 
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
@@ -226,58 +289,31 @@ sera notamment relié à sa table dans le SGDB.
 Installer notre module
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Éditez le fichier ``creme/project_settings.py`` en y copiant depuis le fichier de
-configuration générale ``creme/settings.py`` le tuple INSTALLED_CREME_APPS. ::
+Éditez le fichier ``my_project/settings.py`` en ajoutant la ligne : ::
 
-    INSTALLED_CREME_APPS = (
-        # CREME CORE APPS
-        'creme.creme_core',
-        'creme.creme_config',
-        'creme.media_managers',
-        'creme.documents',
-        'creme.activities',
-        'creme.persons',
+    INSTALLED_APPS.add('my_project.beavers')
 
-        # CREME OPTIONAL APPS (can be safely commented)
-        'creme.assistants',
-        'creme.graphs',
-        'creme.reports',
-        'creme.products',
-        'creme.recurrents',
-        'creme.billing',
-        'creme.opportunities',
-        'creme.commercial',
-        'creme.events',
-        'creme.crudity',
-        'creme.emails',
-        'creme.projects',
-        'creme.tickets',
-        'creme.vcfs',
 
-        'creme.beavers',  # <-- NEW
-    )
-
-Notez que par rapport à la configuration de base, nous avons ajouté à la fin du
-tuple notre app.
-
-**Remarque** : nous utilisons ``creme/project_settings.py`` plutôt que
-``creme/local_settings.py`` dans la mesure où la liste des apps installées dans
-le projet devrait sûrement être partagée avec les différents membres de l'équipe
-(développeurs, administrateurs).
+**Remarque** : nous modifions ``my_project/settings.py`` plutôt que
+``my_project/local_settings.py`` dans la mesure où la liste des apps installées
+dans le projet devrait sûrement être partagée avec les différents membres de
+l'équipe (développeurs, administrateurs).
 
 
 Créer la table dans la base de données
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Toujours depuis le répertoire ``creme/``, lancez les commandes suivantes : ::
+Lancez la commande suivante afin de générer le fichier de migration : ::
 
-    > python creme/manage.py makemigrations beavers
+    > creme makemigrations --settings=my_project.settings beavers
 
-Cela devrait créer un répertoire ``creme/beavers/migrations/`` avec dedans un
-fichier ``__init__.py`` et un fichier ``0001_initial.py``. Ce dernier donne
-à Django la description de la table qui va contenir nos castors : ::
+Cela devrait créer un répertoire ``my_project/beavers/migrations/`` avec dedans
+un fichier ``__init__.py`` et un fichier ``0001_initial.py``. Ce dernier donne
+à Django la description de la table qui va contenir nos castors.
 
-    > python creme/manage.py migrate beavers
+Appliquons cette migration : ::
+
+    > creme migrate --settings=my_project.settings
     Operations to perform:
         Apply all migrations: beavers
     Running migrations:
@@ -285,14 +321,15 @@ fichier ``__init__.py`` et un fichier ``0001_initial.py``. Ce dernier donne
         Applying beavers.0001_initial... OK
 
 Comme vous pouvez le voir, une table "beavers_beaver" a bien été créée. Si vous
-l'examinez (avec PHPMyAdmin par exemple), vous verrez qu'elle possède bien une
-colonne nommée "name", de type VARCHAR(100), et une colonne "birthday" de type DATE.
+l'examinez (avec sqlitebrowser ou PHPMyAdmin par exemple), vous verrez qu'elle
+possède bien une colonne nommée "name", de type VARCHAR(100), et une colonne
+"birthday" de type DATE.
 
 
 Déclarer notre app
 ~~~~~~~~~~~~~~~~~~
 
-Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
+Tout d'abord, créons un nouveau fichier ``my_project/beavers/apps.py`` qui contient : ::
 
     # -*- coding: utf-8 -*-
 
@@ -303,7 +340,7 @@ Tout d'abord, créons un nouveau fichier ``beavers/apps.py`` qui contient : ::
 
     class BeaversConfig(CremeAppConfig):
         default = True
-        name = 'creme.beavers'
+        name = 'my_project.beavers'
         verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
 
@@ -324,7 +361,7 @@ Si nous lançons Creme avec le serveur de développement de Django, et que nous 
 connectons avec notre navigateur Web (à l'adresse définie par SITE_DOMAIN dans
 la configuration), que se passe-t-il ? ::
 
-    > python creme/manage.py runserver
+    > creme runserver --settings=my_project.settings
 
 
 Il n'y a aucune trace de notre nouvelle app. Mais pas d'inquiétude, nous allons
@@ -337,7 +374,7 @@ Notre première vue : la vue de liste
 Nous allons à présent créer la vue permettant d'afficher la liste des castors,
 à laquelle on accède par l'URL: '/beavers/beavers'.
 
-Ajoutons d'abord un nouveau répertoire nommé ``views/`` dans ``beavers/``,
+Ajoutons d'abord un nouveau répertoire nommé ``views/`` dans ``my_project/beavers/``,
 ainsi que le ``__init__.py`` habituel : ::
 
     > mkdir views
@@ -351,7 +388,7 @@ Dans ``views/``, nous créons le fichier ``beaver.py`` tel que : ::
 
     from creme.creme_core.views import generic
 
-    from creme.beavers.models import Beaver
+    from ..models import Beaver
 
 
     class BeaversList(generic.EntitiesList):
@@ -360,12 +397,12 @@ Dans ``views/``, nous créons le fichier ``beaver.py`` tel que : ::
 
 On doit maintenant lier cette vue à son URL. Jetons un coup d'œil au fichier
 ``creme/urls.py`` ; on y trouve la configuration des chemins de base pour chaque
-app. Nous remarquons ici que pour chaque app présente dans le tuple
-INSTALLED_CREME_APPS, on récupère le fichier ``urls.py`` se trouvant dans le
+app. Nous remarquons ici que pour chaque app Creme présente dans la liste
+INSTALLED_APPS, on récupère le fichier ``urls.py`` se trouvant dans le
 répertoire ``nom_de_votre_appli/``.
 
 Nous n'avons donc pas à toucher à ``creme/urls.py`` et nous créons juste le
-fichier ``urls.py`` dans ``beaver/`` : ::
+fichier ``urls.py`` dans ``my_project/beavers/`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
@@ -416,7 +453,7 @@ liste des castors… vide. Forcément, aucun castor n'a encore été créé.
 La vue de création
 ~~~~~~~~~~~~~~~~~~
 
-Créez un répertoire ``beavers/forms``, avec le coutumier ``__init__.py`` : ::
+Créez un répertoire ``my_project/beavers/forms``, avec le coutumier ``__init__.py`` : ::
 
     > mkdir forms
     > cd forms
@@ -515,7 +552,7 @@ Il faut aussi éditer ``beavers/urls.py`` pour ajouter cette URL : ::
 En rafraîchissant notre page dans le navigateur, nous obtenons bien la vue
 détaillée espérée.
 
-**Note** : l'icone de notre fiche ne fonctionne pas pour le moment ; ne vous
+**Note** : l’icône de notre fiche ne fonctionne pas pour le moment ; ne vous
 inquiétez pas, ça sera réglé un peu plus tard.
 
 Pour que les prochaines créations de castor n'aboutissent pas sur une erreur 404,
@@ -575,7 +612,7 @@ Faire apparaître les entrées dans le menu
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Nous déclarons 2 entrées de menu (une pour la vue en liste, une pour la vue de
-création), dans un nouveau fichier ``beavers/menu.py`` : ::
+création), dans un nouveau fichier ``my_project/beavers/menu.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -655,18 +692,18 @@ la première fois, nous avons du créer une vue (i.e. : les colonnes à afficher
 la liste) ; nous avons aussi du configurer le menu. Nous allons écrire du code qui
 sera exécuté au déploiement, et créera la vue de liste et les entrées de menu.
 
-Créez le fichier ``beavers/constants.py``, qui contiendra comme son nom l'indique
-des constantes : ::
+Créez le fichier ``my_project/beavers/constants.py``, qui contiendra comme son
+nom l'indique des constantes : ::
 
     # -*- coding: utf-8 -*-
 
     # NB: ceci sera l'identifiant de notre vue de liste par défaut. Pour éviter
-    #     les collisions entres apps, la convention est de construire une valeur
+    #     les collisions entre apps, la convention est de construire une valeur
     #     de la forme 'mon_app' + 'hf_' + 'mon_model'.
     DEFAULT_HFILTER_BEAVER = 'beavers-hf_beaver'
 
 
-Puis créons un fichier : ``beavers/populate.py``. ::
+Puis créons un fichier : ``my_project/beavers/populate.py``. ::
 
     # -*- coding: utf-8 -*-
 
@@ -729,14 +766,14 @@ Explications :
 Le code est exécuté par la commande ``creme_populate``. La commande permet de ne
 'peupler' que notre app. Dans ``creme/``, exécutez : ::
 
-    > python creme/manage.py creme_populate beavers
+    > creme creme_populate --settings=my_project.settings beavers
 
 
-En réaffichant votre liste de castors, la deuxième vue est bien là.
+En ré-affichant votre liste de castors, la deuxième vue est bien là.
 
 **Allons plus loin**: améliorons maintenant notre liste de castors afin de nous
 assurer que lorsqu'un utilisateur se connecte avec une session neuve, la vue par
-défaut est utilisée (sinon c'est la première par ordre alphabétique): ::
+défaut est utilisée (sinon c'est la première par ordre alphabétique) : ::
 
     [...]
     from ..constants import DEFAULT_HFILTER_BEAVER  # <- NEW
@@ -792,11 +829,11 @@ navigateur est configuré pour récupérer les pages en français quand c'est po
 l'interface du module *beavers* reste en anglais. Mais nous avons toujours utilisé
 les fonctions ``gettext`` et ``gettext_lazy`` (importées en tant que '_') pour
 'wrapper' nos labels. Il va donc être facile de localiser notre module.
-Dans ``beavers/``, créez un répertoire ``locale``, puis lancez la commande qui
-construit le fichier de traduction (en français ici) : ::
+Dans ``my_project/beavers/``, créez un répertoire ``locale``, puis lancez la
+commande qui construit le fichier de traduction (en français ici) : ::
 
     > mkdir locale
-    > django-admin makemessages -l fr
+    > creme makemessages --settings=my_project.settings -l fr --no-location
     processing language fr
 
 
@@ -816,44 +853,36 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2020-12-08 11:10+0100\n"
+    "POT-Creation-Date: 2021-11-25 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
     "MIME-Version: 1.0\n"
     "Content-Type: text/plain; charset=UTF-8\n"
     "Content-Transfer-Encoding: 8bit\n"
-    "Plural-Forms: nplurals=2; plural=n>1;\n"
+    "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-    #: apps.py:12
     msgid "Beavers management"
     msgstr ""
 
-    #: apps.py:23
     msgid "All beavers"
     msgstr ""
 
-    #: apps.py:24
     msgid "Create a beaver"
     msgstr ""
 
-    #: populate.py:17
     msgid "Beaver view"
     msgstr ""
 
-    #: populate.py:19 models/beaver.py:10
     msgid "Name"
     msgstr ""
 
-    #: populate.py:20 forms/beaver.py:11 models/beaver.py:11
     msgid "Birthday"
     msgstr ""
 
-    #: models/beaver.py:15
     msgid "Beaver"
     msgstr ""
 
-    #: models/beaver.py:16
     msgid "Beavers"
     msgstr ""
 
@@ -868,44 +897,37 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2020-12-08 11:10+0100\n"
+    "POT-Creation-Date: 2021-11-24 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
+    "Language: fr\n"
     "MIME-Version: 1.0\n"
     "Content-Type: text/plain; charset=UTF-8\n"
     "Content-Transfer-Encoding: 8bit\n"
-    "Plural-Forms: nplurals=2; plural=n>1;\n"
+    "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-    #: apps.py:12
     msgid "Beavers management"
     msgstr "Gestion des castors"
 
-    #: apps.py:23
     msgid "All beavers"
     msgstr "Lister les castors"
 
-    #: apps.py:24
     msgid "Create a beaver"
     msgstr "Créer un castor"
 
-    #: populate.py:17
     msgid "Beaver view"
     msgstr "Vue de castor"
 
-    #: populate.py:19 models/beaver.py:10
     msgid "Name"
     msgstr "Nom"
 
-    #: populate.py:20 forms/beaver.py:11 models/beaver.py:11
     msgid "Birthday"
     msgstr "Anniversaire"
 
-    #: models/beaver.py:15
     msgid "Beaver"
     msgstr "Castor"
 
-    #: models/beaver.py:16
     msgid "Beavers"
     msgstr "Castors"
 
@@ -913,14 +935,14 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
 Il suffit maintenant de compiler notre fichier de traduction avec la commande
 suivante : ::
 
-    > django-admin compilemessages
-    processing file django.po in [...]/creme_crm/creme/beavers/locale/fr/LC_MESSAGES
+    > creme compilemessages --settings=my_project.settings
+    processing file django.po in [...]beavers/locale/fr/LC_MESSAGES
 
-Le fichier ``beavers/locale/fr/LC_MESSAGES/django.mo`` est bien généré. Si vous
-relancez le serveur Web, les différents labels apparaissent en français, pour peu
-que votre navigateur et votre utilisateur soient configurés pour, et que que le
-*middleware* 'django.middleware.locale.LocaleMiddleware' soit bien dans votre
-``settings.py`` (ce qui est le cas par défaut).
+Le fichier ``my_project/beavers/locale/fr/LC_MESSAGES/django.mo`` est bien généré.
+Si vous relancez le serveur Web, les différents labels apparaissent en français,
+pour peu que votre navigateur et votre utilisateur soient configurés pour, et
+que le *middleware* 'django.middleware.locale.LocaleMiddleware' soit bien dans
+les *settings* (ce qui est le cas par défaut).
 
 
 3. Principes avancés
@@ -933,19 +955,20 @@ Admettons que nous voulions donner un état de santé pour chacun de nos castors
 cela pourrait par exemple être utilisé dans la vue en liste pour n'afficher que
 les castors malades, et appeler un vétérinaire en conséquence.
 
-Créez un fichier ``models/status.py`` : ::
+Créez un fichier ``my_project/beavers/models/status.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from django.db.models import CharField, BooleanField
-    from django.utils.translation import gettext_lazy as _, pgettext_lazy
+    from django.db import models
+    from django.utils.translation import gettext_lazy as _
+    from django.utils.translation import pgettext_lazy
 
     from creme.creme_core.models import CremeModel
 
 
     class Status(CremeModel):
-        name      = CharField(_('Name'), max_length=100, unique=True)
-        is_custom = BooleanField(default=True).set_tags(viewable=False)
+        name = models.CharField(_('Name'), max_length=100, unique=True)
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
         creation_label = pgettext_lazy('beavers-status', 'Create a status')
 
@@ -977,19 +1000,19 @@ différente selon le cas. Dans Creme, nous préfixons les contextes avec le nom
 de l'app plus '-'.
 
 
-Modifiez *models/__init__.py* : ::
+Modifiez ``models/__init__.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    from .status import Status  # <-- NEW
     from .beaver import Beaver
+    from .status import Status  # <-- NEW
 
 
 Nous allons générer une première migration qui créé la table correspondante : ::
 
-    > python creme/manage.py makemigrations beavers
+    > creme makemigrations --settings=my_project.settings beavers
 
-Un fichier nommé ``0002_status.py`` est alors créé.
+Un fichier nommé ``my_project/beavers/migrations/0002_status.py`` est alors créé.
 
 Dans la mesure où nous avons l'intention d'ajouter une *ForeignKey* non nullable
 dans notre classe ``Beaver`` (cela rend l'exercice plus intéressant), nous
@@ -1001,10 +1024,10 @@ faire évoluer sans casser les données existantes.
 
 Générer donc cette migration (notez le paramètre ``empty``) : ::
 
-    > python creme/manage.py makemigrations beavers --empty
+    > creme makemigrations --settings=my_project.settings beavers --empty
 
 Un fichier nommé en fonction de la date du jour vient d'être créé. Une fois
-celui-ci rénommé en ``0003_populate_default_status.py``, ouvrez le.
+celui-ci renommé en ``0003_populate_default_status.py``, ouvrez le.
 Il devrait ressembler à ça : ::
 
     # -*- coding: utf-8 -*-
@@ -1045,7 +1068,7 @@ Il devrait ressembler à ça : ::
 
 Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
-    from django.db.models import CharField, DateField, ForeignKey  # <- NEW
+    from django.db import models
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 
@@ -1055,9 +1078,11 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
 
 
     class Beaver(CremeEntity):
-        name     = CharField(_('Name'), max_length=100)
-        birthday = DateField(_('Birthday'))
-        status   = ForeignKey(Status, verbose_name=_('Status'), on_delete=CREME_REPLACE)  # <- NEW
+        name = models.CharField(_('Name'), max_length=100)
+        birthday = models.DateField(_('Birthday'))
+        status = models.ForeignKey(
+            Status, verbose_name=_('Status'), on_delete=CREME_REPLACE,
+        )  # <- NEW
 
         [....]
 
@@ -1075,7 +1100,7 @@ instances ``Beaver`` qui l'utilisent.
 Il faut maintenant générer la migration correspondante (pas de ``empty``
 puisque c'est une migration de schéma) : ::
 
-    > python creme/manage.py makemigrations beavers
+    > creme makemigrations --settings=my_project.settings beavers
     You are trying to add a non-nullable field 'status' to beaver without a default; we can't do that (the database needs something to populate existing rows).
     Please select a fix:
     1) Provide a one-off default now (will be set on all existing rows)
@@ -1088,7 +1113,7 @@ migration précédente).
 
 On peut maintenant exécuter nos migrations : ::
 
-    > python creme/manage.py migrate
+    > creme migrate --settings=my_project.settings
 
 En relançant le serveur, lorsqu'on ajoute un castor, on a bien un nouveau champ
 dans le formulaire. En revanche un seul choix de ``Status`` est disponible, ce
@@ -1135,7 +1160,7 @@ lors d'une mise à jour (et donc d'un lancement de la commande ``creme_populate`
 
 Relancez la commande pour 'peupler' : ::
 
-    > python creme/manage.py creme_populate beavers
+    > creme creme_populate --settings=my_project.settings beavers
 
 
 Le formulaire de création de Beaver nous propose bien ces 2 statuts.
@@ -1193,9 +1218,9 @@ vous devez rajouter un champ ``order`` comme ceci : ::
 
 
     class Status(CremeModel):
-        name      = CharField(_('Name'), max_length=100, unique=True)
-        is_custom = BooleanField(default=True).set_tags(viewable=False)
-        order     = BasicAutoField(_('Order'))  # <- NEW
+        name = models.CharField(_('Name'), max_length=100, unique=True)
+        is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+        order = BasicAutoField(_('Order'))  # <- NEW
 
         [...]
 
@@ -1355,7 +1380,7 @@ qui correspond à une vue existante ; vous n'avez donc rien à faire de ce
 côté là. A contrario, si vous créez une vue spécifique avec des blocs, vous devrez
 potentiellement écrire votre propre vue de rechargement (si celles fournies par
 creme_core ne suffisent pas), et vous devrez dans tous les cas injecter l'URL
-dans le contexte du template de votre page.
+dans le contexte du *template* de votre page.
 
 **Les dépendances** : lorsqu'un bloc est rechargé, il est souvent nécessaire de
 recharger d'autres blocs afin que l'affichage reste cohérent (ex: quand on ajoute
@@ -1375,10 +1400,10 @@ Exemple : bloc simple de vue détaillée
 
 Nous allons faire un simple bloc qui affiche l'anniversaire et l'age d'un castor.
 Notez que dans la section `Champs fonctions`_ on écrit un champ fonction
-qui fait la même chose (pour l'age), mais de manière réutilisable, notamment
+qui fait la même chose (pour l'âge), mais de manière réutilisable, notamment
 dans un bloc personnalisable ; c'est donc une meilleure approche dans l'absolu.
 
-Créez le fichier ``creme/beavers/bricks.py`` : ::
+Créez le fichier ``my_project/beavers/bricks.py`` : ::
 
     from datetime import date
 
@@ -1426,7 +1451,8 @@ Créez le fichier ``creme/beavers/bricks.py`` : ::
                 age=(date.today().year - birthday.year) if birthday else None,
             ))
 
-On crée ensuite le template correspondant, ``creme/beavers/templates/beavers/bricks/age.html`` : ::
+On crée ensuite le *template* correspondant,
+``my_project/beavers/templates/beavers/bricks/age.html`` : ::
 
     {% extends 'creme_core/bricks/base/table.html' %}
     {% load i18n creme_bricks %}
@@ -1470,7 +1496,7 @@ On crée ensuite le template correspondant, ``creme/beavers/templates/beavers/br
         </tr>
     {% endblock %}
 
-Pour que le bloc soit pris en compte par Creme, il faut l'enregistrer gràce à ``beavers/apps.py`` : ::
+Pour que le bloc soit pris en compte par Creme, il faut l'enregistrer grâce à ``beavers/apps.py`` : ::
 
     [...]
 
@@ -1537,7 +1563,7 @@ présent sur la vue détaillée des castors, et que lorsque l'on créera un tick
 depuis la fiche d'un castor malade, ce ticket fera référence automatiquement à ce
 castor, nous passons l'identifiant du castor dans l'URL, pour que la vue puisse le retrouver.
 
-Dans un nouveau fichier de vue ``beavers/views/ticket.py`` : ::
+Dans un nouveau fichier de vue ``my_project/beavers/views/ticket.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -1569,10 +1595,11 @@ Dans ``beavers/urls.py`` : ::
 
     [...]
 
-        re_path(r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
-                ticket.VeterinaryTicketCreation.as_view(),
-                name='beavers__create_ticket',
-                ),  # <- NEW
+        re_path(
+            r'^ticket/add/(?P<beaver_id>\d+)[/]?$',
+            ticket.VeterinaryTicketCreation.as_view(),
+            name='beavers__create_ticket',
+        ),  # <- NEW
 
     [...]
 
@@ -1591,10 +1618,10 @@ une convention) : ::
 
 
     class CreateTicketButton(Button):
-        id_           = Button.generate_id('beavers', 'create_ticket')
-        verbose_name  = _('Create a ticket to notify that a beaver is sick.')
+        id_ = Button.generate_id('beavers', 'create_ticket')
+        verbose_name = _('Create a ticket to notify that a beaver is sick.')
         template_name = 'beavers/buttons/ticket.html'
-        permission    = 'tickets.add_ticket'
+        permission = 'tickets.add_ticket'
 
         def get_ctypes(self):
             return (Beaver,)
@@ -1619,10 +1646,11 @@ Quelques explications :
   méthode renvoie ``True``). Ici on le l'affiche que pour les Castors avec le
   statut "Sick".
 - La méthode ``render()`` vous permet de personnaliser le rendu du bouton, en
-  enrichissant le contexte du template notamment ; un exemple de code a été
+  enrichissant le contexte du *template* notamment ; un exemple de code a été
   laissé en commentaire.
 
-Maintenant au tour du fichier template associé, ``beavers/templates/beavers/buttons/ticket.html``: ::
+Maintenant au tour du fichier *template* associé,
+``beavers/templates/beavers/buttons/ticket.html``: ::
 
     {% load i18n creme_widgets %}
     {% if has_perm %}
@@ -1671,8 +1699,8 @@ formulaire partiellement pré-rempli.
 Utilisation de la création rapide
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Dans l'éntrée de menu '+ Création', se trouve la section 'Création rapide'
-qui permet de créer des nouvelles fiche via une petite popup (et pas en
+Dans l'entrée de menu '+ Création', se trouve la section 'Création rapide'
+qui permet de créer des nouvelles fiche via une petite *popup* (et pas en
 allant sur une nouvelle page avec un gros formulaire).
 
 Les formulaires de création rapide sont en général, et pour des raisons évidentes,
@@ -1732,8 +1760,8 @@ utilisateurs finaux peuvent configurer graphiquement : les formulaires
 personnalisés.
 
 Nous allons ici faire un CustomForm simple pour créer nos castors. Tout
-d'abord, à la racine de notre app (``beavers/`` donc), nous créons le fichier
-``custom_forms.py`` : ::
+d'abord, à la racine de notre app (``my_project/beavers/`` donc), nous créons
+le fichier ``custom_forms.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -1815,7 +1843,7 @@ Déclarons ensuite notre descripteur de formulaire ; dans notre fichier
             cform_registry.register(custom_forms.BEAVER_CREATION_CFORM)
 
 
-Si vous avez lancé la commande ``creme_populate``, vous devriez retouver
+Si vous avez lancé la commande ``creme_populate``, vous devriez retrouver
 votre formulaire dans la liste des formulaires configurables
 (Menu > Configuration > Formulaires personnalisés), associé à votre modèle.
 
@@ -1851,7 +1879,7 @@ de ``CustomFormDescriptor`` :
 - il est même possible de déclarer des blocs entier de champs spéciaux (qui
   ne seront pas configurables, et seront juste présents ou absents selon la
   configuration) avec l'attribut ``extra_group_classes``. Il vaut mieux se
-  servir de cette solution en dernier recours (et préférér les solutions
+  servir de cette solution en dernier recours (et préférer les solutions
   précédentes). Mais si vous en avez vraiment besoin, vous pouvez regarder
   l'app ``persons`` qui s'en sert pour le bloc "Adresses".
 
@@ -1865,17 +1893,18 @@ utiles aux utilisateurs. Ils sont disponibles dans les vues en liste et les
 blocs personnalisés.
 
 Dans notre exemple, le champ fonction affichera l'âge d'un castor. Créez un
-fichier ``function_fields.py`` : ::
+fichier ``my_project/beavers/function_fields.py`` : ::
 
     from datetime import date
 
-    from django.utils.translation import gettext_lazy as _, gettext
+    from django.utils.translation import gettext
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.function_field import FunctionField
 
 
     class BeaverAgeField(FunctionField):
-        name         = 'beavers-age'
+        name = 'beavers-age'
         verbose_name = _('Age')
 
         def __call__(self, entity, user):
@@ -1892,14 +1921,14 @@ L'attribut ``name`` sera utilisé comme identifiant. L'attribut ``verbose_name``
 sera utilisé par exemple dans la vue de liste comme titre de colonne (comme
 l'attribut homonyme des champs classiques des modèles par exemple).
 
-**Note** : le resultat doit être du type ``FunctionFieldResult`` (ou d'une de ses
+**Note** : le résultat doit être du type ``FunctionFieldResult`` (ou d'une de ses
 classes filles, comme ``FunctionFieldDecimal`` ou ``FunctionFieldResultsList``),
 qui est la valeur par défaut de ``FunctionField.result_type`` ; ce type va
-permettre de formatter correctement la valeur, selon qu'on affiche du HTML
+permettre de formater correctement la valeur, selon qu'on affiche du HTML
 ou qu'on exporte du CSV.
 
-Puis dans votre ``apps.py``, ajoutez la méthode ``register_function_fields()``
-telle que : ::
+Puis dans votre ``beavers/apps.py``, ajoutez la méthode
+``register_function_fields()`` telle que : ::
 
     [...]
 
@@ -2029,14 +2058,14 @@ la forme d'une image qu'on télécharge) correspondant à un castor ; on va alor
 pouvoir faire une action permettant de télécharger ce code barre depuis le menu
 action d'un castor dans la vue de liste.
 
-Créons un fichier ``actions.py`` dans notre app : ::
+Créons un fichier ``beavers/actions.py`` tel que : ::
 
     from django.urls.base import reverse
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.gui.actions import UIAction
 
-    from creme.beavers.models import Beaver
+    from .models import Beaver
 
 
     class GenerateBarCodeAction(UIAction):
@@ -2063,11 +2092,11 @@ Quelques explications :
 - ``id`` : doit être unique (parmi les actions), et comme d'habitude va servir
   lors de l'enregistrement de l'action pour la retrouver plus tard par le système.
 - ``model`` : modèle pour lequel l'action est disponible. Ici nous avons mis notre
-  modèle specifique, car cela n'a pas de sens pour les autres types de fiches.
+  modèle spécifique, car cela n'a pas de sens pour les autres types de fiches.
 - ``type`` : va déterminer le comportement de l'action dans l'interface ; créer
   de nouveaux type nécessite d'écrire du JavaScript (ce qui sort du périmètre de
-  cet exemple simple). Ici, le type "download" est fourni de base et permet de rediriger
-  vers une URL (il est donc souvent utilisé).
+  cet exemple simple). Ici, le type "download" est fourni de base et permet de
+  rediriger vers une URL (il est donc souvent utilisé).
 - ``icon`` :  nom de l'icône à utiliser à coté du ``label`` dans l'interface ;
   attention c'est bien Creme qui génère le nom du fichier final du genre
   "download_22.png".
@@ -2127,7 +2156,7 @@ Techniques générales
 
 **Monkey patching** : cette méthode est plutôt brutale et doit être utilisée
 avec prudence, voire évitée.
-Gràce au dynamisme de Python, il est possible d'écraser des éléments d'un
+Grâce au dynamisme de Python, il est possible d'écraser des éléments d'un
 autre module.
 Par exemple, dans ``creme/creme_core/apps.py``, on trouve ce code qui modifie
 la méthode ``ForeignKey.formfield()`` (définie dans Django) : ::
@@ -2191,24 +2220,19 @@ des classes, pas celles sous forme de fonctions évidemment).
 
 De manière général, les comportements dans Creme sont souvent stockés
 dans des dictionnaires globaux, plutôt qu'en dur dans des blocs
-``if ... elif ... elif ...``. Il est alors aisé d'ajouter, supprimer
+``if … elif … elif …``. Il est alors aisé d'ajouter, supprimer
 ou modifier lesdits comportements.
 
 **AppConfig** : Django permet, dans la variable ``settings.INSTALLED_APPS``,
 de spécifier la classe d'AppConfig utilisée par une app.
 Imaginons que vous vouliez supprimer toutes les statistiques des activités
 du bloc de statistique (voir `Bloc de statistiques`_).
-Dans ``project_settings.py``, faites la modification suivante : ::
+Dans ``my_project/settings.py``, ajoutez les lignes suivantes : ::
 
-    INSTALLED_CREME_APPS = (
-        [...]
+    INSTALLED_CREME_APPS.remove('creme.activities')
+    INSTALLED_CREME_APPS.add('my_project.beavers.apps.BeaversActivitiesConfig')
 
-        # 'creme.activities',  # est remplacé par:
-        'creme.beavers.apps.BeaversActivitiesConfig',
-        [...]
-    )
-
-Puis dans ``creme/beavers/apps.py``, on créé ladite classe de configuration : ::
+Puis dans ``my_project/beavers/apps.py``, on créé ladite classe de configuration : ::
 
     [...]
 
@@ -2275,8 +2299,8 @@ adapter les apps existantes de manière propre :
 
 Elles prennent chacune une fonction comme seul paramètre ; comme leur nom
 le suggère, ces fonctions (*callbacks*) sont respectivement appelées après les
-appels à __init__(), clean() et save(). Ces *callbacks* doivent avoir un et un
-seul paramètre, l'instance du formulaire.
+appels à ``__init__()``, ``clean()`` et ``save()``. Ces *callbacks* doivent
+avoir un et un seul paramètre, l'instance du formulaire.
 
 **Notes** : avec les formulaires personnalisés et les classes de formulaire
 déclarées comme des attributs de classe des vues, le *hooking* de classes de
@@ -2285,7 +2309,7 @@ formulaires classique est devenu beaucoup moins utile.
 Le plus simple est de *hooker* les formulaires voulus depuis le ``apps.py``,
 d'une de vos apps personnelles (comme *beavers*), dans la méthode
 ``all_apps_ready()``. Ici un exemple qui rajoute un champ dans le formulaire
-de creation des utilisateurs (notez qu'il faudrait aussi *hooker* la méthode
+de création des utilisateurs (notez qu'il faudrait aussi *hooker* la méthode
 ``save()`` pour utiliser ce champ ; cet exercice est laissé au lecteur) : ::
 
     # -*- coding: utf-8 -*-
@@ -2294,7 +2318,7 @@ de creation des utilisateurs (notez qu'il faudrait aussi *hooker* la méthode
 
 
     class BeaversConfig(CremeAppConfig):
-        name = 'creme.beavers'
+        name = 'my_project.beavers'
         verbose_name = _('Beavers management')
         dependencies = ['creme.creme_core']
 
@@ -2332,16 +2356,16 @@ Surcharge des templates
 
 Nous en avons déjà parlé, il est possible, depuis votre AppConfig, de modifier
 l'attribut ``template_name`` des classes-vues, afin de faire utiliser à une vue
-venant d'une autre app un template situé dans la vôtre. L'avantage est que votre
-template pourra étendre le template remplacé ; ce qui est utile dans le cas où
-le nouveau template ressemble beaucoup à celui remplacé (à condition bien sûr
+venant d'une autre app un *template* situé dans la vôtre. L'avantage est que votre
+*template* pourra étendre le *template* remplacé ; ce qui est utile dans le cas où
+le nouveau *template* ressemble beaucoup à celui remplacé (à condition bien sûr
 que ce dernier utilise intelligemment des ``{% block %}``).
 
 Mais si ce n'est pas possible (ou souhaité), il y a une autre façon de faire utiliser
-à une autre app vos propres templates : la surcharge de template. Pour cela, il suffit
-de s'appuyer sur le système de chargement des templates de Django.
+à une autre app vos propres *templates* : la surcharge de *template*. Pour cela,
+il suffit de s'appuyer sur le système de chargement des *templates* de Django.
 
-Si vous regardez votre fichier ``settings.py``, vous pouvez y trouver la
+Si vous regardez le fichier ``creme/settings.py``, vous pouvez y trouver la
 variable suivante : ::
 
     TEMPLATES = [
@@ -2366,13 +2390,14 @@ variable suivante : ::
     ]
 
 
-L'ordre des *loaders* est important ; cet ordre va faire que les templates présent
-dans le répertoire ``creme/templates/`` seront chargés en priorité par rapport
-aux templates présent dans les répertoires ``templates/`` que l'on trouve dans
-les répertoires des apps.
+L'ordre des *loaders* est important ; cet ordre va faire que les *templates*
+présents dans le répertoire ``creme/templates/`` seront chargés en priorité par
+rapport aux *templates* présents dans les répertoires ``templates/`` que l'on
+trouve dans les répertoires des apps.
 
-Exemple : plutôt que de modifier directement le template ``creme/persons/templates/persons/view_contact.html``,
-vous pouvez mettre votre version modifiée dans le fichier ``creme/templates/persons/view_contact.html``.
+Exemple : plutôt que de modifier directement le *template*
+``creme/persons/templates/persons/view_contact.html``, vous pouvez mettre votre
+version modifiée dans le fichier ``creme/templates/persons/view_contact.html``.
 
 
 Surcharge de label
@@ -2384,17 +2409,17 @@ vouloir remplacer les occurrences de 'Société' par 'Collectivité'.
 Il faut lancer la commande suivante (notez que 'organisation' est le terme
 utilisé en anglais pour 'société') : ::
 
-    > python creme/manage.py i18n_overload -l fr organisation Organisation
+    > creme i18n_overload --settings=my_project.settings -l fr organisation Organisation
 
 
 Il faut ensuite éditer le fichier de traduction nouvellement créé dans
-``locale_overload/`` (indiqué par la commande), en modifiant les phrases en
+``my_project/locale_overload/`` (indiqué par la commande), en modifiant les phrases en
 français. Dans notre exemple, on remplacera donc 'société' par 'collectivité'.
 N'oubliez pas de supprimer les lignes "#, fuzzy".
 Il ne restera alors plus qu'à compiler ces nouvelles traductions comme déjà
-vu auparavant. En se plaçant dans le répertoire ``locale_overload/`` : ::
+vu auparavant : ::
 
-    > django-admin compilemessages
+    > creme compilemessages --settings=my_project.settings
 
 
 Modification d'un modèle existant
@@ -2439,10 +2464,11 @@ Nous allons prendre comme exemple que vous voulez *swapper* ``tickets.Ticket``.
 
 Tout d'abord vous devez créez une app dont le rôle sera d'étendre ``tickets`` et
 que nous appellerons ``my_tickets``. Vous devrez donc faire ce que nous avons
-fait pour l'app ``Beavers`` : créez un répertoire ``creme/my_tickets/``, contenant
-des fichiers ``__init__.py``, ``apps.py``, ``models.py``, ``urls.py`` …
-Votre app devra également être ajoutée dans les INSTALLED_CREME_APPS ; pour faire
-les choses correctement, elle devra être avant ``tickets``.
+fait pour l'app ``Beavers`` : créez un répertoire ``my_project/my_tickets/``,
+contenant les habituels fichiers ``__init__.py``, ``apps.py``, ``models.py``, ``urls.py`` …
+Votre app devra également être ajoutée dans les INSTALLED_APPS ; pour faire
+les choses correctement, elle devra être avant ``tickets`` (avec
+``INSTALLED_APPS.insert()``).
 
 Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
 
@@ -2454,14 +2480,14 @@ Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
 
 
     class MyTicketsConfig(CremeAppConfig):
-        name = 'creme.my_tickets'
+        name = 'my_project.my_tickets'
         verbose_name = _('Tickets')
         dependencies = ['creme.tickets']
         extended_app = 'creme.tickets'  # <= ICI !!
         credentials  = CremeAppConfig.CRED_NONE  # <= et ICI !!
 
 
-Dans ``models.py``, il faut déclarer un modèle qui va se substituer à
+Dans ``my_tickets/models.py``, il faut déclarer un modèle qui va se substituer à
 ``tickets.models.Ticket``. Le plus facile étant de dériver de
 ``tickets.models.AbstractTicket`` (sachant que toutes les entités utilisent un
 schéma similaire). Il est important de garder ``Ticket`` comme nom de modèle,
@@ -2479,20 +2505,21 @@ afin d'éviter tout un tas de petits désagréments/bugs : ::
 
     class Ticket(AbstractTicket):
         estimated_cost = DecimalField(
-            _('Estimated cost (€)'), blank=True, null=True, max_digits=10, decimal_places=2,
+            _('Estimated cost (€)'),
+            blank=True, null=True, max_digits=10, decimal_places=2,
         )  # <= CHAMP SUPPLÉMENTAIRE
 
         class Meta(AbstractTicket.Meta):
             app_label = 'my_tickets'
 
 
-Dans ``settings.py``, il vous faut repérez une variable de la forme
+Dans ``creme/settings.py``, il vous faut repérez une variable de la forme
 ``<APP>_<MODEL>_MODEL`` ; dans notre cas il s'agit de : ::
 
     TICKETS_TICKET_MODEL = 'tickets.Ticket'
 
-Nous allons surcharger cette variable dans notre ``project_settings.py`` de la
-manière suivante : ::
+Nous allons surcharger cette variable dans notre ``my_project/settings.py`` de
+la manière suivante : ::
 
     TICKETS_TICKET_MODEL = 'my_tickets.Ticket'
 
@@ -2501,7 +2528,7 @@ Cela indique la classe à utiliser concrètement à la place de ``tickets.Ticket
 Vous pouvez à présent générer le répertoire de migrations comme nous l'avons
 déjà vu.
 
-Si on jette un œil au fichier ``tickets/urls.py``, on voit que la façon de
+Si on jette un œil au fichier ``creme/tickets/urls.py``, on voit que la façon de
 définir les URLs est par endroit un peu différente de ce dont on a l'habitude.
 Par exemple : ::
 
@@ -2523,14 +2550,14 @@ enveloppé dans d'autres appels) ne sont définies que lorsque le modèle ``Tick
 n'est pas personnalisé.
 
 Ces vues ne peuvent évidemment pas respecter vos règles métier ; par exemple la
-vue de création peut planter si vous avez ajouté dans ``my_tickets.Ticket`` un champ à
-la fois obligatoire et non éditable. Dans la mesure où vous avez choisi de
-définir votre modèle personnalisé, il faut fournir nos propres URLs qui sont
+vue de création peut planter si vous avez ajouté dans ``my_tickets.models.Ticket``
+un champ à la fois obligatoire et non éditable. Dans la mesure où vous avez choisi
+de définir votre modèle personnalisé, il faut fournir nos propres URLs qui sont
 sûres de fonctionner.
 
 Dans notre cas, les vues de base devraient tout à fait suffire (les formulaires
-seront assez intelligents pour utiliser les nouveaux champs éditables par
-exemple), et donc nous pouvons définir ``my_tickets/urls.py`` tel que : ::
+seront assez intelligents pour utiliser les nouveaux champs éditables par exemple),
+et donc nous pouvons définir ``my_project/my_tickets/urls.py`` tel que : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2552,11 +2579,11 @@ exemple), et donc nous pouvons définir ``my_tickets/urls.py`` tel que : ::
 *swappées* ont bien été définies ailleurs.
 
 Dans des cas plus complexes, vous voudrez sûrement utiliser vos propres
-formulaires ou templates. Il en vous reste plus qu'à définir vos propres vues
+formulaires ou *templates*. Il en vous reste plus qu'à définir vos propres vues
 quand c'est nécessaire. Gardez à l'esprit qu'il vaut mieux copier/coller le
 moins de chose possible ; les apps de base fournissent des vues sous la forme
-de classes qui peuvent être facilment étendues. Par exemple, si vous voulez
-définir la vue de création de ``my_tickets.Ticket`` avec votre propre
+de classes qui peuvent être facilement étendues. Par exemple, si vous voulez
+définir la vue de création de ``my_tickets.models.Ticket`` avec votre propre
 formulaire (dont l'écriture n'est pas traité ici, vous savez déjà le faire),
 vous pourriez écrire quelque chose comme ça : ::
 
@@ -2564,15 +2591,15 @@ vous pourriez écrire quelque chose comme ça : ::
 
     from creme.tickets.views.ticket import TicketCreation
 
-    from creme.my_tickets.forms import MyTicketForm  # <= à écrire aussi !
+    from my_project.my_tickets.forms import MyTicketForm  # <= à écrire aussi !
 
 
     class TicketCreation(TicketCreation):
         form_class = MyTicketForm
 
 
-**Un peu plus loin** : vous avez peut-être remarqué que dans ``settings.py`` se
-trouvaient aussi des variable de la forme ``<APP>_<MODEL>_FORCE_NOT_CUSTOM``
+**Un peu plus loin** : vous avez peut-être remarqué que dans ``creme/settings.py``
+se trouvaient aussi des variables de la forme ``<APP>_<MODEL>_FORCE_NOT_CUSTOM``
 (par exemple ``TICKETS_TICKET_FORCE_NOT_CUSTOM``). Comme nous l'avons dit, il est
 préférable de procéder au *swapping* avant la création de la base de données. Or
 vous pourriez pressentir qu'à l'avenir un modèle doivent être *swappé*, mais vous
@@ -2627,7 +2654,7 @@ sont assez sensibles).
 #. Générez la migration de votre nouveau modèle. Cependant, comme la table existe
    déjà en base il faut *faker* cette migration : ::
 
-        > python creme/manage.py migrate my_tickets --fake-initial
+        > creme migrate --settings=my_project.settings my_tickets --fake-initial
 
 #. Comme nous l'avons vu, il faut gérer les vues de notre nouveau modèle.
 
@@ -2649,8 +2676,8 @@ un cas différent :
 divers moyens de modifier une vue existante depuis votre app, sans avoir besoin
 de la réécrire totalement.
 
-Dans la mesure où les URLs sont nommées dans les différents ``urls.py``, si votre
-app est avant (comprendre: dans ``settings.INSTALLED_CREME_APPS``) l'app qui
+Dans la mesure où les URLs sont nommées dans les différents fichiers ``urls.py``,
+si votre app est avant (comprendre: dans ``settings.INSTALLED_APPS``) l'app qui
 contient l'URL que vous voulez re-router vers votre propre vue, il suffit de
 déclarer une URL avec le même nom (elle devra aussi prendre les mêmes arguments).
 Dans la mesure où le code de Creme récupère partout les URLs par leur nom,
@@ -2678,7 +2705,7 @@ Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
 
 
 Dans votre app (qui doit être avant ``creme.assistants.py`` dans
-``settings.INSTALLED_CREME_APPS``), vous déclarez donc l'URL suivante : ::
+``settings.INSTALLED_APPS``), vous déclarez donc l'URL suivante : ::
 
     urlpatterns = [
         re_path(
@@ -2704,13 +2731,13 @@ Par défaut, les URLs de votre app commencent par le nom de celle-ci. Mais nous
 pouvons préciser explicitement ce préfixe, pour utiliser le même que l'app
 ``assistants``. Comme cela va concerner l'ensemble des URLs de votre app, il va
 être plus propre de faire une app minimale qui ne fera que ça. Créez donc une
-app ``my_assistants`` ; dans son fichier ``my_assistants/apps.py``, nous allons
-préciser le préfixe des URLs de cette manière : ::
+app ``my_assistants`` ; dans son fichier ``my_project/my_assistants/apps.py``,
+nous allons préciser le préfixe des URLs de cette manière : ::
 
     [...]
 
     class MyAssistantsConfig(CremeAppConfig):
-        name = 'creme.my_assistants'
+        name = 'my_project.my_assistants'
 
         @property
         def url_root(self):
@@ -2719,7 +2746,7 @@ préciser le préfixe des URLs de cette manière : ::
         [...]
 
 
-Puis dans ``my_assistants/urls.py`` : ::
+Puis dans ``my_project/my_assistants/urls.py`` : ::
 
     from django.urls import re_path
 
@@ -2728,7 +2755,11 @@ Puis dans ``my_assistants/urls.py`` : ::
     urlpatterns = [
         # Notez que l'URL doit être la même que l'original.
         # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
-        re_path(r'^memo/add/(?P<entity_id>\d+)[/]?$', views.MyMemoCreation.as_view(), name='assistants__create_memo'),
+        re_path(
+            r'^memo/add/(?P<entity_id>\d+)[/]?$',
+            views.MyMemoCreation.as_view(),
+            name='assistants__create_memo',
+        ),
     ]
 
 
@@ -2778,7 +2809,9 @@ Exemple d'utilisation (avec 2 tags configurés en même temps) : ::
 
     class Beaver(CremeEntity):
         [...]
-        internal_data = CharField('Data', max_length=100).set_tags(viewable=False, clonable=False)
+        internal_data = models.CharField(
+            'Data', max_length=100,
+        ).set_tags(viewable=False, clonable=False)
 
 
 Liste des *tags* et leur utilité :
@@ -2826,9 +2859,9 @@ détaillée : ::
                 exclude=['my_field1','my_field2'],
             )
 
+
 Vous pouvez aussi vouloir personnaliser le formulaire d'édition pour un champ
 en particulier, parce qu'il est associé à des règles métiers par exemple : ::
-
 
     [...]
 
@@ -2909,7 +2942,7 @@ Si vous voulez rendre un type d'entité fusionnable, regardez comment les apps
 vous pouvez gérer plus finement ce qui ce passe lors d'une fusion grâce aux
 signaux ``creme.creme_core.signals.pre_merge_related`` et
 ``creme.creme_core.signals.pre_replace_related``. Et si votre modèle est relié
-par un OneToOneField, vous **devez** gérer la fusion, car Creme ne peut
+par un ``OneToOneField``, vous **devez** gérer la fusion, car Creme ne peut
 évidemment pas gérer le cas où chacune des entités est reliée (il faut donc au
 moins supprimer une des instances reliées, en récupérant ou non des
 informations au passage etc…).
@@ -2930,8 +2963,8 @@ Réglages globaux
 Le modèle ``SettingValue`` permet de récupérer des valeurs globales à
 l'application, c'est-à-dire valables pour tous les utilisateurs.
 
-Dans votre fichier ``constants.py`` définissez l'identifiant de la clé de
-configuration : ::
+Dans votre fichier ``my_project/beavers/constants.py`` définissez l'identifiant
+de la clé de configuration : ::
 
     BEAVER_KEY_ID = 'beavers-my_key'
 
@@ -2939,10 +2972,10 @@ configuration : ::
 Notez qu'il est conseillé de préfixer par le nom de l'app, afin d'éviter les
 collisions avec les clés d'autres apps ; donc de garantir l'unicité. Si la clé
 n'est pas unique une exception sera soulevée au lancement de l'application ;
-il n'y a donc pas de risque d'avoir un comportement buggé (une clé utilisée
+il n'y a donc pas de risque d'avoir un comportement bugué (une clé utilisée
 à la place d'une autre), mais cela obligerait à modifier le code.
 
-Dans un fichier ``setting_keys.py`` à la racine de votre app mettez : ::
+Dans un fichier ``my_project/beavers/setting_keys.py`` mettez : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2970,8 +3003,8 @@ Ici on a créé une valeur de type booléen. Les types actuellement disponibles
  - EMAIL
 
 
-Dans votre fichier ``populate.py``, nous allons créé l'instance de
-``SettingValue`` associée, en lui donnant donc sa valeur par défaut : ::
+Dans votre fichier ``my_project/beavers/populate.py``, nous allons créé l'instance
+de ``SettingValue`` associée, en lui donnant donc sa valeur par défaut : ::
 
     [...]
 
@@ -2989,7 +3022,7 @@ Dans votre fichier ``populate.py``, nous allons créé l'instance de
             SettingValue.objects.get_or_create(key_id=beaver_key.id, defaults={'value': True})
 
 
-Il faut maintenant exposer la clé à Creme. Dans votre ``apps.py`` : ::
+Il faut maintenant exposer la clé à Creme. Dans votre ``my_project/beavers/apps.py`` : ::
 
     [...]
 
@@ -3002,14 +3035,14 @@ Il faut maintenant exposer la clé à Creme. Dans votre ``apps.py`` : ::
             setting_key_registry.register(beaver_key)
 
 
-La valeur peut alors être configurée par les utilisateurs dans le portal de
+La valeur peut alors être configurée par les utilisateurs dans le portail de
 configuration de l'app.
 
 Et pour utiliser la valeur dans votre code : ::
 
     from creme.creme_core.models import SettingValue
 
-    from creme.beavers.constants import BEAVER_KEY_ID
+    from my_project.beavers.constants import BEAVER_KEY_ID
 
 
     if SettingValue.objects.get(key_id=BEAVER_KEY_ID).value:
@@ -3088,7 +3121,7 @@ utiliser une instance de ``auth.get_user_model()`` ; dans cet exemple on
             [...]
 
 
-**Un peu plus loin** : lorsque vous instanciez un SettingKey/UserSettingKey,
+**Un peu plus loin** : lorsque vous instanciez un ``SettingKey``/``UserSettingKey``,
 il y a un paramètre ``hidden``, qui est par défaut à ``False``. Lorsque
 ce paramètre est à ``True``, Creme ne gérera pas automatiquement l'interface
 de configuration pour cette instance de clé ; ce qui permettra de faire une
@@ -3101,14 +3134,13 @@ interface plus adaptée, par exemple :
 Bloc de statistiques
 ~~~~~~~~~~~~~~~~~~~~
 
-Il existe depuis Creme 1.7 un bloc qui est capable d'afficher des statistiques,
-comme le nombre total de contacts par exemple, sur l'accueil (ou bien la vue
-«Ma page»). Dans une installation fraîche de Creme 1.7, ce bloc est présent
-dans la configuration de base.
+Il existe un bloc qui est capable d'afficher des statistiques, comme le nombre
+total de contacts par exemple, sur l'accueil (ou bien la vue «Ma page»).
+Dans une installation fraîche de Creme, ce bloc est présent dans la
+configuration de base.
 
-Si vous voulez afficher vos propres statistiques, il faut enregistrer une
-fonction qui les génèrent de cette manière dans votre ``apps.py`` : ::
-
+Si vous voulez afficher vos propres statistiques, il faut enregistrer dans votre
+``beavers/apps.py`` une fonction qui les génèrent de cette manière  : ::
 
     [...]
 
@@ -3165,23 +3197,24 @@ un autre logiciel ou en se connectant à un service Web (cette partie du code se
 laissée en exercice pour le lecteur de toutes les façons).
 
 Tout d'abord nous allons créer le type de job, qui va contenir le code de notre tâche.
-Pour cela notre app doit contenir un *package* ``creme_jobs`` ; si votre app doit contenir
-plusieurs jobs, vous pouvez opter pour un répertoire ``beavers/creme_jobs/``.
+Pour cela notre app doit contenir un *package* ``creme_jobs`` ; si votre app doit
+contenir plusieurs jobs, vous pouvez opter pour un répertoire ``beavers/creme_jobs/``.
 Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
 
 
     # -*- coding: utf-8 -*-
 
     from django.conf import settings
-    from django.utils.translation import gettext_lazy as _, gettext
+    from django.utils.translation import gettext
+    from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.creme_jobs.base import JobType
 
 
     class _BeaversHealthType(JobType):
-        id           = JobType.generate_id('beavers', 'beavers_health')
+        id = JobType.generate_id('beavers', 'beavers_health')
         verbose_name = _('Check the health of the beavers')
-        periodic     = JobType.PERIODIC
+        periodic = JobType.PERIODIC
 
         def _execute(self, job):
             [...]
@@ -3229,7 +3262,7 @@ périodicité utilisée par ce type de job ; la valeur peut être :
    doit faire un envoi dans 17 heures puis un dans 3 jours.
 
 Comme nous avons créé un job périodique, il nous faut créer l'instance de ``Job``
-dans notre ``populate.py`` : ::
+dans notre ``beavers/populate.py`` : ::
 
     from django.conf import settings
 
@@ -3314,10 +3347,10 @@ Le système d'énumération de Creme va au delà ; il permet d'avoir des labels
 plus adaptés ou de regrouper certains choix entre eux. Par exemple
 Creme utilise ça pour personnaliser les énumération des ``ForeignKey`` pointant
 le modèle ``EntityFilter`` (ce qui n'arrive actuellement que dans le modèle
-``reports.Report``) ; les filtres sont regroupés selon le type de fiche auxquel
+``reports.Report``) ; les filtres sont regroupés selon le type de fiche auxquels
 ils sont attachés.
 
-Voici par exemple ce qu'on peut trouver dans le fichier ``creme_core/apps.py`` : ::
+Voici par exemple ce qu'on peut trouver dans le fichier ``creme/creme_core/apps.py`` : ::
 
     def register_enumerable(self, enumerable_registry):
         from . import enumerators, models
@@ -3332,19 +3365,19 @@ Liste des différents services
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - Vous pouvez personnaliser l'affichage des champs des modèles (vue détaillée,
-  vue en liste) grâce à ``creme_core.gui.field_printers.field_printers_registry``.
+  vue en liste) grâce à ``creme.creme_core.gui.field_printers.field_printers_registry``.
 - Vous pouvez enregistrer des algorithmes de rappel par e-mail via
-  ``creme_core.core.reminder.reminder_registry``.
+  ``creme.creme_core.core.reminder.reminder_registry``.
 - Vous pouvez enregistrer de nouvelles périodicité dans
-  ``creme_core.utils.date_period.date_period_registry``.
+  ``creme.creme_core.utils.date_period.date_period_registry``.
 - Vous pouvez enregistrer de nouveaux intervalles de temps dans
-  ``creme_core.utils.date_range.date_range_registry``.
-- L'app *billing* permet d'enregistrer des algorithmes de génération de numéros
-  de facture. Regardez le fichier ``billing/apps.py``, dans la méthode
+  ``creme.creme_core.utils.date_range.date_range_registry``.
+- L'app **billing** permet d'enregistrer des algorithmes de génération de numéros
+  de facture. Regardez le fichier ``creme/billing/apps.py``, dans la méthode
   ``register_billing_algorithm()`` pour savoir comment faire.
-- L'app *recurrents* permet de générer des objets de manière récurrente. Regardez
-  les fichiers ``recurrents_register.py`` dans ``billing`` ou ``tickets``.
-- L'app *crudity* permet de créer des objets depuis des données externes, comme
+- L'app **recurrents** permet de générer des objets de manière récurrente. Regardez
+  les fichiers ``recurrents_register.py`` dans les apps ``billing`` ou ``tickets``.
+- L'app **crudity** permet de créer des objets depuis des données externes, comme
   les e-mails par exemple.
 
 
@@ -3404,19 +3437,20 @@ Créez un fichier ``beavers/tests.py`` : ::
             self.assertEqual(status, beaver.status)
             self.assertEqual(
                 datetime.date(year=2015, month=12, day=3),
-                beaver.birthday
+                beaver.birthday,
             )
 
 
 Vous pouvez alors lancer vos tests : ::
 
-    > python creme/manage.py test beavers
+    > creme test --settings=my_project.settings beavers
+
 
 **Astuce** : travaillez avec SQLite lorsque vous écrivez le nouveau code.
 Vous pouvez même, lorsque vous êtes dans une passe de TDD (c'est-à-dire que
 vous ne cherchez pas à voir le résultat dans votre navigateur), vous passer de
 l'écriture des migrations à chaque changement dans un modèle, avec les lignes
-suivantes dans votre ``local_settings.py`` : ::
+suivantes dans votre fichier ``my_project/local_settings.py`` : ::
 
     import sys
 

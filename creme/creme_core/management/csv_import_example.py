@@ -23,7 +23,7 @@ Address = persons.get_address_model()
 
 # Put your .py file in the directory 'my_app/management/commands/'
 # Run command with:
-#  > python creme/manage.py name_of_my_py_file path/to/my_file.csv
+#  > creme name_of_my_py_file path/to/my_file.csv
 class Command(CSVImportCommand):
     help = "Import organisations and their manager."
 
