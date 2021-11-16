@@ -245,13 +245,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.rline2 = self.get_object_or_fail(PollReplyLine, pform_line=self.fline2)
         self.rcondition = self.get_object_or_fail(PollReplyLineCondition, line=self.rline2)
 
-    def _build_edit_answer_url(self, preply, preply_line):
+    @staticmethod
+    def _build_edit_answer_url(preply, preply_line):
         return reverse('polls__edit_reply_line', args=(preply.id, preply_line.id))
 
-    def _build_edit_wizard_answer_url(self, preply, line):
+    @staticmethod
+    def _build_edit_wizard_answer_url(preply, line):
         return reverse('polls__edit_reply_line_wizard', args=(preply.id, line.id))
 
-    def _build_fill_url(self, preply):
+    @staticmethod
+    def _build_fill_url(preply):
         return reverse('polls__fill_reply', args=(preply.id,))
 
     def _build_preply(self, ptype=None):
@@ -259,7 +262,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1', type=ptype)
         return PollReply.objects.create(user=user, pform=pform, name='Reply#1', type=ptype)
 
-    def _build_preply_from_pform_url(self, pform):
+    @staticmethod
+    def _build_preply_from_pform_url(pform):
         return reverse('polls__create_reply_from_pform', args=(pform.id,))
 
     def _build_preply_from_pform(self, pform, name='Reply#1'):
