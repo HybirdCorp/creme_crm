@@ -11,6 +11,12 @@
         > MEDIA_ROOT = os.path.join('var', 'www', 'example.com', 'media')
         becomes
         > MEDIA_ROOT = os.path.join('var', 'www', 'example.com', 'media', 'upload')
+    - The value of 'settings.GENERATED_MEDIA_DIR' is not used anymore ; 'settings.STATIC_ROOT' is used instead.
+      So if you have set 'GENERATED_MEDIA_DIR' in your personal settings, rename it "STATIC_ROOT".
+      Example:
+        > GENERATED_MEDIA_DIR = os.path.join('var', 'www', 'example.com', 'static')
+        becomes
+        > STATIC_ROOT = os.path.join('var', 'www', 'example.com', 'static')
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
     - The undocumented options "colorize" & "colors" of 'creme.utils.loggers.CremeFormatter' have been removed ;
       fix your settings if you used it (probably not).
@@ -442,6 +448,9 @@
             - the global variable 'COMMANDS' has been removed.
         # The class attribute 'creme_core.utils.meta._FilterModelFieldQuery._TAGS' has been removed.
         # There were several changes in 'creme.utils.loggers.CremeFormatter'.
+        # In 'mediagenerator':
+            - In 'settings', some global variables have been removed: GENERATED_MEDIA_DIR, _media_dir.
+            - In 'utils', these functions have been removed: _load_generators(), _refresh_dev_names().
         # Apps :
             * Recurrents :
                 - In 'registry' :

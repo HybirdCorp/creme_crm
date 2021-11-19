@@ -229,6 +229,10 @@ MEDIA_ROOT = join(CREME_ROOT, 'media', 'upload')
 # Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = 'http://127.0.0.1:8000/site_media/'
 
+# Absolute path to the directory static files should be collected to.
+# Example: "/var/www/example.com/static/"
+STATIC_ROOT = join(CREME_ROOT, 'media', 'static')
+
 # Make this unique, and don't share it with anybody.
 # Use 'python creme/manage.py build_secret_key' to generate it.
 # eg: SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
@@ -682,9 +686,12 @@ SCM = 'git'  # Other possible values: 'hg'
 # GUI [END]#####################################################################
 
 # MEDIA GENERATOR & THEME SETTINGS #############################################
+# TODO: use STATIC_URL in future version? (but URL VS URL fragment)
+# URL fragment used to be build the URL of static media (see STATIC_ROOT).
+# Must start & end with "/".
 PRODUCTION_MEDIA_URL = '/static_media/'
 
-GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
+# GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = [join(dirname(__file__), 'static')]
 
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
