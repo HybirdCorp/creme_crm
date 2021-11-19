@@ -83,7 +83,8 @@ class LatexExporter(ContextMixin, base.BillingExporter):
             ))
 
         final_path = FileCreator(
-            dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
+            # dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
+            dir_path=path.join(settings.MEDIA_ROOT, 'billing'),
             name=pdf_basename,
         ).create()
         copy(temp_pdf_file_path, final_path)
@@ -109,7 +110,8 @@ class LatexExporter(ContextMixin, base.BillingExporter):
 
         return FileRef.objects.create(
             user=user,
-            filedata='upload/billing/' + path.basename(final_path),
+            # filedata='upload/billing/' + path.basename(final_path),
+            filedata='billing/' + path.basename(final_path),
             basename=pdf_basename,
         )
 

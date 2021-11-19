@@ -102,7 +102,8 @@ else:
     class FakeDocument(CremeEntity):
         title = models.CharField(_('Title'), max_length=100)
         filedata = models.FileField(
-            _('File'), max_length=100, upload_to='upload/creme_core-tests',
+            # _('File'), max_length=100, upload_to='upload/creme_core-tests',
+            _('File'), max_length=100, upload_to='creme_core-tests',
         ).set_tags(optional=True)
         linked_folder = models.ForeignKey(
             FakeFolder, verbose_name=_('Folder'), on_delete=models.PROTECT,
@@ -134,7 +135,8 @@ else:
 
     class FakeFileComponent(CremeModel):
         filedata = models.FileField(
-            _('File'), max_length=100, upload_to='upload/creme_core-tests',
+            # _('File'), max_length=100, upload_to='upload/creme_core-tests',
+            _('File'), max_length=100, upload_to='creme_core-tests',
             null=True, blank=True,
         )
 
@@ -178,7 +180,8 @@ else:
         #     upload_to='upload/images', max_length=500,
         # )
         filedata = models.FileField(
-            _('File'), max_length=100, editable=False, upload_to='upload/creme_core-tests',
+            # _('File'), max_length=100, editable=False, upload_to='upload/creme_core-tests',
+            _('File'), max_length=100, editable=False, upload_to='creme_core-tests',
         )
         categories = models.ManyToManyField(
             FakeImageCategory, verbose_name=_('Categories'), related_name='+', blank=True,

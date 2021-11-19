@@ -4,6 +4,13 @@
     - You should create a all new virtual environment based on Python 3.6+
       (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -e .[mysql|pgsql]" of course.
+    - The hard-coded sub-folder 'upload/' has been moved to the default value of 'settings.MEDIA_ROOT' ;
+      so if you have set 'MEDIA_ROOT' in your personal settings, add a sub-folder "upload" at the end
+      (to avoid breaking the paths of all your uploaded Documents, generated PDFs etc...).
+      Example:
+        > MEDIA_ROOT = os.path.join('var', 'www', 'example.com', 'media')
+        becomes
+        > MEDIA_ROOT = os.path.join('var', 'www', 'example.com', 'media', 'upload')
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
     - The undocumented options "colorize" & "colors" of 'creme.utils.loggers.CremeFormatter' have been removed ;
       fix your settings if you used it (probably not).

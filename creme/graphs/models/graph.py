@@ -171,7 +171,8 @@ class AbstractGraph(CremeEntity):
 
         try:
             path = FileCreator(
-                join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename,
+                # join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename,
+                join(settings.MEDIA_ROOT, 'graphs'), img_basename,
             ).create()
         except FileCreator.Error as e:
             raise self.GraphException(e) from e
@@ -186,7 +187,8 @@ class AbstractGraph(CremeEntity):
 
         fileref = FileRef.objects.create(
             user=user,
-            filedata='upload/graphs/' + basename(path),
+            # filedata='upload/graphs/' + basename(path),
+            filedata='graphs/' + basename(path),
             basename=img_basename,
         )
 

@@ -598,7 +598,8 @@ class _CremeTestCase:
 
         from creme.creme_core.utils.file_handling import FileCreator
 
-        rel_media_dir_path = os_path.join('upload', 'creme_core-tests', dir_name)
+        # rel_media_dir_path = os_path.join('upload', 'creme_core-tests', dir_name)
+        rel_media_dir_path = os_path.join('creme_core-tests', dir_name)
         final_path = FileCreator(
             os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
             file_name,

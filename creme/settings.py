@@ -217,9 +217,11 @@ ROOT_URLCONF = 'creme.urls'  # Means urls.py
 LOGIN_REDIRECT_URL = 'creme_core__home'
 LOGIN_URL = 'creme_login'
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = join(CREME_ROOT, 'media')
+# Absolute filesystem path to the directory that will hold user-uploaded files,
+# and files that are generated dynamically (CSV, PDF...).
+# Example: "/var/www/example.com/media/"
+# MEDIA_ROOT = join(CREME_ROOT, 'media')
+MEDIA_ROOT = join(CREME_ROOT, 'media', 'upload')
 
 # NB: not currently used (see root's urls.py)  TODO: remove it ?
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
