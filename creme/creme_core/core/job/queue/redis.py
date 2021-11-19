@@ -27,7 +27,8 @@ from uuid import uuid1
 
 # from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-from redis import StrictRedis  # TODO: "Redis" with redis3
+# from redis import StrictRedis
+from redis import Redis
 from redis.exceptions import RedisError
 
 from creme.creme_core.utils.serializers import json_encode
@@ -92,7 +93,8 @@ class RedisQueue(BaseJobSchedulerQueue):
     #     self._redis = StrictRedis.from_url(settings.JOBMANAGER_BROKER)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._redis = StrictRedis.from_url(self.setting)
+        # self._redis = StrictRedis.from_url(self.setting)
+        self._redis = Redis.from_url(self.setting)
 
     def clear(self):
         self._redis.delete(self.JOBS_COMMANDS_KEY)
