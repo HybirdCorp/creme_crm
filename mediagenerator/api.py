@@ -5,9 +5,10 @@ from collections import OrderedDict, defaultdict
 from urllib.parse import quote
 
 # from django.utils.http import urlquote
+from django.conf import settings
+
 from . import utils  # settings
-from .settings import (
-    GENERATED_MEDIA_DIR,
+from .settings import (  # GENERATED_MEDIA_DIR
     GENERATED_MEDIA_NAMES_FILE,
     MEDIA_GENERATORS,
 )
@@ -20,8 +21,20 @@ logger = logging.getLogger('mediagenerator')
 
 
 def generate_media():
-    if os.path.exists(GENERATED_MEDIA_DIR):
-        shutil.rmtree(GENERATED_MEDIA_DIR)
+    if hasattr(settings, 'GENERATED_MEDIA_DIR'):
+        from django.core.exceptions import ImproperlyConfigured
+
+        raise ImproperlyConfigured(
+            'The setting "GENERATED_MEDIA_DIR" is not used anymore ; '
+            'define "STATIC_ROOT" instead.'
+        )
+
+    STATIC_ROOT = settings.STATIC_ROOT
+
+    # if os.path.exists(GENERATED_MEDIA_DIR):
+    #     shutil.rmtree(GENERATED_MEDIA_DIR)
+    if os.path.exists(STATIC_ROOT):
+        shutil.rmtree(STATIC_ROOT)
 
     utils.NAMES = {}
 
@@ -34,7 +47,8 @@ def generate_media():
                 base, ext = os.path.splitext(url)
                 url = f'{base}-{version}{ext}'
 
-            path = os.path.join(GENERATED_MEDIA_DIR, url)
+            # path = os.path.join(GENERATED_MEDIA_DIR, url)
+            path = os.path.join(STATIC_ROOT, url)
 
             parent = os.path.dirname(path)
             if not os.path.exists(parent):

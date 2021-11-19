@@ -1,8 +1,12 @@
 import os
 
-from .settings import ROOT_MEDIA_FILTERS, MEDIA_BUNDLES, BASE_ROOT_MEDIA_FILTERS
-
 from mediagenerator.utils import load_backend, media_urls
+
+from .settings import (
+    BASE_ROOT_MEDIA_FILTERS,
+    MEDIA_BUNDLES,
+    ROOT_MEDIA_FILTERS,
+)
 
 _cache = {}
 
@@ -45,11 +49,12 @@ def _load_root_filter_uncached(bundle):
     for filter in reversed(root_filters[:-1]):
         input = [{'filter': filter, 'input': input}]
 
-    return backend_class(filter=root_filters[-1],
-                         filetype=filetype,
-                         bundle=bundle,
-                         input=input,
-                        )
+    return backend_class(
+        filter=root_filters[-1],
+        filetype=filetype,
+        bundle=bundle,
+        input=input,
+    )
 
 
 def _get_key(bundle, variation_map=None):

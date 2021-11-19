@@ -2,19 +2,18 @@
 
 import re
 from importlib import import_module
+# from urllib.parse import quote
 from os import path as os_path
-from urllib.parse import quote
 
 # from django.utils.http import urlquote
 from django.apps import apps
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 
-from .settings import (
+from .settings import (  # MEDIA_GENERATORS
     GENERATED_MEDIA_NAMES_MODULE,
     GLOBAL_MEDIA_DIRS,
     IGNORE_APP_MEDIA_DIRS,
-    MEDIA_GENERATORS,
     PRODUCTION_MEDIA_URL,
 )
 
@@ -31,30 +30,30 @@ _generated_names: dict = {}
 _backend_mapping: dict = {}
 
 
-def _load_generators():
-    if not _generators_cache:
-        for name in MEDIA_GENERATORS:
-            backend = load_backend(name)()
-            _generators_cache.append(backend)
+# def _load_generators():
+#     if not _generators_cache:
+#         for name in MEDIA_GENERATORS:
+#             backend = load_backend(name)()
+#             _generators_cache.append(backend)
+#
+#     return _generators_cache
 
-    return _generators_cache
 
-
-def _refresh_dev_names():
-    _generated_names.clear()
-    _backend_mapping.clear()
-
-    for backend in _load_generators():
-        for key, url, hash in backend.get_dev_output_names():
-            # versioned_url = urlquote(url)
-            versioned_url = quote(url)
-
-            if hash:
-                versioned_url += '?version=' + hash
-
-            _generated_names.setdefault(key, [])
-            _generated_names[key].append(versioned_url)
-            _backend_mapping[url] = backend
+# def _refresh_dev_names():
+#     _generated_names.clear()
+#     _backend_mapping.clear()
+#
+#     for backend in _load_generators():
+#         for key, url, hash in backend.get_dev_output_names():
+#             # versioned_url = urlquote(url)
+#             versioned_url = quote(url)
+#
+#             if hash:
+#                 versioned_url += '?version=' + hash
+#
+#             _generated_names.setdefault(key, [])
+#             _generated_names[key].append(versioned_url)
+#             _backend_mapping[url] = backend
 
 
 class _MatchNothing:
