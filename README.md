@@ -69,15 +69,15 @@ virtual env, in order to keep the old one working).
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
      - Django 3.2
-     - redis 3.4
+     - redis 4.0
      - python-dateutil 2.8
-     - bleach 3.1
-     - Pillow 7.2
-     - django-formtools 2.2
+     - bleach 4.1
+     - Pillow 8.4
+     - django-formtools 2.3
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
      - csscompressor 0.9
-     - rJSmin 1.1
+     - rJSmin 1.2
    - Optional :
      - creme.billing :
        If you want PDF export, you can use :
