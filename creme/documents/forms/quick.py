@@ -56,8 +56,10 @@ class DocumentQuickForm(CremeEntityQuickForm):
 
         instance.filedata = fpath = handle_uploaded_file(
             self.cleaned_data['filedata'],
-            path=['upload', 'documents'],
-            max_length=Document._meta.get_field('filedata').max_length,
+            # path=['upload', 'documents'],
+            path=['documents'],
+            # max_length=Document._meta.get_field('filedata').max_length,
+            max_length=type(instance)._meta.get_field('filedata').max_length,
         )
         assign_2_charfield(instance, 'title', basename(fpath))
 
@@ -125,8 +127,10 @@ class ImageQuickForm(CremeEntityQuickForm):
 
         instance.filedata = fpath = handle_uploaded_file(
             self.cleaned_data['image'],
-            path=['upload', 'documents'],
-            max_length=Document._meta.get_field('filedata').max_length,
+            # path=['upload', 'documents'],
+            path=['documents'],
+            # max_length=Document._meta.get_field('filedata').max_length,
+            max_length=type(instance)._meta.get_field('filedata').max_length,
         )
         assign_2_charfield(instance, 'title', basename(fpath))
 

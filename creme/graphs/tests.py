@@ -217,7 +217,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
+        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'graphs'), dirname(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'graphs'), dirname(fullpath))
         self.assertEqual(
             f'attachment; filename="{basename(fullpath)}"',
             response['Content-Disposition'],

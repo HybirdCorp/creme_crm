@@ -53,7 +53,8 @@ class EntityEmailBackend(CrudityBackend):
         bricks.WaitingSynchronizationMailsBrick,
         bricks.SpamSynchronizationMailsBrick,
     )
-    attachment_path = ['upload', 'emails', 'attachments']
+    # attachment_path = ['upload', 'emails', 'attachments']
+    attachment_path = ['emails', 'attachments']
 
     @atomic
     def fetcher_fallback(self, email, current_user, *args, **kwargs):

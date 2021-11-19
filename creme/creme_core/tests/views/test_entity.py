@@ -2482,7 +2482,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertNoFormError(response)
 
         filedata = self.refresh(doc).filedata
-        self.assertEqual(f'upload/creme_core-tests/{file_obj.base_name}', filedata.name)
+        # self.assertEqual(f'upload/creme_core-tests/{file_obj.base_name}', filedata.name)
+        self.assertEqual(f'creme_core-tests/{file_obj.base_name}', filedata.name)
 
         with filedata.open('r') as f:
             self.assertEqual([content], f.readlines())

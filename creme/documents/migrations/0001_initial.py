@@ -127,7 +127,8 @@ class Migration(migrations.Migration):
                 (
                     'filedata',
                     models.FileField(
-                        upload_to='upload/documents', max_length=500, verbose_name='File',
+                        # upload_to='upload/documents', max_length=500, verbose_name='File',
+                        verbose_name='File', upload_to='documents', max_length=500,
                     ),
                 ),
                 (

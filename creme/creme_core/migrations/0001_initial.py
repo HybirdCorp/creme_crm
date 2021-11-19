@@ -1131,7 +1131,8 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
-                    ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
+                    # ('filedata', models.FileField(upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File')),
+                    ('filedata', models.FileField(upload_to=b'creme_core-tests', max_length=100, verbose_name='File')),
                     (
                         'linked_folder',
                         models.ForeignKey(
@@ -1159,8 +1160,10 @@ class Migration(migrations.Migration):
                     (
                         'filedata',
                         models.FileField(
-                            null=True, upload_to=b'upload/creme_core-tests',
-                            max_length=100, verbose_name='File', blank=True,
+                            verbose_name='File', null=True, blank=True,
+                            # upload_to=b'upload/creme_core-tests',
+                            upload_to=b'creme_core-tests',
+                            max_length=100,
                         )
                     ),
                 ],
@@ -1225,7 +1228,10 @@ class Migration(migrations.Migration):
                     (
                         'filedata',
                         models.FileField(
-                            upload_to=b'upload/creme_core-tests', max_length=100, verbose_name='File', editable=False,
+                            verbose_name='File', editable=False,
+                            # upload_to=b'upload/creme_core-tests',
+                            upload_to=b'creme_core-tests',
+                            max_length=100,
                         )
                     ),
                     (

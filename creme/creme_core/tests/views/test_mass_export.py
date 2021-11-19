@@ -560,7 +560,8 @@ class MassExportViewsTestCase(ViewsTestCase):
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
+        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'xls'), dirname(fullpath))
 
     def test_xls_export02(self):
         "Other CT, other type of fields."

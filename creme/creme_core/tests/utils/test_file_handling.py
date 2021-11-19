@@ -28,7 +28,7 @@ class FileHandlingTestCase(CremeTestCase):
 
         utils_dir_path = join(
             settings.MEDIA_ROOT,
-            'upload',
+            # 'upload',
             'creme_core-tests',
             'utils',
         )

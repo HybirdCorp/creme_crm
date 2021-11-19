@@ -35,11 +35,13 @@ class XLSExportBackend(ExportBackend):
     id = 'xls'
     verbose_name = _('XLS File')
     help_text = ''
-    dir_parts = ('xls',)  # Sub-directory under {settings.MEDIA_ROOT}/upload
+    # dir_parts = ('xls',)  # Sub-directory under {settings.MEDIA_ROOT}/upload
+    dir_parts = ('xls',)  # Sub-directory under settings.MEDIA_ROOT
 
     def __init__(self, encoding='utf-8'):
         super().__init__()
-        self.dir_path = join(settings.MEDIA_ROOT, 'upload', *self.dir_parts)
+        # self.dir_path = join(settings.MEDIA_ROOT, 'upload', *self.dir_parts)
+        self.dir_path = join(settings.MEDIA_ROOT, *self.dir_parts)
         self.writer = XlwtWriter(encoding=encoding)
 
     def save(self, filename, user):
@@ -48,7 +50,8 @@ class XLSExportBackend(ExportBackend):
         fileref = FileRef.objects.create(
             user=user,
             basename=name,
-            filedata='upload/{}/{}'.format(
+            # filedata='upload/{}/{}'.format(
+            filedata='{}/{}'.format(
                 '/'.join(self.dir_parts),
                 basename(path),
             ),

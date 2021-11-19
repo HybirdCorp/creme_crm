@@ -527,7 +527,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            f'upload/creme_core-tests/gui/{file_name}',
+            # f'upload/creme_core-tests/gui/{file_name}',
+            f'creme_core-tests/gui/{file_name}',
             print_file_html(
                 comp,
                 comp.filedata,

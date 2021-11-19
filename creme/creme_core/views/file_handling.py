@@ -68,9 +68,11 @@ def handle_uploaded_file(f: File,
     # TODO: add support for only one string?
     # if not hasattr(path, '__iter__'):
     if path is None:
-        relative_dir_path = 'upload'
-        dir_path = join(settings.MEDIA_ROOT, relative_dir_path)
-        dir_path_length += len(relative_dir_path)
+        # relative_dir_path = 'upload'
+        relative_dir_path = ''
+        # dir_path = join(settings.MEDIA_ROOT, relative_dir_path)
+        dir_path = settings.MEDIA_ROOT
+        # dir_path_length += len(relative_dir_path)
     else:
         relative_dir_path = join(*path)
         dir_path = join(settings.MEDIA_ROOT, *path)

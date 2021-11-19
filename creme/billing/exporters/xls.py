@@ -49,7 +49,8 @@ class XLSExporter(base.BillingExporter):
 
         basename = secure_filename(f'{entity._meta.verbose_name}_{entity.id}.xls')
         final_path = FileCreator(
-            dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
+            # dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
+            dir_path=path.join(settings.MEDIA_ROOT, 'billing'),
             name=basename,
         ).create()
 
@@ -58,7 +59,8 @@ class XLSExporter(base.BillingExporter):
         #     removed by hand (not cleaned by the Cleaner job).
         file_ref = FileRef.objects.create(
             user=user,
-            filedata='upload/billing/' + path.basename(final_path),
+            # filedata='upload/billing/' + path.basename(final_path),
+            filedata='billing/' + path.basename(final_path),
             basename=basename,
         )
 

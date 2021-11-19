@@ -878,12 +878,13 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         fileref = filerefs[0]
         self.assertTrue(fileref.temporary)
-        self.assertEqual('{}_{}.pdf'.format(_('Invoice'), invoice.id), fileref.basename)
+        self.assertEqual(f"{_('Invoice')}_{invoice.id}.pdf", fileref.basename)
         self.assertEqual(user, fileref.user)
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
+        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'billing'), dirname(fullpath))
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
             response['Content-Disposition'],
@@ -931,10 +932,11 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
+        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
+        self.assertEqual(join(settings.MEDIA_ROOT, 'billing'), dirname(fullpath))
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
-            response['Content-Disposition']
+            response['Content-Disposition'],
         )
 
         # Consume stream to avoid ResourceWarning
@@ -1110,8 +1112,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         full_path = fileref.filedata.path
         self.assertTrue(exists(full_path), f'<{full_path}> does not exists?!')
         self.assertEqual(
-            join(settings.MEDIA_ROOT, 'upload', 'billing'),
-            dirname(full_path)
+            # join(settings.MEDIA_ROOT, 'upload', 'billing'),
+            join(settings.MEDIA_ROOT, 'billing'),
+            dirname(full_path),
         )
 
         lines = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
