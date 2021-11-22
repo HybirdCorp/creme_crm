@@ -72,8 +72,8 @@ virtual env, in order to keep the old one working).
      - Django 2.2
      - redis 3.4
      - python-dateutil 2.8
-     - bleach 3.1
-     - Pillow 7.2
+     - bleach 4.1
+     - Pillow 8.4
      - django-formtools 2.2
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
@@ -157,7 +157,7 @@ For an upgrade from the previous version of Creme :
  - Copy the file local_settings.py of your existing installation :
    - do not forget to change NAME in order to use your duplicated DB.
    - do not remove apps in INSTALLED_CREME_APPS now (because they are installed in your DB) ;
-     complete you installation & then un-install apps you do not want anymore (see below).
+     complete your installation & then un-install apps you do not want anymore (see below).
  - Copy the sub-folders (& their content of course) of the folder creme/media/upload from your
    existing installation to the one of your new install (if you did not use the app documents your may
    have nothing to copy).
@@ -193,7 +193,7 @@ To run the development server, you just have to run this command:
 ```
 You can then go to http://localhost:8000 & log in with root/root.
 
-For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/1.11/howto/deployment/
+For a production deployment (Apache, Nginx...), you should read https://docs.djangoproject.com/en/2.2/howto/deployment/
 
 In order to use the job system (eg: sending emails campaign, CSV import...), run the job manager too:
 ```sh
