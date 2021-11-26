@@ -51,6 +51,7 @@ module.exports = function(config) {
     var language = config.djangoLang || 'en';
     var debug_port = config.browserDebugPort || '9333';
 
+    // TODO: use path from the config
     var commonfiles = [
         'creme/media/static/l10n--' + language + '-*.js',
         'creme/media/static/lib*.js',
