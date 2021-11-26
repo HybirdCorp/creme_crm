@@ -1,22 +1,25 @@
-artifacts/
-.circleci/
+__pycache__/
+*.py[cod]
 
 .git/
 .githooks/
 .gitignore
+
+.circleci/
 
 .idea/*
 node_modules/
 .coverage-karma/
 .eslint.*
 
-local_settings*.py
+artifacts/
+creme/local_settings.py
 creme/media/upload/*/*
 creme/media/static/*
-_generated_media_names.py
+creme/_generated_media_names.py
 *.sqlite
 *.db
 
-*.egg-info
+*.egg-info/
 
 .mypy_cache/*
