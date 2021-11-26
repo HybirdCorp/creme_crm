@@ -3,6 +3,7 @@
   Users side :
   ------------
     # The versions of the libs 'Pillow' & 'bleach' have been upgraded for compatibility with <Python 3.9>.
+    # Some typo have been fixed in the tutorials.
     # Apps :
         * Polls :
             - A crash in the stats page has been fixed.

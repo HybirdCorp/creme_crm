@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 29-01-2021 for Creme 2.2
+:Version: 25-11-2021 for Creme 2.2
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -217,9 +217,9 @@ Install our module
 ~~~~~~~~~~~~~~~~~~
 
 Edit the file ``creme/project_settings.py`` by copying from the general
-configuration file ``creme/settings.py`` the tuple INSTALLED_CREME_APPS. ::
+configuration file ``creme/settings.py`` the list INSTALLED_CREME_APPS. ::
 
-    INSTALLED_CREME_APPS = (
+    INSTALLED_CREME_APPS = [
         # CREME CORE APPS
         'creme.creme_core',
         'creme.creme_config',
@@ -245,7 +245,7 @@ configuration file ``creme/settings.py`` the tuple INSTALLED_CREME_APPS. ::
         'creme.vcfs',
 
         'creme.beavers',  # <-- NEW
-    )
+    ]
 
 Notice that we have added our app at the end of the tuple.
 
@@ -257,7 +257,7 @@ should probably be shared between the teammates (developer, administrators).
 Create the table in the database
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Still from the directory ``creme/``, run the following commands : ::
+Still from the directory ``creme/``, run the following command : ::
 
     > python creme/manage.py makemigrations beavers
 
@@ -352,11 +352,11 @@ In ``views/``, we create the file ``beaver.py`` like : ::
 
 We must now link this view to its URL. Take a look to the file ``creme/urls.py`` ;
 we find the configuration of base paths for each app. We can see that for each
-app in the tuple INSTALLED_CREME_APPS, the code imports the file ``urls.py`` in
+app in the list INSTALLED_CREME_APPS, the code imports the file ``urls.py`` in
 the directory ``name_of_your_app/``.
 
 So we do not have to modify ``creme/urls.py`` and we just create the file
-``urls.py`` in ``beaver/`` : ::
+``urls.py`` in ``beavers/`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -908,7 +908,7 @@ we can imagine that in some languages (or customised translations), the
 translation can be different depending on the case.
 In Creme, we use contexts with prefix 'app_name-'.
 
-Edit *models/__init__.py* : ::
+Edit ``models/__init__.py`` : ::
 
     # -*- coding: utf-8 -*-
 
@@ -2062,10 +2062,9 @@ the method ``ForeignKey.formfield()`` (defined in Django) : ::
 **Global variables & class attributes** : the code of Creme/Django is often
 designed to be easily modified from outside, without needing a complex API. You
 just have to look the source code and understand it.
-For example, dans les classes des champs de formulaire, le *widget* associé
-est construit en utilisant la classe présente dans le bien nommé attribut ``widget``.
-Il est alors facile de le modifier ; voici du code que l'on trouve à nouveau
-dans ``creme/creme_core/apps.py`` : ::
+For example, in the form fields classes, the related widget is build by using
+the class given in the well-named attribute ``widget``.
+So it's easy to modify it ; here some code found in ``creme/creme_core/apps.py`` : ::
 
     [...]
 
@@ -2092,18 +2091,18 @@ dictionaries, instead of ``if ... elif ... elif ...`` blocks. so it's easy to
 add, remove or modify these behaviours.
 
 **AppConfig** : Django allows, in the variable ``settings.INSTALLED_APPS``,
-to sprcify the class of AppConfig used by an app.
+to specify the class of AppConfig used by an app.
 Imagine you want to remove all the activities' statistics from the statistics
 brick (see `Statistics brick`_). In ``project_settings.py``, perform the
 following modification : ::
 
-    INSTALLED_CREME_APPS = (
+    INSTALLED_CREME_APPS = [
         [...]
 
         # 'creme.activities',  # replaced by:
         'creme.beavers.apps.BeaversActivitiesConfig',
         [...]
-    )
+    ]
 
 Then in ``creme/beavers/apps.py``, we create effectively this configuration
 class : ::
@@ -2324,7 +2323,7 @@ First, we create an app destined to extend ``tickets`` ; we name it
 ``my_tickets``. So, we have to do the same things than for theapp ``Beavers`` :
 create a directory ``creme/my_tickets/``, containing files ``__init__.py``,
 ``apps.py``, ``models.py``, ``urls.py`` … This app must be added in
-INSTALLED_CREME_APPS ; beware it must be avant ``tickets``.
+INSTALLED_CREME_APPS ; beware it must be before ``tickets``.
 
 Our ``AppConfig`` must declare that it extends ``tickets`` : ::
 
@@ -2513,7 +2512,7 @@ case :
 **Remark**: with class-based views, there are (as seen before), many ways to
 modify an existing view from your app, without needing to re-write it totally.
 
-As URLs are named in the differents ``urls.py``, if your app is installed
+As URLs are named in the different files ``urls.py``, if your app is installed
 before the app (ie: in ``settings.INSTALLED_CREME_APPS``) which contains the
 URL you want to redirect to your own view, you jst have to declare an URL with
 the same name (and with the same arguments). Creme always retrieve URLs by
@@ -2950,14 +2949,12 @@ key ; so you can write a more adapted UI, for example :
 Statistics brick
 ~~~~~~~~~~~~~~~~
 
-Il existe depuis Creme 1.7 un bloc qui est capable d'afficher des statistiques,
-comme le nombre total de contacts par exemple, sur l'accueil (ou bien la vue
-«Ma page»). Dans une installation fraîche de Creme 1.7, ce bloc est présent
-dans la configuration de base.
+There is a block which display some statistics, like the total number of
+contacts for example, on the home page (or on the view «My page»).
+In a fresh installation of Creme, this block is in the default configuration.
 
-Si vous voulez afficher vos propres statistiques, il faut enregistrer une
-fonction qui les génèrent de cette manière dans votre ``apps.py`` : ::
-
+If you want to display your own statistics, you have to register in your
+``beavers/apps.py`` a function which generate them like this : ::
 
     [...]
 
