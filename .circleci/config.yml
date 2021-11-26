@@ -412,9 +412,10 @@ jobs:
       DOCKER_BUILDKIT: 1
     steps:
       - checkout
-      - run: docker build --target creme-demo --tag creme-demo:$CIRCLE_BRANCH .
-      - run: docker run -d --rm --publish 8001:80 --volume creme_data:/srv/creme/data creme-demo:$CIRCLE_BRANCH
+      - run: docker build --target creme-demo --tag cremecrm/cremecrm-demo:$CIRCLE_BRANCH .
+      - run: docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=en cremecrm/cremecrm-demo:$CIRCLE_BRANCH
       - run: wget -c --retry-connrefused --waitretry 1 --tries 60 -O /dev/null http://127.0.0.1:8001
+      - run: docker kill creme_demo
 
 
 workflows:

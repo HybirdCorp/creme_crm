@@ -38,11 +38,11 @@ LANGUAGE_CODE = os.getenv('CREME_LANGUAGE_CODE', "fr")
 
 # Static files (css, js bundles...)
 GENERATED_MEDIA_NAMES_FILE = "/srv/creme/_generated_media_names.py"
-GENERATED_MEDIA_DIR = "/srv/creme/statics"
+STATIC_ROOT = "/srv/creme/statics"
 PRODUCTION_MEDIA_URL = '/static_media/'
 
 # User uploaded files
-MEDIA_ROOT = os.getenv('CREME_MEDIA_ROOT', "/srv/creme/data/media")
+MEDIA_ROOT = os.getenv('CREME_MEDIA_ROOT', "/srv/creme/data/media/upload")
 
 # Task queue broker dsn
 JOBMANAGER_BROKER = os.getenv('CREME_JOBMANAGER_BROKER', "unix_socket:///srv/creme/jobs/")
