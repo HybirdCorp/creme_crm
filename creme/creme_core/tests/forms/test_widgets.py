@@ -137,13 +137,13 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertHTMLEqual(html, select.render('A', (3, 4,)))
 
     def test_render_viewless01(self):
-        "Default behaviour (integer value => 20)"
+        "Default behaviour (integer value => 40)."
         name = 'my_field'
         select = UnorderedMultipleChoiceWidget(choices=[(1, 'A'), (2, 'B')])
         self.assertEqual(2, select._choice_count())
 
         html = '''
-<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="20"
+<div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="40"
      widget="ui-creme-checklistselect">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
