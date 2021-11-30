@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2021 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -63,7 +63,7 @@ class Command(BaseCommand):
                 help='Work with po file for javascript (ie: djangojs.po instead of django.po) '
                      '[default: %(default)s]',
                )
-        add_arg('args', metavar='terms', nargs='+',
+        add_arg('args', metavar='terms', nargs='*',
                 help='The terms to find in existing messages.',
                )
 
