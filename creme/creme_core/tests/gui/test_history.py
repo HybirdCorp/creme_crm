@@ -992,6 +992,7 @@ class HistoryRenderTestCase(CremeTestCase):
         # Deleted entity ---
         hayao_repr = str(hayao)
         hayao.delete()
+        self.maxDiff = None
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-related_edition'
@@ -1010,7 +1011,7 @@ class HistoryRenderTestCase(CremeTestCase):
                 '  <li>{mod}</li>'
                 ' </ul>'
                 '<div>',
-                title=_('“{entity}“ edited').format(entity=hayao_repr),
+                title=_('“%(entity)s“ edited') % {'entity': hayao_repr},
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
                 mod=mark_safe(self.FMT_2_VALUES(
@@ -1468,6 +1469,7 @@ class HistoryRenderTestCase(CremeTestCase):
 
         hline = self.get_hline()
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
+        self.maxDiff = None
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-auxiliary_edition'
@@ -1487,9 +1489,10 @@ class HistoryRenderTestCase(CremeTestCase):
                 '  <li>{mod2}</li>'
                 ' </ul>'
                 '<div>',
-                title=_('“{auxiliary_ctype}“ edited: {auxiliary_value}').format(
-                    auxiliary_ctype='Test Invoice Line', auxiliary_value=pline,
-                ),
+                title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
+                    'auxiliary_ctype': 'Test Invoice Line',
+                    'auxiliary_value': pline,
+                },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
                 mod1=mark_safe(self.FMT_3_VALUES(

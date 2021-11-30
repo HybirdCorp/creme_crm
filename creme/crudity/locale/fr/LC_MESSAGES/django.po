@@ -215,7 +215,7 @@ msgid "Operation successfully completed"
 msgstr ""
 
 #~ msgid "Email waiting actions"
-#~ msgstr "Actions en attente pour les emails"
+#~ msgstr "Actions en attente pour les e-mails"
 
 #~ msgid "Download"
 #~ msgstr "Télécharger"
