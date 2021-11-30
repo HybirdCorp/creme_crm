@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-08 15:49+0200\n"
+"POT-Creation-Date: 2021-11-30 18:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -508,7 +508,7 @@ msgstr "Nouveau choix"
 
 #: forms/custom_field.py:384
 msgid "Choose a choice to transfer to"
-msgstr "Choisissez un choice auquel transférer"
+msgstr "Choisissez un choix auquel transférer"
 
 #: forms/custom_field.py:386
 msgid ""
