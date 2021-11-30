@@ -75,7 +75,7 @@ class Command(BaseCommand):
                  '[default: %(default)s]',
         )
         add_arg(
-            'args', metavar='terms', nargs='+',
+            'args', metavar='terms', nargs='*',
             help='The terms to find in existing messages.',
         )
 
