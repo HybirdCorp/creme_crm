@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-10-15 14:48+0200\n"
+"POT-Creation-Date: 2021-11-30 18:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -383,7 +383,7 @@ msgid "Give the new possible choices (one per line)."
 msgstr "Rentrez les nouveaux choix possibles (un par ligne)."
 
 msgid "Choose a choice to transfer to"
-msgstr "Choisissez un choice auquel transférer"
+msgstr "Choisissez un choix auquel transférer"
 
 msgid ""
 "The selected choice will replace the deleted one in entities which use it."
@@ -1205,8 +1205,8 @@ msgstr "(privé)"
 msgid "No filter for this type of resource"
 msgstr "Pas de filtre pour ce type de ressource"
 
-msgid "No filter"
-msgstr "Pas de filtre"
+msgid "No filter for the moment"
+msgstr "Aucun filtre pour le moment"
 
 msgid "New fields configuration"
 msgstr "Nouvelle configuration de champs"
@@ -1497,6 +1497,8 @@ msgid ""
 "If you often manually create Relationships with the same type and object "
 "entity, semi-fixed types create a shortcut"
 msgstr ""
+"Si vous créez souvent manuellement des Relations avec les mêmes type et "
+"fiche objet, les types semi-fixés créent un raccourci"
 
 msgid "Type of relationship"
 msgstr "Type de relation"
@@ -2303,6 +2305,9 @@ msgstr "Supprimer le rôle"
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
 
+#~ msgid "No filter"
+#~ msgstr "Pas de filtre"
+
 #~ msgid "Blocks to display on top"
 #~ msgstr "Blocs à afficher en haut"
 
@@ -2506,9 +2511,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 #~ msgid "New profile"
 #~ msgstr "Nouveau profil"
-
-#~ msgid "No profile for the moment"
-#~ msgstr "Aucun profil enregistré pour le moment"
 
 #~ msgid "Entities credentials settings"
 #~ msgstr "Gestion des droits de fiche"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Assistants 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-29 18:01+0200\n"
+"POT-Creation-Date: 2021-11-30 18:49+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -116,7 +116,7 @@ msgid "Not important"
 msgstr "Pas important"
 
 msgid "Send usermessages emails"
-msgstr "Envoyer les emails des messages utilisateurs"
+msgstr "Envoyer les e-mails des messages utilisateurs"
 
 msgid "Hour"
 msgstr "Heure"
@@ -322,7 +322,7 @@ msgid "Reminder concerning a Creme CRM todo related to {entity}"
 msgstr "Rappel concernant une todo Crème CRM à propos de {entity}"
 
 msgid "Minimum hour to send the mails related to Todos"
-msgstr "Heure minimum pour envoyer les emails relatifs aux Todos"
+msgstr "Heure minimum pour envoyer les e-mails relatifs aux Todos"
 
 #, python-brace-format
 msgid "{count} Reaction not on time"
