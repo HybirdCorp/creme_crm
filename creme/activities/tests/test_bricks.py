@@ -129,11 +129,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login()
 
         now_value = now()
-        create_dt = partial(
-            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        today8 = self.create_datetime(
+            year=now_value.year, month=now_value.month, day=now_value.day,
+            hour=8,
         )
-        tomorrow = create_dt(day=now_value.day + 1)
-        yesterday = create_dt(day=now_value.day - 1)
+        one_day = timedelta(days=1)
+        tomorrow = today8 + one_day
+        yesterday = today8 - one_day
 
         create_activity = partial(
             Activity.objects.create,
@@ -222,11 +224,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login()
 
         now_value = now()
-        create_dt = partial(
-            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        today8 = self.create_datetime(
+            year=now_value.year, month=now_value.month, day=now_value.day,
+            hour=8,
         )
-        tomorrow = create_dt(day=now_value.day + 1)
-        yesterday = create_dt(day=now_value.day - 1)
+        one_day = timedelta(days=1)
+        tomorrow = today8 + one_day
+        yesterday = today8 - one_day
 
         create_activity = partial(
             Activity.objects.create,
@@ -303,11 +307,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         user = self.login()
 
         now_value = now()
-        create_dt = partial(
-            self.create_datetime, year=now_value.year, month=now_value.month, hour=8,
+        today8 = self.create_datetime(
+            year=now_value.year, month=now_value.month, day=now_value.day,
+            hour=8,
         )
-        tomorrow = create_dt(day=now_value.day + 1)
-        yesterday = create_dt(day=now_value.day - 1)
+        one_day = timedelta(days=1)
+        tomorrow = today8 + one_day
+        yesterday = today8 - one_day
 
         create_activity = partial(
             Activity.objects.create,
