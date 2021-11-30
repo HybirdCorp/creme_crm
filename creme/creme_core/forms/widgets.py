@@ -1000,8 +1000,10 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
     MIN_CHECKALL_COUNT = 3
 
     def __init__(self, attrs=None, choices=(),
-                 columntype='', filtertype=None, viewless=20,
-                 creation_url='', creation_allowed=False, creation_label=gettext_lazy('Create')):
+                 columntype='', filtertype=None, viewless=40,  # viewless=20,
+                 creation_url='', creation_allowed=False,
+                 creation_label=gettext_lazy('Create'),
+                 ):
         """Constructor.
         @param attrs: See SelectMultiple.attrs.
         @param choices: See SelectMultiple.choices.

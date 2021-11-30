@@ -71,7 +71,8 @@ from creme.creme_core.utils.unicode_collation import collator
 
 from . import constants
 
-_PAGE_SIZE = 20
+# _PAGE_SIZE = 20
+_PAGE_SIZE = 50
 User = get_user_model()
 logger = logging.getLogger(__name__)
 

@@ -4,10 +4,13 @@
   ------------
     # The button to delete a view of list was broken.
     # The versions of the libs 'Pillow' & 'bleach' have been upgraded for compatibility with <Python 3.9>.
+    # The number of viewable elements in the multi-checkbox widget is now greater.
     # The option "comment_useless" of the command "i18n_overload" expected one -- useless -- term to avoid an error.
     # The format variable "%(modulepath)s" in 'creme.utils.loggers.CremeFormatter' was badly truncated.
     # Some typo have been fixed in the tutorials.
     # Apps :
+        * Creme_config :
+            - The page' size of the blocks are now greater to get only one page in most if the cases.
         * Polls :
             - A crash in the stats page has been fixed.
 
