@@ -28,7 +28,8 @@ from logging.handlers import TimedRotatingFileHandler
 from os import makedirs
 from os import remove as delete_file
 from os import rename as rename_file
-from os.path import dirname, exists, expanduser, join, splitext
+# from os.path import join
+from os.path import dirname, exists, expanduser, splitext
 from sys import path as syspath  # getfilesystemencoding
 from threading import Thread
 
@@ -75,7 +76,8 @@ class CremeFormatter(logging.Formatter):
     def __init__(self, format=None, datefmt=None, palette=DARK_PALETTE):
         # Formatter.__init__(self, fmt=format, datefmt=datefmt)
         super().__init__(fmt=format, datefmt=datefmt)
-        creme_path = dirname(__file__)[:-len(join('creme', 'creme_core'))]
+        # creme_path = dirname(__file__)[:-len(join('creme', 'creme_core'))]
+        creme_path = dirname(dirname(dirname(__file__)))
 
         self.prefixes = [
             ('', creme_path),
