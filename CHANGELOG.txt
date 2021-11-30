@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The button to delete a view of list was broken.
     # The versions of the libs 'Pillow' & 'bleach' have been upgraded for compatibility with <Python 3.9>.
     # Some typo have been fixed in the tutorials.
     # Apps :
