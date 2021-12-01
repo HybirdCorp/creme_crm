@@ -160,6 +160,13 @@ creme.dialog.Popover = creme.component.Component.sub({
                 break;
         };
 
+        // We avoid negative coordinates for 'top' & 'left' ; it's not a problem
+        // that the popover flows out on the right side of the page (the browser
+        // will shrink the popup's width), but it's a problem if the popover
+        // flows out on the left side.
+        position.top = Math.max(position.top, 0);
+        position.left = Math.max(position.left, 0);
+
         dialog.removeClass(_DIRECTIONS.join(' '));
         dialog.addClass(direction);
 
