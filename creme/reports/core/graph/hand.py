@@ -151,10 +151,19 @@ class ReportGraphHand:
 
     # TODO: The 'group by' query could be extracted into a common Manager
     def _aggregate_by_key(self, entities, key, order):
-        aggregates = entities.extra({'key': key}) \
-                             .values('key').order_by('key' if order == 'ASC' else '-key') \
-                             .annotate(value=self._y_calculator.annotate()) \
-                             .values_list('key', 'value')
+        # aggregates = entities.extra({'key': key}) \
+        #                      .values('key').order_by('key' if order == 'ASC' else '-key') \
+        #                      .annotate(value=self._y_calculator.annotate()) \
+        #                      .values_list('key', 'value')
+        y_calculator = self._y_calculator
+        aggregates = (
+            entities.extra({'key': key})
+                    .values('key')
+                    .order_by('key' if order == 'ASC' else '-key')
+                    .filter(y_calculator.annotate_extra_q)
+                    .annotate(value=y_calculator.annotate())
+                    .values_list('key', 'value')
+        )
 
         # print('query:', aggregates.query, '\n')
         # print('results:', aggregates)
@@ -825,8 +834,11 @@ class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
     def _fetch(self, *, entities, order, user, extra_q):
-        entities_filter = entities.filter
-        y_value_func = self._y_calculator.aggregrate
+        # entities_filter = entities.filter
+        # y_value_func = self._y_calculator.aggregrate
+        y_calculator = self._y_calculator
+        y_value_func = y_calculator.aggregrate
+        entities_filter = entities.filter(y_calculator.annotate_extra_q).filter
         build_url = self._listview_url_builder(extra_q=extra_q)
         related_instances = [
             *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),

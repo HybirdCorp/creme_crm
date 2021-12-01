@@ -21,7 +21,7 @@
 import logging
 from typing import TYPE_CHECKING, Dict, Optional, Type
 
-from django.db.models import QuerySet, aggregates
+from django.db.models import Q, QuerySet, aggregates
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import (
@@ -50,6 +50,11 @@ class ReportGraphAggregator:
 
     def annotate(self):
         raise NotImplementedError()
+
+    # TODO: improve annotate() API instead?
+    @property
+    def annotate_extra_q(self):
+        return Q()
 
     def aggregrate(self, entities: QuerySet):
         return 0
@@ -147,6 +152,7 @@ class _RGAFieldAggregation(ReportGraphAggregator):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         cell = self._cell
+        self._extra_q = Q()
 
         if cell is None:
             raise ValueError(_('the field does not exist any more.'))
@@ -163,14 +169,21 @@ class _RGAFieldAggregation(ReportGraphAggregator):
             if cfield.is_deleted:
                 self._error = _('this custom field is deleted.')
 
-            self._aggregate = self.aggregate_cls(
-                f'{cfield.value_class.get_related_name()}__value'
-            )
+            # self._aggregate = self.aggregate_cls(
+            #     f'{cfield.value_class.get_related_name()}__value'
+            # )
+            related_name = cfield.value_class.get_related_name()
+            self._extra_q = Q(**{f'{related_name}__custom_field': cfield.id})
+            self._aggregate = self.aggregate_cls(f'{related_name}__value')
         else:  # Should not happen (cell constraint used before to retrieve the cell)
             raise ValueError(f'RGARegularField: invalid type of cell <{type(cell)}>')
 
     def annotate(self):
         return self._aggregate
+
+    @ReportGraphAggregator.annotate_extra_q.getter
+    def annotate_extra_q(self):
+        return self._extra_q
 
     def aggregrate(self, entities):
         return entities.aggregate(
