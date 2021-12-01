@@ -9,6 +9,8 @@
     # Apps :
         * Persons :
             - The display of addresses has been improved (zipcode before city).
+        * Reports :
+            - In ReportGraphs, the aggregation on custom-field was broken if there were several custom-fields with the same type.
 
 
 == Version 2.2.8 ==
