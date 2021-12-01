@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,10 +168,15 @@ class ReportGraphHand:
         #                      .values('key').order_by('key' if order == 'ASC' else '-key') \
         #                      .annotate(value=y_value_aggregator) \
         #                      .values_list('key', 'value')
-        aggregates = entities.extra({'key': key}) \
-                             .values('key').order_by('key' if order == 'ASC' else '-key') \
-                             .annotate(value=self._y_calculator.annotate()) \
-                             .values_list('key', 'value')
+        y_calculator = self._y_calculator
+        aggregates = (
+            entities.extra({'key': key})
+                    .values('key')
+                    .order_by('key' if order == 'ASC' else '-key')
+                    .filter(y_calculator.annotate_extra_q)
+                    .annotate(value=y_calculator.annotate())
+                    .values_list('key', 'value')
+        )
 
         # print('query:', aggregates.query, '\n')
         # print('results:', aggregates)
@@ -888,10 +893,13 @@ class RGHCustomFK(_RGHCustomField):
 
     # def _fetch(self, entities, order, user):
     def _fetch(self, *, entities, order, user, extra_q):
-        entities_filter = entities.filter
+        # entities_filter = entities.filter
         # y_value_func = self._y_calculator
-        y_value_func = self._y_calculator.aggregrate
         # build_url = self._listview_url_builder()
+        y_calculator = self._y_calculator
+        y_value_func = y_calculator.aggregrate
+        entities_filter = entities.filter(y_calculator.annotate_extra_q).filter
+
         build_url = self._listview_url_builder(extra_q=extra_q)
         related_instances = [
             *CustomFieldEnumValue.objects.filter(custom_field=self._cfield),
