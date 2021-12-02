@@ -121,11 +121,11 @@ class GuiTestCase(CremeTestCase):
         stat = stats[0]
         self.assertEqual(s_id,  stat.id)
         self.assertEqual(label, stat.label)
-        self.assertEqual([fmt(FakeContact.objects.count())], stat.retrieve())
+        self.assertListEqual([fmt(FakeContact.objects.count())], stat.retrieve())
         self.assertEqual('', stat.perm)
 
         FakeContact.objects.create(user=user, first_name='Koyomi', last_name='Araragi')
-        self.assertEqual([fmt(FakeContact.objects.count())], stat.retrieve())
+        self.assertListEqual([fmt(FakeContact.objects.count())], stat.retrieve())
 
     def test_statistics02(self):
         "Priority."

@@ -96,7 +96,8 @@ class _StatisticsRegistry:
                  label: str,
                  func: StatisticsFunc,
                  perm: str = '',
-                 priority: Optional[int] = None) -> '_StatisticsRegistry':
+                 priority: Optional[int] = None,
+                 ) -> '_StatisticsRegistry':
         if any(id == item.id for item in self._items):
             # TODO: self.RegistrationError ?
             raise ValueError(f'Duplicated id "{id}"')
