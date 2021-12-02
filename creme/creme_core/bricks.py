@@ -376,7 +376,7 @@ class JobBrick(Brick):
     template_name = 'creme_core/bricks/job.html'
     configurable = False
 
-    @QuerysetBrick.reloading_info.setter
+    @Brick.reloading_info.setter
     def reloading_info(self, info):
         info_are_ok = False
 

@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from collections import Counter
+
 # from json import dumps as json_dump
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import smart_str
+# from django.utils.encoding import smart_str
 from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -15,6 +17,8 @@ from creme.creme_core.bricks import (
     EntityJobErrorsBrick,
     JobBrick,
     JobErrorsBrick,
+    JobsBrick,
+    MyJobsBrick,
 )
 # Should be a test queue
 # from creme.creme_core.core.job import JobSchedulerQueue
@@ -50,9 +54,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def tearDown(self):
         self.queue.ping = self._original_queue_ping
 
-    # TODO: move to base class ?
-    def _assertCount(self, response, found, count):
-        self.assertEqual(count, smart_str(response.content).count(found))
+    # def _assertCount(self, response, found, count):
+    #     self.assertEqual(count, smart_str(response.content).count(found))
 
     @staticmethod
     def _build_enable_url(job):
@@ -96,11 +99,12 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         job = self._create_batchprocess_job()
-        response = self.assertGET200(job.get_absolute_url())
-        self.assertTemplateUsed(response, 'creme_core/job/detail.html')
+        url = job.get_absolute_url()
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/job/detail.html')
 
         with self.assertNoException():
-            context = response.context
+            context = response1.context
             cxt_job = context['job']
             cxt_url = context['list_url']
             context['results_bricks']  # NOQA
@@ -109,11 +113,37 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(job, cxt_job)
         self.assertEqual(self.MINE_URL, cxt_url)
 
-        doc = self.get_html_tree(response.content)
-        self.get_brick_node(doc, EntityJobErrorsBrick.id_)
+        tree1 = self.get_html_tree(response1.content)
+        info_brick_node1 = self.get_brick_node(tree1, JobBrick.id_)
+        info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
+        self.assertBrickHeaderHasNoButton(info_buttons1, job.get_edit_absolute_url())
+        self.assertBrickHeaderHasNoButton(info_buttons1, job.get_delete_absolute_url())
+        self.assertBrickHeaderHasNoButton(
+            info_buttons1, reverse('creme_core__disable_job', args=(job.id,)),
+        )
+        self.assertBrickHeaderHasNoButton(
+            info_buttons1, reverse('creme_core__enable_job', args=(job.id,)),
+        )
+
+        self.get_brick_node(tree1, EntityJobErrorsBrick.id_)
+
+        # ---
+        job.status = Job.STATUS_OK
+        job.save()
+
+        response2 = self.assertGET200(url)
+        info_brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content), JobBrick.id_,
+        )
+        info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
+        # TODO: test back URL (assertBrickHeaderHasButton => get_button_or_fail())
+        self.assertBrickHeaderHasButton(
+            info_buttons2,
+            url=job.get_delete_absolute_url(), label=_('Delete the job'),
+        )
 
     def test_detailview02(self):
-        "List URL"
+        "List URL."
         self.login()
 
         job = self._create_batchprocess_job()
@@ -136,11 +166,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         "Credentials."
         self.login(is_superuser=False)
 
-        job = self._create_batchprocess_job()
-        self.assertGET200(job.get_absolute_url())
+        job1 = self._create_batchprocess_job()
+        self.assertGET200(job1.get_absolute_url())
 
-        job = self._create_batchprocess_job(user=self.other_user)
-        self.assertGET403(job.get_absolute_url())
+        job2 = self._create_batchprocess_job(user=self.other_user)
+        self.assertGET403(job2.get_absolute_url())
 
     def test_detailview04(self):
         "Invalid type."
@@ -150,7 +180,53 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertIsNone(job.type)
         self.assertIsNone(job.get_config_form_class())
         self.assertGET404(job.get_absolute_url())
-        self.assertEqual([], job.stats)
+        self.assertListEqual([], job.stats)
+
+    def test_detailview05(self):
+        "System job."
+        self.login()
+
+        job = self.get_object_or_fail(Job, type_id=temp_files_cleaner_type.id)
+        url = job.get_absolute_url()
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/job/detail.html')
+
+        tree1 = self.get_html_tree(response1.content)
+        info_brick_node1 = self.get_brick_node(tree1, JobBrick.id_)
+        info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
+        self.assertBrickHeaderHasButton(
+            info_buttons1,
+            url=job.get_edit_absolute_url(), label=_("Edit the job's configuration"),
+        )
+        self.assertBrickHeaderHasNoButton(info_buttons1, job.get_delete_absolute_url())
+        self.assertBrickHeaderHasButton(
+            info_buttons1,
+            url=reverse('creme_core__disable_job', args=(job.id,)),
+            label=_('Disable'),
+        )
+        self.assertBrickHeaderHasNoButton(
+            info_buttons1, reverse('creme_core__enable_job', args=(job.id,)),
+        )
+
+        self.get_brick_node(tree1, JobErrorsBrick.id_)
+
+        # -----
+        job.enabled = False
+        job.save()
+
+        response2 = self.assertGET200(url)
+        info_brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content), JobBrick.id_,
+        )
+        info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
+        self.assertBrickHeaderHasButton(
+            info_buttons2,
+            url=reverse('creme_core__enable_job', args=(job.id,)),
+            label=_('Enable'),
+        )
+        self.assertBrickHeaderHasNoButton(
+            info_buttons2, reverse('creme_core__disable_job', args=(job.id,)),
+        )
 
     def test_editview01(self):
         "Not periodic."
@@ -349,7 +425,16 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             response.context.get('bricks_reload_url'),
         )
 
-        self._assertCount(response, str(batch_process_type.verbose_name), job_count)
+        # self._assertCount(response, str(batch_process_type.verbose_name), job_count)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), JobsBrick.id_
+        )
+        counter = Counter(
+            n.text for n in brick_node.findall('.//td[@class="job-type"]')
+        )
+        self.assertEqual(1, counter[_('Temporary files cleaner')])
+        self.assertEqual(1, counter[_('Reminders')])
+        self.assertEqual(2, counter[str(batch_process_type.verbose_name)])
 
     def test_jobs_all02(self):
         "Not super-user: forbidden."
@@ -414,18 +499,43 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             response.context.get('bricks_reload_url'),
         )
 
-        self._assertCount(response, str(batch_process_type.verbose_name), job_count)
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, MyJobsBrick.id_)
+        self.assertListEqual(
+            [str(_('Core'))] * job_count,
+            [n.text for n in brick_node.findall('.//td[@class="job-app"]')],
+        )
+        self.assertListEqual(
+            [str(batch_process_type.verbose_name)] * job_count,
+            [n.text for n in brick_node.findall('.//td[@class="job-type"]')],
+        )
+        # TODO: complete
 
     def test_my_jobs02(self):
         "Credentials."
         self.login(is_superuser=False)
         self._create_batchprocess_job()
-        response = self.assertGET200(self.MINE_URL)
-        self._assertCount(response, str(batch_process_type.verbose_name), 1)
+        response1 = self.assertGET200(self.MINE_URL)
+        # self._assertCount(response1, str(batch_process_type.verbose_name), 1)
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content), MyJobsBrick.id_
+        )
+        job_vname = str(batch_process_type.verbose_name)
+        self.assertListEqual(
+            [job_vname],
+            [n.text for n in brick_node1.findall('.//td[@class="job-type"]')],
+        )
 
         self._create_batchprocess_job(user=self.other_user)
-        response = self.assertGET200(self.MINE_URL)
-        self._assertCount(response, str(batch_process_type.verbose_name), 1)  # Only job1
+        response2 = self.assertGET200(self.MINE_URL)
+        # self._assertCount(response2, str(batch_process_type.verbose_name), 1)  # Only job1
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content), MyJobsBrick.id_
+        )
+        self.assertListEqual(
+            [job_vname],  # Only job1
+            [n.text for n in brick_node2.findall('.//td[@class="job-type"]')],
+        )
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_my_jobs03(self):

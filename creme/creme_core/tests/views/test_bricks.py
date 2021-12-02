@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
-
+from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
 
+from django.conf import settings
 from django.urls import reverse
+from django.utils.formats import number_format
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.bricks import RelationsBrick
+from creme.creme_core.bricks import (
+    CustomFieldsBrick,
+    HistoryBrick,
+    PropertiesBrick,
+    RelationsBrick,
+    StatisticsBrick,
+)
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import (
@@ -16,10 +24,14 @@ from creme.creme_core.gui.bricks import (
     _BrickRegistry,
     brick_registry,
 )
+from creme.creme_core.gui.statistics import statistics_registry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickState,
+    CremeProperty,
+    CremePropertyType,
     CustomBrickConfigItem,
+    CustomField,
     FakeAddress,
     FakeContact,
     FakeOrganisation,
@@ -474,6 +486,39 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             response.json(),
         )
 
+    def test_properties_brick(self):
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        atom  = create_contact(first_name='Atom', last_name='Tenma')
+        tenma = create_contact(first_name='Dr',   last_name='Tenma')
+
+        ptype1 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_core-robot', text='Is a robot',
+        )
+        ptype2 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_core-human', text='Is a human',
+        )
+        ptype3 = CremePropertyType.objects.smart_update_or_create(
+            str_pk='creme_core-cool', text='Is cool',
+        )
+
+        create_prop = CremeProperty.objects.safe_create
+        create_prop(creme_entity=atom,  type=ptype1)
+        create_prop(creme_entity=atom,  type=ptype3)
+        create_prop(creme_entity=tenma, type=ptype2)
+
+        PropertiesBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        response = self.assertGET200(atom.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/bricks/properties.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, PropertiesBrick.id_)
+        self.assertInstanceLink(brick_node, ptype1)
+        self.assertInstanceLink(brick_node, ptype3)
+        self.assertNoInstanceLink(brick_node, ptype2)
+
     def test_relations_brick01(self):
         user = self.login()
 
@@ -498,11 +543,13 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
             subject_entity=atom, type=rtype2, object_entity=uran, user=user,
         )
 
+        RelationsBrick.page_size = max(4, settings.BLOCK_SIZE)
+
         response = self.assertGET200(atom.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/bricks/relations.html')
 
-        document = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(document, RelationsBrick.id_)
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, RelationsBrick.id_)
         self.assertInstanceLink(brick_node, tenma)
         self.assertInstanceLink(brick_node, uran)
         self.assertEqual('{}', brick_node.attrib.get('data-brick-reloading-info'))
@@ -669,6 +716,154 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         assertBadData({'exclude': 1})
         assertBadData({'include': [[]]})
         assertBadData({'exclude': [[]]})
+
+    def test_customfields_brick(self):
+        user = self.login()
+        atom = FakeContact.objects.create(user=user, first_name='Atom', last_name='Tenma')
+
+        create_cfield = partial(CustomField.objects.create, content_type=type(atom))
+        cfield1 = create_cfield(name='Strength', field_type=CustomField.INT)
+        cfield2 = create_cfield(name='Energy',   field_type=CustomField.FLOAT)
+
+        strength = 1523
+        energy = Decimal('99.60')
+        cfield1.value_class.objects.create(
+            entity=atom, custom_field=cfield1, value=strength,
+        )
+        cfield2.value_class.objects.create(
+            entity=atom, custom_field=cfield2, value=energy,
+        )
+
+        response = self.assertGET200(atom.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/bricks/custom-fields.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, CustomFieldsBrick.id_)
+        self.assertEqual(
+            number_format(strength, use_l10n=True, force_grouping=True),
+            self.get_brick_tile(brick_node, f'custom_field-{cfield1.id}').text,
+        )
+        self.assertEqual(
+            number_format(energy, use_l10n=True, force_grouping=True),
+            self.get_brick_tile(brick_node, f'custom_field-{cfield2.id}').text,
+        )
+
+    def test_history_brick01(self):
+        "Detail-view."
+        user = self.login()
+        atom = FakeContact.objects.create(
+            user=user, first_name='Atom', last_name='Tenma', phone='123456',
+        )
+
+        atom = self.refresh(atom)
+        atom.phone = '1234567'
+        atom.email = 'atom@tenma.corp'
+        atom.save()
+
+        HistoryBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        response = self.assertGET200(atom.get_absolute_url())
+        self.assertTemplateUsed(response, 'creme_core/bricks/history.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, HistoryBrick.id_)
+
+        h_info = []
+        cls_prefix = 'history-line-'
+        for div_node in brick_node.findall('.//div'):
+            css_classes = div_node.attrib.get('class', '').split(' ')
+            if 'history-line' in css_classes:
+                for css_cls in css_classes:
+                    if css_cls.startswith(cls_prefix):
+                        h_info.append(
+                            (css_cls[len(cls_prefix):], div_node)
+                        )
+
+        self.assertEqual(2, len(h_info))
+        self.assertEqual('creation', h_info[1][0])
+
+        edition_cls, edition_node = h_info[0]
+        self.assertEqual('edition', edition_cls)
+        self.assertEqual(2, len(edition_node.findall('.//li')))
+
+    def test_history_brick02(self):
+        "Home."
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        atom  = create_contact(first_name='Atom', last_name='Tenma')
+        tenma = create_contact(first_name='Dr',   last_name='Tenma')
+
+        atom = self.refresh(atom)
+        atom.phone = '1234567'
+        atom.save()
+
+        HistoryBrick.page_size = max(4, settings.BLOCK_SIZE)
+
+        response = self.assertGET200(reverse('creme_core__home'))
+        self.assertTemplateUsed(response, 'creme_core/bricks/history.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, HistoryBrick.id_)
+        self.assertInstanceLink(brick_node, atom)
+        self.assertInstanceLink(brick_node, tenma)
+
+    def test_statistics_brick01(self):
+        user = self.login(is_superuser=False)
+
+        s_id1 = 'creme_core-fake_contacts'
+        label1 = 'Fake Contacts'
+        fmt1 = 'There are {} Contacts'.format
+
+        s_id2 = 'creme_core-fake_organisations'
+        label2 = 'Fake Organisations'
+        fmt2 = 'There are {} Organisations'.format
+
+        s_id3 = 'creme_core-fake_addresses'
+        label3 = 'Fake Addresses'
+        fmt3 = 'There are {} Addresses'.format
+
+        statistics_registry.register(
+            s_id1, label1, lambda: [fmt1(FakeContact.objects.count())],
+        ).register(
+            id=s_id2, label=label2,
+            func=lambda: [fmt2(FakeOrganisation.objects.count())],
+            perm='creme_core',
+        ).register(
+            id=s_id3, label=label3,
+            func=lambda: [fmt3(FakeAddress.objects.count())],
+            perm='persons',  # <== not allowed
+        )
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        create_contact(first_name='Atom', last_name='Tenma')
+        create_contact(first_name='Dr',   last_name='Tenma')
+
+        FakeOrganisation.objects.create(user=user, name='Tenma corp')
+
+        response = self.assertGET200(reverse('creme_core__home'))
+        self.assertTemplateUsed(response, 'creme_core/bricks/statistics.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, StatisticsBrick.id_)
+
+        stats_info = {}
+
+        for tr_node in brick_node.findall('.//tr'):
+            texts = [td_node.text.strip() for td_node in tr_node.findall('.//td')]
+            self.assertEqual(2, len(texts))
+
+            stats_info[texts[0]] = texts[1]
+
+        self.assertEqual(
+            fmt1(FakeContact.objects.count()),
+            stats_info.get(label1),
+        )
+        self.assertEqual(
+            fmt2(FakeOrganisation.objects.count()),
+            stats_info.get(label2),
+        )
+        self.assertNotIn(label3, stats_info)
 
     def _get_contact_brick_content(self, contact, brick_id):
         response = self.assertGET200(contact.get_absolute_url())
