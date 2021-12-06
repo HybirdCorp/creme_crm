@@ -42,6 +42,7 @@ update: update-requirements
 .PHONY: node-update
 node-update:
 	npm install --no-save
+	npm run eslint-install
 
 
 ## Generate the media files
