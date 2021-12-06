@@ -54,24 +54,55 @@ commands:
           key: << parameters.python >>-creme_crm-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
+  install-node-env:
+    steps:
+      - restore_cache:
+          key: node-dependencies-{{ checksum "<< pipeline.parameters.source_path >>/package-lock.json" }}
+
+      - run: cp << pipeline.parameters.source_path >>/package*.json << pipeline.parameters.instance_directory >>
+      - run:
+          name: Installing NodeJS
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: npm install && npm run eslint-install
+          environment:
+            ESLINT_CREME_PLUGINS: "<< pipeline.parameters.source_path >>/creme/static/utils/eslint/"
+      - run:
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: npm list
+
+      - save_cache:
+          key: node-dependencies-{{ checksum "<< pipeline.parameters.source_path >>/package-lock.json" }}
+          paths:
+            - << pipeline.parameters.instance_directory >>/node_modules
+
   create-creme-project:
     description: Create Creme project
-    parameters:
-      local_settings:
-        type: string
-        default: 'sqlite3_settings'
     steps:
       - run: mkdir << pipeline.parameters.instance_directory >>
       - run: touch << pipeline.parameters.instance_directory >>/__init__.py
       - run: mkdir << pipeline.parameters.instance_directory >>/media
       - run: mkdir << pipeline.parameters.instance_directory >>/media/static
-      # Not really useful because unit tests override with a sub-folder in /tmp/
       - run: mkdir << pipeline.parameters.instance_directory >>/media/upload
       - run: cp << pipeline.parameters.source_path >>/.circleci/circleci_settings.py << pipeline.parameters.instance_directory >>/settings.py
-      - run: cp << pipeline.parameters.source_path >>/.circleci/<< parameters.local_settings >>.py << pipeline.parameters.instance_directory >>/local_settings.py
-      - run: creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
-      - run: creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
+
+  setup-creme-statics:
+    description: Setup Creme static resources
+    steps:
       - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
+
+  setup-creme-unit-tests:
+    description: Setup Creme database
+    parameters:
+      local_settings:
+        type: string
+        default: 'sqlite3_settings'
+    steps:
+      - run: cp << pipeline.parameters.source_path >>/.circleci/<< parameters.local_settings >>.py << pipeline.parameters.instance_directory >>/local_settings.py
+      - run:
+          command: |
+            creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
+            creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
+      - setup-creme-statics
 
   run-creme-unit-tests:
     description: Run Creme unit tests
@@ -84,29 +115,6 @@ commands:
       - store_artifacts:
           # NB: see .circleci/circleci_coverage.ini
           path: artifacts/coverage_html
-
-  install-node-env:
-    steps:
-      - restore_cache:
-          key: node-dependencies-{{ checksum "package-lock.json" }}
-          # TODO:
-          # key: node-dependencies-{{ checksum "<< pipeline.parameters.source_path >>/package-lock.json" }}
-
-      - run: npm install
-      # TODO (what about package.json?):
-      # - run:
-      #     name: Installing NodeJS
-      #     working_directory: << pipeline.parameters.instance_directory >>
-      #     command: npm install
-
-      - save_cache:
-          key: node-dependencies-{{ checksum "package-lock.json" }}
-          # TODO
-          # key: node-dependencies-{{ checksum "<< pipeline.parameters.source_path >>/package-lock.json" }}
-          paths:
-            - node_modules
-            # TODO:
-            # - << pipeline.parameters.instance_directory >>/node_modules
 
   setup-locale:
     description: "Locale: Setup"
@@ -180,7 +188,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project:
+      - setup-creme-unit-tests:
           local_settings: 'mysql_settings'
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -215,7 +223,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project:
+      - setup-creme-unit-tests:
           local_settings: 'pgsql_settings'
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -242,7 +250,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project
+      - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
 #      - run: coverage html
@@ -269,7 +277,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project
+      - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
 #      - run: coverage html
@@ -296,7 +304,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project
+      - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
 #      - run: coverage html
@@ -323,8 +331,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
-      - create-creme-project:
-          local_settings: 'sqlite3_settings'
+      - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
 #      - run: coverage html
@@ -337,24 +344,47 @@ jobs:
     docker:
      - image: circleci/python:3.6-node-browsers
     steps:
-#      - checkout
       - checkout-creme
+      - install-py-dev-env:
+          python: "python3.6"
+      - create-creme-project
+      - setup-creme-statics
       - install-node-env
-#      - run: make eslint
-      - run: make -C << pipeline.parameters.source_path >> eslint
+      - run: cp << pipeline.parameters.source_path >>/.eslint* << pipeline.parameters.instance_directory >>
+      - run:
+          name: Javascript linting
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: |
+              find << pipeline.parameters.source_path >>/creme -iname *.js | xargs --no-run-if-empty \
+                  node_modules/.bin/eslint \
+                  --no-eslintrc \
+                  --config .eslintrc \
+                  --ignore-path .eslintignore \
+                  --format stylish
+      - run:
+          name: Template javascript linting
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: |
+              find << pipeline.parameters.source_path >>/creme -iname *.html | xargs --no-run-if-empty \
+                  node_modules/.bin/eslint \
+                  --no-eslintrc \
+                  --config .eslintrc \
+                  --ignore-path .eslintignore \
+                  --plugin template \
+                  --rule 'template/no-template-branch: 2' \
+                  --global '____' \
+                  --format stylish
 
   javascript-tests:
     docker:
      - image: circleci/python:3.6-node-browsers
     steps:
-#      - checkout
       - checkout-creme
       - install-creme-system-packages
       - install-py-dev-env:
           python: "python3.6"
-#      - run: cp ~/project/.circleci/circleci_settings.py creme/project_settings.py
-#      - run: python creme/manage.py generatemedia
       - create-creme-project
+      - setup-creme-statics
       - install-node-env
       # TODO: fix (problems with static paths media hard-coded (see .karma.conf.js)
       - run: make karma-ci
@@ -368,8 +398,8 @@ workflows:
   version: 2
   build:
     jobs:
+      - javascript-lint
 # TODO: uncomment & fix
-#      - javascript-lint
 #      - javascript-tests:
 #          requires:
 #            - javascript-lint
