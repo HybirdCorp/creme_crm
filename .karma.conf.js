@@ -45,25 +45,47 @@
             }
         });
     }
+
+    buildKarmaCoverageFromPaths = function(paths) {
+        output = {};
+
+        paths.forEach(function(path) {
+            output[path] = ['coverage'];
+        });
+
+        return output;
+    }
+
+    parseKarmaArg = function(config, name, options) {
+        options = options || {};
+        var value = process.env['KARMA_' + name.toUpperCase()] || options.defaultValue;
+        return config[name] || value;
+    }
 }());
 
 module.exports = function(config) {
-    var language = config.djangoLang || 'en';
-    var debug_port = config.browserDebugPort || '9333';
+    var browserDebugPort = parseKarmaArg(config, 'browserDebugPort', {defaultValue: '9333'});
+    var language = parseKarmaArg(config, 'djangoLang', {defaultValue: 'en'});
+    var staticsPath = parseKarmaArg(config, 'djangoStatics', {defaultValue: 'creme/media/static'});
+    var sourcePath = parseKarmaArg(config, 'djangoSources', {defaultValue: 'creme/**/js'});
+    var coverageOutput = parseKarmaArg(config, 'coverageOutput', {defaultValue: 'artifacts/karma_coverage'});
 
     // TODO: use path from the config
     var commonfiles = [
-        'creme/media/static/l10n--' + language + '-*.js',
-        'creme/media/static/lib*.js',
-        'creme/media/static/main*.js'
+        staticsPath + '/l10n--' + language + '-*.js',
+        staticsPath + '/lib*.js',
+        staticsPath + '/main*.js'
     ];
 
-    var qunitmixins = ['creme/**/js/tests/**/qunit*mixin.js']
-    var allfiles = ['creme/**/js/tests/**/!(qunit)*.js'];
-    var default_browsers = ['FirefoxHeadless']
+    var qunitmixins = [sourcePath + '/tests/**/qunit*mixin.js']
+    var allfiles = [sourcePath + '/tests/**/!(qunit)*.js'];
+    var defaultBrowsers = ['FirefoxHeadless']
     var globals = {
         THEME_NAME: 'icecream'
     };
+    var coverageFiles = [
+        staticsPath + '/main*.js'
+    ]
 
     var isEmpty = function(s) {
         return s && s.length > 0;
@@ -75,7 +97,7 @@ module.exports = function(config) {
     };
 
     var browsers = filterEmptyStrings(config.browsers);
-    browsers = isEmpty(browsers) ? browsers : default_browsers;
+    browsers = isEmpty(browsers) ? browsers : defaultBrowsers;
 
     var targets = filterEmptyStrings(Array.isArray(config.targets) ? config.targets : (config.targets || '').split(','));
     targets = isEmpty(targets) ? buildKarmaTestFilesFromPath(targets) : allfiles;
@@ -112,7 +134,7 @@ module.exports = function(config) {
                     '--disable-web-security',
                     '--mute-audio',
                     '--hide-scrollbars',
-                    '--remote-debugging-port=' + debug_port
+                    '--remote-debugging-port=' + browserDebugPort
                 ]
             },
             // Works on debian stable (strech) with chromium 69
@@ -125,31 +147,29 @@ module.exports = function(config) {
                     '--disable-web-security',
                     '--mute-audio',
                     '--hide-scrollbars',
-                    '--remote-debugging-port=' + debug_port
+                    '--remote-debugging-port=' + browserDebugPort
                 ]
             },
             ChromiumDebug: {
                 base: 'Chromium',
-                flags: ['--remote-debugging-port=' + debug_port]
+                flags: ['--remote-debugging-port=' + browserDebugPort]
             },
             // Works with firefox >= 55
             FirefoxHeadless: {
                 base: 'Firefox',
-                flags: ['-headless', '-start-debugger-server=' + debug_port]
+                flags: ['-headless', '-start-debugger-server=' + browserDebugPort]
             },
             FirefoxDebug: {
                 base: 'Firefox',
-                flags: ['-start-debugger-server=' + debug_port]
+                flags: ['-start-debugger-server=' + browserDebugPort]
             }
         },
 
-        preprocessors: {
-            'creme/media/static/main*.js': ['coverage']
-        },
+        preprocessors: buildKarmaCoverageFromPaths(coverageFiles),
 
         reporters: ['progress', 'coverage'],
         coverageReporter: {
-            dir: process.env.DJANGO_KARMA_OUTPUT || 'artifacts/karma_coverage',
+            dir: coverageOutput,
             reporters: [{
                 type: 'html',
                 subdir: 'html'
