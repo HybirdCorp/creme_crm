@@ -232,6 +232,10 @@ class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
 class TargettingOpportunitiesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'target_organisations')
     verbose_name = _('Opportunities which target the Organisation / Contact')
+    description = _(
+        'Displays the Opportunities linked to the current Organisation / Contact '
+        'with a relationship «targets the organisation/contact».'
+    )
     dependencies = (Relation, Opportunity)
     relation_type_deps = (constants.REL_OBJ_TARGETS, )
     template_name = 'opportunities/bricks/opportunities.html'
@@ -263,6 +267,10 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
 class OppTotalBrick(SimpleBrick):
     id_ = SimpleBrick.generate_id('opportunities', 'total')
     verbose_name = _('Totals')
+    description = _(
+        'Displays the totals (exclusive of tax & inclusive of tax) of the '
+        'current Opportunity.'
+    )
     dependencies = (Opportunity, Relation)
     relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
     template_name = 'opportunities/bricks/total.html'  # TODO: totals.html ?
@@ -272,6 +280,11 @@ class OppTotalBrick(SimpleBrick):
 class OppTargetBrick(Brick):
     id_ = Brick.generate_id('opportunities', 'target')
     verbose_name = _('Target and source')
+    description = _(
+        'Displays the target & the source of the current Opportunity.\n'
+        'They are Contacts or Organisations, linked with the relationships '
+        '«targeted by the opportunity» & «has generated the opportunity».'
+    )
     dependencies = (Opportunity, Organisation, Relation)
     relation_type_deps = (constants.REL_SUB_TARGETS,)
     template_name = 'opportunities/bricks/target.html'

@@ -292,6 +292,11 @@ class OrganisationCardHatBrick(Brick):
 class ManagersBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('persons', 'managers')
     verbose_name = _('Organisation managers')
+    description = _(
+        'Displays the list of the managers of an Organisation.\n'
+        'The managers of an Organisation are Contacts which are linked to this '
+        'Organisation by relationships «manages».\n'
+    )
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
     template_name = 'persons/bricks/managers.html'
@@ -323,6 +328,11 @@ class ManagersBrick(QuerysetBrick):
 class EmployeesBrick(ManagersBrick):
     id_ = QuerysetBrick.generate_id('persons', 'employees')
     verbose_name = _('Organisation employees')
+    description = _(
+        'Displays the list of the employees of an Organisation.\n'
+        'The managers of an Organisation are Contacts which are linked to this '
+        'Organisation by relationships «is an employee of».\n'
+    )
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     template_name = 'persons/bricks/employees.html'
 
@@ -401,12 +411,24 @@ class _AddressesBrick(Brick):
 class DetailedAddressesBrick(_AddressesBrick):
     id_ = Brick.generate_id('persons', 'address')  # TODO: rename 'addresses'
     verbose_name = _('Addresses (detailed)')
+    description = _(
+        'Displays the billing & shipping addresses (if the related fields are '
+        'not hidden).\n'
+        'In this version of the block, all the visible fields of the addresses '
+        'are shown.'
+    )
     template_name = 'persons/bricks/addresses-detailed.html'
 
 
 class PrettyAddressesBrick(_AddressesBrick):
     id_ = Brick.generate_id('persons', 'addresses_pretty')
     verbose_name = _('Addresses (pretty)')
+    description = _(
+        'Displays the billing & shipping addresses (if the related fields are '
+        'not hidden).\n'
+        'In this version of the block, the addresses are shown in a pretty way '
+        '(some fields can be ignored).'
+    )
     template_name = 'persons/bricks/addresses-pretty.html'
 
 
@@ -436,6 +458,11 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     id_ = QuerysetBrick.generate_id('persons', 'other_address')
     dependencies = (Address,)
     verbose_name = _('Other addresses (detailed)')
+    description = _(
+        'Displays the additional addresses (ie: not billing & shipping ones).\n'
+        'In this version of the block, all the visible fields of the addresses '
+        'are shown.'
+    )
     template_name = 'persons/bricks/other-addresses-detailed.html'
     target_ctypes = (Contact, Organisation)
 
@@ -443,6 +470,11 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
 class PrettyOtherAddressesBrick(_OtherAddressesBrick):
     id_ = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
     verbose_name = _('Other addresses (pretty)')
+    description = _(
+        'Displays the additional addresses (ie: not billing & shipping ones).\n'
+        'In this version of the block, the addresses are shown in a pretty way '
+        '(some fields can be ignored).'
+    )
     template_name = 'persons/bricks/other-addresses-pretty.html'
 
 
