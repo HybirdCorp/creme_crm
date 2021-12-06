@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 26-11-2021 for Creme 2.3
+:Version: 06-12-2021 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -105,9 +105,6 @@ In order to get better information when errors happen, add this in
     DEBUG = True
 
 
-
-
-
 You should not use the cache system of templates when you code, in order
 to avoid re-starting the server for each template edition. In
 ``my_project/local_settings.py`` add: ::
@@ -117,6 +114,10 @@ to avoid re-starting the server for each template edition. In
         'django.template.loaders.app_directories.Loader',
         'django.template.loaders.filesystem.Loader',
     )
+
+We also activate the **DEBUG** mode of th template engine : ::
+
+    TEMPLATES[0]['OPTIONS']['debug'] = DEBUG
 
 
 Additional tools
@@ -3317,44 +3318,19 @@ To run the tests: ::
 **Hint** : use SQLite when you write new code. You can even, when you are in a
 TDD phase (ie you don't check the result in your browser yet), avoid writing
 migrations for each change in a model, with the following lines in your file
-``my_project/local_settings.py``: ::
+``my_project/local_settings.py`` (after the declaration of ``DATABASES`` of
+course) : ::
 
     import sys
 
-    # BEWARE ! It only works with SQLite
-    if 'test' in sys.argv:
-        MIGRATION_MODULES = {
-            'auth':           None,
-            'creme_core':     None,
-            'creme_config':   None,
-            'documents':      None,
-            'assistants':     None,
-            'activities':     None,
-            'persons':        None,
-            'graphs':         None,
-            'reports':        None,
-            'products':       None,
-            'recurrents':     None,
-            'billing':        None,
-            'opportunities':  None,
-            'commercial':     None,
-            'events':         None,
-            'crudity':        None,
-            'emails':         None,
-            'sms':            None,
-            'projects':       None,
-            'tickets':        None,
-            'cti':            None,
-            'vcfs':           None,
-            'polls':          None,
-            'mobile':         None,
-            'geolocation':    None,
-
-            'beavers':        None,
+    if 'test' in sys.argv and DATABASES['default']['ENGINE'] == 'django.db.backends.sqlite3':
+        DATABASES['default']['TEST'] = {
+            'MIGRATE': False,
         }
 
-When your code seems OK, take the time to run tests with MySQL and/or
-PostgreSQL ; you have to comment the previous lines an write the migrations.
+
+When your code seems OK, write/generate the migrations and run tests with MySQL
+and/or PostgreSQL.
 
 **Hint** : when you run the tests with MySQL/PostgreSQL, use the option
 ``--keepdb`` of the command ``test`` in order to reduce the launch time of the
