@@ -42,6 +42,10 @@ class ReportBarHatBrick(core_bricks.SimpleBrick):
 class ReportFieldsBrick(core_bricks.Brick):
     id_ = core_bricks.Brick.generate_id('reports', 'fields')
     verbose_name = _('Columns of the report')
+    description = _(
+        'Displays & edits the columns of a report.\n'
+        'Columns correspond to fields, custom fields, relationships…\n'
+    )
     dependencies = (Field,)
     template_name = 'reports/bricks/fields.html'
     target_ctypes = (Report,)
@@ -59,6 +63,11 @@ class ReportFieldsBrick(core_bricks.Brick):
 class ReportGraphsBrick(core_bricks.QuerysetBrick):
     id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graphs')
     verbose_name = _("Report's graphs")
+    description = _(
+        'Adds & edits some graphs related to a report.\n'
+        'A graph displays visually computed values, like the number of '
+        'Invoices created per month for example.\n'
+    )
     dependencies = (ReportGraph,)
     template_name = 'reports/bricks/graphs.html'
     # order_by = 'name'
