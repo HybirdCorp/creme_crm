@@ -270,10 +270,18 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 }
 */
 
+/* Menu entries separators [END] */
+
 .ui-creme-navigation-punctuation {
     font-weight: 400;
 }
-/* Menu entries separators [END] */
+
+.ui-creme-navigation-ctype {
+    margin-right: 3px ;
+
+    font-weight: 100;
+    color: #999;
+}
 
 /* display or hide elements depending on screen width
 @media (max-width: 1100px) {

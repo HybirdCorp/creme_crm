@@ -735,8 +735,20 @@ class MenuTestCase(CremeTestCase):
         self.assertStartsWith(render, entry_label)
         self.assertHTMLEqual(
             f'<ul>'
-            f'  <li><a href="{contact2.get_absolute_url()}">{contact2}</a></li>'
-            f'  <li><a href="{contact1.get_absolute_url()}">{contact1}</a></li>'
+            # f'  <li><a href="{contact2.get_absolute_url()}">{contact2}</a></li>'
+            f'  <li>'
+            f'    <a href="{contact2.get_absolute_url()}">'
+            f'      <span class="ui-creme-navigation-ctype">{contact2.entity_type}</span>'
+            f'      {contact2}'
+            f'    </a>'
+            f'  </li>'
+            # f'  <li><a href="{contact1.get_absolute_url()}">{contact1}</a></li>'
+            f'  <li>'
+            f'    <a href="{contact1.get_absolute_url()}">'
+            f'      <span class="ui-creme-navigation-ctype">{contact1.entity_type}</span>'
+            f'      {contact1}'
+            f'    </a>'
+            f'  </li>'
             f'</ul>',
             render[len(entry_label):],
         )
