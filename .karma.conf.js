@@ -116,7 +116,6 @@ module.exports = function(config) {
             'karma-qunit',
             'karma-coverage'
         ],
-        basePath: '',
         autoWatch: true,
         concurrency: 1,
         frameworks: ['qunit'],
