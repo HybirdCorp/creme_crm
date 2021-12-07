@@ -340,7 +340,8 @@ class MenuEntriesField(fields.JSONField):
                     validated_data = entry_class.validate(data)
                 except ValidationError as e:
                     self._raise_invalid_data(
-                        gettext('an entry is invalid ({error})').format(
+                        gettext('the entry «{entry}» is invalid ({error})').format(
+                            entry=str(entry_class.label) or entry_class.__name__,
                             error=', '.join(e.messages),
                         )
                     )

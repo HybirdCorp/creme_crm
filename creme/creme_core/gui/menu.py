@@ -185,6 +185,7 @@ class FixedURLEntry(MenuEntry):
     """Base Entry class to display <a> tag with a fixed URL."""
     # URL name of as argument for 'django.urls.reverse()'.
     url_name: str = ''
+    label = 'Fixed URL entry'
 
     form_class = menu_forms.FixedURLEntryForm
     single_instance = True
@@ -218,6 +219,7 @@ class CreationEntry(FixedURLEntry):
     """Specialization of FixedURLEntry to redirect to the creation view of an entity class."""
     # Notice that the label, URL & permissions are automatically computed from the model.
     model: Type[CremeEntity] = CremeEntity
+    label = 'Creation entry'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -264,6 +266,7 @@ class ListviewEntry(FixedURLEntry):
 class CustomURLEntry(MenuEntry):
     """Entry display <a> tag with title & URL stored in its data."""
     id = 'creme_core-custom_url'
+    label = 'Custom URL entry'
 
     creation_label = _('Add an URL entry')
     form_class = menu_forms.CustomURLEntryForm

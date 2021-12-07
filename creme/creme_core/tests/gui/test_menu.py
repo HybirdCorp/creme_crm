@@ -768,6 +768,10 @@ class MenuTestCase(CremeTestCase):
         self.assertFalse(seq.single_instance)
         self.assertIs(quick_forms.quickforms_registry, seq.quickforms_registry)
 
+        with self.assertNoException():
+            cdata = QuickFormsEntries.validate({})
+        self.assertDictEqual({}, cdata)
+
         registry = quick_forms.QuickFormsRegistry()
         seq.quickforms_registry = registry
 
@@ -822,6 +826,10 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(_('Other type of entity'),   entry.label)
         self.assertEqual(1,                           entry.level)
         self.assertIs(creation_menu_registry, entry.creation_menu_registry)
+
+        with self.assertNoException():
+            cdata = EntitiesCreationEntry.validate({})
+        self.assertDictEqual({}, cdata)
 
         registry = CreationMenuRegistry()
         self.assertEqual([], [*registry])
