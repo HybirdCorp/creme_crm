@@ -1096,7 +1096,8 @@ class MenuEntriesFieldTestCase(FieldTestCase):
             MenuEntriesField, 'invalid_data', clean,
             json_dump([{'id': CustomURLEntry.id, 'data': {'label': label}}]),
             message_args={
-                'error': _('an entry is invalid ({error})').format(
+                'error': _('the entry «{entry}» is invalid ({error})').format(
+                    entry='Custom URL entry',
                     error='{} -> {}'.format(_('URL'), _('This field is required.')),
                 )
             },
@@ -1105,7 +1106,8 @@ class MenuEntriesFieldTestCase(FieldTestCase):
             MenuEntriesField, 'invalid_data', clean,
             json_dump([{'id': CustomURLEntry.id, 'data': {'label': label, 'url': 123}}]),
             message_args={
-                'error': _('an entry is invalid ({error})').format(
+                'error': _('the entry «{entry}» is invalid ({error})').format(
+                    entry='Custom URL entry',
                     error='{} -> {}'.format(_('URL'), _('Enter a valid URL.')),
                 )
             },
@@ -1114,7 +1116,8 @@ class MenuEntriesFieldTestCase(FieldTestCase):
             MenuEntriesField, 'invalid_data', clean,
             json_dump([{'id': CustomURLEntry.id, 'data': {'url': url}}]),
             message_args={
-                'error': _('an entry is invalid ({error})').format(
+                'error': _('the entry «{entry}» is invalid ({error})').format(
+                    entry='Custom URL entry',
                     error='{} -> {}'.format(_('Label'), _('This field is required.')),
                 )
             },
@@ -1142,7 +1145,8 @@ class MenuEntriesFieldTestCase(FieldTestCase):
                 'data': {'count': 'abc'},
             }]),
             message_args={
-                'error': _('an entry is invalid ({error})').format(
+                'error': _('the entry «{entry}» is invalid ({error})').format(
+                    entry='TestEntry',
                     error='{} -> {}'.format('Count', _('Enter a whole number.')),
                 ),
             },

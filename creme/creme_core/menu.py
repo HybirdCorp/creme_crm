@@ -30,6 +30,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 from .auth import SUPERUSER_PERM
+from .forms.menu import FixedURLEntryForm
 from .gui import menu, quick_forms
 from .models import CremeEntity
 from .utils.serializers import json_encode
@@ -131,6 +132,7 @@ class QuickFormsEntries(menu.MenuEntrySequence):
     """
     id = 'creme_core-quick_forms'
     label = _('*Quick forms*')
+    form_class = FixedURLEntryForm
 
     quickforms_registry = quick_forms.quickforms_registry
 
@@ -179,6 +181,7 @@ class EntitiesCreationEntry(menu.MenuEntry):
     """
     id = 'creme_core-creation_forms'
     label = _('Other type of entity')
+    form_class = FixedURLEntryForm
 
     creation_menu_registry = menu.creation_menu_registry
 
