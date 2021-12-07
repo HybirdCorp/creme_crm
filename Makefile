@@ -95,11 +95,11 @@ karma-browsers: media karma-clean
 
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
-## TODO: remove ("circleci is hard-coded => move to cicleCI configuration")
+
 ## Run the Javascript test suite in CI (generatemedia is supposed to be already done)
-.PHONY: karma-ci
-karma-ci:
-	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
+## .PHONY: karma-ci
+## karma-ci:
+##	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 
 ## Run the application

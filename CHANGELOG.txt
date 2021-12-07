@@ -385,6 +385,7 @@
             - The HTML id "editforms" has been removed.
             - The CSS class "table_detail_view" is not use anymore.
             - the CSS files "creme_core/css/blocks.css" have been removed from in the setting "CREME_CORE_CSS" (they will be removed in Creme 2.4)
+        # The Makefile target 'karma-ci' is no longer used in circleci script and removed.
         # Apps :
             * Creme_config :
                 - There are several changes about Custom-Forms :

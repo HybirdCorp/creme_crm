@@ -5,7 +5,7 @@ module.exports = function(config) {
 
     config.set({
         concurrency: 2,
-        basePath: process.cwd(),
+        basePath: '../',
         browserConsoleLogOptions: {
             level: "critical",
             terminal: true

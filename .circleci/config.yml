@@ -82,6 +82,7 @@ commands:
       - run: touch << pipeline.parameters.instance_directory >>/__init__.py
       - run: mkdir << pipeline.parameters.instance_directory >>/media
       - run: mkdir << pipeline.parameters.instance_directory >>/media/static
+      # Not really useful because unit tests override with a sub-folder in /tmp/
       - run: mkdir << pipeline.parameters.instance_directory >>/media/upload
       - run: cp << pipeline.parameters.source_path >>/.circleci/circleci_settings.py << pipeline.parameters.instance_directory >>/settings.py
 
@@ -98,11 +99,9 @@ commands:
         default: 'sqlite3_settings'
     steps:
       - run: cp << pipeline.parameters.source_path >>/.circleci/<< parameters.local_settings >>.py << pipeline.parameters.instance_directory >>/local_settings.py
-      - run:
-          command: |
-            creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
-            creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
-      - setup-creme-statics
+      - run: creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
+      - run: creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
+      - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
 
   run-creme-unit-tests:
     description: Run Creme unit tests
@@ -188,6 +187,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'mysql_settings'
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
@@ -223,6 +223,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'pgsql_settings'
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
@@ -250,6 +251,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -277,6 +279,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -304,6 +307,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -331,6 +335,7 @@ jobs:
 #      - run: python creme/manage.py migrate
 #      - run: python creme/manage.py creme_populate
 #      - run: python creme/manage.py generatemedia
+      - create-creme-project
       - setup-creme-unit-tests
 #      - run: COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --parallel=8
 #      - run: coverage combine
@@ -386,12 +391,15 @@ jobs:
       - create-creme-project
       - setup-creme-statics
       - install-node-env
-      # TODO: fix (problems with static paths media hard-coded (see .karma.conf.js)
-      - run: make karma-ci
-      # - run:
-      #     name: Karma Tests
-      #     working_directory: << pipeline.parameters.instance_directory >>
-      #     command: node_modules/.bin/karma start << pipeline.parameters.source_path >>/.circleci/.karma.conf.js
+      - run:
+          name: Karma Tests
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: node_modules/.bin/karma start << pipeline.parameters.source_path >>/.circleci/.karma.conf.js
+          environment:
+              KARMA_DJANGOSTATICS: ../project/<< pipeline.parameters.instance_directory >>/media/static
+              KARMA_COVERAGEOUTPUT: artifacts/karma_coverage
+      - store_artifacts:
+          path: artifacts/karma_coverage
 
 
 workflows:
@@ -399,10 +407,9 @@ workflows:
   build:
     jobs:
       - javascript-lint
-# TODO: uncomment & fix
-#      - javascript-tests:
-#          requires:
-#            - javascript-lint
+      - javascript-tests:
+          requires:
+            - javascript-lint
       - python36-lint-isort
       - python36-lint-flake8
       - python36-tests-sqlite3:
