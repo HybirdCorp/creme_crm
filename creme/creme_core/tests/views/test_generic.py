@@ -83,7 +83,12 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         # -----
         last_items = LastViewedItem.get_all(self.FakeRequest(user))
         self.assertEqual(1, len(last_items))
-        self.assertEqual(fox.id, last_items[0].pk)
+
+        last_item = last_items[0]
+        self.assertEqual(fox.id,             last_item.pk)
+        self.assertEqual(fox.entity_type_id, last_item.ctype_id)
+        self.assertEqual(url,                last_item.url)
+        self.assertEqual(str(fox),           last_item.name)
 
         # -----
         imprints = Imprint.objects.all()

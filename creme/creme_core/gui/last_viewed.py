@@ -22,6 +22,7 @@ import logging
 from typing import List
 
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 
 from ..models import CremeEntity
 from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 class LastViewedItem:
     def __init__(self, request, entity: CremeEntity):
         self.pk = entity.pk
+        self.ctype_id = entity.entity_type_id
         self.url = entity.get_absolute_url()
         self.update(entity)
 
@@ -46,10 +48,16 @@ class LastViewedItem:
     def as_dict(self) -> dict:
         return {
             'pk':       self.pk,
+            'ctype_id': self.ctype_id,
             'url':      self.url,
             'name':     self.name,
             'modified': dt_to_ISO8601(self.modified),
         }
+
+    @property
+    def ctype(self):
+        ct_id = self.ctype_id
+        return None if ct_id is None else ContentType.objects.get_for_id(ct_id)
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -57,6 +65,11 @@ class LastViewedItem:
 
         for attr in ('pk', 'url', 'name'):
             setattr(instance, attr, data[attr])
+
+        # TODO: make mandatory once we're sure a Session flush has been made (creme 2.4?)
+        #       + rework @ctype
+        #       + rework creme.creme_core.menu.RecentEntitiesEntry
+        instance.ctype_id = data.get('ctype_id')
 
         instance.modified = dt_from_ISO8601(data['modified'])
 
@@ -122,7 +135,7 @@ class LastViewedItem:
                 if entity:
                     if entity.modified > item.modified:
                         updated = True
-                        # TODO: use CremeEntity.populate_real_entities()
+                        # TODO: use CremeEntity.populate_real_entities() or ctype_id
                         item.update(entity.get_real_entity())
 
                     items.append(item)
