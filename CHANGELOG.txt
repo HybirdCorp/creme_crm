@@ -3,6 +3,10 @@
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 2.2 (2.2.25 or more).
 
+  Users side :
+  ------------
+    # The auto-resizing feature of <textarea> was buggy (large lines did not increment the rows count).
+
 
 == Version 2.2.8 ==
 
