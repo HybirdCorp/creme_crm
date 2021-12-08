@@ -32,11 +32,46 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
 
     _onResize: function(e) {
         var element = this._delegate;
+        var text = element.val();
+
+        /* if bound to several types of event
+        if (this._previousValue === text) {
+            return;
+        }
+        this._previousValue = text;
+        */
+
         var previous = this._count !== undefined ? this._count : this._initial;
-        var count = this._count = (element.val() !== null) ? element.val().split('\n').length : this._min;
+//        var count = this._count = (element.val() !== null) ? element.val().split('\n').length : this._min;
+        var lines = (text !== null) ? text.split('\n') : [];
+        var count = this._count = lines.length;
 
         if (e.keyCode === 13) {
             ++count;
+        }
+
+        // Large lines management (TODO: cache the results?)
+        if (lines) {
+            var width = element.width();
+
+            var ghostSpan = $('<span></span>');
+            ghostSpan.css({
+                // font: element.css('font'),  does not work with FireFox
+                'font-family': element.css('font-family'),
+                'font-size': element.css('font-size'),
+                position: 'absolute',
+                top: -1000,
+                left: -1000
+            });
+
+            ghostSpan.appendTo('body');
+
+            for (var i in lines) {
+                ghostSpan.text(lines[i]);
+                count += Math.floor(ghostSpan.width() / width);
+            }
+
+            ghostSpan.remove();
         }
 
         count = Math.max(this._min, count);
@@ -61,7 +96,8 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         this._initial = $.browserInfo().mozilla ? this._initial - 1 : this._initial;
         this._onResize(element);
 
-        element.bind('propertychange keydown paste input', this._listeners);
+//        element.bind('propertychange keydown paste input', this._listeners);
+        element.bind('input', this._listeners);
         return this;
     },
 
@@ -70,7 +106,8 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
             throw new Error('not bound');
         }
 
-        this._delegate.unbind('propertychange keydown paste input', this._listeners);
+//        this._delegate.unbind('propertychange keydown paste input', this._listeners);
+        this._delegate.off('input', this._listeners);
         this._delegate = undefined;
 
         return this;
