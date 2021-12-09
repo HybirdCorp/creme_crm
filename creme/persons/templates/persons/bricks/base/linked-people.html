@@ -41,7 +41,7 @@
             {% if people_view_perm %}<td data-type="email">{% print_field object=people field='email' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
         {% endif %}
         <td {% brick_table_data_status action %}>{% has_perm_to change people as people_edit_perm %}
-            {% brick_table_action id='redirect' url=people.get_edit_absolute_url|add:'?callback_url=${location}' label=_('Edit this contact') icon='edit' enabled=people_edit_perm %}
+            {% brick_table_action id='redirect' url=people.get_edit_absolute_url label=_('Edit this contact') icon='edit' enabled=people_edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>{% has_perm_to unlink people as people_unlink_perm %}
             {% brick_table_action id='delete' url=del_rel_url __subject_id=object.id __type=rtype_id __object_id=people.pk label=_('Unlink this contact') icon='unlink' enabled=people_unlink_perm %}
