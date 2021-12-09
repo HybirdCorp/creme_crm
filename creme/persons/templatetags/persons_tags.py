@@ -31,6 +31,7 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 register = template.Library()
 
 
+# TODO: a code per country ?
 @register.filter
 def persons_pretty_address(address):
     is_field_hidden = FieldsConfig.objects.get_for_model(address.__class__).is_fieldname_hidden
@@ -60,9 +61,12 @@ def persons_pretty_address(address):
             elif not city:
                 write(zipcode)
             else:
-                write(city)
-                write(' ')
+                # write(city)
+                # write(' ')
+                # write(zipcode)
                 write(zipcode)
+                write(' ')
+                write(city)
 
         return sio.getvalue()
 
