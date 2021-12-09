@@ -6,6 +6,9 @@
   Users side :
   ------------
     # The auto-resizing feature of <textarea> was buggy (large lines did not increment the rows count).
+    # Apps :
+        * Persons :
+            - The display of addresses has been improved (zipcode before city).
 
 
 == Version 2.2.8 ==

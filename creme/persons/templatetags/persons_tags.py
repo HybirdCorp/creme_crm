@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2021  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,7 @@ from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 register = template.Library()
 
 
+# TODO: a code per country ?
 @register.filter
 def persons_pretty_address(address):
     is_field_hidden = FieldsConfig.objects.get_for_model(address.__class__).is_fieldname_hidden
@@ -60,9 +61,12 @@ def persons_pretty_address(address):
             elif not city:
                 write(zipcode)
             else:
-                write(city)
-                write(' ')
+                # write(city)
+                # write(' ')
+                # write(zipcode)
                 write(zipcode)
+                write(' ')
+                write(city)
 
         return sio.getvalue()
 
@@ -125,7 +129,6 @@ def persons_contact_first_employer(contact, user):
     return info
 
 
-# TODO: unit test
 @register.simple_tag
 def persons_addresses_formblock_fields(form, address_fks):
     if not address_fks:
