@@ -1,25 +1,25 @@
 {% load creme_cells persons_tags %}
 
 {% block address_content %}
-    <div class='address'>{{address|persons_pretty_address|linebreaksbr}}</div>
+    <div class="address">{{address|persons_pretty_address|linebreaksbr}}</div>
     {% if address.department or address.state or address.country %}
-    <div class='address-options'>
+    <div class="address-options">
         {% if address.department and 'department' in cells %}
-        <div class='address-option'>
-            <span class='address-option-key'>{% cell_4_regularfield instance=address field='department' %}</span>
-            <span class='address-option-value'>{{address.department}}</span>
+        <div class="address-option">
+            <span class="address-option-key">{% cell_4_regularfield instance=address field='department' %}</span>
+            <span class="address-option-value">{{address.department}}</span>
         </div>
         {% endif %}
         {% if address.state and 'state' in cells %}
-        <div class='address-option'>
-            <span class='address-option-key'>{% cell_4_regularfield instance=address field='state' %}</span>
-            <span class='address-option-value'>{{address.state}}</span>
+        <div class="address-option">
+            <span class="address-option-key">{% cell_4_regularfield instance=address field='state' %}</span>
+            <span class="address-option-value">{{address.state}}</span>
         </div>
         {% endif %}
         {% if address.country and 'country' in cells %}
-        <div class='address-option'>
-            <span class='address-option-key'>{% cell_4_regularfield instance=address field='country' %}</span>
-            <span class='address-option-value'>{{address.country}}</span>
+        <div class="address-option">
+            <span class="address-option-key">{% cell_4_regularfield instance=address field='country' %}</span>
+            <span class="address-option-value">{{address.country}}</span>
         </div>
         {% endif %}
     </div>
