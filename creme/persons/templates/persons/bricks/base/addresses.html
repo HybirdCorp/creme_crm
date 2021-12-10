@@ -22,29 +22,29 @@
 
 {% block brick_content %}
 {% if b_address.display_content or s_address.display_content %}
-    <div class='address-group'>{% has_perm_to change object as has_perm %}
+    <div class="address-group">{% has_perm_to change object as has_perm %}
         {% if b_address.display_content %}
-        <div class='address-map'>
-            <div class='address-container'>
-                <span class='address-title'>
+        <div class="address-map">
+            <div class="address-container billing-address-container">
+                <span class="address-title">
                     {% translate 'Billing address' %}{% url_join b_address.get_edit_absolute_url type='billing' as b_uri %}
                     {% brick_action id='edit' url=b_uri display='both' enabled=has_perm %}
                 </span>
                 {% block billing_address_content %}{# TODO: override this #}
-                    <div class='address'>{{b_address}}</div>
+                    <div class="address">{{b_address}}</div>
                 {% endblock %}
             </div>
         </div>
         {% endif %}
         {% if s_address.display_content %}
-        <div class='address-map'>
-            <div class='address-container'>
-                <span class='address-title'>
+        <div class="address-map">
+            <div class="address-container shipping-address-container">
+                <span class="address-title">
                     {% translate 'Shipping address' %}{% url_join s_address.get_edit_absolute_url type='shipping' as s_uri %}
                     {% brick_action id='edit' url=s_uri display='both' enabled=has_perm %}
                 </span>
                 {% block shipping_address_content %}{# TODO: override this #}
-                    <div class='address'>{{s_address}}</div>
+                    <div class="address">{{s_address}}</div>
                 {% endblock %}
             </div>
         </div>

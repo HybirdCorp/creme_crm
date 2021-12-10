@@ -492,6 +492,7 @@ class ManagedOrganisationsBrick(PaginatedBrick):
         ))
 
 
+# TODO: rename brick_classes + list() ?
 bricks_list: Tuple[Type[Brick], ...] = (
     DetailedAddressesBrick,
     PrettyAddressesBrick,
