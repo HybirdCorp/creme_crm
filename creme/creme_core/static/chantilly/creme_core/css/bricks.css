@@ -55,7 +55,7 @@
     margin: 0;
 
     background: #e9f6fb;
-    font-size: 14px;
+    font-size: 13px;
     color: hsla(198, 41%, 35%, 1);
     font-weight: 600;
 }
@@ -73,7 +73,7 @@
 
 .brick .brick-title-container {
     flex: 1;
-    padding-left: 10px;
+    padding-left: 8px;
     border-top: 1px solid #bdd3dc;
     border-bottom: 1px solid #cce0e8;
     display: inline-flex;
@@ -196,7 +196,7 @@
     border-top: 1px solid #bdd3dc;
     border-bottom: 1px solid #cce0e8;
 
-    padding: 0 15px;
+    padding: 0 6px;
     text-decoration: none;
 
     position: relative;
@@ -243,7 +243,9 @@
 
 .brick .brick-header-button-title {
     display: inline-block;
-    margin-left: 8px;
+    margin-left: 2px;
+
+    font-size: 12px;
 }
 
 .brick .brick-header-button:not(.is-disabled):hover {

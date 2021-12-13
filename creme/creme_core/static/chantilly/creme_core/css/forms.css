@@ -178,7 +178,7 @@ div.form-container {
     padding-top: 0;
 }
 
-.form-block .form-block-fields label {
+.form-block .form-block-fields > label {
     padding: 10px;
 
     border-top: 1px solid #cce0e8;
@@ -195,8 +195,8 @@ div.form-container {
 }
 
 .form-block .form-block-field .form-block-field-value,
-.form-block .form-block-fields label:first-child,
-.form-block .form-block-fields label:first-child + .form-block-field-value {
+.form-block .form-block-fields > label:first-child,
+.form-block .form-block-fields > label:first-child + .form-block-field-value {
     border-top: none;
 }
 
@@ -299,6 +299,15 @@ ul.multi-select {
     list-style-type: none;
     padding: 0;
     margin: 0;
+}
+
+.form-block-field-value > input[type="text"],
+.form-block-field-value > input[type="email"] {
+    min-width: 260px;
+}
+
+.form-block-field-value > input[type="url"] {
+    min-width: 320px;
 }
 
 .form-block-field-value textarea {
@@ -990,3 +999,11 @@ table .dragtable-col-placeholder:first {
 }
 
 /* DualColumnMultiSelect - end */
+
+/* Mass import forms */
+
+.relationships_extractor-creation {
+    margin-bottom: 10px;
+}
+
+/* Mass import forms - end */

@@ -118,6 +118,7 @@ ul.ui-creme-widget[readonly] li {
 
 /*----------------------------------*/
 .ui-creme-entityselector > input {
+    display: none;
     -webkit-appearance: none;
        -moz-appearance: none;
             appearance: none;
