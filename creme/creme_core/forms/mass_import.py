@@ -832,7 +832,10 @@ class RelationExtractorSelector(SelectorList):
             attrs=attrs,
             value=value.get('selectorlist'),
         )
-        context['widget']['can_create_checked'] = value.get('can_create', False)
+        widget_cxt = context['widget']
+        # SelectorList.get_context() does not use 'attrs' (to avoid duplicated "id"?)
+        widget_cxt['attrs']['id'] = attrs.get('id') or f'id_{name}'
+        widget_cxt['can_create_checked'] = value.get('can_create', False)
 
         return context
 

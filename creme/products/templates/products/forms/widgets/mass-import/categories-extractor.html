@@ -2,11 +2,11 @@
 {% with id=widget.attrs.id %}
 {% if widget.propose_creation %}
 <label for="{{id}}_create">
-    <input id="{{id}}_create" type="checkbox" name="{{widget.name}}_create"{% if widget.create %} checked{% endif %}/>
+    <input class="products-category_extractor-creation" id="{{id}}_create" type="checkbox" name="{{widget.name}}_create"{% if widget.create %} checked{% endif %}/>
     {% translate 'Create the Categories/Sub-Categories which are not found?' %}
 </label>
 {% endif %}
-<ul class="multi-select">
+<ul class="multi-select products-category_extractor-values">
     <li>
         <label for="{{id}}_cat_colselect">{% translate 'Category' context 'products-category' %}:
             {% with widget=widget.category_colselect %}{% include widget.template_name %}{% endwith %}
