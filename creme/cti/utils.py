@@ -40,7 +40,8 @@ def print_phone_html(entity, fval, user, field) -> str:
     theme = get_current_theme()
 
     return format_html(
-        """{number}&nbsp;"""
+        # """{number}&nbsp;"""
+        """{number}"""
         """<a class="cti-phonecall" """
         """onclick="creme.cti.phoneCall('{external_url}', '{creme_url}', '{number}', {id});">"""
         """{icon}"""

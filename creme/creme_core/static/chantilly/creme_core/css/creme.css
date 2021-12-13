@@ -44,6 +44,7 @@ a.is_deleted {
 }
 
 a img.text_icon {
+    margin-left: 2px;
     width: 18px;
     height: 18px;
 }
