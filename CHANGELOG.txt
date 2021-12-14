@@ -82,6 +82,8 @@
             - The field 'payment_type' ("Settlement terms") is now present in all 'billing' entity types (Quote, SalesOrder...).
               Notice that if you upgrade your Creme installation, if you want to display this field in the detail-views, you
               have to edit your block configuration (excepted for 'Invoice' of course).
+        * Reports :
+            - The CustomFields with type DATE can now be used as abscissa in ReportGraphs (only DATETIME was available).
         * Emails :
             - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
               (the other one is automatically filled from it).
@@ -411,6 +413,7 @@
                 - Some constants have been replaced by 'django.db.models.*Choices' :
                     - An 'IntegerChoices' class for : RGT_*, GROUP_TYPES.
                     - An 'TextChoices' class for : RGA_*, AGGREGATOR_TYPES.
+                - The attribute 'core.graph.cell_constraint.GHCCCustomField.customfield_type' has been replaced by "customfield_types".
                 - Several templatetags have been renamed (for consistency) :
                     - 'report_chart_json' became 'reports_chart_json'.
                     - 'report_chart_selector' became 'reports_chart_selector'.

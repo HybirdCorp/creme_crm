@@ -611,7 +611,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         (ReportGraph.Group.CUSTOM_MONTH,),
         (ReportGraph.Group.CUSTOM_YEAR,),
     ])
-    def test_createview_with_customdate(self, gtype):
+    def test_createview_with_customdatetime(self, gtype):
         user = self.login()
 
         cf_dt = CustomField.objects.create(
@@ -648,6 +648,48 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual('',            rgraph.ordinate_cell_key)
 
         self.assertEqual(cf_dt.name, rgraph.hand.verbose_abscissa)
+
+    @parameterized.expand([
+        (ReportGraph.Group.CUSTOM_DAY,),
+        (ReportGraph.Group.CUSTOM_MONTH,),
+        (ReportGraph.Group.CUSTOM_YEAR,),
+    ])
+    # def test_createview_with_customdate(self):
+    def test_createview_with_customdate(self, gtype):
+        user = self.login()
+
+        cf_date = CustomField.objects.create(
+            content_type=self.ct_orga,
+            name='First victory',
+            field_type=CustomField.DATE,
+        )
+
+        report = self._create_simple_organisations_report()
+        url = self._build_add_graph_url(report)
+
+        name = 'My Graph #1'
+        self.assertNoFormError(self.client.post(
+            url,
+            data={
+                'user': user.pk,
+                'name': name,
+                'chart': 'barchart',
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=cf_date,
+                    graph_type=gtype,
+                ),
+                'ordinate': self.formfield_value_ordinate(aggr_id=ReportGraph.Aggregator.COUNT),
+            },
+        ))
+
+        rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
+        self.assertEqual(user,                         rgraph.user)
+        self.assertEqual(str(cf_date.id),              rgraph.abscissa_cell_value)
+        self.assertEqual(gtype,                        rgraph.abscissa_type)
+        self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
+        self.assertEqual('',                           rgraph.ordinate_cell_key)
+
+        self.assertEqual(cf_date.name, rgraph.hand.verbose_abscissa)
 
     def test_createview_with_customrange(self):
         "ReportGraph.Group.CUSTOM_RANGE."
@@ -1669,7 +1711,66 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             invalid_days_indices,
         )
 
-    def test_fetch_with_custom_date_range01(self):
+    def test_fetch_with_custom_date_range(self):
+        "Count."
+        user = self.login()
+
+        cf = CustomField.objects.create(
+            content_type=self.ct_orga, field_type=CustomField.DATE, name='First victory',
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        targaryens = create_orga(name='House Targaryen', capital=100)
+        lannisters = create_orga(name='House Lannister', capital=1000)
+        starks     = create_orga(name='House Stark')
+        baratheons = create_orga(name='House Baratheon')
+        tullies    = create_orga(name='House Tully')
+        arryns     = create_orga(name='House Arryn')
+
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
+        create_cf_value(entity=targaryens, value=date(year=2013, month=12, day=21))
+        create_cf_value(entity=lannisters, value=date(year=2013, month=12, day=26))
+        create_cf_value(entity=starks,     value=date(year=2013, month=12, day=31))
+        create_cf_value(entity=baratheons, value=date(year=2014, month=1,  day=3))
+        create_cf_value(entity=tullies,    value=date(year=2014, month=1,  day=5))
+        create_cf_value(entity=arryns,     value=date(year=2014, month=1,  day=7))
+
+        days = 15
+        rgraph = ReportGraph.objects.create(
+            user=user,
+            linked_report=self._create_simple_organisations_report(),
+            name=f'First victory / {days} day(s)',
+            abscissa_cell_value=cf.id,
+            abscissa_type=ReportGraph.Group.CUSTOM_RANGE, abscissa_parameter=str(days),
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        x_asc, y_asc = rgraph.fetch(user)
+        self.assertListEqual(
+            ['21/12/2013-04/01/2014', '05/01/2014-19/01/2014'], x_asc,
+        )
+
+        self.assertEqual(4, y_asc[0][0])
+        self.assertURL(
+            url=y_asc[0][1],
+            model=FakeOrganisation,
+            expected_q=Q(
+                customfielddate__custom_field=cf.id,
+                customfielddate__value__range=['2013-12-21', '2014-01-04'],
+            ),
+        )
+
+        self.assertEqual(2, y_asc[1][0])
+        self.assertURL(
+            url=y_asc[1][1],
+            model=FakeOrganisation,
+            expected_q=Q(
+                customfielddate__custom_field=cf.id,
+                customfielddate__value__range=['2014-01-05', '2014-01-19'],
+            ),
+        )
+
+    def test_fetch_with_custom_datetime_range(self):
         "Count."
         user = self.login()
 
@@ -1788,7 +1889,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ),
         )
 
-    def test_fetch_with_custom_date_range02(self):
+    def test_fetch_with_custom_date_range_error(self):
         "Invalid CustomField."
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -1864,8 +1965,50 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ),
         )
 
-    def test_fetch_by_customday01(self):
-        "Aggregate."
+    def test_fetch_by_customday_date(self):
+        "Aggregate + DATE."
+        user = self.login()
+        cf = CustomField.objects.create(
+            name='First victory', content_type=self.ct_orga, field_type=CustomField.DATE,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        lannisters = create_orga(name='House Lannister', capital=100, description='Westeros')
+        baratheons = create_orga(name='House Baratheon', capital=200, description='Westeros')
+        targaryens = create_orga(name='House Targaryen', capital=130, description='Essos')
+
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
+        create_date = partial(date, year=2013)
+        create_cf_value(entity=lannisters, value=create_date(month=6, day=22))
+        create_cf_value(entity=baratheons, value=create_date(month=6, day=22))
+        create_cf_value(entity=targaryens, value=create_date(month=7, day=5))
+
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Average of capital by 1rst victory (by day)',
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_DAY,
+            ordinate_type=ReportGraph.Aggregator.AVG,
+            ordinate_cell_key='regular_field-capital',
+        )
+
+        # ASC -----------------------------------------------------------------
+        x_asc, y_asc = rgraph.fetch(user)
+        self.assertListEqual(['22/06/2013', '05/07/2013'], x_asc)
+        self.assertEqual(150, y_asc[0][0])
+        self.assertEqual(130, y_asc[1][0])
+
+        url = y_asc[0][1]
+        expected_q = Q(
+            customfielddate__value__day=22,
+            customfielddate__value__month=6,
+            customfielddate__value__year=2013,
+            customfielddate__custom_field=cf.id,
+        )
+        self.assertURL(url=url, model=FakeOrganisation, expected_q=expected_q)
+
+    def test_fetch_by_customday_datetime(self):
+        "Aggregate + DATETIME."
         user = self.login()
         create_cf_dt = partial(
             CustomField.objects.create,
@@ -1935,7 +2078,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             expected_q=extra_q & expected_q,
         )
 
-    def test_fetch_by_customday02(self):
+    def test_fetch_by_customday_error(self):
         "Invalid CustomField."
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -1996,7 +2139,50 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ['08/2013', '06/2013'], rgraph.fetch(user=user, order='DESC')[0],
         )
 
-    def test_fetch_by_custommonth01(self):
+    def test_fetch_by_custommonth_date(self):
+        "Count."
+        user = self.login()
+
+        cf = CustomField.objects.create(
+            content_type=self.ct_orga, name='First victory', field_type=CustomField.DATE,
+        )
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        lannisters = create_orga(name='House Lannister', capital=1000)
+        baratheons = create_orga(name='House Baratheon', capital=100)
+        targaryens = create_orga(name='House Targaryen')
+
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
+        create_date = partial(date, year=2013)
+        create_cf_value(entity=lannisters, value=create_date(month=6, day=22))
+        create_cf_value(entity=baratheons, value=create_date(month=6, day=25))
+        create_cf_value(entity=targaryens, value=create_date(month=8, day=5))
+
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Number of houses by 1rst victory (period of 1 month)',
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        x_asc, y_asc = rgraph.fetch(user=user)
+        self.assertListEqual(['06/2013', '08/2013'], x_asc)
+
+        value0, url0 = y_asc[0]
+        self.assertEqual(2, value0)
+
+        expected_q = Q(
+            customfielddate__custom_field=cf.id,
+            customfielddate__value__month=6,
+            customfielddate__value__year=2013,
+        )
+        self.assertURL(
+            url=url0,
+            model=FakeOrganisation,
+            expected_q=expected_q,
+        )
+
+    def test_fetch_by_custommonth_datetime(self):
         "Count."
         user = self.login()
 
@@ -2281,8 +2467,50 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([500,  fmt(2014)], y_asc1[1])
         # self.assertListEqual([0,    fmt(2015)], y_asc1[2])
 
-    def test_fetch_by_customyear(self):
-        "Count"
+    def test_fetch_by_customyear_date(self):
+        "Count."
+        user = self.login()
+
+        cf = CustomField.objects.create(
+            content_type=self.ct_orga, name='First victory', field_type=CustomField.DATE,
+        )
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        lannisters = create_orga(name='House Lannister', capital=1000)
+        baratheons = create_orga(name='House Baratheon', capital=100)
+        targaryens = create_orga(name='House Targaryen')
+
+        create_cf_value = partial(cf.value_class.objects.create, custom_field=cf)
+        create_cf_value(entity=lannisters, value=date(year=2013, month=6, day=22))
+        create_cf_value(entity=baratheons, value=date(year=2013, month=7, day=25))
+        create_cf_value(entity=targaryens, value=date(year=2014, month=8, day=5))
+
+        report = self._create_simple_organisations_report()
+        rgraph = ReportGraph.objects.create(
+            user=user, linked_report=report,
+            name='Number of house by 1rst victory (period of 1 year)',
+            abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        x_asc, y_asc = rgraph.fetch(user=user)
+        self.assertListEqual(['2013', '2014'], x_asc)
+
+        value0, url0 = y_asc[0]
+        self.assertEqual(2, value0)
+
+        expected_q = Q(
+            customfielddate__custom_field=cf.id,
+            customfielddate__value__year=2013,
+        )
+        self.assertURL(
+            url=url0,
+            model=FakeOrganisation,
+            expected_q=expected_q,
+        )
+
+    def test_fetch_by_customyear_datetime(self):
+        "Count."
         user = self.login()
 
         cf = CustomField.objects.create(
