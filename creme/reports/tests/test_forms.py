@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
+from parameterized import parameterized
 
 from creme.creme_core.constants import REL_SUB_HAS
 from creme.creme_core.core.entity_cell import (
@@ -1028,14 +1029,20 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         ))
         self.assertIsInstance(abs_info, AbscissaInfo)
 
-    def test_clean_cfield_date_year(self):
+    @parameterized.expand([
+        (CustomField.DATETIME,),
+        (CustomField.DATE,),
+    ])
+    # def test_clean_cfield_date_year(self):
+    def test_clean_cfield_date_year(self, cfield_type):
         model = FakeContact
         # graph_type = constants.RGT_CUSTOM_YEAR
         graph_type = ReportGraph.Group.CUSTOM_YEAR
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
-            field_type=CustomField.DATETIME,
+            # field_type=CustomField.DATETIME,
+            field_type=cfield_type,
         )
 
         field = AbscissaField(
@@ -1056,14 +1063,20 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual(graph_type, abs_info.graph_type)
         self.assertIsNone(abs_info.parameter)
 
-    def test_clean_cfield_date_month(self):
+    @parameterized.expand([
+        (CustomField.DATETIME,),
+        (CustomField.DATE,),
+    ])
+    # def test_clean_cfield_date_month(self):
+    def test_clean_cfield_date_month(self, cfield_type):
         model = FakeContact
         # graph_type = constants.RGT_CUSTOM_MONTH
         graph_type = ReportGraph.Group.CUSTOM_MONTH
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
-            field_type=CustomField.DATETIME,
+            # field_type=CustomField.DATETIME,
+            field_type=cfield_type,
         )
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)
@@ -1081,14 +1094,20 @@ class AbscissaFieldTestCase(AxisFieldsMixin, FieldTestCase):
         self.assertEqual(graph_type, abs_info.graph_type)
         self.assertIsNone(abs_info.parameter)
 
-    def test_clean_cfield_date_day(self):
+    @parameterized.expand([
+        (CustomField.DATETIME,),
+        (CustomField.DATE,),
+    ])
+    # def test_clean_cfield_date_day(self):
+    def test_clean_cfield_date_day(self, cfield_type):
         model = FakeContact
         # graph_type = constants.RGT_CUSTOM_DAY
         graph_type = ReportGraph.Group.CUSTOM_DAY
         cfield = CustomField.objects.create(
             content_type=model,
             name='First fight',
-            field_type=CustomField.DATETIME,
+            # field_type=CustomField.DATETIME,
+            field_type=cfield_type,
         )
 
         field = AbscissaField(model=model, abscissa_constraints=abscissa_constraints)

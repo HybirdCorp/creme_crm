@@ -625,18 +625,23 @@ class _RGHCustomField(ReportGraphHand):
     #       2: the entities have an additional filter,
     #       3: the qdicts have an additional value) and could be factored together
     def _get_custom_dates_values(self, *,
-                                 entities, kind, qdict_builder, date_format, order, extra_q):
+                                 entities, kind, qdict_builder, date_format, order, extra_q,
+                                 ):
         """
         @param kind: 'day', 'month' or 'year'.
         @param order: 'ASC' or 'DESC'.
         @param date_format: Format compatible with strftime().
         """
         cfield = self._cfield
+        value_meta = cfield.value_class._meta
+        cfield_q_key = f"{value_meta.get_field('entity').remote_field.name}__custom_field"
         build_url = self._listview_url_builder(extra_q=extra_q)
 
-        entities = entities.filter(customfielddatetime__custom_field=cfield)
+        # entities = entities.filter(customfielddatetime__custom_field=cfield)
+        entities = entities.filter(**{cfield_q_key: cfield})
 
-        field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
+        # field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
+        field_name = _physical_field_name(value_meta.db_table, 'value')
         x_value_key = connection.ops.date_trunc_sql(kind, field_name)
 
         for key, value in self._aggregate_by_key(entities, x_value_key, order):
@@ -650,7 +655,8 @@ class _RGHCustomField(ReportGraphHand):
                 date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)
-            qdict['customfielddatetime__custom_field'] = cfield.id
+            # qdict['customfielddatetime__custom_field'] = cfield.id
+            qdict[cfield_q_key] = cfield.id
 
             yield date.strftime(date_format), [value or 0, build_url(qdict)]
 
@@ -666,13 +672,18 @@ class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
 
     def _fetch(self, *, entities, order, user, extra_q):
+        value_rname = self._cfield.value_class._meta.get_field('entity').remote_field.name
+
         return self._get_custom_dates_values(
             entities=entities,
             kind='day',
             qdict_builder=lambda date: {
-                'customfielddatetime__value__year':  date.year,
-                'customfielddatetime__value__month': date.month,
-                'customfielddatetime__value__day':   date.day,
+                # 'customfielddatetime__value__year':  date.year,
+                # 'customfielddatetime__value__month': date.month,
+                # 'customfielddatetime__value__day':   date.day,
+                f'{value_rname}__value__year': date.year,
+                f'{value_rname}__value__month': date.month,
+                f'{value_rname}__value__day': date.day,
             },
             date_format='%d/%m/%Y',
             order=order,
@@ -686,12 +697,17 @@ class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
     def _fetch(self, *, entities, order, user, extra_q):
+        # TODO: factrise with _get_custom_dates_values()?
+        value_rname = self._cfield.value_class._meta.get_field('entity').remote_field.name
+
         return self._get_custom_dates_values(
             entities=entities,
             kind='month',
             qdict_builder=lambda date: {
-                'customfielddatetime__value__year':  date.year,
-                'customfielddatetime__value__month': date.month,
+                # 'customfielddatetime__value__year':  date.year,
+                # 'customfielddatetime__value__month': date.month,
+                f'{value_rname}__value__year':  date.year,
+                f'{value_rname}__value__month': date.month,
             },
             date_format='%m/%Y',
             order=order,
@@ -705,11 +721,14 @@ class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
 
     def _fetch(self, *, entities, order, user, extra_q):
+        value_rname = self._cfield.value_class._meta.get_field('entity').remote_field.name
+
         return self._get_custom_dates_values(
             entities=entities,
             kind='year',
             qdict_builder=lambda date: {
-                'customfielddatetime__value__year': date.year,
+                # 'customfielddatetime__value__year': date.year,
+                f'{value_rname}__value__year': date.year,
             },
             date_format='%Y',
             order=order,
@@ -743,11 +762,16 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     # TODO: This is almost identical to RGHRange and most of it could be factored together
     def _fetch_with_group_by(self, entities, order, extra_q):
         cfield = self._cfield
-        entities = entities.filter(customfielddatetime__custom_field=cfield)
+        value_meta = cfield.value_class._meta
+        value_rname = value_meta.get_field('entity').remote_field.name
+        # entities = entities.filter(customfielddatetime__custom_field=cfield)
+        entities = entities.filter(**{f'{value_rname}__custom_field': cfield})
 
         date_aggregates = entities.aggregate(
-            min_date=Min('customfielddatetime__value'),
-            max_date=Max('customfielddatetime__value'),
+            # min_date=Min('customfielddatetime__value'),
+            # max_date=Max('customfielddatetime__value'),
+            min_date=Min(f'{value_rname}__value'),
+            max_date=Max(f'{value_rname}__value'),
         )
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
@@ -756,7 +780,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             build_url = self._listview_url_builder(extra_q=extra_q)
             days = self._days
 
-            field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
+            # field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
+            field_name = _physical_field_name(value_meta.db_table, 'value')
 
             x_value_format = _db_grouping_format()
             x_value_key = (
@@ -778,8 +803,10 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                     interval.after.strftime('%Y-%m-%d'),
                 ]
                 url = build_url({
-                    'customfielddatetime__custom_field': cfield.id,
-                    'customfielddatetime__value__range': value_range,
+                    # 'customfielddatetime__custom_field': cfield.id,
+                    # 'customfielddatetime__value__range': value_range,
+                    f'{value_rname}__custom_field': cfield.id,
+                    f'{value_rname}__value__range': value_range,
                 })
 
                 yield range_label, [value, url]

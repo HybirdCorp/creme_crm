@@ -176,7 +176,8 @@ class GHCCRelation(GraphHandCellConstraint):
 
 class GHCCCustomField(GraphHandCellConstraint):
     cell_class = EntityCellCustomField
-    customfield_type = 0
+    # customfield_type = 0
+    customfield_types = set()
 
     def cells(self, not_hiddable_cell_keys=()):
         for cfield in CustomField.objects.get_for_model(self.model).values():
@@ -190,18 +191,21 @@ class GHCCCustomField(GraphHandCellConstraint):
 
         return (
             (not cfield.is_deleted or cell.key in not_hiddable_cell_keys)
-            and cfield.field_type == self.customfield_type
+            # and cfield.field_type == self.customfield_type
+            and cfield.field_type in self.customfield_types
         )
 
 
 class GHCCCustomEnum(GHCCCustomField):
     type_id = 'custom_enum'
-    customfield_type = CustomField.ENUM
+    # customfield_type = CustomField.ENUM
+    customfield_types = {CustomField.ENUM}
 
 
 class GHCCCustomDate(GHCCCustomField):
     type_id = 'custom_date'
-    customfield_type = CustomField.DATETIME
+    # customfield_type = CustomField.DATE
+    customfield_types = {CustomField.DATE, CustomField.DATETIME}
 
 
 class GraphHandConstraintsRegistry:
