@@ -56,7 +56,8 @@ class ReportGraphAggregator:
     def annotate_extra_q(self):
         return Q()
 
-    def aggregrate(self, entities: QuerySet):
+    # def aggregrate(self, entities: QuerySet):
+    def aggregate(self, entities: QuerySet):
         return 0
 
     @property
@@ -140,7 +141,8 @@ class RGACount(ReportGraphAggregator):
         #     whereas our aggregation operators do)
         return aggregates.Count('pk')  # Is there a way to count(*) ?
 
-    def aggregrate(self, entities):
+    # def aggregrate(self, entities):
+    def aggregate(self, entities):
         return entities.count()
 
 
@@ -185,7 +187,8 @@ class _RGAFieldAggregation(ReportGraphAggregator):
     def annotate_extra_q(self):
         return self._extra_q
 
-    def aggregrate(self, entities):
+    # def aggregrate(self, entities):
+    def aggregate(self, entities):
         return entities.aggregate(
             rga_value_agg=self._aggregate,
         ).get('rga_value_agg') or 0

@@ -467,7 +467,8 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
-            y_value_func = self._y_calculator.aggregrate
+            # y_value_func = self._y_calculator.aggregrate
+            y_value_func = self._y_calculator.aggregate
 
             for interval in DateInterval.generate(
                     (graph.days or 1) - 1, min_date, max_date, order,
@@ -516,7 +517,8 @@ class RGHForeignKey(_RGHRegularField):
         abscissa = self._field.name
         build_url = self._listview_url_builder(extra_q=extra_q)
         entities_filter = entities.filter
-        y_value_func = self._y_calculator.aggregrate
+        # y_value_func = self._y_calculator.aggregrate
+        y_value_func = self._y_calculator.aggregate
         choices = self._abscissa_enumerator.choices(user=user)
 
         if order == 'DESC':
@@ -562,7 +564,8 @@ class RGHRelation(ReportGraphHand):
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
-        y_value_func = self._y_calculator.aggregrate
+        # y_value_func = self._y_calculator.aggregrate
+        y_value_func = self._y_calculator.aggregate
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
             subj_ids = rel_filter(
@@ -824,7 +827,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            y_value_func = self._y_calculator.aggregrate
+            # y_value_func = self._y_calculator.aggregrate
+            y_value_func = self._y_calculator.aggregate
             build_url = self._listview_url_builder(extra_q=extra_q)
 
             for interval in DateInterval.generate(
@@ -864,7 +868,7 @@ class RGHCustomFK(_RGHCustomField):
         # entities_filter = entities.filter
         # y_value_func = self._y_calculator.aggregrate
         y_calculator = self._y_calculator
-        y_value_func = y_calculator.aggregrate
+        y_value_func = y_calculator.aggregate
         entities_filter = entities.filter(y_calculator.annotate_extra_q).filter
         build_url = self._listview_url_builder(extra_q=extra_q)
         related_instances = [
