@@ -36,9 +36,6 @@
                 "fontWeight": "bold",
                 "fontSize":   "9pt",
                 "textColor":  "black"
-                {% if plotXAxisAngle %}
-                , "angle": {{plotXAxisAngle}}
-                {% endif %}
             },
             "labelRenderer": "jqplot.CanvasAxisLabelRenderer"
         },
