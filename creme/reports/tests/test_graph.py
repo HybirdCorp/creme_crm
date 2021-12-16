@@ -1992,7 +1992,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_cell_key='regular_field-capital',
         )
 
-        # ASC -----------------------------------------------------------------
         x_asc, y_asc = rgraph.fetch(user)
         self.assertListEqual(['22/06/2013', '05/07/2013'], x_asc)
         self.assertEqual(150, y_asc[0][0])
@@ -2443,7 +2442,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_cf_value_y(entity=baratheons, value=500)
 
         report = self._create_simple_organisations_report()
-        rgraph1 = ReportGraph.objects.create(
+        rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Sum of gold by birthday (period of 1 year)',
             abscissa_cell_value=cf_x.id, abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
@@ -2451,9 +2450,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_cell_key=f'custom_field-{cf_y.id}',
         )
 
-        x_asc1, y_asc1 = rgraph1.fetch(user)
-        # self.assertListEqual(['2013', '2014', '2015'], x_asc1)
-        self.assertListEqual(['2013', '2014'], x_asc1)
+        x_asc, y_asc = rgraph.fetch(user)
+        # self.assertListEqual(['2013', '2014', '2015'], x_asc)
+        self.assertListEqual(['2013', '2014'], x_asc)
 
         def fmt(year):
             return '/tests/organisations?q_filter={}'.format(
@@ -2463,9 +2462,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 ),
             )
 
-        self.assertListEqual([1100, fmt(2013)], y_asc1[0])
-        self.assertListEqual([500,  fmt(2014)], y_asc1[1])
-        # self.assertListEqual([0,    fmt(2015)], y_asc1[2])
+        self.assertListEqual([1100, fmt(2013)], y_asc[0])
+        self.assertListEqual([500,  fmt(2014)], y_asc[1])
+        # self.assertListEqual([0,    fmt(2015)], y_asc[2])
 
     def test_fetch_by_customyear_date(self):
         "Count."
@@ -2503,11 +2502,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             customfielddate__custom_field=cf.id,
             customfielddate__value__year=2013,
         )
-        self.assertURL(
-            url=url0,
-            model=FakeOrganisation,
-            expected_q=expected_q,
-        )
+        self.assertURL(url=url0, model=FakeOrganisation, expected_q=expected_q)
 
     def test_fetch_by_customyear_datetime(self):
         "Count."
