@@ -816,12 +816,16 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
 
     def _fetch_fallback(self, entities, order, extra_q):
         cfield = self._cfield
+        value_rname = cfield.value_class._meta.get_field('entity').remote_field.name
         entities_filter = entities.filter
         date_aggregates = entities_filter(
-            customfielddatetime__custom_field=cfield
+            # customfielddatetime__custom_field=cfield
+            **{f'{value_rname}__custom_field': cfield}
         ).aggregate(
-            min_date=Min('customfielddatetime__value'),
-            max_date=Max('customfielddatetime__value'),
+            # min_date=Min('customfielddatetime__value'),
+            # max_date=Max('customfielddatetime__value'),
+            min_date=Min(f'{value_rname}__value'),
+            max_date=Max(f'{value_rname}__value'),
         )
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
@@ -836,10 +840,14 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             ):
                 before = interval.before
                 after  = interval.after
-                sub_entities = entities_filter(
-                    customfielddatetime__custom_field=cfield,
-                    customfielddatetime__value__range=(before, after),
-                )
+                # sub_entities = entities_filter(
+                #     customfielddatetime__custom_field=cfield,
+                #     customfielddatetime__value__range=(before, after),
+                # )
+                sub_entities = entities_filter(**{
+                    f'{value_rname}__custom_field': cfield,
+                    f'{value_rname}__value__range': (before, after),
+                })
 
                 yield (
                     '{}-{}'.format(
@@ -849,8 +857,10 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                     [
                         y_value_func(sub_entities),
                         build_url({
-                            'customfielddatetime__custom_field': cfield.id,
-                            'customfielddatetime__value__range': [
+                            # 'customfielddatetime__custom_field': cfield.id,
+                            f'{value_rname}__custom_field': cfield.id,
+                            # 'customfielddatetime__value__range': [
+                            f'{value_rname}__value__range': [
                                 before.strftime('%Y-%m-%d'),
                                 after.strftime('%Y-%m-%d'),
                             ],
