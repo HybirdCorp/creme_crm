@@ -456,18 +456,21 @@ class ContactTestCase(_BaseTestCase):
         # ---
         first_name = 'Bugs'
         last_name = 'Bunny'
+        cb_url = orga.get_absolute_url()
         response = self.client.post(
             url,
             follow=True,
             data={
                 'user': user.pk,
 
-                'first_name':    first_name,
-                'last_name':     last_name,
+                'first_name': first_name,
+                'last_name':  last_name,
+
+                'callback_url': cb_url,
             },
         )
         self.assertNoFormError(response)
-        self.assertRedirects(response, orga.get_absolute_url())
+        self.assertRedirects(response, cb_url)
 
         contact = self.get_object_or_fail(Contact, first_name=first_name)
         self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)

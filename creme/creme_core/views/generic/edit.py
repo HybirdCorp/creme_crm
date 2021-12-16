@@ -46,6 +46,7 @@ class CremeEditionPopup(base.CremeFormPopup):
 
 class CremeModelEdition(base.CustomFormMixin,
                         base.CancellableMixin,
+                        base.CallbackMixin,
                         base.PermissionsMixin,
                         base.TitleMixin,
                         base.SubmittableMixin,
@@ -93,6 +94,10 @@ class CremeModelEdition(base.CustomFormMixin,
         context['submit_label'] = self.get_submit_label()
         context['cancel_url'] = self.get_cancel_url()
 
+        context['callback_url'] = cb_url = self.get_callback_url()
+        if cb_url:
+            context['callback_url_name'] = self.callback_url_argument
+
         return context
 
     def get_form_class(self):
@@ -118,6 +123,9 @@ class CremeModelEdition(base.CustomFormMixin,
         self.check_instance_permissions(instance, request.user)
 
         return instance
+
+    def get_success_url(self):
+        return self.get_callback_url() or super().get_success_url()
 
     def get_title_format_data(self):
         data = super().get_title_format_data()

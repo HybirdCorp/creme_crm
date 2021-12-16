@@ -228,9 +228,8 @@ class RelatedActivityCreation(ActivityCreation):
 
         return rtype_id
 
-    def get_success_url(self):
-        # TODO: use 'cancel_url' if it is set ?
-        return self.related_entity.get_absolute_url()
+    # def get_success_url(self):
+    #     return self.related_entity.get_absolute_url()
 
     def get_type_id(self):
         type_id = self.request.GET.get('activity_type')  # TODO: attribute

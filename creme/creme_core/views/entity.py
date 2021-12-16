@@ -974,6 +974,7 @@ class EntityDeletion(EntityDeletionMixin,
         return self.get_url_for_entity()
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.get_url_for_entity()
 
     @atomic

@@ -85,6 +85,7 @@ class HeaderFilterDeletion(generic.CremeModelDeletion):
             raise PermissionDenied(msg)
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.object.entity_type.model_class().get_lv_absolute_url()
 
 

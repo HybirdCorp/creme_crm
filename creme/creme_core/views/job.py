@@ -148,6 +148,7 @@ class JobDeletion(generic.CremeModelDeletion):
         return self.get_success_url()
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.request.POST.get('back_url') or reverse('creme_core__my_jobs')
 
 

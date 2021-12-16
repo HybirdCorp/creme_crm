@@ -1175,8 +1175,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertListEqual([contact01], form.initial.get(self.EXTRA_OTHERPART_KEY))
 
         title = 'My meeting'
+        callback_url = contact01.get_absolute_url()
         response2 = self.client.post(
-            uri, follow=True,
+            uri,
+            follow=True,
             data={
                 'user':  user.id,
                 'title': title,
@@ -1190,10 +1192,13 @@ class ActivityTestCase(_ActivitiesTestCase):
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
 
                 self.EXTRA_PARTUSERS_KEY: [other_user.pk],
+
+                'callback_url': callback_url,
             },
         )
         self.assertNoFormError(response2)
-        self.assertRedirects(response2, contact01.get_absolute_url())
+        # self.assertRedirects(response2, contact01.get_absolute_url())
+        self.assertRedirects(response2, callback_url)
 
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(
@@ -1281,7 +1286,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         uri = self._build_add_related_uri(ryoga, constants.ACTIVITYTYPE_MEETING)
         title = 'My meeting'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(
+        response1 = self.client.post(
             uri,
             follow=True,
             data={
@@ -1300,8 +1305,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
         )
-        self.assertNoFormError(response)
-        self.assertRedirects(response, ryoga.get_absolute_url())
+        self.assertNoFormError(response1)
+        # self.assertRedirects(response, ryoga.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(
@@ -1311,7 +1316,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(constants.ACTIVITYTYPE_MEETING,            meeting.type.pk)
         self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_REVIVAL, meeting.sub_type_id)
 
-        response = self.assertPOST200(
+        self.assertRedirects(response1, meeting.get_absolute_url())
+
+        # ---
+        response2 = self.assertPOST200(
             uri, follow=True,
             data={
                 'user':  user.pk,
@@ -1327,7 +1335,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
+            response2, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
         )
 
     @skipIfCustomContact

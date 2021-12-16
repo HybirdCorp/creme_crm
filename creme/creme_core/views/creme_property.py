@@ -137,6 +137,7 @@ class PropertyFromFieldsDeletion(generic.base.EntityRelatedMixin,
         return get_from_POST_or_404(self.request.POST, self.ptype_id_arg)
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.get_property_type().get_absolute_url()
 
 
@@ -153,6 +154,7 @@ class PropertyTypeDeletion(generic.CremeModelDeletion):
         }
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.object.get_lv_absolute_url()
 
 
