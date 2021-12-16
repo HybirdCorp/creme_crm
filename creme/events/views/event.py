@@ -194,9 +194,8 @@ class AddContactsToEvent(generic.EntityEdition):
     title = _('Link some contacts to «{object}»')
     submit_label = _('Link these contacts')
 
-    # TODO: use a "?next=" GET argument ?
-    def get_success_url(self):
-        return reverse('events__list_related_contacts', args=(self.object.id,))
+    # def get_success_url(self):
+    #     return reverse('events__list_related_contacts', args=(self.object.id,))
 
 
 class RelatedOpportunityCreation(generic.EntityCreation):

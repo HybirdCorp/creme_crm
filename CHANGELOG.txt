@@ -179,6 +179,9 @@
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' is deprecated ;
                       use 'creme_core.utils.html.strip_html()' instead.
+        # In 'creme_core.views.generic', in the view-classes 'CremeModelCreation' & 'CremeModelEdition',
+          the redirection URL can be passed in the GET request (argument "callback_url").
+          Some views have been reworked to use this feature instead of using a fixed URL.
         # Apps :
             * Reports :
               - The template file "templates/reports/view_graph.html" use smaller '{% block %}' tags to be easier to extend.

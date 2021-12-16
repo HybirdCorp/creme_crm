@@ -18,6 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from typing import Iterable, List, Optional, Sequence, Type, Union
 from urllib.parse import urlencode
 
@@ -48,6 +49,8 @@ from creme.creme_core.utils.content_type import get_ctype_or_404
 
 from ..utils import build_cancel_path
 
+logger = logging.getLogger(__name__)
+
 
 class CancellableMixin:
     """Mixin that helps building an URL to go back when the user is in a form."""
@@ -64,6 +67,36 @@ class CancellableMixin:
             if request.method == 'POST' else
             build_cancel_path(request)
         )
+
+
+class CallbackMixin:
+    """Mixin which helps to retrieve an (internal) redirection-URL
+    (from the GET request) in a form view.
+    """
+    callback_url_argument = 'callback_url'
+
+    # NB: for linters only
+    request: HttpRequest
+
+    def get_callback_url(self) -> Optional[str]:
+        request = self.request
+
+        if request.method == 'POST':
+            return request.POST.get(self.callback_url_argument)
+
+        url = request.GET.get(self.callback_url_argument, '')
+
+        if url:
+            # NB: only internal URLs are accepted
+            if not url.startswith('/') or url.startswith('//'):
+                logger.warning(
+                    'CallbackMixin.get_callback_url(): suspicious URL: %s',
+                    url,
+                )
+            else:
+                return url
+
+        return None
 
 
 # NB: we do not use 'django.contrib.auth.mixins.AccessMixin' because its API would

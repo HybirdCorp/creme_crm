@@ -107,7 +107,9 @@ class FilterMixin:
 
         return None
 
+    # TODO: rename (shadows view method)
     def get_success_url(self):
+        # TODO: callback_url?
         return self.build_lv_url() or reverse('creme_core__home')
 
     def save_in_session(self, lvs_attr):
@@ -195,6 +197,7 @@ class EntityFilterDeletion(EntityDeletionMixin, generic.CremeModelDeletion):
             raise PermissionDenied(msg)
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.object.entity_type.model_class().get_lv_absolute_url()
 
     def perform_deletion(self, request):

@@ -641,21 +641,24 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(_('Link these contacts'), response.context.get('submit_label'))
 
+        cb_url = reverse('events__list_related_contacts', args=(event.id,))
         response = self.client.post(
             url, follow=True,
             data={
                 'related_contacts': self.formfield_value_multi_relation_entity(
                     (constants.REL_OBJ_CAME_EVENT, casca),
                 ),
+                'callback_url': cb_url,
             },
         )
         self.assertNoFormError(response)
         self.assertListEqual(
             [constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event),
         )
-        self.assertRedirects(
-            response, reverse('events__list_related_contacts', args=(event.id,)),
-        )
+        # self.assertRedirects(
+        #     response, reverse('events__list_related_contacts', args=(event.id,)),
+        # )
+        self.assertRedirects(response, cb_url)
 
     @skipIfCustomContact
     def test_link_contacts02(self):

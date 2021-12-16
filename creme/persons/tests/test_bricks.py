@@ -3,6 +3,7 @@
 from datetime import date, timedelta
 from functools import partial
 from unittest import skipIf
+from urllib.parse import urlencode
 
 from django.apps import apps
 from django.conf import settings
@@ -634,8 +635,12 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         buttons_node = self.get_brick_header_buttons(brick_node1)
         self.assertBrickHeaderHasButton(
             buttons_node,
-            url=reverse(
-                'persons__create_related_contact', args=(o1.id, constants.REL_OBJ_MANAGES),
+            url='{}?{}'.format(
+                reverse(
+                    'persons__create_related_contact',
+                    args=(o1.id, constants.REL_OBJ_MANAGES),
+                ),
+                urlencode({'callback_url': url}),
             ),
             label=_('Create a manager'),
         )
@@ -730,7 +735,8 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         bricks.EmployeesBrick.page_size = max(bricks.EmployeesBrick.page_size, 3)
 
-        response = self.assertGET200(o1.get_absolute_url())
+        url = o1.get_absolute_url()
+        response = self.assertGET200(url)
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), bricks.EmployeesBrick.id_,
         )
@@ -741,8 +747,12 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         buttons_node = self.get_brick_header_buttons(brick_node)
         self.assertBrickHeaderHasButton(
             buttons_node,
-            url=reverse(
-                'persons__create_related_contact', args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
+            url='{}?{}'.format(
+                reverse(
+                    'persons__create_related_contact',
+                    args=(o1.id, constants.REL_OBJ_EMPLOYED_BY),
+                ),
+                urlencode({'callback_url': url}),
             ),
             label=_('Create an employee'),
         )

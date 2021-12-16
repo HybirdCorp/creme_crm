@@ -172,8 +172,8 @@ class RelatedContactCreation(_ContactBaseCreation):
 
         return None
 
-    def get_success_url(self):
-        return self.linked_orga.get_absolute_url()
+    # def get_success_url(self):
+    #     return self.linked_orga.get_absolute_url()
 
     def get_title_format_data(self):
         data = super().get_title_format_data()

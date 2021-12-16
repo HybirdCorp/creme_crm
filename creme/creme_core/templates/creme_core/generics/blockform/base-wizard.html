@@ -40,6 +40,7 @@
 
 {% comment %} TODO
             {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
+            {% if callback_url_name %}<input type="hidden" name="{{callback_url_name}}" value="{{callback_url}}"/>{% endif %}
 {% endcomment %}
 
             {% for hidden in form.hidden_fields %}

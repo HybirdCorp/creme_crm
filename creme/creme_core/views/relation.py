@@ -266,6 +266,7 @@ class RelationDeletion(CremeModelDeletion):
         instance.type.is_not_internal_or_die()
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.object.subject_entity.get_real_entity().get_absolute_url()
 
 

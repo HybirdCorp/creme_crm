@@ -36,6 +36,7 @@ from . import base
 # TODO: add a system to be redirected after the creation (from an argument "?next=") ?
 class CremeModelCreation(base.CustomFormMixin,
                          base.CancellableMixin,
+                         base.CallbackMixin,
                          base.PermissionsMixin,
                          base.TitleMixin,
                          base.SubmittableMixin,
@@ -80,7 +81,13 @@ class CremeModelCreation(base.CustomFormMixin,
         context = super().get_context_data(**kwargs)
         context['title'] = self.get_title()
         context['submit_label'] = self.get_submit_label()
+
+        # TODO: pass 'self.cancel_url_post_argument' to name the input?
         context['cancel_url'] = self.get_cancel_url()
+
+        context['callback_url'] = cb_url = self.get_callback_url()
+        if cb_url:
+            context['callback_url_name'] = self.callback_url_argument
 
         return context
 
@@ -93,14 +100,17 @@ class CremeModelCreation(base.CustomFormMixin,
 
         return kwargs
 
+    def get_success_url(self):
+        return self.get_callback_url() or super().get_success_url()
+
+    def get_submit_label(self):
+        return super().get_submit_label() or self.model.save_label
+
     def get_title_format_data(self):
         data = super().get_title_format_data()
         data['creation_label'] = self.model.creation_label
 
         return data
-
-    def get_submit_label(self):
-        return super().get_submit_label() or self.model.save_label
 
     def post(self, *args, **kwargs):
         if self.atomic_POST:

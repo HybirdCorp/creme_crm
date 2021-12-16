@@ -60,6 +60,7 @@ class ParticipantRemoving(generic.CremeModelDeletion):
         return kwargs
 
     def get_success_url(self):
+        # TODO: callback_url?
         return self.object.subject_entity.get_absolute_url()
 
 
