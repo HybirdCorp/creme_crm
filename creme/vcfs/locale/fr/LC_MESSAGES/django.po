@@ -30,7 +30,7 @@ msgid ""
 "App: VCF"
 msgstr ""
 "Ce bouton génère un fichier VCF depuis le contact courant.\n"
-"App: VCF"
+"App : VCF"
 
 msgid "VCF file"
 msgstr "Fichier VCF"

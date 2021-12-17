@@ -88,7 +88,8 @@ class TodosBrick(_AssistantsBrick):
         'ToDos which are not marked as done and near of their deadline (see the '
         'job «Reminders»).\n'
         'Hint #2: if the owner of a ToDo is a team, e-mails are sent to all the '
-        'teammates.'
+        'teammates.\n'
+        'App: Assistants'
     )
     dependencies = (ToDo,)
     order_by = '-creation_date'
@@ -135,7 +136,8 @@ class MemosBrick(_AssistantsBrick):
     verbose_name = _('Memos')
     description = _(
         'Allows to add Memos to the current entity, which help you to note '
-        'extra-information about it.'
+        'extra-information about it.\n'
+        'App: Assistants'
     )
     dependencies = (Memo,)
     order_by = '-creation_date'
@@ -165,7 +167,8 @@ class AlertsBrick(_AssistantsBrick):
         'E-mails are sent to the owners of the Alerts which are not marked as validated and '
         'near of their deadline (see the job «Reminders»).\n'
         'Hint: if the owner of an Alert is a team, e-mails are sent to all the '
-        'teammates.'
+        'teammates.\n'
+        'App: Assistants'
     )
     dependencies = (Alert,)
     order_by = '-trigger_date'
@@ -238,7 +241,8 @@ class ActionsOnTimeBrick(_ActionsBrick):
         'Allows to add Actions to the current entity ; Actions expect a re-action '
         'to be done by another user before a given deadline.\n'
         'This block displays Actions which have no re-action yet & with a deadline '
-        'which has not been reached.'
+        'which has not been reached.\n'
+        'App: Assistants'
     )
     template_name = 'assistants/bricks/actions-on-time.html'
 
@@ -260,7 +264,8 @@ class ActionsNotOnTimeBrick(_ActionsBrick):
         'Allows to add Actions to the current entity ; Actions expect a re-action '
         'to be done by another user before a given deadline.\n'
         'This block displays Actions which have no re-action yet & with a deadline '
-        'which has been exceeded.'
+        'which has been exceeded.\n'
+        'App: Assistants'
     )
     template_name = 'assistants/bricks/actions-not-on-time.html'
 
@@ -280,7 +285,8 @@ class UserMessagesBrick(_AssistantsBrick):
     verbose_name = _('User messages')
     description = _(
         'Allows to send internal messages to other users, and see the messages '
-        'which other users sent to you.'
+        'which other users sent to you.\n'
+        'App: Assistants'
     )
     dependencies = (UserMessage,)
     order_by = '-creation_date'

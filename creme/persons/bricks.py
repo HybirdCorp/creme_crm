@@ -296,6 +296,7 @@ class ManagersBrick(QuerysetBrick):
         'Displays the list of the managers of an Organisation.\n'
         'The managers of an Organisation are Contacts which are linked to this '
         'Organisation by relationships «manages».\n'
+        'App: Accounts and Contacts'
     )
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
@@ -332,6 +333,7 @@ class EmployeesBrick(ManagersBrick):
         'Displays the list of the employees of an Organisation.\n'
         'The managers of an Organisation are Contacts which are linked to this '
         'Organisation by relationships «is an employee of».\n'
+        'App: Accounts and Contacts'
     )
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     template_name = 'persons/bricks/employees.html'
@@ -415,7 +417,8 @@ class DetailedAddressesBrick(_AddressesBrick):
         'Displays the billing & shipping addresses (if the related fields are '
         'not hidden).\n'
         'In this version of the block, all the visible fields of the addresses '
-        'are shown.'
+        'are shown.\n'
+        'App: Accounts and Contacts'
     )
     template_name = 'persons/bricks/addresses-detailed.html'
 
@@ -427,7 +430,8 @@ class PrettyAddressesBrick(_AddressesBrick):
         'Displays the billing & shipping addresses (if the related fields are '
         'not hidden).\n'
         'In this version of the block, the addresses are shown in a pretty way '
-        '(some fields can be ignored).'
+        '(some fields can be ignored).\n'
+        'App: Accounts and Contacts'
     )
     template_name = 'persons/bricks/addresses-pretty.html'
 
@@ -461,7 +465,8 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     description = _(
         'Displays the additional addresses (ie: not billing & shipping ones).\n'
         'In this version of the block, all the visible fields of the addresses '
-        'are shown.'
+        'are shown.\n'
+        'App: Accounts and Contacts'
     )
     template_name = 'persons/bricks/other-addresses-detailed.html'
     target_ctypes = (Contact, Organisation)
@@ -473,7 +478,8 @@ class PrettyOtherAddressesBrick(_OtherAddressesBrick):
     description = _(
         'Displays the additional addresses (ie: not billing & shipping ones).\n'
         'In this version of the block, the addresses are shown in a pretty way '
-        '(some fields can be ignored).'
+        '(some fields can be ignored).\n'
+        'App: Accounts and Contacts'
     )
     template_name = 'persons/bricks/other-addresses-pretty.html'
 
@@ -514,7 +520,8 @@ if apps.is_installed('creme.activities'):
             '- The Organisations with a relationship «is subject of the activity» or '
             '«related to the activity»\n'
             '- The managers & employees with a relationship «participates to the activity» '
-            '(plus the above ones)'
+            '(plus the above ones)\n'
+            'App: Accounts and Contacts'
         )
         dependencies = (Activity,)
         template_name = 'persons/bricks/neglected-organisations.html'

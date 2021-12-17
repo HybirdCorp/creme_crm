@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2021-12-17 10:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -28,17 +28,23 @@ msgstr "Outils"
 msgid "Extra project information"
 msgstr "Informations supplémentaires sur un projet"
 
-msgid "Displays cost & total overtime for a project."
+msgid ""
+"Displays cost & total overtime for a project.\n"
+"App: Projects"
 msgstr ""
-"Affiche le coût et le total d'heure(s) supplémentaire(s) pour un projet."
+"Affiche le coût et le total d'heure(s) supplémentaire(s) pour un projet.\n"
+"App : Projets"
 
 msgid "Extra project task information"
 msgstr "Informations supplémentaires sur une tâche de projet"
 
-msgid "Displays effective duration & additional/remaining hours for a task."
+msgid ""
+"Displays effective duration & additional/remaining hours for a task.\n"
+"App: Projects"
 msgstr ""
 "Affiche la durée effective & les heures supplémentaires/restantes pour une "
-"tâche."
+"tâche.\n"
+"App : Projets"
 
 msgid "Parents of a task"
 msgstr "Parents d'une tâche"
@@ -482,11 +488,46 @@ msgstr "Aucune tâche dans ce projet pour le moment"
 msgid "Back to the project"
 msgstr "Retour au projet"
 
-msgid "Project is already closed."
-msgstr "Le projet est déjà fermé."
+msgid "Some entities are not linkable: {}"
+msgstr ""
+
+#, python-brace-format
+msgid "Entity #{id} (not viewable)"
+msgstr ""
+
+#, python-brace-format
+msgid "Create a task for «{entity}»"
+msgstr "Créer une tâche à «{entity}»"
+
+msgid "This field is required."
+msgstr ""
+
+msgid "This entity does not exist."
+msgstr ""
+
+#, python-brace-format
+msgid "Adding parents to «{object}»"
+msgstr "Ajouter des tâches parentes à «{object}»"
 
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
+
+#, python-brace-format
+msgid "New activity related to «{entity}»"
+msgstr "Nouvelle activité liée à «{entity}»"
+
+#, python-brace-format
+msgid ""
+"{participant} already participates to the activity «{activity}» between "
+"{start} and {end}."
+msgstr ""
+
+#, python-brace-format
+msgid "Resource for «{entity}»"
+msgstr "Ressource pour «{entity}»"
+
+msgid "Project is already closed."
+msgstr "Le projet est déjà fermé."
 
 msgid ""
 "You can't add a resource or a working period to a task which has status «{}»"
@@ -494,26 +535,10 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressource ou de période travaillée à une tâche "
 "en statut «{}»"
 
-#, python-brace-format
-msgid "Resource for «{entity}»"
-msgstr "Ressource pour «{entity}»"
-
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
 "activités."
-
-#, python-brace-format
-msgid "Create a task for «{entity}»"
-msgstr "Créer une tâche à «{entity}»"
-
-#, python-brace-format
-msgid "Adding parents to «{object}»"
-msgstr "Ajouter des tâches parentes à «{object}»"
-
-#, python-brace-format
-msgid "New activity related to «{entity}»"
-msgstr "Nouvelle activité liée à «{entity}»"
 
 #~ msgid "Start date"
 #~ msgstr "Date de début"

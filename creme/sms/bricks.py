@@ -63,7 +63,8 @@ class RecipientsBrick(QuerysetBrick):
         'Allows to add simple phone number to the current Messaging list. '
         'These numbers are not related to a Contact.\n'
         'Hint: if you want to send SMS to Contacts, you should '
-        'use the other block to add recipients.'
+        'use the other block to add recipients.\n'
+        'App: SMS'
     )
     dependencies = (Recipient,)
     template_name = 'sms/bricks/recipients.html'

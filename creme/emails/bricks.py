@@ -125,7 +125,8 @@ class EmailRecipientsBrick(QuerysetBrick):
         'Allows to add simple email addresses to the current Mailing list. '
         'These addresses are not related to a Contact or an Organisation.\n'
         'Hint: if you want to send emails to Contacts/Organisations, you should '
-        'use the other blocks to add recipients.'
+        'use the other blocks to add recipients.\n'
+        'App: Emails'
     )
     dependencies = (EmailRecipient,)
     template_name = 'emails/bricks/recipients.html'
@@ -262,7 +263,8 @@ class MailsHistoryBrick(QuerysetBrick):
     description = _(
         'Displays the Emails linked to the current entity with a relationship '
         '«sent the email», «received the email» or «related to the email». '
-        'Allows you to send emails too.'
+        'Allows you to send emails too.\n'
+        'App: Emails'
     )
     dependencies = (EntityEmail, Relation)
     order_by = '-sending_date'
@@ -315,7 +317,8 @@ class LwMailsHistoryBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'lw_mails_history')
     verbose_name = _('Campaigns emails history')
     description = _(
-        'Displays the emails (sent from Campaigns) received by the current entity.'
+        'Displays the emails (sent from Campaigns) received by the current entity.\n'
+        'App: Emails'
     )
     dependencies = (LightWeightEmail,)
     order_by = '-sending_date'

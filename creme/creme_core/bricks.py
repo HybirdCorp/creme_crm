@@ -54,7 +54,8 @@ class PropertiesBrick(QuerysetBrick):
     verbose_name = _('Properties')
     description = _(
         'Displays the Properties attached to the current entity. '
-        'Properties are kind of markers, useful to filter entities. '
+        'Properties are kind of markers, useful to filter entities.\n'
+        'App: Core'
     )
     template_name = 'creme_core/bricks/properties.html'
     order_by = 'type__text'  # TODO: in model ??
@@ -74,7 +75,8 @@ class RelationsBrick(QuerysetBrick):
         'A Relationship is: \n'
         '- typed (examples of types: «is a customer of», «has been sent by»)\n'
         '- has a symmetric relationship'
-        ' (eg: «is a customer of» & «is a supplier of» are symmetric)'
+        ' (eg: «is a customer of» & «is a supplier of» are symmetric)\n'
+        'App: Core'
     )
 
     # NB: indeed (Relation, CremeEntity) but useless because
@@ -172,7 +174,8 @@ class CustomFieldsBrick(Brick):
     verbose_name = _('Custom fields')
     description = _(
         'Displays the values of the Custom Fields for the current entity. '
-        'Custom Fields can be created in the general configuration.'
+        'Custom Fields can be created in the general configuration.\n'
+        'App: Core'
     )
     dependencies = (CustomField,)
     template_name = 'creme_core/bricks/custom-fields.html'
@@ -197,7 +200,8 @@ class HistoryBrick(QuerysetBrick):
         'Displays the history of modifications on the current entity. '
         'Each line of history contains a date, the user which made the '
         'modifications & the type of modification (creation, edition of fields, '
-        'deletion, relationship adding…).'
+        'deletion, relationship adding…).\n'
+        'App: Core'
     )
     dependencies = '*'
     read_only = True
@@ -286,7 +290,8 @@ class ImprintsBrick(QuerysetBrick):
     verbose_name = _('History of consultation')
     description = _(
         'Displays who has consulted the current entity, and the date of the consultations.\n'
-        'Hint: only super-users can view this data.'
+        'Hint: only super-users can view this data.\n'
+        'App: Core'
     )
     dependencies = (Imprint,)
     read_only = True
@@ -350,7 +355,8 @@ class StatisticsBrick(Brick):
     verbose_name = _('Statistics')
     description = _(
         'Displays many statistics (eg: the numbers of customers), depending '
-        'on installed apps.'
+        'on installed apps.\n'
+        'App: Core'
     )
     template_name = 'creme_core/bricks/statistics.html'
 
