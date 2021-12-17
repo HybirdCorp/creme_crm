@@ -61,10 +61,10 @@ class GeoAddress(models.Model):
     # min_value=-180, max_value=180
     longitude = models.FloatField(verbose_name=_('Longitude'), null=True, blank=True)
     draggable = models.BooleanField(
-        verbose_name=_('Is this marker draggable in maps ?'), default=True,
+        verbose_name=_('Is this marker draggable in maps?'), default=True,
     )
     geocoded = models.BooleanField(
-        verbose_name=_('Geocoded from address ?'), default=False,
+        verbose_name=_('Geocoded from address?'), default=False,
     )
     status = models.SmallIntegerField(
         verbose_name=pgettext_lazy('geolocation', 'Status'),

@@ -116,6 +116,10 @@ class _DetailMapBrick(_MapBrick):
 class GoogleDetailMapBrick(_DetailMapBrick):
     id_ = Brick.generate_id('geolocation', 'detail_google_maps')
     verbose_name = _('Addresses on Google Maps ®')
+    description = _(
+        'Display the addresses of the Contact/Organisation on Google Maps ®.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/google/detail-map.html'
 
     def get_api_key(self):
@@ -125,6 +129,10 @@ class GoogleDetailMapBrick(_DetailMapBrick):
 class OpenStreetMapDetailMapBrick(_DetailMapBrick):
     id_ = Brick.generate_id('geolocation', 'detail_openstreetmap')
     verbose_name = _('Addresses on OpenStreetMap ®')
+    description = _(
+        'Display the addresses of the Contact/Organisation on OpenStreetMap ®.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/osm/detail-map.html'
 
     def get_map_settings(self):
@@ -144,6 +152,11 @@ class _FilteredMapBrick(_MapBrick):
 class GoogleFilteredMapBrick(_FilteredMapBrick):
     id_ = Brick.generate_id('geolocation', 'filtered_google_maps')
     verbose_name = _('Filtered addresses on Google Maps ®')
+    description = _(
+        'Display on Google Maps ® the addresses of the Contacts/Organisations '
+        'corresponding to a filter.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/google/filtered-map.html'
 
     def get_api_key(self):
@@ -153,6 +166,11 @@ class GoogleFilteredMapBrick(_FilteredMapBrick):
 class OpenStreetMapFilteredMapBrick(_FilteredMapBrick):
     id_ = Brick.generate_id('geolocation', 'filtered_openstreetmap')
     verbose_name = _('Filtered addresses on OpenStreetMap ®')
+    description = _(
+        'Display on OpenStreetMap ® the addresses of the Contacts/Organisations '
+        'corresponding to a filter.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/osm/filtered-map.html'
 
     def get_map_settings(self):
@@ -187,6 +205,11 @@ class _NeighboursMapBrick(_MapBrick):
 class GoogleNeighboursMapBrick(_NeighboursMapBrick):
     id_ = Brick.generate_id('geolocation', 'google_whoisaround')
     verbose_name = _('Neighbours on Google Maps ®')
+    description = _(
+        'Display on Google Maps ® the addresses of the neighbours of the Contact/Organisation. '
+        'The neighbours are Contacts/Organisations and can be filtered.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/google/neighbours-map.html'
     detail_map = GoogleDetailMapBrick
 
@@ -197,6 +220,11 @@ class GoogleNeighboursMapBrick(_NeighboursMapBrick):
 class OpenStreetMapNeighboursMapBrick(_NeighboursMapBrick):
     id_ = Brick.generate_id('geolocation', 'openstreetmap_whoisaround')
     verbose_name = _('Neighbours on OpenStreetMap ©')
+    description = _(
+        'Display on OpenStreetMap ® the addresses of the neighbours of the Contact/Organisation. '
+        'The neighbours are Contacts/Organisations and can be filtered.\n'
+        'App: Geolocation'
+    )
     template_name = 'geolocation/bricks/osm/neighbours-map.html'
     detail_map = OpenStreetMapDetailMapBrick
 
