@@ -5,27 +5,6 @@
 
 {% block content_extra_class %}content-detail-view{% endblock %}
 
-{% comment %}
-{% block before_content_1 %}
-    <div class="buttons-list global-buttons">
-        <ul>
-        {% block global_buttons %}
-            {% block listview_button %}
-                {% if object.get_lv_absolute_url %}
-                <li>
-                    <a class="menu_button menu-button-icon" href="{{object.get_lv_absolute_url}}">{% translate 'Back to the list' as back_label %}
-                        {% widget_icon name='listview' size='global-button' label=back_label %}
-                        {{back_label}}
-                    </a>
-                </li>
-                {% endif %}
-            {% endblock %}
-        {% endblock %}
-        </ul>
-    </div>
-{% endblock %}
-{% endcomment %}
-
 {% block content %}
     {% block global_buttons_container %}
         <div class="buttons-list global-buttons">

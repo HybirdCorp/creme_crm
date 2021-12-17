@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,6 @@ import uuid
 from collections import OrderedDict, defaultdict
 from functools import reduce
 from operator import or_ as or_op
-# from re import compile as re_compile
 from typing import (
     TYPE_CHECKING,
     DefaultDict,
@@ -50,7 +49,6 @@ from django.contrib.auth.models import (
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
-# from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.timezone import now
@@ -62,7 +60,7 @@ from ..core.setting_key import UserSettingValueManager
 from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
-from .fields import EntityCTypeForeignKey  # CTypeForeignKey
+from .fields import EntityCTypeForeignKey
 
 if TYPE_CHECKING:
     from ..core.sandbox import SandboxType
@@ -404,7 +402,6 @@ class SetCredentials(models.Model):
             )
 
         args = {
-            # 'set':   self.ESETS_MAP.get(self.set_type, '??'),
             'set':   self.get_set_type_display(),
             'perms': ', '.join(perms),
         }
@@ -873,18 +870,7 @@ class CremeUser(AbstractBaseUser):
         help_text=_(
             'Required. 30 characters or fewer. Letters, digits and @/./+/-/_ only.'
         ),
-        validators=[
-            # RegexValidator(
-            #     re_compile(r'^[\w.@+-]+$'),
-            #     _(
-            #         'Enter a valid username. '
-            #         'This value may contain only letters, numbers, '
-            #         'and @/./+/-/_ characters.'
-            #     ),
-            #     'invalid',
-            # ),
-            username_validator,
-        ],
+        validators=[username_validator],
         error_messages={
             'unique': _('A user with that username already exists.'),
         },
@@ -1079,7 +1065,6 @@ class CremeUser(AbstractBaseUser):
 
         return creds
 
-    # Copied from auth.models.PermissionsMixin.has_perm
     def has_perm(self, perm: str, obj=None) -> bool:
         """
         Returns True if the user has the specified permission. This method
@@ -1088,9 +1073,6 @@ class CremeUser(AbstractBaseUser):
         auth backend is assumed to have permission in general. If an object is
         provided, permissions for this specific object are checked.
         """
-        # if self.is_active and self.is_superuser:
-        #     return True
-
         # Check the backends.
         return _user_has_perm(self, perm, obj)
 

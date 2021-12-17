@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2021 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,6 @@
 import logging
 import sys
 import traceback
-# import warnings
 from typing import Callable, Iterable, List, Tuple, TypeVar
 
 from django.http import Http404
@@ -38,39 +37,6 @@ from ..signals import pre_replace_related
 
 logger = logging.getLogger(__name__)
 T = TypeVar('T')
-
-
-# def creme_entity_content_types():
-#     warnings.warn(
-#         'creme_core.utils.creme_entity_content_types() is deprecated ; '
-#         'use creme_core.utils.content_type.entity_ctypes() instead.',
-#         DeprecationWarning
-#     )
-#
-#     from . import content_type
-#     return content_type.entity_ctypes()
-
-
-# def get_ct_or_404(ct_id):
-#     warnings.warn(
-#         'creme_core.utils.get_ct_or_404() is deprecated ; '
-#         'use creme_core.utils.content_type.get_ctype_or_404() instead.',
-#         DeprecationWarning
-#     )
-#
-#     from . import content_type
-#     return content_type.get_ctype_or_404(ct_id)
-
-
-# def build_ct_choices(ctypes):
-#     warnings.warn(
-#         'creme_core.utils.build_ct_choices() is deprecated ; '
-#         'use creme_core.utils.content_type.ctype_choices() instead.',
-#         DeprecationWarning
-#     )
-#
-#     from . import content_type
-#     return content_type.ctype_choices(ctypes)
 
 
 def create_if_needed(model, get_dict, **attrs):
@@ -206,32 +172,11 @@ def split_filter(predicate: Callable[[T], bool],
     return ok, ko
 
 
-# def entities2unicode(entities: Iterable, user) -> str:
-#     """Return a string representing an iterable of CremeEntities,
-#     with care of permissions.
-#     """
-#     warnings.warn('entities2unicode() is deprecated ; '
-#                   'use entities_to_str() instead.',
-#                   DeprecationWarning
-#                  )
-#     return entities_to_str(entities, user)
-
-
 def entities_to_str(entities: Iterable, user) -> str:
     """Return a string representing an iterable of CremeEntities,
     with care of permissions.
     """
     return ', '.join(entity.allowed_str(user) for entity in entities)
-
-
-# def related2unicode(entity, user) -> str:
-#     """Return a string representing a related entity with its owner,
-#     with care of permissions of this owner.
-#     """
-#     warnings.warn('related2unicode() is deprecated.',
-#                   DeprecationWarning
-#                  )
-#     return f'{entity.get_related_entity().allowed_str(user)} - {entity}'
 
 
 __BFS_MAP = {

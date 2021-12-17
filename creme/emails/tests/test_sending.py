@@ -92,7 +92,6 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   sender_email,
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -162,7 +161,6 @@ class SendingsTestCase(_EmailsTestCase):
                 url,
                 data={
                     'sender': sender_email,
-                    # 'type': SENDING_TYPE_IMMEDIATE,
                     'type': EmailSending.Type.IMMEDIATE,
                     'template': template.id,
                 },
@@ -189,7 +187,6 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   sender_email,
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -278,7 +275,6 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   'vicious@reddragons.mrs',
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -288,9 +284,7 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(1, len(sendings))
 
         sending = sendings[0]
-        # self.assertEqual(SENDING_TYPE_IMMEDIATE, sending.type)
         self.assertEqual(EmailSending.Type.IMMEDIATE, sending.type)
-        # self.assertEqual(SENDING_STATE_PLANNED,  sending.state)
         self.assertEqual(EmailSending.State.PLANNED,  sending.state)
         self.assertEqual(subject,                sending.subject)
         self.assertEqual(body,                   sending.body)
@@ -339,7 +333,6 @@ class SendingsTestCase(_EmailsTestCase):
         # ---
         mail = mails[0]
         self.assertEqual(0, mail.reads)
-        # self.assertEqual(MAIL_STATUS_NOTSENT, mail.status)
         self.assertEqual(LightWeightEmail.Status.NOT_SENT, mail.status)
 
         response1 = self.assertGET200(reverse('emails__view_lw_mail', args=(mail.id,)))
@@ -353,7 +346,6 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual('SAMEORIGIN', response2.get('X-Frame-Options'))
 
         # Detail view ----------------------------------------------------------
-        # detail_url = reverse('emails__view_sending', args=(sending.id,))
         detail_url = sending.get_absolute_url()
         self.assertPOST405(detail_url)
 
@@ -423,7 +415,6 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   'vicious@reddragons.mrs',
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -480,7 +471,6 @@ class SendingsTestCase(_EmailsTestCase):
     @override_settings(EMAILCAMPAIGN_SLEEP_TIME=0.1)
     def test_create03(self):
         "Job + outbox."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -513,7 +503,6 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   sender,
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -531,7 +520,6 @@ class SendingsTestCase(_EmailsTestCase):
         with self.assertNoException():
             sending = camp.sendings_set.all()[0]
 
-        # self.assertEqual(SENDING_STATE_DONE, sending.state)
         self.assertEqual(EmailSending.State.DONE, sending.state)
 
         messages = django_mail.outbox
@@ -570,7 +558,6 @@ class SendingsTestCase(_EmailsTestCase):
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
             'sender':   'vicious@reddragons.mrs',
-            # 'type':     SENDING_TYPE_DEFERRED,
             'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
@@ -630,7 +617,6 @@ class SendingsTestCase(_EmailsTestCase):
         naive_sending_date = make_naive(sending_date, get_current_timezone())
         data = {
             'sender':   'vicious@reddragons.mrs',
-            # 'type':     SENDING_TYPE_DEFERRED,
             'type':     EmailSending.Type.DEFERRED,
             'template': template.id,
         }
@@ -673,7 +659,6 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   'vicious@reddragons.mrs',
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -816,9 +801,7 @@ class SendingsTestCase(_EmailsTestCase):
         user = self.login()
         camp = EmailCampaign.objects.create(user=user, name='camp01')
         sending = EmailSending.objects.create(
-            # campaign=camp, type=SENDING_TYPE_IMMEDIATE,
             campaign=camp, type=EmailSending.Type.IMMEDIATE,
-            # sending_date=now(), state=SENDING_STATE_PLANNED,
             sending_date=now(), state=EmailSending.State.PLANNED,
         )
 
@@ -844,7 +827,6 @@ class SendingsTestCase(_EmailsTestCase):
         now_value = now()
         create_sending = partial(
             EmailSending.objects.create, campaign=camp,
-            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
             type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
         )
         create_sending(sending_date=now_value + timedelta(weeks=2))
@@ -864,7 +846,6 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
             type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
             sending_date=now_value - timedelta(hours=1),
         )
@@ -894,7 +875,6 @@ class SendingsTestCase(_EmailsTestCase):
             self._build_add_url(camp),
             data={
                 'sender':   sender,
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },
@@ -916,12 +896,10 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_PLANNED,
             type=EmailSending.Type.DEFERRED, state=EmailSending.State.PLANNED,
             sending_date=now() - timedelta(hours=1),
         )
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -939,12 +917,10 @@ class SendingsTestCase(_EmailsTestCase):
 
         EmailSending.objects.create(
             campaign=camp,
-            # type=SENDING_TYPE_DEFERRED, state=SENDING_STATE_DONE,
             type=EmailSending.Type.DEFERRED, state=EmailSending.State.DONE,
             sending_date=now() - timedelta(hours=1),
         )
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

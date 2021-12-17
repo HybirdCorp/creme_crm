@@ -24,7 +24,6 @@ class RecurrentsAppTestCase(CremeTestCase):
         registry = RecurrentRegistry()
         self.assertFalse([*registry.ctypes])
         self.assertFalse([*registry.models])
-        # self.assertIsNone(registry.get_form_of_template(get_ct(FakeRecurrentDoc)))
         self.assertIsNone(
             registry.get_template_form_class(model=FakeRecurrentDoc, user=user)
         )
@@ -38,10 +37,6 @@ class RecurrentsAppTestCase(CremeTestCase):
         )
         self.assertListEqual([get_ct(FakeRecurrentDoc)], [*registry.ctypes])
         self.assertListEqual([FakeRecurrentDoc], [*registry.models])
-        # self.assertEqual(
-        #     FakeRecurrentTemplateForm,
-        #     registry.get_form_of_template(get_ct(FakeRecurrentDoc)),
-        # )
         self.assertEqual(
             FakeRecurrentTemplateForm,
             registry.get_template_form_class(model=FakeRecurrentDoc, user=user),

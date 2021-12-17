@@ -137,7 +137,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_create02(self):
         "Deadline."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

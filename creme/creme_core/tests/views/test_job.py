@@ -2,12 +2,10 @@
 
 from collections import Counter
 
-# from json import dumps as json_dump
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.encoding import smart_str
 from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -21,7 +19,6 @@ from creme.creme_core.bricks import (
     MyJobsBrick,
 )
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.creme_jobs import (
     batch_process_type,
@@ -45,7 +42,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
     def setUpClass(cls):
         super().setUpClass()
 
-        # cls.queue = queue = JobSchedulerQueue.get_main_queue()
         cls.queue = queue = get_queue()
         cls._original_queue_ping = queue.ping
 
@@ -53,9 +49,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def tearDown(self):
         self.queue.ping = self._original_queue_ping
-
-    # def _assertCount(self, response, found, count):
-    #     self.assertEqual(count, smart_str(response.content).count(found))
 
     @staticmethod
     def _build_enable_url(job):
@@ -75,10 +68,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             type_id=batch_process_type.id,
             language='en',
             status=status,
-            # raw_data=json_dump({
-            #     'ctype': self.ct_orga_id,
-            #     'actions': [],
-            # }),
             data={
                 'ctype': self.ct_orga_id,
                 'actions': [],
@@ -91,7 +80,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             type_id=JobType.generate_id('creme_core', 'invalid'),
             language='en',
             status=status,
-            # raw_data='[]',
             data=[],
         )
 
@@ -425,7 +413,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             response.context.get('bricks_reload_url'),
         )
 
-        # self._assertCount(response, str(batch_process_type.verbose_name), job_count)
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), JobsBrick.id_
         )
@@ -516,7 +503,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login(is_superuser=False)
         self._create_batchprocess_job()
         response1 = self.assertGET200(self.MINE_URL)
-        # self._assertCount(response1, str(batch_process_type.verbose_name), 1)
         brick_node1 = self.get_brick_node(
             self.get_html_tree(response1.content), MyJobsBrick.id_
         )
@@ -528,7 +514,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         self._create_batchprocess_job(user=self.other_user)
         response2 = self.assertGET200(self.MINE_URL)
-        # self._assertCount(response2, str(batch_process_type.verbose_name), 1)  # Only job1
         brick_node2 = self.get_brick_node(
             self.get_html_tree(response2.content), MyJobsBrick.id_
         )
@@ -648,7 +633,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST409(self._build_delete_url(job), follow=True)
 
     def test_disable01(self):
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = self.queue
         queue.clear()
 

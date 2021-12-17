@@ -11,7 +11,6 @@
     {% endblock %}
 
     {% if help_message %}
-{#        <div class="help_box">{{help_message|linebreaksbr}}</div> #}
         {% widget_help_sign message=help_message %}
     {% endif%}
 
@@ -52,20 +51,6 @@
             {% endfor %}
 
             {% if form.non_field_errors %}
-{% comment %}
-                <table class="table_detail_view ui-corner-all">
-                    <thead>
-                        <tr>
-                            <th valign="middle">{% translate 'Global errors' %}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="collapsable">
-                        <tr>
-                            <td class="non_field_errors">{{form.non_field_errors}}</td>
-                        </tr>
-                    </tbody>
-                </table>
-{% endcomment %}
                 <div class="form-block-errors">
                     <div class="form-block-errors-header">
                         <span class="form-block-errors-title">{% translate 'Global errors' %}</span>
@@ -83,11 +68,6 @@
                         {{subform.as_p}}
                     {% endfor %}
                 {% else %}
-{% comment %}
-                    {% for form_block in form.get_blocks %}
-                        {% include 'creme_core/generics/blockform/content.html' %}
-                    {% endfor %}
-{% endcomment %}
                     {% include 'creme_core/generics/blockform/field-blocks.html' %}
                 {% endif %}
             {% endblock %}

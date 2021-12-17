@@ -36,34 +36,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         cls.contact_ct = get_ct(FakeContact)  # TODO: used once ?!
         cls.orga_ct    = get_ct(FakeOrganisation)
 
-    # def test_create(self):  # DEPRECATED
-    #     self.login()
-    #
-    #     name = 'Contact view'
-    #     pk   = 'tests-hf_contact'
-    #     hf   = HeaderFilter.create(pk=pk, name=name, model=FakeContact, is_custom=True)
-    #     self.assertEqual(pk,   hf.pk)
-    #     self.assertEqual(name, hf.name)
-    #     self.assertIsNone(hf.user)
-    #     self.assertEqual(self.contact_ct, hf.entity_type)
-    #     self.assertIs(hf.is_custom, True)
-    #     self.assertIs(hf.is_private, False)
-    #     self.assertEqual('[]', hf.json_cells)
-    #     self.assertFalse(hf.cells)
-    #
-    #     hf.cells = [EntityCellRegularField.build(model=FakeContact, name='first_name')]
-    #     hf.save()
-    #
-    #     hf = self.refresh(hf)
-    #     self.assertEqual(1, len(hf.cells))
-    #
-    #     with self.assertNoException():
-    #         deserialized = json_load(hf.json_cells)
-    #
-    #     self.assertEqual([{'type': 'regular_field', 'value': 'first_name'}],
-    #                      deserialized
-    #                     )
-
     def test_manager_create_if_needed01(self):
         self.login()
 
@@ -130,21 +102,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf = self.refresh(hf)
         self.assertEqual(user, hf.user)
         self.assertTrue(hf.is_private)
-
-        # cells = hf.cells
-        # self.assertEqual(3, len(cells))
-        #
-        # cell = cells[0]
-        # self.assertIsInstance(cell, EntityCellRegularField)
-        # self.assertEqual('last_name', cell.value)
-        #
-        # cell = cells[1]
-        # self.assertIsInstance(cell, EntityCellRelation)
-        # self.assertEqual(loves.id, cell.value)
-        #
-        # cell = cells[2]
-        # self.assertIsInstance(cell, EntityCellRelation)
-        # self.assertEqual(likes.id, cell.value)
         self.assertListEqual(
             [
                 EntityCellRegularField.build(model=FakeContact, name='last_name'),
@@ -176,7 +133,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
         self.assertEqual(name, hf.name)
         self.assertIsNone(hf.user)
-        # self.assertEqual(1, len(hf.cells))
         self.assertListEqual(
             [EntityCellRegularField.build(model=FakeContact, name='last_name')],
             hf.cells,
@@ -228,7 +184,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         cells.append(build_cell(name='description'))
         hf.cells = cells
         hf.save()
-        # self.assertEqual(3, len(self.refresh(hf).cells))
         self.assertListEqual(
             [build_cell(name=fn) for fn in ('first_name', 'last_name', 'description')],
             self.refresh(hf).cells,
@@ -250,8 +205,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         hf.save()
 
         self.assertListEqual(
-            # [cell01.value, cell03.value],
-            # [cell.value for cell in self.refresh(hf).cells]
             [cell01, cell03],
             self.refresh(hf).cells,
         )
@@ -290,7 +243,6 @@ class HeaderFiltersTestCase(CremeTestCase):
         )
 
         hf = self.refresh(hf)
-        # self.assertEqual(1, len(hf.cells))
         valid_cells = [EntityCellRegularField.build(model=FakeContact, name=rfield_name)]
         self.assertListEqual(valid_cells, hf.cells)
 
@@ -313,11 +265,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                 {'type': 'regular_field', 'value': rfield_name},
             ]),
         )
-
-        # hf = self.refresh(hf)
-        # cells = hf.cells
-        # self.assertEqual(1, len(cells))
-        # self.assertIsInstance(cells[0], EntityCellRegularField)
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
@@ -329,11 +276,6 @@ class HeaderFiltersTestCase(CremeTestCase):
                 {'type': 'regular_field', 'value': rfield_name},
             ]),
         )
-
-        # hf = self.refresh(hf)
-        # cells = hf.cells
-        # self.assertEqual(1, len(cells))
-        # self.assertIsInstance(cells[0], EntityCellRegularField)
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
@@ -345,21 +287,14 @@ class HeaderFiltersTestCase(CremeTestCase):
                 {'type': 'regular_field', 'value': rfield_name},
             ]),
         )
-
-        # hf = self.refresh(hf)
-        # cells = hf.cells
-        # self.assertEqual(1, len(cells))
-        # self.assertIsInstance(cells[0], EntityCellRegularField)
         self.assertListEqual(valid_cells, self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump([1]))  # Not a dict
-        # self.assertEqual(0, len(self.refresh(hf).cells))
         self.assertFalse(self.refresh(hf).cells)
 
         # ---------------------------------------------------------------------
         HeaderFilter.objects.filter(id=hf.id).update(json_cells=json_dump(1))  # Not a list
-        # self.assertEqual(0, len(self.refresh(hf).cells))
         self.assertFalse(self.refresh(hf).cells)
 
     def test_filtered_cells(self):
@@ -468,8 +403,6 @@ class HeaderFiltersTestCase(CremeTestCase):
 
         hf = self.refresh(hf)
         new_cells = hf.cells
-        # self.assertEqual(1, len(new_cells))
-        # self.assertEqual(cell1, new_cells[0])
         self.assertListEqual([cell1], new_cells)
 
         with self.assertNoException():

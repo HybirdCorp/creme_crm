@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from json import loads as json_load
-# from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -44,7 +42,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             FieldsConfig(content_type=ct, descriptions=())
             for ct in map(
                 ContentType.objects.get_for_model,
-                # filter(FieldsConfig.objects.is_model_valid, apps.get_models())
                 fields_config_registry.models
             )
             if ct.id not in used_ct_ids
@@ -138,7 +135,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Edit «{object}»').format(object=fconf), context.get('title'))
 
         with self.assertNoException():
-            # choices = context['form'].fields['hidden'].choices
             fields1 = context['form'].fields
 
             phone_f1 = fields1['phone']
@@ -146,12 +142,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
             email_f = fields1['email']
             email_f_choices = email_f.choices
-
-        # self.assertInChoices(value='phone', label=_('Phone number'), choices=choices)
-        # self.assertInChoices(value='birthday', label=_('Birthday'), choices=choices)
-        # self.assertNotInChoices(value='last_name', choices=choices)
-        # self.assertInChoices(value='image', label=_('Photograph'), choices=choices)
-        # self.assertNotInChoices(value='image__description', choices=choices)
 
         self.assertEqual(_('Phone number'), phone_f1.label)
         self.assertInChoices(value='',         label='---',         choices=phone_f_choices)
@@ -175,7 +165,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(sorted(labels), labels)
 
         # ---
-        # response2 = self.client.post(url, data={'hidden': ['phone', 'birthday']})
         response2 = self.client.post(
             url,
             data={
@@ -185,11 +174,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response2)
 
-        # fconf = self.refresh(fconf)
-        # self.assertListEqual(
-        #     [['phone', {'hidden': True}], ['birthday', {'hidden': True}]],
-        #     json_load(fconf.raw_descriptions),
-        # )
         self.assertListEqual(
             [('birthday', {'hidden': True}), ('phone', {'required': True})],
             self.refresh(fconf).descriptions,
@@ -199,13 +183,11 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response3 = self.assertGET200(url)
 
         with self.assertNoException():
-            # hidden_f = response3.context['form'].fields['hidden']
             fields3 = response3.context['form'].fields
             email_f3 = fields3['email']
             phone_f3 = fields3['phone']
             birthday_f3 = fields3['birthday']
 
-        # self.assertCountEqual(['phone', 'birthday'], hidden_f.initial)
         self.assertEqual('',         email_f3.initial)
         self.assertEqual('required', phone_f3.initial)
         self.assertEqual('hidden',   birthday_f3.initial)
@@ -316,11 +298,8 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         with self.assertNoException():
-            # choices = ctxt2['form'].fields['hidden'].choices
             choices = ctxt2['form'].fields['phone'].choices
 
-        # self.assertInChoices(value='phone',    label=_('Phone number'), choices=choices)
-        # self.assertInChoices(value='birthday', label=_('Birthday'),     choices=choices)
         self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=choices)
         self.assertInChoices(value='required', label=_('Required'), choices=choices)
 
@@ -330,7 +309,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             self.WIZARD_URL,
             data={
                 'fields_config_wizard-current_step': '1',
-                # '1-hidden': ['phone', 'birthday'],
                 '1-phone': 'required',
                 '1-birthday': 'hidden',
             },
@@ -338,13 +316,6 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(response3)
 
         config = self.get_object_or_fail(FieldsConfig, content_type=ctype)
-        # self.assertListEqual(
-        #     [
-        #         ('phone', {'hidden': True}),
-        #         ('birthday', {'hidden': True}),
-        #     ],
-        #     config.descriptions,
-        # )
         self.assertListEqual(
             [
                 ('birthday', {'hidden': True}),

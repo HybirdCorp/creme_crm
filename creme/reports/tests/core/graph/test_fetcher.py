@@ -46,9 +46,7 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=OrdinateAggregator.COUNT,
         )
 
@@ -95,9 +93,7 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=OrdinateAggregator.COUNT,
         )
 
@@ -184,9 +180,7 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=OrdinateAggregator.COUNT,
         )
 
@@ -250,9 +244,7 @@ class GraphFetcherTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=AbscissaGroup.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=OrdinateAggregator.COUNT,
         )
 

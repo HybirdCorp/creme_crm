@@ -71,7 +71,6 @@
 }
 
 .menu-edit-widget .menu-edit-entries {
-/*    max-width: 300px; */
     margin-left: 10px;
 }
 
@@ -147,8 +146,6 @@ form.menu-edit-regular-entries .help-text {
 }
 
 .bricks-config-widget .widget-available {
-    /*border-left: 1px solid #dedede;*/
-    /*border-right: 1px solid #dedede;*/
     min-width: 20%;
 }
 

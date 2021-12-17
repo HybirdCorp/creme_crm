@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from typing import TYPE_CHECKING, Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
@@ -81,17 +80,3 @@ class ButtonMenuItem(CremeModel):
 
         button = button_registry.get_button(self.button_id)
         return str(button.verbose_name) if button else gettext('Deprecated button')
-
-    # @classmethod
-    # def create_if_needed(cls, pk, model, button, order):
-    #     """Creation helper ; useful for populate.py scripts.
-    #     @param model: Can be None for 'all models'.
-    #     """
-    #     warnings.warn(
-    #         'ButtonMenuItem.create_if_needed() is deprecated ; '
-    #         'use ButtonMenuItem.objects.create_if_needed() instead '
-    #         '(tips: remove the argument "pk" ; you can pass a button class too).',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     return cls.objects.create_if_needed(model=model, button=button, order=order)

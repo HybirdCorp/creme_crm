@@ -55,7 +55,6 @@ from creme.creme_core.models.history import (
 )
 from creme.creme_core.utils.dates import dt_to_ISO8601
 
-# from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 from ..base import CremeTestCase
 from ..fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
@@ -281,7 +280,6 @@ about this fantastic animation studio."""
             self.FMT_2_VALUES(field=_('Email address'), value=email),
             vmodifs,
         )
-        # self.assertIn(self.FMT_1_VALUE(field=_('Description')), vmodifs)
         self.assertIn(
             self.FMT_3_VALUES(
                 field=_('Description'), oldvalue=old_description, value=description,
@@ -1557,7 +1555,6 @@ about this fantastic animation studio."""
         old_count += 1
 
         pline.quantity = Decimal('2')
-        # pline.discount_unit = FAKE_PERCENT_UNIT
         pline.discount_unit = FakeInvoiceLine.Discount.PERCENT
         pline.save()
 
@@ -1877,17 +1874,13 @@ about this fantastic animation studio."""
         rei.save()
 
         hlines = [*HistoryLine.objects.filter(entity=rei.id).order_by('id')]
-        # self.assertEqual(3, len(hlines))
         self.assertEqual(2, len(hlines))
         self.assertEqual(creation_hline,  hlines[0])
-        # self.assertEqual(edition_hline01, hlines[1])
 
-        # edition_hline02 = hlines[2]
         edition_hline02 = hlines[1]
         self.assertEqual(TYPE_EDITION,       edition_hline02.type)
         self.assertEqual(edition_hline01.id, edition_hline02.id)
         self.assertListEqual(
-            # [['first_name', old_first_name, new_first_name]],
             [
                 ['last_name', old_last_name, new_last_name],
                 ['first_name', old_first_name, new_first_name],

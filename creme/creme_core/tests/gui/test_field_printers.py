@@ -111,14 +111,12 @@ class FieldsPrintersTestCase(CremeTestCase):
         user = CremeUser()
         field = FakeInvoiceLine._meta.get_field('discount_unit')
 
-        # line1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
         line1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         self.assertEqual(
             _('Percent'),
             print_choice(line1, fval='whatever', user=user, field=field),
         )
 
-        # line2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
         line2 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.AMOUNT)
         self.assertEqual(
             _('Amount'),
@@ -130,35 +128,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             '',
             print_choice(line3, fval='whatever', user=user, field=field),
         )
-
-    # def test_print_integer01(self):  # DEPRECATED
-    #     o = FakeOrganisation()
-    #     user = CremeUser()
-    #     field = o._meta.get_field('capital')
-    #     self.assertEqual(
-    #         '',
-    #         print_integer(o, fval=None, user=user, field=field)
-    #     )
-    #     self.assertEqual(
-    #         '1234',
-    #         print_integer(o, fval=1234, user=user, field=field)
-    #     )
-
-    # def test_print_integer02(self):  # DEPRECATED
-    #     "Choices."
-    #     l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
-    #     user = CremeUser()
-    #     field = type(l1)._meta.get_field('discount_unit')
-    #     self.assertEqual(
-    #         _('Percent'),
-    #         print_integer(l1, fval=None, user=user, field=field)
-    #     )
-    #
-    #     l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
-    #     self.assertEqual(
-    #         _('Amount'),
-    #         print_integer(l2, fval=None, user=user, field=field)
-    #     )
 
     def _aux_print_integer_html01(self):
         o = FakeOrganisation()
@@ -182,21 +151,6 @@ class FieldsPrintersTestCase(CremeTestCase):
     @override_settings(USE_THOUSAND_SEPARATOR=False)
     def test_print_integer_html02(self):
         return self._aux_print_integer_html01()
-
-    # def test_print_decimal(self):  # DEPRECATED
-    #     line = FakeInvoiceLine()
-    #     user = CremeUser()
-    #     field = line._meta.get_field('discount')
-    #     self.assertEqual(
-    #         '',
-    #         print_decimal(line, fval=None, user=user, field=field)
-    #     )
-    #
-    #     value = Decimal('1234.56')
-    #     self.assertEqual(
-    #         number_format(value, use_l10n=True),
-    #         print_decimal(line, fval=value, user=user, field=field)
-    #     )
 
     def test_print_decimal_html(self):
         line = FakeInvoiceLine()
@@ -527,7 +481,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            # f'upload/creme_core-tests/gui/{file_name}',
             f'creme_core-tests/gui/{file_name}',
             print_file_html(
                 comp,
@@ -723,26 +676,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             settings.HIDDEN_VALUE,
             print_foreignkey_csv(c, img, user, field)
         )
-
-    # def test_m2m_printer(self):  # DEPRECATED
-    #     user = self.create_user()
-    #     img = FakeImage.objects.create(user=user, name='My img')
-    #     field = img._meta.get_field('categories')
-    #
-    #     printer = M2MPrinter(
-    #         default_printer=M2MPrinter.printer_html,
-    #         default_enumerator=M2MPrinter.enumerator_all,
-    #     )
-    #
-    #     self.assertEqual('', printer(img, img.categories, user, field))
-    #
-    #     img.categories.set([
-    #         FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
-    #     ])
-    #     self.assertHTMLEqual(
-    #         '<ul><li>A</li><li>B</li><li>C</li></ul>',
-    #         printer(img, img.categories, user, field)
-    #     )
 
     def test_many2many_printer_html01(self):
         user = self.create_user()
@@ -947,13 +880,11 @@ class FieldsPrintersTestCase(CremeTestCase):
         as_html = registry.get_html_field_value
         as_csv = registry.get_csv_field_value
 
-        # l1 = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
         l1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         expected1 = _('Percent')
         self.assertEqual(expected1, as_html(l1, 'discount_unit', user))
         self.assertEqual(expected1, as_csv(l1,  'discount_unit', user))
 
-        # l2 = FakeInvoiceLine(discount_unit=FAKE_AMOUNT_UNIT)
         l2 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.AMOUNT)
         expected2 = _('Amount')
         self.assertEqual(expected2, as_html(l2, 'discount_unit', user))
@@ -980,7 +911,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_choices_csv, output='csv',
         )
 
-        # line = FakeInvoiceLine(discount_unit=FAKE_PERCENT_UNIT)
         line = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         label = _('Percent')
         self.assertEqual(
@@ -1010,7 +940,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         # Decimal & integer with choices
         line1 = FakeInvoiceLine(
             item='Swords',  quantity='3.00', unit_price='125.6',
-            # discount_unit=FAKE_PERCENT_UNIT,
             discount_unit=FakeInvoiceLine.Discount.PERCENT,
         )
         dec_format = partial(number_format, use_l10n=True)
@@ -1317,7 +1246,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             get_html_val(judo, 'image', user)
         )
         self.assertEqual(
-            # '<p>Judo&#39;s selfie</p>',
             '<p>Judo&#x27;s selfie</p>',
             get_html_val(judo, 'image__description', user)
         )

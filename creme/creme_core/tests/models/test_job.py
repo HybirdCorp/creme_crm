@@ -3,7 +3,6 @@
 from django.utils.timezone import now
 
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.creme_jobs import reminder_type
 from creme.creme_core.models import Job
@@ -16,7 +15,6 @@ from ..base import CremeTestCase
 class JobViewsTestCase(CremeTestCase):
     def test_refresh01(self):
         "No refresh needed."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -41,7 +39,6 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh02(self):
         "Enabled is changed."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -63,7 +60,6 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh03(self):
         "Reference_run is changed."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -85,7 +81,6 @@ class JobViewsTestCase(CremeTestCase):
 
     def test_refresh04(self):
         "Periodicity is changed."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

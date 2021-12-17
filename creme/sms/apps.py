@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,39 +99,6 @@ class SMSConfig(CremeAppConfig):
         ).register(
             self.MessageTemplate, 'images/sms_%(size)s.png',
         )
-
-    # def register_menu(self, creme_menu):
-    #     SMSCampaign = self.SMSCampaign
-    #     MList       = self.MessagingList
-    #     MTemplate   = self.MessageTemplate
-    #     LvURLItem = creme_menu.URLItem.list_view
-    #
-    #     creme_menu.get(
-    #         'features'
-    #     ).get_or_create(
-    #         creme_menu.ContainerItem, 'marketing',
-    #         priority=200,
-    #         defaults={'label': _('Marketing')},
-    #     ).get_or_create(
-    #         creme_menu.ItemGroup, 'sms', priority=20,
-    #     ).add(
-    #         LvURLItem('sms-campaigns', model=SMSCampaign), priority=200,
-    #     ).add(
-    #         LvURLItem('sms-mlists',    model=MList),       priority=210,
-    #     ).add(
-    #         LvURLItem('sms-templates', model=MTemplate),   priority=220,
-    #     )
-    #     creme_menu.get(
-    #         'creation', 'any_forms'
-    #     ).get_or_create_group(
-    #         'marketing', _('Marketing'), priority=200,
-    #     ).add_link(
-    #         'sms-create_campaign', SMSCampaign, priority=200,
-    #     ).add_link(
-    #         'sms-create_mlist',    MList,       priority=210,
-    #     ).add_link(
-    #         'sms-create_template', MTemplate,   priority=220,
-    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

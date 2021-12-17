@@ -1649,7 +1649,6 @@ QUnit.test('creme.activities.CalendarController.external (ok, none remains)', fu
 
     // floating event has been removed from menu
     equal(0, element.find('.floating-event[data-id="51"]').length);
-//    equal(true, element.find('.floating-activities').parents('.menu-group:first').is('.is-empty-group'));
     equal(
         true,
         element.find('.floating-activities').parents('.menu-group').first().is('.is-empty-group')

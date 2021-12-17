@@ -22,7 +22,6 @@ else:
 
         class Meta:
             app_label = 'recurrents'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Recurrent Document'
             verbose_name_plural = 'Test Recurrent Documents'
             ordering = ('title',)
@@ -38,7 +37,6 @@ else:
 
         class Meta:
             app_label = 'recurrents'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Recurrent Template'
             verbose_name_plural = 'Test Recurrent Templates'
             ordering = ('title',)

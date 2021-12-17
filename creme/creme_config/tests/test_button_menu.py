@@ -168,7 +168,6 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
         button_registry.register(TestButton01, TestButton02, TestButton03)
 
-        # ButtonMenuItem.objects.create(content_type=ct, order=1)
         ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=TestButton02, order=1,
         )

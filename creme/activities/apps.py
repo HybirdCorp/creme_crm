@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -141,83 +141,6 @@ class ActivitiesConfig(CremeAppConfig):
 
         import_form_registry.register(self.Activity, mass_import.get_massimport_form_builder)
 
-    # def register_menu(self, creme_menu):
-    #     from django.urls import reverse_lazy as reverse
-    #
-    #     from creme.creme_core.auth import build_creation_perm
-    #
-    #     Activity = self.Activity
-    #     creation_perm = build_creation_perm(Activity)
-    #     URLItem = creme_menu.URLItem
-    #     creme_menu.get(
-    #         'features',
-    #     ).get_or_create(
-    #         creme_menu.ContainerItem, 'activities-main',
-    #         priority=10,
-    #         defaults={'label': _('Activities')},
-    #     ).add(
-    #         URLItem(
-    #             'activities-calendar',
-    #             url=reverse('activities__calendar'),
-    #             label=_('Calendar'),
-    #             perm='activities',
-    #         ),
-    #         priority=10,
-    #     ).add(
-    #         URLItem.list_view('activities-activities', model=Activity),
-    #         priority=20,
-    #     ).add(
-    #         URLItem(
-    #             'activities-phone_calls',
-    #             url=reverse('activities__list_phone_calls'),
-    #             label=_('Phone calls'), perm='activities',
-    #         ),
-    #         priority=30,
-    #     ).add(
-    #         URLItem(
-    #             'activities-meetings',
-    #             url=reverse('activities__list_meetings'),
-    #             label=_('Meetings'), perm='activities',
-    #         ),
-    #         priority=40,
-    #     )
-    #
-    #     creme_menu.get(
-    #         'creation', 'any_forms'
-    #     ).get_or_create_group(
-    #         'activities-main', _('Activities'), priority=5,
-    #     ).add_link(
-    #         'activities-create_phonecall',
-    #         label=_('Phone call'),
-    #         url=reverse('activities__create_activity', args=('phonecall',)),
-    #         perm=creation_perm,
-    #         priority=5,
-    #     ).add_link(
-    #         'activities-create_meeting',
-    #         label=_('Meeting'),
-    #         url=reverse('activities__create_activity', args=('meeting',)),
-    #         perm=creation_perm,
-    #         priority=10,
-    #     ).add_link(
-    #         'activities-create_activity',
-    #         label=_('Activity'),
-    #         url=reverse('activities__create_activity'),
-    #         perm=creation_perm,
-    #         priority=15,
-    #     ).add_link(
-    #         'activities-create_task',
-    #         label=_('Task'),
-    #         url=reverse('activities__create_activity', args=('task',)),
-    #         perm=creation_perm,
-    #         priority=20,
-    #     ).add_link(
-    #         'activities-create_unavailability',
-    #         label=_('Unavailability'),
-    #         url=reverse('activities__create_indispo'),
-    #         perm=creation_perm,
-    #         priority=25,
-    #     )
-
     def register_menu_entries(self, menu_registry):
         from . import menu
 
@@ -286,7 +209,6 @@ class ActivitiesConfig(CremeAppConfig):
         setting_key_registry.register(
             setting_keys.review_key,
             setting_keys.auto_subjects_key,
-            # setting_keys.form_user_messages_key,
         )
 
     def register_statistics(self, statistics_registry):

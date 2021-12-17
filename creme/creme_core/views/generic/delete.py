@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -42,7 +42,6 @@ class CremeDeletion(CheckedView):
 
         return (
             HttpResponse(self.get_ajax_success_url(), content_type='text/plain')
-            # if request.is_ajax() else
             if is_ajax(request) else
             HttpResponseRedirect(self.get_success_url())
         )

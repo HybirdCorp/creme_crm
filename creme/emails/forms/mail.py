@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,10 +40,7 @@ from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
 
-from ..constants import (  # MAIL_STATUS_SENDINGERROR
-    REL_SUB_MAIL_RECEIVED,
-    REL_SUB_MAIL_SENDED,
-)
+from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
 from ..creme_jobs import entity_emails_send_type
 
 logger = logging.getLogger(__name__)
@@ -198,9 +195,7 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
 
         sender = get_data('sender')
         subject = get_data('subject')
-        # body = get_data('body')
         body = get_data('body') or strip_html(get_data('body_html')).strip()
-        # body_html = get_data('body_html')
         body_html = (
             get_data('body_html')
             or f'<html><body><code>{escape(body)}</code></body></html>'
@@ -221,7 +216,6 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
                 signature=signature, attachments=attachments,
             )
 
-            # if email.status == MAIL_STATUS_SENDINGERROR:
             if email.status == email.Status.SENDING_ERROR:
                 sending_error = True
 

@@ -366,16 +366,11 @@ class LanguageTestCase(ViewsTestCase):
         self.assertGET200(url)
 
         name = name.title()
-        # code = 'KLN'
-        response = self.assertPOST200(url, data={'name': name})  # 'code': code
-        self.assertNoFormError(response)
-
-        language = self.refresh(language)
-        self.assertEqual(name, language.name)
-        # self.assertEqual(code, language.code)
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
+        self.assertEqual(name, self.refresh(language).name)
 
     def test_delete(self):
-        language = Language.objects.create(name='Klingon')  # code='KLN'
+        language = Language.objects.create(name='Klingon')
 
         response = self.client.post(
             reverse(

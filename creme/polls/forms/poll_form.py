@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from itertools import chain, zip_longest
 
 from django import forms
@@ -26,24 +25,15 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeModelForm  # CremeEntityForm
+from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import ListEditionField
 from creme.creme_core.forms.widgets import CremeRadioSelect
 from creme.creme_core.utils import find_first, update_model_instance
 
-# from .. import get_pollform_model
 from ..core import PollLineType
 from ..models import PollFormLine, PollFormLineCondition, PollFormSection
 from ..utils import SectionTree
 from .fields import PollFormLineConditionsField
-
-# class PollFormForm(CremeEntityForm):
-#     class Meta(CremeEntityForm.Meta):
-#         model = get_pollform_model()
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('PollFormForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class PollFormSectionEditForm(CremeModelForm):

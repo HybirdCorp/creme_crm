@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import (
@@ -27,20 +26,8 @@ from creme.creme_core.forms import (
     FieldBlockManager,
     MultiCreatorEntityField,
 )
-# from .. import get_emailtemplate_model
 from creme.creme_core.forms.widgets import TinyMCEEditor
 from creme.documents import get_document_model
-
-# class EmailTemplateForm(CremeEntityForm):
-#     class Meta(CremeEntityForm.Meta):
-#         model = get_emailtemplate_model()
-#         widgets = {
-#             'body_html': TinyMCEEditor,
-#         }
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('EmailTemplateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class EmailTemplateBaseCustomForm(CremeEntityForm):

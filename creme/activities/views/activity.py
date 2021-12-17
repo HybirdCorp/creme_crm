@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,13 +52,7 @@ from ..models import ActivitySubType, ActivityType
 from ..utils import get_ical
 
 Activity = get_activity_model()
-
 _CREATION_PERM_STR = cperm(Activity)
-# _TYPES_MAP = {
-#     'meeting':   constants.ACTIVITYTYPE_MEETING,
-#     'phonecall': constants.ACTIVITYTYPE_PHONECALL,
-#     'task':      constants.ACTIVITYTYPE_TASK,
-# }
 
 
 class ActivityCreation(generic.EntityCreation):
@@ -96,7 +90,6 @@ class ActivityCreation(generic.EntityCreation):
         if act_type is None:
             type_id = None
         else:
-            # type_id = _TYPES_MAP.get(act_type)
             type_id = self.allowed_activity_types.get(act_type)
 
             if not type_id:
@@ -228,9 +221,6 @@ class RelatedActivityCreation(ActivityCreation):
 
         return rtype_id
 
-    # def get_success_url(self):
-    #     return self.related_entity.get_absolute_url()
-
     def get_type_id(self):
         type_id = self.request.GET.get('activity_type')  # TODO: attribute
 
@@ -303,10 +293,7 @@ def download_ical(request):
     activities = EntityCredentials.filter(
         queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
     )
-    # response = HttpResponse(get_ical(activities), content_type='text/calendar')
-    # response['Content-Disposition'] = 'attachment; filename=Calendar.ics'
-    #
-    # return response
+
     return HttpResponse(
         get_ical(activities),
         headers={

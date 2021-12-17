@@ -9,15 +9,10 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.constants import DEFAULT_VAT
 from creme.creme_core.models import Currency, Vat
-# from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.persons import get_address_model, get_organisation_model
 
-from .base import (  # CTYPE_KEY
-    RecurrentGenerator,
-    RecurrentsTestCase,
-    skipIfCustomGenerator,
-)
+from .base import RecurrentGenerator, RecurrentsTestCase, skipIfCustomGenerator
 
 Address = get_address_model()
 Organisation = get_organisation_model()
@@ -66,7 +61,6 @@ else:
 
 @skipIfNotInstalled('creme.billing')
 @skipIfCustomGenerator
-# class RecurrentsBillingTestCase(CremeTestCase):
 class RecurrentsBillingTestCase(RecurrentsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -94,7 +88,6 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
                 '0-periodicity_0':    'months',
                 '0-periodicity_1':    '1',
 
-                # CTYPE_KEY: ct.id,
                 self.CTYPE_KEY: ct.id,
             },
         )

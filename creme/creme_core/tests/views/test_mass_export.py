@@ -49,7 +49,6 @@ from creme.creme_core.utils.content_type import as_ctype
 from creme.creme_core.utils.queries import QSerializer
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 
-# from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 from .base import ViewsTestCase
 
 
@@ -641,9 +640,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         create_pline = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
-        # create_pline(item='Bebop',     discount_unit=FAKE_PERCENT_UNIT)
         create_pline(item='Bebop',     discount_unit=FakeInvoiceLine.Discount.PERCENT)
-        # create_pline(item='Swordfish', discount_unit=FAKE_AMOUNT_UNIT)
         create_pline(item='Swordfish', discount_unit=FakeInvoiceLine.Discount.AMOUNT)
 
         build = partial(EntityCellRegularField.build, model=FakeInvoiceLine)

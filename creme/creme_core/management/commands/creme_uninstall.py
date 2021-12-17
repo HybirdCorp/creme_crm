@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.core.management.base import AppCommand, CommandError
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
-from django.utils.encoding import force_str  # force_text
+from django.utils.encoding import force_str
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
@@ -449,12 +449,9 @@ class Command(AppCommand):
                 f'and THEN REMOVE "{app_label}" from your settings.',
             )
 
-        # if sql_commands:
         if models:
             if verbosity:
                 self.stdout.write('Trying to delete tables...')
-
-            # schema_editor = connection.schema_editor()
 
             try:
                 with connection.schema_editor() as schema_editor:
@@ -477,7 +474,6 @@ class Command(AppCommand):
                     ' [KO] Original error: {error}.\n'
                     'Remaining tables:\n'
                     '{models}\n'.format(
-                        # error=force_text(e),  # PostGreSQL returns localized errors...
                         error=force_str(e),  # PostGreSQL returns localized errors...
                         models='\n'.join(model._meta.db_table for model in models),
                     )
@@ -538,7 +534,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2018-2021
+# Copyright (c) Hybird - 2018-2022
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,
@@ -609,7 +605,6 @@ def ordered_models_to_delete(app_config, connection):
         for model in app_models:
             meta = model._meta
 
-            # if connection.introspection.table_name_converter(meta.db_table) in table_names:
             if meta.db_table in table_names:
                 dependencies = set()  # We use a set to avoid duplicates
 

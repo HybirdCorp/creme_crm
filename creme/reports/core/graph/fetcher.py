@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,7 +74,6 @@ class GraphFetcher:
                  value: Optional[str] = None):
         self.graph = graph
         self.value = value
-        # self.error = None
 
     def as_dict_items(self):
         yield self.DICT_KEY_TYPE, self.type_id
@@ -211,7 +210,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         if not issubclass(field.remote_field.model, CremeEntity):
             return _('The field is invalid (not a foreign key to CremeEntity).')
 
-        # if not field.get_tag('viewable'):
         if not field.get_tag(FieldTag.VIEWABLE):
             return 'the field is not viewable'  # TODO: test
 
@@ -238,10 +236,8 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         check_field = partial(cls._check_field, fields_configs=fconf)
 
         yield from ModelFieldEnumerator(
-            # model, deep=0, only_leafs=False,
             model, depth=0, only_leaves=False,
         ).filter(
-            # lambda f, deep: check_field(field=f) is None,
             lambda model, field, depth: check_field(field=field) is None,
         ).choices()
 
@@ -251,29 +247,6 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
         assert field is not None
 
         return [field.remote_field.model]
-
-    # @staticmethod
-    # def validate_fieldname(graph, field_name):
-    #     warnings.warn(
-    #         'RegularFieldLinkedGraphFetcher.validate_fieldname() is deprecated.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     from creme.creme_core.utils.meta import FieldInfo
-    #
-    #     try:
-    #         field_info = FieldInfo(graph.model, field_name)
-    #     except FieldDoesNotExist:
-    #         return f'invalid field "{field_name}"'
-    #
-    #     if len(field_info) > 1:
-    #         return f'field "{field_name}" with deep > 1'
-    #
-    #     field = field_info[0]
-    #
-    #     if not (isinstance(field, ForeignKey) and
-    #             issubclass(field.remote_field.model, CremeEntity)):
-    #         return f'field "{field_name}" is not a ForeignKey to CremeEntity'
 
 
 class RelationLinkedGraphFetcher(GraphFetcher):

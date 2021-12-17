@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -165,7 +165,6 @@ class _BatchProcessType(JobType):
         return desc
 
     def get_stats(self, job):
-        # count = EntityJobResult.objects.filter(job=job, raw_messages__isnull=True).count()
         count = EntityJobResult.objects.filter(job=job, messages__isnull=True).count()
 
         return [

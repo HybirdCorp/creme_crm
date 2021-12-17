@@ -61,7 +61,6 @@ class _EmailsTestCase(CremeTestCase):
     def _build_create_entitymail_url(entity):
         return reverse('emails__create_email', args=(entity.id,))
 
-    # def _create_email(self, status=MAIL_STATUS_NOTSENT, body_html='', signature=None):
     def _create_email(self, status=EntityEmail.Status.NOT_SENT, body_html='', signature=None):
         user = self.user
         return EntityEmail.objects.create(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -67,12 +67,9 @@ SMS_MAX_LENGTH = 160
 
 
 def gsm_encoded_content(content):
-    # unicode_encoded = unicode(content, 'utf-8') if content.__class__ != unicode else content
-
     # print('0x%02x' % ord(char) for char in unicode_encoded)
 
     # Convert euro sign (allow ISO conversion) and \n as \x7f
-    # unicode_encoded = unicode_encoded.translate({0x20ac:0x84, 0x0a:0x7f})
     unicode_encoded = content.translate({
         0x20ac: 0x84,  # € => '\x84'
         0x0a: 0x7f,    # \n => '\x7f'

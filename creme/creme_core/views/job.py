@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,13 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.utils.http import url_has_allowed_host_and_scheme  # is_safe_url
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..auth import SUPERUSER_PERM
 from ..bricks import JobBrick
 from ..core.exceptions import ConflictError
-# from ..core.job import JobSchedulerQueue
 from ..core.job import get_queue
 from ..http import CremeJsonResponse
 from ..models import Job
@@ -66,7 +65,6 @@ class JobDetail(generic.CremeModelDetail):
     def get_list_url(self):
         request = self.request
         list_url = request.GET.get('list_url')
-        # list_url_is_safe = list_url and is_safe_url(
         list_url_is_safe = list_url and url_has_allowed_host_and_scheme(
             url=list_url,
             allowed_hosts={request.get_host()},
@@ -188,7 +186,6 @@ class JobsInformation(generic.CheckedView):
 
     def get_jobs_info(self):
         info = {}
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
 
         error = queue.ping()

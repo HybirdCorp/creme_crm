@@ -711,11 +711,8 @@ class ProjectsTestCase(CremeTestCase):
         project = self.create_project('Eva01')[0]
 
         task = self.create_task(project, 'Title')
-        # task.duration = None
         task.duration = 0
         task.save()
-
-        # self.assertEqual(0, task.safe_duration)
 
         self.assertEqual(0,   task.get_effective_duration())
         self.assertEqual(100, task.get_effective_duration('%'))

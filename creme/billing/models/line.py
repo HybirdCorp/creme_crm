@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,9 +61,7 @@ class Line(CremeEntity):
         _('Discount'), max_digits=10, decimal_places=2, default=constants.DEFAULT_DECIMAL,
     )
     discount_unit = models.PositiveIntegerField(
-        _('Discount Unit'),
-        # choices=constants.DISCOUNT_UNIT.items(), default=constants.DISCOUNT_PERCENT,
-        choices=Discount.choices, default=Discount.PERCENT,
+        _('Discount Unit'), choices=Discount.choices, default=Discount.PERCENT,
     )
     vat_value = models.ForeignKey(
         Vat, verbose_name=_('VAT'), on_delete=models.PROTECT,
@@ -78,7 +76,6 @@ class Line(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'billing'
         verbose_name = _('Line')
         verbose_name_plural = _('Lines')
@@ -101,7 +98,6 @@ class Line(CremeEntity):
     def clean(self):
         discount_unit = self.discount_unit
 
-        # if discount_unit == constants.DISCOUNT_PERCENT:
         if discount_unit == self.Discount.PERCENT:
             if not (0 <= self.discount <= 100):
                 raise ValidationError(
@@ -111,7 +107,6 @@ class Line(CremeEntity):
                     ),
                     code='invalid_percentage',
                 )
-        # elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:  # Global discount
         elif discount_unit == self.Discount.LINE_AMOUNT:  # Global discount
             if self.discount > self.unit_price * self.quantity:
                 raise ValidationError(
@@ -169,15 +164,12 @@ class Line(CremeEntity):
         discount_unit   = self.discount_unit
         Discount = self.Discount
 
-        # if discount_unit == constants.DISCOUNT_PERCENT:
         if discount_unit == Discount.PERCENT:
             total_after_first_discount = self.quantity * (
                 unit_price_line - (unit_price_line * line_discount / 100)
             )
-        # elif discount_unit == constants.DISCOUNT_LINE_AMOUNT:
         elif discount_unit == Discount.LINE_AMOUNT:
             total_after_first_discount = self.quantity * unit_price_line - line_discount
-        # else:  # DISCOUNT_ITEM_AMOUNT
         else:  # ITEM_AMOUNT
             total_after_first_discount = self.quantity * (unit_price_line - line_discount)
 

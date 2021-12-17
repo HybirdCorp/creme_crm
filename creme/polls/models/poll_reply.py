@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,7 +62,6 @@ class AbstractPollReply(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'polls'
         verbose_name = _('Form reply')
         verbose_name_plural = _('Form replies')
@@ -132,7 +131,6 @@ class PollReplyLine(CremeModel, _PollLine):
     applicable = models.BooleanField(_('Applicable'), default=True, editable=False)
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    # conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
     conds_use_or = models.BooleanField(
         _('Use OR or AND between conditions'), editable=False, null=True,
     )

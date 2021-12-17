@@ -5,9 +5,6 @@ PROP_IS_A_SALESMAN = 'commercial-is_a_salesman'
 REL_SUB_SOLD = 'commercial-subject_sold_by'  # NB: keep the value (wrong "_by") for compatibility
 REL_OBJ_SOLD = 'commercial-object_sold_by'
 
-# REL_SUB_SOLD_BY = REL_SUB_SOLD  # DEPRECATED
-# REL_OBJ_SOLD_BY = REL_OBJ_SOLD  # DEPRECATED
-
 REL_SUB_COMPLETE_GOAL = 'commercial-subject_complete_goal'
 REL_OBJ_COMPLETE_GOAL = 'commercial-object_complete_goal'
 

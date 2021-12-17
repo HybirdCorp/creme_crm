@@ -150,41 +150,13 @@
 
 /* graphs inside tables */
 
-/* .graph-row-header.graph-row-collapsed .graph-row-collapse { */
 .reports-graphs-brick .graph-row-header.graph-row-collapsed .toggle-icon-collapse {
     display: none;
 }
 
-/* .graph-row-header:not(.graph-row-collapsed) .graph-row-expand { */
 .reports-graphs-brick .graph-row-header:not(.graph-row-collapsed) .toggle-icon-expand {
     display: none;
 }
-
-/*
-.graph-row-header .graph-row-toggle-icon {
-    height: 12px;
-    width: 12px;
-
-    cursor: pointer;
-}
-
-.graph-row-header .toggle-icon {
-    width: 0;
-    height: 0;
-}
-
-.graph-row-header .graph-row-expand .toggle-icon {
-    border-top: 5px solid transparent;
-    border-bottom: 5px solid transparent;
-    border-left: 5px solid #00000063;
-}
-
-.graph-row-header .graph-row-collapse .toggle-icon {
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #00000063;
-}
-*/
 
 .graph-row.graph-row-collapsed {
     display: none;

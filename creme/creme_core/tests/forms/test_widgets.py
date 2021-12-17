@@ -916,10 +916,6 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 
     @staticmethod
     def _build_reset_action(enabled=True, value=''):
-        # return (
-        #     'reset', _('Clear'), enabled,
-        #     {'action': 'reset', 'title': _('Clear'), 'value': value},
-        # )
         return WidgetAction(
             name='reset',
             label=_('Clear'),
@@ -933,7 +929,6 @@ class EntityCreatorWidgetTestCase(CremeTestCase):
 
     @staticmethod
     def _build_create_action(label, title, url='', enabled=True):
-        # return 'create', label, enabled, {'title': title, 'popupUrl': url}
         return WidgetAction(
             name='create',
             label=label,

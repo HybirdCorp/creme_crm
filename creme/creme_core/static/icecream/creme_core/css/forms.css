@@ -1,33 +1,6 @@
-/* #editforms { */
 div.form-container {
     padding-bottom: 10px;
 }
-
-/*
-#editforms form .table_detail_view {
-    border-spacing: 0;
-    border-collapse: collapse;
-    border-bottom: 0; // distribute the existing 1px border into the last row to prevent a Chrome bug (dual column form, rightmost form: the border at the bottom of the last cell is hidden)
-}
-
-#editforms form .table_detail_view tbody tr:last-child {
-    border-bottom: 1px solid #ccc; // table border distributed in the last row
-}
-
-#editforms form .table_detail_view .block_header_line_light,
-#editforms form .table_detail_view .block_line_light {
-    background: #fff;
-}
-
-#editforms form .table_detail_view .block_header_line_dark,
-#editforms form .table_detail_view .block_line_dark {
-    background: #fcfcfc;
-}
-
-#editforms form .table_detail_view tbody tr:not(:last-child) {
-    border-bottom: 1px solid #ddd;
-}
-*/
 
 /* Layout */
 
@@ -433,67 +406,6 @@ ul.multi-select {
     background-color: #ebebeb; /* desaturate and lighten */
 }
 
-
-/*
-table.block-form thead tr th {
-    border-bottom: 1px solid #dedede;
-
-    text-transform: uppercase;
-    color: #666;
-    font-weight: 600;
-}
-
-.block-form td button {
-    padding: 0 6px;
-}
-*/
-
-/*
-form .table_detail_view .td_info > input,
-form .table_detail_view .td_info > select,
-form .table_detail_view .td_info > textarea {
-    width: 45%;
-}
-*/
-
-/* todo: this shouldn't be done to all inputs, it creates problems with checkboxes or radiobuttons (centering them in wide cells in FF, Chrome, IE), see next todo. Needs to be applied to specific form widgets only
-form .table_detail_view.dual_column .td_info > input,
-form .table_detail_view.dual_column .td_info > select,
-form .table_detail_view.dual_column .td_info > textarea,
-.ui-dialog-content form .table_detail_view .td_info > input,
-.ui-dialog-content form .table_detail_view .td_info > select,
-.ui-dialog-content form .table_detail_view .td_info > textarea {
-    width: 98.5%;
-}
- */
-
-/* todo: this looks more like it's fixing a bug in the previous rules setting the input width to 100% than anything specific to Chrome & Opera.
-The forms templates need to be cleaned up, in addition to the previous rules about input widths.
-.table_detail_view .td_info > input[type="checkbox"],
-.table_detail_view.dual_column .td_info > input[type="checkbox"], .ui-dialog-content form .table_detail_view .td_info > input[type="checkbox"] { // Fix for chrome & opera
-    width: auto;
-    margin-left: 0;
-}
-*/
-
-/*
-.ui-dialog-content form .table_detail_view .td_info > input.hasDatepicker,
-form .table_detail_view.dual_column .td_info > input.hasDatepicker {
-    width: 75%;
-}
-*/
-
-/*
-.form-block-field-value ul.ui-layout,
-.form-block-field-value input,
-.form-block-field-value select,
-.form-block-field-value button,
-.form-block-field-value .chzn-container,
-.form-block-field-value ul.selectors img.delete {
-    margin-bottom: 5px;
-}
-*/
-
 input.dperiod-value {
     width: 40px;
 }
@@ -560,36 +472,12 @@ form .table_detail_view .li_merge_entity1 textarea {
     border: 1px solid #bbe0f0;
 }
 
-/*
-form .table_detail_view .li_merge_entity2 input,
-form .table_detail_view .li_merge_entity2 textarea {
-*/
 .form-container .form-block .li_merge_entity2 input,
 .form-container .form-block .li_merge_entity2 textarea {
     color: #d87d72;
     background: #ffedeb;
     border: 1px solid #f9c9c4;
 }
-
-/*
-form .table_detail_view .merge_entity1 {
-    width: 99%;
-    color: #5a92ab;
-    background: #edf9ff;
-    border: 1px solid #bbe0f0;
-}
-
-form .table_detail_view .merge_entity2 {
-    width: 99%;
-    color: #d87d72;
-    background: #ffedeb;
-    border: 1px solid #f9c9c4;
-}
-
-form .table_detail_view .merge_result {
-    width: 99%;
-}
-*/
 
 .form-container .li_merge_entity1 .help-text,
 .form-container .li_merge_entity1 .help-text-format,

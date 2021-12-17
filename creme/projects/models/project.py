@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -63,7 +63,6 @@ class AbstractProject(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'projects'
         verbose_name = _('Project')
         verbose_name_plural = _('Projects')
@@ -127,7 +126,6 @@ class AbstractProject(CremeEntity):
         return sum(task.get_task_cost() for task in self.get_tasks())
 
     def get_expected_duration(self):  # TODO: not used ??
-        # return sum(task.safe_duration for task in self.get_tasks())
         return sum(task.duration for task in self.get_tasks())
 
     def get_effective_duration(self):  # TODO: not used ??

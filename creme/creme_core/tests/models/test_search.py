@@ -13,46 +13,6 @@ from ..fake_models import FakeContact, FakeOrganisation
 
 
 class SearchConfigTestCase(CremeTestCase):
-    # def test_create_if_needed(self):  # DEPRECATED
-    #     count = SearchConfigItem.objects.count()
-    #     ct = ContentType.objects.get_for_model(FakeContact)
-    #     self.assertFalse(SearchConfigItem.objects.filter(content_type=ct))
-    #
-    #     SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-    #     self.assertEqual(count + 1, SearchConfigItem.objects.count())
-    #
-    #     sc_items = SearchConfigItem.objects.filter(content_type=ct)
-    #     self.assertEqual(1, len(sc_items))
-    #
-    #     sc_item = sc_items[0]
-    #     self.assertEqual(FakeContact, sc_item.content_type.model_class())
-    #     self.assertIsNone(sc_item.role)
-    #     self.assertIs(sc_item.superuser, False)
-    #     self.assertEqual('first_name,last_name', sc_item.field_names)
-    #     self.assertIs(sc_item.all_fields, False)
-    #     self.assertIs(sc_item.disabled, False)
-    #
-    #     sfields = sc_item.searchfields
-    #     self.assertEqual(2, len(sfields))
-    #
-    #     fn_field = sfields[0]
-    #     self.assertEqual('first_name',     fn_field.name)
-    #     self.assertEqual(_('First name'), fn_field.verbose_name)
-    #     self.assertEqual(_('First name'), str(fn_field))
-    #
-    #     ln_field = sfields[1]
-    #     self.assertEqual('last_name',     ln_field.name)
-    #     self.assertEqual(_('Last name'), ln_field.verbose_name)
-    #     self.assertEqual(_('Last name'), str(ln_field))
-    #
-    #     self.assertEqual(
-    #         _('Default search configuration for «{model}»').format(model='Test Contact'),
-    #         str(sc_item)
-    #     )
-    #
-    #     SearchConfigItem.create_if_needed(FakeContact, ['first_name', 'last_name'])
-    #     self.assertEqual(count + 1, SearchConfigItem.objects.count())
-
     def test_manager_create_if_needed01(self):
         count = SearchConfigItem.objects.count()
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -70,22 +30,8 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertEqual(FakeContact, sc_item.content_type.model_class())
         self.assertIsNone(sc_item.role)
         self.assertIs(sc_item.superuser, False)
-        # self.assertEqual('first_name,last_name', sc_item.field_names)
         self.assertIs(sc_item.all_fields, False)
         self.assertIs(sc_item.disabled, False)
-
-        # sfields = sc_item.searchfields
-        # self.assertEqual(2, len(sfields))
-        #
-        # fn_field = sfields[0]
-        # self.assertEqual('first_name',    fn_field.name)
-        # self.assertEqual(_('First name'), fn_field.verbose_name)
-        # self.assertEqual(_('First name'), str(fn_field))
-        #
-        # ln_field = sfields[1]
-        # self.assertEqual('last_name',    ln_field.name)
-        # self.assertEqual(_('Last name'), ln_field.verbose_name)
-        # self.assertEqual(_('Last name'), str(ln_field))
 
         cells = [*sc_item.cells]
         self.assertEqual(2, len(cells))
@@ -157,9 +103,6 @@ class SearchConfigTestCase(CremeTestCase):
             FakeContact, ['invalid_field', 'first_name'],
         )
 
-        # sfields = sc_item.searchfields
-        # self.assertEqual(1, len(sfields))
-        # self.assertEqual('first_name', sfields[0].name)
         cells = [*sc_item.cells]
         self.assertEqual(1, len(cells))
         self.assertEqual('first_name', cells[0].value)
@@ -170,9 +113,6 @@ class SearchConfigTestCase(CremeTestCase):
             FakeContact, ['last_name__invalid', 'first_name'],
         )
 
-        # sfields = sc_item.searchfields
-        # self.assertEqual(1, len(sfields))
-        # self.assertEqual('first_name', sfields[0].name)
         cells = [*sc_item.cells]
         self.assertEqual(1, len(cells))
         self.assertEqual('first_name', cells[0].value)
@@ -185,7 +125,6 @@ class SearchConfigTestCase(CremeTestCase):
             FakeOrganisation, [], disabled=True,
         )
         self.assertTrue(sc_item.disabled)
-        # self.assertFalse(sc_item.field_names)
         self.assertFalse([*sc_item.cells])
 
     def test_allfields01(self):
@@ -194,7 +133,6 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertTrue(sc_item.all_fields)
         self.assertListEqual([], [*sc_item.cells])
 
-        # sfields = {sf.name for sf in sc_item.searchfields}
         sfields = {cell.value for cell in sc_item.refined_cells}
         self.assertIn('name', sfields)
         self.assertIn('sector__title', sfields)
@@ -243,21 +181,6 @@ class SearchConfigTestCase(CremeTestCase):
     #     self.assertTrue(sc_item.all_fields)
     #     self.assertIsNone(sc_item.field_names)
 
-    # def test_searchfields_setter01(self):
-    #     sc_item = SearchConfigItem.objects.create_if_needed(
-    #         FakeOrganisation, ['name', 'phone'],
-    #     )
-    #
-    #     sc_item.searchfields = ['capital', 'email', 'invalid']
-    #     sc_item.save()
-    #
-    #     sc_item = self.refresh(sc_item)
-    #     self.assertListEqual(['capital', 'email'], [sf.name for sf in sc_item.searchfields])
-    #     self.assertFalse(sc_item.all_fields)
-    #
-    #     sc_item.searchfields = []
-    #     self.assertIsNone(sc_item.field_names)
-    #     self.assertTrue(sc_item.all_fields)
     def test_cells_property01(self):
         sc_item = SearchConfigItem.objects.create_if_needed(
             FakeOrganisation, ['name', 'phone'],
@@ -277,20 +200,6 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual([], sc_item.json_cells)
         self.assertTrue(sc_item.all_fields)
 
-    # def test_searchfields_setter02(self):
-    #     "No fields"
-    #     sc_item = SearchConfigItem.objects.create_if_needed(
-    #         FakeOrganisation, ['name', 'phone'],
-    #     )
-    #
-    #     sc_item.searchfields = []
-    #     sc_item.save()
-    #     self.assertIsNone(self.refresh(sc_item).field_names)
-    #     self.assertTrue(sc_item.all_fields)
-    #
-    #     sc_item.searchfields = ['name']
-    #     self.assertListEqual(['name'], [sf.name for sf in sc_item.searchfields])
-    #     self.assertFalse(sc_item.all_fields)
     def test_cells_property02(self):
         "No fields"
         sc_item = SearchConfigItem.objects.create_if_needed(
@@ -307,15 +216,6 @@ class SearchConfigTestCase(CremeTestCase):
         self.assertListEqual([cell], [*sc_item.cells])
         self.assertFalse(sc_item.all_fields)
 
-    # def test_searchfields_setter03(self):
-    #     "Invalid fields."
-    #     sc_item = SearchConfigItem.objects.create_if_needed(
-    #         FakeOrganisation, ['name', 'phone'],
-    #     )
-    #
-    #     sc_item.searchfields = ['invalid']
-    #     sc_item.save()
-    #     self.assertIsNone(self.refresh(sc_item).field_names)
     def test_cells_property03(self):
         "Invalid fields generate None as cells."
         sc_item = SearchConfigItem.objects.create_if_needed(
@@ -326,14 +226,6 @@ class SearchConfigTestCase(CremeTestCase):
         sc_item.save()
         self.assertListEqual([], self.refresh(sc_item).json_cells)
 
-    # def test_searchfields_setter04(self):
-    #     "Fields + disabled."
-    #     sc_item = SearchConfigItem.objects.create_if_needed(
-    #         FakeOrganisation, ['name', 'phone'], disabled=True,
-    #     )
-    #     self.assertListEqual(
-    #         ['name', 'phone'], [sf.name for sf in sc_item.searchfields]
-    #     )
     def test_cells_property04(self):
         "Fields + disabled."
         sc_item = SearchConfigItem.objects.create_if_needed(
@@ -359,32 +251,6 @@ class SearchConfigTestCase(CremeTestCase):
             [EntityCellRegularField.build(FakeContact, 'last_name')],
             [*self.refresh(sc_item).refined_cells],
         )
-
-    # def test_get_4_models01(self):  # DEPRECATED
-    #     "No model."
-    #     user = self.create_user()
-    #
-    #     configs = SearchConfigItem.get_4_models([], user)
-    #     self.assertListEqual([], [*configs])
-
-    # def test_get_4_models02(self):  # DEPRECATED
-    #     "One model, 2 configs in DB."
-    #     self.login()
-    #
-    #     create_role = UserRole.objects.create
-    #     role2 = create_role(name='CEO')
-    #     role3 = create_role(name='Office lady')
-    #
-    #     create = SearchConfigItem.objects.create_if_needed
-    #     create(FakeContact, ['description'], role='superuser')
-    #     create(FakeContact, ['first_name', 'last_name'])
-    #     create(FakeContact, ['first_name'], role=role2)
-    #     sc_item = create(FakeContact, ['last_name'], role=self.role)  # <===
-    #     create(FakeContact, ['first_name', 'description'], role=role3)
-    #
-    #     configs = [*SearchConfigItem.get_4_models([FakeContact], self.other_user)]
-    #     self.assertEqual(1, len(configs))
-    #     self.assertEqual(sc_item, configs[0])
 
     def test_manager_get_for_models01(self):
         "No model"

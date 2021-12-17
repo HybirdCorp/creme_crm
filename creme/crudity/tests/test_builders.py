@@ -221,7 +221,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_manifest_xsf_03(self):
         "Test M2M field."
-        # body_map = {'user_id': 1, 'language': ''}
         body_map = {'user_id': 1, 'languages': ''}
         backend = self._get_backend(
             ContactFakeBackend,
@@ -238,10 +237,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         xsf = '{http://schemas.microsoft.com/office/infopath/2003/solutionDefinition}'
         xml2edit_node = XML(content).find(f'{xsf}views/{xsf}view/{xsf}editing/{xsf}xmlToEdit')
         self.assertIsNotNone(xml2edit_node)
-        # self.assertEqual('language', xml2edit_node.get('name'))
         self.assertEqual('languages', xml2edit_node.get('name'))
         self.assertEqual(
-            # '/my:CremeCRMCrudity/my:language/my:language_value',
             '/my:CremeCRMCrudity/my:languages/my:languages_value',
             xml2edit_node.get('item')
         )
@@ -259,7 +256,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'created':     '',  # TODO: ignore this (editable=False)
             'url_site':    '',
             'image':       '',
-            # 'language':    '',
             'languages':    '',
         }
         backend = self._get_backend(
@@ -283,7 +279,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             for node in xml.findall(f'{xsd}element/{xsd}complexType/{xsd}sequence/{xsd}element')
         }
         # chain() because language_value is not declared in body_map, only language has to (m2m)
-        # expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['language_value'])}
         expected_ref_attrs = {f'my:{key}' for key in chain(body_map, ['languages_value'])}
         self.assertEqual(expected_ref_attrs, ref_attrs)
 
@@ -293,12 +288,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             # <xsd:element name="user_id" type="xsd:integer"/>
             'user_id': {'name': 'user_id', 'type': 'xsd:integer'},
 
-            # # <xsd:element name="is_actived" type="xsd:boolean"/>
-            # 'is_actived': {'name': 'is_actived', 'type': 'xsd:boolean'},
-
             # TODO: check if my:requiredString accepts empty strings
-            # # <xsd:element name="first_name" type="xsd:string"/>
-            # 'first_name': {'name': 'first_name', 'type': 'xsd:string'},
             # <xsd:element name="first_name" type="my:requiredString"/>
             'first_name': {'name': 'first_name', 'type': 'my:requiredString'},
 
@@ -306,8 +296,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'last_name': {'name': 'last_name', 'type': 'my:requiredString'},
 
             # TODO: check if my:requiredString accepts empty strings
-            # # <xsd:element name="email" type="xsd:string"/>
-            # 'email': {'name': 'email', 'type': 'xsd:string'},
             # <xsd:element name="email" type="my:requiredString"/>
             'email': {'name': 'email', 'type': 'my:requiredString'},
 
@@ -328,16 +316,11 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             'created': {'name': 'created', 'type': 'xsd:dateTime'},
 
             # TODO: check if my:requiredAnyURI accepts empty strings
-            # 'url_site':       {'name': 'url_site', 'type': 'xsd:anyURI'},
             'url_site': {'name': 'url_site', 'type': 'my:requiredAnyURI'},
 
             'image': {'name': 'image', 'type': 'xsd:base64Binary', 'nillable': 'true'},
 
-            # 'language': {'name': 'language'},
             'languages': {'name': 'languages'},
-            # 'language_value': {
-            #     'name': 'language_value', 'type': 'xsd:integer', 'nillable': 'true',
-            # },
             'languages_value': {
                 'name': 'languages_value', 'type': 'xsd:integer', 'nillable': 'true',
             },
@@ -345,7 +328,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         for element_node in xml.findall(f'{xsd}element'):
             name = element_node.get('name')
-            # xsd_element_attrs = xsd_elements.get(name)
             xsd_element_attrs = xsd_elements.pop(name, None)
 
             if xsd_element_attrs is None:
@@ -354,7 +336,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             self.assertSetEqual({*xsd_element_attrs.keys()}, {*element_node.keys()})
 
             for attr in element_node.keys():
-                # self.assertEqual(xsd_element_attrs[attr], element_node.get(attr))
                 # TODO: factorise
                 expected = xsd_element_attrs[attr]
                 value = element_node.get(attr)
@@ -402,9 +383,7 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
         xsd_elements = {
             'CremeCRMCrudity': {'name': 'CremeCRMCrudity'},
-            # <xsd:element name="user_id" type="xsd:integer"/>
             'user_id': {'name': 'user_id', 'type': 'xsd:integer'},
-            # <xsd:element name="first_name" type="xsd:requiredString"/>
             'title':   {'name': 'title', 'type': 'my:requiredString'},
             # <xsd:element name="description">
             #   <xsd:complexType mixed="true">
@@ -508,7 +487,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
 
     def test_upgrade_xsl02(self):
         "Many2Many."
-        # body_map = {'user_id': 1, 'language': ''}
         body_map = {'user_id': 1, 'languages': ''}
         builder = self._get_builder(self._get_backend(
             ContactFakeBackend,
@@ -534,10 +512,8 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         self.assertTrue(template_nodes)
 
         when_node = template_nodes[0].find(f'{xsl}copy/{xsl}choose/{xsl}when')
-        # self.assertEqual('my:language', when_node.get('test'))
         self.assertEqual('my:languages', when_node.get('test'))
 
-        # expected_names = {'my:language', 'my:language_value'}
         expected_names = {'my:languages', 'my:languages_value'}
         self.assertSetEqual(
             expected_names,
@@ -782,12 +758,10 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
             {input_node.get('title') for input_node in input_nodes}
         )
         self.assertSetEqual(
-            # {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
             {f'my:languages/my:languages_value[.="{lang.id}"][1]' for lang in languages},
             {input_node.get(f'{xd}binding') for input_node in input_nodes},
         )
         self.assertEqual(
-            # {f'my:language/my:language_value[.="{lang.id}"][1]' for lang in languages},
             {f'my:languages/my:languages_value[.="{lang.id}"][1]' for lang in languages},
             {
                 input_node.get('select')
@@ -798,7 +772,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         )
 
         self.assertSetEqual(
-            # {f'my:language/my:language_value="{lang.id}"' for lang in languages},
             {f'my:languages/my:languages_value="{lang.id}"' for lang in languages},
             {
                 input_node.get('test')
@@ -811,7 +784,6 @@ class InfopathFormBuilderTestCase(CrudityTestCase):
         for_each_node = target_node.find(f'{xsl}choose/{xsl}when/span/{xsl}for-each')
         self.assertIsNotNone(for_each_node)
         self.assertEqual(
-            # 'my:language/my:language_value[{}]'.format(
             'my:languages/my:languages_value[{}]'.format(
                 ' and '.join(f'.!="{lang.id}"' for lang in languages)
             ),

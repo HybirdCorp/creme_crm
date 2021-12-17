@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from math import ceil
 
 from django import forms
@@ -33,15 +32,6 @@ from creme.creme_core.models import EntityFilter
 from ..models import ActObjective, ActObjectivePatternComponent
 
 ActObjectivePattern = commercial.get_pattern_model()
-
-
-# class ActForm(base_forms.CremeEntityForm):
-#     class Meta(base_forms.CremeEntityForm.Meta):
-#         model = commercial.get_act_model()
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ActForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class ObjectiveForm(base_forms.CremeModelForm):
@@ -129,15 +119,6 @@ class ObjectivesFromPatternForm(base_forms.CremeForm):
                 create_objectives_from_components(comp.get_children(), counter_goal)
 
         create_objectives_from_components(pattern.get_components_tree(), won_opps)
-
-
-# class ObjectivePatternForm(base_forms.CremeEntityForm):
-#     class Meta(base_forms.CremeEntityForm.Meta):
-#         model = ActObjectivePattern
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ObjectivePatternForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class _PatternComponentForm(base_forms.CremeModelForm):

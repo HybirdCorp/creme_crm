@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -46,7 +46,7 @@ from ..core.graph import (
 from ..graph_fetcher_registry import graph_fetcher_registry
 
 if TYPE_CHECKING:
-    from ..core.graph import ReportGraphHand  # GraphFetcher
+    from ..core.graph import ReportGraphHand
 
 logger = logging.getLogger(__name__)
 
@@ -65,7 +65,6 @@ class AbstractReportGraph(CremeEntity):
 
     # TODO: string IDs instead of integer ?
     abscissa_type = models.PositiveIntegerField(
-        # _('X axis (grouping)'), editable=False, choices=GROUP_TYPES.items(),
         _('X axis (grouping)'), editable=False, choices=Group.choices,
     )
     abscissa_cell_value = models.CharField(
@@ -77,7 +76,6 @@ class AbstractReportGraph(CremeEntity):
 
     ordinate_type = models.CharField(
         _('Y axis (type)'), max_length=100, editable=False,
-        # choices=AGGREGATOR_TYPES.items(), default='',
         choices=Aggregator.choices, default='',
     )
     ordinate_cell_key = models.CharField(
@@ -97,7 +95,6 @@ class AbstractReportGraph(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'reports'
         verbose_name = _("Report's graph")
         verbose_name_plural = _("Reports' graphs")
@@ -203,22 +200,6 @@ class AbstractReportGraph(CremeEntity):
 
         return self.hand.fetch(entities=entities, order=order, user=user, extra_q=extra_q)
 
-    # @staticmethod
-    # def get_fetcher_from_instance_brick(
-    #         instance_brick_config: InstanceBrickConfigItem) -> 'GraphFetcher':
-    #     """Build a GraphFetcher related to this ReportGraph & an InstanceBrickConfigItem.
-    #     @param instance_brick_config: An instance of InstanceBrickConfigItem.
-    #     @return A GraphFetcher instance.
-    #     """
-    #     warnings.warn(
-    #         'AbstractReportGraph.get_fetcher_from_instance_brick() is deprecated ; '
-    #         'use ReportGraphBrick(...).fetcher instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     from ..bricks import ReportGraphBrick
-    #     return ReportGraphBrick(instance_brick_config).fetcher
-
     @property
     def hand(self) -> 'ReportGraphHand':
         from ..core.graph import RGRAPH_HANDS_MAP  # Lazy loading
@@ -229,73 +210,6 @@ class AbstractReportGraph(CremeEntity):
             self._hand = hand = RGRAPH_HANDS_MAP[self.abscissa_type](self)
 
         return hand
-
-    # class InstanceBrickConfigItemError(Exception):
-    #     def __init__(self, *args, **kwargs):
-    #         super().__init__(*args, **kwargs)
-    #         warnings.warn(
-    #             'AbstractReportGraph.InstanceBrickConfigItemError is deprecated.',
-    #             DeprecationWarning
-    #         )
-
-    # def create_instance_brick_config_item(self,
-    #                                       volatile_field: Optional[str] = None,
-    #                                       volatile_rtype: Optional[RelationType] = None,
-    #                                       save: bool = True,
-    #                                       ) -> Optional[InstanceBrickConfigItem]:
-    #     warnings.warn(
-    #         'AbstractReportGraph.create_instance_brick_config_item() is deprecated ; '
-    #         'use GraphFetcher.create_brick_config_item() instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     from ..bricks import ReportGraphBrick
-    #     from ..constants import RGF_FK, RGF_NOLINK, RGF_RELATION
-    #     from ..core.graph.fetcher import RegularFieldLinkedGraphFetcher
-    #
-    #     ibci = InstanceBrickConfigItem(
-    #         entity=self,
-    #         brick_class_id=ReportGraphBrick.id_,
-    #     )
-    #
-    #     if volatile_field:
-    #         assert volatile_rtype is None
-    #         error = RegularFieldLinkedGraphFetcher.validate_fieldname(self, volatile_field)
-    #
-    #         if error:
-    #             logger.warning(
-    #                 'ReportGraph.create_instance_brick_config_item(): '
-    #                 '%s -> InstanceBrickConfigItem not built.',
-    #                 error,
-    #             )
-    #
-    #             return None
-    #
-    #         ibci.set_extra_data(key='type',  value=RGF_FK)
-    #         ibci.set_extra_data(key='value', value=volatile_field)
-    #     elif volatile_rtype:
-    #         ibci.set_extra_data(key='type',  value=RGF_RELATION)
-    #         ibci.set_extra_data(key='value', value=volatile_rtype.id)
-    #     else:
-    #         ibci.set_extra_data(key='type', value=RGF_NOLINK)
-    #
-    #     extra_items = dict(ibci.extra_data_items)
-    #
-    #     for other_ibci in InstanceBrickConfigItem.objects.filter(
-    #         entity=self,
-    #         brick_class_id=ReportGraphBrick.id_,
-    #     ):
-    #         if extra_items == dict(other_ibci.extra_data_items):
-    #             raise self.InstanceBrickConfigItemError(
-    #                 gettext(
-    #                     'The instance block for «{graph}» with these parameters already exists!'
-    #                 ).format(graph=self)
-    #             )
-    #
-    #     if save:
-    #         ibci.save()
-    #
-    #     return ibci
 
     @property
     def model(self) -> Type[CremeEntity]:

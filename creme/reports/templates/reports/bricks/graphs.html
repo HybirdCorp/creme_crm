@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks reports_tags %}{# creme_widgets #}
+{% load i18n creme_bricks reports_tags %}
 {% load blockjsondata has_perm_to jsonify url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
@@ -32,12 +32,10 @@
                  controllers[$(this).attr('data-graph-id')] = controller;
              });
 
-{#             $('.graph-row-toggle-icon').on('click', function(e) { #}
              $('.graph-row-header .toggle-icon-container').on('click', function(e) {
                  e.stopPropagation();
 
                  var graphid = $(this).parents('.graph-row-header:first').attr('data-graph-id');
-{#                 var expand = $(this).is('.graph-row-expand'); #}
                  var expand = $(this).is('.toggle-icon-expand');
 
                  $('[data-graph-id="' + graphid + '"]', element).toggleClass('graph-row-collapsed', !expand);
@@ -71,14 +69,9 @@
 
 {% block brick_table_rows %}
 {% has_perm_to admin 'reports' as admin_perm %}
-{% comment %}
-{% widget_icon name='expandme' label=_('Expand') size='brick-table-action' class='graph-row-toggle-icon graph-row-expand' as expand_icon %}
-{% widget_icon name='expanded' label=_('Close') size='brick-table-action' class='graph-row-toggle-icon graph-row-collapse' as collapse_icon %}
-{% endcomment %}
     {% for graph in page.object_list %}
     {% with hand=graph.hand %}
     <tr class="graph-row-header graph-row-collapsed" data-graph-id="{{graph.id}}">
-{#        <td>{{expand_icon.render}}{{collapse_icon.render}}</td> #}
         <td>
             <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Expand' %}"><div class="toggle-icon"></div></div>
             <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Close' %}"><div class="toggle-icon"></div></div>

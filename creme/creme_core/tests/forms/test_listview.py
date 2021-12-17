@@ -470,8 +470,6 @@ class SearchFieldsTestCase(CremeTestCase):
         expected_choices = [
             {'value': '',                'label': pgettext('creme_core-filter', 'All')},
             {'value': lv_form.NULL,      'label': _('* is empty *')},
-            # {'value': FAKE_PERCENT_UNIT, 'label': _('Percent')},
-            # {'value': FAKE_AMOUNT_UNIT,  'label': _('Amount')},
             {'value': Discount.PERCENT.value, 'label': _('Percent')},
             {'value': Discount.AMOUNT.value,  'label': _('Amount')},
         ]
@@ -485,15 +483,11 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value='unknown'))
 
         self.assertEqual(
-            # Q(discount_unit=FAKE_PERCENT_UNIT),
             Q(discount_unit=Discount.PERCENT.value),
-            # to_python(value=str(FAKE_PERCENT_UNIT))
             to_python(value=str(Discount.PERCENT.value))
         )
         self.assertEqual(
-            # Q(discount_unit=FAKE_AMOUNT_UNIT),
             Q(discount_unit=Discount.AMOUNT.value),
-            # to_python(value=str(FAKE_AMOUNT_UNIT))
             to_python(value=str(Discount.AMOUNT.value))
         )
 

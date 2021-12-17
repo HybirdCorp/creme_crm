@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -100,7 +100,6 @@ class MessagesBrick(QuerysetBrick):
     verbose_name = _('Sent messages')
     dependencies = (Message,)
     order_by = 'id'
-    # page_size = 12
     page_size = QuerysetBrick.page_size * 3
     template_name = 'sms/bricks/messages.html'
 

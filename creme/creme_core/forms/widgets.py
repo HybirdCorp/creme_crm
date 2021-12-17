@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -238,9 +238,7 @@ class ActionButtonList(widgets.Widget):
         obj.actions = copy.deepcopy(self.actions)
         return obj
 
-    # def add_action(self, name, label, enabled=True, **kwargs):
     def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
-        # self.actions.append((name, label, enabled, kwargs))
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon,
             enabled=enabled,
@@ -252,20 +250,6 @@ class ActionButtonList(widgets.Widget):
         self.actions.clear()
         return self
 
-    # def _get_button_context(self, name, label, enabled, **kwargs):
-    #     if enabled is not None:
-    #         if enabled is False or (callable(enabled) and not enabled()):
-    #             kwargs['disabled'] = True
-    #
-    #     title = kwargs.pop('title', label)
-    #
-    #     return {
-    #         'name':  name,
-    #         'attrs':  kwargs,
-    #         'label': label,
-    #         'title': title,
-    #     }
-
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-actionbuttonlist'
 
@@ -276,13 +260,7 @@ class ActionButtonList(widgets.Widget):
         widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
         widget_cxt['widget_type'] = widget_type
 
-        widget_cxt['buttons'] = [
-            # self._get_button_context(
-            #     name=a_name, label=a_label, enabled=a_enabled, **a_attrs,
-            # )
-            # for a_name, a_label, a_enabled, a_attrs in self.actions
-            action.context for action in self.actions
-        ]
+        widget_cxt['buttons'] = [action.context for action in self.actions]
         widget_cxt['delegate'] = self.delegate.get_context(
             name=name, value=value, attrs=attrs,
         )['widget']
@@ -443,7 +421,6 @@ class ChainedInput(widgets.TextInput):
         widget_type = 'ui-creme-chainedselect'
 
         value = self.from_python(value) if self.from_python is not None else value
-        # context = super(ChainedInput, self).get_context(name='', value='', attrs=attrs)
         context = super().get_context(name='', value='', attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
@@ -474,53 +451,16 @@ class ChainedInput(widgets.TextInput):
 
 class SelectorList(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/selector-list.html'
-
-    # class Action:
-    #     def __init__(self, name, label, enabled=True, **attrs):
-    #         self.name = name
-    #         self.label = label
-    #         self.icon = icon
-    #         self.enabled = enabled
-    #         self.attrs = attrs or {}
-    #
-    #     @property
-    #     def enabled(self):
-    #         return self._enabled if callable(self._enabled) else (self._enabled is True)
-    #
-    #     @enabled.setter
-    #     def enabled(self, enabled):
-    #         self._enabled = enabled
-    #
-    #     @property
-    #     def context(self):
-    #         attrs = {**self.attrs}
-    #         label = self.label
-    #
-    #         if not self.enabled:
-    #             attrs['disabled'] = True
-    #
-    #         title = attrs.pop('title', label)
-    #
-    #         return {
-    #             'name':  self.name,
-    #             'label': label,
-    #             'icon': self.icon,
-    #             'attrs': attrs,
-    #             'title': title,
-    #         }
     action_class = WidgetAction
 
     def __init__(self, selector, attrs=None, enabled=True):
         super().__init__(attrs)
         self.selector = selector
         self.enabled = enabled
-        # self.actions = [self.Action('add', gettext_lazy('Add'))]
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
 
-    # def add_action(self, name, label, enabled=True, **kwargs):
     def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
-        # self.actions.append(self.Action(name, label, enabled, **kwargs))
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon, enabled=enabled, **attrs
         ))
@@ -856,21 +796,9 @@ class MultiEntityCreatorWidget(SelectorList):
                 },
             )
 
-            # def add_action(name, label, enabled=True, **kwargs):
-            #     button_list.add_action(name, label, enabled=False, hidden=True, **kwargs)
-            #     self.add_action(name, label, enabled)
-
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                # add_action(
-                #     name='create',
-                #     label=self.creation_label or model.creation_label,
-                #     enabled=allowed,
-                #     popupUrl=url,
-                #     title=_('Create') if allowed else _("Can't create"),
-                # )
-
                 name = 'create'
                 label = self.creation_label or model.creation_label
                 icon = 'add'
@@ -973,45 +901,6 @@ class CalendarWidget(widgets.TextInput):
         final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
 
         return context
-
-
-# class DependentSelect(widgets.Select):
-#     template_name = 'creme_core/forms/widgets/dependent-select.html'
-#
-#     def __init__(self, target_id, attrs=None, choices=()):
-#         warnings.warn('creme_core.forms.widgets.DependentSelect is deprecated.',
-#                       DeprecationWarning
-#                      )
-#
-#         self.target_id = target_id
-#         self.target_url = None
-#         self.target_val = None
-#         super().__init__(attrs, choices)
-#
-#     def get_context(self, name, value, attrs):
-#         context = super().get_context(name=name, value=value, attrs=attrs)
-#         final_attrs = context['widget']['attrs']
-#         final_attrs['onchange'] = """(function() {
-#     var source = $('#%(id)s');
-#     if (!source || typeof(source) === undefined) return;
-#
-#     var target = $('#%(target_id)s');
-#     if (!target || typeof(target) === undefined) return;
-#
-#     $.post('%(target_url)s',
-#            {record_id: source.val()},
-#            function(data) {
-#                var data = creme.forms.Select.optionsFromData(data.result, 'text', 'id');
-#                creme.forms.Select.fill(target, data, '%(target_val)s');
-#            }, 'json');
-# }());""" % {
-#             'id': final_attrs['id'],
-#             'target_id': self.target_id,
-#             'target_url': self.target_url,
-#             'target_val': self.target_val,
-#         }
-#
-#         return context
 
 
 class OptionalWidget(widgets.MultiWidget):

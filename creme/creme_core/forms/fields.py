@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,6 @@ from django.forms import ValidationError, fields
 from django.forms import models as mforms
 from django.forms import widgets
 from django.urls import reverse
-# from django.utils.encoding import smart_text
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
@@ -60,7 +59,6 @@ __all__ = (
     'FilteredEntityTypeField',
     'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
     'ListEditionField',
-    # 'AjaxChoiceField', 'AjaxMultipleChoiceField',
     'AjaxModelChoiceField',
     'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
     'ChoiceOrCharField',
@@ -845,7 +843,6 @@ class MultiRelationEntityField(RelationEntityField):
             if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
                 raise ValidationError(
                     self.error_messages['ctypenotallowed'],
-                    # params={'ctype': ctype_pk},
                     params={'ctype_id': ctype_pk},
                     code='ctypenotallowed',
                 )
@@ -1317,54 +1314,6 @@ class ListEditionField(fields.Field):
     def only_delete(self, only_delete):
         self._only_delete = only_delete
         self.widget.only_delete = only_delete
-
-
-# class AjaxChoiceField(fields.ChoiceField):
-#     """
-#         Same as ChoiceField but bypass the choices validation due to the ajax filling
-#     """
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         warnings.warn('creme_core.forms.fields.AjaxChoiceField is deprecated',
-#                       DeprecationWarning
-#                      )
-#
-#     def clean(self, value):
-#         if value in self.empty_values:
-#             if self.required:
-#                 raise ValidationError(self.error_messages['required'], code='required')
-#
-#             value = ''
-#
-#         return smart_text(value)
-
-
-# class AjaxMultipleChoiceField(fields.MultipleChoiceField):
-#     """
-#         Same as MultipleChoiceField but bypass the choices validation due to the ajax filling
-#     """
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         warnings.warn('creme_core.forms.fields.AjaxMultipleChoiceField is deprecated',
-#                       DeprecationWarning
-#                      )
-#
-#     def clean(self, value):
-#         """
-#         Validates that the input is a list or tuple.
-#         """
-#         not_value = not value
-#         if self.required and not_value:
-#             raise ValidationError(self.error_messages['required'], code='required')
-#         elif not self.required and not_value:
-#             return []
-#
-#         if not isinstance(value, (list, tuple)):
-#             raise ValidationError(self.error_messages['invalid_list'],
-#                                   code='invalid_list',
-#                                  )
-#
-#         return [smart_text(val) for val in value]
 
 
 class AjaxModelChoiceField(mforms.ModelChoiceField):
@@ -1905,7 +1854,6 @@ class EnhancedModelChoiceIterator(mforms.ModelChoiceIterator):
         return ''
 
     def choice(self, obj):
-        # pk, label = super().choice(obj)
         value, label = super().choice(obj)
         pk = value.value
 

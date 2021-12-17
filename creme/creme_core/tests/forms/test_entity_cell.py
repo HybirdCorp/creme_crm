@@ -727,13 +727,3 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         )
         self.assertCellInChoices(orga_value, choices=choices1)
         self.assertCellNotInChoices(orga_value, choices=choices2)
-
-    # def test_content_type(self):  # DEPRECATED
-    #     field = EntityCellsField()
-    #     self.assertIs(field.content_type.model_class(), CremeEntity)
-    #     self.assertIs(field.widget.model, CremeEntity)
-    #
-    #     ct = ContentType.objects.get_for_model(FakeContact)
-    #     field.content_type = ct
-    #     self.assertEqual(ct, field.content_type)
-    #     self.assertEqual(FakeContact, field.model)

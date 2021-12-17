@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm  # CremeEntityForm
+from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.documents.forms.fields import MultiImageEntityField
 
@@ -44,38 +43,6 @@ class SubCategorySubCell(CustomFormExtraSubCell):
     def post_clean_instance(self, *, instance, value, form):
         instance.category = value.category
         instance.sub_category = value
-
-
-# class _BaseForm(CremeEntityForm):
-#     sub_category = CategoryField(label=_('Sub-category'))
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('products.forms.base._BaseForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#
-#     class Meta(CremeEntityForm.Meta):
-#         # model = OVERLOAD ME
-#         exclude = (*CremeEntityForm.Meta.exclude, 'category', 'sub_category')
-#
-#     def save(self, *args, **kwargs):
-#         instance = self.instance
-#         sub_category = self.cleaned_data['sub_category']
-#
-#         instance.category = sub_category.category
-#         instance.sub_category = sub_category
-#
-#         return super().save(*args, **kwargs)
-
-
-# class _BaseEditForm(_BaseForm):
-#     class Meta(_BaseForm.Meta):
-#         # model = OVERLOAD ME
-#         exclude = (*_BaseForm.Meta.exclude, 'images')
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('products.forms.base._BaseEditForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#         self.fields['sub_category'].initial = self.instance.sub_category
 
 
 class AddImagesForm(CremeForm):

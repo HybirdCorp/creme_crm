@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from collections import OrderedDict
 from typing import Tuple
 
@@ -42,7 +41,7 @@ from creme.creme_core.core.entity_filter import (
     entity_filter_registries,
 )
 from creme.creme_core.creme_jobs import deletor_type
-from creme.creme_core.forms import (  # CremeForm
+from creme.creme_core.forms import (
     CremeModelForm,
     FieldBlockManager,
     MultiEntityCTypeChoiceField,
@@ -328,40 +327,6 @@ class CredentialsFilterStep(CremeModelForm):
             super().save(*args, **kwargs)
 
         return instance
-
-
-# class UserRoleDeleteForm(CremeForm):
-#     def __init__(self, user, instance, *args, **kwargs):
-#         warnings.warn('UserRoleDeleteForm is deprecated ; '
-#                       'use UserRoleDeletionForm instead.',
-#                       DeprecationWarning
-#                      )
-#
-#         super().__init__(user, *args, **kwargs)
-#         self.role_to_delete = instance
-#         self.using_users = users = CremeUser.objects.filter(role=instance)
-#
-#         if users:
-#             self.fields['to_role'] = forms.ModelChoiceField(
-#                 label=gettext('Choose a role to transfer to'),
-#                 queryset=UserRole.objects.exclude(id=instance.id),
-#             )
-#         else:
-#             self.fields['info'] = forms.CharField(
-#                 label=gettext('Information'), required=False,
-#                 widget=creme_widgets.Label,
-#                 initial=gettext('This role is not used by any user,'
-#                                 ' you can delete it safely.'
-#                                ),
-#             )
-#
-#     def save(self, *args, **kwargs):
-#         to_role = self.cleaned_data.get('to_role')
-#
-#         if to_role is not None:
-#             self.using_users.update(role=to_role)
-#
-#         self.role_to_delete.delete()
 
 
 class UserRoleDeletionForm(CremeModelForm):

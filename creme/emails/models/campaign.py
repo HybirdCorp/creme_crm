@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,7 +40,6 @@ class AbstractEmailCampaign(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = _('Emailing campaign')
         verbose_name_plural = _('Emailing campaigns')
@@ -98,11 +97,9 @@ class AbstractEmailCampaign(CremeEntity):
 
         # TODO: in a signal handler instead ?
         #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
-        # from .sending import SENDING_STATE_DONE, EmailSending
         from .sending import EmailSending
 
         if EmailSending.objects.filter(campaign=self).exclude(
-            # state=SENDING_STATE_DONE
             state=EmailSending.State.DONE,
         ).exists():
             # TODO: regroup the 'refresh' message, to avoid flooding the job manager

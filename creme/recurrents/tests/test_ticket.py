@@ -10,19 +10,11 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
-# from creme.creme_core.models import Job
-# from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
 
-# from ..creme_jobs import recurrents_gendocs_type
-from .base import (  # CTYPE_KEY
-    RecurrentGenerator,
-    RecurrentsTestCase,
-    skipIfCustomGenerator,
-)
+from .base import RecurrentGenerator, RecurrentsTestCase, skipIfCustomGenerator
 
 if apps.is_installed('creme.tickets'):
     from creme.tickets import get_ticket_model, get_tickettemplate_model
@@ -46,7 +38,6 @@ else:
 
 @skipIfNotInstalled('creme.tickets')
 @skipIfCustomGenerator
-# class RecurrentsTicketsTestCase(CremeTestCase):
 class RecurrentsTicketsTestCase(RecurrentsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -57,12 +48,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
     def setUp(self):
         super().setUp()
         self.login()
-
-    # def _get_job(self):
-    #     return self.get_object_or_fail(Job, type_id=recurrents_gendocs_type.id)
-    #
-    # def _generate_docs(self, job=None):
-    #     recurrents_gendocs_type.execute(job or self._get_job())
 
     def _create_ticket_template(self, title='Support ticket'):
         return TicketTemplate.objects.create(
@@ -83,7 +68,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         url = reverse('recurrents__create_generator')
         self.assertGET200(url)
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -99,7 +83,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
                 '0-periodicity_0':    'days',
                 '0-periodicity_1':    '4',
 
-                # CTYPE_KEY: self.ct.id,
                 self.CTYPE_KEY: self.ct.id,
             },
         )
@@ -184,7 +167,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         url = gen.get_edit_absolute_url()
         self.assertGET200(url)
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -301,7 +283,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         )
         self.assertDatetimesAlmostEqual(now(), job.type.next_wakeup(job, now_value))
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -400,7 +381,6 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         self.assertDatetimesAlmostEqual(now_value + timedelta(hours=14), wakeup)
 
     def test_refresh_job(self):
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         job = self._get_job()
         tpl = self._create_ticket_template()

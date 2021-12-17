@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2019  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,7 +72,6 @@ class CurrentUserOperand(ConditionDynamicOperand):
            value == self.type_id:
             return
 
-        # return field.formfield().clean(value)
         field.formfield().clean(value)
 
 

@@ -214,7 +214,6 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, SalesOrder.objects.count())
 
         self.assertEqual(
-            # force_text(response.content),
             force_str(response.content),
             SalesOrder.objects.first().get_absolute_url(),
         )

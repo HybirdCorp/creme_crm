@@ -63,7 +63,6 @@ class PersonsTagsTestCase(CremeTestCase):
             }))
 
         self.assertEqual(
-            # f'{address1.zipcode}#{address2.city}#{address3.city} {address3.zipcode}',
             f'{address1.zipcode}#{address2.city}#{address3.zipcode} {address3.city}',
             render.strip(),
         )

@@ -90,7 +90,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -116,7 +115,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -127,7 +125,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town6.latitude, longitude=town6.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -138,7 +135,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -149,7 +145,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -162,7 +157,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -173,7 +167,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -184,7 +177,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -196,7 +188,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address_id=address.pk,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -209,7 +200,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address_id=address.pk,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -221,7 +211,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address_id=address.pk,
             latitude=town.latitude, longitude=town.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -233,7 +222,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address_id=address.pk,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -260,7 +248,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town.latitude, longitude=town.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -272,7 +259,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address_no_town,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -294,7 +280,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -327,7 +312,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -337,7 +321,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -347,7 +330,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town3.latitude, longitude=town3.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -357,7 +339,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )  # 13001 first
 
@@ -367,7 +348,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -402,7 +382,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -412,7 +391,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -422,7 +400,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town3.latitude, longitude=town3.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -432,7 +409,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )  # invalid status
 
@@ -442,7 +418,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -457,7 +432,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town2.latitude, longitude=town2.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -468,7 +442,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -478,7 +451,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town3.latitude, longitude=town3.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -489,7 +461,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )  # 13001 first
 
@@ -499,7 +470,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -535,23 +505,19 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
 
     def test_status_label(self):
         geoaddress = Address.objects.create(owner=self.orga, city=self.marseille1.name).geoaddress
-        # self.assertGeoAddress(geoaddress, status=GeoAddress.PARTIAL)
         self.assertGeoAddress(geoaddress, status=GeoAddress.Status.PARTIAL)
         self.assertEqual(
             geoaddress.get_status_display(), _('Partially matching location'),
         )
 
-        # geoaddress.status = GeoAddress.UNDEFINED
         geoaddress.status = GeoAddress.Status.UNDEFINED
         self.assertEqual(
             geoaddress.get_status_display(), _('Not localized'),
         )
 
-        # geoaddress.status = GeoAddress.COMPLETE
         geoaddress.status = GeoAddress.Status.COMPLETE
         self.assertEqual(geoaddress.get_status_display(), '')
 
-        # geoaddress.status = GeoAddress.MANUAL
         geoaddress.status = GeoAddress.Status.MANUAL
         self.assertEqual(geoaddress.get_status_display(), _('Manual location'))
 

@@ -849,8 +849,6 @@ class BrickRegistryTestCase(CremeTestCase):
                 return f'<table id="{self.id_}"><thead><tr>' \
                        f'{self.config_item.entity}</tr></thead></table>'  # useless :)
 
-        # self.assertTrue(InstanceBrickConfigItem.id_is_specific(ContactBrick.id_))
-
         ibci = InstanceBrickConfigItem.objects.create(
             entity=casca,
             brick_class_id=ContactBrick.id_,

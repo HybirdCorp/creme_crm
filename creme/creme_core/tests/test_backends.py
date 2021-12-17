@@ -14,14 +14,8 @@ class BackendsTestCase(CremeTestCase):
             'creme.creme_core.backends.xls_import.XLSImportBackend',
         ])
 
-        # self.assertEqual(CSVImportBackend, registry.get_backend(CSVImportBackend.id))
-        # self.assertEqual(XLSImportBackend, registry.get_backend(XLSImportBackend.id))
         self.assertEqual(CSVImportBackend, registry.get_backend_class(CSVImportBackend.id))
         self.assertEqual(XLSImportBackend, registry.get_backend_class(XLSImportBackend.id))
-        # self.assertIsNone(registry.get_backend('unknown'))
-        # self.assertSetEqual(
-        #     {CSVImportBackend, XLSImportBackend}, {*registry.backends}
-        # )
         self.assertSetEqual(
             {CSVImportBackend, XLSImportBackend}, {*registry.backend_classes}
         )
@@ -35,9 +29,6 @@ class BackendsTestCase(CremeTestCase):
             'creme.creme_core.backends.csv_import.CSVImportBackend',
             'creme.creme_core.backends.csv_import.CSVImportBackend',  # Twice
         ])
-
-        # with self.assertRaises(registry.DuplicatedId):
-        #     registry.get_backend(CSVImportBackend.id)
 
         with self.assertRaises(registry.DuplicatedId):
             registry.get_backend_class(CSVImportBackend.id)

@@ -128,9 +128,7 @@ class CustomFieldsTestCase(CremeTestCase):
         self.assertIs(cfield.is_required, False)
         self.assertIs(cfield.is_deleted, False)
         self.assertEqual(name, str(cfield))
-        # self.assertEqual(CustomFieldInteger, cfield.get_value_class())
         self.assertEqual(CustomFieldInteger, cfield.value_class)
-        # self.assertEqual(_('Integer'), cfield.type_verbose_name())
         self.assertEqual(_('Integer'), CustomFieldInteger.verbose_name)
 
         self.assertEqual(
@@ -146,7 +144,6 @@ class CustomFieldsTestCase(CremeTestCase):
             value=value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=value)
-        # self.assertEqual(str(value), cfield.get_pretty_value(orga.id))
 
         formfield1 = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield1, forms.IntegerField)
@@ -192,9 +189,7 @@ class CustomFieldsTestCase(CremeTestCase):
             content_type=FakeOrganisation,
             is_required=True,
         )
-        # self.assertEqual(CustomFieldString, cfield.get_value_class())
         self.assertEqual(CustomFieldString, cfield.value_class)
-        # self.assertEqual(_('Short string'), cfield.type_verbose_name())
         self.assertEqual(_('Short string'), CustomFieldString.verbose_name)
 
         self.assertEqual(
@@ -268,7 +263,6 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldFloat, cfield.value_class)
-        # self.assertEqual(_('Decimal'), cfield.type_verbose_name())
         self.assertEqual(_('Decimal'), CustomFieldFloat.verbose_name)
 
         orga = self._create_orga()
@@ -317,7 +311,6 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldDateTime, cfield.value_class)
-        # self.assertEqual(_('Date and time'), cfield.type_verbose_name())
         self.assertEqual(_('Date and time'), CustomFieldDateTime.verbose_name)
 
         orga = FakeOrganisation.objects.create(user=user, name='Arcadia')
@@ -340,7 +333,6 @@ by a man named Tochiro.
         )
         cfield1 = create_cfield(name='Ship is armed?')
         self.assertEqual(CustomFieldBoolean, cfield1.value_class)
-        # self.assertEqual(_('Boolean (2 values: Yes/No)'), cfield1.type_verbose_name())
         self.assertEqual(_('Boolean (2 values: Yes/No)'), CustomFieldBoolean.verbose_name)
 
         orga = self._create_orga()
@@ -407,7 +399,6 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldEnum, cfield.value_class)
-        # self.assertEqual(_('Choice list'), cfield.type_verbose_name())
         self.assertEqual(_('Choice list'), CustomFieldEnum.verbose_name)
 
         enum_value = CustomFieldEnumValue.objects.create(
@@ -421,7 +412,6 @@ by a man named Tochiro.
             value=enum_value,
         )
         self.assertValueEqual(cfield=cfield, entity=orga, value=enum_value)
-        # self.assertEqual(enum_value.value, cfield.get_pretty_value(orga.id))
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield, CustomEnumChoiceField)
@@ -469,7 +459,6 @@ by a man named Tochiro.
             content_type=FakeOrganisation,
         )
         self.assertEqual(CustomFieldMultiEnum, cfield.value_class)
-        # self.assertEqual(_('Multiple choice list'), cfield.type_verbose_name())
         self.assertEqual(_('Multiple choice list'), CustomFieldMultiEnum.verbose_name)
 
         create_enum_value = partial(
@@ -489,7 +478,6 @@ by a man named Tochiro.
             {enum_value1, enum_value2},
             {*self.refresh(cf_value).value.all()}
         )
-        # self.assertEqual('Lasers / Missiles', cfield.get_pretty_value(orga.id))
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
         self.assertIsInstance(formfield, CustomMultiEnumChoiceField)

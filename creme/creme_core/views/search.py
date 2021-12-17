@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,6 @@ from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from ..core.entity_cell import EntityCellRegularField
 from ..core.search import Searcher
 from ..gui.bricks import QuerysetBrick
 from ..http import CremeJsonResponse
@@ -89,10 +88,6 @@ class FoundEntitiesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context, qs,
-            # cells=[
-            #     EntityCellRegularField.build(model, field.name)
-            #     for field in searcher.get_fields(model)
-            # ],
             cells=searcher.get_cells(model),
             # If the model is inserted in the context, the template calls it
             # and creates an instance...

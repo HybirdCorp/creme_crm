@@ -66,7 +66,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         filename = 'DocTestCreate001.txt'
         final_path = FileCreator(
-            # dir_path=join(settings.MEDIA_ROOT, 'upload', 'documents'),
             dir_path=join(settings.MEDIA_ROOT, 'documents'),
             name=filename,
             max_length=Document._meta.get_field('filedata').max_length,
@@ -138,7 +137,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertRedirects(response, doc.get_absolute_url())
 
         filedata = doc.filedata
-        # self.assertEqual('upload/documents/' + file_obj.base_name, filedata.name)
         self.assertEqual('documents/' + file_obj.base_name, filedata.name)
         with filedata.open('r') as f:
             self.assertEqual([content], f.readlines())
@@ -168,7 +166,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         filedata = doc.filedata
 
-        # self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
         self.assertEqual(f'documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
@@ -195,7 +192,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        # self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
         self.assertEqual(f'documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
@@ -218,7 +214,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         doc = self._create_doc(title, file_obj)
 
         filedata = doc.filedata
-        # self.assertEqual(f'upload/documents/{file_obj.base_name}.txt', filedata.name)
         self.assertEqual(f'documents/{file_obj.base_name}.txt', filedata.name)
 
         # Download
@@ -254,7 +249,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         doc = self.get_object_or_fail(Document, linked_folder=folder)
         file_name = file_obj.base_name
-        # self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual('documents/' + file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
 
@@ -364,7 +358,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         Folder.objects.create(user=user, title='Creme')  # Should not be used
 
-        # entity = CremeEntity.objects.create(user=user)
         entity = FakeOrganisation.objects.create(user=user, name='NERV')
         url = self._build_addrelated_url(entity)
         context = self.assertGET200(url).context
@@ -399,7 +392,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         ct_folder = entity_folder.parent_folder
         self.assertIsNotNone(ct_folder)
-        # self.assertEqual(str(CremeEntity._meta.verbose_name), ct_folder.title)
         self.assertEqual(str(FakeOrganisation._meta.verbose_name), ct_folder.title)
         self.assertEqual(root_folder, ct_folder.parent_folder)
 
@@ -701,7 +693,6 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         summary = image.get_entity_summary(user)
         self.assertHTMLEqual(
             '<img class="entity-summary" src="{url}" alt="{name}" title="{name}"/>'.format(
-                # url=image.get_dl_url(),
                 url=image.get_download_absolute_url(),
                 name=image.title,
             ),
@@ -826,7 +817,6 @@ class DocumentQuickFormTestCase(_DocumentsTestCase):
         self.assertEqual(1, len(docs))
 
         doc = docs[0]
-        # self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)
@@ -869,7 +859,6 @@ class DocumentQuickWidgetTestCase(_DocumentsTestCase):
 
         doc = docs[0]
         folder = get_csv_folder_or_create(user)
-        # self.assertEqual('upload/documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('documents/' + file_obj.base_name, doc.filedata.name)
         self.assertEqual('', doc.description)
         self.assertEqual(folder, doc.linked_folder)

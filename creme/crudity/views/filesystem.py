@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -51,7 +51,6 @@ def download_ini_template(request, subject):
     ini.add_section('head')
     ini.set('head', 'action', subject)
 
-    # if backend.is_sandbox_by_user:
     if is_sandbox_by_user():
         ini.set('head', 'username', getattr(request.user, get_user_model().USERNAME_FIELD))
 
@@ -62,12 +61,6 @@ def download_ini_template(request, subject):
     buffer = StringIO()
     ini.write(buffer)
 
-    # response = HttpResponse(buffer.getvalue(), content_type='text/plain')
-    # response['Content-Disposition'] = 'attachment; filename={}.ini'.format(
-    #     secure_filename(subject),
-    # )
-    #
-    # return response
     return HttpResponse(
         buffer.getvalue(),
         headers={

@@ -54,14 +54,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_DAY,
             abscissa_cell_value='created', abscissa_type=ReportGraph.Group.DAY,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHDay(graph)
-        # self.assertEqual(RGT_DAY,      hand.hand_id)
         self.assertEqual(ReportGraph.Group.DAY, hand.hand_id)
         self.assertEqual(_('By days'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -78,15 +75,12 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeOrganisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='modified', abscissa_type=RGT_MONTH,
             abscissa_cell_value='modified', abscissa_type=ReportGraph.Group.MONTH,
-            # ordinate_type=RGA_SUM,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=ordinate_cell.key,
         )
 
         hand = RGHMonth(graph)
-        # self.assertEqual(RGT_MONTH,      hand.hand_id)
         self.assertEqual(ReportGraph.Group.MONTH, hand.hand_id)
         self.assertEqual(_('By months'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -101,14 +95,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHYear(graph)
-        # self.assertEqual(RGT_YEAR,      hand.hand_id)
         self.assertEqual(ReportGraph.Group.YEAR, hand.hand_id)
         self.assertEqual(_('By years'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -118,15 +109,12 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_RANGE,
             abscissa_cell_value='created', abscissa_type=ReportGraph.Group.RANGE,
             abscissa_parameter='90',
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHRange(graph)
-        # self.assertEqual(RGT_RANGE,      hand.hand_id)
         self.assertEqual(ReportGraph.Group.RANGE, hand.hand_id)
         self.assertEqual(_('By X days'),          hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -136,14 +124,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHForeignKey(graph)
-        # self.assertEqual(RGT_FK,         hand.hand_id)
         self.assertEqual(ReportGraph.Group.FK, hand.hand_id)
         self.assertEqual(_('By values'),       hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -154,14 +139,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='invalid', abscissa_type=RGT_DAY,
             abscissa_cell_value='invalid', abscissa_type=ReportGraph.Group.DAY,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHDay(graph)
-        # self.assertEqual(RGT_DAY, hand.hand_id)
         self.assertEqual(ReportGraph.Group.DAY, hand.hand_id)
         self.assertEqual(
             _('the field does not exist any more.'),
@@ -183,9 +165,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value=hidden_fname, abscissa_type=RGT_FK,
             abscissa_cell_value=hidden_fname, abscissa_type=ReportGraph.Group.FK,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -202,14 +182,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=FAKE_REL_OBJ_EMPLOYED_BY,
-            # abscissa_type=RGT_RELATION,
             abscissa_type=ReportGraph.Group.RELATION,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHRelation(graph)
-        # self.assertEqual(RGT_RELATION, hand.hand_id)
         self.assertEqual(ReportGraph.Group.RELATION, hand.hand_id)
         self.assertEqual(_('By values (of related entities)'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -221,9 +198,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value='invalid',
-            # abscissa_type=RGT_RELATION,
             abscissa_type=ReportGraph.Group.RELATION,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -246,14 +221,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_DAY,
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomDay(graph)
-        # self.assertEqual(RGT_CUSTOM_DAY, hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_DAY, hand.hand_id)
         self.assertEqual(_('By days'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -271,14 +243,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_MONTH,
             abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomMonth(graph)
-        # self.assertEqual(RGT_CUSTOM_MONTH, hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_MONTH, hand.hand_id)
         self.assertEqual(_('By months'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -296,14 +265,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_YEAR,
             abscissa_type=ReportGraph.Group.CUSTOM_YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomYear(graph)
-        # self.assertEqual(RGT_CUSTOM_YEAR, hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_YEAR, hand.hand_id)
         self.assertEqual(_('By years'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -321,15 +287,12 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_RANGE,
             abscissa_type=ReportGraph.Group.CUSTOM_RANGE,
             abscissa_parameter='90',
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomRange(graph)
-        # self.assertEqual(RGT_CUSTOM_RANGE,      hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_RANGE, hand.hand_id)
         self.assertEqual(_('By X days'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -346,14 +309,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_FK,
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomFK(graph)
-        # self.assertEqual(RGT_CUSTOM_FK,         hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_FK, hand.hand_id)
         self.assertEqual(_('By values (of custom choices)'), hand.verbose_name)
         self.assertIsNone(hand.abscissa_error)
@@ -365,14 +325,11 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value='1234',  # < ==
-            # abscissa_type=RGT_CUSTOM_DAY,
             abscissa_type=ReportGraph.Group.CUSTOM_DAY,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
         hand = RGHCustomDay(graph)
-        # self.assertEqual(RGT_CUSTOM_DAY, hand.hand_id)
         self.assertEqual(ReportGraph.Group.CUSTOM_DAY, hand.hand_id)
         self.assertEqual(_('By days'), hand.verbose_name)
         self.assertEqual(
@@ -395,9 +352,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
             abscissa_cell_value=str(cfield.id),
-            # abscissa_type=RGT_CUSTOM_FK,
             abscissa_type=ReportGraph.Group.CUSTOM_FK,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -414,23 +369,17 @@ class ReportGraphHandRegistryTestCase(CremeTestCase):
         registry = ReportGraphHandRegistry()
 
         with self.assertRaises(KeyError):
-            # registry[RGT_FK]  # NOQA
             registry[ReportGraph.Group.FK]  # NOQA
 
-        # self.assertIsNone(registry.get(RGT_FK))
         self.assertIsNone(registry.get(ReportGraph.Group.FK))
         self.assertListEqual([], [*registry])
 
     def test_register(self):
         registry = ReportGraphHandRegistry()
-        # registry(RGT_FK)(RGHForeignKey)
         registry(ReportGraph.Group.FK)(RGHForeignKey)
 
-        # self.assertEqual(RGHForeignKey, registry[RGT_FK])
         self.assertEqual(RGHForeignKey, registry[ReportGraph.Group.FK])
-        # self.assertEqual(RGHForeignKey, registry.get(RGT_FK))
         self.assertEqual(RGHForeignKey, registry.get(ReportGraph.Group.FK))
-        # self.assertListEqual([RGT_FK], [*registry])
         self.assertListEqual([ReportGraph.Group.FK], [*registry])
 
 # TODO: collision exception ??

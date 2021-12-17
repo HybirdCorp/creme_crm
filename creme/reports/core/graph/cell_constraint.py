@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -103,7 +103,6 @@ class GHCCRegularField(GraphHandCellConstraint):
     def _accept_field(self, field, not_hiddable_cell_keys):
         model = field.model
 
-        # if not field.get_tag('viewable'):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
@@ -117,10 +116,8 @@ class GHCCRegularField(GraphHandCellConstraint):
         model = self.model
 
         for field_chain in ModelFieldEnumerator(
-            # model, deep=0, only_leafs=False,
             model, depth=0, only_leaves=False,
         ).filter(
-            # lambda field, depth: self._accept_field(field, not_hiddable_cell_keys),
             lambda model, field, depth: self._accept_field(field, not_hiddable_cell_keys),
         ):
             yield EntityCellRegularField.build(
@@ -147,7 +144,6 @@ class GHCCRegularFK(GHCCRegularField):
             and isinstance(field, ForeignKey)
             and not issubclass(field.remote_field.model, CremeEntity)
         ):
-            # return field.get_tag('enumerable')
             return field.get_tag(FieldTag.ENUMERABLE)
 
         return False
@@ -176,7 +172,6 @@ class GHCCRelation(GraphHandCellConstraint):
 
 class GHCCCustomField(GraphHandCellConstraint):
     cell_class = EntityCellCustomField
-    # customfield_type = 0
     customfield_types = set()
 
     def cells(self, not_hiddable_cell_keys=()):
@@ -191,20 +186,17 @@ class GHCCCustomField(GraphHandCellConstraint):
 
         return (
             (not cfield.is_deleted or cell.key in not_hiddable_cell_keys)
-            # and cfield.field_type == self.customfield_type
             and cfield.field_type in self.customfield_types
         )
 
 
 class GHCCCustomEnum(GHCCCustomField):
     type_id = 'custom_enum'
-    # customfield_type = CustomField.ENUM
     customfield_types = {CustomField.ENUM}
 
 
 class GHCCCustomDate(GHCCCustomField):
     type_id = 'custom_date'
-    # customfield_type = CustomField.DATE
     customfield_types = {CustomField.DATE, CustomField.DATETIME}
 
 
@@ -286,15 +278,10 @@ class GraphHandConstraintsRegistry:
 abscissa_constraints = GraphHandConstraintsRegistry(
 ).register_cell_constraint(
     constraint_class=GHCCRegularFK,
-    # rgraph_types=[constants.RGT_FK],
     rgraph_types=[AbscissaGroup.FK],
 ).register_cell_constraint(
     constraint_class=GHCCRegularDate,
     rgraph_types=[
-        # constants.RGT_DAY,
-        # constants.RGT_MONTH,
-        # constants.RGT_YEAR,
-        # constants.RGT_RANGE,
         AbscissaGroup.DAY,
         AbscissaGroup.MONTH,
         AbscissaGroup.YEAR,
@@ -302,19 +289,13 @@ abscissa_constraints = GraphHandConstraintsRegistry(
     ],
 ).register_cell_constraint(
     constraint_class=GHCCRelation,
-    # rgraph_types=[constants.RGT_RELATION],
     rgraph_types=[AbscissaGroup.RELATION],
 ).register_cell_constraint(
     constraint_class=GHCCCustomEnum,
-    # rgraph_types=[constants.RGT_CUSTOM_FK],
     rgraph_types=[AbscissaGroup.CUSTOM_FK],
 ).register_cell_constraint(
     constraint_class=GHCCCustomDate,
     rgraph_types=[
-        # constants.RGT_CUSTOM_DAY,
-        # constants.RGT_CUSTOM_MONTH,
-        # constants.RGT_CUSTOM_YEAR,
-        # constants.RGT_CUSTOM_RANGE,
         AbscissaGroup.CUSTOM_DAY,
         AbscissaGroup.CUSTOM_MONTH,
         AbscissaGroup.CUSTOM_YEAR,
@@ -322,8 +303,6 @@ abscissa_constraints = GraphHandConstraintsRegistry(
     ],
 ).register_parameter_validator(
     rgraph_types=[
-        # constants.RGT_RANGE,
-        # constants.RGT_CUSTOM_RANGE,
         AbscissaGroup.RANGE,
         AbscissaGroup.CUSTOM_RANGE,
     ],
@@ -382,17 +361,12 @@ class AggregatorCellConstraint:
 
 class ACCCount(AggregatorCellConstraint):
     type_id = 'count'
-    # aggregator_ids = [constants.RGA_COUNT]
     aggregator_ids = [OrdinateAggregator.COUNT]
 
 
 class ACCFieldAggregation(AggregatorCellConstraint):
     type_id = 'field_aggregation'
     aggregator_ids = [
-        # constants.RGA_AVG,
-        # constants.RGA_MAX,
-        # constants.RGA_MIN,
-        # constants.RGA_SUM,
         OrdinateAggregator.AVG,
         OrdinateAggregator.MAX,
         OrdinateAggregator.MIN,
@@ -435,7 +409,6 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         if not isinstance(field, self.model_field_classes):
             return False
 
-        # if not field.get_tag('viewable'):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: test
             return False
 
@@ -459,10 +432,8 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         model = self.model
 
         for field_chain in ModelFieldEnumerator(
-            # self.model, deep=0,
             self.model, depth=0,
         ).filter(
-            # lambda field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
             lambda model, field, depth: self._accept_rfield(field, not_hiddable_cell_keys)
         ):
             yield EntityCellRegularField.build(

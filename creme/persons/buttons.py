@@ -128,7 +128,6 @@ class AddLinkedContactButton(Button):
         'App: Accounts and Contacts'
     )
     template_name = 'persons/buttons/add-linked-contact.html'
-    # permission = cperm(Contact)
     permissions = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):

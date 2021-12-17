@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1438,21 +1438,15 @@ class CustomFormsImporter(Importer):
     registry = customform_descriptor_registry
     cells_proxies_registry = custom_forms_cells_registry
 
-    # def load_cform_item(self, cform_item_info: dict) -> dict:
     def load_cform_item(self, cform_item_info: dict, validated_data) -> dict:
         data = {}
 
-        # cform_id = cform_item_info.get('id')
-        # if cform_id is None:
-        #     raise ValidationError('The custom-form ID is missing')
         desc_id = cform_item_info.get('descriptor')
         if desc_id is None:
             raise ValidationError("The custom-form descriptor's ID is missing")
 
-        # desc = self.registry.get(str(cform_id))
         desc = self.registry.get(desc_id)
         if desc is None:
-            # raise ValidationError(f'The custom-form ID is invalid: {cform_id}')
             raise ValidationError(f"The custom-form descriptor ID is invalid: {desc_id}")
 
         data['descriptor'] = desc
@@ -1465,8 +1459,6 @@ class CustomFormsImporter(Importer):
         #    else:
         #        data['role'] = UserRole.objects.get(name=role_name)
         data['role_name'] = cform_item_info.get('role', None)
-
-        # data['groups'] = cform_item_info['groups']
 
         def load_group(group_info):
             if 'cells' in group_info:
@@ -1487,7 +1479,6 @@ class CustomFormsImporter(Importer):
         return data
 
     def _validate_section(self, deserialized_section, validated_data):
-        # self._data = [*map(self.load_cform_item, deserialized_section)]
         self._data = [
             self.load_cform_item(
                 cform_item_info=item_info, validated_data=validated_data,
@@ -1495,39 +1486,6 @@ class CustomFormsImporter(Importer):
         ]
 
     def save(self):
-        # instances = CustomFormConfigItem.objects.in_bulk()
-        #
-        # def finalize_group_info(group_info):
-        #     if 'cells' in group_info:
-        #         return {
-        #             **group_info,
-        #             'cells': [
-        #                 cell_proxy.build_cell().to_dict()
-        #                 for cell_proxy in group_info['cells']
-        #             ],
-        #         }
-        #     else:
-        #         return group_info
-        #
-        # for data in self._data:
-        #     descriptor = data['descriptor']
-        #     instance = instances[descriptor.id]
-        #     model = descriptor.model
-        #     cell_registry = descriptor.build_cell_registry()
-        #
-        #     instance.store_groups(FieldGroupList(
-        #         model=model,
-        #         cell_registry=cell_registry,
-        #         groups=[
-        #             *FieldGroupList.from_dicts(
-        #                 model=model,
-        #                 data=[finalize_group_info(d) for d in data['groups']],
-        #                 cell_registry=cell_registry,
-        #                 allowed_extra_group_classes=(*descriptor.extra_group_classes,)
-        #             ),
-        #         ],
-        #     ))
-        #     instance.save()
         instances = {
             (cfci.descriptor_id, getattr(cfci.role, 'name', None), cfci.superuser): cfci
             for cfci in CustomFormConfigItem.objects.select_related('role')

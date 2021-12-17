@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,12 +47,10 @@ def commercial_widget_asset_score(context, segment_desc, asset):  # TODO: keywor
 # TODO: keyword arguments only ?
 # TODO: factorise
 @register.inclusion_tag('commercial/templatetags/widget-score.html', takes_context=True)
-# def commercial_widget_charm_score(context, segment, charm):
 def commercial_widget_charm_score(context, segment_desc, charm):
     strategy = context['strategy']
     orga     = context['orga']
 
-    # context['score'] = strategy.get_charm_score(orga, charm, segment)
     context['score'] = strategy.get_charm_score(orga, charm, segment_desc)
     context['view_name'] = 'commercial__set_charm_score'
     context['segment_desc'] = segment_desc

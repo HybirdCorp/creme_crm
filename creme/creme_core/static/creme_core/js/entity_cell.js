@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2013-2021  Hybird
+    Copyright (C) 2013-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -257,7 +257,6 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
         var div = this.div;
         var column_titles = this.column_titles;
         this.header_labels = div.find('.preview_table_header .sortable_header');
-//         var header_filters = this.header_filters = div.find('.preview_table_header .filterable_header');
 
         div.find('.selector_list .selector[data-column]').each(function (i, e) {
             var el = $(e);
@@ -506,7 +505,6 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
         $(document).on('click', '.underlay .selector_close', function(e) {
             e.preventDefault();
 
-//            var column = $(this).parents('.underlay:first').attr('data-column');
             var column = $(this).parents('.underlay').first().attr('data-column');
             var target = div.find('.selector[data-column="' + column + '"] .sub_selector_toggle');
 

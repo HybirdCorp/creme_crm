@@ -2344,8 +2344,6 @@ class CustomFormDescriptorTestCase(CremeTestCase):
             }],
         )
 
-        # with self.assertNumQueries(1):
-        #     groups = form_desc.groups()
         groups = form_desc.groups(item=cfci)
 
         self.assertIsInstance(groups, FieldGroupList)
@@ -2442,27 +2440,6 @@ class CustomFormDescriptorTestCase(CremeTestCase):
             [c.key for c in group2.cells],
         )
 
-    # def test_groups03(self):
-    #     "No item exists."
-    #     form_desc = CustomFormDescriptor(
-    #         id='creme_core-tests_fakeorga',
-    #         model=FakeOrganisation,
-    #         verbose_name='Creation form for FakeOrganisation',
-    #     )
-    #     with self.assertLogs(level='CRITICAL') as logs_manager:
-    #         with self.assertRaises(CustomFormConfigItem.DoesNotExist):
-    #             _ = form_desc.groups()  # NOQA
-    #
-    #     self.assertListEqual(
-    #         [
-    #             'CRITICAL:creme.creme_core.gui.custom_form:CustomFormDescriptor.groups(): '
-    #             'it seems no instance of CustomFormConfigItem with the '
-    #             'id="creme_core-tests_fakeorga" has been populated.'
-    #         ],
-    #         logs_manager.output,
-    #     )
-    #
-    # def test_groups04(self):
     def test_groups03(self):
         "With extra groups."
         class AddressGroup(ExtraFieldGroup):
@@ -2495,7 +2472,6 @@ class CustomFormDescriptorTestCase(CremeTestCase):
             ],
         )
 
-        # groups = form_desc.groups()
         groups = form_desc.groups(item=cfci)
         self.assertEqual(3, len(groups))
 
@@ -2529,8 +2505,6 @@ class CustomFormDescriptorTestCase(CremeTestCase):
             }],
         )
 
-        # with self.assertNumQueries(2):  # CustomFormConfigItem + CustomFields
-        #     form_cls = form_desc.build_form_class()
         with self.assertNumQueries(1):  # CustomFields
             form_cls = form_desc.build_form_class(cfci)
 

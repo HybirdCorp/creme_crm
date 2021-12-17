@@ -68,7 +68,6 @@ class _LineMultipleAddForm(core_forms.CremeForm):
         super().__init__(*args, **kwargs)
         self.billing_document = entity
         # Not in field declaration because default value can change
-        # self.fields['vat'].initial = Vat.get_default_vat()
         self.fields['vat'].initial = Vat.objects.default()
 
     def save(self):
@@ -163,15 +162,12 @@ class LineEditForm(core_forms.CremeModelForm):
 
         currency_str = related_document.currency.local_symbol
         discount_units = [
-            # (constants.DISCOUNT_PERCENT, '%'),
             (Discount.PERCENT, '%'),
             (
-                # constants.DISCOUNT_LINE_AMOUNT,
                 Discount.LINE_AMOUNT,
                 gettext('{currency} per line').format(currency=currency_str),
             ),
             (
-                # constants.DISCOUNT_ITEM_AMOUNT,
                 Discount.ITEM_AMOUNT,
                 gettext('{currency} per unit').format(currency=currency_str),
             ),
@@ -181,7 +177,6 @@ class LineEditForm(core_forms.CremeModelForm):
         discount_unit_f.choices = discount_units
         discount_unit_f.widget.attrs = {'class': 'bound'}
 
-        # fields['vat_value'].initial = Vat.get_default_vat()
         fields['vat_value'].initial = Vat.objects.default()
 
     def save(self, *args, **kwargs):

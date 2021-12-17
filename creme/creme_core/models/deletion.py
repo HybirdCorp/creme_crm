@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021 Hybird
+#    Copyright (C) 2019-2022 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# from json import loads as json_load
 from typing import List, Optional
 
 from django.conf import settings
@@ -27,7 +26,6 @@ from django.db import models
 from django.utils.translation import gettext as _
 
 from ..core.deletion import REPLACERS_MAP, Replacer, ReplacersRegistry
-# from ..utils.serializers import json_encode
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 from .job import Job
@@ -77,7 +75,6 @@ class DeletionCommand(CremeModel):
     # NB: representation of the deleted instance (for UI)
     deleted_repr = models.TextField(editable=False)
 
-    # json_replacers = models.TextField(editable=False, default='[]')
     # TODO: encoder=CremeJSONEncoder ?
     json_replacers = models.JSONField(default=list, editable=False)
     total_count = models.PositiveIntegerField(default=0, editable=False)  # NB: for statistics
@@ -107,13 +104,11 @@ class DeletionCommand(CremeModel):
     @property
     def replacers(self) -> List[Replacer]:
         "@return List of <creme_core.core.deletion.Replacer> instances."
-        # return self.replacers_registry.deserialize(json_load(self.json_replacers))
         return self.replacers_registry.deserialize(self.json_replacers)
 
     @replacers.setter
     def replacers(self, values: List[Replacer]):
         "@param: List of <creme_core.core.deletion.Replacer> instances."
-        # self.json_replacers = json_encode(self.replacers_registry.serialize(values))
         self.json_replacers = self.replacers_registry.serialize(values)
 
 

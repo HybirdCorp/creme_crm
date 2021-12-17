@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -91,7 +91,6 @@ class MassExportButton(ListViewButton):
         context = super().get_context(request=request, lv_context=lv_context)
         context['backend_choices'] = [
             (backend.id, backend.verbose_name)
-            # for backend in self.export_backend_registry.backends
             for backend in self.export_backend_registry.backend_classes
         ]
         context['extra_q'] = lv_context['extra_q']

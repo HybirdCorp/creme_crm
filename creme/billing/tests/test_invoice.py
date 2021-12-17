@@ -91,10 +91,6 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(source, gotten_source)
         self.assertEqual(target, gotten_target)
 
-        # # DEPRECATED
-        # self.assertEqual(source, invoice.get_source().get_real_entity())
-        # self.assertEqual(target, invoice.get_target().get_real_entity())
-
     def test_source_n_target02(self):
         "Errors at creation."
         user = self.create_user()
@@ -283,10 +279,9 @@ class InvoiceTestCase(_BillingTestCase):
         target.save()
 
         self.assertEqual(
-            # source.id,
             source,
             self.client.get(reverse('billing__create_invoice'))
-                       .context['form'][self.SOURCE_KEY]  # .context['form']['source']
+                       .context['form'][self.SOURCE_KEY]
                        .field
                        .initial
         )
@@ -420,11 +415,7 @@ class InvoiceTestCase(_BillingTestCase):
             form = context['form']
 
         self.assertDictEqual(
-            {
-                'status': 1,
-                # 'target': target,  # deprecated
-                self.TARGET_KEY: target,
-            },
+            {'status': 1, self.TARGET_KEY: target},
             form.initial,
         )
 
@@ -1146,9 +1137,7 @@ class InvoiceTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('1000.00'), quantity=2,
             discount=Decimal('10.00'),
-            # discount_unit=DISCOUNT_PERCENT,
             discount_unit=Line.Discount.PERCENT,
-            # vat_value=Vat.get_default_vat(),
             vat_value=Vat.objects.default(),
             **kwargs
         )
@@ -1162,7 +1151,6 @@ class InvoiceTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=10,
             discount=Decimal('100.00'),
-            # discount_unit=DISCOUNT_LINE_AMOUNT,
             discount_unit=Line.Discount.LINE_AMOUNT,
             # vat_value=Vat.get_default_vat(),
             vat_value=Vat.objects.default(),
@@ -1174,7 +1162,6 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(1710, invoice._get_total())  # total_exclusive_of_tax
         self.assertEqual(1710, invoice.total_no_vat)
 
-    # def test_delete_status01(self):
     def test_delete_status(self):
         self.login()
 

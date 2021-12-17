@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.core.validators import validate_email
 from django.forms import FileField, ValidationError
-from django.utils.encoding import smart_str  # smart_text
+from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, FieldBlockManager
@@ -103,7 +103,6 @@ class MailingListAddCSVForm(CremeForm):
 
     @staticmethod
     def filter_mail_chunk(value):
-        # result = smart_text(value.strip())
         result = smart_str(value.strip())
 
         try:

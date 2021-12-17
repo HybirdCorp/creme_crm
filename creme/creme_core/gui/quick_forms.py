@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
 
 from creme.creme_core.models import CremeEntity
@@ -79,22 +78,6 @@ class QuickFormsRegistry:
             raise self.RegistrationError(
                 f'No Quick Form is registered for the model : {model}'
             ) from e
-
-    # def iter_models(self):
-    #     warnings.warn('QuickFormsRegistry.iter_models() is deprecated ;'
-    #                   'use @models instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self._forms.keys()
-
-    # def get_form(
-    #         self,
-    #         model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
-    #     warnings.warn('QuickFormsRegistry.get_form() is deprecated ;'
-    #                   'use get_form_class() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self._forms.get(model)
 
     def get_form_class(
             self,

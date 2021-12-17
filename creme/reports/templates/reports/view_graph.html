@@ -57,32 +57,3 @@
         </div>
     </div>
 {% endblock %}
-
-{% comment %}
-{% block content %}
-    <div class="buttons-list global-buttons">
-        <ul>
-            <li>
-                <a class="menu_button menu-button-icon" href="{{object.linked_report.get_absolute_url}}">{% translate 'Back to the report' as back_label %}
-                    {% widget_icon name='previous' size='global-button' label=back_label %}
-                    {{back_label}}
-                </a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="hat-bar-container">
-        <div class="hat-bar">
-            <div class="bar-icon">{% widget_icon instance=object size='brick-hat-bar' %}</div>
-            <div class="bar-title">
-                <h1>
-                    {% blocktranslate with verbose_name=object|get_meta_value:'verbose_name'|capfirst title=object|capfirst %}Rendered {{verbose_name}} : {{title}}{% endblocktranslate %}
-                    {% if object.report.is_deleted %} [{% translate 'deleted' %}]{% endif %}
-                </h1>
-            </div>
-        </div>
-    </div>
-
-    {% include 'reports/templatetags/report_chart.html' %}
-{% endblock %}
-{% endcomment %}

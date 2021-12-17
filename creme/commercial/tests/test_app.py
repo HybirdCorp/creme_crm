@@ -13,7 +13,7 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 from creme.persons.tests.base import skipIfCustomContact
 
-from ..constants import (  # REL_OBJ_SOLD_BY REL_SUB_SOLD_BY
+from ..constants import (
     PROP_IS_A_SALESMAN,
     REL_OBJ_COMPLETE_GOAL,
     REL_OBJ_SOLD,
@@ -29,9 +29,6 @@ class CommercialTestCase(CremeTestCase):
     SALESMEN_URL = reverse('commercial__list_salesmen')
 
     def test_populate(self):
-        # self.assertEqual(REL_SUB_SOLD, REL_SUB_SOLD_BY)
-        # self.assertEqual(REL_OBJ_SOLD, REL_OBJ_SOLD_BY)
-
         sold = self.get_relationtype_or_fail(
             REL_SUB_SOLD, [Contact, Organisation], [Product, Service],
         )

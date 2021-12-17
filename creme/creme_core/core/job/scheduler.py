@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,7 +65,6 @@ class JobScheduler:
     """
     def __init__(self):
         self._max_user_jobs = settings.MAX_USER_JOBS
-        # self._queue = JobSchedulerQueue.get_main_queue()
         self._queue = get_queue()
         self._procs = {}  # key: job.id; value: subprocess.Popen instance
 
@@ -243,7 +242,6 @@ class JobScheduler:
     def _handle_command_ping(self, cmd: Command) -> None:
         ping_uid = cmd.data_id
         logger.info('JobScheduler.handle_command_ping() -> PING id "%s"', ping_uid)
-        # self._queue.pong(ping_uid)
         self._queue.pong(cmd)
 
     def _handle_command_refresh(self, cmd: Command) -> None:
@@ -377,10 +375,6 @@ class JobScheduler:
 
         MAX_USER_JOBS = self._max_user_jobs
         get_handler = {
-            # CMD_END:     self._handle_command_end,
-            # CMD_PING:    self._handle_command_ping,
-            # CMD_REFRESH: self._handle_command_refresh,
-            # CMD_START:   self._handle_command_start,
             Command.END:     self._handle_command_end,
             Command.PING:    self._handle_command_ping,
             Command.REFRESH: self._handle_command_refresh,

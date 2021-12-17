@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -242,26 +242,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
         return self.can_edit(user)
 
-    # @classmethod
-    # def create(cls, pk, name, model, is_custom=False, user=None,
-    #            is_private=False, cells_desc=()):
-    #     """Creation helper ; useful for populate.py scripts.
-    #     @param cells_desc: List of objects where each one can other:
-    #         - an instance of EntityCell (one of its child class of course).
-    #         - a tuple (class, args)
-    #           where 'class' is child class of EntityCell, & 'args' is a dict
-    #           containing parameters for the build() method of the previous class.
-    #     """
-    #     warnings.warn('HeaderFilter.create() is deprecated ; '
-    #                   'use HeaderFilter.objects.create_if_needed() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return cls.objects.create_if_needed(
-    #         pk=pk, name=name, model=model, is_custom=is_custom, user=user,
-    #         is_private=is_private, cells_desc=cells_desc,
-    #     )
-
     def _dump_cells(self, cells: Iterable['EntityCell']):
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
@@ -304,29 +284,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_hfilter', args=(self.id,))
 
-    # @staticmethod
-    # def get_for_user(user, content_type=None):
-    #     warnings.warn(
-    #         'HeaderFilter.get_for_user() is deprecated ; '
-    #         'use HeaderFilter.objects.filter_by_user(...).filter(entity_type=...) instead.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     assert not user.is_team
-    #
-    #     qs = HeaderFilter.objects.all()
-    #
-    #     if content_type:
-    #         qs = qs.filter(entity_type=content_type)
-    #
-    #     return (
-    #         qs if user.is_staff else
-    #         qs.filter(
-    #             Q(is_private=False) |
-    #             Q(is_private=True, user__in=[user, *user.teams])
-    #         )
-    #     )
-
     # TODO: way to mean QuerySet[CremeEntity] ??
     def populate_entities(self, entities: QuerySet, user) -> None:
         """Fill caches of CremeEntity objects, related to the columns that will
@@ -334,13 +291,6 @@ class HeaderFilter(models.Model):  # CremeModel ???
         @param entities: QuerySet on CremeEntity (or subclass).
         @param user: Instance of get_user_model().
         """
-        # cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
-        #
-        # for cell in self.cells:
-        #     cell_groups[cell.__class__].append(cell)
-        #
-        # for cell_cls, cell_group in cell_groups.items():
-        #     cell_cls.populate_entities(cell_group, entities, user)
         from ..core.entity_cell import EntityCell
         EntityCell.mixed_populate_entities(
             cells=self.cells, entities=entities, user=user,

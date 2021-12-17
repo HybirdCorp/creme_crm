@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-# from os.path import join
 from pathlib import Path
 
 from django.conf import settings
@@ -54,22 +53,17 @@ urlpatterns = [
         name='creme_about',
     ),
 
-    # re_path(r'^site_media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
-
     # TODO: remove this line when the Rich Text Editor is generated like other static media
     re_path(
         r'^tiny_mce/(?P<path>.*)$', serve,
-        # {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
         {'document_root': Path(__file__).resolve().parent / 'media' / 'tiny_mce'},
     ),
 
     # NB: in production, you can configure your web server to statically serve
     #     the files in the directory 'media/static/' (and so the following line is never used).
     re_path(
-        # r'^static_media/(?P<path>.*)$',
         rf'^{__prepare_static_url()}(?P<path>.*)$',
         serve,
-        # {'document_root': settings.GENERATED_MEDIA_DIR},
         {'document_root': settings.STATIC_ROOT},
     ),
 ]

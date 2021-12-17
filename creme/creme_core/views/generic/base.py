@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,7 +113,6 @@ class PermissionsMixin:
     """
     login_url_name: Optional[str] = None
     login_redirect_arg_name: str = REDIRECT_FIELD_NAME
-    # permissions: Union[str, Sequence[str], None] = None
     permissions: Union[str, Sequence[str]] = ''
 
     # NB: for linters only
@@ -210,7 +209,6 @@ class EntityRelatedMixin:
             has_perm = user.has_perm_to_access_or_die
 
             if isinstance(entity_classes, type):  # CremeEntity sub-model
-                # assert issubclass(entity_classes, CremeEntity)
                 has_perm(entity_classes._meta.app_label)
             else:  # Sequence of classes
                 for app_label in {c._meta.app_label for c in entity_classes}:
@@ -331,12 +329,9 @@ class CustomFormMixin:
     """Mixin for form-views which want to retrieve their form class as a
     classical class, or from a CustomFormDescriptor.
     """
-    # @staticmethod
-    # def get_custom_form_class(form_class):
     def get_custom_form_class(self, form_class):
         if isinstance(form_class, CustomFormDescriptor):
             # TODO: raise 404 if invalid item ID ????
-            # return form_class.build_form_class()
             try:
                 return form_class.build_form_class(
                     item=CustomFormConfigItem.objects.get_for_user(

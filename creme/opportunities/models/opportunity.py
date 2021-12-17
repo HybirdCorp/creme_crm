@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,7 +130,6 @@ class AbstractOpportunity(core_models.CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'opportunities'
         verbose_name = _('Opportunity')
         verbose_name_plural = _('Opportunities')
@@ -182,7 +181,6 @@ class AbstractOpportunity(core_models.CremeEntity):
             return self.estimated_sales or 0
 
     def get_total_with_tax(self):
-        # tax = 1 + core_models.Vat.get_default_vat().value / 100
         tax = 1 + core_models.Vat.objects.default().value / 100
 
         if self.made_sales:

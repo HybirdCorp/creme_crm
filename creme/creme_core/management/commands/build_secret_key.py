@@ -37,7 +37,6 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     help = 'Generates a new SECRET_KEY which can be used in your settings file.'
-    # requires_system_checks = False
     requires_system_checks = []
 
     def handle(self, **options):
@@ -66,7 +65,6 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256(
-                    # f'{random.getstate()}{time()}{force_text(kb_seed)}'.encode('utf-8')
                     f'{random.getstate()}{time()}{force_str(kb_seed)}'.encode('utf-8')
                 ).digest()
             )

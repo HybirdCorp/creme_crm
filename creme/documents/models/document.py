@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from mimetypes import guess_type
 from os.path import basename
 
@@ -37,7 +36,6 @@ from . import other_models
 class AbstractDocument(CremeEntity):
     title = models.CharField(_('Name'), max_length=100, blank=True)
     filedata = models.FileField(
-        # _('File'), max_length=500, upload_to='upload/documents',
         _('File'), max_length=500, upload_to='documents',
     )
     linked_folder = models.ForeignKey(
@@ -56,7 +54,6 @@ class AbstractDocument(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'documents'
         verbose_name = _('Document')
         verbose_name_plural = _('Documents')
@@ -78,19 +75,6 @@ class AbstractDocument(CremeEntity):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('documents__list_documents')
-
-    # @staticmethod
-    # def get_linkeddoc_relations(entity):
-    #     warnings.warn(
-    #         'AbstractDocument.get_linkeddoc_relations() is deprecated.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     from creme.creme_core.models import Relation
-    #
-    #     from ..constants import REL_SUB_RELATED_2_DOC
-    #
-    #     return Relation.objects.filter(subject_entity=entity.id, type=REL_SUB_RELATED_2_DOC)
 
     def get_download_absolute_url(self):
         return reverse(

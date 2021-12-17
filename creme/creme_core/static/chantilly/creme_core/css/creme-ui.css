@@ -22,14 +22,12 @@
 .ui-creme-timepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block;}
 .ui-creme-timepicker li input { width:3em !important; border:1px solid #6eaac4; text-align:right; margin:0px 2px;}
-/* .ui-creme-timepicker li button[type="button"] { padding:0px 6px;} */
 
 /*----------------------------------*/
 .ui-creme-datetimepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-datetimepicker li { position:relative; display:inline-block;}
 .ui-creme-datetimepicker li input { width:3em; border:1px solid #6eaac4;text-align: right; margin:0px 2px;}
 .ui-creme-datetimepicker li.date input { width: 8em; }
-/*.ui-creme-datetimepicker li button[type="button"] { padding:0px 6px;} */
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align:middle; }
 
 /*----------------------------------*/
@@ -42,7 +40,6 @@ ul.ui-layout.hbox li {
     vertical-align: middle;
     padding-right: 4px;
 }
-/*ul.ui-layout.hbox li button[type="button"] { padding-top: 0px; padding-bottom: 0px; margin: 0px; } */
 ul.ui-layout.hbox li input { margin: 0px 2px; }
 
 ul.ui-layout.vbox li { position:relative; display:block; }
@@ -62,20 +59,6 @@ ul.ui-creme-widget[readonly] li {
     color: hsla(197, 15%, 55%, 1);
 }
 
-/* NB: useless ??
-.ui-creme-selectorlist > div.add {
-    background-repeat: no-repeat;
-    background-image: url("chantilly/images/add_16.png");
-    padding-left: 20px;
-    min-height: 16px;
-    margin: 4px 0px 4px 0px;
-}
-
-.ui-creme-selectorlist > div.add:hover {
-    cursor: pointer;
-}
-*/
-
 .ui-creme-selectorlist img.delete { border: 0; vertical-align: middle; margin-left: 2px; }
 .ui-creme-selectorlist img.delete:hover { cursor:pointer; }
 
@@ -94,13 +77,6 @@ ul.ui-creme-widget[readonly] li {
     cursor: default;
     cursor: not-allowed;
 }
-
-/*
-.ui-creme-selectorlist button[type="button"].ui-creme-actionbutton {
-    background-image: url("chantilly/images/add_16.png");
-    padding-left: 20px;
-}
-*/
 
 /*----------------------------------*/
 .ui-creme-chainedselect img.reset { border:0; vertical-align:middle; }
@@ -129,8 +105,6 @@ ul.ui-creme-widget[readonly] li {
     overflow: hidden;
     box-shadow: none !important;
 }
-
-/* .ui-creme-entityselector > button[type="button"] { min-width: 10em; } */
 
 /*----------------------------------*/
 .ui-creme-overlay {
@@ -281,22 +255,6 @@ ul.ui-creme-actionbuttonlist {
 
 button[type="button"].ui-creme-actionbutton,
 .ui-creme-entityselector > button[type="button"] {
-/*
-    padding: 1px 6px 1px 6px;
-    cursor: pointer;
-    margin: 0px;
-    min-height: 20px;
-
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-
-    background-repeat: no-repeat;
-    background-position: 2px 50%;
-    border: 1px solid #6E9EB2;
-    background-color: #D9E5EA;
-    color:#22439f;
-*/
     padding: 5px 15px;
 
     background: linear-gradient(#f6fcff, #e0f1f7);
@@ -319,15 +277,6 @@ button[type="button"].ui-creme-actionbutton,
 
 button[type="button"].ui-creme-actionbutton:hover,
 .ui-creme-entityselector > button[type="button"]:hover {
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-
-    text-decoration: none;
-    color:#22439f;
-    background-color: #f4fafd;
-*/
     background: linear-gradient(#ffffff, #f3f3f3);
 }
 
@@ -359,34 +308,6 @@ button[type="button"].ui-creme-actionbutton img {
     left: 9px;
 }
 
-/*
-button[type="button"].ui-creme-actionbutton[name=create] {
-    background-image: url("chantilly/images/add_16.png");
-    padding-left: 20px;
-}
-
-button[type="button"].ui-creme-actionbutton[name=delete] {
-    background-image: url("chantilly/images/delete_16.png");
-    padding-left: 20px;
-}
-
-button[type="button"].ui-creme-actionbutton[name=reset] {
-    background-image: url("chantilly/images/delete_16.png");
-    padding-left: 20px;
-}
-
-ul.ui-creme-actionbuttonlist li button[type="button"].ui-creme-actionbutton[name=edit] {
-    background-image: url("chantilly/images/edit_16.png");
-    padding-left: 20px;
-}
-*/
-
-/*
-td.td_info > ul.ui-creme-actionbuttonlist { width: 100%; }
-td.td_info > ul.ui-creme-actionbuttonlist li.delegate { padding-right: 5px; }
-td.td_info > ul.ui-creme-actionbuttonlist li.delegate > * { width: 100%; }
-*/
-
 /*-------------------------*/
 span.ui-creme-datepicker-trigger {
 	vertical-align: middle;
@@ -396,25 +317,6 @@ span.ui-creme-datepicker-trigger {
 .creme-datepicker button[name="today"],
 .ui-creme-timepicker button,
 .ui-creme-datetimepicker button {
-/*
-    padding: 2px 10px;
-
-    background: linear-gradient(#fcfcfc, #f0f0f0);
-
-    border: 1px solid #d7d7d7;
-    border-bottom: 1px solid #bdbdbd;
-    border-radius: 3px;
-
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white;
-            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-
-    text-align: center;
-    text-decoration: none;
-    color: #333;
-
-    cursor: pointer;
-*/
     padding: 3px 11px;
 
     border: 1px solid #bdd3dc;
@@ -456,20 +358,6 @@ input:disabled + .ui-datepicker-trigger {
 .ui-creme-toggle .toggle-trigger {
     cursor: pointer;
 }
-
-/* TODO: remove gif files
-.toggle-icon {
-    background-image: url("chantilly/images/expanded.gif");
-    background-repeat: no-repeat;
-    background-position: center;
-}
-
-.toggle-icon.toggle-collapsed, .toggle-collapsed .toggle-icon {
-    background-image: url("chantilly/images/expandme.gif");
-    background-repeat: no-repeat;
-    background-position: center;
-}
-*/
 
 .toggle-icon-container {
     height: 14px;

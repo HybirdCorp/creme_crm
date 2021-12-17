@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,6 @@ from ..utils.system import python_subprocess
 
 
 def http_port():
-    # return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8000')
     return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
 
 

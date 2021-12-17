@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -161,59 +161,6 @@ class EmailsConfig(CremeAppConfig):
         ).register(
             self.EmailTemplate,      'images/email_%(size)s.png',
         )
-
-    # def register_menu(self, creme_menu):
-    #     from django.apps import apps
-    #     from django.urls import reverse_lazy as reverse
-    #
-    #     ECampaign = self.EmailCampaign
-    #     MList     = self.MailingList
-    #     ETemplate = self.EmailTemplate
-    #
-    #     group = creme_menu.get(
-    #         'features'
-    #     ).get_or_create(
-    #         creme_menu.ContainerItem, 'marketing',
-    #         priority=200, defaults={'label': _('Marketing')},
-    #     ).get_or_create(creme_menu.ItemGroup, 'emails', priority=10)
-    #
-    #     LvURLItem = creme_menu.URLItem.list_view
-    #
-    #     group.add(
-    #         LvURLItem('emails-campaigns', model=ECampaign),
-    #         priority=10,
-    #     ).add(
-    #         LvURLItem('emails-mlists', model=MList),
-    #         priority=15,
-    #     ).add(
-    #         LvURLItem('emails-templates', model=ETemplate),
-    #         priority=20,
-    #     ).add(
-    #         LvURLItem('emails-emails',  model=self.EntityEmail),
-    #         priority=25,
-    #     )
-    #     creme_menu.get(
-    #         'creation', 'any_forms',
-    #     ).get_or_create_group(
-    #         'marketing', _('Marketing'), priority=200,
-    #     ).add_link(
-    #         'emails-create_campaign', ECampaign, priority=10,
-    #     ).add_link(
-    #         'emails-create_mlist', MList, priority=15,
-    #     ).add_link(
-    #         'emails-create_template', ETemplate, priority=20,
-    #     )
-    #
-    #     if apps.is_installed('creme.crudity'):
-    #         group.add(
-    #             creme_menu.URLItem(
-    #                 'emails-sync',
-    #                 url=reverse('emails__crudity_sync'),
-    #                 label=_('Synchronization of incoming emails'),
-    #                 perm='emails',
-    #             ),
-    #             priority=100,
-    #         )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

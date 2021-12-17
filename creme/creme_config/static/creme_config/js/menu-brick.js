@@ -1,10 +1,6 @@
 creme.creme_config = creme.creme_config || {};
 
 creme.creme_config.MenuContainersController = creme.component.Component.sub({
-//    _init_: function(options) {
-//        this._options = options || {};
-//    },
-
     bind: function(brick) {
         if (this.isBound()) {
             throw new Error('MenuContainersController is already bound');
@@ -20,7 +16,6 @@ creme.creme_config.MenuContainersController = creme.component.Component.sub({
 
             brick.action('update', url, {}, {target: event.newIndex + 1})
                  .on({
-//                     done: function() { console.log('Success'); },
                      fail: function() {
                         console.log('MenuContainersController: error when trying to re-order.');
                         brick.refresh();

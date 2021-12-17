@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,7 +113,6 @@ class SegmentsBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/segments.html'
     configurable = False
-    # permission = 'commercial'
     permissions = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
 
     def detailview_display(self, context):

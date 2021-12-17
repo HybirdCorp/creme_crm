@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -98,14 +98,6 @@ def vcf_export(request, contact_id):
     person = get_object_or_404(Contact, pk=contact_id)
     request.user.has_perm_to_view_or_die(person)
 
-    # vc = VcfGenerator(person).serialize()
-    #
-    # response = HttpResponse(vc, content_type='text/vcard')
-    # response['Content-Disposition'] = 'attachment; filename="{}.vcf"'.format(
-    #     smart_str(person.last_name),
-    # )
-    #
-    # return response
     return HttpResponse(
         VcfGenerator(person).serialize(),
         headers={

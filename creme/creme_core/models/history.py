@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -800,10 +800,8 @@ class _HLTRelatedEntity(_HistoryLineType):
 
     @classmethod
     def create_lines(cls, entity: CremeEntity, related_line: 'HistoryLine'):
-        # rtypes_ids = HistoryConfigItem.objects.values_list('relation_type', flat=True)
         relations = Relation.objects.filter(
             subject_entity=entity.id,
-            # type__in=rtypes_ids,
             type__in=HistoryConfigItem.objects.configured_relation_type_ids(),
         ).select_related('object_entity')
 

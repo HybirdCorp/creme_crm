@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from datetime import datetime, timedelta
 from typing import (
     TYPE_CHECKING,
@@ -38,7 +37,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
 from creme.creme_core.models import CremeEntity, CustomFieldEnumValue, Relation
-# from creme.reports import constants
 from creme.reports.constants import AbscissaGroup
 from creme.reports.utils import sparsezip
 
@@ -136,25 +134,8 @@ class ReportGraphHand:
     def ordinate(self) -> ReportGraphAggregator:
         return self._y_calculator
 
-    # @property
-    # def verbose_ordinate(self) -> str:
-    #     warnings.warn(
-    #         'The property "verbose_ordinate" is deprecated ; '
-    #         'you can use the templatetag {% reports_graph_ordinate %} instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     from creme.reports.templatetags.reports_tags import (
-    #         reports_graph_ordinate,
-    #     )
-    #     return reports_graph_ordinate(self._graph)
-
     # TODO: The 'group by' query could be extracted into a common Manager
     def _aggregate_by_key(self, entities, key, order):
-        # aggregates = entities.extra({'key': key}) \
-        #                      .values('key').order_by('key' if order == 'ASC' else '-key') \
-        #                      .annotate(value=self._y_calculator.annotate()) \
-        #                      .values_list('key', 'value')
         y_calculator = self._y_calculator
         aggregates = (
             entities.extra({'key': key})
@@ -276,7 +257,6 @@ class _RGHRegularField(ReportGraphHand):
         return field.verbose_name if field else '??'
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_DAY)
 @RGRAPH_HANDS_MAP(AbscissaGroup.DAY)
 class RGHDay(_RGHRegularField):
     verbose_name = _('By days')
@@ -300,7 +280,6 @@ class RGHDay(_RGHRegularField):
         )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_MONTH)
 @RGRAPH_HANDS_MAP(AbscissaGroup.MONTH)
 class RGHMonth(_RGHRegularField):
     verbose_name = _('By months')
@@ -379,7 +358,6 @@ class _DateRangeMixin:
         return days
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_RANGE)
 @RGRAPH_HANDS_MAP(AbscissaGroup.RANGE)
 class RGHRange(_DateRangeMixin, _RGHRegularField):
     verbose_name = _('By X days')
@@ -467,7 +445,6 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             build_url = self._listview_url_builder(extra_q=extra_q)
             query_cmd = f'{abscissa}__range'
             entities_filter = entities.filter
-            # y_value_func = self._y_calculator.aggregrate
             y_value_func = self._y_calculator.aggregate
 
             for interval in DateInterval.generate(
@@ -494,7 +471,6 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
                 )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_FK)
 @RGRAPH_HANDS_MAP(AbscissaGroup.FK)
 class RGHForeignKey(_RGHRegularField):
     verbose_name = _('By values')
@@ -517,7 +493,6 @@ class RGHForeignKey(_RGHRegularField):
         abscissa = self._field.name
         build_url = self._listview_url_builder(extra_q=extra_q)
         entities_filter = entities.filter
-        # y_value_func = self._y_calculator.aggregrate
         y_value_func = self._y_calculator.aggregate
         choices = self._abscissa_enumerator.choices(user=user)
 
@@ -535,7 +510,6 @@ class RGHForeignKey(_RGHRegularField):
             )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_RELATION)
 @RGRAPH_HANDS_MAP(AbscissaGroup.RELATION)
 class RGHRelation(ReportGraphHand):
     verbose_name = _('By values (of related entities)')
@@ -564,7 +538,6 @@ class RGHRelation(ReportGraphHand):
         rel_filter = relations.filter
         ce_objects_get = CremeEntity.objects.get
         entities_filter = entities.filter
-        # y_value_func = self._y_calculator.aggregrate
         y_value_func = self._y_calculator.aggregate
 
         for obj_id in relations.values_list('object_entity', flat=True).distinct():
@@ -640,10 +613,8 @@ class _RGHCustomField(ReportGraphHand):
         cfield_q_key = f"{value_meta.get_field('entity').remote_field.name}__custom_field"
         build_url = self._listview_url_builder(extra_q=extra_q)
 
-        # entities = entities.filter(customfielddatetime__custom_field=cfield)
         entities = entities.filter(**{cfield_q_key: cfield})
 
-        # field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
         field_name = _physical_field_name(value_meta.db_table, 'value')
         x_value_key = connection.ops.date_trunc_sql(kind, field_name)
 
@@ -658,7 +629,6 @@ class _RGHCustomField(ReportGraphHand):
                 date = datetime.strptime(key, '%Y-%m-%d')
 
             qdict = qdict_builder(date)
-            # qdict['customfielddatetime__custom_field'] = cfield.id
             qdict[cfield_q_key] = cfield.id
 
             yield date.strftime(date_format), [value or 0, build_url(qdict)]
@@ -669,7 +639,6 @@ class _RGHCustomField(ReportGraphHand):
         return cfield.name if cfield else '??'
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_DAY)
 @RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_DAY)
 class RGHCustomDay(_RGHCustomField):
     verbose_name = _('By days')
@@ -681,9 +650,6 @@ class RGHCustomDay(_RGHCustomField):
             entities=entities,
             kind='day',
             qdict_builder=lambda date: {
-                # 'customfielddatetime__value__year':  date.year,
-                # 'customfielddatetime__value__month': date.month,
-                # 'customfielddatetime__value__day':   date.day,
                 f'{value_rname}__value__year': date.year,
                 f'{value_rname}__value__month': date.month,
                 f'{value_rname}__value__day': date.day,
@@ -707,8 +673,6 @@ class RGHCustomMonth(_RGHCustomField):
             entities=entities,
             kind='month',
             qdict_builder=lambda date: {
-                # 'customfielddatetime__value__year':  date.year,
-                # 'customfielddatetime__value__month': date.month,
                 f'{value_rname}__value__year':  date.year,
                 f'{value_rname}__value__month': date.month,
             },
@@ -718,7 +682,6 @@ class RGHCustomMonth(_RGHCustomField):
         )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_YEAR)
 @RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_YEAR)
 class RGHCustomYear(_RGHCustomField):
     verbose_name = _('By years')
@@ -730,7 +693,6 @@ class RGHCustomYear(_RGHCustomField):
             entities=entities,
             kind='year',
             qdict_builder=lambda date: {
-                # 'customfielddatetime__value__year': date.year,
                 f'{value_rname}__value__year': date.year,
             },
             date_format='%Y',
@@ -739,7 +701,6 @@ class RGHCustomYear(_RGHCustomField):
         )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_RANGE)
 @RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_RANGE)
 class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     verbose_name = _('By X days')
@@ -767,12 +728,9 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         cfield = self._cfield
         value_meta = cfield.value_class._meta
         value_rname = value_meta.get_field('entity').remote_field.name
-        # entities = entities.filter(customfielddatetime__custom_field=cfield)
         entities = entities.filter(**{f'{value_rname}__custom_field': cfield})
 
         date_aggregates = entities.aggregate(
-            # min_date=Min('customfielddatetime__value'),
-            # max_date=Max('customfielddatetime__value'),
             min_date=Min(f'{value_rname}__value'),
             max_date=Max(f'{value_rname}__value'),
         )
@@ -783,7 +741,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             build_url = self._listview_url_builder(extra_q=extra_q)
             days = self._days
 
-            # field_name = _physical_field_name('creme_core_customfielddatetime', 'value')
             field_name = _physical_field_name(value_meta.db_table, 'value')
 
             x_value_format = _db_grouping_format()
@@ -806,8 +763,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                     interval.after.strftime('%Y-%m-%d'),
                 ]
                 url = build_url({
-                    # 'customfielddatetime__custom_field': cfield.id,
-                    # 'customfielddatetime__value__range': value_range,
                     f'{value_rname}__custom_field': cfield.id,
                     f'{value_rname}__value__range': value_range,
                 })
@@ -819,11 +774,8 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         value_rname = cfield.value_class._meta.get_field('entity').remote_field.name
         entities_filter = entities.filter
         date_aggregates = entities_filter(
-            # customfielddatetime__custom_field=cfield
             **{f'{value_rname}__custom_field': cfield}
         ).aggregate(
-            # min_date=Min('customfielddatetime__value'),
-            # max_date=Max('customfielddatetime__value'),
             min_date=Min(f'{value_rname}__value'),
             max_date=Max(f'{value_rname}__value'),
         )
@@ -831,7 +783,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         max_date = date_aggregates['max_date']
 
         if min_date is not None and max_date is not None:
-            # y_value_func = self._y_calculator.aggregrate
             y_value_func = self._y_calculator.aggregate
             build_url = self._listview_url_builder(extra_q=extra_q)
 
@@ -840,10 +791,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             ):
                 before = interval.before
                 after  = interval.after
-                # sub_entities = entities_filter(
-                #     customfielddatetime__custom_field=cfield,
-                #     customfielddatetime__value__range=(before, after),
-                # )
                 sub_entities = entities_filter(**{
                     f'{value_rname}__custom_field': cfield,
                     f'{value_rname}__value__range': (before, after),
@@ -857,9 +804,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                     [
                         y_value_func(sub_entities),
                         build_url({
-                            # 'customfielddatetime__custom_field': cfield.id,
                             f'{value_rname}__custom_field': cfield.id,
-                            # 'customfielddatetime__value__range': [
                             f'{value_rname}__value__range': [
                                 before.strftime('%Y-%m-%d'),
                                 after.strftime('%Y-%m-%d'),
@@ -869,14 +814,11 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_FK)
 @RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_FK)
 class RGHCustomFK(_RGHCustomField):
     verbose_name = _('By values (of custom choices)')
 
     def _fetch(self, *, entities, order, user, extra_q):
-        # entities_filter = entities.filter
-        # y_value_func = self._y_calculator.aggregrate
         y_calculator = self._y_calculator
         y_value_func = y_calculator.aggregate
         entities_filter = entities.filter(y_calculator.annotate_extra_q).filter

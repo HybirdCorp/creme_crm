@@ -275,16 +275,9 @@ class MailsHistoryBrick(QuerysetBrick):
         constants.REL_OBJ_RELATED_TO,
     )
 
-    # _RTYPE_IDS = [
-    #     constants.REL_SUB_MAIL_SENDED,
-    #     constants.REL_SUB_MAIL_RECEIVED,
-    #     constants.REL_SUB_RELATED_TO,
-    # ]
-
     def detailview_display(self, context):
         pk = context['object'].pk
         entityemail_ids = Relation.objects.filter(
-            # type__pk__in=self._RTYPE_IDS,
             type__pk__in=self.relation_type_deps,
             object_entity=pk,
         ).values_list('subject_entity', flat=True).distinct()
@@ -377,7 +370,6 @@ if apps.is_installed('creme.crudity'):
 
             waiting_mails = EntityEmail.objects.filter(
                 is_deleted=False,
-                # status=constants.MAIL_STATUS_SYNCHRONIZED_WAITING,
                 status=EntityEmail.Status.SYNCHRONIZED_WAITING,
             )
 
@@ -401,7 +393,6 @@ if apps.is_installed('creme.crudity'):
 
             waiting_mails = EntityEmail.objects.filter(
                 is_deleted=False,
-                # status=constants.MAIL_STATUS_SYNCHRONIZED_SPAM,
                 status=EntityEmail.Status.SYNCHRONIZED_SPAM,
             )
             if is_sandbox_by_user():

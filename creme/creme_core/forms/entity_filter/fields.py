@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -82,7 +82,6 @@ class _ConditionsField(JSONField):
         super().__init__(**kwargs)
         self.model = model
         self.efilter_registry = efilter_registry or _EntityFilterRegistry(
-            # id=None,
             id=-1,
             verbose_name='Default for _ConditionsField',
         )
@@ -134,7 +133,6 @@ class RegularFieldsConditionsField(_ConditionsField):
         excluded = self.excluded_fields
         non_hiddable_fnames = self._non_hiddable_fnames
 
-        # if field.get_tag('enumerable') and (not field_hidden or fname in non_hiddable_fnames):
         if (
             field.get_tag(FieldTag.ENUMERABLE)
             and (not field_hidden or fname in non_hiddable_fnames)
@@ -145,7 +143,6 @@ class RegularFieldsConditionsField(_ConditionsField):
 
         for subfield in related_model._meta.fields:
             if (
-                # subfield.get_tag('viewable')
                 subfield.get_tag(FieldTag.VIEWABLE)
                 and not is_date_field(subfield)
                 and not isinstance(subfield, excluded)
@@ -190,7 +187,6 @@ class RegularFieldsConditionsField(_ConditionsField):
                         fields[field.name] = [field]
 
             for field in model._meta.many_to_many:
-                # if field.get_tag('viewable'):
                 if field.get_tag(FieldTag.VIEWABLE):  # TODO: test not viewable
                     self._build_related_fields(field, fields, fconfigs)
 
@@ -342,7 +338,6 @@ class DateFieldsConditionsField(_ConditionsField):
         non_hiddable_fnames = self._non_hiddable_fnames
 
         for subfield in related_model._meta.fields:
-            # if subfield.get_tag('viewable') and is_date_field(subfield):
             if subfield.get_tag(FieldTag.VIEWABLE) and is_date_field(subfield):
                 full_name = f'{fname}__{subfield.name}'
 
@@ -373,7 +368,6 @@ class DateFieldsConditionsField(_ConditionsField):
 
             # TODO: use meta.ModelFieldEnumerator (need to be improved for grouped options)
             for field in model._meta.fields:
-                # if field.get_tag('viewable'):
                 if field.get_tag(FieldTag.VIEWABLE):
                     if isinstance(field, ModelForeignKey):
                         self._build_related_fields(field, fields, fconfigs)
@@ -950,7 +944,6 @@ class PropertiesConditionsField(_ConditionsField):
         )
 
     def _get_ptypes(self):
-        # return CremePropertyType.objects.compatible(self._model)
         return CremePropertyType.objects.compatible(self._model).filter(
             Q(enabled=True) | Q(id__in=self._non_disabled_ptype_ids)
         )

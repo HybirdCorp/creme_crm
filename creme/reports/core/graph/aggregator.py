@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
 )
 from creme.creme_core.models import FieldsConfig
-# from creme.reports import constants
 from creme.reports.constants import OrdinateAggregator
 
 if TYPE_CHECKING:
@@ -56,7 +55,6 @@ class ReportGraphAggregator:
     def annotate_extra_q(self):
         return Q()
 
-    # def aggregrate(self, entities: QuerySet):
     def aggregate(self, entities: QuerySet):
         return 0
 
@@ -70,7 +68,6 @@ class ReportGraphAggregator:
 
     @property
     def verbose_name(self) -> str:
-        # return constants.AGGREGATOR_TYPES.get(self.aggr_id, '??')
         try:
             return OrdinateAggregator(self.aggr_id).label
         except ValueError:
@@ -127,7 +124,6 @@ class ReportGraphAggregatorRegistry:
 AGGREGATORS_MAP = ReportGraphAggregatorRegistry()
 
 
-# @AGGREGATORS_MAP(constants.RGA_COUNT)
 @AGGREGATORS_MAP(OrdinateAggregator.COUNT)
 class RGACount(ReportGraphAggregator):
     def __init__(self, *args, **kwargs):
@@ -141,7 +137,6 @@ class RGACount(ReportGraphAggregator):
         #     whereas our aggregation operators do)
         return aggregates.Count('pk')  # Is there a way to count(*) ?
 
-    # def aggregrate(self, entities):
     def aggregate(self, entities):
         return entities.count()
 
@@ -171,9 +166,6 @@ class _RGAFieldAggregation(ReportGraphAggregator):
             if cfield.is_deleted:
                 self._error = _('this custom field is deleted.')
 
-            # self._aggregate = self.aggregate_cls(
-            #     f'{cfield.value_class.get_related_name()}__value'
-            # )
             related_name = cfield.value_class.get_related_name()
             self._extra_q = Q(**{f'{related_name}__custom_field': cfield.id})
             self._aggregate = self.aggregate_cls(f'{related_name}__value')
@@ -187,32 +179,27 @@ class _RGAFieldAggregation(ReportGraphAggregator):
     def annotate_extra_q(self):
         return self._extra_q
 
-    # def aggregrate(self, entities):
     def aggregate(self, entities):
         return entities.aggregate(
             rga_value_agg=self._aggregate,
         ).get('rga_value_agg') or 0
 
 
-# @AGGREGATORS_MAP(constants.RGA_AVG)
 @AGGREGATORS_MAP(OrdinateAggregator.AVG)
 class RGAAverage(_RGAFieldAggregation):
     aggregate_cls = aggregates.Avg
 
 
-# @AGGREGATORS_MAP(constants.RGA_MAX)
 @AGGREGATORS_MAP(OrdinateAggregator.MAX)
 class RGAMax(_RGAFieldAggregation):
     aggregate_cls = aggregates.Max
 
 
-# @AGGREGATORS_MAP(constants.RGA_MIN)
 @AGGREGATORS_MAP(OrdinateAggregator.MIN)
 class RGAMin(_RGAFieldAggregation):
     aggregate_cls = aggregates.Min
 
 
-# @AGGREGATORS_MAP(constants.RGA_SUM)
 @AGGREGATORS_MAP(OrdinateAggregator.SUM)
 class RGASum(_RGAFieldAggregation):
     aggregate_cls = aggregates.Sum

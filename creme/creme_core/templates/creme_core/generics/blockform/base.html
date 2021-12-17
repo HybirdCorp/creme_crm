@@ -9,7 +9,6 @@
 {% endblock %}
 
 {% if help_message %}
-{#    <div class="help_box">{{help_message|linebreaksbr}}</div> #}
     {% widget_help_sign message=help_message %}
 {% endif%}
 
@@ -23,7 +22,6 @@
 {% if not is_inner_popup %}
 <script type="text/javascript">
     $(document).ready(function() {
-{#        creme.forms.initialize($('#editforms form')); #}
         creme.forms.initialize($('.form-container form'));
     });
 </script>
@@ -31,7 +29,7 @@
 
 <p class="required-help">{% translate 'Fields marked with * are required.' %}</p>
 
-<div {# id="editforms" #} class="form-container form-container-blocks">
+<div class="form-container form-container-blocks">
     <form action="" method="POST" {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}>{% csrf_token %}
         {% if cancel_url %}<input type="hidden" name="cancel_url" value="{{cancel_url}}"/>{% endif %}
         {% if callback_url_name %}<input type="hidden" name="{{callback_url_name}}" value="{{callback_url}}"/>{% endif %}
@@ -43,20 +41,6 @@
             {% endif %}
         {% endfor %}
         {% if form.non_field_errors %}
-{% comment %}
-            <table class="table_detail_view ui-corner-all">
-                <thead>
-                    <tr>
-                        <th valign="middle">{% translate 'Global errors' %}</th>
-                    </tr>
-                </thead>
-                <tbody class="collapsable">
-                    <tr>
-                        <td class="non_field_errors">{{form.non_field_errors}}</td>
-                    </tr>
-                </tbody>
-            </table>
-{% endcomment %}
             <div class="form-block-errors">
                 <div class="form-block-errors-header">
                     <span class="form-block-errors-title">{% translate 'Global errors' %}</span>

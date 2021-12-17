@@ -140,7 +140,6 @@ class CremeQueryTagsTestCase(CremeTestCase):
             )
             render = template.render(Context({'query': Q(name='Foobar')}))
 
-        # self.assertEqual('{"op":"AND","val":[["name","Foobar"]]}', render.strip())
         self.assertIn(
             render.strip(),
             (

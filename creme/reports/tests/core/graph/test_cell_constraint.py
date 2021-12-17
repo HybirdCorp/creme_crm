@@ -333,15 +333,12 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
         self.assertListEqual([], [*registry.cell_constraints(FakeContact)])
         self.assertListEqual([], [*registry.rgraph_types])
         self.assertListEqual([], [*registry.parameter_validators])
-        # self.assertIsNone(registry.get_constraint_by_rgraph_type(FakeContact, RGT_FK))
         self.assertIsNone(registry.get_constraint_by_rgraph_type(FakeContact, AbscissaGroup.FK))
-        # self.assertIsNone(registry.get_parameter_validator(RGT_FK))
         self.assertIsNone(registry.get_parameter_validator(AbscissaGroup.FK))
 
     def test_cell_constraints01(self):
         registry = GraphHandConstraintsRegistry().register_cell_constraint(
             constraint_class=GHCCRegularFK,
-            # rgraph_types=[RGT_FK],
             rgraph_types=[AbscissaGroup.FK],
         )
 
@@ -351,13 +348,10 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
 
         # ---
         get_constraint = registry.get_constraint_by_rgraph_type
-        # self.assertIsInstance(get_constraint(FakeContact, RGT_FK), GHCCRegularFK)
         self.assertIsInstance(get_constraint(FakeContact, AbscissaGroup.FK), GHCCRegularFK)
-        # self.assertIsNone(get_constraint(FakeContact, RGT_RELATION))
         self.assertIsNone(get_constraint(FakeContact, AbscissaGroup.RELATION))
 
         # ---
-        # self.assertListEqual([RGT_FK], [*registry.rgraph_types])
         self.assertListEqual([AbscissaGroup.FK], [*registry.rgraph_types])
 
     def test_cell_constraints02(self):
@@ -365,11 +359,9 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
         registry = GraphHandConstraintsRegistry(
         ).register_cell_constraint(
             constraint_class=GHCCRegularFK,
-            # rgraph_types=[RGT_FK],
             rgraph_types=[AbscissaGroup.FK],
         ).register_cell_constraint(
             constraint_class=GHCCRelation,
-            # rgraph_types=[RGT_RELATION],
             rgraph_types=[AbscissaGroup.RELATION],
         )
 
@@ -377,13 +369,10 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
 
         # ---
         get_constraint = registry.get_constraint_by_rgraph_type
-        # self.assertIsInstance(get_constraint(FakeContact, RGT_FK), GHCCRegularFK)
         self.assertIsInstance(get_constraint(FakeContact, AbscissaGroup.FK), GHCCRegularFK)
-        # self.assertIsInstance(get_constraint(FakeContact, RGT_RELATION), GHCCRelation)
         self.assertIsInstance(get_constraint(FakeContact, AbscissaGroup.RELATION), GHCCRelation)
 
         # ---
-        # self.assertCountEqual([RGT_FK, RGT_RELATION], [*registry.rgraph_types])
         self.assertCountEqual(
             [AbscissaGroup.FK, AbscissaGroup.RELATION],
             [*registry.rgraph_types],
@@ -393,7 +382,6 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
         "Several constraints (several types at once)."
         registry = GraphHandConstraintsRegistry().register_cell_constraint(
             constraint_class=GHCCRegularDate,
-            # rgraph_types=[RGT_MONTH, RGT_YEAR],
             rgraph_types=[AbscissaGroup.MONTH, AbscissaGroup.YEAR],
         )
 
@@ -405,14 +393,12 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
         "Duplicated constraints."
         registry = GraphHandConstraintsRegistry().register_cell_constraint(
             constraint_class=GHCCRegularFK,
-            # rgraph_types=[RGT_FK],
             rgraph_types=[AbscissaGroup.FK],
         )
 
         with self.assertRaises(GraphHandConstraintsRegistry.RegistrationError):
             registry.register_cell_constraint(
                 constraint_class=GHCCRegularDate,
-                # rgraph_types=[RGT_FK],  # <==
                 rgraph_types=[AbscissaGroup.FK],  # <==
             )
 
@@ -423,42 +409,34 @@ class GraphHandConstraintsRegistryTestCase(CremeTestCase):
         with self.assertRaises(GraphHandConstraintsRegistry.RegistrationError):
             registry.register_cell_constraint(
                 constraint_class=TestGHCC,
-                # rgraph_types=[RGT_CUSTOM_RANGE],
                 rgraph_types=[AbscissaGroup.CUSTOM_RANGE],
             )
 
     def test_validators01(self):
         formfield = forms.IntegerField(label='Number of days')
         registry = GraphHandConstraintsRegistry().register_parameter_validator(
-            # rgraph_types=[RGT_RANGE, RGT_CUSTOM_RANGE],
             rgraph_types=[AbscissaGroup.RANGE, AbscissaGroup.CUSTOM_RANGE],
             formfield=formfield,
         )
         self.assertCountEqual(
-            # [(RGT_RANGE, formfield), (RGT_CUSTOM_RANGE, formfield)],
             [(AbscissaGroup.RANGE, formfield), (AbscissaGroup.CUSTOM_RANGE, formfield)],
             [*registry.parameter_validators]
         )
 
         get_validator = registry.get_parameter_validator
-        # self.assertIsNone(get_validator(RGT_FK))
         self.assertIsNone(get_validator(AbscissaGroup.FK))
-        # self.assertEqual(formfield, get_validator(RGT_RANGE))
         self.assertEqual(formfield, get_validator(AbscissaGroup.RANGE))
-        # self.assertEqual(formfield, get_validator(RGT_CUSTOM_RANGE))
         self.assertEqual(formfield, get_validator(AbscissaGroup.CUSTOM_RANGE))
 
     def test_validators02(self):
         "Duplicates."
         registry = GraphHandConstraintsRegistry().register_parameter_validator(
-            # rgraph_types=[RGT_RANGE, RGT_CUSTOM_RANGE],
             rgraph_types=[AbscissaGroup.RANGE, AbscissaGroup.CUSTOM_RANGE],
             formfield=forms.IntegerField(label='Number of days'),
         )
 
         with self.assertRaises(GraphHandConstraintsRegistry.RegistrationError):
             registry.register_parameter_validator(
-                # rgraph_types=[RGT_CUSTOM_RANGE],  # <==
                 rgraph_types=[AbscissaGroup.CUSTOM_RANGE],  # <==
                 formfield=forms.DecimalField(),
             )

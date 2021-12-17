@@ -145,7 +145,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         FakePOP3.instances.clear()
 
     def _build_test_registry(self, backend_configs=None):
-        # registry.crudity_registry.dispatch(
         self.registry.dispatch(
             backend_configs
             if backend_configs is not None else
@@ -181,7 +180,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         backend = self.FakeContactBackend({'subject': subject})
         crudity_input.add_backend(backend)
 
-        # crudity_registry = registry.crudity_registry
         crudity_registry = self.registry
         crudity_registry.register_fetchers('test_f', [fetcher])
         crudity_registry.register_inputs('test_f', [crudity_input])
@@ -196,7 +194,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         url = reverse('crudity__validate_actions')
         data = {'ids': [wa.id]}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
@@ -265,7 +262,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         url = reverse('crudity__delete_actions')
         data = {'ids': [wa1.id, wa2.id]}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         response = self.assertPOST(400, url, data=data)
@@ -310,7 +306,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         response = self.assertGET200(url)
         self.assertEqual(
-            # 'attachment; filename=CREATE_CONTACT.eml',
             'attachment; filename="CREATE_CONTACT.eml"',
             response['Content-Disposition']
         )
@@ -354,7 +349,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         response = self.assertGET200(reverse('crudity__dl_fs_ini_template', args=(subject,)))
         self.assertEqual(
-            # f'attachment; filename={subject}.ini',
             f'attachment; filename="{subject}.ini"',
             response['Content-Disposition']
         )
@@ -563,7 +557,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self._build_test_registry()
         url = reverse('crudity__refresh_actions')
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url)
@@ -611,7 +604,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
 
         self.assertFalse(FakeContact.objects.filter(last_name=last_name))
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -651,7 +643,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.login()
         other_user = self.other_user
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

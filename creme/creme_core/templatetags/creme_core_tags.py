@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from itertools import zip_longest
 from re import compile as compile_re
 from urllib.parse import urlencode, urlsplit
@@ -32,7 +31,7 @@ from django.template import Template, TemplateSyntaxError
 from django.template.defaulttags import TemplateLiteral
 from django.template.library import token_kwargs
 from django.urls import reverse
-from django.utils.encoding import force_str  # force_text
+from django.utils.encoding import force_str
 from django.utils.html import escape, format_html_join
 from django.utils.safestring import mark_safe
 
@@ -44,7 +43,6 @@ from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
 from ..utils.currency_format import currency
 from ..utils.html import escapejson
-# from ..utils.media import get_creme_media_url
 from ..utils.serializers import json_encode
 from ..utils.translation import plural
 from ..utils.unicode_collation import collator
@@ -212,7 +210,6 @@ def mult(x, y):
 
 @register.filter
 def idiv(integer1, integer2):
-    # return integer1 / integer2
     return integer1 // integer2
 
 
@@ -597,15 +594,6 @@ class HasPermToNode(TemplateNode):
 # TAG : "has_perm_to [end]------------------------------------------------------
 
 
-# @register.simple_tag(takes_context=True)
-# def creme_media_url(context, url):
-#     warnings.warn('{% creme_media_url %} is deprecated ; '
-#                   'use the icon system instead.',
-#                   DeprecationWarning
-#                  )
-#     return get_creme_media_url(context.get('THEME_NAME') or settings.THEMES[0][0], url)
-
-
 @register.tag(name='include_creme_media')
 def do_include_creme_media(parser, token):
     try:
@@ -627,17 +615,6 @@ class MediaNode(TemplateNode):
         bundle = self.bundle_var.eval(context)
 
         return _render_include_media(context['THEME_NAME'] + bundle, variation={})
-
-
-# @register.simple_tag(name='hg_info')
-# def get_hg_info():
-#     warnings.warn(
-#         '{% hg_info %} is deprecated ; use {% scm_info %} instead.',
-#         DeprecationWarning
-#     )
-#     from ..utils.version import get_hg_info
-#
-#     return get_hg_info
 
 
 @register.simple_tag(name='scm_info')
@@ -682,7 +659,6 @@ class JsonScriptNode(TemplateNode):
             logger.warning('jsondatablock tag do not accept custom "type" attribute')
 
         attrs = ''.join(
-            # f' {k}="{escape(force_text(v.resolve(context)))}"'
             f' {k}="{escape(force_str(v.resolve(context)))}"'
             for k, v in kwargs.items()
         )

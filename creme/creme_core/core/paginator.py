@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,7 +93,6 @@ class FlowPaginator:
 
         self._attr_name: str = ''
         self._reverse_order: bool = False
-        # self._key_field_info = None
         self.key = key
 
     @property

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,10 @@
 import logging
 import traceback
 from functools import wraps
-# from json import loads as json_load
 from time import sleep
 from uuid import uuid1
 
-# from django.conf import settings
 from django.utils.translation import gettext_lazy as _
-# from redis import StrictRedis
 from redis import Redis
 from redis.exceptions import RedisError
 
@@ -52,48 +49,18 @@ def _redis_errors_2_bool(f):
     return _aux
 
 
-# def _build_start_command(data):
-#     return Command(cmd_type=CMD_START, data_id=int(data))
-#
-#
-# def _build_end_command(data):
-#     return Command(cmd_type=CMD_END, data_id=int(data))
-#
-#
-# def _build_refresh_command(data):
-#     job_id, refresh_data = data.split('-', 1)
-#
-#     return Command(cmd_type=CMD_REFRESH, data_id=int(job_id), data=json_load(refresh_data))
-#
-#
-# def _build_ping_command(data):
-#     return Command(cmd_type=CMD_PING, data_id=data)
-#
-#
-# COMMANDS = {
-#     CMD_START: _build_start_command,
-#     CMD_END: _build_end_command,
-#     CMD_REFRESH: _build_refresh_command,
-#     CMD_PING: _build_ping_command,
-# }
-
-
 # NB: we do not need to build a reliable redis queue (see http://redis.io/commands/rpoplpush )
 #     because the only reliable data come from our RDBMS; Redis is just used an
 #     event broker. If there is a crash, the jobs list is rebuilt from the RDBMS.
 
 # TODO: pub-sub allows to watch the numbers of readers -> use it to (re-)launch the command ?
-# class JobSchedulerQueue(_BaseJobSchedulerQueue):
 class RedisQueue(BaseJobSchedulerQueue):
     verbose_name = _('Redis queue')
     JOBS_COMMANDS_KEY = 'creme_jobs'
     JOBS_PONG_KEY_PREFIX = 'creme_jobs_pong'
 
-    # def __init__(self):
-    #     self._redis = StrictRedis.from_url(settings.JOBMANAGER_BROKER)
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self._redis = StrictRedis.from_url(self.setting)
         self._redis = Redis.from_url(self.setting)
 
     def clear(self):
@@ -103,12 +70,10 @@ class RedisQueue(BaseJobSchedulerQueue):
     @_redis_errors_2_bool
     def start_job(self, job):
         logger.info('Job scheduler queue: request START "%s"', job)
-        # self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_START}-{job.id}')
         self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{Command.START}-{job.id}')
 
     def end_job(self, job):  # TODO: factorise
         logger.info('Job scheduler queue: request END "%s"', job)
-        # self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_END}-{job.id}')
         self._redis.lpush(self.JOBS_COMMANDS_KEY, f'{Command.END}-{job.id}')
 
     @_redis_errors_2_bool
@@ -116,7 +81,6 @@ class RedisQueue(BaseJobSchedulerQueue):
         logger.info('Job scheduler queue: request REFRESH "%s" (data=%s)', job, data)
         self._redis.lpush(
             self.JOBS_COMMANDS_KEY,
-            # f'{CMD_REFRESH}-{job.id}-{json_encode(data)}'
             f'{Command.REFRESH}-{job.id}-{json_encode(data)}'
         )
 
@@ -131,7 +95,6 @@ class RedisQueue(BaseJobSchedulerQueue):
             # NB: result == (self.JOBS_KEY, command)
             try:
                 cmd_type, data = result[1].decode().split('-', 1)
-                # cmd = COMMANDS[cmd_type](data)
                 cmd = Command.build(cmd_type, data)
             except Exception:
                 logger.warning(
@@ -149,7 +112,6 @@ class RedisQueue(BaseJobSchedulerQueue):
 
         try:
             _redis.ping()
-            # _redis.lpush(self.JOBS_COMMANDS_KEY, f'{CMD_PING}-{value}')
             _redis.lpush(self.JOBS_COMMANDS_KEY, f'{Command.PING}-{value}')
 
             # TODO: meh. Use a push/pull method instead of polling ?
@@ -168,9 +130,7 @@ class RedisQueue(BaseJobSchedulerQueue):
     def _build_pong_key(self, ping_value):
         return f'{self.JOBS_PONG_KEY_PREFIX}-{ping_value}'
 
-    # def pong(self, ping_value):
     def pong(self, ping_cmd):
         # NB: '1' has no special meaning, because only the existence of the key is used.
         # TODO: '10' in settings ?
-        # self._redis.setex(self._build_pong_key(ping_value), value=1, time=10)
         self._redis.setex(self._build_pong_key(ping_cmd.data_id), value=1, time=10)

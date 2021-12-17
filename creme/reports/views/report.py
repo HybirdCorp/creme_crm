@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 from typing import Type
 
@@ -185,19 +184,6 @@ class FieldSelection(generic.base.EntityRelatedMixin, generic.CheckedView):
                 rfield.save()
 
         return HttpResponse()
-
-
-# class ReportCreation(generic.EntityCreation):
-#     model = Report
-#     form_class = report_forms.ReportCreateForm
-#     template_name = 'reports/add_report.html'
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn(
-#             'ReportCreation is deprecated ; use ReportCreationWizard instead.',
-#             DeprecationWarning,
-#         )
-#         super().__init__(*args, **kwargs)
 
 
 class ReportCreationWizard(generic.EntityCreationWizard):

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from itertools import chain
 
 from django.conf import settings
@@ -47,14 +46,9 @@ class AbstractProjectTask(CremeEntity):
         editable=False,
     )
 
-    # order = models.PositiveIntegerField(_('Order'), blank=True, null=True, editable=False)
     order = models.PositiveIntegerField(_('Order'), editable=False)
-
     parent_tasks = models.ManyToManyField(
-        'self', symmetrical=False,
-        # related_name='children_set',
-        related_name='children',
-        editable=False,
+        'self', symmetrical=False, related_name='children', editable=False,
     )
 
     start = models.DateTimeField(_('Start'))
@@ -73,7 +67,6 @@ class AbstractProjectTask(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'projects'
         verbose_name = _('Task of project')
         verbose_name_plural = _('Tasks of project')
@@ -106,16 +99,6 @@ class AbstractProjectTask(CremeEntity):
         for relation in self.relations.filter(type=REL_OBJ_LINKED_2_PTASK):
             relation._delete_without_transaction()
 
-    # @property
-    # def safe_duration(self):
-    #     warnings.warn(
-    #         'The property AbstractProjectTask.safe_duration is deprecated ; '
-    #         'use the field "duration" instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     return self.duration or 0
-
     def get_parents(self):
         if self.parents is None:
             self.parents = self.parent_tasks.all()
@@ -131,7 +114,6 @@ class AbstractProjectTask(CremeEntity):
         # TODO: use prefetch_related() ??
         while level_tasks:
             level_tasks = [
-                # *chain.from_iterable(task.children_set.all() for task in level_tasks),
                 *chain.from_iterable(task.children.all() for task in level_tasks),
             ]
             subtasks.extend(level_tasks)

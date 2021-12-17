@@ -4,18 +4,6 @@
     margin-top: 10px;
 }
 
-/*
-.help-text + .activities-field-datetime {
-    margin-top: 5px;
-}
-*/
-
-/*
-.activities-field-date-part .help-text-format {
-    color: #646464;
-}
-*/
-
 /* Forms - end */
 
 /* Calendar sidebar */
@@ -166,7 +154,7 @@
 .calendar-menu .calendar-menu-filter input,
 .calendar-menu .floating-event-filter input {
     width: 100%;
-/*    font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif; */
+
     font-size: 9px;
     outline-style: none;
 }

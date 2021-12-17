@@ -5,7 +5,7 @@
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2021  Hybird
+# Copyright (c)  2015-2022  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:
@@ -56,11 +56,6 @@ class QSerializer:
     def _serialize_value(self, value):
         if isinstance(value, date):
             # TODO: same format for deserialization...
-            # return value.strftime(
-            #     DATETIME_ISO8601_FMT
-            #     if isinstance(value, datetime) else
-            #     DATE_ISO8601_FMT
-            # )
             if isinstance(value, datetime):
                 return dates.to_utc(value).strftime(dates.DATETIME_ISO8601_FMT)
             else:

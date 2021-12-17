@@ -191,7 +191,6 @@ class ReportsTagsTestCase(BaseReportsTestCase):
             render2 = template.render(Context({'graph': rgraph}))
 
         self.assertEqual(
-            # _('Count'),
             f"{_('Capital')} - {_('Maximum')}",
             render2.strip(),
         )

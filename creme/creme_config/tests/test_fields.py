@@ -193,7 +193,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
         first = FakeSector.objects.all()[0]
         second = FakeSector.objects.exclude(title=first.title)[0]
         field = CreatorModelChoiceField(queryset=FakeSector.objects.filter(pk=first.pk))
-        # field.user = self._create_superuser()
         field.user = create_user()
 
         render_str = field.widget.render('sector', None)
@@ -222,7 +221,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
     def test_queryset_property02(self):
         "With action"
         field = CreatorModelChoiceField(queryset=FakeSector.objects.none())
-        # field.user = self._create_superuser()
         field.user = create_user()
 
         sectors = [('', '---------')]
@@ -297,14 +295,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             attrs={'disabled': True},
         )
         name = 'testnoaction'
-
-        # self.assertHTMLEqual(
-        #     '<select name="{name}" disabled>'
-        #     '  <option value="1" selected>A</option>'
-        #     '  <option value="2">B</option>'
-        #     '</select>'.format(name=name),
-        #     widget.render(name, 1, attrs={'disabled': True}),
-        # )
         self.assertHTMLEqual(
             '<div class="select-wrapper">'
             '  <select name="{name}" disabled>'
@@ -315,13 +305,6 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             '</div>'.format(name=name),
             widget.render(name, 1, attrs={'disabled': True}),
         )
-        # self.assertHTMLEqual(
-        #     '<select name="{name}" disabled readonly>'
-        #     '  <option value="1" selected>A</option>'
-        #     '  <option value="2">B</option>'
-        #     '</select>'.format(name=name),
-        #     widget.render(name, 1, attrs={'readonly': True}),
-        # )
         self.assertHTMLEqual(
             '<div class="select-wrapper">'
             '  <select name="{name}" disabled readonly>'
@@ -463,7 +446,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
 
     def test_set_queryset_property(self):
         "With action."
-        # user = self.login()
         user = create_user()
 
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.none())
@@ -484,7 +466,6 @@ class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
         self.assertIn(str(FakeSector.creation_label), render_str)
 
     def test_create_action_url(self):
-        # user = self.login()
         user = create_user()
         field = CreatorModelMultipleChoiceField(queryset=FakeSector.objects.all())
 
@@ -521,7 +502,7 @@ class CustomEnumChoiceFieldTestCase(CremeTestCase):
         )
 
         create_evalue = partial(CustomFieldEnumValue.objects.create, custom_field=cfield)
-        cfeval01  = create_evalue(value='C')
+        cfeval01 = create_evalue(value='C')
         cfeval02 = create_evalue(value='Python')
 
         admin = create_user()
@@ -1352,5 +1333,4 @@ class BricksConfigFieldTestCase(CremeTestCase):
         field = BricksConfigField(choices=choices)
 
         cleaned_value = field.clean('{"top": [1], "left": [2, 3]}')
-
         self.assertEqual(cleaned_value, {"top": [1], "left": [2, 3], "right": [], "bottom": []})

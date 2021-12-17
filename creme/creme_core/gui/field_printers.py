@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from os.path import splitext
 from typing import Any, Callable, Iterator, Type
 
@@ -175,32 +174,11 @@ class FileFieldPrinterForHTML:
 print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_download_registry)
 
 
-# def print_integer(entity: Model, fval, user, field: Field) -> str:
-#     warnings.warn(
-#         'The function creme_core.gui.field_printers.print_integer() is deprecated.',
-#         DeprecationWarning
-#     )
-#
-#     if field.choices:
-#         fval = getattr(entity, f'get_{field.name}_display')()
-#
-#     return str(fval) if fval is not None else ''
-
-
 def print_integer_html(entity: Model, fval, user, field: Field) -> str:
     # TODO remove 'use_l10n' when settings.USE_L10N == True
     # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
     #     to not impact CSV output, reports etc...
     return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
-
-
-# def print_decimal(entity: Model, fval, user, field: Field) -> str:
-#     warnings.warn(
-#         'The function creme_core.gui.field_printers.print_decimal() is deprecated.',
-#         DeprecationWarning
-#     )
-#
-#     return number_format(fval, use_l10n=True) if fval is not None else ''
 
 
 def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
@@ -376,16 +354,6 @@ class M2MPrinterForHTML(BaseM2MPrinter):
         )
 
         return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
-
-
-# class M2MPrinter(M2MPrinterForHTML):
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn(
-#             'The class creme_core.gui.field_printers.M2MPrinter is deprecated ; '
-#             'use M2MPrinterForHTML instead.',
-#             DeprecationWarning
-#         )
-#         super().__init__(*args, **kwargs)
 
 
 print_many2many_html = M2MPrinterForHTML(

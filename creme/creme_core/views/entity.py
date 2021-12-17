@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,9 +168,6 @@ class FieldsInformation(generic.base.EntityCTypeRelatedMixin,
 
         is_hidden = FieldsConfig.objects.get_for_model(model).is_field_hidden
 
-        # return ModelFieldEnumerator(model).filter(viewable=True) \
-        #                                   .exclude(lambda f, deep: is_hidden(f)) \
-        #                                   .choices(**kwargs)
         return ModelFieldEnumerator(model).filter(
             viewable=True,
         ).exclude(
@@ -200,7 +197,6 @@ class Clone(base.EntityRelatedMixin, base.CheckedView):
     def post(self, request, *args, **kwargs):
         new_entity = self.get_related_entity().clone()  # NB: clone() is @atomic
 
-        # if request.is_ajax():
         if is_ajax(request):
             return HttpResponse(new_entity.get_absolute_url())
 
@@ -747,7 +743,6 @@ class EntityRestoration(base.EntityRelatedMixin, base.CheckedView):
 
         entity.restore()
 
-        # if request.is_ajax():
         if is_ajax(request):
             return HttpResponse()
 

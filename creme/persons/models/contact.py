@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,12 +74,9 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         blank=True, null=True, on_delete=CREME_REPLACE_NULL,
     ).set_tags(optional=True)
 
-    # language = models.ManyToManyField(
     languages = models.ManyToManyField(
-        Language,
-        verbose_name=_('Spoken language(s)'),
-        blank=True,  # editable=False,
-    ).set_tags(optional=True)  # viewable=False
+        Language, verbose_name=_('Spoken language(s)'), blank=True,
+    ).set_tags(optional=True)
 
     is_user = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('Related user'),
@@ -101,7 +98,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'persons'
         ordering = ('last_name', 'first_name')
         verbose_name = _('Contact')
