@@ -54,7 +54,10 @@ class DocumentBrick(EntityBrick):
 class FolderDocsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('documents', 'folder_docs')
     verbose_name = _('Contained documents')
-    description = _('Displays the documents contained by the current Folder.')
+    description = _(
+        'Displays the documents contained by the current Folder.\n'
+        'App: Documents'
+    )
     dependencies = (Document,)
     template_name = 'documents/bricks/documents.html'
     target_ctypes = (Folder,)
@@ -95,7 +98,8 @@ class LinkedDocsBrick(QuerysetBrick):
     verbose_name = _('Linked documents')
     description = _(
         'Allows to add Documents, linked with relationships '
-        '«related to the document».'
+        '«related to the document».\n'
+        'App: Documents'
     )
     dependencies = (Relation, Document)
     relation_type_deps = (REL_SUB_RELATED_2_DOC, )

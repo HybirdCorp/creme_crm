@@ -158,7 +158,8 @@ class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     verbose_name = _('Linked Contacts')
     description = _(
         'Displays Contacts linked to the current Opportunity with a '
-        'relationship «involves in the opportunity».'
+        'relationship «involves in the opportunity».\n'
+        'App: Opportunities'
     )
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
@@ -176,7 +177,8 @@ class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     verbose_name = _('Related products')
     description = _(
         'Displays Products linked to the current Opportunity with a '
-        'relationship (Product) «is linked to the opportunity».'
+        'relationship (Product) «is linked to the opportunity».\n'
+        'App: Opportunities'
     )
     dependencies = (Relation, Product)
     relation_type_deps = (constants.REL_OBJ_LINKED_PRODUCT, )
@@ -196,7 +198,8 @@ class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     verbose_name = _('Related services')
     description = _(
         'Displays Services linked to the current Opportunity with a '
-        'relationship (Service) «is linked to the opportunity».'
+        'relationship (Service) «is linked to the opportunity».\n'
+        'App: Opportunities'
     )
     dependencies = (Relation, Service)
     relation_type_deps = (constants.REL_OBJ_LINKED_SERVICE, )
@@ -216,7 +219,8 @@ class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     verbose_name = _('Business managers')
     description = _(
         'Displays Contacts linked to the current Opportunity with a '
-        'relationship «is responsible for».'
+        'relationship «is responsible for».\n'
+        'App: Opportunities'
     )
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
@@ -234,7 +238,8 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
     verbose_name = _('Opportunities which target the Organisation / Contact')
     description = _(
         'Displays the Opportunities linked to the current Organisation / Contact '
-        'with a relationship «targets the organisation/contact».'
+        'with a relationship «targets the organisation/contact».\n'
+        'App: Opportunities'
     )
     dependencies = (Relation, Opportunity)
     relation_type_deps = (constants.REL_OBJ_TARGETS, )
@@ -269,7 +274,8 @@ class OppTotalBrick(SimpleBrick):
     verbose_name = _('Totals')
     description = _(
         'Displays the totals (exclusive of tax & inclusive of tax) of the '
-        'current Opportunity.'
+        'current Opportunity.\n'
+        'App: Opportunities'
     )
     dependencies = (Opportunity, Relation)
     relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
@@ -283,7 +289,8 @@ class OppTargetBrick(Brick):
     description = _(
         'Displays the target & the source of the current Opportunity.\n'
         'They are Contacts or Organisations, linked with the relationships '
-        '«targeted by the opportunity» & «has generated the opportunity».'
+        '«targeted by the opportunity» & «has generated the opportunity».\n'
+        'App: Opportunities'
     )
     dependencies = (Opportunity, Organisation, Relation)
     relation_type_deps = (constants.REL_SUB_TARGETS,)
@@ -332,7 +339,8 @@ if apps.is_installed('creme.billing'):
         verbose_name = _('Quotes linked to the opportunity')
         description = _(
             'Displays Quotes linked to the current Opportunity with a '
-            'relationship (Quote) «generated for the opportunity».'
+            'relationship (Quote) «generated for the opportunity».\n'
+            'App: Opportunities'
         )
         dependencies = (Relation, Quote)
         relation_type_deps = (constants.REL_OBJ_LINKED_QUOTE,)
@@ -353,7 +361,8 @@ if apps.is_installed('creme.billing'):
         dependencies = (Relation, SalesOrder)
         description = _(
             'Displays Salesorders linked to the current Opportunity with a '
-            'relationship (Salesorder) «generated for the opportunity».'
+            'relationship (Salesorder) «generated for the opportunity».\n'
+            'App: Opportunities'
         )
         relation_type_deps = (constants.REL_OBJ_LINKED_SALESORDER, )
         template_name = 'opportunities/bricks/sales-orders.html'
@@ -373,7 +382,8 @@ if apps.is_installed('creme.billing'):
         dependencies = (Relation, Invoice)
         description = _(
             'Displays Invoices linked to the current Opportunity with a '
-            'relationship (Invoice) «generated for the opportunity».'
+            'relationship (Invoice) «generated for the opportunity».\n'
+            'App: Opportunities'
         )
         relation_type_deps = (constants.REL_OBJ_LINKED_INVOICE, )
         template_name = 'opportunities//bricks/invoices.html'

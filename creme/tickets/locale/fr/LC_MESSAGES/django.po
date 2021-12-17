@@ -37,7 +37,7 @@ msgid ""
 msgstr ""
 "Ce bouton relie la fiche courante avec un ticket sélectionné, en utilisant "
 "le type de relation «est lié au ticket».\n"
-"App: Tickets"
+"App : Tickets"
 
 msgid "Creation form for ticket"
 msgstr "Formulaire de création de ticket"

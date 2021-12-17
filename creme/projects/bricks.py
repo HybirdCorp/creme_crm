@@ -43,7 +43,10 @@ class ProjectExtraInfoBrick(SimpleBrick):
     id_ = SimpleBrick.generate_id('projects', 'project_extra_info')
     dependencies = (ProjectTask,)
     verbose_name = _('Extra project information')
-    description = _('Displays cost & total overtime for a project.')
+    description = _(
+        'Displays cost & total overtime for a project.\n'
+        'App: Projects'
+    )
     template_name = 'projects/bricks/project-extra-info.html'
     target_ctypes = (Project,)
 
@@ -52,7 +55,10 @@ class TaskExtraInfoBrick(SimpleBrick):
     id_ = SimpleBrick.generate_id('projects', 'task_extra_info')
     dependencies = (Activity,)
     verbose_name = _('Extra project task information')
-    description = _('Displays effective duration & additional/remaining hours for a task.')
+    description = _(
+        'Displays effective duration & additional/remaining hours for a task.\n'
+        'App: Projects'
+    )
     template_name = 'projects/bricks/task-extra-info.html'
     target_ctypes = (ProjectTask,)
 

@@ -45,6 +45,7 @@ class ReportFieldsBrick(core_bricks.Brick):
     description = _(
         'Displays & edits the columns of a report.\n'
         'Columns correspond to fields, custom fields, relationships…\n'
+        'App: Reports'
     )
     dependencies = (Field,)
     template_name = 'reports/bricks/fields.html'
@@ -67,6 +68,7 @@ class ReportGraphsBrick(core_bricks.QuerysetBrick):
         'Adds & edits some graphs related to a report.\n'
         'A graph displays visually computed values, like the number of '
         'Invoices created per month for example.\n'
+        'App: Reports'
     )
     dependencies = (ReportGraph,)
     template_name = 'reports/bricks/graphs.html'
@@ -135,7 +137,8 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
             str(fetcher.graph)
         )
         self.description = gettext(
-            'This block displays the graph «{graph}», contained by the report «{report}».'
+            'This block displays the graph «{graph}», contained by the report «{report}».\n'
+            'App: Reports'
         ).format(graph=graph, report=graph.linked_report)
 
         error = fetcher.error

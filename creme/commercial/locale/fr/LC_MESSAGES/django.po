@@ -76,7 +76,7 @@ msgid ""
 msgstr ""
 "Ce bouton relie la fiche courante avec une action commerciale sélectionnée, "
 "en utilisant le type de relation «remplit un but de l'action commerciale».\n"
-"App: Commercial"
+"App : Commercial"
 
 msgid "Send emails for commercials approaches"
 msgstr "Envoyer les e-mails pour les approches commerciales"

@@ -182,8 +182,9 @@ class FutureActivitiesBrick(_RelatedActivitiesBrick):
         ' «is subject» or «related to the activity» (if the current entity is an'
         ' Organisation, activities linked to managers & employees are displayed too)\n'
         '- are ending in the future\n'
-        'Hint: the block uses the setting value «Display minutes information in activities blocks»'
-        ' which is configurable in the configuration of the app «Activities».'
+        'Hint: the block uses the setting value «Display minutes information in activities '
+        'blocks» which is configurable in the configuration of the app «Activities».\n'
+        'App: Activities'
     )
     template_name = 'activities/bricks/future-activities.html'
 
@@ -204,7 +205,8 @@ class PastActivitiesBrick(_RelatedActivitiesBrick):
         ' «is subject» or «related to the activity» (if the current entity is an'
         ' Organisation, activities linked to managers & employees are displayed too)\n'
         '- are ended\n'
-        'Hint: it is a block complementary with the block «Future activities».'
+        'Hint: it is a block complementary with the block «Future activities».\n'
+        'App: Activities'
     )
     template_name = 'activities/bricks/past-activities.html'
 

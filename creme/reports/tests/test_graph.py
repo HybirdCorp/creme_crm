@@ -3226,7 +3226,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = self.client.post(url)
         self.assertFormError(
             response, 'form', 'fetcher',
-            _('This field is required.')
+            _('This field is required.'),
         )
 
         self.assertNoFormError(self.client.post(
@@ -3255,7 +3255,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(title, brick.verbose_name)
         self.assertEqual(
             _(
-                'This block displays the graph «{graph}», contained by the report «{report}».'
+                'This block displays the graph «{graph}», contained by the report «{report}».\n'
+                'App: Reports'
             ).format(graph=rgraph.name, report=rgraph.linked_report.name),
             brick.description,
         )
