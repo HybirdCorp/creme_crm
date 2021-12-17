@@ -18,19 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import os
-# import warnings
 from os.path import basename, join
 from random import randint
 from typing import List, Optional
 
-# from django.utils.translation import gettext as _
 from django.conf import settings
 from django.core.files.base import File
-from django.http import FileResponse, Http404  # HttpResponse
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404
 
-# from ..auth.decorators import login_required
 from ..core.download import (
     DownLoadableFileField,
     FileFieldDownLoadRegistry,
@@ -67,13 +63,9 @@ def handle_uploaded_file(f: File,
     dir_path_length = 1  # For the final '/'
 
     # TODO: add support for only one string?
-    # if not hasattr(path, '__iter__'):
     if path is None:
-        # relative_dir_path = 'upload'
         relative_dir_path = ''
-        # dir_path = join(settings.MEDIA_ROOT, relative_dir_path)
         dir_path = settings.MEDIA_ROOT
-        # dir_path_length += len(relative_dir_path)
     else:
         relative_dir_path = join(*path)
         dir_path = join(settings.MEDIA_ROOT, *path)
@@ -97,39 +89,6 @@ def handle_uploaded_file(f: File,
             destination.write(chunk)
 
     return join(relative_dir_path, basename(final_path))
-
-
-# @login_required
-# def download_file(request, location):
-#     from mimetypes import guess_type
-#
-#     warnings.warn(
-#         'The view download_file() is deprecated ; '
-#         'use the class based-view RegisteredFileFieldDownloadView instead.',
-#         DeprecationWarning
-#     )
-#
-#     name_parts = location.replace('\\', '/').rpartition('/')[2].split('.')
-#
-#     if len(name_parts) == 1:  # Should not happen
-#         ftype = 'text/plain'
-#         name = name_parts[0]
-#     else:
-#         name = '.'.join(name_parts)
-#         ftype = guess_type(name)[0] or 'application/octet-stream'
-#
-#     path = settings.MEDIA_ROOT + os.sep + location.replace('../', '').replace('..\\', '')
-#
-#     try:
-#         with open(path, 'rb') as f:
-#             data = f.read()
-#     except IOError as e:
-#         raise Http404(_('Invalid file')) from e
-#
-#     response = HttpResponse(data, content_type=ftype)
-#     response['Content-Disposition'] = 'attachment; filename={}'.format(name.replace(' ', '_'))
-#
-#     return response
 
 
 class RegisteredFileFieldDownloadView(base.ContentTypeRelatedMixin,

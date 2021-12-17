@@ -933,7 +933,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         fullpath = fileref.filedata.path
         self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
-        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
         self.assertEqual(join(settings.MEDIA_ROOT, 'billing'), dirname(fullpath))
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
@@ -1079,7 +1078,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=Decimal('11'),
             quantity=Decimal('2'),
             discount=Decimal('6'),
-            # discount_unit=constants.DISCOUNT_LINE_AMOUNT,
             discount_unit=Line.Discount.LINE_AMOUNT,
             comment='This line is important',
         )
@@ -1113,7 +1111,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         full_path = fileref.filedata.path
         self.assertTrue(exists(full_path), f'<{full_path}> does not exists?!')
         self.assertEqual(
-            # join(settings.MEDIA_ROOT, 'upload', 'billing'),
             join(settings.MEDIA_ROOT, 'billing'),
             dirname(full_path),
         )
@@ -1330,12 +1327,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
     @override_settings(BILLING_EXPORTERS=['creme.billing.exporters.xls.XLSExportEngine'])
     def test_export_quote_xls(self):
         user = self.login()
-        # payment_type = SettlementTerms.objects.create(name='23 days')
 
         quote, source, target = self.create_quote_n_orgas(
-            'My Invoice',
-            # discount=0, payment_type=payment_type.id,
-            comment='Very important quote',
+            'My Invoice', comment='Very important quote',
         )
         vat = Vat.objects.get_or_create(value=10)[0]
 

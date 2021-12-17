@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,6 @@ if TYPE_CHECKING:
 
 
 class CustomFormConfigItemManager(models.Manager):
-    # def create_if_needed(self, *, descriptor, groups_desc):
     def create_if_needed(self, *, descriptor, groups_desc, role=None):
         """Creation helper (for "populate" scripts mainly).
         Create an instance of CustomFormConfigItem, related to a
@@ -41,7 +40,6 @@ class CustomFormConfigItemManager(models.Manager):
         """
         from ..gui.custom_form import FieldGroupList
 
-        # cform_id = descriptor.id
         desc_id = descriptor.id
 
         if role is None:
@@ -52,7 +50,6 @@ class CustomFormConfigItemManager(models.Manager):
             assert isinstance(role, UserRole)
             role_kwargs = {'role': role}
 
-        # item = self.filter(cform_id=cform_id).first()
         item = self.filter(descriptor_id=desc_id, **role_kwargs).first()
 
         if item is None:
@@ -99,7 +96,6 @@ class CustomFormConfigItem(models.Model):
     """Store the fields/groups of fields in the custom-form system.
     See also: <creme_core.gui.custom_form>.
     """
-    # cform_id = models.CharField(primary_key=True, max_length=100, editable=False)
     descriptor_id = models.CharField(
         verbose_name=_('Type of form'), max_length=100, editable=False,
     )

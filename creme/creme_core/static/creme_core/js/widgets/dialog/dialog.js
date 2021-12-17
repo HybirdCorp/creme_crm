@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -23,15 +23,6 @@ creme.dialog = creme.dialog || {};
 
 var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
-/*
-var _assertScrollType = function(scroll) {
-    if (_DIALOG_SCROLLTYPES.indexOf(scroll) === -1) {
-        throw new Error('scroll type "${scroll}" is invalid'.template({scroll: scroll}));
-    } else {
-        return scroll;
-    }
-};
-*/
 
 creme.dialog.Dialog = creme.component.Component.sub({
     _init_: function(options) {
@@ -97,9 +88,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         }
 
         if (this.options.useFrameTitleBar) {
-//            var dialogHeader = this._dialog.parents('.ui-dialog:first').find('.ui-dialog-titlebar .ui-dialog-title');
             var dialogHeader = this._dialog.parents('.ui-dialog').first().find('.ui-dialog-titlebar .ui-dialog-title');
-//            var header = $('.ui-creme-dialog-titlebar:first', this.frame().delegate());
             var header = $('.ui-creme-dialog-titlebar', this.frame().delegate()).first();
 
             if (header.length > 0) {
@@ -279,7 +268,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _dialogContainer: function() {
-//        return $(this._dialog).parent('.ui-dialog:first');
         return $(this._dialog).parent('.ui-dialog').first();
     },
 
@@ -610,19 +598,6 @@ creme.dialog.Dialog = creme.component.Component.sub({
     }
 });
 
-/*
-creme.dialog.redirect = function(url, from) {
-    if (from === undefined) {
-        creme.utils.redirect(url);
-    }
-
-    var dialog = $(from).parents(".ui-creme-dialog-frame:first").data("creme-dialog");
-
-    if (dialog) {
-        dialog.fetch(url);
-    }
-};
-*/
 
 creme.dialog.DialogAction = creme.component.Action.sub({
     _init_: function(options, listeners) {
@@ -741,7 +716,6 @@ creme.dialogs = $.extend(creme.dialogs, {
         if (Object.isEmpty(selected.value) === false) {
             selector.val(selected.value);
         } else if (options.required) {
-//            selector.val($('option:first', selector).attr('value'));
             selector.val($('option', selector).first().attr('value'));
         }
 

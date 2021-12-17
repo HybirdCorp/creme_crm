@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,9 +56,7 @@ class DocumentQuickForm(CremeEntityQuickForm):
 
         instance.filedata = fpath = handle_uploaded_file(
             self.cleaned_data['filedata'],
-            # path=['upload', 'documents'],
             path=['documents'],
-            # max_length=Document._meta.get_field('filedata').max_length,
             max_length=type(instance)._meta.get_field('filedata').max_length,
         )
         assign_2_charfield(instance, 'title', basename(fpath))
@@ -127,9 +125,7 @@ class ImageQuickForm(CremeEntityQuickForm):
 
         instance.filedata = fpath = handle_uploaded_file(
             self.cleaned_data['image'],
-            # path=['upload', 'documents'],
             path=['documents'],
-            # max_length=Document._meta.get_field('filedata').max_length,
             max_length=type(instance)._meta.get_field('filedata').max_length,
         )
         assign_2_charfield(instance, 'title', basename(fpath))

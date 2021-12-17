@@ -43,7 +43,6 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         */
 
         var previous = this._count !== undefined ? this._count : this._initial;
-//        var count = this._count = (element.val() !== null) ? element.val().split('\n').length : this._min;
         var lines = (text !== null) ? text.split('\n') : [];
         var count = lines.length;
 

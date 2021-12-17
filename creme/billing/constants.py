@@ -32,17 +32,4 @@ DEFAULT_HFILTER_ORDER    = 'billing-hf_salesorder'
 DEFAULT_HFILTER_CNOTE    = 'billing-hf_creditnote'
 DEFAULT_HFILTER_TEMPLATE = 'billing-hf_template'
 
-############################################
-# DISCOUNT_PERCENT     = 1
-# DISCOUNT_LINE_AMOUNT = 2
-# DISCOUNT_ITEM_AMOUNT = 3
-#
-# DISCOUNT_UNIT = {
-#     DISCOUNT_PERCENT:     _('Percent'),
-#     DISCOUNT_LINE_AMOUNT: _('Amount per line'),
-#     DISCOUNT_ITEM_AMOUNT: _('Amount per unit'),
-# }
-
-############################################
-
 DEFAULT_QUANTITY = Decimal('1.00')

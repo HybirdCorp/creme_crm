@@ -96,7 +96,6 @@ class EntityEmailTestCase(_EmailsTestCase):
     def test_createview01(self):
         user = self.login()
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -142,7 +141,6 @@ class EntityEmailTestCase(_EmailsTestCase):
         self.assertEqual(subject,          email.subject)
         self.assertEqual(body,             email.body)
         self.assertEqual(body_html,        email.body_html)
-        # self.assertEqual(MAIL_STATUS_SENT, email.status)
         self.assertEqual(EntityEmail.Status.SENT, email.status)
 
         self.get_object_or_fail(
@@ -680,7 +678,6 @@ better &amp; lighter than the previous one.
         "Mail sending error"
         user = self.login()
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -712,7 +709,6 @@ better &amp; lighter than the previous one.
         self.assertNoFormError(response)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
-        # self.assertEqual(MAIL_STATUS_SENDINGERROR, email.status)
         self.assertEqual(EntityEmail.Status.SENDING_ERROR, email.status)
 
         self.assertTrue(queue.refreshed_jobs)
@@ -1068,14 +1064,11 @@ better &amp; lighter than the previous one.
     def test_resend01(self):
         self.login()
         NOT_SENT = EntityEmail.Status.NOT_SENT
-        # email1 = self._create_email(MAIL_STATUS_NOTSENT)
         email1 = self._create_email(NOT_SENT)
-        # email2 = self._create_email(MAIL_STATUS_NOTSENT)
         email2 = self._create_email(NOT_SENT)
 
         url = reverse('emails__resend_emails')
         data = {'ids': f'{email1.id},{email2.id}, '}
-        # self.assertGET404(url, data=data)
         self.assertGET405(url, data=data)
 
         self.assertPOST200(url, data=data)
@@ -1088,9 +1081,7 @@ better &amp; lighter than the previous one.
         self.assertEqual(email1.body,    message.body)
 
         SENT = EntityEmail.Status.SENT
-        # self.assertEqual(MAIL_STATUS_SENT, self.refresh(email1).status)
         self.assertEqual(SENT, self.refresh(email1).status)
-        # self.assertEqual(MAIL_STATUS_SENT, self.refresh(email2).status)
         self.assertEqual(SENT, self.refresh(email2).status)
 
     def test_resend02(self):
@@ -1108,7 +1099,6 @@ better &amp; lighter than the previous one.
         self.assertIsNone(job.user)
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        # email = self._create_email(MAIL_STATUS_NOTSENT)
         email = self._create_email(EntityEmail.Status.NOT_SENT)
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
 
@@ -1125,7 +1115,6 @@ better &amp; lighter than the previous one.
         from ..creme_jobs.entity_emails_send import ENTITY_EMAILS_RETRY
 
         self.login()
-        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)
 
         job = self._get_job()
@@ -1148,7 +1137,6 @@ better &amp; lighter than the previous one.
 
     def test_job03(self):
         self.login()
-        # self._create_email(MAIL_STATUS_SENT)
         self._create_email(EntityEmail.Status.SENT)
         self._send_mails()
 
@@ -1157,7 +1145,6 @@ better &amp; lighter than the previous one.
     def test_job04(self):
         "Email is in the trash."
         self.login()
-        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)
         email.trash()
 
@@ -1172,11 +1159,9 @@ better &amp; lighter than the previous one.
         self.login()
         job = self._get_job()
 
-        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)
         email.trash()
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -1191,16 +1176,13 @@ better &amp; lighter than the previous one.
         "Mail is restored + do not have to be send => do not refresh the job."
         self.login()
 
-        # email = self._create_email(MAIL_STATUS_SENDINGERROR)
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)
-        # email.status = MAIL_STATUS_SENT
         email.status = EntityEmail.Status.SENT
         email.is_deleted = True
         email.save()
 
         email = self.refresh(email)
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

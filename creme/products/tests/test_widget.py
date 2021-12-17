@@ -15,11 +15,9 @@ from ..forms.fields import CreatorCategorySelector
 from ..models import Category, SubCategory
 
 
-# class CreatorCategorySelectorWidgetTestCase(FieldTestCase):
 class CreatorCategorySelectorWidgetTestCase(CremeTestCase):
     @staticmethod
     def _build_create_action(label, title, url='', enabled=True):
-        # return ('create', label, enabled, {'title': title, 'popupUrl': url})
         return WidgetAction(
             name='create',
             label=label,

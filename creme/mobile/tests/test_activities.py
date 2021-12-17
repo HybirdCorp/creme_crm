@@ -81,7 +81,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         url = self._build_start_url(meeting)
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)

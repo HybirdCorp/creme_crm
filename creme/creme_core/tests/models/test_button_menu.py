@@ -10,29 +10,6 @@ from ..fake_models import FakeContact
 
 
 class ButtonMenuItemTestCase(CremeTestCase):
-    # def test_create_if_needed(self):
-    #     pk = 'creme_core-test_button'
-    #     old_count = ButtonMenuItem.objects.count()
-    #
-    #     class TestButton(Button):
-    #         id_ = Button.generate_id('creme_core', 'test_create_if_needed')
-    #         verbose_name = 'Testing purpose'
-    #
-    #     order = 10
-    #     ButtonMenuItem.create_if_needed(pk, FakeContact, TestButton, order)
-    #     self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
-    #
-    #     bmi = self.get_object_or_fail(
-    #         ButtonMenuItem,
-    #         content_type=ContentType.objects.get_for_model(FakeContact),
-    #         button_id=TestButton.id_,
-    #     )
-    #     self.assertEqual(order, bmi.order)
-    #
-    #     bmi = ButtonMenuItem.create_if_needed(pk, FakeContact, TestButton, order + 5)
-    #     self.assertEqual(order, bmi.order)
-    #     self.assertEqual(old_count + 1, ButtonMenuItem.objects.count())
-
     def test_manager_create_if_needed01(self):
         content_type = ContentType.objects.get_for_model(FakeContact)
         old_count = ButtonMenuItem.objects.count()

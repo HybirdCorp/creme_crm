@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_core_tags creme_widgets creme_bricks %}{# creme_history #}
+{% load i18n creme_core_tags creme_widgets creme_bricks %}
 
 {% block brick_extra_class %}{{block.super}} creme_core-history-brick{% endblock %}
 
@@ -55,37 +55,7 @@
         </td>
         {% endif %}
         <td>{{line.get_type_str}}</td>
-        <td data-type="list">
-{% comment %}
-            {% with modifications=line|history_modifications:user %}
-                {% if modifications|length == 1 %}
-                    {{modifications.0}}
-                {% else %}
-                    <ul>{% for modif in modifications %}<li>{{modif}}</li>{% endfor %}</ul>
-                {% endif %}
-            {% endwith %}
-            {% if line.related_line %}
-                {% with related_line=line.related_line related_entity=line.related_line.entity %}
-                    {% if line.line_type.is_about_relation %}&nbsp;
-                        {% if related_entity %}
-                            {% widget_entity_hyperlink related_entity user %}
-                        {% else %}
-                            {{related_line.entity_repr}}{# TODO: improve credentials here !! #}
-                        {% endif %}
-                    {% else %}
-                        {% if related_entity %}
-                            {% translate "Edition of :" %}&nbsp;{% widget_entity_hyperlink related_entity user %}
-                        {% else %}
-                            {% blocktranslate with entity=related_line.entity_repr %}Edit "{{entity}}"{% endblocktranslate %}{# TODO: improve credentials here !! #}
-                        {% endif %}
-                        <br/>
-                        {% for modif in related_line|history_modifications:user %} - {{modif}}<br/>{% endfor %}
-                    {% endif %}
-                {% endwith %}
-             {% endif %}
-{% endcomment %}
-            {{line.explainer.render}}
-        </td>
+        <td data-type="list">{{line.explainer.render}}</td>
         <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>
     {% endfor %}

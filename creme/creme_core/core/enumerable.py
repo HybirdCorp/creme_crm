@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,14 +164,12 @@ class _EnumerableRegistry:
 
     @staticmethod
     def _check_field(field: Field) -> None:
-        # if not field.get_tag('viewable'):
         if not field.get_tag(FieldTag.VIEWABLE):  # TODO: unit test (needs new field)
             raise ValueError(f'This field is not viewable: {field}')
 
         # TODO: we probably should manage fields with is_relation==False but with
         #       a 'choices' attribute. Wait to add the feature in EntityFilterForm too.
 
-        # if not field.get_tag('enumerable'):
         if not field.get_tag(FieldTag.ENUMERABLE):
             raise ValueError(f'This field is not enumerable: {field}')
 

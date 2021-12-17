@@ -92,19 +92,16 @@ class ListViewTestCase(ViewsTestCase):
         if db_engine == 'django.db.backends.mysql':
             trash_sql = (
                 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
-                # 'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
                 'WHERE `creme_core_cremeentity`.`is_deleted`'
             )
         elif db_engine == 'django.db.backends.sqlite3':
             trash_sql = (
                 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
-                # 'WHERE "creme_core_cremeentity"."is_deleted" = 1'
                 'WHERE "creme_core_cremeentity"."is_deleted"'
             )
         elif db_engine.startswith('django.db.backends.postgresql'):
             trash_sql = (
                 'SELECT COUNT(*) AS "__count" FROM "creme_core_cremeentity" '
-                # 'WHERE "creme_core_cremeentity"."is_deleted" = true'
                 'WHERE "creme_core_cremeentity"."is_deleted"'
             )
         else:
@@ -1177,9 +1174,7 @@ class ListViewTestCase(ViewsTestCase):
         dl_uri = data_hrefs[1]
         self.assertStartsWith(dl_uri, dl_url)
         self.assertIn(f'hfilter={hf.id}', dl_uri)
-        # self.assertIn(f'&extra_q={urlquote(q_filter)}', dl_uri)
         self.assertIn(f'&extra_q={quote(q_filter)}', dl_uri)
-        # self.assertIn(f'&search-regular_field-phone={urlquote(searched_phone)}', dl_uri)
         self.assertIn(f'&search-regular_field-phone={quote(searched_phone)}', dl_uri)
 
         dl_header_uri = data_hrefs[2]
@@ -1499,11 +1494,8 @@ class ListViewTestCase(ViewsTestCase):
 
         invoice = FakeInvoice.objects.create(user=user, name='Invoice #1')
         create_line = partial(FakeInvoiceLine.objects.create, user=user, linked_invoice=invoice)
-        # line1 = create_line(item='Item #1', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
         line1 = create_line(item='Item #1', discount_unit=FakeInvoiceLine.Discount.PERCENT)
-        # line2 = create_line(item='Item #2', discount_unit=fake_constants.FAKE_AMOUNT_UNIT)
         line2 = create_line(item='Item #2', discount_unit=FakeInvoiceLine.Discount.AMOUNT)
-        # line3 = create_line(item='Item #3', discount_unit=fake_constants.FAKE_PERCENT_UNIT)
         line3 = create_line(item='Item #3', discount_unit=FakeInvoiceLine.Discount.PERCENT)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeInvoiceLine)
@@ -1533,7 +1525,6 @@ class ListViewTestCase(ViewsTestCase):
             url,
             data={
                 'hfilter': hf.id,
-                # 'search-' + du_cell.key: fake_constants.FAKE_PERCENT_UNIT,
                 f'search-{du_cell.key}': FakeInvoiceLine.Discount.PERCENT.value,
             },
         )

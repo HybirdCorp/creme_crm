@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 # TODO: move to 'core/' ??
 
-# import warnings
 from typing import (
     Dict,
     Generic,
@@ -85,15 +84,6 @@ class _BackendRegistry(Generic[BackendBaseClass]):
 
         return self._backend_classes
 
-    # @property
-    # def backends(self):
-    #     warnings.warn(f'{type(self)}.backends is deprecated ; '
-    #                   f'use backend_classes instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return self.backend_classes
-
     @property
     def backend_classes(self) -> Iterator[Type[BackendBaseClass]]:
         return iter(self._get_backend_classes().values())
@@ -101,14 +91,6 @@ class _BackendRegistry(Generic[BackendBaseClass]):
     @property
     def extensions(self) -> Iterator[str]:
         return iter(self._get_backend_classes().keys())
-
-    # def get_backend(self, backend_id):
-    #     warnings.warn(f'{type(self)}.get_backend() is deprecated ; '
-    #                   f'use get_backend_class() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return self.get_backend_class(backend_id)
 
     def get_backend_class(self, backend_id: str) -> Optional[Type[BackendBaseClass]]:
         return self._get_backend_classes().get(backend_id)

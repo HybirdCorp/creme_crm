@@ -179,8 +179,6 @@ class ExportingTestCase(CremeTestCase):
         data_id = 'my_exporter'
 
         @registry.register(data_id=data_id, priority=3)
-        # def exporter1():
-        #     return [{'value': 1}]
         class TestExporter01(Exporter):
             def dump_instance(self, instance):
                 return [{'value': 1}]
@@ -293,16 +291,13 @@ class ExportingTestCase(CremeTestCase):
             cd = response['Content-Disposition']
 
         # TODO: better test for name (regex ?)
-        # self.assertStartsWith(cd, 'attachment; filename=config-')
         self.assertStartsWith(cd, 'attachment; filename="config-')
-        # self.assertEndsWith(cd, '.json')
         self.assertEndsWith(cd, '.json"')
 
         with self.assertNoException():
             content = response.json()
 
         self.assertIsInstance(content, dict)
-        # self.assertEqual('1.0', content.get('version'))
         self.assertEqual('1.2', content.get('version'))
 
         roles_info = content.get('roles')
@@ -984,7 +979,6 @@ class ExportingTestCase(CremeTestCase):
         def create_button(i):
             return ButtonMenuItem.objects.create(
                 content_type=contact_ct,
-                # id=f'creme_config_export-test_export_buttons-{i}',
                 order=i,
                 button_id=Button.generate_id(
                     'creme_config_export', f'test_export_buttons{i}',
@@ -1037,7 +1031,6 @@ class ExportingTestCase(CremeTestCase):
         )
 
         create_sci = SearchConfigItem.objects.create_if_needed
-        # create_sci(model=FakeContact, fields=['first_name', 'last_name'])
         create_sci(model=FakeContact, fields=['last_name'], role=role)
         create_sci(model=FakeOrganisation, fields=['name'], role='superuser')
         create_sci(model=FakeDocument, fields=['title'], disabled=True)
@@ -1050,7 +1043,6 @@ class ExportingTestCase(CremeTestCase):
             [
                 {
                     'ctype': 'creme_core.fakecontact',
-                    # 'fields': 'first_name,last_name',
                     'cells': [
                         {'type': 'regular_field', 'value': 'first_name'},
                         {'type': 'regular_field', 'value': 'last_name'},
@@ -1068,7 +1060,6 @@ class ExportingTestCase(CremeTestCase):
                 {
                     'ctype': 'creme_core.fakecontact',
                     'role': role.name,
-                    # 'fields': 'last_name',
                     'cells': [{'type': 'regular_field', 'value': 'last_name'}],
                 },
             ],
@@ -1082,7 +1073,6 @@ class ExportingTestCase(CremeTestCase):
                 {
                     'ctype': 'creme_core.fakeorganisation',
                     'superuser': True,
-                    # 'fields': 'name',
                     'cells': [{'type': 'regular_field', 'value': 'name'}],
                 },
             ],
@@ -1093,7 +1083,6 @@ class ExportingTestCase(CremeTestCase):
                 {
                     'ctype': 'creme_core.fakedocument',
                     'disabled': True,
-                    # 'fields': 'title',
                     'cells': [{'type': 'regular_field', 'value': 'title'}],
                 },
             ],
@@ -1592,14 +1581,12 @@ class ExportingTestCase(CremeTestCase):
         content = response.json()
 
         with self.assertNoException():
-            # loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
             loaded_cforms = {d['descriptor']: d for d in content.get('custom_forms')}
 
         # self.maxDiff = None
         descriptor_id = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM.id
         self.assertDictEqual(
             {
-                # 'id': cform_id,
                 'descriptor': descriptor_id,
                 'groups': [
                     {
@@ -1620,9 +1607,7 @@ class ExportingTestCase(CremeTestCase):
         self.login(is_staff=True)
 
         desc = fake_custom_forms.FAKEORGANISATION_CREATION_CFORM
-        # cform_id = desc.id
         descriptor_id = desc.id
-        # CustomFormConfigItem.objects.filter(cform_id=cform_id).delete()
         CustomFormConfigItem.objects.filter(descriptor_id=descriptor_id).delete()
 
         cfield = CustomField.objects.create(
@@ -1688,36 +1673,9 @@ class ExportingTestCase(CremeTestCase):
         loaded_cforms = defaultdict(list)
 
         with self.assertNoException():
-            # loaded_cforms = {d['id']: d for d in content.get('custom_forms')}
             for d in content.get('custom_forms'):
                 loaded_cforms[d['descriptor']].append(d)
 
-        # self.maxDiff = None
-        # self.assertDictEqual(
-        #     {
-        #         'id': cform_id,
-        #         'groups': [
-        #             {
-        #                 'name':  gname1,
-        #                 'layout':  LAYOUT_DUAL_FIRST,
-        #                 'cells': [
-        #                     {'type': EntityCellRegularField.type_id, 'value': 'user'},
-        #                     {'type': EntityCellRegularField.type_id, 'value': 'name'},
-        #                     {'type': EntityCellCustomField.type_id,  'value': str(cfield.uuid)},
-        #                     {
-        #                         'type': EntityCellCustomFormSpecial.type_id,
-        #                         'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
-        #                     },
-        #                 ],
-        #             },
-        #             {
-        #                 'group_id': FakeAddressGroup.extra_group_id,
-        #                 'layout': LAYOUT_DUAL_SECOND,
-        #             },
-        #         ],
-        #     },
-        #     loaded_cforms.get(cform_id),
-        # )
         self.assertCountEqual(
             [
                 {

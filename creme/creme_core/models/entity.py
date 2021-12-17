@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -439,7 +439,6 @@ class CremeEntity(CremeModel):
         fields_kv = {}
 
         for field in self._meta.fields:
-            # if field.get_tag('clonable'):
             if field.get_tag(FieldTag.CLONABLE):
                 fname = field.name
                 fields_kv[fname] = getattr(self, fname)

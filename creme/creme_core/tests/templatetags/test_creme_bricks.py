@@ -6,20 +6,17 @@ from django.utils.translation import gettext as _
 from creme.creme_core.bricks import HistoryBrick
 from creme.creme_core.constants import MODELBRICK_ID, REL_SUB_HAS
 from creme.creme_core.gui.bricks import Brick, EntityBrick, brick_registry
-# from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
 from creme.creme_core.models import (
     FakeContact,
     RelationBrickItem,
     RelationType,
 )
-# from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.utils.serializers import json_encode
 
 from ..base import CremeTestCase
 from ..views.base import BrickTestCaseMixin
 
 
-# class CremeBricksTagsTestCase(CremeTestCase, BrickTestCaseMixin):
 class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick_import_n_display01(self):
         "Named Brick."
@@ -257,14 +254,6 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
         super().setUp()
         self.maxDiff = None
 
-    # def _get_icon(self, name, size, label=''):
-    #     theme = get_current_theme()
-    #     return get_icon_by_name(
-    #         name, theme,
-    #         size_px=get_icon_size_px(theme, size),
-    #         label=label,
-    #     )
-
     def assertBrickActionHTML(self, bricktag, expected):
         with self.assertNoException():
             template = Template('{% load creme_bricks %}' + bricktag)
@@ -282,9 +271,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
             )
         )
@@ -300,9 +287,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label=_('Information'),
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=add_icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=add_icon.size,
             )
         )
@@ -317,9 +302,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label=_('Edit'),
-                # icon_url=self._get_icon('edit', 'brick-action').url,
                 icon_url=edit_icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=edit_icon.size,
             )
         )
@@ -333,9 +316,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=add_icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=add_icon.size,
             )
         )
@@ -350,9 +331,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('delete', 'small').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'small'),
                 icon_size=icon.size,
             )
         )
@@ -365,11 +344,8 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 <img src="{icon_url}" class="brick-action-icon" title="{help_text}"
                      alt="{help_text}" width="{icon_size}px"/>
             </a>'''.format(
-                # label='Add something',
                 help_text='This action adds something',
-                # icon_url=self._get_icon('delete', 'small').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'small'),
                 icon_size=icon.size,
             )
         )
@@ -406,9 +382,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                 <span class="brick-action-title">{label}</span>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
             ),
         )
@@ -423,9 +397,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
             </a>'''.format(
                 label='Add something',
                 help_text='This action adds something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
             )
         )
@@ -440,9 +412,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
             ),
         )
@@ -457,9 +427,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
             ),
         )
@@ -477,9 +445,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
                 json_data=json_encode({
                     'options': {'confirm': True},
@@ -498,9 +464,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
                 json_data=json_encode({
                     'options': {'confirm': 'Are you sure ?'},
@@ -523,9 +487,7 @@ class CremeBrickActionTagsTestCase(CremeTestCase, BrickTestCaseMixin):
                      alt="{label}" width="{icon_size}px"/>
             </a>'''.format(
                 label='Add something',
-                # icon_url=self._get_icon('add', 'brick-action').url,
                 icon_url=icon.url,
-                # icon_size=get_icon_size_px(get_current_theme(), 'brick-action'),
                 icon_size=icon.size,
                 json_data=json_encode({
                     'options': {'confirm': True},

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -557,7 +557,6 @@ class FieldGroupList:
                 if (
                     field.editable
                     and not field.auto_created
-                    # and not field.blank
                     and is_field_required(field)
                     and field.name not in field_names
                     and field.name not in exclude_fields
@@ -926,23 +925,10 @@ class CustomFormDescriptor:
     def model(self) -> Type[Model]:
         return self._model
 
-    # def groups(self, item: Optional[CustomFormConfigItem] = None) -> FieldGroupList:
     def groups(self, item: CustomFormConfigItem) -> FieldGroupList:
         """Return a groups list built from the data stored in the related
         CustomFormConfigItem.
-        REMOVED: You can pass the item to avoid an SQL query.
         """
-        # item_model = self.item_model
-        # try:
-        #     item = item or item_model.objects.get(cform_id=self.id)
-        # except item_model.DoesNotExist:
-        #     logger.critical(
-        #         'CustomFormDescriptor.groups(): it seems no instance of %s with '
-        #         'the id="%s" has been populated.',
-        #         item_model.__name__, self.id,
-        #     )
-        #     raise
-
         return FieldGroupList.from_dicts(
             model=self.model,
             data=item.groups_as_dicts(),
@@ -950,13 +936,9 @@ class CustomFormDescriptor:
             allowed_extra_group_classes=self._extra_groups,
         )
 
-    # def build_form_class(self,
-    #                      item: Optional[CustomFormConfigItem] = None,
-    #                      ) -> Type[CremeEntityForm]:
     def build_form_class(self, item: CustomFormConfigItem) -> Type[CremeEntityForm]:
         """Return a form class built from the data stored in the related
         CustomFormConfigItem.
-        REMOVED: You can pass the item to avoid an SQL query.
         """
         return self.groups(item).form_class(
             base_form_class=self.base_form_class,

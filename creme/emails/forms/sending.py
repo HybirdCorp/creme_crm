@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,10 +38,7 @@ from creme.creme_core.models import HistoryLine, SettingValue
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
-from ..models.sending import (  # SENDING_TYPE_DEFERRED
-    EmailSending,
-    LightWeightEmail,
-)
+from ..models.sending import EmailSending, LightWeightEmail
 from ..setting_keys import emailcampaign_sender
 
 
@@ -117,7 +114,6 @@ class SendingCreateForm(CremeModelForm):
     def clean(self):
         cleaned_data = super().clean()
 
-        # if cleaned_data['type'] == SENDING_TYPE_DEFERRED:
         if cleaned_data['type'] == EmailSending.Type.DEFERRED:
             sending_date = cleaned_data['sending_date']
 

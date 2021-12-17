@@ -35,7 +35,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data1 = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            # 'status':    GeoAddress.COMPLETE,
             'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
@@ -53,7 +52,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data2 = {
             'latitude':  28.411,
             'longitude': 45.44,
-            # 'status':    GeoAddress.MANUAL,
             'status':    GeoAddress.Status.MANUAL,
             'geocoded':  True,
         }
@@ -77,7 +75,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data1 = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            # 'status':    GeoAddress.COMPLETE,
             'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
@@ -94,7 +91,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data2 = {
             'latitude':  28.411,
             'longitude': 45.44,
-            # 'status':    GeoAddress.COMPLETE,
             'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
@@ -116,7 +112,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                 'id':       '000',
                 'latitude':  45.22454,
                 'longitude': -1.22121,
-                # 'status':    GeoAddress.COMPLETE,
                 'status':    GeoAddress.Status.COMPLETE,
                 'geocoded':  True,
             },
@@ -133,7 +128,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
         data = {
             'latitude':  45.22454,
             'longitude': -1.22121,
-            # 'status':    GeoAddress.COMPLETE,
             'status':    GeoAddress.Status.COMPLETE,
             'geocoded':  True,
         }
@@ -181,7 +175,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                 'id':        address.id,
                 'latitude':  45.22454,
                 'longitude': -1.22121,
-                # 'status':    GeoAddress.COMPLETE,
                 'status':    GeoAddress.Status.COMPLETE,
                 'geocoded':  True,
             },
@@ -196,7 +189,6 @@ class SetAddressInfoTestCase(GeoLocationBaseTestCase):
                 'id':        address.id,
                 'latitude':  45.22454,
                 'longitude': -1.22121,
-                # 'status':    GeoAddress.COMPLETE,
                 'status':    GeoAddress.Status.COMPLETE,
                 'geocoded':  True,
             },

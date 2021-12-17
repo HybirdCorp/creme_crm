@@ -25,19 +25,6 @@
 
 creme.persons = creme.persons || {};
 
-// creme.persons.copyTo = function(source, target) {
-//     console.warn('creme.persons.copyTo() is deprecated.');
-//
-//     source = Object.isString(source) ? $('#' + source) : $(source);
-//     target = Object.isString(target) ? $('#' + target) : $(target);
-//
-//     var targetInputs = target.find('input, textarea, select');
-//
-//     source.find('input, textarea, select').each(function(index) {
-//         $(targetInputs[index]).val($(this).val());
-//     });
-// };
-
 creme.persons.copyAddressInputs = function(source_prefix, target_prefix, source_root, target_root) {
     if (target_root === undefined) {
         target_root = source_root;

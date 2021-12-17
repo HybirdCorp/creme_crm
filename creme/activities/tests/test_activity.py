@@ -1197,7 +1197,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertNoFormError(response2)
-        # self.assertRedirects(response2, contact01.get_absolute_url())
         self.assertRedirects(response2, callback_url)
 
         meeting = self.get_object_or_fail(Activity, title=title)
@@ -1306,7 +1305,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertNoFormError(response1)
-        # self.assertRedirects(response, ryoga.get_absolute_url())
 
         meeting = self.get_object_or_fail(Activity, title=title)
         self.assertEqual(

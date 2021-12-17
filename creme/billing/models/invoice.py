@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,12 +37,6 @@ class AbstractInvoice(Base):
         verbose_name=_('Status of invoice'),
         on_delete=deletion.CREME_REPLACE,
     )
-    # payment_type = models.ForeignKey(
-    #     other_models.SettlementTerms,
-    #     verbose_name=_('Settlement terms'),
-    #     blank=True, null=True,
-    #     on_delete=deletion.CREME_REPLACE_NULL,
-    # ).set_tags(optional=True)
     buyers_order_number = models.CharField(
         _("Buyer's order"),
         max_length=100, blank=True,

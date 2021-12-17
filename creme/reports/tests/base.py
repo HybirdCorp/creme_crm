@@ -231,9 +231,7 @@ class BaseReportsTestCase(CremeTestCase):
             user=user,
             linked_report=report,
             name='Number of created documents / year',
-            # abscissa_cell_value='created', abscissa_type=constants.RGT_YEAR,
             abscissa_cell_value='created',
             abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=constants.RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )

@@ -35,8 +35,6 @@ from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import smart_str
 
-# APP_NAME = 'locale_overload'
-
 
 # TODO: factorise with i18n_duplicates ?
 class Command(BaseCommand):
@@ -169,7 +167,6 @@ class Command(BaseCommand):
 
         catalog_entries = {}
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
-        # all_plural_forms = set()
         all_plural_forms = defaultdict(list)
 
         if exists(catalog_path):
@@ -213,8 +210,6 @@ class Command(BaseCommand):
 
         for app_pofile in self._iter_pofiles(language, polib, file_name):
             plural_forms = app_pofile.metadata.get('Plural-Forms')
-            # if plural_forms:
-            #     all_plural_forms.add(plural_forms)
             if not plural_forms:
                 raise CommandError(
                     f'The file "{app_pofile.fpath}" has no "Plural-Forms" in its metadata. '
@@ -244,16 +239,6 @@ class Command(BaseCommand):
                             catalog_entries[entry.msgid] = entry
                             break
 
-        # if not catalog.fpath and all_plural_forms:  # Creation of the file
-        #     if len(all_plural_forms) > 1:
-        #         self.stderr.write(
-        #             'Different information about plural forms were found '
-        #             '(first one used):{}'.format(
-        #                 ''.join(f'\n - {i}' for i in all_plural_forms)
-        #             )
-        #         )
-        #
-        #     catalog.metadata['Plural-Forms'] = next(iter(all_plural_forms))
         if len(all_plural_forms) > 1:
             raise CommandError(
                 'The .po files contain different "Plural-Forms" in their metadata. '

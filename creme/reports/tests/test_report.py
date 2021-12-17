@@ -2046,7 +2046,6 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
         url = reverse('reports__set_selected_field')
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         data = {

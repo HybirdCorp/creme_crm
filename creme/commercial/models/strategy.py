@@ -94,7 +94,6 @@ class AbstractStrategy(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'commercial'
         verbose_name = _('Commercial strategy')
         verbose_name_plural = _('Commercial strategies')
@@ -198,13 +197,11 @@ class AbstractStrategy(CremeEntity):
                                 ) -> 'CommercialAssetScore':
         return self._get_assets_scores_objects(orga)[segment_desc_id][asset_id]
 
-    # def get_asset_score(self, orga, asset, segment):
     def get_asset_score(self,
                         orga: 'Organisation',
                         asset: 'CommercialAsset',
                         segment_desc: 'MarketSegmentDescription'
                         ) -> Score:
-        # return self._get_asset_score_object(orga, asset.id, segment.id).score
         return self._get_asset_score_object(orga, asset.id, segment_desc.id).score
 
     def get_assets_list(self) -> List['CommercialAsset']:
@@ -220,13 +217,11 @@ class AbstractStrategy(CremeEntity):
                                 ) -> 'MarketSegmentCharmScore':
         return self._get_charms_scores_objects(orga)[segment_desc_id][charm_id]
 
-    # def get_charm_score(self, orga, charm, segment):
     def get_charm_score(self,
                         orga: 'Organisation',
                         charm: 'MarketSegmentCharm',
                         segment_desc: 'MarketSegmentDescription',
                         ) -> Score:
-        # return self._get_charm_score_object(orga, charm.id, segment.id).score
         return self._get_charm_score_object(orga, charm.id, segment_desc.id).score
 
     def get_charms_list(self) -> List['MarketSegmentCharm']:
@@ -287,7 +282,6 @@ class AbstractStrategy(CremeEntity):
         """@return A dictionary with key=Category (int, between 1 & 4) and
                    value=list of MarketSegmentDescription.
         """
-        # categories = self._segments_categories.get(orga)
         categories = self._segments_categories.get(orga.id)
 
         if categories is None:
@@ -331,7 +325,6 @@ class AbstractStrategy(CremeEntity):
                         _get_category(segment_desc, asset_total, charm_total)
                     ].append(segment_desc)
 
-            # self._segments_categories[orga] = categories
             self._segments_categories[orga.id] = categories
 
         return categories

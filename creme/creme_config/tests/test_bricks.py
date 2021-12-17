@@ -162,7 +162,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         cls._original_brick_registry = gui_bricks.brick_registry
 
-        # cls.brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
         cls._cls_brick_registry = brick_registry = deepcopy(gui_bricks.brick_registry)
         brick_registry.register(
             CompleteBrick1, CompleteBrick2, CompleteBrick3, CompleteBrick4,
@@ -199,7 +198,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def setUp(self):
         super().setUp()
-        # gui_bricks.brick_registry = self.brick_registry = deepcopy(self.brick_registry)
         gui_bricks.brick_registry = self.brick_registry = deepcopy(self._cls_brick_registry)
 
     @staticmethod
@@ -230,13 +228,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     @staticmethod
     def _build_custombrick_edit_url(cbc_item):
         return reverse('creme_config__edit_custom_brick', args=(cbc_item.id,))
-
-    # def _find_field_index(self, formfield, name):
-    #     for i, (fname, fvname) in enumerate(formfield.choices):
-    #         if fname == name:
-    #             return i
-    #
-    #     self.fail(f'No "{name}" field')
 
     def _find_location(self, brick_id, locations):
         for location in locations:

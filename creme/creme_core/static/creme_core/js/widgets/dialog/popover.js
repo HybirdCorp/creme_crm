@@ -23,16 +23,6 @@ var _DIRECTIONS = ['top', 'left', 'right',
                    'bottom', 'bottom-left', 'bottom-right',
                    'center', 'center-window'];
 
-/*
-var _assertDirection = function(direction) {
-    if (_DIRECTIONS.indexOf(direction) === -1) {
-        throw Error('invalid popover direction ' + direction);
-    } else {
-        return direction;
-    }
-};
-*/
-
 creme.dialog = creme.dialog || {};
 
 creme.dialog.Popover = creme.component.Component.sub({

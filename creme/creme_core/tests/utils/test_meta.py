@@ -230,7 +230,6 @@ class FieldInfoTestCase(CremeTestCase):
         al = FakeContact.objects.create(user=user, first_name='Alphonse', last_name='Elric')
 
         self.assertEqual([], FieldInfo(FakeContact, 'languages').value_from(al))
-        # self.assertEqual([], FieldInfo(FakeContact, 'languages__code').value_from(al))
         self.assertEqual([], FieldInfo(FakeContact, 'languages__name').value_from(al))
 
         # ----
@@ -288,11 +287,9 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         choices = enum1.choices()
         self.assertEqual(expected, choices, choices)
 
-        # choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=True).choices()
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leaves=True).choices()
         self.assertEqual(expected, choices, choices)
 
-        # choices = meta.ModelFieldEnumerator(CremeEntity, only_leafs=False).choices()
         choices = meta.ModelFieldEnumerator(CremeEntity, only_leaves=False).choices()
         self.assertListEqual(
             [
@@ -332,13 +329,11 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('user',        _('Owner user')),
         ]
         choices = meta.ModelFieldEnumerator(
-            # CremeEntity, only_leafs=False,
             CremeEntity, only_leaves=False,
         ).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
 
         choices = meta.ModelFieldEnumerator(
-            # CremeEntity, only_leafs=False,
             CremeEntity, only_leaves=False,
         ).exclude(viewable=False).choices()
         self.assertEqual(expected, choices, choices)
@@ -359,13 +354,11 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         ]
         self.assertListEqual(
             expected,
-            # meta.ModelFieldEnumerator(CremeEntity, deep=1)
             meta.ModelFieldEnumerator(CremeEntity, depth=1)
                 .filter(viewable=True).choices()
         )
         self.assertListEqual(
             expected,
-            # meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=True)
             meta.ModelFieldEnumerator(CremeEntity, depth=1, only_leaves=True)
                 .filter(viewable=True).choices()
         )
@@ -380,7 +373,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
                 ('user__last_name', fs(field=_('Last name'))),
                 ('user__username',  fs(field=_('Username'))),
             ],
-            # meta.ModelFieldEnumerator(CremeEntity, deep=1, only_leafs=False)
             meta.ModelFieldEnumerator(CremeEntity, depth=1, only_leaves=False)
                 .filter(viewable=True).choices()
         )
@@ -391,16 +383,12 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
 
         self.assertListEqual(
             [('modified', _('Last modification'))],
-            # meta.ModelFieldEnumerator(CremeEntity, deep=1)
-            #     .filter(lambda f, depth: f.name.endswith('ied'), viewable=True)
             meta.ModelFieldEnumerator(CremeEntity, depth=1)
                 .filter(lambda model, field, depth: field.name.endswith('ied'), viewable=True)
                 .choices(),
         )
         self.assertListEqual(
             [('description', _('Description'))],
-            # meta.ModelFieldEnumerator(CremeEntity, deep=0)
-            #     .exclude(lambda f, depth: f.name.endswith('ed'), viewable=False)
             meta.ModelFieldEnumerator(CremeEntity, depth=0)
                 .exclude(lambda model, field, depth: field.name.endswith('ed'), viewable=False)
                 .choices(),
@@ -420,10 +408,8 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices, choices)
 
         choices = meta.ModelFieldEnumerator(
-            # FakeEmailCampaign, only_leafs=False
             FakeEmailCampaign, only_leaves=False,
         ).filter(
-            # (lambda f, depth: f.get_internal_type() != 'ForeignKey'),
             (lambda model, field, depth: field.get_internal_type() != 'ForeignKey'),
             viewable=True,
         ).choices()
@@ -454,7 +440,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         ]
 
         enum1 = meta.ModelFieldEnumerator(
-            # FakeContact, only_leafs=False,
             FakeContact, only_leaves=False,
         ).filter(editable=True, viewable=True)
         self.assertEqual(FakeContact, enum1.model)
@@ -463,7 +448,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self.assertEqual(expected, choices1, choices1)
 
         choices2 = meta.ModelFieldEnumerator(
-            # FakeContact, only_leafs=False,
             FakeContact, only_leaves=False,
         ).exclude(editable=False, viewable=False).choices()
         self.assertEqual(expected, choices2, choices2)
@@ -473,7 +457,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self._deactivate_translation()
 
         choices = meta.ModelFieldEnumerator(
-            # FakeActivity, deep=1, only_leafs=False,
             FakeActivity, depth=1, only_leaves=False,
         ).filter(viewable=True).choices()
         fs = '[{}] - {}'.format
@@ -506,10 +489,8 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
         self._deactivate_translation()
 
         choices = meta.ModelFieldEnumerator(
-            # FakeActivity, deep=1, only_leafs=False,
             FakeActivity, depth=1, only_leaves=False,
         ).filter(
-            # (lambda f, depth: not depth or f.name == 'name'),
             (lambda model, field, depth: not depth or field.name == 'name'),
             viewable=True,
         ).choices()
@@ -536,7 +517,6 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
     def test_field_enumerator09(self):
         "Translation activated."
         choices = {
-            # *meta.ModelFieldEnumerator(FakeActivity, deep=1, only_leafs=False)
             *meta.ModelFieldEnumerator(FakeActivity, depth=1, only_leaves=False)
                  .filter(viewable=True)
                  .choices(),

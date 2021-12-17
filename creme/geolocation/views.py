@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -56,7 +56,6 @@ class AddressInfoSetting(CheckedView):
         data = {
             'latitude': get_arg('latitude'),
             'longitude': get_arg('longitude'),
-            # 'geocoded': get_arg('geocoded').lower() == 'true',
             'geocoded': bool_from_str_extended(get_arg('geocoded')),
             'status': get_arg('status'),
         }

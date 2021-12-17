@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,7 +61,6 @@ class WeasyprintExporter(ContextMixin, base.BillingExporter):
 
         basename = secure_filename(f'{entity._meta.verbose_name}_{entity.id}.pdf')
         final_path = FileCreator(
-            # dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
             dir_path=path.join(settings.MEDIA_ROOT, 'billing'),
             name=basename,
         ).create()
@@ -71,7 +70,6 @@ class WeasyprintExporter(ContextMixin, base.BillingExporter):
         #     removed by hand (not cleaned by the Cleaner job).
         file_ref = FileRef.objects.create(
             user=user,
-            # filedata=f'upload/billing/{path.basename(final_path)}',
             filedata=f'billing/{path.basename(final_path)}',
             basename=basename,
         )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,17 +27,6 @@ from creme.creme_core.forms.base import CremeModelForm
 
 User = get_user_model()
 
-# def _build_select():
-#     return Select(
-#         attrs={
-#             'onchange': (
-#                 'creme.ajax.json.ajaxFormSubmit('
-#                 '$(this.form), function() {creme.utils.reload(window);}'
-#                 ');'
-#             )
-#         },
-#     )
-
 
 class MenuSetting(Select):
     def __init__(self, url, choices=()):
@@ -54,7 +43,6 @@ class UserThemeForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('theme',)
-        # widgets = {'theme': _build_select()}
         widgets = {
             'theme': MenuSetting(url='creme_config__set_user_theme')
         }
@@ -65,7 +53,6 @@ class UserTimeZoneForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('time_zone',)
-        # widgets = {'theme': _build_select()}
         widgets = {
             'time_zone': MenuSetting(url='creme_config__set_user_timezone')
         }
@@ -76,7 +63,6 @@ class UserLanguageForm(CremeModelForm):
     class Meta:
         model = User
         fields = ('language',)
-        # widgets = {'theme': _build_select()}
         widgets = {
             'language': MenuSetting(url='creme_config__set_user_language')
         }

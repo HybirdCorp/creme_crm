@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -181,7 +181,6 @@ class BaseExtractorWidget(Widget):
 
 # Extractors (and related field/widget) for regular model's fields--------------
 
-# class Extractor:
 class RegularFieldExtractor(SingleColumnExtractor):
     def __init__(
             self,
@@ -642,7 +641,6 @@ class EntityExtractorField(forms.Field):
         """@param model_info: Sequence of tuple (Entity class, field name)
                   Field name if used to get or create class instances.
         """
-        # super().__init__(*args, **kwargs)
         super().__init__(**kwargs)
         self.models_info = models_info
         self.allowed_indexes = {c[0] for c in choices}
@@ -959,7 +957,6 @@ class RelationExtractorField(MultiRelationEntityField):
 
 # Extractors (and related field/widget) for custom fields ----------------------
 
-# class CustomFieldExtractor:
 class CustomFieldExtractor(SingleColumnExtractor):
     _manage_enum: Optional[Callable]
 
@@ -1209,7 +1206,6 @@ class ImportForm(CremeModelForm):
 
         # TODO: exclude not extractor fields ?
         self.fields['key_fields'].choices = ModelFieldEnumerator(
-            # self._meta.model, deep=0, only_leafs=False,
             self._meta.model, depth=0, only_leaves=False,
         ).filter(
             viewable=True,
@@ -1374,7 +1370,6 @@ class ImportForm(CremeModelForm):
 
                         self._post_instance_creation(instance, line, updated)
 
-                        # for m2m in self._meta.model._meta.many_to_many:
                         for m2m in model_class._meta.many_to_many:
                             extractor = get_cleaned(m2m.name)  # Can be a regular_field ????
                             if extractor:

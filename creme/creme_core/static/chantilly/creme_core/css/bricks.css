@@ -33,14 +33,6 @@
     margin-top: 15px;
 }
 
-/*
-.brick + table.table_detail_view,
-.brick + script + table.table_detail_view {
-    margin-top: 15px;
-    margin-bottom: 0;
-}
-*/
-
 .brick.is-empty {
     display: none;
 }

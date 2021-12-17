@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from json import dumps as jsondumps
-# from json import loads as jsonloads
 import logging
 import warnings
 from typing import TYPE_CHECKING, List
@@ -37,7 +35,6 @@ from django.utils.translation import gettext_lazy as _
 from ..utils.date_period import HoursPeriod, date_period_registry
 from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601, round_hour
 from .entity import CremeEntity
-# from .fields import CreationDateTimeField
 from .fields import CremeUserForeignKey, DatePeriodField
 
 if TYPE_CHECKING:
@@ -116,7 +113,6 @@ class Job(models.Model):
     error = models.TextField(_('Error'), null=True, editable=False)
 
     # It stores the Job's parameters
-    # raw_data = models.TextField(editable=False)
     data = models.JSONField(editable=False, null=True)
 
     objects = JobManager()
@@ -153,14 +149,6 @@ class Job(models.Model):
 
     def get_edit_absolute_url(self):
         return reverse('creme_core__edit_job', args=(self.id,))
-
-    # @property
-    # def data(self):
-    #     return jsonloads(self.raw_data)
-    #
-    # @data.setter
-    # def data(self, value):
-    #     self.raw_data = jsondumps(value)
 
     @property
     def description(self) -> List[str]:  # TODO: cache ?
@@ -249,7 +237,6 @@ class Job(models.Model):
             if periodicity:
                 data['periodicity'] = periodicity.as_dict()
 
-            # queue_error = JobSchedulerQueue.get_main_queue().refresh_job(self, data)
             queue_error = get_queue().refresh_job(self, data)
             self.__init_refreshing_cache()
 
@@ -296,7 +283,6 @@ class Job(models.Model):
 
     @atomic
     def save(self, *args, **kwargs):
-        # from ..core.job import JobSchedulerQueue
         from ..core.job import get_queue
 
         created = self.pk is None
@@ -313,7 +299,6 @@ class Job(models.Model):
 
         if created:
             if self.user_id is not None:
-                # queue_error = JobSchedulerQueue.get_main_queue().start_job(self)
                 queue_error = get_queue().start_job(self)
         elif self.user_id is None:  # System job
             queue_error = self.refresh()
@@ -347,17 +332,7 @@ class BaseJobResult(models.Model):
         abstract = True
 
     def __repr__(self):
-        # return f'JobResult(job={self.job_id}, raw_messages="{self.raw_messages}")'
         return f'JobResult(job={self.job_id}, messages={self.messages})'
-
-    # @property
-    # def messages(self):
-    #     raw_messages = self.raw_messages
-    #     return None if raw_messages is None else jsonloads(raw_messages)
-    #
-    # @messages.setter
-    # def messages(self, value):
-    #     self.raw_messages = jsondumps(value)
 
 
 class JobResult(BaseJobResult):
@@ -372,7 +347,6 @@ class EntityJobResult(BaseJobResult):
         return (
             f'EntityJobResult('
             f'job={self.job_id}, '
-            # f'raw_messages="{self.raw_messages}", '
             f'messages={self.messages}, '
             f'entity={self.entity_id}'
             f')'
@@ -381,7 +355,6 @@ class EntityJobResult(BaseJobResult):
 
 class MassImportJobResult(BaseJobResult):
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
-    # raw_line = models.TextField()
     line = models.JSONField(default=list)
 
     # False: entity created / True: entity updated
@@ -391,20 +364,9 @@ class MassImportJobResult(BaseJobResult):
         return (
             f'MassImportJobResult('
             f'job={self.job_id}, '
-            # f'raw_messages="{self.raw_messages}", '
             f'messages={self.messages}, '
             f'entity={self.entity_id}, '
-            # f'raw_line="{self.raw_line}", '
             f'line={self.line}, '
             f'updated={self.updated}'
             f')'
         )
-
-    # @property
-    # def line(self):
-    #     return jsonloads(self.raw_line)
-    #
-    # @line.setter
-    # def line(self, value):
-    #     "@param value: List of strings"
-    #     self.raw_line = jsondumps(value)

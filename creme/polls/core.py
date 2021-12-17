@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -149,7 +149,6 @@ class PollLineType:
 
     def serialized_args(self):
         args = self._args
-        # return json_dump(args) if args else None
         return json_encode(args) if args else None
 
     def get_stats(self, raw_answer):

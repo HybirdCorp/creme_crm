@@ -18,45 +18,23 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.db.models.query import Q
 from django.utils.translation import gettext_lazy as _
 
 from creme import sms
-from creme.creme_core.forms import (  # CremeEntityForm
-    CremeForm,
-    FieldBlockManager,
-)
+from creme.creme_core import forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 
 # SMSCampaign   = sms.get_smscampaign_model()
 MessagingList = sms.get_messaginglist_model()
 
-# class CampaignCreateForm(CremeEntityForm):
-#     class Meta(CremeEntityForm.Meta):
-#         model = SMSCampaign
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('CampaignCreateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
-
-# class CampaignEditForm(CremeEntityForm):
-#     class Meta:
-#         model   = SMSCampaign
-#         exclude = (*CremeEntityForm.Meta.exclude, 'lists')
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('CampaignEditForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-
-
-class CampaignAddListForm(CremeForm):
+class CampaignAddListForm(forms.CremeForm):
     messaging_lists = MultiCreatorEntityField(
         label=_('Lists'), required=False, model=MessagingList,
     )
 
-    blocks = FieldBlockManager({
+    blocks = forms.FieldBlockManager({
         'id': 'general', 'label': _('Messaging lists'), 'fields': '*',
     })
 

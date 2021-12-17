@@ -67,23 +67,19 @@ class EntityTestCase(CremeTestCase):
         c2 = create_contact(first_name='Sasuke', last_name='Uchiwa')
         c3 = create_contact(
             first_name='Sakura', last_name='Haruno',
-            # email='',
             phone='',
         )
         c4 = create_contact(
             first_name='Kakashi', last_name='Hatake',
-            # email='k.hatake@konoha.jp'
             phone='112233',
         )
 
         qs = FakeContact.objects.filter(pk__in=[c1.id, c2.id, c3.id, c4.id])
         expected = [c2, c3, c4, c1]
         self.assertListEqual(
-            # expected, [*qs.order_by('email', 'last_name')],
             expected, [*qs.order_by('phone', 'last_name')],
         )
         self.assertListEqual(
-            # [*reversed(expected)], [*qs.order_by('-email', 'last_name')],
             [*reversed(expected)], [*qs.order_by('-phone', 'last_name')],
         )
 

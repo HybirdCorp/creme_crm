@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -225,7 +225,6 @@ class DefaultMyPageEdition(BaseMyPageEdition):
 
 
 class MyPageEdition(BaseMyPageEdition):
-    # permissions = None  # Every user can edit its own configuration
     permissions = ''  # Every user can edit its own configuration
     title = _('Edit "My page"')
 

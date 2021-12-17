@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,10 +27,6 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import Job
 
 
-# CMD_START   = 'START'
-# CMD_END     = 'END'
-# CMD_REFRESH = 'REFRESH'
-# CMD_PING    = 'PING'
 class Command:
     START   = 'START'
     END     = 'END'
@@ -38,7 +34,6 @@ class Command:
     PING    = 'PING'
 
     def __init__(self, cmd_type: str, data_id=None, data=None):
-        # self.type = cmd_type  # see CMD_*
         self.type = cmd_type  # START/END/REFRESH/PING
         self.data_id = data_id
         self.data = data
@@ -74,10 +69,8 @@ class Command:
         return method(data)
 
 
-# class _BaseJobSchedulerQueue:
 class BaseJobSchedulerQueue:
     verbose_name = 'Abstract queue'  # Override me
-    # _main_queue = None
     _manager_error = _(
         'The job manager does not respond.\n'
         'Please contact your administrator.'
@@ -103,13 +96,6 @@ class BaseJobSchedulerQueue:
     def destroy(self):
         """Call it of the server side when quitting to clean resources."""
         pass
-
-    # @classmethod
-    # def get_main_queue(cls):
-    #     if cls._main_queue is None:
-    #         cls._main_queue = cls()
-    #
-    #     return cls._main_queue
 
     def start_job(self, job: Job) -> bool:
         """Send a command to start the given Job.
@@ -153,6 +139,5 @@ class BaseJobSchedulerQueue:
         """
         raise NotImplementedError
 
-    # def pong(self, ping_value):
     def pong(self, ping_cmd: Command):
         raise NotImplementedError

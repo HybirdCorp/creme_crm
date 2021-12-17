@@ -151,59 +151,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
         return ids
 
-    # def test_create(self):  # DEPRECATED
-    #     "Custom=False."
-    #     pk = 'test-filter01'
-    #     name = 'Ikari family'
-    #     model = FakeContact
-    #     fname = 'last_name'
-    #     operator_id = operators.EQUALS
-    #     value = 'Ikari'
-    #
-    #     with self.assertRaises(ValueError):
-    #         EntityFilter.create(pk, name, model)
-    #
-    #     efilter = EntityFilter.create(
-    #         pk, name, model,
-    #         conditions=[
-    #             RegularFieldConditionHandler.build_condition(
-    #                 model=FakeContact,
-    #                 operator=operator_id,
-    #                 field_name=fname, values=[value],
-    #             ),
-    #         ],
-    #     )
-    #
-    #     self.assertIsInstance(efilter, EntityFilter)
-    #     self.assertEqual(pk,      efilter.id)
-    #     self.assertEqual(name,    efilter.name)
-    #     self.assertEqual(EF_USER, efilter.filter_type)
-    #     self.assertEqual(model, efilter.entity_type.model_class())
-    #     self.assertIsNone(efilter.user)
-    #     self.assertIs(efilter.use_or,     False)
-    #     self.assertIs(efilter.is_custom,  False)
-    #     self.assertIs(efilter.is_private, False)
-    #
-    #     self.assertEqual(entity_filter_registries[EF_USER], efilter.registry)
-    #
-    #     conditions = efilter.conditions.all()
-    #     self.assertEqual(1, len(conditions))
-    #
-    #     condition = conditions[0]
-    #     self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-    #     self.assertEqual(fname,                                condition.name)
-    #     self.assertEqual(
-    #         {'operator': operator_id, 'values': [value]}, condition.value,
-    #     )
-    #
-    #     self.assertTrue(efilter.entities_are_distinct)
-    #
-    #     handler = condition.handler
-    #     self.assertIsInstance(handler, RegularFieldConditionHandler)
-    #     self.assertEqual(fname,       handler._field_name)
-    #     self.assertEqual(operator_id, handler._operator_id)
-    #     self.assertEqual([value],     handler._values)
-
     def test_manager_smart_update_or_create01(self):
         "Custom=False."
         pk = 'test-filter01'
@@ -362,53 +309,6 @@ class EntityFiltersTestCase(CremeTestCase):
                 conditions=[cond1, build_subfilter_cond(subfilter4)],
             )
 
-    # def test_get_latest_version(self):  # DEPRECATED
-    #     base_pk = 'creme_core-testfilter'
-    #
-    #     with self.assertRaises(EntityFilter.DoesNotExist):
-    #         EntityFilter.get_latest_version(base_pk)
-    #
-    #     create_ef = partial(EntityFilter.objects.create,
-    #                         entity_type=ContentType.objects.get_for_model(FakeContact),
-    #                        )
-    #
-    #     create_ef(pk=base_pk, name='Base filter')
-    #
-    #     efilter2 = create_ef(pk=base_pk + '[1.5]', name='Filter [1.5]')
-    #     self.assertEqual(efilter2, EntityFilter.get_latest_version(base_pk))
-    #
-    #     efilter3 = create_ef(pk=base_pk + '[1.7]', name='Filter [1.7]')
-    #     create_ef(pk=base_pk + '[1.6]', name='Filter [1.6]')
-    #     self.assertEqual(efilter3, EntityFilter.get_latest_version(base_pk))
-    #
-    #     efilter5 = create_ef(pk=base_pk + '[1.8 alpha]', name='Filter [1.8 alpha]')
-    #     self.assertEqual(efilter5, EntityFilter.get_latest_version(base_pk))
-    #
-    #     efilter6 = create_ef(pk=base_pk + '[1.9 beta]', name='Filter [1.9 beta]')
-    #
-    #     # NB: '~' annoys stupid name ordering
-    #     create_ef(pk=base_pk + '[1.9 alpha]', name='Filter [1.9 ~alpha]')
-    #     self.assertEqual(efilter6, EntityFilter.get_latest_version(base_pk))
-    #
-    #     efilter8 = create_ef(pk=base_pk + '[1.10]', name='Filter [1.10]')
-    #     self.assertEqual(efilter8, EntityFilter.get_latest_version(base_pk))
-    #
-    #     efilter9 = create_ef(pk=base_pk + '[1.10.1]', name='Filter [1.10.1]')
-    #     self.assertEqual(efilter9, EntityFilter.get_latest_version(base_pk))
-    #
-    #     create_ef(pk=base_pk + '[1.10.2 alpha]', name='Filter [1.10.2 alpha]')
-    #     create_ef(pk=base_pk + '[1.10.2 beta]', name='Filter | 1.10.2 beta')
-    #     efilter12 = create_ef(pk=base_pk + '[1.10.2 rc]', name='Filter [1.10.2 rc]')
-    #     self.assertEqual(efilter12, EntityFilter.get_latest_version(base_pk))
-    #
-    #     create_ef(pk=base_pk + '[1.10.2 rc2]', name='Filter [1.10.2 rc2]')
-    #     efilter14 = create_ef(pk=base_pk + '[1.10.2 rc11]', name='Filter [1.10.2 rc11]')
-    #     self.assertEqual(efilter14, EntityFilter.get_latest_version(base_pk))
-    #
-    #     create_ef(pk=base_pk + '[1.10.2 rc11]3', name='Filter | 1.10.2 rc11 | n°3')
-    #     efilter16 = create_ef(pk=base_pk + '[1.10.2 rc11]12', name='Filter [1.10.2 rc11]#12')
-    #     self.assertEqual(efilter16, EntityFilter.get_latest_version(base_pk))
-
     def test_manager_get_latest_version(self):
         base_pk = 'creme_core-testfilter'
         get_latest_version = EntityFilter.objects.get_latest_version
@@ -519,64 +419,6 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         self.assertTrue(equal([cond1], [cond2]))
         self.assertTrue(equal([cond1], [cond3]))
-
-    # def test_create_again(self):  # DEPRECATED
-    #     "is_custom=True -> override."
-    #     EntityFilter.create(
-    #         'test-filter', 'Ikari', FakeContact,
-    #         is_custom=True, use_or=True,
-    #         conditions=[
-    #             RegularFieldConditionHandler.build_condition(
-    #                 model=FakeContact,
-    #                 operator=operators.EQUALS,
-    #                 field_name='last_name', values=['Ikari'],
-    #             ),
-    #         ],
-    #     )
-    #     count = EntityFilter.objects.count()
-    #
-    #     user = self.user
-    #     name = 'Misato my love'
-    #     efilter = EntityFilter.create(
-    #         'test-filter', name, FakeContact,
-    #         is_custom=True, user=user, use_or=False,
-    #         conditions=[
-    #             RegularFieldConditionHandler.build_condition(
-    #                 model=FakeContact,
-    #                 operator=operators.IEQUALS,
-    #                 field_name='first_name', values=['Gendo'],
-    #             ),
-    #         ],
-    #     )
-    #     self.assertEqual(name, efilter.name)
-    #     self.assertEqual(user, efilter.user)
-    #     self.assertFalse(efilter.use_or)
-    #
-    #     conditions = efilter.conditions.all()
-    #     self.assertEqual(1, len(conditions))
-    #
-    #     condition = conditions[0]
-    #     self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
-    #     self.assertEqual('first_name',                         condition.name)
-    #     self.assertEqual(
-    #         {'operator': operators.IEQUALS, 'values': ['Gendo']},
-    #         condition.value,
-    #     )
-    #
-    #     self.assertEqual(count, EntityFilter.objects.count())
-    #
-    #     with self.assertRaises(ValueError):
-    #         EntityFilter.create(
-    #             'test-filter', name, FakeContact,
-    #             user=user, use_or=False, is_custom=False,  # <==== cannot become custom False
-    #             conditions=[
-    #                 RegularFieldConditionHandler.build_condition(
-    #                     model=FakeContact,
-    #                     operator=operators.IEQUALS,
-    #                     field_name='first_name', values=['Gendo'],
-    #                 ),
-    #             ],
-    #         )
 
     def test_manager_smart_update_or_create_again01(self):
         "is_custom=True -> override."
@@ -1511,7 +1353,6 @@ class EntityFiltersTestCase(CremeTestCase):
         yui   = build_contact('yui',   [l3])
 
         filter_contacts = FakeContact.objects.filter
-        # self.assertEqual(3, filter_contacts(languages__code='JP').count())
         self.assertEqual(3, filter_contacts(languages__name='Japanese').count())
 
         # BEWARE: duplicates !!
@@ -1527,7 +1368,6 @@ class EntityFiltersTestCase(CremeTestCase):
             build_cond(
                 model=FakeContact,
                 operator=operators.IEQUALS,
-                # field_name='languages__code', values=['JP'],
                 field_name='languages__name', values=['Japanese'],
             ),
         ])
@@ -3561,77 +3401,6 @@ class EntityFiltersTestCase(CremeTestCase):
 
         conditions = efilter.get_conditions()
         self.assertEqual(1, len(conditions))
-
-    # def test_get_for_user(self):  # DEPRECATED
-    #     user = self.user
-    #     other_user = self.other_user
-    #
-    #     create_ef = partial(
-    #         EntityFilter.create, name='Misatos',
-    #         model=FakeContact,
-    #         conditions=[
-    #             RegularFieldConditionHandler.build_condition(
-    #                 model=FakeContact,
-    #                 operator=operators.EQUALS,
-    #                 field_name='first_name', values=['Misato'],
-    #             ),
-    #         ],
-    #     )
-    #
-    #     ef1 = create_ef(pk='test-ef_contact1')
-    #     ef2 = create_ef(pk='test-ef_contact2', user=user)
-    #     ef3 = create_ef(
-    #         pk='test-ef_orga', model=FakeOrganisation, name='NERV',
-    #         conditions=[
-    #             RegularFieldConditionHandler.build_condition(
-    #                 model=FakeOrganisation,
-    #                 operator=operators.IEQUALS,
-    #                 field_name='name', values=['NERV'],
-    #             ),
-    #         ],
-    #     )
-    #     ef4 = create_ef(pk='test-ef_contact3', user=other_user)
-    #     ef5 = create_ef(pk='test-ef_contact4', user=other_user,
-    #                     is_private=True, is_custom=True,
-    #                    )
-    #     ef6 = EntityFilter.objects.create(
-    #         pk='test-ef_contact5',
-    #         name='My contacts',
-    #         entity_type=FakeContact,
-    #         filter_type=EF_CREDENTIALS,  # <==
-    #     )
-    #
-    #     efilters = EntityFilter.get_for_user(user, self.contact_ct)
-    #     self.assertIsInstance(efilters, QuerySet)
-    #
-    #     efilters_set = {*efilters}
-    #     self.assertIn(ef1, efilters_set)
-    #     self.assertIn(ef2, efilters_set)
-    #     self.assertIn(ef4, efilters_set)
-    #
-    #     self.assertNotIn(ef3, efilters_set)
-    #     self.assertNotIn(ef5, efilters_set)
-    #     self.assertNotIn(ef6, efilters_set)
-    #
-    #     # ----
-    #     orga_ct = ContentType.objects.get_for_model(FakeOrganisation)
-    #     orga_efilters_set = {*EntityFilter.get_for_user(user, orga_ct)}
-    #     self.assertIn(ef3, orga_efilters_set)
-    #
-    #     self.assertNotIn(ef1, orga_efilters_set)
-    #     self.assertNotIn(ef2, orga_efilters_set)
-    #     self.assertNotIn(ef4, orga_efilters_set)
-    #     self.assertNotIn(ef5, orga_efilters_set)
-    #
-    #     # ----
-    #     persons_efilters_set = {*EntityFilter.get_for_user(user, (self.contact_ct, orga_ct))}
-    #     self.assertIn(ef1, persons_efilters_set)
-    #     self.assertIn(ef3, persons_efilters_set)
-    #
-    #     self.assertSetEqual(
-    #         persons_efilters_set,
-    #         {*EntityFilter.get_for_user(user, [self.contact_ct, orga_ct])}
-    #     )
 
     def test_manager_filter_by_user(self):
         user = self.user

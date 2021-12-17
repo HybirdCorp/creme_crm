@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -99,26 +99,6 @@ class ReportsConfig(CremeAppConfig):
         ).register(
             self.ReportGraph, 'images/graph_%(size)s.png',
         )
-
-    # def register_menu(self, creme_menu):
-    #     Report = self.Report
-    #     creme_menu.get(
-    #         'features',
-    #     ).get_or_create(
-    #         creme_menu.ContainerItem, 'analysis',
-    #         priority=500,
-    #         defaults={'label': _('Analysis')},
-    #     ).add(
-    #         creme_menu.URLItem.list_view('reports-reports', model=Report),
-    #         priority=20,
-    #     )
-    #     creme_menu.get(
-    #         'creation', 'any_forms',
-    #     ).get_or_create_group(
-    #         'analysis', _('Analysis'), priority=500,
-    #     ).add_link(
-    #         'reports-create_report', Report, priority=20,
-    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu

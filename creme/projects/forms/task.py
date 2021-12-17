@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from functools import partial
 
 from django.db.models.query_utils import Q
@@ -44,7 +43,6 @@ from creme.persons import get_contact_model
 from .. import get_task_model
 from ..constants import REL_SUB_LINKED_2_PTASK, REL_SUB_PART_AS_RESOURCE
 
-# Contact = get_contact_model()
 ProjectTask = get_task_model()
 
 
@@ -85,10 +83,6 @@ class BaseTaskCreationCustomForm(CremeEntityForm):
         self.instance.linked_project = entity
 
     def save(self, *args, **kwargs):
-        # instance = self.instance
-        # instance.order = instance.linked_project.attribute_order_task()
-        #
-        # super().save(*args, **kwargs)
         instance = super().save(*args, **kwargs)
 
         add_parent = instance.parent_tasks.add
@@ -96,46 +90,6 @@ class BaseTaskCreationCustomForm(CremeEntityForm):
             add_parent(parent)
 
         return instance
-
-
-# class _TaskForm(CremeEntityForm):
-#     class Meta(CremeEntityForm.Meta):
-#         model = ProjectTask
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('projects.forms.task._TaskForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-
-
-# class TaskEditForm(_TaskForm):
-#     def __init__(self, entity, *args, **kwargs):
-#         warnings.warn('TaskEditForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-
-
-# class TaskCreateForm(_TaskForm):
-#     parent_tasks = MultiCreatorEntityField(
-#         label=_('Parent tasks'), required=False, model=ProjectTask,
-#     )
-#
-#     def __init__(self, entity, *args, **kwargs):
-#         warnings.warn('TaskCreateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#         self._project = entity
-#
-#         fields = self.fields
-#         fields['parent_tasks'].q_filter = {'linked_project': entity.id}
-#
-#     def save(self, *args, **kwargs):
-#         instance = self.instance
-#         project = self._project
-#
-#         instance.linked_project = project
-#         instance.order = project.attribute_order_task()
-#
-#         super().save(*args, **kwargs)
-#
-#         return instance
 
 
 class TaskAddParentForm(CremeForm):
@@ -150,7 +104,6 @@ class TaskAddParentForm(CremeForm):
         self.fields['parents'].q_filter = (
             Q(linked_project=instance.linked_project_id)
             & ~Q(id__in=[t.id for t in instance.get_subtasks()])
-            # & ~Q(children_set=instance.pk)
             & ~Q(children=instance.pk)
         )
 
@@ -162,7 +115,6 @@ class TaskAddParentForm(CremeForm):
 
 
 class RelatedActivityEditForm(CremeEntityForm):
-    # resource = CreatorEntityField(label=_('Allocated resource'), model=Contact)
     resource = CreatorEntityField(label=_('Allocated resource'), model=get_contact_model())
     type_selector = ActivityTypeField(label=_('Type'))
 

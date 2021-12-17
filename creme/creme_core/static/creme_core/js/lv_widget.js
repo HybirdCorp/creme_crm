@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -442,7 +442,6 @@ creme.lv_widget.ListViewActionLink = creme.action.ActionLink.sub({
         this._list = list;
 
         this.on('action-link-start', function(event, url, options, data, e) {
-//            $(e.target).parents('.popover:first').trigger('modal-close');
             $(e.target).parents('.popover').first().trigger('modal-close');
         });
 
@@ -472,7 +471,6 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
 
     _build_popover: function(url, options, data, e) {
         var target = $(e.target);
-//        var link = target.is('[data-action]') ? target : target.parents('[data-action]:first');
         var link = target.is('[data-action]') ? target : target.parents('[data-action]').first();
 
         return new creme.dialog.PopoverAction({
@@ -796,7 +794,6 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
         // Only init the $.fn.list_view once per form, not on every listview reload
         if (!listview) {
-//            var inPopup = element.parents('.ui-dialog-content:first').length > 0;
             var inPopup = element.parents('.ui-dialog-content').first().length > 0;
             var reloadUrl = options.reloadurl || window.location.href;
 

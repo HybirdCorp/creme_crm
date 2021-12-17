@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 from functools import partial
 
 from django.apps import apps
-# from django.conf import settings
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -122,16 +121,9 @@ class PersonsConfig(CremeAppConfig):
         from django.contrib.auth import get_user_model
         from django.utils.html import format_html
 
-        # from creme.creme_core.templatetags.creme_widgets import (
-        #     widget_entity_hyperlink,
-        # )
         from creme.creme_core.gui.field_printers import print_foreignkey_html
 
         def print_fk_user_html(entity, fval, user, field) -> str:
-            # if fval.is_team:
-            #     return str(fval)
-            #
-            # return widget_entity_hyperlink(fval.linked_contact, user)
             if not fval.is_team:
                 contact = fval.linked_contact
                 if user.has_perm_to_view(contact):
@@ -164,59 +156,6 @@ class PersonsConfig(CremeAppConfig):
         ).register(
             Organisation, partial(form_builder, model=Organisation),
         )
-
-    # def register_menu(self, creme_menu):
-    #     from django.urls import reverse_lazy as reverse
-    #
-    #     from .gui import UserContactURLItem
-    #
-    #     Contact = self.Contact
-    #     Organisation = self.Organisation
-    #     URLItem = creme_menu.URLItem
-    #     creme_menu.get(
-    #         'creme', 'user',
-    #     ).add(UserContactURLItem('persons-user_contact'), priority=2)
-    #     directory = creme_menu.get(
-    #         'features',
-    #     ).get_or_create(
-    #         creme_menu.ContainerItem, 'persons-directory', priority=20,
-    #         defaults={'label': _('Directory')},
-    #     ).add(
-    #         URLItem.list_view('persons-organisations', model=Organisation),
-    #         priority=10
-    #     ).add(
-    #         URLItem.list_view('persons-contacts', model=Contact),
-    #         priority=20
-    #     )
-    #
-    #     if settings.PERSONS_MENU_CUSTOMERS_ENABLED:
-    #         directory.add(
-    #             URLItem(
-    #                 'persons-lead_customers',
-    #                 url=reverse('persons__leads_customers'),
-    #                 label=_('My customers / prospects / suspects'), perm='persons',
-    #             ),
-    #             priority=30,
-    #         )
-    #
-    #     creme_menu.get(
-    #         'creation', 'main_entities'
-    #     ).add(
-    #         URLItem.creation_view('persons-create_organisation', model=Organisation),
-    #         priority=10,
-    #     ).add(
-    #         URLItem.creation_view('persons-create_contact', model=Contact),
-    #         priority=20,
-    #     )
-    #     creme_menu.get(
-    #         'creation', 'any_forms'
-    #     ).get_or_create_group(
-    #         'persons-directory', _('Directory'), priority=10
-    #     ).add_link(
-    #         'create_contact', Contact, priority=3,
-    #     ).add_link(
-    #         'create_organisation', Organisation, priority=5,
-    #     )
 
     def register_menu_entries(self, menu_registry):
         from creme.creme_core import menu as core_menu
@@ -329,58 +268,6 @@ class PersonsConfig(CremeAppConfig):
         User.linked_contact = property(_get_linked_contact)
         User.get_absolute_url = lambda u: u.linked_contact.get_absolute_url()
 
-    # def hook_user_form(self):
-    #     from creme.creme_config.forms.user import UserAddForm
-    #
-    #     def _add_related_orga_fields(form):
-    #         from django.contrib.contenttypes.models import ContentType
-    #         from django.forms import ModelChoiceField
-    #
-    #         from creme.creme_core.forms.widgets import DynamicSelect
-    #         from creme.creme_core.models import RelationType
-    #
-    #         fields = form.fields
-    #         get_ct = ContentType.objects.get_for_model
-    #         fields['organisation'] = ModelChoiceField(
-    #             label=_('User organisation'),
-    #             queryset=self.Organisation.objects.filter_managed_by_creme(),
-    #             empty_label=None,
-    #         )
-    #         fields['relation'] = ModelChoiceField(
-    #             label=_('Position in the organisation'),
-    #             queryset=RelationType.objects.filter(
-    #                 subject_ctypes=get_ct(self.Contact),
-    #                 # object_ctypes=get_ct(self.Organisation),
-    #                 symmetric_type__subject_ctypes=get_ct(self.Organisation),
-    #                 is_internal=False,
-    #             ),
-    #             empty_label=None,
-    #             widget=DynamicSelect(attrs={'autocomplete': True}),
-    #             initial=constants.REL_SUB_EMPLOYED_BY,
-    #         )
-    #
-    #         def set_required(name):
-    #             field = fields[name]
-    #             field.required = field.widget.is_required = True
-    #
-    #         set_required('first_name')
-    #         set_required('last_name')
-    #         set_required('email')
-    #
-    #     def _save_related_orga_fields(form):
-    #         from creme.creme_core.models import Relation
-    #
-    #         cdata = form.cleaned_data
-    #         user = form.instance
-    #
-    #         Relation.objects.create(
-    #             user=user, subject_entity=user.linked_contact,
-    #             type=cdata['relation'],
-    #             object_entity=cdata['organisation'],
-    #         )
-    #
-    #     UserAddForm.add_post_init_callback(_add_related_orga_fields)
-    #     UserAddForm.add_post_save_callback(_save_related_orga_fields)
     def hook_user_form(self):
         from django.contrib.contenttypes.models import ContentType
         from django.forms import ModelChoiceField

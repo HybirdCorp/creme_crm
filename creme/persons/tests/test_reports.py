@@ -23,7 +23,6 @@ from .base import Contact, Organisation
 
 if apps.is_installed('creme.reports'):
     from creme.reports.bricks import ReportGraphBrick
-    # from creme.reports.constants import RGA_COUNT, RGT_YEAR
     from creme.reports.core.graph.fetcher import GraphFetcher
     from creme.reports.tests.base import (
         Report,
@@ -50,9 +49,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='creation_date', abscissa_type=RGT_YEAR,
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -145,9 +142,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='creation_date', abscissa_type=RGT_YEAR,
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -200,9 +195,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='creation_date', abscissa_type=RGT_YEAR,
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -253,9 +246,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         report = Report.objects.create(user=user, name='Fetcher Test', ct=Organisation)
         graph = ReportGraph.objects.create(
             user=user, name='Field Test', linked_report=report,
-            # abscissa_cell_value='created', abscissa_type=RGT_YEAR,
             abscissa_cell_value='created', abscissa_type=ReportGraph.Group.YEAR,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 

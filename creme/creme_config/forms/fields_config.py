@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.apps import apps
 from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
@@ -107,10 +106,6 @@ class FieldsConfigAddForm(CremeModelForm):
 
 
 class FieldsConfigEditForm(CremeModelForm):
-    # hidden = forms.MultipleChoiceField(
-    #     label=_('Hidden fields'), choices=(), required=False,
-    # )
-
     blocks = FieldBlockManager({
         'id': 'general', 'label': _('Fields to hide or mark as required'), 'fields': '*',
     })
@@ -121,14 +116,6 @@ class FieldsConfigEditForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
-        # hidden_f = self.fields['hidden']
-        # hidden_f.choices = FieldsConfig.objects.field_enumerator(
-        #     instance.content_type.model_class(),
-        # ).choices()
-        #
-        # if instance.pk:
-        #     hidden_f.initial = [f.name for f in instance.hidden_fields]
-
         fields = self.fields
 
         HIDDEN = FieldsConfig.HIDDEN
@@ -174,11 +161,6 @@ class FieldsConfigEditForm(CremeModelForm):
         cdata = super().clean(*args, **kwargs)
 
         if not self._errors:
-            # HIDDEN = FieldsConfig.HIDDEN
-            # self.instance.descriptions = [
-            #     (field_name, {HIDDEN: True})
-            #     for field_name in self.cleaned_data['hidden']
-            # ]
             self.instance.descriptions = [
                 (field_name, {flag: True})
                 for field_name, flag in cdata.items()

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,13 +59,6 @@ class ConfigExport(generic.CheckedView):
     def get(self, *args, **kwargs):
         # NB: 'indent' is given to have a human readable file.
         #     'separators' is given to avoid trailing spaces (see json.dumps()'s doc)
-        # response = HttpResponse(
-        #     json_dump(self.get_info(), indent=1, separators=(',', ': ')),
-        #     content_type='application/json',
-        # )
-        # response['Content-Disposition'] = f'attachment; filename={self.get_filename()}'
-        #
-        # return response
         return HttpResponse(
             json_dump(self.get_info(), indent=1, separators=(',', ': ')),
             headers={

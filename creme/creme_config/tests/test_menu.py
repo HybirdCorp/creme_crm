@@ -90,7 +90,6 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual('creme_config-my_settings',    entry.id)
         self.assertEqual(_('My settings'),              entry.label)
         self.assertEqual('creme_config__user_settings', entry.url_name)
-        # self.assertIsNone(entry.permissions)
         self.assertEqual('', entry.permissions)
 
         # ---
@@ -406,7 +405,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         url = self._build_special_level1_url(entry_id)
         response1 = self.assertGET200(url)
         ctxt1 = response1.context
-        # self.assertEqual('Add a special entry', ctxt1.get('title'))
         self.assertEqual(_('Add a separator'), ctxt1.get('title'))
         self.assertEqual(_('Add this entry'),  ctxt1.get('submit_label'))
 

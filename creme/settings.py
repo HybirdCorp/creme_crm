@@ -2,7 +2,6 @@
 # Django settings for creme project.
 
 import warnings
-# from os.path import exists
 from os.path import abspath, dirname, join
 from sys import argv
 
@@ -31,8 +30,6 @@ NO_SQL_COMMANDS = (
 #     ('Full Name', 'anotheremail@example.com')
 # ]
 
-# BASE_DIR = dirname(dirname(__file__))
-# CREME_ROOT = dirname(abspath(__file__))  # BASE_DIR + '/creme'
 # BASE_DIR should be define in the project's settings
 # TODO: use pathlib.Path
 CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
@@ -71,8 +68,6 @@ DATABASES = {
         'OPTIONS':  {},
     },
 }
-
-# MIGRATION_MODULES = {}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
@@ -214,7 +209,6 @@ DATETIME_INPUT_FORMATS  = [
 
 # SITE: URLs / PATHS / ... #####################################################
 
-# SITE_ID = 1
 SITE_DOMAIN = 'http://mydomain'  # No end slash!
 
 APPEND_SLASH = False
@@ -227,7 +221,6 @@ LOGIN_URL = 'creme_login'
 # Absolute filesystem path to the directory that will hold user-uploaded files,
 # and files that are generated dynamically (CSV, PDF...).
 # Example: "/var/www/example.com/media/"
-# MEDIA_ROOT = join(CREME_ROOT, 'media')
 MEDIA_ROOT = join(CREME_ROOT, 'media', 'upload')
 
 # NB: not currently used (see root's urls.py)  TODO: remove it ?
@@ -698,7 +691,6 @@ SCM = 'git'  # Other possible values: 'hg'
 # Must start & end with "/".
 PRODUCTION_MEDIA_URL = '/static_media/'
 
-# GENERATED_MEDIA_DIR = join(MEDIA_ROOT, 'static')
 GLOBAL_MEDIA_DIRS = [join(dirname(__file__), 'static')]
 
 # Available themes. A theme is represented by (theme_dir, theme verbose name)
@@ -730,7 +722,6 @@ CREME_CORE_CSS = [
 
     'creme_core/css/header_menu.css',
     'creme_core/css/forms.css',
-    # 'creme_core/css/blocks.css',  # TODO: remove the files in creme 2.4
     'creme_core/css/bricks.css',
     'creme_core/css/home.css',
     'creme_core/css/my_page.css',
@@ -834,7 +825,6 @@ CREME_CORE_JS = [
 
     # Legacy tools
     'creme_core/js/creme.js',
-    # 'creme_core/js/color.js',
     'creme_core/js/utils.js',
     'creme_core/js/forms.js',
     'creme_core/js/ajax.js',
@@ -1103,7 +1093,6 @@ TEST_CREME_OPT_JS = [
     ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
     ('creme.reports',       'reports/js/tests/reports-chart.js'),
-    # ('creme.reports',       'reports/js/tests/reports-filter.js'),
 ]
 
 # Optional js/css bundles for extending projects.
@@ -1183,8 +1172,6 @@ PERSONS_ORGANISATION_MODEL = 'persons.Organisation'
 PERSONS_ADDRESS_FORCE_NOT_CUSTOM      = False
 PERSONS_CONTACT_FORCE_NOT_CUSTOM      = False
 PERSONS_ORGANISATION_FORCE_NOT_CUSTOM = False
-
-# PERSONS_MENU_CUSTOMERS_ENABLED = True
 
 # ASSISTANTS -------------------------------------------------------------------
 DEFAULT_TIME_ALERT_REMIND = 10
@@ -1491,10 +1478,6 @@ else:
 # TODO: move up this code & remove this whole section in Creme 2.4 when
 #       local_settings/project_settings loading has been removed.
 
-# _LOCALE_OVERLOAD = join(CREME_ROOT, 'locale_overload', 'locale')
-
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
-# if exists(_LOCALE_OVERLOAD):
-#     LOCALE_PATHS.insert(0, _LOCALE_OVERLOAD)
 
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS

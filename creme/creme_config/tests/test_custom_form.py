@@ -6,7 +6,6 @@ from json import loads as json_load
 from django.contrib.contenttypes.models import ContentType
 from django.forms import IntegerField
 from django.urls import NoReverseMatch, reverse
-# from django.utils.html import escape
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -374,13 +373,11 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_group_edition01(self):
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
 
-        # url = reverse('creme_config__edit_custom_form_group', args=(cform_id, 0))
         url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0))
         response1 = self.assertGET200(url)
         context = response1.context
@@ -433,7 +430,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         response3 = post(*field_names)
         self.assertNoFormError(response3)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertIsNone(cfci.role)
         self.assertIs(cfci.superuser, False)
@@ -476,11 +472,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
-        url = reverse(
-            'creme_config__edit_custom_form_group',
-            # args=(FAKEACTIVITY_CREATION_CFORM.id, 1),
-            args=(cfci.id, 1),
-        )
+        url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 1))
         response1 = self.assertGET200(url)
         context = response1.context
         self.assertEqual(
@@ -517,9 +509,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response2)
 
-        # cfci = self.get_object_or_fail(
-        #     CustomFormConfigItem, cform_id=FAKEACTIVITY_CREATION_CFORM.id,
-        # )
         cfci = self.refresh(cfci)
         self.assertListEqual(
             [
@@ -558,8 +547,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Layout is not modified."
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
@@ -587,7 +574,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         group_name2 = f'{group2.name} edited'
         response = self.client.post(
-            # reverse('creme_config__edit_custom_form_group', args=(cform_id, 1)),
             reverse('creme_config__edit_custom_form_group', args=(cfci.id, 1)),
             data={
                 'name': group_name2,
@@ -615,7 +601,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response1 = self.assertGET200(reverse(
-            # 'creme_config__edit_custom_form_group', args=(FAKEACTIVITY_CREATION_CFORM.id, 1)
             'creme_config__edit_custom_form_group', args=(creation_cfci.id, 1)
         ))
 
@@ -631,7 +616,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_EDITION_CFORM.id, role=None, superuser=False,
         )
         response2 = self.assertGET200(reverse(
-            # 'creme_config__edit_custom_form_group', args=(FAKEACTIVITY_EDITION_CFORM.id, 1)
             'creme_config__edit_custom_form_group', args=(edition_cfci.id, 1)
         ))
 
@@ -657,7 +641,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             hidden,
             [
                 cell.value
-                # for cell in getattr(desc.groups()[0], 'cells', ())
                 for cell in getattr(desc.groups(cfci)[0], 'cells', ())
                 if isinstance(cell, EntityCellRegularField)
             ],
@@ -669,7 +652,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         response = self.assertGET200(reverse(
-            # 'creme_config__edit_custom_form_group', args=(desc.id, 0)
             'creme_config__edit_custom_form_group', args=(cfci.id, 0)
         ))
 
@@ -695,7 +677,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         def build_url(group_id):
             return reverse(
                 'creme_config__edit_custom_form_group',
-                # args=(FAKEACTIVITY_CREATION_CFORM.id, group_id),
                 args=(cfci.id, group_id),
             )
 
@@ -722,17 +703,13 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Not registered id."
         self.login()
 
-        # cform_id = 'creme_core-invalid'
         descriptor_id = 'creme_core-invalid'
-        # cfci = CustomFormConfigItem.objects.create(cform_id=cform_id)
         cfci = CustomFormConfigItem.objects.create(descriptor_id=descriptor_id)
 
         self.assertContains(
             self.client.get(
-                # reverse('creme_config__edit_custom_form_group', args=(cform_id, 0)),
                 reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             ),
-            # escape(f'The custom form "{cform_id}" is invalid.'),
             f'The custom form "{descriptor_id}" is invalid.',
             status_code=409,
             html=True,
@@ -749,11 +726,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
-        url = reverse(
-            'creme_config__edit_custom_form_group',
-            # args=(FAKEACTIVITY_CREATION_CFORM.id, 0),
-            args=(cfci.id, 0),
-        )
+        url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0))
 
         def post(extra_cell):
             response = self.assertPOST200(
@@ -786,11 +759,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response = self.assertPOST200(
-            reverse(
-                'creme_config__edit_custom_form_group',
-                # args=(FAKEACTIVITY_CREATION_CFORM.id, 0),
-                args=(cfci.id, 0),
-            ),
+            reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             data={
                 'name': 'General information',
                 'cells': ','.join(
@@ -814,12 +783,10 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             create_cfield(name=name) for name in ('Importance', 'Cost', 'Hardness')
         ]
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
-        # url = reverse('creme_config__edit_custom_form_group', args=(cform_id, 1))
         url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 1))
 
         # TODO: test available cfields ?
@@ -838,7 +805,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -865,8 +831,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             create_cfield(name=name) for name in ('Importance', 'Cost', 'Hardness')
         ]
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
@@ -914,12 +878,10 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_group_edition_extrafield(self):
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
-        # url = reverse('creme_config__edit_custom_form_group', args=(cform_id, 1))
         url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 1))
 
         # First step: we remove the extra fields 'start' & 'end'
@@ -932,7 +894,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -957,7 +918,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -980,11 +940,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response = self.client.post(
-            reverse(
-                'creme_config__edit_custom_form_group',
-                # args=(FAKEACTIVITY_CREATION_CFORM.id, 0),
-                args=(cfci.id, 0),
-            ),
+            reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             data={
                 'name': 'General',
                 'cells': ','.join([
@@ -1004,13 +960,11 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Remaining regular fields."
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response = self.client.post(
-            # reverse('creme_config__edit_custom_form_group', args=(cform_id, 0)),
             reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             data={
                 'name': 'Main',
@@ -1019,7 +973,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -1039,12 +992,10 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Remaining custom fields."
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
-        # url = reverse('creme_config__edit_custom_form_group', args=(cform_id, 2))
         url = reverse('creme_config__edit_custom_form_group', args=(cfci.id, 2))
 
         # First step: we remove the special fields 'remaining custom-fields'
@@ -1057,7 +1008,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -1080,7 +1030,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -1105,11 +1054,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response = self.client.post(
-            reverse(
-                'creme_config__edit_custom_form_group',
-                # args=(FAKEACTIVITY_CREATION_CFORM.id, 0),
-                args=(cfci.id, 0),
-            ),
+            reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             data={
                 'name': 'General',
                 'cells': ','.join([
@@ -1130,9 +1075,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         desc = FAKEORGANISATION_CREATION_CFORM
-        # cform_id = desc.id
         descriptor_id = desc.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(CustomFormConfigItem, descriptor_id=descriptor_id)
         build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
         cfci.store_groups(
@@ -1151,7 +1094,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         cfci.save()
 
         self.assertGET200(reverse(
-            # 'creme_config__edit_custom_form_group', args=(cform_id, 0)
             'creme_config__edit_custom_form_group', args=(cfci.id, 0)
         ))
 
@@ -1161,8 +1103,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         group_name1 = 'Required fields'
         fields1 = ('user', 'title', 'place', 'type')
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
@@ -1182,7 +1122,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         cfci.save()
 
-        # url = reverse('creme_config__add_custom_form_group', args=(cform_id,))
         url = reverse('creme_config__add_custom_form_group', args=(cfci.id,))
         response1 = self.assertGET200(url)
         context = response1.context
@@ -1196,7 +1135,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # --
         group_name2 = 'Other information'
-        # fields2 = ['start', 'end']
         fields2 = ['minutes']
 
         def post(*fnames):
@@ -1242,7 +1180,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Empty group."
         self.login()
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
@@ -1250,7 +1187,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         group_name3 = 'Empty group'
         response = self.client.post(
-            # reverse('creme_config__add_custom_form_group', args=(cform_id,)),
             reverse('creme_config__add_custom_form_group', args=(cfci.id,)),
             data={
                 'name': group_name3,
@@ -1259,7 +1195,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
 
         dict_groups = cfci.groups_as_dicts()
@@ -1280,7 +1215,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             create_cfield(name=name) for name in ('Importance', 'Cost', 'Hardness')
         ]
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         descriptor_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
@@ -1288,7 +1222,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         group_name = 'Custom Fields'
-        # url = reverse('creme_config__add_custom_form_group', args=(cform_id,))
         url = reverse('creme_config__add_custom_form_group', args=(cfci.id,))
         response = self.client.post(
             url,
@@ -1302,7 +1235,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         self.assertDictEqual(
             {
@@ -1345,10 +1277,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response = self.assertPOST200(
-            reverse(
-                # 'creme_config__add_custom_form_group', args=(FAKEACTIVITY_CREATION_CFORM.id,)
-                'creme_config__add_custom_form_group', args=(cfci.id,)
-            ),
+            reverse('creme_config__add_custom_form_group', args=(cfci.id,)),
             data={
                 'name': 'Custom Fields',
                 'cells': f'custom_field-{cfield.id}',
@@ -1374,7 +1303,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         response1 = self.assertGET200(reverse(
-            # 'creme_config__add_custom_form_group', args=[FAKEACTIVITY_CREATION_CFORM.id],
             'creme_config__add_custom_form_group', args=[creation_cfci.id],
         ))
 
@@ -1390,7 +1318,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_EDITION_CFORM.id, role=None, superuser=False,
         )
         response2 = self.assertGET200(reverse(
-            # 'creme_config__add_custom_form_group', args=[FAKEACTIVITY_EDITION_CFORM.id],
             'creme_config__add_custom_form_group', args=[edition_cfci.id],
         ))
 
@@ -1404,7 +1331,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Adding extra group."
         self.login()
 
-        # cform_id = FAKEORGANISATION_CREATION_CFORM.id
         descriptor_id = FAKEORGANISATION_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem, descriptor_id=descriptor_id, role=None, superuser=False,
@@ -1414,13 +1340,11 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(
             [
                 group
-                # for group in FAKEORGANISATION_CREATION_CFORM.groups()
                 for group in FAKEORGANISATION_CREATION_CFORM.groups(cfci)
                 if isinstance(group, FakeAddressGroup)
             ]
         )
 
-        # url = reverse('creme_config__add_custom_form_extra_group', args=[cform_id])
         url = reverse('creme_config__add_custom_form_extra_group', args=[cfci.id])
         response1 = self.assertGET200(url)
 
@@ -1441,7 +1365,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertNoFormError(response2)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         dict_groups = cfci.groups_as_dicts()
         self.assertEqual(2, len(dict_groups))
@@ -1461,12 +1384,10 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # Cannot edit this group
         self.assertGET409(
-            # reverse('creme_config__edit_custom_form_group', args=(cform_id, 1))
             reverse('creme_config__edit_custom_form_group', args=(cfci.id, 1))
         )
         # Adding a group does not crash (extra group has no cell)
         self.assertGET200(
-            # reverse('creme_config__add_custom_form_group', args=(cform_id,))
             reverse('creme_config__add_custom_form_group', args=(cfci.id,))
         )
 
@@ -1480,7 +1401,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertGET409(reverse(
             'creme_config__add_custom_form_extra_group',
-            # args=[FAKEACTIVITY_CREATION_CFORM.id],
             args=[cfci.id],
         ))
 
@@ -1490,18 +1410,15 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     ])
     def test_group_deletion(self, deleted_group_id, remaining_group_names):
         self.login()
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
 
-        # url = reverse('creme_config__delete_custom_form_group', args=(cform_id,))
         url = reverse('creme_config__delete_custom_form_group', args=(cfci.id,))
         self.assertGET405(url)
         self.assertPOST200(url, data={'group_id': deleted_group_id})
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
 
         dict_groups = cfci.groups_as_dicts()
@@ -1519,11 +1436,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
 
-        url = reverse(
-            'creme_config__delete_custom_form_group',
-            # args=[FAKEACTIVITY_CREATION_CFORM.id],
-            args=[cfci.id],
-        )
+        url = reverse('creme_config__delete_custom_form_group', args=[cfci.id])
         self.assertPOST404(url, data={'group_id': 'notanint'})
         self.assertContains(
             self.client.post(url, data={'group_id': 3}),
@@ -1535,7 +1448,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_delete_cell01(self):
         self.login()
         desc = FAKEACTIVITY_CREATION_CFORM
-        # cform_id = desc.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=None, superuser=False,
@@ -1544,19 +1456,16 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         cell_key = 'regular_field-place'
 
         # See fake_populate in core
-        # group1 = desc.groups()[1]
         group1 = desc.groups(cfci)[1]
         self.assertIn(cell_key, [cell.key for cell in group1.cells])
         self.assertEqual(LAYOUT_DUAL_SECOND, group1.layout)
 
-        # url = reverse('creme_config__delete_custom_form_cell', args=(cform_id,))
         url = reverse('creme_config__delete_custom_form_cell', args=(cfci.id,))
         self.assertGET405(url)
 
         data = {'cell_key': cell_key}
         self.assertPOST200(url, data=data)
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.refresh(cfci)
         group_dict1 = cfci.groups_as_dicts()[1]
         self.assertListEqual(
@@ -1576,8 +1485,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         desc = FAKEORGANISATION_CREATION_CFORM
-        # cform_id = desc.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=None, superuser=False,
@@ -1603,7 +1510,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         cfci.save()
 
         self.assertPOST200(
-            # reverse('creme_config__delete_custom_form_cell', args=(cform_id,)),
             reverse('creme_config__delete_custom_form_cell', args=(cfci.id,)),
             data={'cell_key': cell_to_dell.key},
         )
@@ -1614,27 +1520,21 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
     ])
     def test_group_set_layout(self, group_id, layout):
         self.login()
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
 
-        # url = reverse('creme_config__setlayout_custom_form_group', args=(cform_id, group_id))
         url = reverse('creme_config__setlayout_custom_form_group', args=(cfci.id, group_id))
         self.assertGET405(url)
         self.assertPOST200(url, data={'layout': layout})
 
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
-        cfci = self.refresh(cfci)
-        self.assertEqual(layout, cfci.groups_as_dicts()[group_id]['layout'])
+        self.assertEqual(layout, self.refresh(cfci).groups_as_dicts()[group_id]['layout'])
 
     def test_group_set_layout_extra_group(self):
         self.login()
 
         desc = FAKEORGANISATION_CREATION_CFORM
-        # cform_id = desc.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=None, superuser=False,
@@ -1658,31 +1558,24 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         group_id = 1
         layout = LAYOUT_DUAL_FIRST
         self.assertPOST200(
-            # reverse('creme_config__setlayout_custom_form_group', args=(cform_id, group_id)),
             reverse('creme_config__setlayout_custom_form_group', args=(cfci.id, group_id)),
             data={'layout': layout},
         )
-
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
-        cfci = self.refresh(cfci)
-        self.assertEqual(layout, cfci.groups_as_dicts()[group_id]['layout'])
+        self.assertEqual(layout, self.refresh(cfci).groups_as_dicts()[group_id]['layout'])
 
     def test_group_set_layout_error(self):
         "Invalid group, invalid layout."
         self.login()
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
 
         self.assertPOST409(
-            # reverse('creme_config__setlayout_custom_form_group', args=(cform_id, 3)),
             reverse('creme_config__setlayout_custom_form_group', args=(cfci.id, 3)),
             data={'layout': LAYOUT_DUAL_SECOND},
         )
         self.assertPOST409(
-            # reverse('creme_config__setlayout_custom_form_group', args=(cform_id, 1)),
             reverse('creme_config__setlayout_custom_form_group', args=(cfci.id, 1)),
             data={'layout': 'INVALID'},
         )
@@ -1693,15 +1586,12 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         group_id = 0
         target = 1
 
-        # cform_id = FAKEACTIVITY_CREATION_CFORM.id
-        # cfci = self.get_object_or_fail(CustomFormConfigItem, cform_id=cform_id)
         cfci = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )
         old_groups = cfci.groups_as_dicts()
 
-        # url = reverse('creme_config__reorder_custom_form_group', args=(cform_id, group_id))
         url = reverse('creme_config__reorder_custom_form_group', args=(cfci.id, group_id))
         self.assertGET405(url)
         self.assertPOST200(url, data={'target': target})
@@ -1712,7 +1602,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         # Errors
         self.assertPOST409(
             # Bad group ID
-            # reverse('creme_config__reorder_custom_form_group', args=(cform_id, 123)),
             reverse('creme_config__reorder_custom_form_group', args=(cfci.id, 123)),
             data={'target': target},
         )
@@ -1837,35 +1726,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         activity_wrapper = get_ct_wrapper(FakeActivity)
         self.assertFalse(activity_wrapper.collapsed)
 
-        # activity_descriptors = activity_wrapper.descriptors
-        # self.assertEqual(2, len(activity_descriptors))
-        #
-        # act_desc1 = activity_descriptors[0]
-        # self.assertEqual(desc1.id,           act_desc1.id)
-        # self.assertEqual(desc1.verbose_name, act_desc1.verbose_name)
-        # self.assertListEqual(
-        #     ['General', 'Where'],
-        #     [g.name for g in act_desc1.groups],
-        # )
-        # self.assertListEqual([], act_desc1.errors)
-        #
-        # act_desc2 = activity_descriptors[1]
-        # self.assertEqual(desc2.id,           act_desc2.id)
-        # self.assertEqual(desc2.verbose_name, act_desc2.verbose_name)
-        # self.assertListEqual(['Misc'], [g.name for g in act_desc2.groups])
-        # self.assertListEqual([], act_desc2.errors)
-        #
-        # orga_wrapper = get_ct_wrapper(FakeOrganisation)
-        # self.assertTrue(orga_wrapper.collapsed)
-        #
-        # orga_descriptors = orga_wrapper.descriptors
-        # self.assertEqual(1, len(orga_descriptors))
-        #
-        # orga_desc = orga_descriptors[0]
-        # self.assertEqual(desc3.id,           orga_desc.id)
-        # self.assertEqual(desc3.verbose_name, orga_desc.verbose_name)
-        # self.assertListEqual(['General'], [g.name for g in orga_desc.groups])
-        # self.assertListEqual([], orga_desc.errors)
         activity_descriptors = activity_wrapper.descriptors
         self.assertEqual(2, len(activity_descriptors))
 
@@ -1948,19 +1808,14 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        # act_desc1 = brick.get_ctype_descriptors(
-        #     user=user, expanded_ctype_id=None,
-        # )[0].descriptors[0]
         act_item1 = brick.get_ctype_descriptors(
             user=user, expanded_ctype_id=None,
         )[0].descriptors[0].items[0]
-        # self.assertEqual(desc.id, act_desc1.id)
         self.assertEqual(cfci.id, act_item1.id)
 
         fmt = _('Missing required field: {}').format
         self.assertListEqual(
             [fmt(_('Owner user')), fmt(_('Activity type'))],  # Not 'place'
-            # act_desc1.errors,
             act_item1.errors,
         )
 
@@ -1994,13 +1849,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        # act_desc1 = brick.get_ctype_descriptors(
-        #     user=user, expanded_ctype_id=None,
-        # )[0].descriptors[0]
         act_item1 = brick.get_ctype_descriptors(
             user=user, expanded_ctype_id=None,
         )[0].descriptors[0].items[0]
-        # self.assertEqual(desc.id, act_desc1.id)
         self.assertEqual(cfci.id, act_item1.id)
         self.assertListEqual(
             [_('Missing required custom field: {}').format(customfield.name)],
@@ -2039,19 +1890,12 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick = bricks.CustomFormsBrick()
         brick.registry = registry
 
-        # act_desc1 = brick.get_ctype_descriptors(
-        #     user=user, expanded_ctype_id=None,
-        # )[0].descriptors[0]
         act_item1 = brick.get_ctype_descriptors(
             user=user, expanded_ctype_id=None,
         )[0].descriptors[0].items[0]
-        # self.assertEqual(desc.id, act_desc1.id)
         self.assertEqual(cfci.id, act_item1.id)
         self.assertListEqual(
-            [
-                _('Missing required special field: {}').format('Start'),
-            ],
-            # act_desc1.errors,
+            [_('Missing required special field: {}').format('Start')],
             act_item1.errors,
         )
 

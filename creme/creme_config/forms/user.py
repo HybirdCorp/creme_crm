@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from collections import defaultdict
 
 from django.contrib.auth import forms as auth_forms
@@ -36,31 +35,11 @@ from creme.creme_core.models.fields import CremeUserForeignKey
 CremeUser = get_user_model()
 
 
-# def _password_validators_help_text_html(password_validators=None):
-#     warnings.warn(
-#         'creme_config.forms.user._password_validators_help_text_html() is deprecated.',
-#         DeprecationWarning,
-#     )
-#
-#     from django.utils.html import format_html, format_html_join
-#
-#     help_texts = password_validation.password_validators_help_texts(password_validators)
-#
-#     if not help_texts:
-#         return ''
-#
-#     return format_html(
-#         '<ul>{}</ul>',
-#         format_html_join('', '<li>{}</li>', ((text,) for text in help_texts))
-#     )
-
-
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
 #       => we need a Mixin to initialize the user in fields  (like HookableForm)
 class UserAddForm(CremeModelForm):
     # Copied from django.contrib.auth.forms.UserCreationForm
     error_messages = {
-        # 'password_mismatch': _("The two password fields didn't match."),
         'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
     }
 
@@ -157,7 +136,6 @@ class UserEditForm(CremeModelForm):
 #     attribute like us (but it correspond to our 'user2edit' one, not our 'user' one)
 class UserChangePwForm(CremeForm):
     error_messages = {
-        # 'password_mismatch': _("The two password fields didn't match."),
         'password_mismatch': auth_forms.SetPasswordForm.error_messages['password_mismatch'],
     }
 

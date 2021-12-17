@@ -490,7 +490,6 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         with self.assertNoException():
             context = response.context
-            # folders = context['entities'].object_list
             folders = context['page_obj'].object_list
             title = context['list_title']
 

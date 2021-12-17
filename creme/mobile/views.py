@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -108,7 +108,6 @@ def lw_exceptions(view):
             {
                 'status':    status,
                 'msg':       msg,
-                # 'exception': smart_text(error),
                 'exception': smart_str(error),
             },
             status=status,
@@ -461,7 +460,6 @@ def phonecall_panel(request):
             r.object_entity.get_real_entity()
             for r in pcall.get_participant_relations()
         ]
-        # context['participant_organisations'] = [*orga_subjects(pcall)]
         context['participant_organisations'] = [*mobile_organisation_subjects(pcall)]
 
     person = get_object_or_404(CremeEntity, pk=person_id).get_real_entity()

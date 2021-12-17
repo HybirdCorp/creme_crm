@@ -1,12 +1,10 @@
 from . import base
 
 
-# class JobSchedulerQueue(_BaseJobSchedulerQueue):
 class MockQueue(base.BaseJobSchedulerQueue):
     "Mocking JobSchedulerQueue."
     verbose_name = 'Test queue'
 
-    # def __init__(self):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.started_jobs = []
@@ -34,6 +32,5 @@ class MockQueue(base.BaseJobSchedulerQueue):
     def ping(self):
         pass
 
-    # def pong(self, ping_value):
     def pong(self, ping_cmd):
         pass

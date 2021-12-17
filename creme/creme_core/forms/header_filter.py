@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -363,17 +363,13 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
                     #     the related field (eg: 'image') cannot be hidden.
                     non_hiddable_fnames[model].add(root.name)
 
-        # def field_excluder(field, deep):
         def field_excluder(*, model, field, depth):
-            # model = field.model
-
             return (
                 get_fconf(model).is_field_hidden(field)
                 and field.name not in non_hiddable_fnames[model]
             )
 
         return ModelFieldEnumerator(
-            # model, deep=self.fields_depth, only_leafs=False,
             model, depth=self.fields_depth, only_leaves=False,
         ).filter(
             viewable=True,
@@ -533,27 +529,6 @@ class EntityCellsField(Field):
 
         self._sub_fields[:] = sub_fields
         self.widget.sub_widgets = sub_widgets
-
-    # @property
-    # def content_type(self):
-    #     warnings.warn(
-    #         'The getter EntityCellsField.content_type is deprecated ; '
-    #         'use the property "models" instead',
-    #         DeprecationWarning
-    #     )
-    #
-    #     from django.contrib.contenttypes.models import ContentType
-    #
-    #     return ContentType.objects.get_for_model(self._model)
-    #
-    # @content_type.setter
-    # def content_type(self, ct):
-    #     warnings.warn(
-    #         'The setter EntityCellsField.content_type is deprecated ; '
-    #         'use the property "models" instead',
-    #         DeprecationWarning
-    #     )
-    #     self.model = ct.model_class()
 
     @property
     def model(self) -> Type[CremeEntity]:

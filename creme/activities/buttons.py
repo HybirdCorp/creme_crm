@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,6 @@ Activity = get_activity_model()
 class AddRelatedActivityButton(Button):
     id_ = Button.generate_id('activities', 'add_activity')
     template_name = 'activities/buttons/add-related.html'
-    # permission = build_creation_perm(Activity)
     permissions = build_creation_perm(Activity)
     verbose_name = _('Create a related activity')
     description = _(

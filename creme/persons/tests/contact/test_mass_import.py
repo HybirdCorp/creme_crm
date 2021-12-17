@@ -284,36 +284,8 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         rei.shipping_address = addr2 = create_address(name='Hideout #2', city=city2)
         rei.save()
 
-        # contact_count = Contact.objects.count()
-        # city = 'Tokyo'
-        # b_address_value = '6 Angel street'
-        # s_address_value = '7 Angel street'
-        # lines = [
-        #     ('Misato', 'Katsuragi', city, b_address_value, city, s_address_value),
-        #     ('Asuka',  'Langley',   '',   b_address_value, city, s_address_value),
-        # ]
-
-        # doc = self._build_csv_doc(lines)
-        # response = self.client.post(
-        #     self._build_import_url(Contact),
-        #     follow=True,
-        #     data={
-        #         **self.IMPORT_DATA,
-        #         'document': doc.id,
-        #         'user': user.id,
-        #
-        #         'billaddr_city_colselect': 3,
-        #         'billaddr_address_colselect': 4,
-        #
-        #         'shipaddr_city_colselect': 5,
-        #         'shipaddr_address_colselect': 6,
-        #     },
-        # )
-        # self.assertNoFormError(response)
-
         address_val1 = '213 Gauss Street'
         address_val2 = '56 Einstein Avenue'
-        # doc = self._build_csv_doc([(first_name, last_name, address_val1, address_val2, email)])
         doc = self._build_csv_doc([
             (first_name, last_name, '', address_val1, city2, address_val2),  # Not city1
         ])
@@ -326,9 +298,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
                 'user': user.id,
                 'key_fields': ['first_name', 'last_name'],
 
-                # 'billaddr_address_colselect': 3,
-                # 'shipaddr_address_colselect': 4,
-
                 'billaddr_city_colselect': 3,
                 'billaddr_address_colselect': 4,
 
@@ -340,7 +309,6 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
         self.assertNoFormError(response)
 
         job = self._execute_job(response)
-        # self._execute_job(response)
 
         addr2 = self.refresh(addr2)
         self.assertEqual(city2, addr2.city)

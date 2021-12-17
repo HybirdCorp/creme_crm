@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,7 +113,6 @@ class CrudityHistoryBrick(CrudityQuerysetBrick):
         ct = self.ct
 
         histories = History.objects.filter(entity__entity_type=ct)
-        # if self.is_sandbox_by_user:
         if is_sandbox_by_user:
             histories = histories.filter(user=context['user'])
 

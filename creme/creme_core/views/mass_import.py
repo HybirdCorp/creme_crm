@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,6 @@ def mass_import(request, ct_id):
 
     user = request.user
 
-    # if Job.not_finished_jobs(user).count() >= settings.MAX_JOBS_PER_USER:
     if Job.objects.not_finished(user).count() >= settings.MAX_JOBS_PER_USER:
         return HttpResponseRedirect(reverse('creme_core__my_jobs'))
 
@@ -162,7 +161,6 @@ def download_errors(request, job_id):
             smart_str(_('Errors')),
         ])
 
-    # for job_result in MassImportJobResult.objects.filter(job=job).exclude(raw_messages=None):
     for job_result in MassImportJobResult.objects.filter(
         job=job, messages__isnull=False,
     ):

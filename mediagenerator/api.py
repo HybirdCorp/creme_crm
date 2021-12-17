@@ -4,19 +4,14 @@ import shutil
 from collections import OrderedDict, defaultdict
 from urllib.parse import quote
 
-# from django.utils.http import urlquote
 from django.conf import settings
 
-from . import utils  # settings
-from .settings import (  # GENERATED_MEDIA_DIR
-    GENERATED_MEDIA_NAMES_FILE,
-    MEDIA_GENERATORS,
-)
+from . import utils
+from .settings import GENERATED_MEDIA_NAMES_FILE, MEDIA_GENERATORS
 from .utils import load_backend
 
 # HACK: by Hybird (we should pass it as argument -- & modify all the API)
 global_errors = defaultdict(OrderedDict)
-# logger = logging.getLogger(__name__)
 logger = logging.getLogger('mediagenerator')
 
 
@@ -31,8 +26,6 @@ def generate_media():
 
     STATIC_ROOT = settings.STATIC_ROOT
 
-    # if os.path.exists(GENERATED_MEDIA_DIR):
-    #     shutil.rmtree(GENERATED_MEDIA_DIR)
     if os.path.exists(STATIC_ROOT):
         shutil.rmtree(STATIC_ROOT)
 
@@ -47,7 +40,6 @@ def generate_media():
                 base, ext = os.path.splitext(url)
                 url = f'{base}-{version}{ext}'
 
-            # path = os.path.join(GENERATED_MEDIA_DIR, url)
             path = os.path.join(STATIC_ROOT, url)
 
             parent = os.path.dirname(path)
@@ -60,7 +52,6 @@ def generate_media():
             with open(path, 'wb') as fp:
                 fp.write(content)
 
-            # utils.NAMES[key] = urlquote(url)
             utils.NAMES[key] = quote(url)
 
     # Generate a module with media file name mappings

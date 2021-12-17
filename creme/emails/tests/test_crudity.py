@@ -15,12 +15,6 @@ from creme.crudity.models import History
 from creme.crudity.utils import is_sandbox_by_user
 from creme.documents.models import FolderCategory
 
-# from ..constants import (
-#     MAIL_STATUS_SENT,
-#     MAIL_STATUS_SYNCHRONIZED,
-#     MAIL_STATUS_SYNCHRONIZED_SPAM,
-#     MAIL_STATUS_SYNCHRONIZED_WAITING,
-# )
 from .base import EntityEmail, _EmailsTestCase, skipIfCustomEntityEmail
 
 
@@ -63,53 +57,9 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         'verbose_method': 'Create',
     }
 
-    # def test_spam(self):  # DEPRECATED
-    #     emails = self._create_emails()
-    #
-    #     self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
-    #
-    #     url = reverse('emails__crudity_spam')
-    #     self.assertPOST200(url)
-    #     self.assertPOST200(url, data={'ids': [e.id for e in emails]})
-    #
-    #     refresh = self.refresh
-    #     self.assertListEqual(
-    #         [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
-    #         [refresh(e).status for e in emails]
-    #     )
-
-    # def test_validated(self):  # DEPRECATED
-    #     emails = self._create_emails()
-    #
-    #     self.assertPOST200(
-    #         reverse('emails__crudity_validated'),
-    #         data={'ids': [e.id for e in emails]},
-    #     )
-    #
-    #     refresh = self.refresh
-    #     self.assertListEqual(
-    #         [MAIL_STATUS_SYNCHRONIZED] * 4,
-    #         [refresh(e).status for e in emails]
-    #     )
-
-    # def test_waiting(self):  # DEPRECATED
-    #     emails = self._create_emails()
-    #
-    #     self.assertPOST200(
-    #         reverse('emails__crudity_waiting'),
-    #         data={'ids': [e.id for e in emails]},
-    #     )
-    #
-    #     refresh = self.refresh
-    #     self.assertListEqual(
-    #         [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
-    #         [refresh(e).status for e in emails]
-    #     )
-
     def test_set_status01(self):
         "Validated."
         emails = self._create_emails()
-        # self.assertEqual([MAIL_STATUS_SENT] * 4, [e.status for e in emails])
         self.assertEqual([EntityEmail.Status.SENT] * 4, [e.status for e in emails])
 
         url = reverse('emails__crudity_set_email_status', args=('validated',))
@@ -125,7 +75,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertPOST200(url, data=data)
         refresh = self.refresh
         self.assertListEqual(
-            # [MAIL_STATUS_SYNCHRONIZED] * 4,
             [EntityEmail.Status.SYNCHRONIZED] * 4,
             [refresh(e).status for e in emails]
         )
@@ -141,7 +90,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         refresh = self.refresh
         self.assertListEqual(
-            # [MAIL_STATUS_SYNCHRONIZED_SPAM] * 4,
             [EntityEmail.Status.SYNCHRONIZED_SPAM] * 4,
             [refresh(e).status for e in emails],
         )
@@ -157,7 +105,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
 
         refresh = self.refresh
         self.assertListEqual(
-            # [MAIL_STATUS_SYNCHRONIZED_WAITING] * 4,
             [EntityEmail.Status.SYNCHRONIZED_WAITING] * 4,
             [refresh(e).status for e in emails],
         )
@@ -195,7 +142,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         self.assertEqual(False, sv.value)
 
         backend = self.EntityEmailBackend(self.cfg)
-        # self.assertFalse(backend.is_sandbox_by_user)
         self.assertFalse(is_sandbox_by_user())
 
         email = PopEmail(
@@ -206,7 +152,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         backend.fetcher_fallback(email, user)
 
         e_email = self.get_object_or_fail(EntityEmail, subject=email.subject)
-        # self.assertEqual(MAIL_STATUS_SYNCHRONIZED_WAITING, e_email.status)
         self.assertEqual(EntityEmail.Status.SYNCHRONIZED_WAITING, e_email.status)
         self.assertEqual(email.body,      e_email.body)
         self.assertEqual(email.body_html, e_email.body_html)
@@ -241,7 +186,6 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         sv.save()
 
         backend = self.EntityEmailBackend(self.cfg)
-        # self.assertTrue(backend.is_sandbox_by_user)
         self.assertTrue(is_sandbox_by_user())
 
         email = PopEmail(

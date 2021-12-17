@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ def download_email_template(request, subject):
     if backend is None:
         raise Http404('This backend is not registered')
 
-    response = HttpResponse(
+    return HttpResponse(
         render_to_string(
             # TODO: rename crudity/create_email_template.eml ??
             'crudity/create_email_template.html',
@@ -56,15 +56,8 @@ def download_email_template(request, subject):
             },
             request=request,
         ),
-        # content_type='application/vnd.sealed.eml',
         headers={
             'Content-Type': 'application/vnd.sealed.eml',
             'Content-Disposition': f'attachment; filename="{secure_filename(subject)}.eml"',
         },
     )
-
-    # response['Content-Disposition'] = 'attachment; filename={}.eml'.format(
-    #     secure_filename(subject)
-    # )
-
-    return response

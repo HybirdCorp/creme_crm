@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,3 @@ def event_model_is_custom():
 def get_event_model():
     """Returns the Event model that is active in this project."""
     return get_concrete_model('EVENTS_EVENT_MODEL')
-
-
-# default_app_config = 'creme.events.apps.EventsConfig'

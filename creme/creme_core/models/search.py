@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,7 @@
 ################################################################################
 
 import logging
-# import warnings
 from collections import defaultdict
-# from typing import Tuple
 from typing import (
     TYPE_CHECKING,
     DefaultDict,
@@ -34,7 +32,6 @@ from typing import (
 )
 
 from django.contrib.contenttypes.models import ContentType
-# from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.query_utils import Q
 from django.utils.translation import gettext
@@ -42,7 +39,6 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from ..utils import find_first
-# from ..utils.meta import FieldInfo
 from ..utils.meta import ModelFieldEnumerator
 from .auth import UserRole
 from .base import CremeModel
@@ -53,25 +49,6 @@ if TYPE_CHECKING:
     from ..core.entity_cell import EntityCell
 
 logger = logging.getLogger(__name__)
-
-
-# class SearchField:
-#     __slots__ = ('__name', '__verbose_name')
-#
-#     def __init__(self, field_name: str, field_verbose_name: str):
-#         self.__name = field_name
-#         self.__verbose_name = field_verbose_name
-#
-#     def __str__(self):
-#         return self.__verbose_name
-#
-#     @property
-#     def name(self) -> str:
-#         return self.__name
-#
-#     @property
-#     def verbose_name(self) -> str:
-#         return self.__verbose_name
 
 
 class SearchConfigItemManager(models.Manager):
@@ -98,7 +75,7 @@ class SearchConfigItemManager(models.Manager):
         elif role is not None:
             assert isinstance(role, UserRole)
 
-        sci, created = self.get_or_create(
+        return self.get_or_create(
             content_type=ct,
             role=role,
             superuser=superuser,
@@ -109,12 +86,7 @@ class SearchConfigItemManager(models.Manager):
                     for field_name in fields
                 ],
             },
-        )
-
-        # if created:
-        #     sci._build_searchfields(model, fields)
-
-        return sci
+        )[0]
 
     def iter_for_models(self,
                         models: Iterable[Type[CremeEntity]],
@@ -182,8 +154,6 @@ class SearchConfigItem(CremeModel):
         pgettext_lazy('creme_core-search_conf', 'Disabled?'), default=False,
     )
 
-    # # Do not this field directly; use 'searchfields' property
-    # field_names = models.TextField(null=True)
     # Do not this field directly; use 'cells' property instead
     json_cells = models.JSONField(editable=False, default=list)  # TODO: CellsField ?
 
@@ -192,9 +162,7 @@ class SearchConfigItem(CremeModel):
     creation_label = _('Create a search configuration')
     save_label     = _('Save the configuration')
 
-    # _searchfields: Optional[Tuple[SearchField, ...]] = None
     _cells: Optional[List['EntityCell']] = None
-    # _all_fields: bool
 
     EXCLUDED_FIELDS_TYPES: List[Type[models.Field]] = [
         models.DateTimeField, models.DateField,
@@ -230,83 +198,12 @@ class SearchConfigItem(CremeModel):
         """@return True means that all fields are used to search
                    (no specific configuration).
         """
-        # self.searchfields  # NOQA  # Computes self._all_fields
-        # return self._all_fields
         return next(self.cells, None) is None
 
     @property
     def is_default(self) -> bool:
         "Is default configuration?"
         return self.role_id is None and not self.superuser
-
-    # @classmethod
-    # def _get_modelfields_choices(cls, model: Type[CremeEntity]) -> List[Tuple[str, str]]:
-    #     excluded = tuple(cls.EXCLUDED_FIELDS_TYPES)
-    #     return ModelFieldEnumerator(
-    #         model, deep=1
-    #     ).filter(
-    #         viewable=True,
-    #     ).exclude(
-    #         lambda f, depth: isinstance(f, excluded) or f.choices
-    #     ).choices()
-
-    # def _build_searchfields(self,
-    #                         model: Type[CremeEntity],
-    #                         fields: Iterable[str],
-    #                         save: bool = True) -> None:
-    #     sfields: List[SearchField] = []
-    #     old_field_names = self.field_names
-    #
-    #     for field_name in fields:
-    #         try:
-    #             field_info = FieldInfo(model, field_name)
-    #         except FieldDoesNotExist as e:
-    #             logger.warning('%s => SearchField removed', e)
-    #         else:
-    #             sfields.append(
-    #                 SearchField(field_name=field_name,
-    #                             field_verbose_name=field_info.verbose_name,
-    #                            )
-    #             )
-    #
-    #     self.field_names = ','.join(sf.name for sf in sfields) or None
-    #
-    #     if not sfields:  # field_names is empty => use all compatible fields
-    #         sfields.extend(
-    #             SearchField(field_name=field_name, field_verbose_name=verbose_name)
-    #             for field_name, verbose_name in self._get_modelfields_choices(model)
-    #         )
-    #         self._all_fields = True
-    #     else:
-    #         self._all_fields = False
-    #
-    #     # We can pass the reference to this immutable collections
-    #     # (and SearchFields are hardly mutable).
-    #     self._searchfields = tuple(sfields)
-    #
-    #     if save and old_field_names != self.field_names:
-    #         self.save()
-    #
-    # @property
-    # def searchfields(self) -> Tuple[SearchField, ...]:
-    #     if self._searchfields is None:
-    #         names = self.field_names
-    #         self._build_searchfields(
-    #             self.content_type.model_class(), names.split(',') if names else ()
-    #         )
-    #
-    #     return self._searchfields
-    #
-    # @searchfields.setter
-    # def searchfields(self, fields: Iterable[str]) -> None:
-    #     "@param fields: Iterable of strings representing field names."
-    #     self._build_searchfields(self.content_type.model_class(), fields, save=False)
-    #
-    # def get_modelfields_choices(self) -> List[Tuple[str, str]]:
-    #     """Return a list of tuples (useful for Select.choices) representing
-    #     Fields that can be chosen by the user.
-    #     """
-    #     return self._get_modelfields_choices(self.content_type.model_class())
 
     @property
     def cells(self) -> Iterator['EntityCell']:
@@ -367,32 +264,6 @@ class SearchConfigItem(CremeModel):
             for cell in self._cells:
                 if not cell.is_excluded:
                     yield cell
-
-    # @classmethod
-    # def create_if_needed(cls, model, fields, role=None, disabled=False):
-    #     """Create a config item & its fields if one does not already exists.
-    #     @param fields: Sequence of strings representing field names.
-    #     @param role: UserRole instance; or 'superuser'; or None, for default configuration.
-    #     @param disabled: Boolean.
-    #     """
-    #     warnings.warn('SearchConfigItem.create_if_needed() is deprecated ; '
-    #                   'use SearchConfigItem.objects.create_if_needed() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     return cls.objects.create_if_needed(
-    #         model=model, fields=fields, role=role, disabled=disabled,
-    #     )
-
-    # @classmethod
-    # def get_4_models(cls, models, user):
-    #     "Get the SearchConfigItem instances corresponding to the given models (generator)."
-    #     warnings.warn('SearchConfigItem.get_4_models() is deprecated ; '
-    #                   'use SearchConfigItem.objects.iter_for_models() instead.',
-    #                   DeprecationWarning
-    #                  )
-    #
-    #     yield from cls.objects.iter_for_models(models, user)
 
     def save(self, *args, **kwargs):
         if self.superuser and self.role_id:

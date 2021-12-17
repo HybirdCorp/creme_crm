@@ -137,7 +137,6 @@ class Base(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'billing'
         ordering = ('name',)
 
@@ -214,36 +213,6 @@ class Base(CremeEntity):
                 self._target = person
         else:
             self._target = person
-
-    # def get_source(self):
-    #     warnings.warn(
-    #         'billing.Base.get_source() is deprecated ; '
-    #         'use the property "source" instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     try:
-    #         return Relation.objects.get(
-    #             subject_entity=self.id,
-    #             type=REL_SUB_BILL_ISSUED,
-    #         ).object_entity if self.id else None
-    #     except Relation.DoesNotExist:
-    #         return None
-
-    # def get_target(self):
-    #     warnings.warn(
-    #         'billing.Base.get_target() is deprecated ; '
-    #         'use the property "target" instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     try:
-    #         return Relation.objects.get(
-    #             subject_entity=self.id,
-    #             type=REL_SUB_BILL_RECEIVED,
-    #         ).object_entity if self.id else None
-    #     except Relation.DoesNotExist:
-    #         return None
 
     # TODO: property ?
     def get_credit_notes(self):

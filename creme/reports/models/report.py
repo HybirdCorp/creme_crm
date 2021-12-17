@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,7 +71,6 @@ class AbstractReport(CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'reports'
         verbose_name = _('Report')
         verbose_name_plural = _('Reports')
@@ -211,34 +210,6 @@ class AbstractReport(CremeEntity):
             new_graph.linked_report = self
             new_graph.save()
 
-    # @staticmethod
-    # def get_related_fields_choices(model) -> List[Tuple[str, str]]:
-    #     warnings.warn(
-    #         'The method AbstractReport.get_related_fields_choices() is deprecated.',
-    #         DeprecationWarning
-    #     )
-    #
-    #     allowed_related_fields = model.allowed_related
-    #
-    #     # NB: https://docs.djangoproject.com/en/1.8/ref/models/meta/#migrating-from-the-old-api
-    #     get_fields = model._meta.get_fields
-    #     related_fields = (
-    #         f
-    #         for f in get_fields()
-    #         if (f.one_to_many or f.one_to_one) and f.auto_created
-    #     )
-    #     m2m_fields = (
-    #         f
-    #         for f in get_fields(include_hidden=True)
-    #         if f.many_to_many and f.auto_created
-    #     )
-    #
-    #     return [
-    #         (f.name, str(f.related_model._meta.verbose_name))
-    #         for f in chain(related_fields, m2m_fields)
-    #         if f.name in allowed_related_fields
-    #     ]
-
 
 class Report(AbstractReport):
     class Meta(AbstractReport.Meta):
@@ -295,7 +266,6 @@ class Field(CremeModel):
         fields_kv = {}
 
         for field in self._meta.fields:
-            # if field.get_tag('clonable'):
             if field.get_tag(FieldTag.CLONABLE):
                 fname = field.name
                 fields_kv[fname] = getattr(self, fname)

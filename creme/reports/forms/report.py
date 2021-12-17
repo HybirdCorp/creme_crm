@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -291,97 +291,6 @@ _CELL_2_HAND_MAP = {
 _HAND_2_CELL_MAP = {v: k for k, v in _CELL_2_HAND_MAP.items()}
 
 
-# class ReportCreateForm(CremeEntityForm):
-#     hf = core_fields.AjaxModelChoiceField(
-#         label=_('Existing view'),
-#         queryset=HeaderFilter.objects.none(),
-#         required=False,
-#         help_text=_(
-#             'If you select a view of list, '
-#             'the columns of the report will be copied from it.'
-#         ),
-#     )
-#     filter = core_fields.AjaxModelChoiceField(
-#         label=_('Filter'), queryset=EntityFilter.objects.none(), required=False,
-#     )
-#
-#     class Meta(CremeEntityForm.Meta):
-#         model = Report
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ReportCreateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#
-#     def clean(self):
-#         cleaned_data = super().clean()
-#
-#         if not self._errors:
-#             get_data = cleaned_data.get
-#             ct = get_data('ct')
-#
-#             hf = get_data('hf')
-#             if hf and not hf.can_view(self.user, ct)[0]:
-#                 self.add_error(
-#                     'hf',
-#                     _(
-#                         'Select a valid choice. '
-#                         'That choice is not one of the available choices.'
-#                     )
-#                 )
-#
-#             efilter = get_data('filter')
-#             if efilter and not efilter.can_view(self.user, ct)[0]:
-#                 self.add_error(
-#                     'filter',
-#                     _(
-#                         'Select a valid choice. '
-#                         'That choice is not one of the available choices.'
-#                     ),
-#                 )
-#
-#         return cleaned_data
-#
-#     @atomic
-#     def save(self, *args, **kwargs):
-#         report = super().save(*args, **kwargs)
-#         hf = self.cleaned_data['hf']
-#
-#         if hf is not None:
-#             build_field = partial(Field.objects.create, report=report)
-#
-#             for i, cell in enumerate(self.cleaned_data['hf'].filtered_cells, start=1):
-#                 build_field(
-#                     name=cell.value, order=i,
-#                     type=_CELL_2_HAND_MAP[cell.type_id],
-#                 )
-#
-#         return report
-
-
-# class ReportEditForm(CremeEntityForm):
-#     class Meta:
-#         model = Report
-#         exclude = (*CremeEntityForm.Meta.exclude, 'ct')
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ReportEditForm is deprecated.', DeprecationWarning)
-#
-#         super().__init__(*args, **kwargs)
-#         fields = self.fields
-#         filter_f = fields['filter']
-#         filter_f.empty_label = pgettext_lazy('creme_core-filter', 'All')
-#         filter_f.queryset = filter_f.queryset.filter(entity_type=self.instance.ct)
-#
-#         efilter = self.instance.filter
-#
-#         if efilter and not efilter.can_view(self.user)[0]:
-#             fields['filter_label'] = core_fields.ReadonlyMessageField(
-#                 label=fields['filter'].label,
-#                 initial=_('The filter cannot be changed because it is private.'),
-#             )
-#             del fields['filter']
-
-
 class LinkFieldToReportForm(CremeForm):
     report = core_fields.CreatorEntityField(
         label=_('Sub-report linked to the column'), model=Report,
@@ -435,7 +344,6 @@ class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
     def _regular_fields_enum(self, model):
         fields = super()._regular_fields_enum(model)
         fields.filter(
-            # lambda field, depth: not (
             lambda model, field, depth: not (
                 depth
                 and field.is_relation
@@ -492,10 +400,8 @@ class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
         non_hiddable_cells = self._non_hiddable_cells
         aggregation_registry = cell_class.aggregation_registry
         enumerator = ModelFieldEnumerator(
-            # model, deep=0,
             model, depth=0,
         ).filter(
-            # (lambda f, deep: isinstance(f, aggregation_registry.authorized_fields)),
             (
                 lambda model, field, depth:
                 isinstance(field, aggregation_registry.authorized_fields)

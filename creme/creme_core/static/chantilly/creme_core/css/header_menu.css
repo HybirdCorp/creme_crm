@@ -45,7 +45,6 @@
 
     height: 100%;
 
-/*  padding-right: 50px;*/
     padding-right: 5px;
 }
 
@@ -56,7 +55,6 @@
     padding-left: 10px;
     vertical-align: top;
 
-/*    margin-top: 8px; */
     margin-right: 15px;
 }
 
@@ -200,23 +198,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 } /* animated transitions out of the hover state */
 
 /* Menu separators */
-/*
-.ui-creme-navigation-separated-menu {
-    position: relative;
-}
-
-.ui-creme-navigation-separated-menu:before {
-    content: "";
-    width: 1px;
-
-    position: absolute;
-    top: 1px;
-    bottom: 5px;
-
-    background: #bbb;
-    pointer-events: none;
-}
-*/
 
 .ui-creme-navigation li.ui-creme-navigation-item-id_creme_core-separator0 {
     height: 22px;
@@ -234,19 +215,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 /* Menu entries separators */
 
-/*
-.ui-creme-navigation .ui-creme-navigation-separator {
-    display: block;
-    height: 1px;
-    border: 0;
-
-    margin: 5px 0;
-    padding: 0;
-
-    border-top: 1px solid #a29d9d;
-}
-*/
-
 .ui-creme-navigation .ui-creme-navigation-title-separator {
     text-transform: uppercase;
     font-size: 11px;
@@ -261,12 +229,6 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
     margin-top: 5px;
     padding-top: 5px;
 }
-
-/*
-.ui-creme-navigation-space-separated {
-    margin-bottom: 7px;
-}
-*/
 
 /* Menu entries separators [END] */
 

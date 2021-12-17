@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -94,7 +94,6 @@ class AddInvoiceButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created invoice.\n'
         'App: Billing'
     )
-    # permission = cperm(Invoice)
     permissions = cperm(Invoice)
     url_name = 'billing__create_related_invoice'
 
@@ -108,7 +107,6 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created order.\n'
         'App: Billing'
     )
-    # permission = cperm(SalesOrder)
     permissions = cperm(SalesOrder)
     url_name = 'billing__create_related_order'
 
@@ -122,7 +120,6 @@ class AddQuoteButton(_AddBillingDocumentButton):
         'The current entity is pre-selected to be the target of the created quote.\n'
         'App: Billing'
     )
-    # permission = cperm(Quote)
     permissions = cperm(Quote)
     url_name = 'billing__create_related_quote'
 

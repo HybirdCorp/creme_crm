@@ -172,10 +172,6 @@ def is_date_field(field: Field) -> bool:
 
 # ModelFieldEnumerator ---------------------------------------------------------
 
-# Note
-# #  - int argument is the depth in field chain (fk1__fk2__...)
-# #  - returning <True> means "the field is accepted".
-# FieldFilterFunctionType = Callable[[Field, int], bool]
 # Notes:
 #  - Arguments: they are passed with keywords only (Callable is not made to indicate that...)
 #    - "model": the 'django.db.models.Model' class owning the field
@@ -186,8 +182,6 @@ FieldFilterFunctionType = Callable[[Type[Model], Field, int], bool]
 
 
 class _FilterModelFieldQuery:
-    # _TAGS = ('viewable', 'clonable', 'enumerable', 'optional')
-
     def __init__(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
         conditions: List[FieldFilterFunctionType] = []
 
@@ -196,14 +190,11 @@ class _FilterModelFieldQuery:
 
         for attr_name, value in kwargs.items():
             fun = (
-                # (lambda field, deep, attr_name, value: field.get_tag(attr_name) == value)
                 (
                     lambda *, model, field, depth, attr_name, value:
                     field.get_tag(attr_name) == value
                 )
-                # if attr_name in self._TAGS else
                 if FieldTag.is_valid(attr_name) else
-                # (lambda field, deep, attr_name, value: getattr(field, attr_name) == value)
                 (
                     lambda *, model, field, depth, attr_name, value:
                     getattr(field, attr_name) == value
@@ -214,9 +205,7 @@ class _FilterModelFieldQuery:
 
         self._conditions = conditions
 
-    # def __call__(self, field, deep):
     def __call__(self, *, model, field, depth):
-        # return all(cond(field, deep) for cond in self._conditions)
         # NB: the argument "model" is important because with inheritance it can
         #     be different than "field.model"
         return all(
@@ -225,9 +214,7 @@ class _FilterModelFieldQuery:
 
 
 class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
-    # def __call__(self, field, deep):
     def __call__(self, *, model, field, depth):
-        # return not any(cond(field, deep) for cond in self._conditions)
         return not any(
             cond(model=model, field=field, depth=depth) for cond in self._conditions
         )
@@ -236,9 +223,7 @@ class _ExcludeModelFieldQuery(_FilterModelFieldQuery):
 class ModelFieldEnumerator:
     def __init__(self,
                  model: Type[Model],
-                 # deep: int = 0,
                  depth: int = 0,
-                 # only_leafs: bool = True):
                  only_leaves: bool = True,
                  ):
         """Constructor.
@@ -249,9 +234,7 @@ class ModelFieldEnumerator:
                their sub-fields, depending of the 'depth' parameter of course).
         """
         self._model = model
-        # self._deep = deep
         self._depth = depth
-        # self._only_leafs = only_leafs
         self._only_leaves = only_leaves
         self._fields = None
         self._ffilters: List[FieldFilterFunctionType] = []
@@ -270,7 +253,6 @@ class ModelFieldEnumerator:
         meta = model._meta
 
         for field in chain(meta.fields, meta.many_to_many):
-            # if all(ffilter(field, depth) for ffilter in ffilters):
             if all(ffilter(model=model, field=field, depth=depth) for ffilter in ffilters):
                 field_info = (*parents_fields, field)
 

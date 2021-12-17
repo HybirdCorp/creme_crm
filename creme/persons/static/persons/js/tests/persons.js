@@ -27,42 +27,6 @@ QUnit.module("creme.persons", new QUnitMixin(QUnitEventMixin,
     }
 }));
 
-/*
-QUnit.test('creme.persons.copyTo', function(assert) {
-    var form_A = $(this.createFormHtml({id: 'A'})).appendTo(this.qunitFixture());
-    var form_B = $(this.createFormHtml({id: 'B'})).appendTo(this.qunitFixture());
-
-    form_A.find('select').val('2');
-    form_A.find('textarea').val('This is a test');
-    form_B.find('input').val('This is another test');
-
-    deepEqual({
-        field_a: ['2'],
-        field_b: [''],
-        field_c: ['This is a test']
-    }, creme.ajax.serializeFormAsDict(form_A));
-
-    deepEqual({
-        field_a: ['1'],
-        field_b: ['This is another test'],
-        field_c: ['']
-    }, creme.ajax.serializeFormAsDict(form_B));
-
-    creme.persons.copyTo('A', 'B');
-
-    deepEqual({
-        field_a: ['2'],
-        field_b: [''],
-        field_c: ['This is a test']
-    }, creme.ajax.serializeFormAsDict(form_A));
-
-    deepEqual({
-        field_a: ['2'],
-        field_b: [''],
-        field_c: ['This is a test']
-    }, creme.ajax.serializeFormAsDict(form_B));
-});
-*/
 
 QUnit.test('creme.persons.copyAddressInputs', function(assert) {
     var form_left = $(this.createFormHtml({

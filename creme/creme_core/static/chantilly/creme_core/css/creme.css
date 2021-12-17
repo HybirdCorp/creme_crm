@@ -249,7 +249,6 @@ td p {
 }
 
 .errorlist li {
-/*    list-style-image: url(chantilly/images/cancel_16.png); */
     padding-top: 3px;
 }
 
@@ -308,26 +307,6 @@ a img {
 a img:hover {
     opacity: 0.8;
 }
-
-/*
-.help_box {
-    margin-bottom: 10px;
-    padding: 5px;
-
-    border: 1px solid #f0f0f0;
-    border-bottom: 2px solid #ccc;
-
-    background-color: #fff7a1;
-
-    -webkit-border-radius: 10px;
-       -moz-border-radius: 10px;
-            border-radius: 10px;
-}
-
-.help_box.with-table table {
-    width: 100%;
-}
-*/
 
 .help-sign {
     display: flex;
@@ -534,7 +513,6 @@ a[data-action] details {
 }
 
 .footer .footer-baseline a {
-/*    color: inherit; */
     color: #ff968d;
 }
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -156,7 +156,6 @@ class CTypeDescriptorMixin:
         setattr(instance, self.attname, ct_id)
 
 
-# class CTypeForeignKey(models.ForeignKey):
 class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
@@ -164,20 +163,6 @@ class CTypeForeignKey(CTypeDescriptorMixin, models.ForeignKey):
         # so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
         super().__init__(**kwargs)
-
-    # def __get__(self, instance, instance_type=None):
-    #     ct_id = getattr(instance, self.attname)
-    #     return ContentType.objects.get_for_id(ct_id) if ct_id else None
-    #
-    # def __set__(self, instance, value):
-    #     if not value:
-    #         ct_id = None
-    #     elif isinstance(value, ContentType):
-    #         ct_id = value.id
-    #     else:
-    #         ct_id = ContentType.objects.get_for_model(value).id
-    #
-    #     setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
@@ -216,7 +201,6 @@ class EntityCTypeForeignKey(CTypeForeignKey):
         return super().formfield(**{'form_class': EntityCTypeChoiceField, **kwargs})
 
 
-# class CTypeOneToOneField(models.OneToOneField):
 class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
     def __init__(self, **kwargs):
         kwargs['to'] = 'contenttypes.ContentType'
@@ -228,20 +212,6 @@ class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
             kwargs['parent_link'] = True
 
         super().__init__(**kwargs)
-
-    # def __get__(self, instance, instance_type=None):
-    #     ct_id = getattr(instance, self.attname)
-    #     return ContentType.objects.get_for_id(ct_id) if ct_id else None
-    #
-    # def __set__(self, instance, value):
-    #     if not value:
-    #         ct_id = None
-    #     elif isinstance(value, ContentType):
-    #         ct_id = value.id
-    #     else:
-    #         ct_id = ContentType.objects.get_for_model(value).id
-    #
-    #     setattr(instance, self.attname, ct_id)
 
     def contribute_to_class(self, cls, name, **kwargs):
         super().contribute_to_class(cls, name, **kwargs)
@@ -501,7 +471,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2021  Hybird
+#  Copyright (C) 2009-2022  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal

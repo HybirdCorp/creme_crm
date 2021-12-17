@@ -378,33 +378,9 @@ button {
     padding-top: 3px;
 }
 
-/* This seems to be block-related and could be moved to blocks.css */
-/* Buttons (for example: 'validate') in the blocks */
-
-/*
-.table_detail_view td button {
-    padding: 0px;
-}
-*/
-
-/* This seems duplicated/overridden in blocks.css - [end] */
-
 .block_header tbody tr td:hover {
     background-color: transparent;
 }
-
-/*
-.help_box {
-    background-color: #fff7a1;
-    padding: 5px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-}
-
-.help_box.with-table table {
-    width: 100%;
-}
-*/
 
 .help-sign {
     display: flex;

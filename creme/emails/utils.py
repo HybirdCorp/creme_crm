@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,8 +28,6 @@ from string import ascii_letters, digits
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.utils.timezone import now
-
-# from .constants import MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
 
 logger = logging.getLogger(__name__)
 ALLOWED_CHARS = ascii_letters + digits
@@ -122,7 +120,6 @@ class EMailSender:
         """
         ok = False
 
-        # if mail.status == MAIL_STATUS_SENT:
         if mail.status == mail.Status.SENT:
             logger.error('Mail already sent to the recipient')
         else:
@@ -145,10 +142,8 @@ class EMailSender:
                 msg.send()
             except Exception:
                 logger.exception('Sending: error during sending mail.')
-                # mail.status = MAIL_STATUS_SENDINGERROR
                 mail.status = mail.Status.SENDING_ERROR
             else:
-                # mail.status = MAIL_STATUS_SENT
                 mail.status = mail.Status.SENT
                 mail.sending_date = now()
                 ok = True

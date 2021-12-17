@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,7 +38,6 @@ from creme.documents.constants import (
 )
 from creme.documents.models import FolderCategory
 
-# from .constants import MAIL_STATUS_SYNCHRONIZED_WAITING
 from . import bricks, get_entityemail_model
 
 Folder   = documents.get_folder_model()
@@ -53,7 +52,6 @@ class EntityEmailBackend(CrudityBackend):
         bricks.WaitingSynchronizationMailsBrick,
         bricks.SpamSynchronizationMailsBrick,
     )
-    # attachment_path = ['upload', 'emails', 'attachments']
     attachment_path = ['emails', 'attachments']
 
     @atomic
@@ -77,7 +75,6 @@ class EntityEmailBackend(CrudityBackend):
         )[0]
 
         mail = EntityEmail(
-            # status=MAIL_STATUS_SYNCHRONIZED_WAITING,
             status=EntityEmail.Status.SYNCHRONIZED_WAITING,
             body=email.body,
             body_html=email.body_html,

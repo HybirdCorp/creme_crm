@@ -216,13 +216,9 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         self.assertListEqual([], registry.regular_fields(FakeContact))
 
     def test_regular_fields_include_unique(self):
-        # meta = FakeContact._meta
         get_field = FakeActivity._meta.get_field
         self.assertListEqual(
             self.sort_fields([
-                # field
-                # for field in chain(meta.fields, meta.many_to_many)
-                # if field.editable
                 get_field(fname) for fname in
                 [
                     # 'cremeentity_ptr',
@@ -238,7 +234,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
                     'type',
                 ]
             ]),
-            # self.bulk_update_registry.regular_fields(FakeContact, exclude_unique=False),
             self.bulk_update_registry.regular_fields(FakeActivity, exclude_unique=False),
         )
 

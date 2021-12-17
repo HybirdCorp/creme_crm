@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,6 @@ from django.utils.translation import pgettext
 
 from creme import persons
 from creme.creme_core.actions import ViewAction
-# from creme.creme_core.auth.decorators import login_required, permission_required
 from creme.creme_core.core.entity_cell import EntityCellRelation
 from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.gui.actions import EntityAction
@@ -194,9 +193,6 @@ class AddContactsToEvent(generic.EntityEdition):
     title = _('Link some contacts to «{object}»')
     submit_label = _('Link these contacts')
 
-    # def get_success_url(self):
-    #     return reverse('events__list_related_contacts', args=(self.object.id,))
-
 
 class RelatedOpportunityCreation(generic.EntityCreation):
     model = Opportunity
@@ -255,7 +251,6 @@ class RelatedOpportunityCreation(generic.EntityCreation):
                     ).format(event)
 
                 if not qs:
-                    # fields['target'].help_text = gettext(
                     fields[this.target_cell_key].help_text = gettext(
                         '(The contact «{}» is not related to an organisation).'
                     ).format(contact)

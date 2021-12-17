@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -138,54 +138,8 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         return cdata
 
-    # def _handle_addresses(self, entity1, entity2, attr_name, cleaned_data, prefix, name):
-    #     entity1_has_changed = False
-    #
-    #     address1 = getattr(entity1, attr_name, None)
-    #     address2 = getattr(entity2, attr_name, None)
-    #
-    #     address = (
-    #         address1 if address1 is not None else
-    #         address2 if address2 is not None else
-    #         Address(name=name)
-    #     )
-    #
-    #     # We do not use Address.__bool__() because we ignore the address' name.
-    #     address_is_empty = True
-    #     for fname in self._address_field_names:
-    #         value = cleaned_data.get(prefix + fname)
-    #         setattr(address, fname, value)
-    #
-    #         if value:
-    #             address_is_empty = False
-    #
-    #     if not address_is_empty or address.pk is not None:
-    #         address.owner = entity1
-    #         address.save()  # todo: only if has changed ?
-    #
-    #         if address is address1:
-    #             if address2 is not None:
-    #                 address2.delete()
-    #         else:
-    #             setattr(entity1, attr_name, address)
-    #             entity1_has_changed = True
-    #
-    #     return entity1_has_changed
-
     def _post_entity1_update(self, entity1, entity2, cleaned_data):
         super()._post_entity1_update(entity1, entity2, cleaned_data)
-        # handle_addr = self._handle_addresses
-        #
-        # must_save1 = handle_addr(
-        #     entity1, entity2, 'billing_address',
-        #     cleaned_data, _BILL_PREFIX, _('Billing address')
-        # )
-        # must_save2 = handle_addr(
-        #     entity1, entity2, 'shipping_address',
-        #     cleaned_data, _SHIP_PREFIX, _('Shipping address')
-        # )
-        # if must_save1 or must_save2:
-        #     entity1.save()
 
         save_again = False
         for address, addr_attr_name in self._addresses_to_save:

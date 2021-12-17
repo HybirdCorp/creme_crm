@@ -52,7 +52,6 @@ class LineTestCase(_BillingTestCase):
             'related_document': invoice,
             'on_the_fly_item': 'Flyyy product',
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
-            # 'discount_unit': DISCOUNT_PERCENT,
             'discount_unit': ProductLine.Discount.PERCENT,
         }
 
@@ -75,9 +74,7 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'on_the_fly_item': 'Flyyy product',
-            # 'discount_unit': DISCOUNT_LINE_AMOUNT,
             'discount_unit': ProductLine.Discount.LINE_AMOUNT,
-            # 'total_discount': True,
         }
 
         with self.assertRaises(ValidationError):
@@ -114,7 +111,6 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'on_the_fly_item': 'Flyyy product',
-            # 'discount_unit': DISCOUNT_ITEM_AMOUNT,
             'discount_unit': ProductLine.Discount.ITEM_AMOUNT,
         }
 
@@ -420,7 +416,6 @@ class LineTestCase(_BillingTestCase):
         lines = invoice.get_lines(ServiceLine)
         self.assertEqual(2, len(lines))
 
-        # lines = invoice.service_lines
         line0 = lines[0]
         line1 = lines[1]
         self.assertEqual(quantity, line0.quantity)
@@ -883,7 +878,6 @@ class LineTestCase(_BillingTestCase):
         quantity = '2'
         unit = 'day'
         discount = '20'
-        # discount_unit = DISCOUNT_PERCENT
         discount_unit = ServiceLine.Discount.PERCENT
         response = self.client.post(
             url,
@@ -1064,7 +1058,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
 
-        # discount_unit = DISCOUNT_ITEM_AMOUNT
         discount_unit = ServiceLine.Discount.ITEM_AMOUNT
         response = self.client.post(
             self._build_msave_url(invoice),
@@ -1088,10 +1081,7 @@ class LineTestCase(_BillingTestCase):
         self.assertNoFormError(response)
         self.assertEqual(1, ServiceLine.objects.count())
 
-        service_line = self.refresh(service_line)
-        # self.assertEqual(DISCOUNT_LINE_AMOUNT, service_line.discount_unit)
-        # self.assertIs(service_line.total_discount, False)
-        self.assertEqual(discount_unit, service_line.discount_unit)
+        self.assertEqual(discount_unit, self.refresh(service_line).discount_unit)
 
     @skipIfCustomServiceLine
     def test_multi_save_lines06(self):
@@ -1170,7 +1160,6 @@ class LineTestCase(_BillingTestCase):
 
         ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
-            # vat_value=Vat.get_default_vat(),
             vat_value=Vat.objects.default(),
             related_document=invoice,
             on_the_fly_item='Flyyyyy',
@@ -1203,7 +1192,6 @@ class LineTestCase(_BillingTestCase):
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
 
             'discount': Decimal('0'),
-            # 'discount_unit': DISCOUNT_PERCENT,
             'discount_unit': ProductLine.Discount.PERCENT,
 
             'quantity': 2,
@@ -1237,7 +1225,6 @@ class LineTestCase(_BillingTestCase):
         product_line = ProductLine.objects.create(
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
-            # discount=Decimal('10.00'), discount_unit=DISCOUNT_PERCENT,
             discount=Decimal('10.00'), discount_unit=ProductLine.Discount.PERCENT,
             **kwargs
         )
@@ -1246,9 +1233,7 @@ class LineTestCase(_BillingTestCase):
         service_line = ServiceLine.objects.create(
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
-            # discount=Decimal('3.00'), discount_unit=DISCOUNT_PERCENT,
             discount=Decimal('3.00'), discount_unit=ServiceLine.Discount.PERCENT,
-            # total_discount=False,
             **kwargs
         )
         self.assertEqual(Decimal('58.20'), service_line.get_price_exclusive_of_tax())
@@ -1269,7 +1254,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
-            # discount_unit=DISCOUNT_LINE_AMOUNT,
             discount_unit=ProductLine.Discount.LINE_AMOUNT,
             **kwargs
         )
@@ -1279,7 +1263,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
-            # discount_unit=DISCOUNT_LINE_AMOUNT,
             discount_unit=ServiceLine.Discount.LINE_AMOUNT,
             **kwargs
         )
@@ -1301,7 +1284,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy product',
             unit_price=Decimal('100.00'), quantity=2,
             discount=Decimal('5.00'),
-            # discount_unit=DISCOUNT_ITEM_AMOUNT,
             discount_unit=ProductLine.Discount.ITEM_AMOUNT,
             **kwargs
         )
@@ -1311,7 +1293,6 @@ class LineTestCase(_BillingTestCase):
             on_the_fly_item='Flyyy service',
             unit_price=Decimal('20.00'), quantity=3,
             discount=Decimal('3.00'),
-            # discount_unit=DISCOUNT_ITEM_AMOUNT,
             discount_unit=ServiceLine.Discount.ITEM_AMOUNT,
             **kwargs
         )
@@ -1329,7 +1310,6 @@ class LineTestCase(_BillingTestCase):
             'quantity': 2,
             'vat_value': Vat.objects.get_or_create(value=Decimal('0'))[0],
             'discount': Decimal('0'),
-            # 'discount_unit': DISCOUNT_PERCENT,
             'discount_unit': ProductLine.Discount.PERCENT,
         }
         product_line1 = ProductLine.objects.create(
@@ -1391,7 +1371,6 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
         pline = ProductLine.objects.create(
             user=user, unit_price=Decimal('10'),
-            # vat_value=Vat.get_default_vat(),
             vat_value=Vat.objects.default(),
             related_document=invoice,
             on_the_fly_item='Flyyyyy',

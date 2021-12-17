@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -66,7 +66,6 @@ def disable_line(request, line_id):
     except ProtectedError as e:
         raise PermissionDenied(e.args[0]) from e
 
-    # if request.is_ajax():
     if is_ajax(request):
         return HttpResponse()
 

@@ -60,9 +60,7 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
             }],
         )
         self.assertIsInstance(cfci, CustomFormConfigItem)
-        # self.assertEqual(desc.id, cfci.cform_id)
         self.assertEqual(desc.id, cfci.descriptor_id)
-        # self.assertEqual(desc.id, cfci.pk)
         self.assertIsNone(cfci.role)
         self.assertIs(cfci.superuser, False)
         self.assertListEqual(
@@ -115,7 +113,6 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
                 },
             ],
         )
-        # self.assertEqual(desc.id, cfci.cform_id)
         self.assertEqual(desc.id, cfci.descriptor_id)
         self.assertListEqual(
             [

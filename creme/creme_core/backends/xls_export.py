@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,12 +35,10 @@ class XLSExportBackend(ExportBackend):
     id = 'xls'
     verbose_name = _('XLS File')
     help_text = ''
-    # dir_parts = ('xls',)  # Sub-directory under {settings.MEDIA_ROOT}/upload
     dir_parts = ('xls',)  # Sub-directory under settings.MEDIA_ROOT
 
     def __init__(self, encoding='utf-8'):
         super().__init__()
-        # self.dir_path = join(settings.MEDIA_ROOT, 'upload', *self.dir_parts)
         self.dir_path = join(settings.MEDIA_ROOT, *self.dir_parts)
         self.writer = XlwtWriter(encoding=encoding)
 
@@ -50,7 +48,6 @@ class XLSExportBackend(ExportBackend):
         fileref = FileRef.objects.create(
             user=user,
             basename=name,
-            # filedata='upload/{}/{}'.format(
             filedata='{}/{}'.format(
                 '/'.join(self.dir_parts),
                 basename(path),

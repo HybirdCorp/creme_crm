@@ -929,7 +929,6 @@ END:VCARD"""
         self.assertEqual(contact_count, Contact.objects.count())
 
         # --------
-        # data['create_or_attach_orga'] = True
         data['create_or_attach_orga'] = 'on'
         data['organisation'] = orga.id
         data['relation'] = REL_SUB_EMPLOYED_BY
@@ -1428,11 +1427,6 @@ END:VCARD"""
 
         first_name = 'Ayaka'
         last_name = 'YUKIHIRO'
-#         content = f"""BEGIN:VCARD
-# FN:{first_name} {last_name}
-# PHOTO;VALUE=URL:{path}
-# END:VCARD"""
-#         response1 = self._post_step0(content)
         response1 = self._post_step0(
             f'BEGIN:VCARD\n'
             f'FN:{first_name} {last_name}\n'
@@ -1508,38 +1502,9 @@ END:VCARD"""
         # self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
 
-    # @skipIfCustomContact
     @override_settings(VCF_IMAGE_MAX_SIZE=10240)  # (10 kB)
     def test_vcf_with_image04(self):
         "Referenced image is too large."
-        # self.login()
-        #
-        # img_path = os_path.join(
-        #     settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
-        # )
-        # self.assertTrue(os_path.exists(img_path))
-        #
-        # vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
-        #
-        # contact_count = Contact.objects.count()
-        # image_count = Document.objects.count()
-        # content = (
-        #     'BEGIN:VCARD\n'
-        #     'FN:Satomi HAKASE\n'
-        #     'PHOTO;VALUE=URL:file:///{path}\n'
-        #     'END:VCARD'
-        # ).format(path=os_path.normpath(img_path))
-        # fields = self._post_step0(content).context['form'].fields
-        # self._post_step1(
-        #     data={
-        #         'user':          fields['user'].initial,
-        #         'first_name':    fields['first_name'].initial,
-        #         'last_name':     fields['last_name'].initial,
-        #         'image_encoded': fields['image_encoded'].initial,
-        #     },
-        # )
-        # self.assertEqual(contact_count + 1, Contact.objects.count())
-        # self.assertEqual(image_count,       Document.objects.count())
         user = self.login()
 
         url_parts = ['static', 'common', 'images', '500_200.png']

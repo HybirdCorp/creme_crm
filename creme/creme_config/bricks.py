@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -253,7 +253,6 @@ class FieldsConfigsBrick(PaginatedBrick):
     dependencies = (FieldsConfig,)
     page_size = _PAGE_SIZE
     template_name = 'creme_config/bricks/fields-configs.html'
-    # permission = None  # NB: used by the view creme_core.views.bricks.reload_basic()
     configurable = False
 
     fields_config_registry = fields_config_registry
@@ -272,16 +271,11 @@ class FieldsConfigsBrick(PaginatedBrick):
             context, fconfigs,
             display_add_button=any(
                 model not in used_models
-                # for model in filter(FieldsConfig.objects.is_model_valid, apps.get_models())
                 for model in filter(is_model_valid, registry.models)
             ),
         )
 
         for fconf in btc['page'].object_list:
-            # vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
-            # vnames.sort(key=sort_key)
-            #
-            # fconf.fields_vnames = vnames
             hidden_vnames = [str(f.verbose_name) for f in fconf.hidden_fields]
             hidden_vnames.sort(key=sort_key)
             fconf.hidden_fields_vnames = hidden_vnames
@@ -302,7 +296,6 @@ class CustomFieldsBrick(Brick):
     verbose_name = 'Configuration of custom fields'
     dependencies = (CustomField,)
     template_name = 'creme_config/bricks/custom-fields.html'
-    # permission = None  # NB: used by the view creme_core.views.bricks.reload_basic
     configurable = False
 
     def detailview_display(self, context):
@@ -382,17 +375,13 @@ class CustomFormsBrick(PaginatedBrick):
     def get_ctype_descriptors(self, user, expanded_ctype_id):
         get_ct = ContentType.objects.get_for_model
 
-        # class _ExtendedDescriptor:
         class _ExtendedConfigItem:
-            # def __init__(this, descriptor, item):
             def __init__(this, *, item, descriptor):
                 this._descriptor = descriptor
                 this._item = item
                 this.groups = descriptor.groups(item)
-                # this.id = descriptor.id
                 this.id = item.id
 
-                # this.verbose_name = descriptor.verbose_name
                 # TODO: factorise with CustomFormConfigItemChoiceField
                 if item.superuser:
                     this.verbose_name = _('Form for super-user')
@@ -467,11 +456,6 @@ class CustomFormsBrick(PaginatedBrick):
         for desc in self.registry:
             desc_per_model[desc.model].append(desc)
 
-        # items = CustomFormConfigItem.objects.in_bulk(
-        #     descriptor.id
-        #     for descriptors in desc_per_model.values()
-        #     for descriptor in descriptors
-        # )
         items_per_desc = defaultdict(list)
         for cfci in CustomFormConfigItem.objects.filter(
             descriptor_id__in=[
@@ -488,10 +472,6 @@ class CustomFormsBrick(PaginatedBrick):
             def __init__(this, model, descriptors):
                 this.ctype = ctype = get_ct(model)
                 # TODO: manage default item not created?
-                # this.descriptors = [
-                #     _ExtendedDescriptor(descriptor=desc, item=items[desc.id])
-                #     for desc in descriptors
-                # ]
                 this.descriptors = [
                     _ExtendedDescriptor(
                         descriptor=descriptor, items=items_per_desc[descriptor.id],
@@ -581,7 +561,6 @@ class BrickDetailviewLocationsBrick(PaginatedBrick):
     # '-1' because there is always the line for default config on each page
     page_size = _PAGE_SIZE - 1
     template_name = 'creme_config/bricks/bricklocations-detailviews.html'
-    # permission = None  # NB: used by the view creme_core.views.blocks.reload_basic
     configurable = False
 
     brick_registry = brick_registry

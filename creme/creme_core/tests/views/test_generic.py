@@ -485,7 +485,6 @@ class CreationTestCase(ViewsTestCase):
         user = self.login()
 
         cfci = self.get_object_or_fail(
-            # CustomFormConfigItem, cform_id=FAKEACTIVITY_CREATION_CFORM.id,
             CustomFormConfigItem,
             descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
         )

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -398,79 +398,24 @@ class Populator(BasePopulator):
             model=Invoice,
             creation_descriptor=custom_forms.INVOICE_CREATION_CFORM,
             edition_descriptor=custom_forms.INVOICE_EDITION_CFORM,
-            # field_names=[
-            #     'user',
-            #     'name',
-            #     'number',
-            #     'status',
-            #     'issuing_date',
-            #     'expiration_date',
-            #     'discount',
-            #     'currency',
-            #     'comment',
-            #     'additional_info',
-            #     'payment_terms',
-            #     'payment_type',
-            #     'buyers_order_number',
-            # ],
             field_names=[*common_field_names, 'buyers_order_number'],
         )
         build_custom_form_items(
             model=Quote,
             creation_descriptor=custom_forms.QUOTE_CREATION_CFORM,
             edition_descriptor=custom_forms.QUOTE_EDITION_CFORM,
-            # field_names=[
-            #     'user',
-            #     'name',
-            #     'number',
-            #     'status',
-            #     'issuing_date',
-            #     'expiration_date',
-            #     'discount',
-            #     'currency',
-            #     'comment',
-            #     'additional_info',
-            #     'payment_terms',
-            #     'acceptation_date',
-            # ],
             field_names=[*common_field_names, 'acceptation_date'],
         )
         build_custom_form_items(
             model=SalesOrder,
             creation_descriptor=custom_forms.ORDER_CREATION_CFORM,
             edition_descriptor=custom_forms.ORDER_EDITION_CFORM,
-            # field_names=[
-            #     'user',
-            #     'name',
-            #     'number',
-            #     'status',
-            #     'issuing_date',
-            #     'expiration_date',
-            #     'discount',
-            #     'currency',
-            #     'comment',
-            #     'additional_info',
-            #     'payment_terms',
-            # ],
             field_names=common_field_names,
         )
         build_custom_form_items(
             model=CreditNote,
             creation_descriptor=custom_forms.CNOTE_CREATION_CFORM,
             edition_descriptor=custom_forms.CNOTE_EDITION_CFORM,
-            # field_names=[
-            #     'user',
-            #     'name',
-            #     'number',
-            #     'status',
-            #     'issuing_date',
-            #     'expiration_date',
-            #     'discount',
-            #     'currency',
-            #     'comment',
-            #     'additional_info',
-            #     'payment_terms',
-            # ],
             field_names=common_field_names,
         )
 
@@ -801,13 +746,6 @@ class Populator(BasePopulator):
         from django.contrib.auth import get_user_model
 
         from creme import reports
-        # from creme.reports.constants import (
-        #     RFT_FIELD,
-        #     RFT_RELATION,
-        #     RGA_SUM,
-        #     RGT_FK,
-        #     RGT_MONTH,
-        # )
         from creme.reports.constants import RFT_FIELD, RFT_RELATION
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         from creme.reports.models import Field
@@ -847,18 +785,14 @@ class Populator(BasePopulator):
         rgraph1 = create_graph(
             name=_('Sum of current year invoices total without taxes / month'),
             linked_report=invoices_report1,
-            # abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-            # ordinate_type=RGA_SUM,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
         create_graph(
             name=_('Sum of current year invoices total without taxes / invoices status'),
             linked_report=invoices_report1,
-            # abscissa_cell_value='status', abscissa_type=RGT_FK,
             abscissa_cell_value='status', abscissa_type=ReportGraph.Group.FK,
-            # ordinate_type=RGA_SUM,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )
@@ -875,9 +809,7 @@ class Populator(BasePopulator):
         rgraph3 = create_graph(
             name=_('Sum of current year and unpaid invoices total without taxes / month'),
             linked_report=invoices_report2,
-            # abscissa_cell_value='issuing_date', abscissa_type=RGT_MONTH,
             abscissa_cell_value='issuing_date', abscissa_type=ReportGraph.Group.MONTH,
-            # ordinate_type=RGA_SUM,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=cell_key,
         )

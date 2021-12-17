@@ -16,7 +16,6 @@
 
 {% block brick_table_columns %}
     {% brick_table_column title=_('Type')          status='primary' class='fieldconf-label' %}
-{#    {% brick_table_column title=_('Hidden fields')                  class='fieldconf-hidden-fields' %} #}
     {% brick_table_column title=_('Configuration')                  class='fieldconf-fields' %}
     {% brick_table_column title=_('Actions')       status='action'  colspan=2 %}
 {% endblock %}
@@ -26,16 +25,6 @@
     {% for field_conf in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %} class="fieldconf-label">{{field_conf.content_type}}</td>
-{% comment %}
-        <td class="fieldconf-hidden-fields">
-            {% widget_enumerator field_conf.fields_vnames|uca_sort %}
-            {% with errors=field_conf.errors_on_hidden %}
-                {% if errors %}
-                    <ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>
-                {% endif %}
-            {% endwith %}
-        </td>
-{% endcomment %}
         <td class="fieldconf-fields">
             <ul class="fieldconf-fields-flags">
             {% if field_conf.hidden_fields_vnames %}

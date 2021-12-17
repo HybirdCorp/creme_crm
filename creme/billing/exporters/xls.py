@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,6 @@ class XLSExporter(base.BillingExporter):
 
         basename = secure_filename(f'{entity._meta.verbose_name}_{entity.id}.xls')
         final_path = FileCreator(
-            # dir_path=path.join(settings.MEDIA_ROOT, 'upload', 'billing'),
             dir_path=path.join(settings.MEDIA_ROOT, 'billing'),
             name=basename,
         ).create()
@@ -59,7 +58,6 @@ class XLSExporter(base.BillingExporter):
         #     removed by hand (not cleaned by the Cleaner job).
         file_ref = FileRef.objects.create(
             user=user,
-            # filedata='upload/billing/' + path.basename(final_path),
             filedata='billing/' + path.basename(final_path),
             basename=basename,
         )
@@ -102,7 +100,6 @@ class XLSExporter(base.BillingExporter):
         write(address_as_list(entity.billing_address))
         write(address_as_list(entity.shipping_address))
 
-        # payment_type = getattr(entity, 'payment_type', None)
         payment_type = entity.payment_type
         write([
             entity.number,
@@ -130,13 +127,10 @@ class XLSExporter(base.BillingExporter):
         # TODO: factorise with LineEditForm
         currency_str = entity.currency.local_symbol
         discount_units = {
-            # constants.DISCOUNT_PERCENT: '%',
             Line.Discount.PERCENT: '%',
-            # constants.DISCOUNT_LINE_AMOUNT: gettext('{currency} per line').format(
             Line.Discount.LINE_AMOUNT: gettext('{currency} per line').format(
                 currency=currency_str,
             ),
-            # constants.DISCOUNT_ITEM_AMOUNT: gettext('{currency} per unit').format(
             Line.Discount.ITEM_AMOUNT: gettext('{currency} per unit').format(
                 currency=currency_str,
             ),

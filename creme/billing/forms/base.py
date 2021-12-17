@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
 from django.utils.translation import gettext
@@ -42,13 +41,6 @@ def first_managed_organisation():
         return get_organisation_model().objects.filter_managed_by_creme()[0]
     except IndexError:
         logger.warning('No managed organisation ?!')
-
-
-# def first_managed_orga_id():
-#     warnings.warn('first_managed_orga_id is deprecated.', DeprecationWarning)
-#
-#     orga = first_managed_organisation()
-#     return orga.id if orga else None
 
 
 class BillingSourceSubCell(CustomFormExtraSubCell):
@@ -125,74 +117,3 @@ class BaseCustomForm(CremeEntityForm):
                 line.save()
 
         return super().save(*args, **kwargs)
-
-
-# class BaseEditForm(CremeEntityForm):
-#     source = CreatorEntityField(
-#         label=pgettext_lazy('billing', 'Source organisation'),
-#         model=get_organisation_model(),
-#     )
-#     target = GenericEntityField(
-#         label=pgettext_lazy('billing', 'Target'),
-#         models=[get_organisation_model(), get_contact_model()],
-#     )
-#
-#     class Meta(CremeEntityForm.Meta):
-#         labels = {
-#             'discount': _('Overall discount (in %)'),
-#         }
-#
-#     blocks = CremeEntityForm.blocks.new(
-#         ('orga_n_address', _('Organisations'), ['source', 'target']),
-#     )
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('BaseEditForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#         instance = self.instance
-#         self.old_user_id = instance.user_id
-#
-#         pk = instance.pk
-#
-#         if pk is not None:  # Edit mode
-#             fields = self.fields
-#             fields['source'].initial = instance.source.id
-#             fields['target'].initial = instance.target
-#
-#     def clean_source(self):
-#         self.instance.source = source = self.cleaned_data['source']
-#
-#         return source
-#
-#     def clean_target(self):
-#         self.instance.target = target = self.cleaned_data['target']
-#
-#         return target
-#
-#     def save(self, *args, **kwargs):
-#         instance = super().save(*args, **kwargs)
-#
-#         if self.old_user_id and self.old_user_id != self.cleaned_data['user'].id:
-#             # Do not use queryset.update() to call the CremeEntity.save() method
-#             for line in instance.iter_all_lines():
-#                 line.user = instance.user
-#                 line.save()
-#
-#         return instance
-
-
-# class BaseCreateForm(BaseEditForm):
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('BaseCreateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#
-#         managed_orga = first_managed_organisation()
-#         if managed_orga:
-#             fields = self.fields
-#             fields['source'].initial = managed_orga
-#
-#             if type(self.instance).generate_number_in_create:
-#                 fields['number'].help_text = _(
-#                     'If you chose an organisation managed by Creme (like «{}») '
-#                     'as source organisation, a number will be automatically generated.'
-#                 ).format(managed_orga)

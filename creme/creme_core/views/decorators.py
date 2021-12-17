@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from functools import wraps
 
 from django.core.exceptions import PermissionDenied
@@ -31,21 +30,6 @@ from ..models import FieldsConfig
 from ..utils.serializers import json_encode
 
 logger = logging.getLogger(__name__)
-
-# def POST_only(view):
-#     warnings.warn('The decorator @POST_only is deprecated ; '
-#                   'use django.views.decorators.http.require_POST instead.',
-#                   DeprecationWarning
-#                  )
-#
-#     @wraps(view)
-#     def POST_view(request, *args, **kwargs):
-#         if request.method != 'POST':
-#             raise Http404('This method uses POST method.')
-#
-#         return view(request, *args, **kwargs)
-#
-#     return POST_view
 
 
 def _check_required_model_fields(model, *field_names):

@@ -52,12 +52,6 @@ class VBase:
         """Return an iterable containing the contents of the object."""
         return []
 
-    # def clearBehavior(self, cascade=True):
-    #     """Set behavior to None. Do for all descendants if cascading."""
-    #     self.behavior = None
-    #     if cascade:
-    #         self.transformChildrenFromNative()
-
     def autoBehavior(self, cascade=False):
         """Set behavior if name is in self.parentBehavior.knownChildren.
 
@@ -157,10 +151,6 @@ class VBase:
         """Recursively replace children with their native representation."""
         pass
 
-    # def transformChildrenFromNative(self, clearBehavior=True):
-    #     """Recursively transform native children to vanilla representations."""
-    #     pass
-
     def serialize(self, buf=None, lineLength=75, validate=True, behavior=None):
         """Serialize to buf if it exists, otherwise return a string.
 
@@ -221,7 +211,6 @@ class ContentLine(VBase):
                  lineNumber=None, *args, **kwds):
         """Take output from parseLine, convert params list to dictionary."""
         # group is used as a positional argument to match parseLine's return
-        # super(ContentLine, self).__init__(group, *args, **kwds)
         super().__init__(group, *args, **kwds)
         self.name = name.upper()
         self.value = value
@@ -267,7 +256,6 @@ class ContentLine(VBase):
                 if charsets:
                     charset = charsets[0]
 
-            # self.value = str(self.value, charset)
             self.value = self.value.decode(charset)
 
     def __getattr__(self, name):
@@ -381,12 +369,6 @@ class Component(VBase):
             else:
                 object.__setattr__(self, name, value)
 
-    # def getChildValue(self, childName, default=None, childNumber=0):
-    #     """Return a child's value (the first, by default), or None."""
-    #     child = self.contents.get(toVName(childName))
-    #
-    #     return default if child is None else child[childNumber].value
-
     def add(self, objOrName, group=None):
         """Add objOrName to contents, set behavior if it can be inferred.
 
@@ -443,14 +425,6 @@ class Component(VBase):
             for obj in objList:
                 yield obj
 
-    # def components(self):
-    #     """Return an iterable of all Component children."""
-    #     return (i for i in self.getChildren() if isinstance(i, Component))
-
-    # def lines(self):
-    #     """Return an iterable of all ContentLine children."""
-    #     return (i for i in self.getChildren() if isinstance(i, ContentLine))
-
     def sortChildKeys(self):
         try:
             first = [s for s in self.behavior.sortFirst if s in self.contents]
@@ -475,17 +449,6 @@ class Component(VBase):
             for i in range(len(childArray)):
                 childArray[i] = childArray[i].transformToNative()
                 childArray[i].transformChildrenToNative()
-
-    # def transformChildrenFromNative(self, clearBehavior=True):
-    #     """Recursively transform native children to vanilla representations."""
-    #     for childArray in self.contents.values():
-    #         for i in range(len(childArray)):
-    #             childArray[i] = childArray[i].transformFromNative()
-    #             childArray[i].transformChildrenFromNative(clearBehavior)
-    #
-    #             if clearBehavior:
-    #                 childArray[i].behavior = None
-    #                 childArray[i].parentBehavior = None
 
     def __str__(self):
         return '<{}| {}>'.format(self.name or '*unnamed*', self.getSortedChildren())

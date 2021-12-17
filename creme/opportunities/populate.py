@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -598,7 +598,6 @@ class Populator(BasePopulator):
         create_graph = partial(
             ReportGraph.objects.create,
             linked_report=report, user=admin,
-            # ordinate_type=rep_constants.RGA_SUM,
             ordinate_type=ReportGraph.Aggregator.SUM,
             ordinate_cell_key=sales_cell.key,
         )
@@ -608,7 +607,6 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 sales_phase=FieldInfo(Opportunity, 'sales_phase').verbose_name,
             ),
-            # abscissa_type=rep_constants.RGT_FK,
             abscissa_type=ReportGraph.Group.FK,
             abscissa_cell_value='sales_phase',
         )
@@ -617,7 +615,6 @@ class Populator(BasePopulator):
                 estimated_sales=esales_vname,
                 closing_date=FieldInfo(Opportunity, 'closing_date').verbose_name,
             ),
-            # abscissa_type=rep_constants.RGT_RANGE,
             abscissa_type=ReportGraph.Group.RANGE,
             abscissa_cell_value='closing_date',
             abscissa_parameter='90',

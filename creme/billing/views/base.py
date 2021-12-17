@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from typing import Sequence, Union
 
 from creme import persons
@@ -41,7 +40,6 @@ class BaseCreation(generic.EntityCreation):
 
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
-    # permissions: Union[str, Sequence[str], None] = 'billing'
     permissions: Union[str, Sequence[str]] = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
@@ -56,7 +54,6 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
         initial['status'] = self.initial_status
 
         target = self.get_related_entity()
-        # initial['target'] = target  # DEPRECATED
         initial[
             base_forms.BillingTargetSubCell(model=self.model).into_cell().key
         ] = target
@@ -68,11 +65,3 @@ class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
             return self.object.get_absolute_url()
 
         return super().get_success_url()
-
-
-# class BaseEdition(generic.EntityEdition):
-#     template_name = 'billing/form/edit.html'
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('billing.views.base.BaseEdition is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)

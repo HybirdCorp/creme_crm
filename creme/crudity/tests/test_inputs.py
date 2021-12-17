@@ -1389,7 +1389,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 'birthday':    '',
                 'created':     '',
                 'url_site':    '',
-                # 'language':    ''
                 'languages':    ''
             },
             model=Contact,
@@ -1414,7 +1413,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
             'last_name': 'Bros', 'first_name': 'Mario',
             'email': 'mario@bros.com', 'url_site': 'http://mario.com',
             'birthday': '02/08/1987', 'description': 'A plumber',
-            # 'language': f'\n{languages[0].id}\n{languages[1].id}',
             'languages': f'\n{languages[0].id}\n{languages[1].id}',
         }
         self.assertEqual(expected_data, wa.data)
@@ -1432,7 +1430,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        # self.assertSetEqual({languages[0], languages[1]}, {*contact.language.all()})
         self.assertSetEqual({languages[0], languages[1]}, {*contact.languages.all()})
 
     def test_create_contact03(self):
@@ -1472,7 +1469,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
                 'birthday':    '',
                 'created':     '',
                 'url_site':    '',
-                # 'language':    ''
                 'languages':    ''
             },
             model=Contact,
@@ -1498,7 +1494,6 @@ class InfopathInputEmailTestCase(InputsBaseTestCase):
         self.assertEqual('http://mario.com', contact.url_site)
         self.assertEqual(self.create_datetime(year=1987, month=8, day=2).date(), contact.birthday)
         self.assertEqual('A plumber', contact.description)
-        # self.assertSetEqual({*languages[:2]}, {*contact.language.all()})
         self.assertSetEqual({*languages[:2]}, {*contact.languages.all()})
 
     @skipIfCustomFolder
@@ -1698,7 +1693,6 @@ class FileSystemInputTestCase(CrudityTestCase):
         with self.assertNoException():
             ok = IniFileInput().create(self.get_deletable_file_path('test_ok_01'))
 
-        # self.assertIs(ok, False)
         self.assertIsNone(ok)
 
     def test_sandbox01(self):

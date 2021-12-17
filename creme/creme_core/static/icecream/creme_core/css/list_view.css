@@ -387,8 +387,7 @@
     border-left: 1px solid rgba(84, 130, 149, 0.3);
 }
 
-.listview .lv-search-header th.search input /*,
-.listview .lv-columns-header th.search input */ {
+.listview .lv-search-header th.search input  {
     background-color: #e6e6e6;
 }
 

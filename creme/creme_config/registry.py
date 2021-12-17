@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -146,14 +146,9 @@ class _ModelConfigEditor(_ModelConfigAction):
                     self.model_name,
                     # 'pk' instead of 'id' because a model could have a different primary key
                     #  (like GeoAddress)
-                    # instance.id,
                     instance.pk,
                 ),
-            ) if url_name is None else reverse(
-                url_name,
-                # args=(instance.id,),
-                args=(instance.pk,),
-            )
+            ) if url_name is None else reverse(url_name, args=(instance.pk,))
 
         return None
 
@@ -183,14 +178,9 @@ class _ModelConfigDeletor(_ModelConfigAction):
                 args=(
                     self._model._meta.app_label,
                     self.model_name,
-                    # instance.id,
                     instance.pk,
                 ),
-            ) if url_name is None else reverse(
-                url_name,
-                # args=(instance.id,),
-                args=(instance.pk,),
-            )
+            ) if url_name is None else reverse(url_name, args=(instance.pk,))
 
         return None
 

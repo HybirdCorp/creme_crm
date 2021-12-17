@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.http import HttpResponseForbidden
 from django.template.loader import render_to_string
-from django.utils.encoding import smart_str  # smart_text
+from django.utils.encoding import smart_str
 from django.views.decorators.csrf import requires_csrf_token
 
 
@@ -28,7 +28,6 @@ from django.views.decorators.csrf import requires_csrf_token
 def permission_denied(request, exception, template_name='creme_core/forbidden.html'):
     return HttpResponseForbidden(render_to_string(
         template_name,
-        # {'error_message': smart_text(exception)},
         {'error_message': smart_str(exception)},
         request=request,
     ))

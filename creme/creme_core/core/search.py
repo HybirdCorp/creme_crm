@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from functools import reduce
-# from operator import or_
 import logging
 from typing import Dict, Iterable, List, Optional, Type
 
@@ -28,7 +26,6 @@ from django.db.models.query import Q, QuerySet
 
 from ..core import entity_cell
 from ..models import CustomField, FieldsConfig, SearchConfigItem
-# from ..models.search import SearchField
 from ..utils.string import smart_split
 
 logger = logging.getLogger(__name__)
@@ -93,27 +90,18 @@ class Searcher:
         """
         self.user = user
 
-        # search_map: Dict[Type[Model], List[SearchField]] = {}
         search_map: Dict[Type[Model], List[entity_cell.EntityCell]] = {}
         models = [*models]  # Several iterations
-        # fconfigs = FieldsConfig.objects.get_for_models(models)
         # TODO: move in iter_for_models() ?
         FieldsConfig.objects.get_for_models(models)  # Fill cache
 
         for sci in SearchConfigItem.objects.iter_for_models(models, user):
             if not sci.disabled:
                 model = sci.content_type.model_class()
-                # is_hidden = fconfigs[model].is_fieldname_hidden
-                search_map[model] = [
-                    # sfield
-                    # for sfield in sci.searchfields
-                    # if not is_hidden(sfield.name.split('__', 1)[0])
-                    *sci.refined_cells
-                ]
+                search_map[model] = [*sci.refined_cells]
 
         self._search_map = search_map
 
-    # def _build_query(self, words, fields) -> Q:
     def _build_query(self, words, cells) -> Q:
         """Build a Q with given fields for the given search.
         Each word must be contained in (at least) one field.
@@ -127,10 +115,6 @@ class Searcher:
         get_q_builder = self.CELL_TO_Q.get
 
         for word in words:
-            # result_q &= reduce(
-            #     or_,
-            #     (Q(**{f'{field.name}__icontains': word}) for field in fields)
-            # )
             word_q = Q()
             for cell in cells:
                 builder = get_q_builder(cell.type_id)
@@ -146,13 +130,6 @@ class Searcher:
 
         return result_q
 
-    # def get_fields(self, model):
-    #     """Get the list of SearchFields instances used to search in 'model'.
-    #
-    #     @param model: Class inheriting <django.db.models.Model>.
-    #     @return: List of <creme_core.models.search.SearchField> objects.
-    #     """
-    #     return self._search_map[model]
     def get_cells(self, model: Type[Model]) -> List[entity_cell.EntityCell]:
         """Get the list of EntityCells instances used to search in 'model'."""
         return self._search_map[model]
@@ -168,18 +145,13 @@ class Searcher:
         @param research: Searched string ; it's split in words (see utils.string.smart_split()).
         @return: Queryset on model or None ; None means 'All fields are hidden'.
         """
-        # searchfields = self.get_fields(model)
         cells = self.get_cells(model)
 
-        # assert searchfields is not None  # search on a disabled model ?
         assert cells is not None  # search on a disabled model ?
 
         strings = smart_split(research)
 
         # TODO: distinct() only if there is a JOIN...
-        # return model.objects.filter(
-        #     self._build_query(strings, searchfields)
-        # ).distinct() if searchfields else None
         return model.objects.filter(
             self._build_query(strings, cells)
         ).distinct() if cells else None

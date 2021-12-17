@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -58,7 +58,6 @@ def _add_tags_to_fields():
     )
 
     def _set_tags(self, **kwargs):
-        # for tag_name in ('clonable', 'viewable', 'enumerable', 'optional'):
         for tag in FieldTag:
             tag_name = tag.value
             value = kwargs.pop(tag_name, None)
@@ -70,7 +69,6 @@ def _add_tags_to_fields():
 
         return self
 
-    # def _get_tag(self, tag_name):
     def _get_tag(self, tag):
         tag_name = tag.value if isinstance(tag, FieldTag) else tag
         try:

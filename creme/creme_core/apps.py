@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,7 +57,6 @@ if TYPE_CHECKING:
     from .gui.listview.search import ListViewSearchFieldRegistry
     from .gui.listview.smart_columns import SmartColumnsRegistry
     from .gui.mass_import import FormRegistry  # TODO: rename ?
-    # from .gui.menu import Menu
     from .gui.menu import CreationMenuRegistry, MenuRegistry
     from .gui.merge import _MergeFormRegistry
     from .gui.quick_forms import QuickFormsRegistry
@@ -151,7 +150,6 @@ class ContentTypesConfig(VanillaContentTypesConfig):
         meta = ContentType._meta
         assert not meta.ordering, 'It seems ContentType has an ordering policy now ?!'
 
-        # meta.ordering = ('id', )
         meta.ordering = ['id']
 
         get_ct_field = meta.get_field
@@ -281,7 +279,6 @@ class CremeAppConfig(AppConfig):
             self.register_icons(icons.icon_registry)
             self.register_imprints(imprint.imprint_manager)
             self.register_mass_import(mass_import.import_form_registry)
-            # self.register_menu(menu.creme_menu)
             self.register_menu_entries(menu.menu_registry)
             self.register_creation_menu(menu.creation_menu_registry)
             self.register_merge_forms(merge.merge_form_registry)
@@ -347,9 +344,6 @@ class CremeAppConfig(AppConfig):
     def register_mass_import(self, import_form_registry: 'FormRegistry') -> None:
         pass
 
-    # def register_menu(self, creme_menu: 'Menu') -> None:
-    #     pass
-
     def register_menu_entries(self, menu_registry: 'MenuRegistry') -> None:
         pass
 
@@ -405,8 +399,6 @@ class CremeCoreConfig(CremeAppConfig):
         if self.MIGRATION_MODE:
             return
 
-        # self.tag_ctype()
-
         self.hook_fk_formfield()
         self.hook_fk_check()
         self.hook_m2m_formfield()
@@ -420,78 +412,6 @@ class CremeCoreConfig(CremeAppConfig):
             ready()
 
         super().all_apps_ready()
-
-    # def register_menu(self, creme_menu):
-    #     from django.urls import reverse_lazy as reverse
-    #
-    #     from .auth import SUPERUSER_PERM
-    #     from .gui.menu import (
-    #         ContainerItem,
-    #         CreationFormsItem,
-    #         ItemGroup,
-    #         LastViewedEntitiesItem,
-    #         QuickCreationItemGroup,
-    #         TrashItem,
-    #         URLItem,
-    #     )
-    #     from .gui.quick_forms import quickforms_registry
-    #
-    #     creme_menu.add(
-    #         ContainerItem(
-    #             'creme', label='Creme',
-    #         ).add(
-    #             URLItem('home', url=reverse('creme_core__home'), label=_('Home')), priority=10,
-    #         ).add(
-    #             TrashItem('trash'), priority=20,  # TODO: icon ?
-    #         ).add(
-    #             ItemGroup(
-    #                 'user', label=_('User'),
-    #             ).add(
-    #                 URLItem('my_page', url=reverse('creme_core__my_page'), label=_('My page')),
-    #                 priority=10,
-    #             ).add(
-    #                 URLItem('my_jobs', url=reverse('creme_core__my_jobs'), label=_('My jobs')),
-    #                 priority=20,
-    #             ),
-    #             priority=30,
-    #         ).add(
-    #             URLItem('logout', url=reverse('creme_logout'), label=_('Log out')), priority=40,
-    #         ),
-    #         priority=10,
-    #     ).add(
-    #         ItemGroup(
-    #             'features',
-    #         ).add(
-    #             ContainerItem(
-    #                 'tools', label=_('Tools'),
-    #             ).add(
-    #                 URLItem(
-    #                     'creme_core-jobs', url=reverse('creme_core__jobs'),
-    #                     label=_('Jobs'), perm=SUPERUSER_PERM,
-    #                 ),
-    #                 priority=5,
-    #             ),
-    #             priority=100,
-    #         ),
-    #         priority=20,
-    #     ).add(
-    #         ContainerItem(
-    #             'creation', label=_('+ Creation'),
-    #         ).add(
-    #             ItemGroup('main_entities', label=_('Main entities')),
-    #             priority=10,
-    #         ).add(
-    #             QuickCreationItemGroup('quick_forms', registry=quickforms_registry),
-    #             priority=20,
-    #         ).add(
-    #             CreationFormsItem('any_forms', label=_('Other type of entity')),
-    #             priority=30,
-    #         ),
-    #         priority=30,
-    #     ).add(
-    #         LastViewedEntitiesItem('recent_entities', label=_('Recent entities')),
-    #         priority=40,
-    #     )
 
     def register_menu_entries(self, menu_registry):
         from . import menu
@@ -802,15 +722,6 @@ class CremeCoreConfig(CremeAppConfig):
         from django.forms.widgets import Select
 
         Select.template_name = 'creme_core/forms/widgets/select.html'
-
-    # @staticmethod
-    # def tag_ctype():
-    #     from django.contrib.contenttypes.models import ContentType
-    #
-    #     get_ct_field = ContentType._meta.get_field
-    #
-    #     for fname in ('app_label', 'model'):
-    #         get_ct_field(fname).set_tags(viewable=False)
 
 
 def creme_app_configs():

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -45,6 +45,3 @@ def get_project_model():
 def get_task_model():
     """Returns the ProjectTask model that is active in this django software."""
     return get_concrete_model('PROJECTS_TASK_MODEL')
-
-
-# default_app_config = 'creme.projects.apps.ProjectsConfig'

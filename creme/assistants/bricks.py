@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -113,16 +113,12 @@ class TodosBrick(_AssistantsBrick):
         return qs.select_related('user')
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return ToDo.objects.filter(entity_id=entity.id).select_related('user')
         return self._improve_queryset(
             self.dependencies[0].objects.filter(entity_id=entity.id),
             context=context,
         )
 
     def _get_queryset_for_home(self, context):
-        # return ToDo.objects.filter_by_user(
-        #     context['user']
-        # ).filter(entity__is_deleted=False).select_related('user')
         return self._improve_queryset(
             self.dependencies[0].objects
                                 .filter_by_user(context['user'])
@@ -144,7 +140,6 @@ class MemosBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/memos.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Memo.objects.filter(entity_id=entity.id).select_related('user')
         return self.dependencies[0].objects.filter(
             entity_id=entity.id,
         ).select_related('user')
@@ -191,21 +186,12 @@ class AlertsBrick(_AssistantsBrick):
         return qs.select_related('user')
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Alert.objects.filter(
-        #     is_validated=False, entity_id=entity.id,
-        # ).select_related('user')
         return self._improve_queryset(
             self.dependencies[0].objects.filter(entity_id=entity.id),
             context=context,
         )
 
     def _get_queryset_for_home(self, context):
-        # return Alert.objects.filter_by_user(
-        #     context['user'],
-        # ).filter(
-        #     is_validated=False,
-        #     entity__is_deleted=False,
-        # ).select_related('user')
         return self._improve_queryset(
             self.dependencies[0].objects
                                 .filter_by_user(context['user'])
@@ -220,13 +206,11 @@ class _ActionsBrick(_AssistantsBrick):
     order_by = 'deadline'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return Action.objects.filter(
         return self.dependencies[0].objects.filter(
             entity_id=entity.id, is_ok=False,
         ).select_related('user')
 
     def _get_queryset_for_home(self, context):
-        # return Action.objects.filter_by_user(
         return self.dependencies[0].objects.filter_by_user(
             context['user'],
         ).filter(
@@ -293,13 +277,11 @@ class UserMessagesBrick(_AssistantsBrick):
     template_name = 'assistants/bricks/messages.html'
 
     def _get_queryset_for_detailview(self, entity, context):
-        # return UserMessage.objects.filter(
         return self.dependencies[0].objects.filter(
             entity_id=entity.id, recipient=context['user'],
         ).select_related('sender')
 
     def _get_queryset_for_home(self, context):
-        # return UserMessage.objects.filter(
         return self.dependencies[0].objects.filter(
             recipient=context['user'], entity__is_deleted=False,
         ).select_related('sender')

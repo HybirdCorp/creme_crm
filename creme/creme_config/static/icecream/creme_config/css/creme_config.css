@@ -1,4 +1,3 @@
-/* li.ui-creme-navigation-item-id_creme_config > svg:nth-child(2), */
 li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     fill: currentColor;
     width: 11px;
@@ -64,22 +63,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 /* UserRoles brick */
-/*
-.creme_config-roles-brick .role-name {
-    width: 10%;
-}
-
-.creme_config-roles-brick th.role-apps,
-.creme_config-roles-brick th.role-admin-apps,
-.creme_config-roles-brick th.role-creation-creds,
-.creme_config-roles-brick th.role-export-creds {
-    width: 15%;
-}
-
-.creme_config-roles-brick th.role-creds {
-    width: 25%;
-}
-*/
 
 .creme_config-roles-brick .role-creds > ul {
     list-style: none;
@@ -197,19 +180,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* Custom-forms brick */
 
-/*
-.creme_config-customforms-brick td.customform-config-ctype-label {
-    width: 300px;
-}
-*/
-
-/* .creme_config-customforms-brick .customform-config-item + .customform-config-item { */
 .creme_config-customforms-brick .customform-config-ctype + .customform-config-ctype {
     margin-top: 0px;
     border-top: 1px solid #ccc;
 }
 
-/* .creme_config-customforms-brick .customform-config-group-title { */
 .creme_config-customforms-brick .customform-config-ctype-title {
     min-width: 160px;
 
@@ -320,12 +295,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-left: 480px;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-block { */
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block {
     border: 1px solid #ccc;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-block-header { */
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block-header {
     border-bottom: 1px solid #dedede;
 
@@ -337,7 +310,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     font-weight: 600;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-block-content table { */
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block-content table {
     border-spacing: 0;
     border-collapse: collapse;
@@ -346,57 +318,35 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-left: 6px;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-block-content table tbody tr:not(:last-child) { */
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block-content table tbody tr:not(:last-child) {
     border-bottom: 1px solid #ddd;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-block + .customform-config-block { */
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block + .customform-config-block {
     margin-top: 15px;
 }
 
-/*
-.creme_config-customforms-brick .brick-table-content .customform-config-block td[data-table-primary-column] {
-    width: 100%;
-}
-*/
 .creme_config-customforms-brick .customform-config-item-content .customform-config-block td[data-table-primary-column] {
     width: 100%;
     font-weight: 600;
 }
 
-/*
-.creme_config-customforms-brick .customform-config-item.customform-config-collapsed .customform-config-group,
-.creme_config-customforms-brick .customform-config-item:not(.customform-config-collapsed) .customform-config-show-details,
-.creme_config-customforms-brick .customform-config-item.customform-config-collapsed .customform-config-hide-details {
-*/
 .creme_config-customforms-brick .customform-config-ctype.customform-config-collapsed .customform-config-ctype-content,
 .creme_config-customforms-brick .customform-config-ctype:not(.customform-config-collapsed) .customform-config-show-details,
 .creme_config-customforms-brick .customform-config-ctype.customform-config-collapsed .customform-config-hide-details {
     display: none;
 }
 
-/*
-.creme_config-customforms-brick .customform-config-item .customform-config-show-details,
-.creme_config-customforms-brick .customform-config-item .customform-config-hide-details {
-*/
 .creme_config-customforms-brick .customform-config-ctype .customform-config-show-details,
 .creme_config-customforms-brick .customform-config-ctype .customform-config-hide-details {
     padding-left: 20px;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .customform-config-fields-actions { */
 .creme_config-customforms-brick .brick-table-content .customform-config-fields-actions {
     margin-top: 10px;
 }
 
-/* .creme_config-customforms-brick .brick-table-content .help-instructions { */
 .creme_config-customforms-brick .help-instructions {
-/*
-    margin-bottom: 15px;
-    font-size: 12px;
-*/
     margin-top: 3px;
     margin-bottom: 8px;
 
@@ -569,7 +519,6 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     white-space: nowrap;
 }
 
-/* .creme_config-fields-brick td.fieldconf-hidden-fields { */
 .creme_config-fields-brick td.fieldconf-fields {
     width: 100%;
 }

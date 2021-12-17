@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -57,7 +57,6 @@ def mobile_location_map_url(address):
 
 # TODO: move to creme_core ??
 @register.simple_tag(takes_context=True)
-# def prepare_fields(context, instance, *field_names):
 def mobile_prepare_fields(context, instance, *field_names):
     is_hidden = context['fields_configs'].get_for_model(instance.__class__).is_fieldname_hidden
 
@@ -75,7 +74,6 @@ _DOCUMENT_CLASSES = [
 
 
 @register.simple_tag
-# def document_class(request):
 def mobile_document_class(request):
     agent = request.META.get('HTTP_USER_AGENT')  # TODO: request.headers['User-Agent'] ??
 
@@ -89,7 +87,6 @@ def mobile_document_class(request):
 
 # TODO: remove when Organisations can participate
 @register.filter
-# def orga_subjects(activity):
 def mobile_organisation_subjects(activity):
     return Organisation.objects.filter(
         relations__type=REL_SUB_ACTIVITY_SUBJECT,
@@ -108,7 +105,6 @@ _BUTTONS = {
 
 
 @register.inclusion_tag('mobile/templatetags/activity_card.html', takes_context=True)
-# def activity_card(context, activity,
 def mobile_activity_card(context, activity,
                          button_panel=START_STOP_BUTTONS,
                          show_date=True,
@@ -141,7 +137,6 @@ def mobile_activity_card(context, activity,
 
 
 @register.inclusion_tag('mobile/templatetags/footer.html')
-# def get_footer(show_delog=True):
 def mobile_footer(show_delog=True):
     return {
         'REDIRECT_FIELD_NAME':    REDIRECT_FIELD_NAME,

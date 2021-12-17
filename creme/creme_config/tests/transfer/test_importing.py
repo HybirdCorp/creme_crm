@@ -277,7 +277,6 @@ class ImportingTestCase(CremeTestCase):
 
         name = 'Role#1'
         data = {
-            # 'version': '1.0',
             'version': self.VERSION,
             'roles': [{
                 'name': name,
@@ -389,7 +388,6 @@ class ImportingTestCase(CremeTestCase):
         )
 
         data = {
-            # 'version': '1.0',
             'version': self.VERSION,
             'roles': [{
                 'name': role.name,
@@ -679,10 +677,6 @@ class ImportingTestCase(CremeTestCase):
 
         cf_uuid = '6a52b4db-f838-489f-b6df-d1558b3938e5'
         search_data = [
-            # {'ctype': 'creme_core.fakecontact',      'fields': 'first_name,last_name'},
-            # {'ctype': 'creme_core.fakeorganisation', 'fields': 'name',  'role': role.name},
-            # {'ctype': 'creme_core.fakedocument',     'fields': 'title', 'superuser': True},
-            # {'ctype': 'creme_core.fakeactivity',     'fields': '',      'disabled': True},
             {
                 'ctype': 'creme_core.fakecontact',
                 'cells': [
@@ -705,7 +699,6 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        # json_file = StringIO(json_dump({'version': '1.0', 'search': search_data}))
         json_file = StringIO(json_dump({
             'version': self.VERSION,
             'search': search_data,
@@ -728,9 +721,6 @@ class ImportingTestCase(CremeTestCase):
         sci1 = self.get_object_or_fail(
             SearchConfigItem, content_type=contact_ct, role=None, superuser=False,
         )
-        # fields1 = sci1.searchfields
-        # self.assertEqual(2, len(fields1))
-        # self.assertEqual('first_name', fields1[0].name)
         self.assertListEqual(
             [
                 EntityCellRegularField.build(FakeContact, 'first_name'),
@@ -767,7 +757,6 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
         data = {
-            # 'version': '1.0',
             'version': self.VERSION,
             'roles': [{
                 'name': role_name,
@@ -803,10 +792,6 @@ class ImportingTestCase(CremeTestCase):
             content_type=ContentType.objects.get_for_model(FakeContact),
             role__name=role_name, superuser=False,
         )
-        # fields = sci.searchfields
-        # self.assertEqual(2, len(fields))
-        # self.assertEqual('last_name',   fields[0].name)
-        # self.assertEqual('description', fields[1].name)
         self.assertListEqual(
             ['last_name', 'description'],
             [cell.value for cell in sci.cells],
@@ -870,8 +855,6 @@ class ImportingTestCase(CremeTestCase):
         "Do no override a not custom ptype."
         self.login(is_staff=True)
 
-        # ptype = CremePropertyType.objects.filter(is_custom=False).first()
-        # self.assertIsNotNone(ptype)
         ptype = CremePropertyType.objects.create(
             pk='creme_config-test_import_property_types03', text='Sugoi !',
         )
@@ -1062,7 +1045,6 @@ class ImportingTestCase(CremeTestCase):
         "A related property types is imported"
         self.login(is_staff=True)
 
-        # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
         ptype1 = CremePropertyType.objects.smart_update_or_create(
             str_pk='creme_config-test_import_relation_types05_1',
             text='Is very important',
@@ -2467,11 +2449,6 @@ class ImportingTestCase(CremeTestCase):
               'filter id="{id}".').format(subfilter=ef_id2, id=ef_id1)
         )
 
-        # with self.assertNoException():
-        #     errors = response.context['form'].errors
-        #
-        # self.assertTrue(errors)
-
     def test_entityfilters_error08(self):
         "Invalid condition: relation sub-filters (unknown filter)."
         self.login(is_staff=True)
@@ -2568,27 +2545,6 @@ class ImportingTestCase(CremeTestCase):
         gname3 = 'Info'
         data = {
             'version': self.VERSION,
-            # 'custom_forms': [{
-            #     'id': desc.id,
-            #     'groups': [
-            #         {
-            #             'name': gname1,
-            #             'layout': LAYOUT_DUAL_FIRST,
-            #             'cells': [
-            #                 {'type': EntityCellRegularField.type_id, 'value': 'user'},
-            #                 {'type': EntityCellRegularField.type_id, 'value': 'name'},
-            #                 {'type': EntityCellCustomField.type_id, 'value': cf_uuid},
-            #                 {
-            #                     'type': EntityCellCustomFormSpecial.type_id,
-            #                     'value': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
-            #                 },
-            #             ],
-            #         }, {
-            #             'group_id': FakeAddressGroup.extra_group_id,
-            #             'layout': LAYOUT_DUAL_SECOND,
-            #         },
-            #     ],
-            # }],
             'roles': [{
                 'name': role_name,
 
@@ -2675,29 +2631,6 @@ class ImportingTestCase(CremeTestCase):
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
-        # groups = desc.groups()
-        # self.assertEqual(2, len(groups))
-        #
-        # group1 = groups[0]
-        # self.assertEqual(gname1, group1.name)
-        # self.assertEqual(LAYOUT_DUAL_FIRST, group1.layout)
-        #
-        # self.assertListEqual(
-        #     [
-        #         EntityCellRegularField.build(model=FakeOrganisation, name='user'),
-        #         EntityCellRegularField.build(model=FakeOrganisation, name='name'),
-        #         EntityCellCustomField(cfield),
-        #         EntityCellCustomFormSpecial(
-        #             model=FakeOrganisation,
-        #             name=EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS,
-        #         ),
-        #     ],
-        #     [*group1.cells],
-        # )
-        #
-        # group2 = groups[1]
-        # self.assertIsInstance(group2, FakeAddressGroup)
-        # self.assertEqual(LAYOUT_DUAL_SECOND, group2.layout)
         cfci01 = self.get_object_or_fail(
             CustomFormConfigItem,
             descriptor_id=desc.id, role=None, superuser=False,
@@ -2757,10 +2690,8 @@ class ImportingTestCase(CremeTestCase):
     def test_customforms_error(self):
         self.login(is_staff=True)
 
-        # cform_id = 'INVALID'
         descriptor_id = 'INVALID'
         cforms_data = [{
-            # 'id': cform_id,
             'descriptor': descriptor_id,
             'groups': [],
         }]
@@ -2771,7 +2702,6 @@ class ImportingTestCase(CremeTestCase):
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
             response, 'form', 'config',
-            # f'The custom-form ID is invalid: {cform_id}',
             f"The custom-form descriptor ID is invalid: {descriptor_id}",
         )
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,6 @@
 import logging
 
 from django.contrib.auth import get_user_model
-# from django.db import IntegrityError
 from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse
@@ -29,10 +28,8 @@ from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core import utils
 from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
-# from creme.creme_core.models import BrickState
 from creme.creme_core.models import lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
@@ -177,35 +174,6 @@ class UserActivation(generic.CheckedView):
         return HttpResponse()
 
 
-# class HideInactiveUsers(generic.CheckedView):
-#     value_arg = 'value'
-#     brick_cls = UsersBrick
-#
-#     def post(self, request, **kwargs):
-#         value = utils.get_from_POST_or_404(
-#             request.POST,
-#             key=self.value_arg,
-#             cast=utils.bool_from_str_extended,
-#         )
-#
-#         # NB: we can still have a race condition because we do not use
-#         #     select_for_update ; but it's a state related to one user & one brick,
-#         #     so it would not be a real world problem.
-#         for _i in range(10):
-#             state = BrickState.objects.get_for_brick_id(
-#                 brick_id=self.brick_cls.id_, user=request.user,
-#             )
-#
-#             try:
-#                 if state.set_extra_data(key=BRICK_STATE_HIDE_INACTIVE_USERS, value=value):
-#                     state.save()
-#             except IntegrityError:
-#                 logger.exception('Avoid a duplicate.')
-#                 continue
-#             else:
-#                 break
-#
-#         return HttpResponse()
 class HideInactiveUsers(BrickStateExtraDataSetting):
     brick_cls = UsersBrick
     data_key = BRICK_STATE_HIDE_INACTIVE_USERS

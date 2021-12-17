@@ -18,42 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.db.models.query_utils import Q
 
-# from .. import get_folder_model
 from creme.creme_core.forms import CremeEntityForm
 from creme.creme_core.forms.bulk import BulkDefaultEditForm
-
-# Folder = get_folder_model()
-
-
-# class _FolderForm(CremeEntityForm):
-#     class Meta(CremeEntityForm.Meta):
-#         model = Folder
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('_FolderForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-
-
-# class FolderForm(_FolderForm):
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('FolderForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#         pk = self.instance.id
-#         if pk:
-#             self.fields['parent_folder'].q_filter = ~Q(id=pk)
-
-
-# class ChildFolderForm(_FolderForm):
-#     class Meta(_FolderForm.Meta):
-#         exclude = ('parent_folder',)
-#
-#     def __init__(self, entity, *args, **kwargs):
-#         warnings.warn('ChildFolderForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#         self.instance.parent_folder = entity
 
 
 class BaseFolderCustomForm(CremeEntityForm):

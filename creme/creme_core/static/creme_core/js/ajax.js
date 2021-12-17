@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -149,25 +149,6 @@ creme.ajax.reloadContent = function($target, target_url) {
 };
 
 creme.ajax.json = {};
-/*
-creme.ajax.json._handleSendError = function(req, textStatus, errorThrown) {
-    var message;
-
-    switch (textStatus) {
-        case "parsererror":
-            message = "JSON parse error"; break;
-        default:
-            message = String(req.status) + " " + req.statusText;
-    };
-
-    return {
-        type: "request",
-        status: req.status,
-        request: req,
-        message: message
-    };
-};
-*/
 
 creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, parameters) {
     console.warn('creme.ajax.json.send is deprecated. Use creme.ajax.Query(...) instead');
@@ -176,31 +157,6 @@ creme.ajax.json.send = function(url, data, success_cb, error_cb, sync, method, p
         sync: sync,
         method: method
     }, parameters || {}));
-/*
-    var ajax_parameters = {
-        async: !sync,
-        type: method,
-        url: url,
-        data: data !== undefined ? data : '',
-        dataType: "json",
-        success: function(data, textStatus) {
-            if (Object.isFunc(success_cb)) {
-                success_cb(data, textStatus);
-            }
-        },
-        error: function(req, textStatus, errorThrown) {
-            if (Object.isFunc(error_cb)) {
-                error_cb(req.responseText, creme.ajax.json._handleSendError(req, textStatus, errorThrown));
-            }
-        }
-    };
-
-    if (parameters !== undefined) {
-        ajax_parameters = $.extend(ajax_parameters, parameters);
-    }
-
-    $.ajax(ajax_parameters);
-*/
 };
 
 creme.ajax.json.post = function(url, data, success_cb, error_cb, sync, parameters) {
@@ -251,15 +207,5 @@ creme.ajax.json.parse = function(data) {
         return null;
      }
  };
-
-/* Never used. Anyway creme.ajax.jqueryFormSubmit() should be used instead
-creme.ajax.json.ajaxFormSubmit = function($form, success_cb, error_cb, sync, parameters) {
-    creme.ajax.json.post($form.attr('action'),
-                         $form.serialize(),
-                         success_cb || function(data) { $form.html(data.form); },
-                         error_cb, sync, parameters
-    );
-};
-*/
 
 }(jQuery));

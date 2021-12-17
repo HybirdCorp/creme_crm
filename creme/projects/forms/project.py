@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from functools import partial
 
 from django.utils.translation import gettext_lazy as _
@@ -28,36 +27,7 @@ from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation
 from creme.persons import get_contact_model
 
-# from .. import get_project_model
 from ..constants import REL_OBJ_PROJECT_MANAGER
-
-# class ProjectEditForm(CremeEntityForm):
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ProjectEditForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#
-#     class Meta(CremeEntityForm.Meta):
-#         model = get_project_model()
-
-
-# class ProjectCreateForm(ProjectEditForm):
-#     responsibles = MultiCreatorEntityField(label=_('Project leaders'), model=get_contact_model())
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('ProjectCreateForm is deprecated.', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
-#
-#     def _get_relations_to_create(self):
-#         instance = self.instance
-#         build_relation = partial(
-#             Relation, user=instance.user,
-#             type_id=REL_OBJ_PROJECT_MANAGER, subject_entity=instance,
-#         )
-#
-#         return super()._get_relations_to_create().extend(
-#             build_relation(object_entity=contact)
-#             for contact in self.cleaned_data['responsibles']
-#         )
 
 
 class ProjectLeadersSubCell(CustomFormExtraSubCell):

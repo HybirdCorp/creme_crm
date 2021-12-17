@@ -67,7 +67,6 @@ class MobileTemplatetagsTestCase(MobileBaseTestCase):
         user = self.login()
         address = self.create_address(user)
 
-        # address.geoaddress.status = GeoAddress.COMPLETE
         address.geoaddress.status = GeoAddress.Status.COMPLETE
         address.geoaddress.latitude = 42.33
         address.geoaddress.longitude = 5.28

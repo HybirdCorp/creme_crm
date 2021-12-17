@@ -156,7 +156,6 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(str(orga02), hline.entity_repr)
 
     def _add_approach_extra_cell(self):
-        # cfci = CustomFormConfigItem.objects.get(cform_id=ACTIVITY_CREATION_CFORM.id)
         cfci = CustomFormConfigItem.objects.get(descriptor_id=ACTIVITY_CREATION_CFORM.id)
         old_groups = ACTIVITY_CREATION_CFORM.groups(item=cfci)
         new_groups = FieldGroupList(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,6 @@
 ################################################################################
 
 import logging
-# import warnings
 from json import loads as json_load
 from time import sleep
 
@@ -37,32 +36,11 @@ from django.utils.translation import pgettext, pgettext_lazy
 
 from creme.creme_core.models import CremeEntity, CremeModel
 
-# from ..constants import MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR
 from ..utils import EMailSender, ImageFromHTMLError, generate_id
 from .mail import ID_LENGTH, _Email
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
-
-# SENDING_TYPE_IMMEDIATE = 1
-# SENDING_TYPE_DEFERRED  = 2
-#
-# SENDING_TYPES = {
-#     SENDING_TYPE_IMMEDIATE: _('Immediate'),
-#     SENDING_TYPE_DEFERRED:  pgettext_lazy('emails-sending', 'Deferred'),
-# }
-
-# SENDING_STATE_DONE       = 1
-# SENDING_STATE_INPROGRESS = 2
-# SENDING_STATE_PLANNED    = 3
-# SENDING_STATE_ERROR      = 4
-#
-# SENDING_STATES = {
-#     SENDING_STATE_DONE:       pgettext_lazy('emails-sending', 'Done'),
-#     SENDING_STATE_INPROGRESS: _('In progress'),
-#     SENDING_STATE_PLANNED:    pgettext_lazy('emails-sending', 'Planned'),
-#     SENDING_STATE_ERROR:      _('Error during sending'),
-# }
 
 
 class EmailSending(CremeModel):
@@ -84,13 +62,11 @@ class EmailSending(CremeModel):
     )
     type = models.PositiveSmallIntegerField(
         verbose_name=_('Sending type'),
-        # choices=SENDING_TYPES.items(), default=SENDING_TYPE_IMMEDIATE,
         choices=Type.choices, default=Type.IMMEDIATE,
     )
     sending_date = models.DateTimeField(_('Sending date'))
     state = models.PositiveSmallIntegerField(
         verbose_name=_('Sending state'), editable=False,
-        # choices=SENDING_STATES.items(), default=SENDING_STATE_PLANNED,
         choices=State.choices, default=State.PLANNED,
     )
 
@@ -122,22 +98,6 @@ class EmailSending(CremeModel):
             date=date_format(localtime(self.sending_date), 'DATETIME_FORMAT'),
         )
 
-    # def get_mails(self):
-    #     warnings.warn('EmailSending.get_mails() is deprecated ;'
-    #                   'use .mails_set instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.mails_set.all()
-
-    # def get_unsent_mails_count(self):
-    #     warnings.warn('EmailSending.get_unsent_mails_count() is deprecated ;'
-    #                   'use the property unsent_mails instead.',
-    #                   DeprecationWarning
-    #                  )
-    #     return self.mails_set.filter(
-    #         status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR],
-    #     ).count()
-
     def get_absolute_url(self):
         return reverse('emails__view_sending', args=(self.id,))
 
@@ -163,7 +123,6 @@ class EmailSending(CremeModel):
                 fail_silently=False,
             )
 
-            # return SENDING_STATE_ERROR
             return self.State.ERROR
 
         connection = get_connection(
@@ -192,14 +151,12 @@ class EmailSending(CremeModel):
                 sleep(SLEEP_TIME)  # Avoiding the mail to be classed as spam
 
         if not one_mail_sent:
-            # return SENDING_STATE_ERROR
             return self.State.ERROR
 
         # TODO: close the connection ??
 
     @property
     def unsent_mails(self):
-        # return self.mails_set.filter(status__in=[MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR])
         Status = _Email.Status
 
         return self.mails_set.filter(status__in=[Status.NOT_SENT, Status.SENDING_ERROR])

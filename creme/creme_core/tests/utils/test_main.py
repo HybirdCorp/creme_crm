@@ -375,30 +375,6 @@ better &amp; lighter than the previous one.
         # Missing second " + special char \"
         self.assertEqual(['foo', 'bar', '"baz'], smart_split('foo bar" \\"baz '))
 
-    # def test_entities2unicode(self):
-    #     user = self.login(is_superuser=False)
-    #
-    #     SetCredentials.objects.create(
-    #         role=self.role, value=EntityCredentials.VIEW, set_type=SetCredentials.ESET_OWN,
-    #     )
-    #
-    #     create_orga = partial(FakeOrganisation.objects.create, user=user)
-    #     orga1 = create_orga(name='Acme#1')
-    #     orga2 = create_orga(name='Acme#2')
-    #     orga3 = create_orga(name='Acme#3', user=self.other_user)
-    #
-    #     self.assertEqual('', entities2unicode([], user))
-    #     self.assertEqual(orga1.name, entities2unicode([orga1], user))
-    #     self.assertEqual(orga2.name, entities2unicode([orga2], user))
-    #     self.assertEqual(
-    #         gettext('Entity #{id} (not viewable)').format(id=orga3.id),
-    #         entities2unicode([orga3], user),
-    #     )
-    #     self.assertEqual(
-    #         f'{orga1.name}, {orga2.name}',
-    #         entities2unicode([orga1, orga2], user),
-    #     )
-
     def test_entities_to_str(self):
         user = self.login(is_superuser=False)
 

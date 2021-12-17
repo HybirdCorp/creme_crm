@@ -23,32 +23,7 @@
 
 {#  Popups will use this <div> as bounds for drag-n-drop and resize. Fix some positioning issues with horizontal menu. #}
     <div class="ui-dialog-within-container"></div>
-    <div id="content" class="main_content main-content {% block content_extra_class %}{% endblock %}">
-{% comment %}
-        {% block before_content_1 %}
-        {% endblock %}
-
-        {% block before_content_2 %}
-        {% endblock %}
-
-        {% block before_content_3 %}
-        {% endblock %}
-{% endcomment %}
-
-        {% block content %}
-        {% endblock %}
-
-{% comment %}
-        {% block after_content_1 %}
-        {% endblock %}
-
-        {% block after_content_2 %}
-        {% endblock %}
-
-        {% block after_content_3 %}
-        {% endblock %}
-{% endcomment %}
-    </div>
+    <div id="content" class="main_content main-content {% block content_extra_class %}{% endblock %}">{% block content %}{% endblock %}</div>
     {% include 'footer/footer.html' %}
 </body>
 </html>

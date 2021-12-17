@@ -39,7 +39,6 @@
                             {% elif sc_item.all_fields %}
                             <em>{% translate 'All fields' %}</em>
                             {% else %}
-{#                            {{sc_item.searchfields|join:' / '}} #}
                             {{sc_item.cells|join:' / '}}
                             {% endif %}
                         </td>

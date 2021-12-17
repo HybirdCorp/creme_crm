@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -59,7 +59,6 @@ class _Email(CremeModel):
     )
     status = models.PositiveSmallIntegerField(
         _('Status'), editable=False,
-        # choices=constants.MAIL_STATUS.items(), default=constants.MAIL_STATUS_NOTSENT,
         choices=Status.choices, default=Status.NOT_SENT,
     )
 
@@ -73,7 +72,6 @@ class _Email(CremeModel):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'emails'
 
     def __str__(self):
@@ -86,12 +84,10 @@ class _Email(CremeModel):
 
     @property
     def sent(self):
-        # return self.status == constants.MAIL_STATUS_SENT
         return self.status == self.Status.SENT
 
     @property
     def synchronised(self):
-        # return self.status in constants.MAIL_SYNC_STATUSES
         return self.status in self.SYNCHRONIZATION_STATUSES
 
 
@@ -115,7 +111,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
     class Meta:
         abstract = True
-        # manager_inheritance_from_future = True
         app_label = 'emails'
         verbose_name = pgettext_lazy('emails', 'Email')
         verbose_name_plural = pgettext_lazy('emails', 'Emails')
@@ -182,7 +177,6 @@ class AbstractEntityEmail(_Email, CremeEntity):
 
         # TODO: in a signal handler instead ?
         #       (we need a restore signal, or an official "backup" feature -- see HistoryLine)
-        # if self.status in (constants.MAIL_STATUS_NOTSENT, constants.MAIL_STATUS_SENDINGERROR):
         if self.status in (self.Status.NOT_SENT, self.Status.SENDING_ERROR):
             # TODO: regroup the 'refresh' message, to avoid flooding the job manager
             from ..creme_jobs import entity_emails_send_type
