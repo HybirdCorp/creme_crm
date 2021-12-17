@@ -514,6 +514,15 @@ class SpecificRelationsBrick(QuerysetBrick):
             'Relationship block: «{predicate}»'
         ).format(predicate=rtype.predicate)
 
+        self.description = gettext(
+            'Displays the linked entities which are the objects of relationships «{predicate}» '
+            '(the current entity being the subject of these relationships).\n'
+            'Hint #1: this kind of block can be created in the configuration of blocks.\n'
+            "Hint #2: you can configure the fields which are displayed (in the blocks' "
+            "configuration, or in the block's menu which appears when you click on the "
+            "block's icon)."
+        ).format(predicate=rtype.predicate)
+
     @staticmethod
     def generate_id(app_name: str, name: str) -> str:
         return f'specificblock_{app_name}-{name}'
