@@ -1,7 +1,7 @@
-== Version 2.2.9 Work in progress (not released -- this is a draft) ==
+== Version 2.2.9 ==
 
   UPGRADE NOTE :
-    - You should upgrade the minor version of Django 2.2 (2.2.25 or more).
+    - You should upgrade the minor version of Django 2.2 (2.2.26 or more).
 
   Users side :
   ------------
