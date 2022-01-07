@@ -33,8 +33,8 @@ DATABASES = {
     },
 }
 
-TIME_ZONE = os.getenv('CREME_TIME_ZONE', "Europe/Paris")
-LANGUAGE_CODE = os.getenv('CREME_LANGUAGE_CODE', "fr")
+TIME_ZONE = os.getenv('CREME_TIME_ZONE', "Europe/London")
+LANGUAGE_CODE = os.getenv('CREME_LANGUAGE_CODE', "en")
 
 # Static files (css, js bundles...)
 GENERATED_MEDIA_NAMES_FILE = "/srv/creme/_generated_media_names.py"
