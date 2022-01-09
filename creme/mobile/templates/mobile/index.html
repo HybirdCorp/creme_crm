@@ -8,11 +8,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
 <title>Creme Mobile - {% translate 'Home' %}</title>
-{# <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" /> #}
-{% comment %}<!--CSS files for dev -->
-<link rel="stylesheet" href="base.css" />
-<link rel="stylesheet" href="home.css" />
-{% endcomment %}
 <style type="text/css">
   {% include 'mobile/css/base.css' %}
   {% include 'mobile/css/home.css' %}
@@ -24,25 +19,15 @@
      Here an example for the 'Directory'' to be well displayed: -->
   <link rel="stylesheet" href="directory.css" />
 {% endcomment %}
-
-{% comment %}
-<script>
-if (navigator.userAgent.match(/Android/i)) {
-  document.documentElement.className = 'android';
-} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-  document.documentElement.className = 'ios';
-}
-</script>
-{% endcomment %}
 {% include 'mobile/frags/phonecall_script.html' %}
 </head>
 <body class="page-home with-shortcuts" onload="checkCallCookies()">
 {% comment %}
   <!--  Navigation with pjax-->
   <nav>
-    <a href="index.html" class="tab selected-tab" data-instant>Accueil</a>
-    <a href="frag-directory.html" class="tab" data-instant>Annuaire</a>
-    <a href="frag-activities.html" class="tab" data-instant>Activités</a>
+    <a href="index.html" class="tab selected-tab" data-instant>Home</a>
+    <a href="frag-directory.html" class="tab" data-instant>Directory</a>
+    <a href="frag-activities.html" class="tab" data-instant>Activities</a>
   </nav>
 {% endcomment %}
 
