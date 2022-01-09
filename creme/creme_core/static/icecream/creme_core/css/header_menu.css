@@ -35,7 +35,8 @@
     opacity: 1;
 }
 
-.header-menu img, .header-menu a {
+.header-menu img,
+.header-menu a {
     -webkit-transition: none;
        -moz-transition: none;
             transition: none;
@@ -462,7 +463,10 @@ span.create-group-entry {
     cursor: default;
 }
 
-.search-results-group-title, .search-results-group-title a {color: #888888;}
+.search-results-group-title,
+.search-results-group-title a {
+    color: #888888;
+}
 
 .search-results {
     list-style: none;
@@ -474,7 +478,7 @@ span.create-group-entry {
     padding: 5px; /* split the padding between the list and the items to allow for a padded :hover bg */
 
     background: #fafafa;
-    border-left: 1px solid rgba(0,0,0,0.1);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
 
     font-weight: 600;
 }
@@ -504,10 +508,17 @@ span.create-group-entry {
 
 .search-results-group-title:hover a {text-decoration: underline;}
 
-.search-result:hover, .search-result-selected {background: #7878f7;} /* TODO: find the selection color */
+.search-result:hover,
+.search-result-selected {
+    background: #7878f7;
+} /* TODO: find the selection color */
 
-.search-result:hover a, .search-result:hover .search-result-reason,
-.search-result-selected a, .search-result-selected .search-result-reason {color: white;} /* TODO: find the selection color */
+.search-result:hover a,
+.search-result:hover .search-result-reason,
+.search-result-selected a,
+.search-result-selected .search-result-reason {
+    color: white;
+} /* TODO: find the selection color */
 
 img.search-icon-default {
     position: relative;

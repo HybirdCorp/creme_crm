@@ -734,10 +734,13 @@ form .table_detail_view .merge_result {
 
     list-style: none;
 
-    -moz-column-width: 200px;
-    -moz-column-gap: 20px;
     -webkit-column-width: 200px;
+       -moz-column-width: 200px;
+            column-width: 200px;
+
     -webkit-column-gap: 20px;
+       -moz-column-gap: 20px;
+            column-gap: 20px;
 }
 
 .hfilter_widget .underlay_selector_list .selector {
@@ -871,7 +874,8 @@ form .table_detail_view .merge_result {
     border-right: 1px solid #ddd;
 }
 
-.hfilter_widget .preview_table .preview_row ul, .dragtable-drag-wrapper ul {
+.hfilter_widget .preview_table .preview_row ul,
+.dragtable-drag-wrapper ul {
     margin: 0;
     padding-left: 25px;
 }
@@ -885,7 +889,8 @@ form .table_detail_view .merge_result {
     vertical-align: top;
 }
 
-.hfilter_widget .preview_table_header th:not(:last-child), .preview_table_header td:not(:last-child) {
+.hfilter_widget .preview_table_header th:not(:last-child),
+.preview_table_header td:not(:last-child) {
     border-right: 1px solid #ddd;
 }
 
@@ -956,7 +961,8 @@ table .dragtable-col-placeholder:first {
     cursor: pointer;
 }
 
-.dcms_div ul, .dcms_div li {
+.dcms_div ul,
+.dcms_div li {
     list-style-type: none;
     padding: 0;
     background: #ffffff;
@@ -964,47 +970,50 @@ table .dragtable-col-placeholder:first {
 }
 
 .dcms_div ul {
-    border: 1px solid #6eaac4;
-    -moz-border-radius: 4px;
-    -webkit-border-radius: 4px;
 /*     min-height: 200px; */
     min-width: 100px;
+
+    border: 1px solid #6eaac4;
+    -webkit-border-radius: 4px;
+       -moz-border-radius: 4px;
+            border-radius: 4px;
 }
 
 .dcms_div table {
     width: 100%;
 }
 
-.dcms_div table th.available, .dcms_div table th.chosen {
+.dcms_div table th.available,
+.dcms_div table th.chosen {
     width: 45%;
 }
 
 .dcms_div table tr.content td:hover {
-    background:none;
+    background: none;
 }
 
 .dcms_div table th.less {
-    display:none;
+    display: none;
 }
 
 .dcms_div table th.more {
-    display:table-cell;
+    display: table-cell;
 }
 
 .dcms_div table.reduced th.less {
-    display:table-cell;
+    display: table-cell;
 }
 
 .dcms_div table.reduced th.more {
-    display:none;
+    display: none;
 }
 
 .dcms_div table.reduced .content {
-    display:none;
+    display: none;
 }
 
 .dcms_div table tr.content td:hover {
-    background:none;
+    background: none;
 }
 
 .dcms_button {
