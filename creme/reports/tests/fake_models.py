@@ -42,7 +42,7 @@ else:
 
     class FakeReportsDocument(CremeEntity):
         title = models.CharField(_('Title'), max_length=100)
-        # filedata = models.FileField(_('File'), max_length=500, upload_to='upload/documents')
+        # filedata = models.FileField(_('File'), max_length=500, upload_to='documents')
         linked_folder = models.ForeignKey(
             FakeReportsFolder, verbose_name=_('Folder'), on_delete=models.PROTECT,
         )

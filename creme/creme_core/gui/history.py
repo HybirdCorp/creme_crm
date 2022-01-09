@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -422,7 +422,6 @@ class HistoryLineExplainer:
                                       model_class: Type[models.Model],
                                       modifications: List[tuple],
                                       ) -> Iterator[FieldChangeExplainer]:
-        # get_cfield = CustomField.objects.in_bulk(m[0] for m in modifications).get
         get_cfield = CustomField.objects.get_for_model(model_class).get
 
         field_explainers = self._field_explainers

@@ -3618,7 +3618,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         ibci.set_extra_data(key='value', value=rtype_id)
 
         # fetcher = ReportGraph.get_fetcher_from_instance_brick(ibci)
-        fetcher = fetcher = ReportGraphBrick(ibci).fetcher
+        fetcher = ReportGraphBrick(ibci).fetcher
         x, y = fetcher.fetch_4_entity(entity=user.linked_contact, user=user)
         self.assertListEqual([], x)
         self.assertListEqual([], y)
