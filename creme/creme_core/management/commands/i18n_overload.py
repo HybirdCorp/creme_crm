@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2021 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -92,8 +92,6 @@ class Command(BaseCommand):
         get_opt = options.get
         verbosity = get_opt('verbosity')
 
-        # print(options.get('settings'))
-        # return
         settings_opt = get_opt('settings')
         self.settings_arg = f'--settings={settings_opt}' if settings_opt else ''
 

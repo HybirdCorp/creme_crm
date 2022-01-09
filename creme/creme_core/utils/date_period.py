@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2020  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -101,7 +101,6 @@ class MinutesPeriod(SimpleValueDatePeriod):
     verbose_name = _('Minute(s)')
     frequency = MINUTELY
 
-    # def _ungettext(self, value):
     def _ngettext(self, value):
         return ngettext('{number} minute', '{number} minutes', value)
 
