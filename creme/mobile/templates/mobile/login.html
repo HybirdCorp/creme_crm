@@ -8,23 +8,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black" />
 <meta name="format-detection" content="telephone=no" />
 <title>Creme Mobile - {% translate 'Connection' %}</title>
-{% comment %}
-<link rel="stylesheet" href="base.css" />
-<link rel="stylesheet" href="forms.css" />
-{% endcomment %}
 <style type="text/css">
   {% include 'mobile/css/base.css' %}
   {% include 'mobile/css/forms.css' %}
 </style>
-{% comment %}
-<script>
-if (navigator.userAgent.match(/Android/i)) {
-  document.documentElement.className = 'android';
-} else if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
-  document.documentElement.className = 'ios';
-}
-</script>
-{% endcomment %}
 </head>
 <body class="page-form">
   <section>
