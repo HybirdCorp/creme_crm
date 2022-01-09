@@ -561,7 +561,9 @@ class _CremeTestCase:
 
             raise self.failureException(f'XML are not equal\n{msg}')
 
-    def build_filedata(self, content_str, suffix='.txt'):
+    # def build_filedata(self, content_str, suffix='.txt'):
+    @staticmethod
+    def build_filedata(content_str, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix)
         tmpfile.write(content_str.encode())
         tmpfile.flush()
@@ -573,7 +575,9 @@ class _CremeTestCase:
 
         return tmpfile
 
-    def build_merge_url(self, entity1, entity2):
+    # def build_merge_url(self, entity1, entity2):
+    @staticmethod
+    def build_merge_url(entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
 
     def build_request(self, url='/', user=None):

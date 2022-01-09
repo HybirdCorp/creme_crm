@@ -1294,7 +1294,8 @@ class ProjectsTestCase(CremeTestCase):
     def _titles_set(self, tasks_qs):
         return self._titles_collections(tasks_qs, set)
 
-    def _tasks_pk_set(self, project):
+    @staticmethod
+    def _tasks_pk_set(project):
         return {*project.get_tasks().values_list('pk', flat=True)}
 
     @skipIfCustomTask

@@ -754,14 +754,16 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 @skipIfCustomDocument
 @skipIfCustomFolder
 class DocumentQuickFormTestCase(_DocumentsTestCase):
-    def quickform_data(self, count):
+    @staticmethod
+    def quickform_data(count):
         return {
             'form-INITIAL_FORMS': '0',
             'form-MAX_NUM_FORMS': '',
             'form-TOTAL_FORMS':   str(count),
         }
 
-    def quickform_data_append(self, data, id, user='', filedata='', folder_id=''):
+    @staticmethod
+    def quickform_data_append(data, id, user='', filedata='', folder_id=''):
         return data.update({
             f'form-{id}-user':          user,
             f'form-{id}-filedata':      filedata,

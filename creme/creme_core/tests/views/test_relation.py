@@ -139,10 +139,12 @@ class RelationViewsTestCase(ViewsTestCase):
                           .exists()
         )
 
-    def _build_add_url(self, subject):
+    @staticmethod
+    def _build_add_url(subject):
         return reverse('creme_core__create_relations', args=(subject.id,))
 
-    def count_relations(self, rtype):
+    @staticmethod
+    def count_relations(rtype):
         return Relation.objects.filter(type=rtype).count()
 
     def assert_relation_count(self, counts):
@@ -574,7 +576,8 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(1, subject.relations.count())
 
-    def _build_narrowed_add_url(self, subject, rtype):
+    @staticmethod
+    def _build_narrowed_add_url(subject, rtype):
         return reverse('creme_core__create_relations', args=(subject.id, rtype.id))
 
     def test_add_relations_narrowedtype01(self):
