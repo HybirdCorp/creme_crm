@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2021 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -218,7 +218,7 @@ class _FilterModelFieldQuery:
     def __call__(self, *, model, field, depth):
         # return all(cond(field, deep) for cond in self._conditions)
         # NB: the argument "model" is important because with inheritance it can
-        #     be differant than "field.model"
+        #     be different than "field.model"
         return all(
             cond(model=model, field=field, depth=depth) for cond in self._conditions
         )

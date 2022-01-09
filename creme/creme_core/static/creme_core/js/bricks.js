@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2021  Hybird
+ Copyright (C) 2015-2022  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -401,7 +401,7 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 * The dependencies are used to filter which Bricks have to be reloaded.
 * They consist in a set of strings (NB: generally they are a string representation of server-side models)
 * If a Brick (the 'source') is modified & must be reloaded, the other Brick which should be reloaded are
-* Bricks which have a not-empty intersection betwen their dependencies & the source's dependencies
+* Bricks which have a not-empty intersection between their dependencies & the source's dependencies
 * (see intersect()).
 * Notice that the dependency string '*' is special ; it's a wildcard. If you build a Dependencies instance
 * with a wildcard in the list, this instance's intersect() will always return <true>.

@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block brick_table_columns %}
-    {% brick_table_column title=_('Name') status='primary nowrap' %}{# {% brick_table_column_for_field ctype=objects_ctype field='headerfileter_search... #}
+    {% brick_table_column title=_('Name') status='primary nowrap' %}{# {% brick_table_column_for_field ctype=objects_ctype field='headerfilter_search... #}
 
     {% if 'phone' not in hidden_fields %}
     {% brick_table_column_for_field ctype=objects_ctype field='phone' title=_('Phone')  %}

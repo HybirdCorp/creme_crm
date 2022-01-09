@@ -35,7 +35,7 @@ from ..base import CremeTestCase
 
 
 class ExtractorTestCase(CremeTestCase):
-    # TODO: factorsie
+    # TODO: factorise
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
