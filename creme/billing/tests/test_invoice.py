@@ -1164,7 +1164,8 @@ class InvoiceTestCase(_BillingTestCase):
             discount=Decimal('100.00'),
             # discount_unit=DISCOUNT_LINE_AMOUNT,
             discount_unit=Line.Discount.LINE_AMOUNT,
-            vat_value=Vat.get_default_vat(),
+            # vat_value=Vat.get_default_vat(),
+            vat_value=Vat.objects.default(),
             **kwargs
         )
         self.assertEqual(90, service_line.get_price_exclusive_of_tax())

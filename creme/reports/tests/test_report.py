@@ -1206,9 +1206,9 @@ class ReportTestCase(BaseReportsTestCase):
 
         user_str = str(self.user)
         # Alphabetical ordering ??
-        self.assertEqual('"Ayanami","{}","","Kawaii"'.format(user_str),  next(content))
-        self.assertEqual('"Katsuragi","{}","Nerv",""'.format(user_str),  next(content))
-        self.assertEqual('"Langley","{}","",""'.format(user_str),        next(content))
+        self.assertEqual(f'"Ayanami","{user_str}","","Kawaii"',  next(content))
+        self.assertEqual(f'"Katsuragi","{user_str}","Nerv",""',  next(content))
+        self.assertEqual(f'"Langley","{user_str}","",""',        next(content))
         with self.assertRaises(StopIteration):
             next(content)
 
