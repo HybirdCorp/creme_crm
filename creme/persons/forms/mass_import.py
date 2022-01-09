@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -130,7 +130,7 @@ def get_massimport_form_builder(header_dict, choices, model, base_form=_PersonMa
 
                 # NB: we do not force the field to be required, in order to let
                 #     user do not fill the address at all. Contacts/Organisations
-                #     can be created without Address even if an Address'field is
+                #     can be created without Address even if an Address' field is
                 #     required (by using quick forms, by removing the Addresses
                 #     form-block...), so it would be annoying that mass import
                 #     forces the creation of the 2 Addresses.

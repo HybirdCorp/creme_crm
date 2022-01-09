@@ -4108,7 +4108,7 @@
                 - The view activity.add_fixedtype has been removed.
                 - The method ActivityTypeField._create_widget() has been removed.
                 - The JS function calendar.fullCalendar() takes one additional argument.
-                - The JS function calendar.positionNavigationWidget() has been removed. The header positionning is now done in CSS.
+                - The JS function calendar.positionNavigationWidget() has been removed. The header positioning is now done in CSS.
             * Billing :
                 - The JavaScript function creme.billing.generateInvoiceNumber() takes now an URL (not an ID anymore).
                 - The block billing.blocks.BillingBlock is deprecated ; it is no more used or registered.
