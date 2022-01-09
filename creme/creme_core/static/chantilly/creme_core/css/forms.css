@@ -719,10 +719,13 @@ form .table_detail_view .merge_result {
 
     list-style: none;
 
-    -moz-column-width: 200px;
-    -moz-column-gap: 20px;
     -webkit-column-width: 200px;
+       -moz-column-width: 200px;
+            column-width: 200px;
+
     -webkit-column-gap: 20px;
+       -moz-column-gap: 20px;
+            column-gap: 20px;
 }
 
 .hfilter_widget .underlay_selector_list .selector {
@@ -945,7 +948,8 @@ table .dragtable-col-placeholder:first {
     cursor: pointer;
 }
 
-.dcms_div ul, .dcms_div li {
+.dcms_div ul,
+.dcms_div li {
     list-style-type: none;
     padding: 0;
     background: #ffffff;
@@ -956,16 +960,15 @@ table .dragtable-col-placeholder:first {
     border: 1px solid #6eaac4;
     min-width: 100px;
 
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
+.dcms_div ul
 }
 
 .dcms_div table {
     width: 100%;
 }
 
-.dcms_div table th.available, .dcms_div table th.chosen {
+.dcms_div table th.available,
+.dcms_div table th.chosen {
     width: 45%;
 }
 
