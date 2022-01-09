@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -339,11 +339,9 @@ class MySignaturesBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'emails/bricks/signatures.html'
     configurable = False
-    # NB: used by the view creme_core.views.bricks.reload_basic ;
-    #     None means "No special permission required".
-    #     The brick must be visible by all users ; we check permissions in the
+    # NB: the brick must be visible by all users ; we check permissions in the
     #     render to disabled only forbidden things.
-    # permission = None
+    # permissions = ''
 
     def detailview_display(self, context):
         user = context['user']

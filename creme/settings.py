@@ -204,7 +204,6 @@ DATETIME_INPUT_FORMATS  = [
     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
     # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
-    # (+for some activesync servers)
     '%Y-%m-%dT%H:%M:%S.%fZ',
     '%Y-%m-%dT%H:%M:%S',  # Needed for infopath
 ]
@@ -752,7 +751,6 @@ CREME_OPT_CSS = [  # APPS
     ('creme.billing',          'billing/css/billing.css'),
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
     ('creme.commercial',       'commercial/css/commercial.css'),
-    # ('creme.crudity',          'crudity/css/crudity.css'),
     ('creme.emails',           'emails/css/emails.css'),
 
     ('creme.geolocation',      'geolocation/css/leaflet-1.6.0.css'),
@@ -1308,7 +1306,6 @@ SMS_CAMPAIGN_FORCE_NOT_CUSTOM = False
 SMS_MLIST_FORCE_NOT_CUSTOM    = False
 SMS_TEMPLATE_FORCE_NOT_CUSTOM = False
 
-# CREME_SAMOUSSA_URL = 'http://localhost:8001/'
 CREME_SAMOUSSA_URL = 'http://localhost:8002/'
 CREME_SAMOUSSA_USERNAME = ''
 CREME_SAMOUSSA_PASSWORD = ''
