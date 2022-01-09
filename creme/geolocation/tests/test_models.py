@@ -658,34 +658,34 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
         town3 = self.aubagne
 
         create_address = partial(Address.objects.create, owner=self.orga, address='Mairie')
-        address = create_address(address='La Major', zipcode=town2.zipcode, city=town2.name)
-        self.assertEqual(town2, Town.search(address))
-
-        address = create_address(zipcode=town1.zipcode, city=town1.name)
-        self.assertEqual(town1, Town.search(address))
-
-        address = create_address(zipcode=town3.zipcode)
         self.assertEqual(
-            Town.objects.get(zipcode=town3.zipcode), Town.search(address),
+            town2,
+            Town.search(
+                create_address(address='La Major', zipcode=town2.zipcode, city=town2.name)
+            )
+        )
+
+        self.assertEqual(
+            town1,
+            Town.search(create_address(zipcode=town1.zipcode, city=town1.name))
+        )
+
+        self.assertEqual(
+            Town.objects.get(zipcode=town3.zipcode),
+            Town.search(create_address(zipcode=town3.zipcode)),
         )
 
         # zipcode has priority on city name.
-        address = create_address(zipcode=town3.zipcode, city=town1.name)
         self.assertEqual(
-            Town.objects.get(zipcode=town3.zipcode), Town.search(address),
+            Town.objects.get(zipcode=town3.zipcode),
+            Town.search(create_address(zipcode=town3.zipcode, city=town1.name)),
         )
 
-        address = create_address(city=town1.name)
-        self.assertEqual(town1, Town.search(address))
+        self.assertEqual(town1, Town.search(create_address(city=town1.name)))
 
-        address = create_address()
-        self.assertEqual(None, Town.search(address))
-
-        address = create_address(zipcode='unknown')
-        self.assertEqual(None, Town.search(address))
-
-        address = create_address(city='unknown')
-        self.assertEqual(None, Town.search(address))
+        self.assertIsNone(Town.search(create_address()))
+        self.assertIsNone(Town.search(create_address(zipcode='unknown')))
+        self.assertIsNone(Town.search(create_address(city='unknown')))
 
     def test_town_search_all(self):
         town1 = self.marseille1

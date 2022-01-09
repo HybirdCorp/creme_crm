@@ -677,10 +677,12 @@ class LineTestCase(_BillingTestCase):
         self.assertGET404(self._build_import_url(ServiceLine))
         self.assertGET404(self._build_import_url(ProductLine))
 
-    def _build_add2catalog_url(self, line):
+    @staticmethod
+    def _build_add2catalog_url(line):
         return reverse('billing__add_to_catalog', args=(line.id,))
 
-    def _build_dict_cat_subcat(self, cat, subcat):
+    @staticmethod
+    def _build_dict_cat_subcat(cat, subcat):
         return {'sub_category': json_dump({'category': cat.id, 'subcategory': subcat.id})}
 
     def test_convert_on_the_fly_line_to_real_item_error(self):

@@ -1310,7 +1310,8 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
             response = self.assertGET200(content_url, HTTP_ACCEPT_LANGUAGE=language)
             self.assertEqual(language, response['Content-Language'])
 
-    def _build_edit_user_svalue_url(self, setting_key):
+    @staticmethod
+    def _build_edit_user_svalue_url(setting_key):
         return reverse('creme_config__edit_user_setting', args=(setting_key.id,))
 
     def test_edit_user_setting_value01(self):
