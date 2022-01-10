@@ -3,7 +3,7 @@
 
 ## What is Creme CRM?
 
-[Creme CRM](https://www.cremecrm.com/) is a free Customer Relationship Management (CRM) software developed by [Hybird](https://hybird.org/).
+[Creme CRM](https://www.cremecrm.com/) is a free/open-source Customer Relationship Management (CRM) software developed by [Hybird](https://hybird.org/).
 
 It is designed with an entities/relationships architecture, and is highly configurable, which allows adapting Creme to many workflows.
 
@@ -125,10 +125,20 @@ As with all Docker images, these likely also contain other software which may be
 
 ## References
 
-Creme CRM source code is available on GitHub: [https://github.com/HybirdCorp/creme_crm](https://github.com/HybirdCorp/creme_crm)
+Creme CRM source code is available on the [Creme CRM GitHub Repository](https://github.com/HybirdCorp/creme_crm).
 
-Want to know more about Creme CRM ? Check out the [Creme CRM website](https://www.cremecrm.com)
+Want to know more about Creme CRM ?
+Check out the [Creme CRM Website](https://www.cremecrm.com).
 
-Want to know more about our company? Check out the [Hybird website](https://hybird.org/)
+Want to try Creme CRM ?
+Visit the [Creme CRM Public Demo Website](https://demos.cremecrm.com/).
 
-Any other questions? Need help? Reach us on the [Creme CRM Forums](https://www.cremecrm.com/forum/)
+Want your own demo instance ?
+Pull the latest Creme CRM Demo Docker image on the [Creme CRM DockerHub Repository](https://hub.docker.com/r/cremecrm/cremecrm-demo).
+
+Want to know more about our company ?
+Check out the [Hybird Website](https://hybird.org/).
+
+Any other questions ?
+Need help ?
+Reach us on the [Creme CRM Forums](https://www.cremecrm.com/forum/).
