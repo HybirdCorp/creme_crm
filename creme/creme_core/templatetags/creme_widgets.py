@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from typing import Dict, Tuple, Type
 
 from django.conf import settings
@@ -266,14 +266,14 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False):
     return settings.HIDDEN_VALUE
 
 
-@register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
-def widget_select_or_msg(items, void_msg):
-    warnings.warn(
-        'The templatetag {% widget_select_or_msg %} is deprecated; '
-        'use {% widget_enumerator %} instead.',
-        DeprecationWarning,
-    )
-    return {'items': items, 'void_msg': void_msg}
+# @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
+# def widget_select_or_msg(items, void_msg):
+#     warnings.warn(
+#         'The templatetag {% widget_select_or_msg %} is deprecated; '
+#         'use {% widget_enumerator %} instead.',
+#         DeprecationWarning,
+#     )
+#     return {'items': items, 'void_msg': void_msg}
 
 
 @register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')

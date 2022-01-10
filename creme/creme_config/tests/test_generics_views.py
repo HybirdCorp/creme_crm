@@ -784,15 +784,19 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
-            [
-                _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-                    field=_('Status'),
-                    oldvalue=status2del.id,
-                    value=default_status,
-                ),
-            ],
-            hline.get_verbose_modifications(self.user),
+            [['status', status2del.id, default_status.id]],
+            hline.modifications,
         )
+        # self.assertListEqual(
+        #     [
+        #         _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+        #             field=_('Status'),
+        #             oldvalue=status2del.id,
+        #             value=default_status,
+        #         ),
+        #     ],
+        #     hline.get_verbose_modifications(self.user),
+        # )
 
     def test_delete09(self):
         "SET."
@@ -882,15 +886,19 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNotNone(hline)
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertListEqual(
-            [
-                _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-                    field=_('Priority'),
-                    oldvalue=prio2del.id,
-                    value=fallback_priority,
-                ),
-            ],
-            hline.get_verbose_modifications(self.user),
+            [['priority', prio2del.id, fallback_priority.id]],
+            hline.modifications,
         )
+        # self.assertListEqual(
+        #     [
+        #         _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
+        #             field=_('Priority'),
+        #             oldvalue=prio2del.id,
+        #             value=fallback_priority,
+        #         ),
+        #     ],
+        #     hline.get_verbose_modifications(self.user),
+        # )
 
     def test_delete_m2m_01(self):
         "Does not replace."

@@ -11,6 +11,31 @@
 
     Breaking changes :
     ------------------
+        # Deprecated stuffs which have been removed :
+            - The files "creme/local_settings.py" & "creme/project_settings.py" are now loaded anymore.
+            - The folder "creme/media/upload" have been removed.
+            - The file "creme/django.wsgi" has been removed.
+            - The class 'creme_core.forms.fields.AjaxModelChoiceField' has been removed.
+            - In 'creme_core.models' :
+                - The method 'CremePropertyType.create()' has been removed.
+                - The method 'Job.not_finished_jobs()' has been removed.
+                - In 'fields_config' :
+                    - The method 'FieldsConfigManager.is_model_valid()' has been removed.
+                    - In 'FieldsConfig.LocalCache', the methods 'get_4_model()' & 'get_4_models()' have been removed.
+                - In 'history', all code related to history line rendering has been rendering.
+                - The method 'RelationType.create()' has been removed.
+                - The method 'Vat.get_default_vat()' has been removed.
+            - In 'creme_core.templatetags' :
+                - In 'history', the template filter "|history_modifications" is deprecated.
+                - In 'creme_widgets', the templatetag '{% widget_select_or_msg %}' & its template file have been removed.
+            - In Javascript :
+                - These functions of 'creme.ajax.*' have been removed :
+                    - ajax(), get(), post(), submit(), reloadContent()
+                    - json.send(), json.get(), json.post(), json.isvalid(), json.parse()
+                - 'creme.form.Select' has been removed.
+                - All 'creme.layout.Layout' classes have been removed :
+                  Layout, ColumnSortLayout, CSSColumnLayout, SortLayout
+
 
     Internal breaking changes :
     ---------------------------

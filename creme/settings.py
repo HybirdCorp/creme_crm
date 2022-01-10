@@ -827,7 +827,7 @@ CREME_CORE_JS = [
     'creme_core/js/creme.js',
     'creme_core/js/utils.js',
     'creme_core/js/forms.js',
-    'creme_core/js/ajax.js',
+    # 'creme_core/js/ajax.js',
 
     'creme_core/js/widgets/base.js',
 
@@ -854,8 +854,8 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/ajax/query.js',
 
     'creme_core/js/widgets/layout/layout.js',
-    'creme_core/js/widgets/layout/sortlayout.js',
-    'creme_core/js/widgets/layout/columnlayout.js',
+    # 'creme_core/js/widgets/layout/sortlayout.js',
+    # 'creme_core/js/widgets/layout/columnlayout.js',
     'creme_core/js/widgets/layout/autosize.js',
 
     'creme_core/js/widgets/model/collection.js',
@@ -1449,30 +1449,30 @@ GEOLOCATION_OSM_COPYRIGHT_TITLE = 'OpenStreetMap contributors'
 
 # APPS CONFIGURATION [END]######################################################
 
-try:
-    from .project_settings import *  # NOQA
-except ImportError:
-    pass
-else:
-    from . import project_settings as __project_settings
+# try:
+#     from .project_settings import *  # NOQA
+# except ImportError:
+#     pass
+# else:
+#     from . import project_settings as __project_settings
+#
+#     if any(not symbol.startswith('__') for symbol in dir(__project_settings)):
+#         warnings.warn(
+#             "Use of file 'project_settings.py' in creme/ is deprecated ; "
+#             "use the new project layout <see command 'creme_start_project'>.",
+#             DeprecationWarning,
+#         )
 
-    if any(not symbol.startswith('__') for symbol in dir(__project_settings)):
-        warnings.warn(
-            "Use of file 'project_settings.py' in creme/ is deprecated ; "
-            "use the new project layout <see command 'creme_start_project'>.",
-            DeprecationWarning,
-        )
-
-try:
-    from .local_settings import *  # NOQA
-except ImportError:
-    pass
-else:
-    warnings.warn(
-        "Use of file 'local_settings.py' in creme/ is deprecated ; "
-        "use the new project layout <see command 'creme_start_project'>.",
-        DeprecationWarning,
-    )
+# try:
+#     from .local_settings import *  # NOQA
+# except ImportError:
+#     pass
+# else:
+#     warnings.warn(
+#         "Use of file 'local_settings.py' in creme/ is deprecated ; "
+#         "use the new project layout <see command 'creme_start_project'>.",
+#         DeprecationWarning,
+#     )
 
 # GENERAL [FINAL SETTINGS]------------------------------------------------------
 # TODO: move up this code & remove this whole section in Creme 2.4 when

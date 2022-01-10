@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from functools import partial
 from itertools import chain
 from json import loads as json_load
@@ -156,14 +156,14 @@ class FieldsConfigManager(models.Manager):
     def has_configurable_fields(self, model: Type['Model']) -> bool:
         return any(self.configurable_fields(model))
 
-    def is_model_valid(self, model: Type['Model']) -> bool:
-        warnings.warn(
-            'FieldsConfigManager.is_model_valid() is deprecated ; '
-            'use has_configurable_fields() instead.',
-            DeprecationWarning,
-        )
-
-        return self.has_configurable_fields(model)
+    # def is_model_valid(self, model: Type['Model']) -> bool:
+    #     warnings.warn(
+    #         'FieldsConfigManager.is_model_valid() is deprecated ; '
+    #         'use has_configurable_fields() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     return self.has_configurable_fields(model)
 
 
 class FieldsConfig(CremeModel):
@@ -196,28 +196,28 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':
-            warnings.warn(
-                'FieldsConfig.LocalCache.get_4_model() is deprecated ; '
-                'use get_for_model() instead.',
-                DeprecationWarning,
-            )
-
-            return self.get_for_model(model)
+        # def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':
+        #     warnings.warn(
+        #         'FieldsConfig.LocalCache.get_4_model() is deprecated ; '
+        #         'use get_for_model() instead.',
+        #         DeprecationWarning,
+        #     )
+        #
+        #     return self.get_for_model(model)
 
         def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
             return self.get_for_models((model,))[model]
 
-        def get_4_models(self,
-                         models: Iterable[Type['Model']],
-                         ) -> Dict[Type['Model'], 'FieldsConfig']:
-            warnings.warn(
-                'FieldsConfig.LocalCache.get_4_models() is deprecated ; '
-                'use get_for_models() instead.',
-                DeprecationWarning,
-            )
-
-            return self.get_for_models(models)
+        # def get_4_models(self,
+        #                  models: Iterable[Type['Model']],
+        #                  ) -> Dict[Type['Model'], 'FieldsConfig']:
+        #     warnings.warn(
+        #         'FieldsConfig.LocalCache.get_4_models() is deprecated ; '
+        #         'use get_for_models() instead.',
+        #         DeprecationWarning,
+        #     )
+        #
+        #     return self.get_for_models(models)
 
         def get_for_models(self,
                            models: Iterable[Type['Model']],

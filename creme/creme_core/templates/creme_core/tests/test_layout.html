@@ -73,6 +73,7 @@
             });
         }
 
+/*
         function initSortedLayout(content) {
             var list = $('ul[layout]', content);
             var layout = new creme.layout.SortLayout().comparator(function(a, b) {
@@ -96,7 +97,9 @@
                 layout.reverse(!layout.reverse()).layout();
             });
         }
+*/
 
+/*
         function initColumnLayout(content) {
             var list = $('ul[layout]', content);
             var layout = new creme.layout.ColumnSortLayout({columns: 4}).comparator(function(a, b) {
@@ -128,10 +131,11 @@
                 }).layout();
             });
         }
+*/
 
         $(document).ready(function() {
-            initSortedLayout($('#sorted'));
-            initColumnLayout($('#column'));
+            // initSortedLayout($('#sorted'));
+            // initColumnLayout($('#column'));
             initResizeSensor($('#resize'));
 
             $('.ui-resizable').resizable();

@@ -18,8 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
@@ -73,12 +72,12 @@ class Vat(CremeModel):
 
         super().delete(*args, **kwargs)
 
-    @staticmethod
-    def get_default_vat() -> 'Vat':
-        warnings.warn(
-            'The method Vat.get_default_vat() is deprecated ; '
-            'use Vat.objects.default() instead.',
-            DeprecationWarning,
-        )
-
-        return Vat.objects.filter(is_default=True)[0]
+    # @staticmethod
+    # def get_default_vat() -> 'Vat':
+    #     warnings.warn(
+    #         'The method Vat.get_default_vat() is deprecated ; '
+    #         'use Vat.objects.default() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     return Vat.objects.filter(is_default=True)[0]

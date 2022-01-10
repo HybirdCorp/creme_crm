@@ -391,13 +391,13 @@ class FieldsConfigTestCase(CremeTestCase):
         with self.assertNumQueries(0):
             FieldsConfig.objects.get_for_model(model1)
 
-    def test_manager_is_model_valid(self):
-        has_configurable_fields = FieldsConfig.objects.is_model_valid
-        self.assertTrue(has_configurable_fields(FakeContact))
-        self.assertTrue(has_configurable_fields(FakeOrganisation))
-        self.assertTrue(has_configurable_fields(FakeAddress))
-        self.assertFalse(has_configurable_fields(FakeCivility))  # No optional field
-        self.assertFalse(has_configurable_fields(FakeSector))    # Idem
+    # def test_manager_is_model_valid(self):
+    #     has_configurable_fields = FieldsConfig.objects.is_model_valid
+    #     self.assertTrue(has_configurable_fields(FakeContact))
+    #     self.assertTrue(has_configurable_fields(FakeOrganisation))
+    #     self.assertTrue(has_configurable_fields(FakeAddress))
+    #     self.assertFalse(has_configurable_fields(FakeCivility))  # No optional field
+    #     self.assertFalse(has_configurable_fields(FakeSector))    # Idem
 
     def test_manager_has_configurable_fields(self):
         is_valid = FieldsConfig.objects.has_configurable_fields
@@ -603,33 +603,33 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertEqual(FakeContact, ct.model_class())
 
-    def test_localcache_get_4_model(self):  # DEPRECATED
-        model1 = FakeContact
-        model2 = FakeOrganisation
-
-        h_field1 = 'phone'
-        h_field2 = 'url_site'
-
-        create_fc = FieldsConfig.objects.create
-        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
-        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
-
-        lc = FieldsConfig.LocalCache()
-
-        with self.assertNumQueries(1):
-            fc1 = lc.get_4_model(model1)
-
-        self.assertIsInstance(fc1, FieldsConfig)
-        self.assertEqual(model1, fc1.content_type.model_class())
-        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
-
-        with self.assertNumQueries(0):
-            lc.get_4_model(model1)
-
-        with self.assertNumQueries(1):
-            fc2 = lc.get_4_model(model2)
-
-        self.assertTrue(fc2.is_fieldname_hidden(h_field2))
+    # def test_localcache_get_4_model(self):  # DEPRECATED
+    #     model1 = FakeContact
+    #     model2 = FakeOrganisation
+    #
+    #     h_field1 = 'phone'
+    #     h_field2 = 'url_site'
+    #
+    #     create_fc = FieldsConfig.objects.create
+    #     create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+    #     create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+    #
+    #     lc = FieldsConfig.LocalCache()
+    #
+    #     with self.assertNumQueries(1):
+    #         fc1 = lc.get_4_model(model1)
+    #
+    #     self.assertIsInstance(fc1, FieldsConfig)
+    #     self.assertEqual(model1, fc1.content_type.model_class())
+    #     self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+    #
+    #     with self.assertNumQueries(0):
+    #         lc.get_4_model(model1)
+    #
+    #     with self.assertNumQueries(1):
+    #         fc2 = lc.get_4_model(model2)
+    #
+    #     self.assertTrue(fc2.is_fieldname_hidden(h_field2))
 
     def test_localcache_get_for_model(self):
         model1 = FakeContact
@@ -659,29 +659,29 @@ class FieldsConfigTestCase(CremeTestCase):
 
         self.assertTrue(fc2.is_fieldname_hidden(h_field2))
 
-    def test_localcache_get_4_models(self):  # DEPRECATED
-        model1 = FakeContact
-        model2 = FakeOrganisation
-
-        h_field1 = 'phone'
-        h_field2 = 'url_site'
-
-        create_fc = FieldsConfig.objects.create
-        create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
-        create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
-
-        lc = FieldsConfig.LocalCache()
-        fconfigs = lc.get_4_models([model1, model2])
-
-        fc1 = fconfigs.get(model1)
-        self.assertIsInstance(fc1, FieldsConfig)
-        self.assertEqual(model1, fc1.content_type.model_class())
-        self.assertTrue(fc1.is_fieldname_hidden(h_field1))
-
-        self.assertTrue(fconfigs.get(model2).is_fieldname_hidden(h_field2))
-
-        with self.assertNumQueries(0):
-            lc.get_4_model(model1)
+    # def test_localcache_get_4_models(self):  # DEPRECATED
+    #     model1 = FakeContact
+    #     model2 = FakeOrganisation
+    #
+    #     h_field1 = 'phone'
+    #     h_field2 = 'url_site'
+    #
+    #     create_fc = FieldsConfig.objects.create
+    #     create_fc(content_type=model1, descriptions=[(h_field1, {FieldsConfig.HIDDEN: True})])
+    #     create_fc(content_type=model2, descriptions=[(h_field2, {FieldsConfig.HIDDEN: True})])
+    #
+    #     lc = FieldsConfig.LocalCache()
+    #     fconfigs = lc.get_4_models([model1, model2])
+    #
+    #     fc1 = fconfigs.get(model1)
+    #     self.assertIsInstance(fc1, FieldsConfig)
+    #     self.assertEqual(model1, fc1.content_type.model_class())
+    #     self.assertTrue(fc1.is_fieldname_hidden(h_field1))
+    #
+    #     self.assertTrue(fconfigs.get(model2).is_fieldname_hidden(h_field2))
+    #
+    #     with self.assertNumQueries(0):
+    #         lc.get_4_model(model1)
 
     def test_localcache_get_for_models(self):
         model1 = FakeContact

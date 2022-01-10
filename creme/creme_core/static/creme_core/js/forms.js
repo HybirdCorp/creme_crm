@@ -26,9 +26,10 @@ creme.forms = {};
  * Select input tools
  */
 
-creme.forms.Select = {};
+// creme.forms.Select = {};
 
 /* istanbul ignore next */
+/*
 creme.forms.Select.optionsFromData = function(data, option_label, option_value) {
     console.warn('creme.forms.Select.optionsFromData is deprecated');
     var options = [];
@@ -63,7 +64,9 @@ creme.forms.Select.optionsFromData = function(data, option_label, option_value) 
 
     return options;
 };
+*/
 
+/*
 creme.forms.Select.fill = function(self, options, selected) {
     console.warn('creme.forms.Select.fill is deprecated');
 
@@ -109,6 +112,7 @@ creme.forms.Select.fill = function(self, options, selected) {
      self.trigger('change');
      return self;
 };
+*/
 
 /*
  * TimePicker widget

@@ -255,17 +255,17 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertListEqual(
             [count, hf.name], hline.modifications
         )
-        self.assertListEqual(
-            [
-                _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
-                    count=count,
-                    model='Test Contacts',
-                    view=hf.name,
-                    filter=pgettext('creme_core-filter', 'All'),
-                ),
-            ],
-            hline.get_verbose_modifications(user),
-        )
+        # self.assertListEqual(
+        #     [
+        #         _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        #             count=count,
+        #             model='Test Contacts',
+        #             view=hf.name,
+        #             filter=pgettext('creme_core-filter', 'All'),
+        #         ),
+        #     ],
+        #     hline.get_verbose_modifications(user),
+        # )
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-mass_export">{}<div>',
@@ -504,17 +504,17 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertListEqual(
             [1, hf.name, efilter.name], hline.modifications,
         )
-        self.assertListEqual(
-            [
-                _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
-                    count=1,
-                    model='Test Contact',
-                    view=hf.name,
-                    filter=efilter.name,
-                ),
-            ],
-            hline.get_verbose_modifications(user),
-        )
+        # self.assertListEqual(
+        #     [
+        #         _('Export of {count} «{model}» (view «{view}» & filter «{filter}»)').format(
+        #             count=1,
+        #             model='Test Contact',
+        #             view=hf.name,
+        #             filter=efilter.name,
+        #         ),
+        #     ],
+        #     hline.get_verbose_modifications(user),
+        # )
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-mass_export">{}<div>',

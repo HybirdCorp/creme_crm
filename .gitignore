@@ -9,14 +9,14 @@ syntax: glob
 .project*
 .settings*
 
-# DEPRECATED with new project layout
-creme/media/upload/*/*
-creme/media/static/*
-django.wsgi
-local_settings*.py
-_generated_media_names.py
-*.sqlite
-*.db
+# # DEPRECATED with new project layout
+# creme/media/upload/*/*
+# creme/media/static/*
+# django.wsgi
+# local_settings*.py
+# _generated_media_names.py
+# *.sqlite
+# *.db
 
 # Python package
 *.egg-info

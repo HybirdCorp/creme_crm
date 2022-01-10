@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from typing import TYPE_CHECKING, List
 
 from django.conf import settings
@@ -172,15 +172,15 @@ class Job(models.Model):
     def is_finished(self) -> bool:
         return self.status != self.STATUS_WAIT
 
-    @classmethod
-    def not_finished_jobs(cls, user):
-        warnings.warn(
-            'Job.not_finished_jobs() is deprecated ; '
-            'use Job.objects.not_finished() instead.',
-            DeprecationWarning,
-        )
-
-        return cls.objects.filter(user=user, status=cls.STATUS_WAIT)
+    # @classmethod
+    # def not_finished_jobs(cls, user):
+    #     warnings.warn(
+    #         'Job.not_finished_jobs() is deprecated ; '
+    #         'use Job.objects.not_finished() instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     return cls.objects.filter(user=user, status=cls.STATUS_WAIT)
 
     @property
     def progress(self):
