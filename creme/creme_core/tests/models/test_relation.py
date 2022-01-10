@@ -27,20 +27,20 @@ class RelationsTestCase(CremeTestCase):
         super().setUp()
         self.user = get_user_model().objects.create(username='name')
 
-    def test_relation_type_create(self):  # DEPRECATED
-        subject_pred = 'is loving'
-        object_pred  = 'is loved by'
-
-        with self.assertNoException():
-            rtype1, rtype2 = RelationType.create(
-                ('test-subject_foobar', subject_pred),
-                ('test-object_foobar',  object_pred),
-            )
-
-        self.assertEqual(rtype1.symmetric_type, rtype2)
-        self.assertEqual(rtype2.symmetric_type, rtype1)
-        self.assertEqual(rtype1.predicate,      subject_pred)
-        self.assertEqual(rtype2.predicate,      object_pred)
+    # def test_relation_type_create(self):  # DEPRECATED
+    #     subject_pred = 'is loving'
+    #     object_pred  = 'is loved by'
+    #
+    #     with self.assertNoException():
+    #         rtype1, rtype2 = RelationType.create(
+    #             ('test-subject_foobar', subject_pred),
+    #             ('test-object_foobar',  object_pred),
+    #         )
+    #
+    #     self.assertEqual(rtype1.symmetric_type, rtype2)
+    #     self.assertEqual(rtype2.symmetric_type, rtype1)
+    #     self.assertEqual(rtype1.predicate,      subject_pred)
+    #     self.assertEqual(rtype2.predicate,      object_pred)
 
     def test_relation01(self):
         user = self.user

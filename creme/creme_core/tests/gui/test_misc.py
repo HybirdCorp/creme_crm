@@ -423,24 +423,24 @@ class GuiTestCase(CremeTestCase):
         self.assertTrue(TestButton05().has_perm(basic_ctxt))
         self.assertFalse(TestButton06().has_perm(basic_ctxt))
 
-        # Check by registry ---
-        with self.assertNoException():
-            registry = ButtonsRegistry().register(
-                TestButton01, TestButton03, TestButton05,
-            )
-
-        class TestButton07(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_07')
-            permission = 'persons'  # <== Old attribute
-
-        with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
-            registry.register(TestButton07)
-
-        self.assertEqual(
-            f'Button class with old attribute "permission" '
-            f'(use "permissions" instead): {TestButton07}',
-            str(cm.exception)
-        )
+        # # Check by registry ---
+        # with self.assertNoException():
+        #     registry = ButtonsRegistry().register(
+        #         TestButton01, TestButton03, TestButton05,
+        #     )
+        #
+        # class TestButton07(Button):
+        #     id_ = Button.generate_id('creme_core', 'test_button_registry04_07')
+        #     permission = 'persons'  # <== Old attribute
+        #
+        # with self.assertRaises(ButtonsRegistry.RegistrationError) as cm:
+        #     registry.register(TestButton07)
+        #
+        # self.assertEqual(
+        #     f'Button class with old attribute "permission" '
+        #     f'(use "permissions" instead): {TestButton07}',
+        #     str(cm.exception)
+        # )
 
     def test_quickforms_registry01(self):
         "Registration."

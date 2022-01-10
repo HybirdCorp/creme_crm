@@ -287,6 +287,7 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
     }
 });
 
+/*
 QUnit.parameterize('creme.ajax.json.send (deprecated alias)', [
     [false, 'GET', {}, {sync: false, method: 'GET'}],
     [false, 'GET', {sync: true}, {sync: true, method: 'GET'}],
@@ -308,7 +309,9 @@ QUnit.parameterize('creme.ajax.json.send (deprecated alias)', [
         ['mock/a', {a: 12}, successCb, errorCb, expected]
     ]);
 });
+*/
 
+/*
 QUnit.parameterize('creme.ajax.json.get (deprecated alias)', [
     [false, {}, {sync: false, method: 'GET'}],
     [false, {sync: true}, {sync: true, method: 'GET'}],
@@ -329,7 +332,9 @@ QUnit.parameterize('creme.ajax.json.get (deprecated alias)', [
         ['mock/a', {a: 12}, successCb, errorCb, expected]
     ]);
 });
+*/
 
+/*
 QUnit.parameterize('creme.ajax.json.post (deprecated alias)', [
     [false, {}, {sync: false, method: 'POST'}],
     [false, {sync: true}, {sync: true, method: 'POST'}],
@@ -350,6 +355,7 @@ QUnit.parameterize('creme.ajax.json.post (deprecated alias)', [
         ['mock/a', {a: 12}, successCb, errorCb, expected]
     ]);
 });
+*/
 
 QUnit.parameterize('creme.ajax.jqueryFormSubmit (url)', [
     ['', {}, {

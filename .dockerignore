@@ -7,13 +7,13 @@ __pycache__/
 
 .circleci/
 
-# DEPRECATED with new project layout
-creme/media/upload/*/*
-creme/media/static/*
-creme/local_settings.py
-creme/_generated_media_names.py
-*.sqlite
-*.db
+# # DEPRECATED with new project layout
+# creme/media/upload/*/*
+# creme/media/static/*
+# creme/local_settings.py
+# creme/_generated_media_names.py
+# *.sqlite
+# *.db
 
 # Python package
 *.egg-info

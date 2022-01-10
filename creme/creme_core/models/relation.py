@@ -19,7 +19,7 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import Iterable, Tuple, Type, Union
 
@@ -367,32 +367,32 @@ class RelationType(CremeModel):
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
-    @classmethod
-    @atomic
-    def create(
-            cls,
-            subject_desc: tuple,
-            object_desc: tuple,
-            is_custom: bool = False,
-            generate_pk: bool = False,
-            is_internal: bool = False,
-            is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
-            minimal_display: Tuple[bool, bool] = (False, False),
-    ) -> Tuple['RelationType', 'RelationType']:
-        warnings.warn(
-            'RelationType.create() is deprecated; '
-            'use RelationType.objects.smart_update_or_create() instead.',
-            DeprecationWarning,
-        )
-        return cls.objects.smart_update_or_create(
-            subject_desc=subject_desc,
-            object_desc=object_desc,
-            is_custom=is_custom,
-            generate_pk=generate_pk,
-            is_internal=is_internal,
-            is_copiable=is_copiable,
-            minimal_display=minimal_display,
-        )
+    # @classmethod
+    # @atomic
+    # def create(
+    #         cls,
+    #         subject_desc: tuple,
+    #         object_desc: tuple,
+    #         is_custom: bool = False,
+    #         generate_pk: bool = False,
+    #         is_internal: bool = False,
+    #         is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
+    #         minimal_display: Tuple[bool, bool] = (False, False),
+    # ) -> Tuple['RelationType', 'RelationType']:
+    #     warnings.warn(
+    #         'RelationType.create() is deprecated; '
+    #         'use RelationType.objects.smart_update_or_create() instead.',
+    #         DeprecationWarning,
+    #     )
+    #     return cls.objects.smart_update_or_create(
+    #         subject_desc=subject_desc,
+    #         object_desc=object_desc,
+    #         is_custom=is_custom,
+    #         generate_pk=generate_pk,
+    #         is_internal=is_internal,
+    #         is_copiable=is_copiable,
+    #         minimal_display=minimal_display,
+    #     )
 
     # TODO: use the '/' (positional-only argument) in Python 3.8
     def is_compatible(self, *args) -> bool:

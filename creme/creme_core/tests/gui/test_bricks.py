@@ -139,23 +139,23 @@ class BrickRegistryTestCase(CremeTestCase):
             f"Brick class with empty id_: {FoobarBrick}", str(cm.exception),
         )
 
-    def test_register05(self):
-        "Old <permission> attribute."
-        class FoobarBrick1(Brick):
-            id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
-            verbose_name = 'Testing purpose'
-            permission = 'creme_core'  # <== Old attribute
-
-        brick_registry = _BrickRegistry()
-
-        with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
-            brick_registry.register(FoobarBrick1)
-
-        self.assertEqual(
-            f'Brick class with old attribute "permission" '
-            f'(use "permissions" instead): {FoobarBrick1}',
-            str(cm.exception),
-        )
+    # def test_register05(self):
+    #     "Old <permission> attribute."
+    #     class FoobarBrick1(Brick):
+    #         id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
+    #         verbose_name = 'Testing purpose'
+    #         permission = 'creme_core'  # <== Old attribute
+    #
+    #     brick_registry = _BrickRegistry()
+    #
+    #     with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
+    #         brick_registry.register(FoobarBrick1)
+    #
+    #     self.assertEqual(
+    #         f'Brick class with old attribute "permission" '
+    #         f'(use "permissions" instead): {FoobarBrick1}',
+    #         str(cm.exception),
+    #     )
 
     def test_register_4_instance01(self):
         user = self.create_user()

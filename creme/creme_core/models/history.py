@@ -19,16 +19,14 @@
 ################################################################################
 
 import logging
-import warnings
+# import warnings
 from builtins import getattr
 from datetime import date, datetime, time
 from decimal import Decimal
 from functools import partial
 from json import JSONEncoder
 from json import loads as json_load
-from typing import (
-    Any,
-    Callable,
+from typing import (  # Any Callable
     Container,
     Dict,
     Iterable,
@@ -42,17 +40,19 @@ from typing import (
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import FieldDoesNotExist, ValidationError
+# from django.core.exceptions import FieldDoesNotExist
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Field, ForeignKey, Model, signals
+# from django.db.models import Field
+from django.db.models import ForeignKey, Model, signals
 from django.db.models.base import ModelState
 from django.db.transaction import atomic
 from django.dispatch import receiver
-from django.utils.formats import date_format, number_format
-from django.utils.timezone import localtime
-from django.utils.translation import gettext
+# from django.utils.formats import date_format, number_format
+# from django.utils.timezone import localtime
+# from django.utils.translation import gettext
+# from django.utils.translation import pgettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import pgettext
 
 from ..core.field_tags import FieldTag
 from ..global_info import (
@@ -62,16 +62,12 @@ from ..global_info import (
     set_global_info,
 )
 from ..signals import pre_merge_related
-from ..utils.dates import (
-    date_from_ISO8601,
-    date_to_ISO8601,
-    dt_from_ISO8601,
-    dt_to_ISO8601,
-)
-from ..utils.translation import get_model_verbose_name
-from .creme_property import CremeProperty, CremePropertyType
-from .custom_field import (
-    CustomField,
+# from ..utils.dates import date_from_ISO8601, dt_from_ISO8601
+from ..utils.dates import date_to_ISO8601, dt_to_ISO8601
+# from ..utils.translation import get_model_verbose_name
+# from .creme_property import CremePropertyType
+from .creme_property import CremeProperty
+from .custom_field import (  # CustomField
     CustomFieldEnum,
     CustomFieldMultiEnum,
     CustomFieldValue,
@@ -140,107 +136,105 @@ class _JSONEncoder(JSONEncoder):
         return JSONEncoder.default(self, o)
 
 
-# DEPRECATED
-Printer = Callable[[Field, Any, Any], str]
+# Printer = Callable[[Field, Any, Any], str]
+#
+#
+# def _basic_printer(field: Field, val, user) -> str:
+#     warnings.warn(
+#         'creme_core.models.history._basic_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     if field.choices:
+#         # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
+#         val = dict(field.flatchoices).get(val, val)
+#
+#     if val is None:
+#         return ''
+#
+#     return str(val)
 
 
-def _basic_printer(field: Field, val, user) -> str:
-    warnings.warn(
-        'creme_core.models.history._basic_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    if field.choices:
-        # NB: django way for '_get_FIELD_display()' methods => would a linear search be faster ?
-        val = dict(field.flatchoices).get(val, val)
-
-    if val is None:
-        return ''
-
-    return str(val)
-
-
-def _fk_printer(field: Field, val, user) -> str:
-    warnings.warn(
-        'creme_core.models.history._fk_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    if val is None:
-        return ''
-
-    model = field.remote_field.model
-
-    try:
-        out = model.objects.get(pk=val)
-    except model.DoesNotExist as e:
-        logger.info(str(e))
-        out = val
-    else:
-        if isinstance(out, CremeEntity):
-            out = out.allowed_str(user)
-
-    return str(out)
+# def _fk_printer(field: Field, val, user) -> str:
+#     warnings.warn(
+#         'creme_core.models.history._fk_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     if val is None:
+#         return ''
+#
+#     model = field.remote_field.model
+#
+#     try:
+#         out = model.objects.get(pk=val)
+#     except model.DoesNotExist as e:
+#         logger.info(str(e))
+#         out = val
+#     else:
+#         if isinstance(out, CremeEntity):
+#             out = out.allowed_str(user)
+#
+#     return str(out)
 
 
-def _boolean_printer(field: Field, val, user) -> str:
-    warnings.warn(
-        'creme_core.models.history._boolean_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    return (
-        gettext('Yes') if val else
-        gettext('No') if val is False else
-        gettext('N/A')
-    )
-
-
-def _date_printer(field: Field, val, user) -> str:
-    warnings.warn(
-        'creme_core.models.history._date_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    return date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else ''
+# def _boolean_printer(field: Field, val, user) -> str:
+#     warnings.warn(
+#         'creme_core.models.history._boolean_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     return (
+#         gettext('Yes') if val else
+#         gettext('No') if val is False else
+#         gettext('N/A')
+#     )
 
 
-def _datetime_printer(field: Field, val, user) -> str:
-    warnings.warn(
-        'creme_core.models.history._datetime_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    return date_format(localtime(dt_from_ISO8601(val)), 'DATETIME_FORMAT') if val else ''
-
-
-def _float_printer(field: Field, val, user):
-    warnings.warn(
-        'creme_core.models.history._float_printer() is deprecated ; '
-        'use creme_core.gui.history instead.',
-        DeprecationWarning
-    )
-
-    return number_format(val, use_l10n=True) if val is not None else ''
+# def _date_printer(field: Field, val, user) -> str:
+#     warnings.warn(
+#         'creme_core.models.history._date_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     return date_format(date_from_ISO8601(val), 'DATE_FORMAT') if val else ''
 
 
-# DEPRECATED
-_PRINTERS: Dict[str, Printer] = {
-    'BooleanField': _boolean_printer,
-    'NullBooleanField': _boolean_printer,
+# def _datetime_printer(field: Field, val, user) -> str:
+#     warnings.warn(
+#         'creme_core.models.history._datetime_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     return date_format(localtime(dt_from_ISO8601(val)), 'DATETIME_FORMAT') if val else ''
 
-    'ForeignKey': _fk_printer,
 
-    'DateField': _date_printer,
-    'DateTimeField': _datetime_printer,
+# def _float_printer(field: Field, val, user):
+#     warnings.warn(
+#         'creme_core.models.history._float_printer() is deprecated ; '
+#         'use creme_core.gui.history instead.',
+#         DeprecationWarning
+#     )
+#
+#     return number_format(val, use_l10n=True) if val is not None else ''
 
-    'FloatField': _float_printer,
-}
+
+# _PRINTERS: Dict[str, Printer] = {
+#     'BooleanField': _boolean_printer,
+#     'NullBooleanField': _boolean_printer,
+#
+#     'ForeignKey': _fk_printer,
+#
+#     'DateField': _date_printer,
+#     'DateTimeField': _datetime_printer,
+#
+#     'FloatField': _float_printer,
+# }
 
 
 class _HistoryLineTypeRegistry:
@@ -355,95 +349,95 @@ class _HistoryLineType:
         entity._instance_backup = backup = entity.__dict__.copy()
         del backup['_state']
 
-    def _get_printer(self, field: Field) -> Printer:
-        warnings.warn(
-            '_HistoryLineType._get_printer() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
+    # def _get_printer(self, field: Field) -> Printer:
+    #     warnings.warn(
+    #         '_HistoryLineType._get_printer() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     return _PRINTERS.get(field.get_internal_type(), _basic_printer)
 
-        return _PRINTERS.get(field.get_internal_type(), _basic_printer)
+    # def _verbose_modifications_4_fields(self,
+    #                                     model_class: Type[Model],
+    #                                     modifications: List[tuple],
+    #                                     user) -> Iterator[str]:
+    #     warnings.warn(
+    #         '_HistoryLineType._verbose_modifications_4_fields() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     get_field = model_class._meta.get_field
+    #
+    #     for modif in modifications:
+    #         field_name = modif[0]
+    #         try:
+    #             field: Field = get_field(field_name)
+    #         except FieldDoesNotExist:
+    #             vmodif = gettext('Set field “{field}”').format(field=field_name)
+    #         else:
+    #             field_vname = field.verbose_name
+    #
+    #             if isinstance(field, models.ManyToManyField):
+    #                 removed_pks = modif[1]
+    #                 added_pks = modif[2]
+    #
+    #                 linked_instances = (
+    #                     field.remote_field.model._default_manager
+    #                                             .in_bulk(removed_pks + added_pks)
+    #                 )
+    #                 pk_details = []
+    #
+    #                 def append_details(pks, format_str):
+    #                     if pks:
+    #                         pk_details.append(format_str.format(
+    #                             ', '.join(str(linked_instances.get(pk, '?')) for pk in pks)
+    #                         ))
+    #
+    #                 append_details(removed_pks, '[{}] removed')
+    #                 append_details(added_pks, '[{}] added')
+    #
+    #                 vmodif = 'Field “{field}” changed: {details}.'.format(
+    #                     field=field_vname,
+    #                     details=', '.join(pk_details),
+    #                 )
+    #             else:
+    #                 length = len(modif)
+    #
+    #                 if length == 1:
+    #                     vmodif = gettext('Set field “{field}”').format(field=field_vname)
+    #                 elif length == 2:
+    #                     vmodif = gettext('Set field “{field}” to “{value}”').format(
+    #                         field=field_vname,
+    #                         value=self._get_printer(field)(field, modif[1], user),
+    #                     )
+    #                 else:  # length == 3
+    #                     printer = self._get_printer(field)
+    #                     vmodif = gettext(
+    #                         'Set field “{field}” from “{oldvalue}” to “{value}”'
+    #                     ).format(
+    #                         field=field_vname,
+    #                         oldvalue=printer(field, modif[1], user),
+    #                         value=printer(field, modif[2], user),
+    #                     )
+    #
+    #         yield vmodif
 
-    def _verbose_modifications_4_fields(self,
-                                        model_class: Type[Model],
-                                        modifications: List[tuple],
-                                        user) -> Iterator[str]:
-        warnings.warn(
-            '_HistoryLineType._verbose_modifications_4_fields() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        get_field = model_class._meta.get_field
-
-        for modif in modifications:
-            field_name = modif[0]
-            try:
-                field: Field = get_field(field_name)
-            except FieldDoesNotExist:
-                vmodif = gettext('Set field “{field}”').format(field=field_name)
-            else:
-                field_vname = field.verbose_name
-
-                if isinstance(field, models.ManyToManyField):
-                    removed_pks = modif[1]
-                    added_pks = modif[2]
-
-                    linked_instances = (
-                        field.remote_field.model._default_manager.in_bulk(removed_pks + added_pks)
-                    )
-                    pk_details = []
-
-                    def append_details(pks, format_str):
-                        if pks:
-                            # TODO: allowed_str() if entity...
-                            pk_details.append(format_str.format(
-                                ', '.join(str(linked_instances.get(pk, '?')) for pk in pks)
-                            ))
-
-                    append_details(removed_pks, '[{}] removed')
-                    append_details(added_pks, '[{}] added')
-
-                    vmodif = 'Field “{field}” changed: {details}.'.format(
-                        field=field_vname,
-                        details=', '.join(pk_details),
-                    )
-                else:
-                    length = len(modif)
-
-                    if length == 1:
-                        vmodif = gettext('Set field “{field}”').format(field=field_vname)
-                    elif length == 2:
-                        vmodif = gettext('Set field “{field}” to “{value}”').format(
-                            field=field_vname,
-                            value=self._get_printer(field)(field, modif[1], user),
-                        )
-                    else:  # length == 3
-                        printer = self._get_printer(field)
-                        vmodif = gettext(
-                            'Set field “{field}” from “{oldvalue}” to “{value}”'
-                        ).format(
-                            field=field_vname,
-                            oldvalue=printer(field, modif[1], user),
-                            value=printer(field, modif[2], user),
-                        )
-
-            yield vmodif
-
-    def verbose_modifications(self,
-                              modifications: List[tuple],
-                              entity_ctype: ContentType,
-                              user) -> Iterator[str]:
-        warnings.warn(
-            '_HistoryLineType.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        for m in self._verbose_modifications_4_fields(
-            entity_ctype.model_class(), modifications, user,
-        ):
-            yield m
+    # def verbose_modifications(self,
+    #                           modifications: List[tuple],
+    #                           entity_ctype: ContentType,
+    #                           user) -> Iterator[str]:
+    #     warnings.warn(
+    #         '_HistoryLineType.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     for m in self._verbose_modifications_4_fields(
+    #         entity_ctype.model_class(), modifications, user,
+    #     ):
+    #         yield m
 
 
 class _HLTCacheMixin:
@@ -690,61 +684,61 @@ class _HLTCustomFieldsEdition(_HLTManyToManyMixin,
             hline.value = hline._encode_attrs(entity, modifs=modifications)
             hline.save()
 
-    def verbose_modifications(self,
-                              modifications: List[tuple],
-                              entity_ctype: ContentType,
-                              user) -> Iterator[str]:
-        warnings.warn(
-            '_HLTCustomFieldsEdition.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        get_cfield = CustomField.objects.get
-
-        for modif in modifications:
-            field_id = modif[0]
-            try:
-                cfield: CustomField = get_cfield(id=field_id)
-            except CustomField.DoesNotExist:  # TODO: test
-                vmodif = 'Set field id={field} (seems removed)'.format(field=field_id)
-            else:
-                if cfield.field_type == CustomField.MULTI_ENUM:
-                    # NB: we should retrieve the labels of choices instead of PK,
-                    #     but HistoryLineExplainer is the good way now;
-                    #     this method exists only for compatibility.
-                    pk_details = []
-
-                    def append_details(pks, format_str):
-                        if pks:
-                            pk_details.append(format_str.format(
-                                ', '.join(str(pk) for pk in pks)
-                            ))
-
-                    append_details(modif[1], '[{}] removed')
-                    append_details(modif[2], '[{}] added')
-
-                    vmodif = 'Field “{field}” changed: {details}.'.format(
-                        field=cfield.name,
-                        details=', '.join(pk_details),
-                    )
-                else:
-                    # NB: same remark than above but with _PRINTERS.
-                    length = len(modif)
-
-                    if length == 1:
-                        vmodif = gettext('Set field “{field}”').format(field=cfield.name)
-                    elif length == 2:
-                        vmodif = gettext('Set field “{field}” to “{value}”').format(
-                            field=cfield.name, value=modif[1],
-                        )
-                    else:  # length == 3
-                        pass
-                        vmodif = gettext(
-                            'Set field “{field}” from “{oldvalue}” to “{value}”'
-                        ).format(field=cfield.name, oldvalue=modif[1], value=modif[2])
-
-            yield vmodif
+    # def verbose_modifications(self,
+    #                           modifications: List[tuple],
+    #                           entity_ctype: ContentType,
+    #                           user) -> Iterator[str]:
+    #     warnings.warn(
+    #         '_HLTCustomFieldsEdition.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     get_cfield = CustomField.objects.get
+    #
+    #     for modif in modifications:
+    #         field_id = modif[0]
+    #         try:
+    #             cfield: CustomField = get_cfield(id=field_id)
+    #         except CustomField.DoesNotExist:
+    #             vmodif = 'Set field id={field} (seems removed)'.format(field=field_id)
+    #         else:
+    #             if cfield.field_type == CustomField.MULTI_ENUM:
+    #                 # NB: we should retrieve the labels of choices instead of PK,
+    #                 #     but HistoryLineExplainer is the good way now;
+    #                 #     this method exists only for compatibility.
+    #                 pk_details = []
+    #
+    #                 def append_details(pks, format_str):
+    #                     if pks:
+    #                         pk_details.append(format_str.format(
+    #                             ', '.join(str(pk) for pk in pks)
+    #                         ))
+    #
+    #                 append_details(modif[1], '[{}] removed')
+    #                 append_details(modif[2], '[{}] added')
+    #
+    #                 vmodif = 'Field “{field}” changed: {details}.'.format(
+    #                     field=cfield.name,
+    #                     details=', '.join(pk_details),
+    #                 )
+    #             else:
+    #                 # NB: same remark than above but with _PRINTERS.
+    #                 length = len(modif)
+    #
+    #                 if length == 1:
+    #                     vmodif = gettext('Set field “{field}”').format(field=cfield.name)
+    #                 elif length == 2:
+    #                     vmodif = gettext('Set field “{field}” to “{value}”').format(
+    #                         field=cfield.name, value=modif[1],
+    #                     )
+    #                 else:  # length == 3
+    #                     pass
+    #                     vmodif = gettext(
+    #                         'Set field “{field}” from “{oldvalue}” to “{value}”'
+    #                     ).format(field=cfield.name, oldvalue=modif[1], value=modif[2])
+    #
+    #         yield vmodif
 
 
 @TYPES_MAP(TYPE_DELETION)
@@ -780,17 +774,17 @@ class _HLTEntityTrash(_HistoryLineType):
                 ),
             )
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTEntityTrash.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        if modifications[0]:
-            yield gettext('Sent to the trash')
-        else:
-            yield gettext('Restored')
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTEntityTrash.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     if modifications[0]:
+    #         yield gettext('Sent to the trash')
+    #     else:
+    #         yield gettext('Restored')
 
 
 @TYPES_MAP(TYPE_RELATED)
@@ -829,21 +823,21 @@ class _HLTPropertyCreation(_HistoryLineType):
             prop.creme_entity, cls.type_id, modifs=[prop.type_id],
         )
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTPropertyCreation.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        ptype_id = modifications[0]
-
-        try:
-            ptype_text = CremePropertyType.objects.get(pk=ptype_id).text
-        except CremePropertyType.DoesNotExist:
-            ptype_text = ptype_id
-
-        yield self._fmt.format(ptype_text)
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTPropertyCreation.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     ptype_id = modifications[0]
+    #
+    #     try:
+    #         ptype_text = CremePropertyType.objects.get(pk=ptype_id).text
+    #     except CremePropertyType.DoesNotExist:
+    #         ptype_text = ptype_id
+    #
+    #     yield self._fmt.format(ptype_text)
 
 
 @TYPES_MAP(TYPE_PROP_DEL)
@@ -891,21 +885,21 @@ class _HLTRelation(_HistoryLineType):
                 _HLTSymRelation, relation.created,
             )
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTRelation.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        rtype_id = modifications[0]
-
-        try:
-            predicate = RelationType.objects.get(pk=rtype_id).predicate
-        except RelationType.DoesNotExist:
-            predicate = rtype_id
-
-        yield self._fmt.format(predicate)
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTRelation.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     rtype_id = modifications[0]
+    #
+    #     try:
+    #         predicate = RelationType.objects.get(pk=rtype_id).predicate
+    #     except RelationType.DoesNotExist:
+    #         predicate = rtype_id
+    #
+    #     yield self._fmt.format(predicate)
 
 
 @TYPES_MAP(TYPE_SYM_RELATION)
@@ -949,18 +943,18 @@ class _HLTAuxCreation(_HistoryLineType):
             modifs=cls._build_modifs(related),
         )
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTAuxCreation.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        ct_id, aux_id, str_obj = modifications
-
-        yield gettext('Add <{type}>: “{value}”').format(
-            type=self._model_info(ct_id)[1], value=str_obj,
-        )
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTAuxCreation.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     ct_id, aux_id, str_obj = modifications
+    #
+    #     yield gettext('Add <{type}>: “{value}”').format(
+    #         type=self._model_info(ct_id)[1], value=str_obj,
+    #     )
 
 
 @TYPES_MAP(TYPE_AUX_EDITION)
@@ -1043,22 +1037,22 @@ class _HLTAuxEdition(_HLTManyToManyMixin,
             hline.value = hline._encode_attrs(entity, modifs=modifications)
             hline.save()
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTAuxEdition.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        ct_id, aux_id, str_obj = modifications[0]
-        model_class, verbose_name = self._model_info(ct_id)
-
-        yield gettext('Edit <{type}>: “{value}”').format(
-            type=verbose_name, value=str_obj,
-        )
-
-        for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
-            yield m
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTAuxEdition.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     ct_id, aux_id, str_obj = modifications[0]
+    #     model_class, verbose_name = self._model_info(ct_id)
+    #
+    #     yield gettext('Edit <{type}>: “{value}”').format(
+    #         type=verbose_name, value=str_obj,
+    #     )
+    #
+    #     for m in self._verbose_modifications_4_fields(model_class, modifications[1:], user):
+    #         yield m
 
 
 @TYPES_MAP(TYPE_AUX_DELETION)
@@ -1069,18 +1063,18 @@ class _HLTAuxDeletion(_HLTAuxCreation):
     def _build_modifs(related):
         return [_get_ct(related).id, str(related)]
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTAuxDeletion.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        ct_id, str_obj = modifications
-
-        yield gettext('Delete <{type}>: “{value}”').format(
-            type=self._model_info(ct_id)[1], value=str_obj,
-        )
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTAuxDeletion.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     ct_id, str_obj = modifications
+    #
+    #     yield gettext('Delete <{type}>: “{value}”').format(
+    #         type=self._model_info(ct_id)[1], value=str_obj,
+    #     )
 
 
 @TYPES_MAP(TYPE_EXPORT)
@@ -1113,26 +1107,26 @@ class _HLTEntityExport(_HistoryLineType):
             value=HistoryLine._encode_attrs(instance='', modifs=modifs),
         )
 
-    def verbose_modifications(self, modifications, entity_ctype, user):
-        warnings.warn(
-            '_HLTEntityExport.verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        count = modifications[0]
-
-        yield gettext(
-            'Export of {count} «{model}» (view «{view}» & filter «{filter}»)'
-        ).format(
-            count=count,
-            model=get_model_verbose_name(entity_ctype.model_class(), count),
-            view=modifications[1],
-            filter=(
-                modifications[2]
-                if len(modifications) >= 3 else
-                pgettext('creme_core-filter', 'All')),
-        )
+    # def verbose_modifications(self, modifications, entity_ctype, user):
+    #     warnings.warn(
+    #         '_HLTEntityExport.verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     count = modifications[0]
+    #
+    #     yield gettext(
+    #         'Export of {count} «{model}» (view «{view}» & filter «{filter}»)'
+    #     ).format(
+    #         count=count,
+    #         model=get_model_verbose_name(entity_ctype.model_class(), count),
+    #         view=modifications[1],
+    #         filter=(
+    #             modifications[2]
+    #             if len(modifications) >= 3 else
+    #             pgettext('creme_core-filter', 'All')),
+    #     )
 
 
 class HistoryLine(Model):
@@ -1297,22 +1291,22 @@ class HistoryLine(Model):
 
         return self._modifications
 
-    def get_verbose_modifications(self, user) -> List[str]:
-        warnings.warn(
-            'creme_core.models.HistoryLine.get_verbose_modifications() is deprecated ; '
-            'use creme_core.gui.history instead.',
-            DeprecationWarning
-        )
-
-        try:
-            return [
-                *self.line_type.verbose_modifications(
-                    self.modifications, self.entity_ctype, user,
-                ),
-            ]
-        except Exception:
-            logger.exception('Error in %s', self.__class__.__name__)
-            return ['??']
+    # def get_verbose_modifications(self, user) -> List[str]:
+    #     warnings.warn(
+    #         'creme_core.models.HistoryLine.get_verbose_modifications() is deprecated ; '
+    #         'use creme_core.gui.history instead.',
+    #         DeprecationWarning
+    #     )
+    #
+    #     try:
+    #         return [
+    #             *self.line_type.verbose_modifications(
+    #                 self.modifications, self.entity_ctype, user,
+    #             ),
+    #         ]
+    #     except Exception:
+    #         logger.exception('Error in %s', self.__class__.__name__)
+    #         return ['??']
 
     def _get_related_line_id(self) -> Optional[int]:
         if self._related_line_id is None:

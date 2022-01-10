@@ -59,7 +59,7 @@ __all__ = (
     'FilteredEntityTypeField',
     'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
     'ListEditionField',
-    'AjaxModelChoiceField',
+    # 'AjaxModelChoiceField',
     'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
     'ChoiceOrCharField',
     'CTypeChoiceField', 'EntityCTypeChoiceField',
@@ -1316,33 +1316,33 @@ class ListEditionField(fields.Field):
         self.widget.only_delete = only_delete
 
 
-class AjaxModelChoiceField(mforms.ModelChoiceField):
-    """
-        Same as ModelChoiceField but bypass the choices validation due to the ajax filling
-    """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        warnings.warn(
-            'creme_core.forms.fields.AjaxModelChoiceField is deprecated',
-            DeprecationWarning,
-        )
-
-    def clean(self, value):
-        # Field.clean(self, value)
-
-        if value in self.empty_values:
-            return None
-
-        try:
-            key = self.to_field_name or 'pk'
-            value = self.queryset.model._default_manager.get(**{key: value})
-        except self.queryset.model.DoesNotExist:
-            raise ValidationError(
-                self.error_messages['invalid_choice'],
-                code='invalid_choice',
-            )
-
-        return value
+# class AjaxModelChoiceField(mforms.ModelChoiceField):
+#     """
+#         Same as ModelChoiceField but bypass the choices validation due to the ajax filling
+#     """
+#     def __init__(self, **kwargs):
+#         super().__init__(**kwargs)
+#         warnings.warn(
+#             'creme_core.forms.fields.AjaxModelChoiceField is deprecated',
+#             DeprecationWarning,
+#         )
+#
+#     def clean(self, value):
+#         # Field.clean(self, value)
+#
+#         if value in self.empty_values:
+#             return None
+#
+#         try:
+#             key = self.to_field_name or 'pk'
+#             value = self.queryset.model._default_manager.get(**{key: value})
+#         except self.queryset.model.DoesNotExist:
+#             raise ValidationError(
+#                 self.error_messages['invalid_choice'],
+#                 code='invalid_choice',
+#             )
+#
+#         return value
 
 
 class MultiEmailField(fields.Field):

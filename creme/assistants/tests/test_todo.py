@@ -778,21 +778,20 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             hline.modifications,
         )
 
-        vmodifs = hline.get_verbose_modifications(user)
-        self.assertEqual(2, len(vmodifs))
-
-        self.assertEqual(
-            _('Edit <{type}>: “{value}”').format(type=_('Todo'), value=todo),
-            vmodifs[0],
-        )
-        self.assertEqual(
-            # _('Set field “{field}”').format(field=_('Description')),
-            _('Set field “{field}” to “{value}”').format(
-                field=_('Description'),
-                value=description,
-            ),
-            vmodifs[1],
-        )
+        # vmodifs = hline.get_verbose_modifications(user)
+        # self.assertEqual(2, len(vmodifs))
+        #
+        # self.assertEqual(
+        #     _('Edit <{type}>: “{value}”').format(type=_('Todo'), value=todo),
+        #     vmodifs[0],
+        # )
+        # self.assertEqual(
+        #     _('Set field “{field}” to “{value}”').format(
+        #         field=_('Description'),
+        #         value=description,
+        #     ),
+        #     vmodifs[1],
+        # )
 
     def test_history03(self):
         "Deletion."
@@ -809,13 +808,13 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(akane.id,          hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-        vmodifs = hline.get_verbose_modifications(user)
-        self.assertEqual(1, len(vmodifs))
-
-        self.assertEqual(
-            _('Delete <{type}>: “{value}”').format(type=_('Todo'), value=todo),
-            vmodifs[0],
-        )
+        # vmodifs = hline.get_verbose_modifications(user)
+        # self.assertEqual(1, len(vmodifs))
+        #
+        # self.assertEqual(
+        #     _('Delete <{type}>: “{value}”').format(type=_('Todo'), value=todo),
+        #     vmodifs[0],
+        # )
 
     def test_manager_filter_by_user(self):
         user = self.user

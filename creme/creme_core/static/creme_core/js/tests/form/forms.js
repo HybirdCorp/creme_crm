@@ -361,6 +361,7 @@ QUnit.test('creme.forms.validateHtml5Form (errors + options.noValidate)', functi
     deepEqual({}, this.mockListenerJQueryCalls());
 });
 
+/*
 QUnit.test('creme.forms.Select.fill (deprecated)', function(assert) {
     var element = $('<select></select>');
 
@@ -369,7 +370,9 @@ QUnit.test('creme.forms.Select.fill (deprecated)', function(assert) {
 
     equal(this.mockConsoleWarnCalls().length, 1);
 });
+*/
 
+/*
 QUnit.test('creme.forms.Select.fill (select)', function(assert) {
     var element = $('<select></select>');
 
@@ -404,6 +407,7 @@ QUnit.test('creme.forms.Select.fill (select)', function(assert) {
         '</select>');
     equal(element.val(), 'd');
 });
+*/
 
 QUnit.test('creme.forms.TimePicker', function(assert) {
     var element = $('<ul>' +
