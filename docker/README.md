@@ -11,6 +11,8 @@ It is developed in [Python](https://www.python.org/) with the web framework [Dja
 
 This [Docker](https://www.docker.com/) image contains everything you need to run a local demo instance of Creme CRM, for testing purposes.
 
+Please note that this is **not a production ready image**, as it would require a finer configuration.
+
 
 ## How to use this image
 
