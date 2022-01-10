@@ -30,12 +30,13 @@ update-requirements:
 	pip install --upgrade -e .[dev]
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Upgrade the Python requirements, run the migrations, the creme_populate and generatemedia commands
-.PHONY: update
-update: update-requirements
-	python creme/manage.py migrate
-	python creme/manage.py creme_populate
-	python creme/manage.py generatemedia
+## .PHONY: update
+## update: update-requirements
+## 	python creme/manage.py migrate
+## 	python creme/manage.py creme_populate
+## 	python creme/manage.py generatemedia
 
 
 ## Install or upgrade nodejs requirements
@@ -45,35 +46,40 @@ node-update:
 	npm run eslint-install
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Generate the media files
-.PHONY: media
-media:
-	python creme/manage.py generatemedia
+## .PHONY: media
+## media:
+## 	python creme/manage.py generatemedia
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the Django test suite
-.PHONY: test
-test:
-	python creme/manage.py test --keepdb --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
+## .PHONY: test
+## test:
+## 	python creme/manage.py test --keepdb --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the Django test suite and generate coverage reports
-.PHONY: test-cov
-test-cov:
-	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
+##.PHONY: test-cov
+##test-cov:
+##	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
+##
+##	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --keepdb --parallel=${MAKE_NPROCS} ${targets}
+##
+##	@if [ "$(targets)" ]; then\
+##		coverage combine -a;\
+##	else \
+##		coverage combine;\
+##	fi
+##
+##	coverage report
+##	coverage html
+##	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
 
-	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --keepdb --parallel=${MAKE_NPROCS} ${targets}
 
-	@if [ "$(targets)" ]; then\
-		coverage combine -a;\
-	else \
-		coverage combine;\
-	fi
-
-	coverage report
-	coverage html
-	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
-
+## TODO: still useful ?
 ## Cleanup karma coverage html output
 .PHONY: karma-clean
 karma-clean:
@@ -102,21 +108,25 @@ karma-browsers: media karma-clean
 ##	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the application
-.PHONY: serve
-serve: media
-	python creme/manage.py runserver ${PORT}
+## .PHONY: serve
+## serve: media
+##     python creme/manage.py runserver ${PORT}
 
 
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the jobs
-.PHONY: serve-jobs
-serve-jobs:
-	python creme/manage.py creme_job_manager
+## .PHONY: serve-jobs
+## serve-jobs:
+## 	python creme/manage.py creme_job_manager
 
+
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Run shell
-.PHONY: shell
-shell:
-	python creme/manage.py shell_plus
+## .PHONY: shell
+## shell:
+## 	python creme/manage.py shell_plus
 
 
 ## Run the Javascript linters
@@ -190,6 +200,8 @@ lint: isort-check flake8
 format: isort-fix
 
 
+## TODO: still useful ?
+## TODO: generate in the local project directory (creme_start_project) ?
 ## Print some Django settings
 .PHONY: settings
 settings:
