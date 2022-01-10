@@ -7,19 +7,39 @@ __pycache__/
 
 .circleci/
 
-.idea/*
-node_modules/
-.coverage-karma/
-.eslint.*
-
-artifacts/
-creme/local_settings.py
+# DEPRECATED with new project layout
 creme/media/upload/*/*
 creme/media/static/*
+creme/local_settings.py
 creme/_generated_media_names.py
 *.sqlite
 *.db
 
-*.egg-info/
+# Python package
+*.egg-info
+build/*
+sdist/*
+dist/*
 
+# NetBeans
+nbproject/*
+
+# PyCharm
+.idea/*
+
+# PyDev
+.pydev*
+
+# coverage.py
+.coverage
+.coverage.*
+htmlcov/*
+artifacts/*
+
+# mypy
 .mypy_cache/*
+
+# nodejs
+node_modules/
+.coverage-karma/
+.eslint.*
