@@ -102,7 +102,7 @@
       and you should read the migration guides:
         - https://jquery.com/upgrade-guide/3.0/
         - https://jquery.com/upgrade-guide/3.5/
-    - jQuery 3.6.0 needed the update the following dependencies:
+    - jQuery 3.6.0 needed the update of the following dependencies :
         - The version of 'fullcalendar' is now "3.10.2".
         - The version of 'floatthead' is now "2.2.1".
 
@@ -122,12 +122,16 @@
                     - The method 'FieldsConfigManager.is_model_valid()' is deprecated ; use 'has_configurable_fields()' instead.
                     - In 'FieldsConfig.LocalCache', the methods 'get_4_model()' & 'get_4_models()' are deprecated ;
                       use 'get_for_model()' & 'get_for_models()' instead.
+                - In 'history', all code related to history line rendering is deprecated ;
+                  use the new rendering system 'creme_core.gui.history' instead.
                 - The method 'RelationType.create()' is deprecated ; use 'RelationType.objects.smart_update_or_create()' instead.
                 - The method 'Vat.get_default_vat()' is deprecated ; use 'Vat.objects.default()' instead.
-            - The templatetag '{% widget_select_or_msg %}' (in library "creme_widgets") & its template file are deprecated ;
-              use '{% widget_enumerator %}' instead.
-            - In Javascript:
-                * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead:
+            - In 'creme_core.templatetags' :
+                - In 'creme_widgets', the templatetag '{% widget_select_or_msg %}' & its template file are deprecated ;
+                  use '{% widget_enumerator %}' instead.
+                - In 'history', the template filter "|history_modifications" is deprecated.
+            - In Javascript :
+                * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead :
                     - creme.ajax.ajax()
                     - creme.ajax.get()
                     - creme.ajax.post()
@@ -138,20 +142,20 @@
                     - creme.ajax.json.post()
                     - creme.ajax.json.isvalid()
                     - creme.ajax.json.parse()
-                * Some creme.form.* functions are now deprecated
+                * Some creme.form.* functions are now deprecated :
                     - creme.forms.Select.optionsFromData()
                     - creme.forms.Select.fill()
-                * All 'creme.layout.Layout' classes are deprecated; Use CSS instead
+                * All 'creme.layout.Layout' classes are deprecated; use CSS instead :
                     - creme.layout.Layout
                     - creme.layout.ColumnSortLayout
                     - creme.layout.CSSColumnLayout
                     - creme.layout.SortLayout
-                * The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency
+                * The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency.
                 * jQuery 3.x :
-                    - $.bind() is deprecated; Use $.on() instead
-                    - $.unbind() is deprecated; Use $.off() instead
-                    - $.trim() is deprecated; Use String.prototype.trim() instead
-                    - $.isArray() is deprecated; Use Array.isArray() instead
+                    - $.bind() is deprecated; use $.on() instead.
+                    - $.unbind() is deprecated; use $.off() instead.
+                    - $.trim() is deprecated; use String.prototype.trim() instead.
+                    - $.isArray() is deprecated; use Array.isArray() instead.
                     - Use properties instead of attributes for disabled state :
                         - $.removeAttr('disabled') => $.prop('disabled', false)
                         - $.attr('disabled', 'disabled') => $.prop('disabled', true)
@@ -164,7 +168,7 @@
                     - 'change' trigger & handler shortcuts are deprecated :
                         - $.change() => $.trigger('change')
                         - $.change(handler) => $.trigger('change', handler)
-                    - 'hover' event is deprecated; Use 'mouseenter' & 'mouseleave' instead :
+                    - 'hover' event is deprecated; use 'mouseenter' & 'mouseleave' instead :
                         - $.hover(onenter, onleave) => $.on('mouseenter', onenter).on('mouseleave', onleave)
             - Apps :
                 * Persons :
@@ -222,7 +226,7 @@
                 - The function 'file_handling.download_file()' has been removed.
             - In 'utils', these functions have been removed :
               creme_entity_content_types(), get_ct_or_404(), build_ct_choices(), entities2unicode(), related2unicode()
-            - These templatetags of 'creme_core_tags' have been removed: {% creme_media_url %}, {% hg_info %}
+                These templatetags of 'creme_core_tags' have been removed: {% creme_media_url %}, {% hg_info %}
             - The template file "creme/creme_core/templates/creme_core/generics/blockform/content.html" have been removed
             - In JavaScript :
                 - The module 'creme.color' has been removed.
@@ -252,7 +256,7 @@
                 * Persons :
                     - The module 'views.crud_relations' has been removed.
                     - In 'forms.base', these constants have ben removed : _BILLING_ADDRESS_FIELD & _SHIPPING_ADDRESS_FIELD
-                    - These template files in "creme/persons/templates/persons/" have been removed.
+                    - These template files in "creme/persons/templates/persons/" have been removed :
                         - frags/*
                         - add_*_form.html
                         - edit_*_form.html
@@ -274,7 +278,7 @@
                     - In 'models.Base', these methods have been removed : get_source() & get_target().
                     - The function 'forms.base.first_managed_orga_id()' has been removed.
                     - In 'views' :
-                        - The class 'base.BaseEdition'  has been removed.
+                        - The class 'base.BaseEdition' has been removed.
                         - The class-view 'base.RelatedBaseCreation' does not fill <initial['target']> anymore.
                     - These template files have been removed in "creme/billing/templates/billing/forms/" :
                       add.html, add-popup.html, base.html, edit.html
@@ -283,7 +287,7 @@
                 * Commercial :
                     - The constants REL_SUB_SOLD_BY & REL_OBJ_SOLD_BY have been removed.
                 * Emails :
-                    - These methods of 'models.EmailSending' have been removed : get_mails(), get_unsent_mails_count()
+                    - These methods of 'models.EmailSending' have been removed : get_mails(), get_unsent_mails_count().
                     - In 'views.crudity', these functions have been removed :
                       set_emails_status(), spam(), validated(), waiting()
                     - The class attribute 'bricks.MailsHistoryBrick._RTYPE_IDS' has been removed.
@@ -313,7 +317,7 @@
             - The method 'CremeFormatter.formatEncodedException()' has been removed (use 'formatException()' instead).
             - The method 'CompressedTimedRotatingFileHandler._next_filename()' has been removed (it was unused).
         # The method 'creme_core.apps.CremeAppConfig.register_menu()' has been removed ;
-          all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py')
+          all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py').
         # The method 'get_tag()' injected in all model-fields takes now an argument named "tag" (it was named "tag_name") ;
           notice that it's better to pass an enumeration value (eg: 'FieldTag.VIEWABLE').
         # If you used the fields configuration on your own models (ie: they have fields tagged as "optional"),
@@ -352,11 +356,9 @@
                 - The global instance 'creme_menu' has been removed.
                 - The function '_validate_id()' has been removed.
         # In 'creme_core.models' :
-            - The field 'CustomFormConfigItem.cform_id' ahs been replaced by the fields 'id' & 'descriptor_id'.
+            - The field 'CustomFormConfigItem.cform_id' has been replaced by the fields 'id' & 'descriptor_id'.
             - The field 'DeletionCommand.json_replacers' has been transformed to a 'JSONField'.
             - In 'fields_config', the method 'FieldsConfigManager.field_enumerator()' has been removed.
-            - In 'history', all code related to history line rendering is deprecated ;
-              use the new rendering system 'creme_core.gui.history' instead.
             - In 'job' :
                 - The field 'Job.raw_data' has been transform into a nullable 'JSONField' named "data" ;
                   the property 'Job.data' has been removed since it's useless now.
@@ -373,13 +375,12 @@
                     - The class attributes '_searchfields' & '_all_fields' have been removed.
                     - These methods have been removed: _build_searchfields(), _get_modelfields_choices(), get_modelfields_choices().
                     - The property 'searchfields' has been removed ; use 'cells' & 'refined_cells' instead.
-        # In 'creme_core.templatetags.history', the template filter "|history_modifications" is deprecated.
         # In 'creme_core.utils.meta' :
             - In 'ModelFieldEnumerator' :
                 - Two parameters of the constructor have been renamed: "deep" became "depth", "only_leafs" has been fixed to "only_leaves".
                   The corresponding protected attributes have been renamed too.
-                - The functions passed to the methods 'filter()' & 'exclude()'
-                  take now 3 arguments by keywords (notice: "model" is new, "deep" is now "depth")
+                - The functions passed to the methods 'filter()' & 'exclude()' take now 3 arguments by keywords
+                  (notice: "model" is new, "deep" is now "depth").
             - The method '_FilterModelFieldQuery.__call__()' takes now 3 arguments by keywords (same remark).
         # In 'creme_core.views.generic.base' :
             - The method 'CustomFormMixin.get_custom_form_class()' is not a static method anymore.
@@ -390,7 +391,7 @@
             - The HTML id "editforms" has been removed.
             - The CSS class "table_detail_view" is not use anymore.
             - the CSS files "creme_core/css/blocks.css" have been removed from in the setting "CREME_CORE_CSS" (they will be removed in Creme 2.4)
-        # The Makefile target 'karma-ci' is no longer used in circleci script and removed.
+        # The Makefile target 'karma-ci' is no longer used in circleci script and so has been removed.
         # Apps :
             * Creme_config :
                 - There are several changes about Custom-Forms :
@@ -410,7 +411,7 @@
                     - It has been renamed "languages".
                     - It is no tagged as <viewable=False> any more (we did not know if we should remove this field).
                     - It is now editable.
-                    - A data migration hides it (ie: with 'FieldsConfig') in existing installation when you upgrade.
+                    - A data migration hides it (ie: with 'FieldsConfig') in existing installations when you upgrade.
                 - The class 'views.organisation.OrganisationCreationBase' has been removed (merged with 'OrganisationCreation').
             * Reports :
                 - Some constants have been replaced by 'django.db.models.*Choices' :
@@ -466,12 +467,12 @@
                         - The method '_init_orga_field()' has been renamed '_init_orga_fields()'.
         # Javascript :
             - The function 'creme.ajax.json.ajaxFormSubmit' has been removed.
-            - The jQuery package 'extensions/utils.js' is refactored as 'extensions/jquery.toggle-attr.js'
-                - The extensions '$.fn.check()', '$.fn.uncheck()' & '$.fn.toggleCheck' are removed.
-                - Add the extension '$.fn.toggleProp'
-            - Remove the jQuery extension '$.fn.wait()' which is not useful.
-            - Remove the jQuery extension '$.toJSON()'; use 'JSON.stringify()' instead.
-            - Remove unused dependencies :
+            - The jQuery package 'extensions/utils.js' has been reworked, and renamed as 'extensions/jquery.toggle-attr.js' :
+                - The extensions '$.fn.check()', '$.fn.uncheck()' & '$.fn.toggleCheck' have been removed.
+                - The extension '$.fn.toggleProp' has been added.
+            - The jQuery extension '$.fn.wait()' has ben removed (not useful anymore).
+            - The jQuery extension '$.toJSON()' has been removed ; use 'JSON.stringify()' instead.
+            - These unused dependencies have been removed :
                 - jquery.cookie.js
                 - jquery.highlight.js
                 - jquery.bind-first.js
