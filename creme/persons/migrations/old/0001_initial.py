@@ -10,13 +10,6 @@ from creme.documents.models.fields import ImageEntityForeignKey
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('persons', '0001_initial'),
-    #     # Beware: should have been named *_v2_3__*
-    #     ('persons', '0025_v2_2__contact_languages01'),
-    #     ('persons', '0026_v2_2__contact_languages02'),
-    # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -144,8 +137,7 @@ class Migration(migrations.Migration):
                 ('position', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
                 ('full_position', models.CharField(max_length=500, verbose_name='Detailed position', blank=True)),
                 ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
-                # ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
-                ('languages', models.ManyToManyField(verbose_name='Spoken language(s)', to='creme_core.Language', blank=True)),
+                ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
             ],
             options={
                 'swappable': 'PERSONS_CONTACT_MODEL',

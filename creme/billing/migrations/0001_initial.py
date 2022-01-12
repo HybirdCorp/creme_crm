@@ -14,11 +14,10 @@ from creme.creme_core.models import fields as creme_fields
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0018_v2_2__discount01'),
-    #     ('billing', '0019_v2_2__discount02'),
-    #     ('billing', '0020_v2_2__line_vat_not_null1'),
-    #     ('billing', '0021_v2_2__line_vat_not_null2'),
-    #     ('billing', '0022_v2_2__exporter_config_item'),
+    #     ('billing', '0002_v2_3__add_base_payment_type'),
+    # ]
+    # Memo: last migration in 2.2 was '0022_v2_2__exporter_config_item',
+    # so '0002_v2_3__add_base_payment_type' should have been '0023_v2_3__add_base_payment_type'
 
     initial = True
     dependencies = [
@@ -104,6 +103,20 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='SettlementTerms',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
+                                        primary_key=True)),
+                ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
+            ],
+            options={
+                'ordering': ('name',),
+                'verbose_name': 'Settlement terms',
+                'verbose_name_plural': 'Settlement terms',
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='CreditNoteStatus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -171,6 +184,13 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'payment_terms',
+                    models.ForeignKey(
+                        verbose_name='Payment Terms', to='billing.PaymentTerms',
+                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
                     'payment_info',
                     models.ForeignKey(
                         verbose_name='Payment information', to='billing.PaymentInformation',
@@ -178,10 +198,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
-                    'payment_terms',
+                    'payment_type',
                     models.ForeignKey(
-                        verbose_name='Payment Terms', to='billing.PaymentTerms',
-                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                        verbose_name='Settlement terms', to='billing.settlementterms',
+                        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
                     )
                 ),
                 (
@@ -190,7 +210,6 @@ class Migration(migrations.Migration):
                         verbose_name='Billing address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
                 (
@@ -199,7 +218,6 @@ class Migration(migrations.Migration):
                         verbose_name='Shipping address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
 
@@ -218,19 +236,6 @@ class Migration(migrations.Migration):
                 'verbose_name_plural': 'Credit notes',
             },
             bases=('creme_core.cremeentity',),
-        ),
-        migrations.CreateModel(
-            name='SettlementTerms',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
-            ],
-            options={
-                'ordering': ('name',),
-                'verbose_name': 'Settlement terms',
-                'verbose_name_plural': 'Settlement terms',
-            },
-            bases=(models.Model,),
         ),
         migrations.CreateModel(
             name='InvoiceStatus',
@@ -314,7 +319,6 @@ class Migration(migrations.Migration):
                         verbose_name='Billing address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
                 (
@@ -323,7 +327,6 @@ class Migration(migrations.Migration):
                         verbose_name='Shipping address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
 
@@ -331,8 +334,7 @@ class Migration(migrations.Migration):
                 (
                     'payment_type',
                     models.ForeignKey(
-                        verbose_name='Settlement terms',
-                        to='billing.SettlementTerms',
+                        verbose_name='Settlement terms', to='billing.SettlementTerms',
                         on_delete=CREME_REPLACE_NULL, blank=True, null=True,
                     )
                 ),
@@ -421,6 +423,13 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'payment_terms',
+                    models.ForeignKey(
+                        verbose_name='Payment Terms', to='billing.PaymentTerms',
+                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
                     'payment_info',
                     models.ForeignKey(
                         verbose_name='Payment information', to='billing.PaymentInformation',
@@ -428,10 +437,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
-                    'payment_terms',
+                    'payment_type',
                     models.ForeignKey(
-                        verbose_name='Payment Terms', to='billing.PaymentTerms',
-                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                        verbose_name='Settlement terms', to='billing.settlementterms',
+                        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
                     )
                 ),
                 (
@@ -440,7 +449,6 @@ class Migration(migrations.Migration):
                         verbose_name='Billing address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
                 (
@@ -449,7 +457,6 @@ class Migration(migrations.Migration):
                         verbose_name='Shipping address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
 
@@ -535,6 +542,13 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'payment_terms',
+                    models.ForeignKey(
+                        verbose_name='Payment Terms', to='billing.PaymentTerms',
+                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
                     'payment_info',
                     models.ForeignKey(
                         verbose_name='Payment information', to='billing.PaymentInformation',
@@ -542,10 +556,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
-                    'payment_terms',
+                    'payment_type',
                     models.ForeignKey(
-                        verbose_name='Payment Terms', to='billing.PaymentTerms',
-                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                        verbose_name='Settlement terms', to='billing.settlementterms',
+                        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
                     )
                 ),
                 (
@@ -554,7 +568,6 @@ class Migration(migrations.Migration):
                         verbose_name='Billing address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
                 (
@@ -563,7 +576,6 @@ class Migration(migrations.Migration):
                         verbose_name='Shipping address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
 
@@ -643,6 +655,13 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
+                    'payment_terms',
+                    models.ForeignKey(
+                        verbose_name='Payment Terms', to='billing.PaymentTerms',
+                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
                     'payment_info',
                     models.ForeignKey(
                         verbose_name='Payment information', to='billing.PaymentInformation',
@@ -650,10 +669,10 @@ class Migration(migrations.Migration):
                     )
                 ),
                 (
-                    'payment_terms',
+                    'payment_type',
                     models.ForeignKey(
-                        verbose_name='Payment Terms', to='billing.PaymentTerms',
-                        related_name='+', on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                        verbose_name='Settlement terms', to='billing.settlementterms',
+                        blank=True, null=True, on_delete=CREME_REPLACE_NULL,
                     )
                 ),
                 (
@@ -662,7 +681,6 @@ class Migration(migrations.Migration):
                         verbose_name='Billing address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
                 (
@@ -671,7 +689,6 @@ class Migration(migrations.Migration):
                         verbose_name='Shipping address',
                         to=settings.PERSONS_ADDRESS_MODEL,
                         related_name='+', on_delete=SET_NULL, editable=False, null=True,
-                        # blank=True,
                     )
                 ),
 
@@ -714,15 +731,11 @@ class Migration(migrations.Migration):
                 (
                     'discount_unit',
                     models.PositiveIntegerField(
-                        # blank=True, null=True, default=1, editable=False,
                         default=1,
-                        # choices=[(1, 'Percent'), (2, 'Amount')],
                         choices=[(1, 'Percent'), (2, 'Amount per line'), (3, 'Amount per unit')],
                         verbose_name='Discount Unit',
                     )
                 ),
-                # ('total_discount', models.BooleanField(default=False, verbose_name='Total discount ?', editable=False)),
-                # ('vat_value', models.ForeignKey(on_delete=PROTECT, verbose_name='VAT', blank=True, to='creme_core.Vat', null=True)),
                 ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
             ],
             options={
@@ -764,15 +777,11 @@ class Migration(migrations.Migration):
                 (
                     'discount_unit',
                     models.PositiveIntegerField(
-                        # blank=True, null=True, default=1, editable=False,
                         default=1,
-                        # choices=[(1, 'Percent'), (2, 'Amount')],
                         choices=[(1, 'Percent'), (2, 'Amount per line'), (3, 'Amount per unit')],
                         verbose_name='Discount Unit',
                     )
                 ),
-                # ('total_discount', models.BooleanField(default=False, verbose_name='Total discount ?', editable=False)),
-                # ('vat_value', models.ForeignKey(on_delete=PROTECT, verbose_name='VAT', blank=True, to='creme_core.Vat', null=True)),
                 ('vat_value', models.ForeignKey(default=1, on_delete=PROTECT, verbose_name='VAT', to='creme_core.Vat')),
             ],
             options={

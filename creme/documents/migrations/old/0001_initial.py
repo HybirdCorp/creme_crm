@@ -10,10 +10,7 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('documents', '0001_initial'),
-    #     ('documents', '0019_v2_3__rm_upload_prefix.py'),
-    # ]
+    # Memo: last migration '0018_v2_1__move_description_to_entity_3.py'
 
     initial = True
     dependencies = [
@@ -130,6 +127,7 @@ class Migration(migrations.Migration):
                 (
                     'filedata',
                     models.FileField(
+                        # upload_to='upload/documents', max_length=500, verbose_name='File',
                         verbose_name='File', upload_to='documents', max_length=500,
                     ),
                 ),
