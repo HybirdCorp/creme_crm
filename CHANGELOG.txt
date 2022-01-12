@@ -43,6 +43,9 @@
                     - The method 'AbstractStrategy.get_segment_category()' has been removed.
                 * Reports :
                     - The template file "reports/templatetags/report_chart.html" has been removed.
+                * Recurrents :
+                    - The property 'registry.RecurrentRegistry.ctypes' has been removed.
+
 
     Internal breaking changes :
     ---------------------------
