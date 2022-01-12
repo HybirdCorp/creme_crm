@@ -149,13 +149,6 @@ Run the following commands (new installations AND upgrades from Creme 2.2):
 >> creme generatemedia --settings=my_project.settings
 ```
 
-If you are upgrading the version, clean all existing sessions, for example like this:
-```sh
->> creme shell --settings=my_project.settings
-> from django.contrib.sessions.models import Session
-> Session.objects.all().delete()
-```
-
 Note for MySQL users: you should load the time zone tables.
  - On Unix servers, it can be done with:
    ```sh
