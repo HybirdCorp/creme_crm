@@ -35,7 +35,10 @@
                 - 'creme.form.Select' has been removed.
                 - All 'creme.layout.Layout' classes have been removed :
                   Layout, ColumnSortLayout, CSSColumnLayout, SortLayout
-
+            - Apps :
+                * Persons :
+                    - The function 'forms.base._get_address_field_names()' has been removed.
+                    - The class 'forms.address._AuxiliaryAddressForm' has been removed.
 
     Internal breaking changes :
     ---------------------------
