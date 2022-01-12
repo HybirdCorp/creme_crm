@@ -9,11 +9,6 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('activities', '0001_initial'),
-    #     ('activities', '0014_v2_3__rm_svalue_for_usermessages'),
-    # ]
-
     initial = True
     dependencies = [
         ('auth', '0001_initial'),

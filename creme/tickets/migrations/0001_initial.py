@@ -8,11 +8,7 @@ from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('tickets', '0001_initial'),
-    #     ('tickets', '0008_v2_2__status_is_closed01'),
-    #     ('tickets', '0009_v2_2__status_is_closed02'),
-    # ]
+    # Memo: last migration was '0009_v2_2__status_is_closed02'
 
     initial = True
     dependencies = [

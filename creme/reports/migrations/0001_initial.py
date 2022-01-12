@@ -10,16 +10,7 @@ EF_USER = 1
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('reports', '0001_initial'),
-    #     ('reports', '0007_v2_2__abscissa_fields_rework01'),
-    #     ('reports', '0008_v2_2__abscissa_fields_rework02'),
-    #     ('reports', '0009_v2_2__abscissa_fields_rework03'),
-    #     ('reports', '0010_v2_2__ordinate_field_rework01'),
-    #     ('reports', '0011_v2_2__ordinate_field_rework02'),
-    #     ('reports', '0012_v2_2__ordinate_field_rework03'),
-    #     ('reports', '0013_v2_2__instance_bricks_data'),
-    # ]
+    # Memo: last migration was '0013_v2_2__instance_bricks_data'
 
     initial = True
     dependencies = [
@@ -104,7 +95,6 @@ class Migration(migrations.Migration):
                     'abscissa_parameter',
                     models.TextField(verbose_name='X axis parameter', editable=False, null=True)
                 ),
-                # ('ordinate', models.CharField(verbose_name='Y axis', max_length=100, editable=False)),
                 (
                     'ordinate_type',
                     models.CharField(
@@ -133,8 +123,6 @@ class Migration(migrations.Migration):
                         ],
                     )
                 ),
-                # ('days', models.PositiveIntegerField(null=True, verbose_name='Days', blank=True, editable=False)),
-                # ('is_count', models.BooleanField(default=False, verbose_name='Make a count instead of aggregate?')),
                 ('chart', models.CharField(max_length=100, null=True, verbose_name='Chart type')),
                 ('asc', models.BooleanField(default=True, editable=False, verbose_name='ASC order')),
                 (
