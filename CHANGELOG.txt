@@ -41,6 +41,8 @@
                     - The class 'forms.address._AuxiliaryAddressForm' has been removed.
                 * Commercial :
                     - The method 'AbstractStrategy.get_segment_category()' has been removed.
+                * Reports :
+                    - The template file "reports/templatetags/report_chart.html" has been removed.
 
     Internal breaking changes :
     ---------------------------
