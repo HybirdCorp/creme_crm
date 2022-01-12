@@ -131,7 +131,7 @@
                   use '{% widget_enumerator %}' instead.
                 - In 'history', the template filter "|history_modifications" is deprecated.
             - In Javascript :
-                * Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead :
+                - Some creme.ajax.* functions are now deprecated; use 'creme.ajax.Query' instead :
                     - creme.ajax.ajax()
                     - creme.ajax.get()
                     - creme.ajax.post()
@@ -142,16 +142,16 @@
                     - creme.ajax.json.post()
                     - creme.ajax.json.isvalid()
                     - creme.ajax.json.parse()
-                * Some creme.form.* functions are now deprecated :
+                - Some creme.form.* functions are now deprecated :
                     - creme.forms.Select.optionsFromData()
                     - creme.forms.Select.fill()
-                * All 'creme.layout.Layout' classes are deprecated; use CSS instead :
+                - All 'creme.layout.Layout' classes are deprecated; use CSS instead :
                     - creme.layout.Layout
                     - creme.layout.ColumnSortLayout
                     - creme.layout.CSSColumnLayout
                     - creme.layout.SortLayout
-                * The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency.
-                * jQuery 3.x :
+                - The jquery extension '$.browserVersion' is now deprecated but kept as gccolor dependency.
+                - jQuery 3.x :
                     - $.bind() is deprecated; use $.on() instead.
                     - $.unbind() is deprecated; use $.off() instead.
                     - $.trim() is deprecated; use String.prototype.trim() instead.
