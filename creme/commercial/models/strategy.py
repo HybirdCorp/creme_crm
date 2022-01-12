@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
+# import warnings
 from typing import (
     TYPE_CHECKING,
     Callable,
@@ -262,19 +262,19 @@ class AbstractStrategy(CremeEntity):
     def get_charms_totals(self, orga: 'Organisation') -> List[Tuple[Score, int]]:
         return self._get_totals(self._get_charms_scores_objects(orga))
 
-    def get_segment_category(self, orga, segment):
-        warnings.warn(
-            'The method AbstractStrategy.get_segment_category() is deprecated.',
-            DeprecationWarning,
-        )
-        sid = segment.id
-
-        for category, segments in self._get_segments_categories(orga).items():
-            for other_segment in segments:
-                if other_segment.id == sid:
-                    return category
-
-        raise KeyError(f'Strategy.get_segment_category() for segment: {segment}')
+    # def get_segment_category(self, orga, segment):
+    #     warnings.warn(
+    #         'The method AbstractStrategy.get_segment_category() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #     sid = segment.id
+    #
+    #     for category, segments in self._get_segments_categories(orga).items():
+    #         for other_segment in segments:
+    #             if other_segment.id == sid:
+    #                 return category
+    #
+    #     raise KeyError(f'Strategy.get_segment_category() for segment: {segment}')
 
     def _get_segments_categories(self,
                                  orga: 'Organisation',
