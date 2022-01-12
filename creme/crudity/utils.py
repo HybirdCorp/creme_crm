@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@
 import base64
 import struct
 import uuid
-import warnings
+# import warnings
 from typing import Tuple, Type
 
 from django.db.models import Model
@@ -35,15 +35,15 @@ def is_sandbox_by_user() -> bool:
     return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
-def strip_html(text: str) -> str:
-    warnings.warn(
-        'crudity.utils.strip_html() is deprecated ; '
-        'use creme_core.utils.html.strip_html() instead.',
-        DeprecationWarning,
-    )
-
-    from creme.creme_core.utils.html import strip_html
-    return strip_html(text)
+# def strip_html(text: str) -> str:
+#     warnings.warn(
+#         'crudity.utils.strip_html() is deprecated ; '
+#         'use creme_core.utils.html.strip_html() instead.',
+#         DeprecationWarning,
+#     )
+#
+#     from creme.creme_core.utils.html import strip_html
+#     return strip_html(text)
 
 
 def generate_guid_for_field(urn: str,
