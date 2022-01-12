@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,12 +73,12 @@ class Base(CremeEntity):
 
     billing_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Billing address'),
-        blank=True, null=True, editable=False,
+        null=True, editable=False,  # blank=True
         related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
     shipping_address = models.ForeignKey(
         settings.PERSONS_ADDRESS_MODEL, verbose_name=_('Shipping address'),
-        blank=True, null=True, editable=False,
+        null=True, editable=False,  # blank=True
         related_name='+', on_delete=models.SET_NULL,
     ).set_tags(enumerable=False)
 
