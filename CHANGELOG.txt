@@ -45,7 +45,8 @@
                     - The template file "reports/templatetags/report_chart.html" has been removed.
                 * Recurrents :
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
-
+                * Crudity :
+                    - The function 'crudity.utils.strip_html()' has been removed.
 
     Internal breaking changes :
     ---------------------------

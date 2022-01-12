@@ -4,7 +4,7 @@ from creme.creme_core.models import SettingValue
 from creme.creme_core.tests.base import CremeTestCase
 
 from ..constants import SETTING_CRUDITY_SANDBOX_BY_USER
-from ..utils import decode_b64binary, is_sandbox_by_user, strip_html
+from ..utils import decode_b64binary, is_sandbox_by_user  # strip_html
 
 
 class UtilsTestCase(CremeTestCase):
@@ -71,9 +71,9 @@ JBTi5OHuzb/iXXkgWZlnk1qTVaC+9tzy9ZsV8ojCTLGGKvj/4nvaMlx38jF2lz5AeijU5LdeKkiQiO3x
 
         self.assertTrue(is_sandbox_by_user())
 
-    def test_strip_html(self):  # DEPRECATED
-        self.assertEqual('foobar',  strip_html('foobar'))
-        self.assertEqual('foobar',  strip_html('<b>foobar</b>'))
-        self.assertEqual('97%',     strip_html('97&#x0025;'))
-        self.assertEqual('97%',     strip_html('97&#37;'))
-        self.assertEqual('foo bar', strip_html('foo&nbsp;bar'))
+    # def test_strip_html(self):  # DEPRECATED
+    #     self.assertEqual('foobar',  strip_html('foobar'))
+    #     self.assertEqual('foobar',  strip_html('<b>foobar</b>'))
+    #     self.assertEqual('97%',     strip_html('97&#x0025;'))
+    #     self.assertEqual('97%',     strip_html('97&#37;'))
+    #     self.assertEqual('foo bar', strip_html('foo&nbsp;bar'))
