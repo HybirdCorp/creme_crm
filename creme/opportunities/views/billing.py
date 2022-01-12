@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -169,7 +169,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         # TODO: Missing test case
         if relations:
             Relation.populate_real_object_entities(relations)
-            vat_value = Vat.get_default_vat()
+            # vat_value = Vat.get_default_vat()
+            vat_value = Vat.objects.default()
             Product = get_product_model()
 
             for relation in relations:
