@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -45,7 +45,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         var previous = this._count !== undefined ? this._count : this._initial;
 //        var count = this._count = (element.val() !== null) ? element.val().split('\n').length : this._min;
         var lines = (text !== null) ? text.split('\n') : [];
-        var count = this._count = lines.length;
+        var count = lines.length;
 
         if (e.keyCode === 13) {
             ++count;
@@ -55,28 +55,33 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         if (lines) {
             var width = element.width();
 
-            var ghostSpan = $('<span></span>');
-            ghostSpan.css({
-                // font: element.css('font'),  does not work with FireFox
-                'font-family': element.css('font-family'),
-                'font-size': element.css('font-size'),
-                position: 'absolute',
-                top: -1000,
-                left: -1000
-            });
+            if (width) {
+                // TODO: unit test (need not null sizes in test cases)
+                var ghostSpan = $('<span></span>');
+                ghostSpan.css({
+                    // font: element.css('font'),  does not work with FireFox
+                    'font-family': element.css('font-family'),
+                    'font-size': element.css('font-size'),
+                    position: 'absolute',
+                    top: -1000,
+                    left: -1000
+                });
 
-            ghostSpan.appendTo('body');
+                ghostSpan.appendTo('body');
 
-            for (var i in lines) {
-                ghostSpan.text(lines[i]);
-                count += Math.floor(ghostSpan.width() / width);
+                for (var i in lines) {
+                    ghostSpan.text(lines[i]);
+                    count += Math.floor(ghostSpan.width() / width);
+                }
+
+                ghostSpan.remove();
             }
-
-            ghostSpan.remove();
         }
 
         count = Math.max(this._min, count);
         count = !isNaN(this._max) ? Math.min(this._max, count) : count;
+
+        this._count = count;
 
         if (previous !== count) {
             count = BrowserVersion.isFirefox() ? Math.max(count - 1, 0) : count;
