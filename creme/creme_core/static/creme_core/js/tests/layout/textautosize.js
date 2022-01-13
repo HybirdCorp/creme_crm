@@ -69,8 +69,10 @@ QUnit.parametrize('creme.layout.TextAreaAutoSize (initial state)', [
 });
 
 QUnit.parametrize('creme.layout.TextAreaAutoSize (change)', [
-    [$('<textarea>L1\nL2</textarea>'), 'keydown', {keyCode: 27}, {rows: 2}],
-    [$('<textarea>L1\nL2</textarea>'), 'keydown', {keyCode: 13}, {rows: 3}]
+//    [$('<textarea>L1\nL2</textarea>'), 'keydown', {keyCode: 27}, {rows: 2}],
+    [$('<textarea>L1\nL2</textarea>'), 'input', {keyCode: 27}, {rows: 2}],
+//    [$('<textarea>L1\nL2</textarea>'), 'keydown', {keyCode: 13}, {rows: 3}]
+    [$('<textarea>L1\nL2</textarea>'), 'input', {keyCode: 13}, {rows: 3}]
 ], function(element, event, eventData, expected, assert) {
     var layout = new creme.layout.TextAreaAutoSize();
     layout.bind(element);
