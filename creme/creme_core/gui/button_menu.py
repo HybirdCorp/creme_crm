@@ -122,11 +122,11 @@ class ButtonsRegistry:
                     f'Button class with empty id_: {button_cls}'
                 )
 
-            if hasattr(button_cls, 'permission'):
-                raise self.RegistrationError(
-                    f'Button class with old attribute "permission" '
-                    f'(use "permissions" instead): {button_cls}',
-                )
+            # if hasattr(button_cls, 'permission'):
+            #     raise self.RegistrationError(
+            #         f'Button class with old attribute "permission" '
+            #         f'(use "permissions" instead): {button_cls}',
+            #     )
 
             if setdefault(button_id, button_cls) is not button_cls:
                 raise self.RegistrationError(

@@ -116,7 +116,6 @@ class Brick:
     #   - some bricks are reloaded.
     # For regular brick classes, you just have to override this attribute by using
     # the method generate_id().
-    # id_ = None
     id_: str = ''
 
     # Human-readable name used as default title, or in the configuration GUI.
@@ -170,7 +169,6 @@ class Brick:
     #  - a sequence of permission strings
     #     eg: permissions = ['my_app1', 'my_app2.can_admin']
     # An empty value (like the default empty string) means "No special permission required".
-    # permission: str = ''
     permissions: Union[str, Sequence[str]] = ''
 
     GENERIC_HAT_BRICK_ID: str = 'hatbrick'
@@ -771,11 +769,11 @@ class _BrickRegistry:
             if not brick_id:
                 raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
 
-            if hasattr(brick_cls, 'permission'):
-                raise self.RegistrationError(
-                    f'Brick class with old attribute "permission" '
-                    f'(use "permissions" instead): {brick_cls}',
-                )
+            # if hasattr(brick_cls, 'permission'):
+            #     raise self.RegistrationError(
+            #         f'Brick class with old attribute "permission" '
+            #         f'(use "permissions" instead): {brick_cls}',
+            #     )
 
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
