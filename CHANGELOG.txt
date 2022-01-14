@@ -47,6 +47,9 @@
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' has been removed.
+        # Apps :
+            * Products :
+                - The module 'forms.product' has been renamed 'forms.bulk_update'.
 
     Internal breaking changes :
     ---------------------------

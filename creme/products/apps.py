@@ -45,7 +45,8 @@ class ProductsConfig(CremeAppConfig):
         brick_registry.register(bricks.ImagesBrick)
 
     def register_bulk_update(self, bulk_update_registry):
-        from .forms.product import ProductInnerEditCategory
+        # from .forms.product import ProductInnerEditCategory
+        from .forms.bulk_update import ProductInnerEditCategory
 
         register = bulk_update_registry.register
         register(
