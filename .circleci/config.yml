@@ -451,6 +451,7 @@ jobs:
       - run: |
           cd << pipeline.parameters.source_path >> && \
           python setup.py sdist bdist_wheel && \
+          twine check dist/* --strict && \
           twine upload -u "${TWINE_USERNAME-}" dist/* --skip-existing --non-interactive --disable-progress-bar
 
 
