@@ -413,8 +413,8 @@ jobs:
       IMAGE_NAME: cremecrm/cremecrm-demo
     steps:
       - checkout
-      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_BRANCH .
-      - run: docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=en $IMAGE_NAME:$CIRCLE_BRANCH
+      - run: docker build --target creme-demo --tag $IMAGE_NAME:$CIRCLE_BUILD_NUM .
+      - run: docker run --detach --rm --name creme_demo --publish 8001:80 --volume creme_data:/srv/creme/data --env CREME_LANGUAGE_CODE=en $IMAGE_NAME:$CIRCLE_BUILD_NUM
       - run: wget -c --retry-connrefused --waitretry 1 --tries 60 -O /dev/null http://127.0.0.1:8001
       - run: docker kill creme_demo
 
