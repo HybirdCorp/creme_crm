@@ -1,0 +1,143 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} brick-selectable emails-emails_to_sync-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Email to synchronise') plural=_('{count} Emails to synchronise') empty=_('Emails to synchronise') icon='email' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='emailsync-delete-multi' url='emails__delete_email_to_sync'|url type='delete' label=_('Delete selected emails') icon='cancel' %}
+    {% brick_header_action id='emailsync-accept-multi' url='emails__accept_email_to_sync'|url type='add'    label=_('Accept selected emails') icon='ok' %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    <th data-selectable-selector-column>
+        <input class="row-selector-all" type="checkbox" title="{% translate 'Select all' %}"/>
+    </th>
+
+    {% if user.is_staff %}
+      {% brick_table_column_for_field ctype=objects_ctype field='user' %}
+    {% endif %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='subject' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='date' %}
+
+    {% brick_table_column title=_('Sender') %}
+    {% brick_table_column title=_('Recipients') %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='body' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='body_html' %}
+
+    {% brick_table_column_for_field ctype=objects_ctype field='attachments' %}
+
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'emails__accept_email_to_sync' as accept_url %}{% url 'emails__delete_email_to_sync' as delete_url %}
+{% translate 'Only the recipient marked as main is used to fill the field «Recipient» of the final e-mail. All recipients are linked to the email anyway.' as mark_help_text %}
+    {% for email_to_sync in page.object_list %}
+    <tr>
+        <td data-selectable-selector-column>
+            <input class="row-selector" value="{{email_to_sync.pk}}" title="{% translate 'Select this email' %}" type="checkbox"/>
+        </td>
+        {% if user.is_staff %}
+          <td>{% print_field object=email_to_sync field='user' %}</td>
+        {% endif %}
+        <td><span class="emails-sync-subject">{{email_to_sync.subject}}</span></td>
+        <td>{% print_field object=email_to_sync field='date' %}</td>
+        <td>
+            <div class="emails-sync-sender">
+            {% with sender=email_to_sync.senders.0 %}
+              {% if sender.person %}
+                <span class="emails-sync-email">{{sender.email}}</span>{% widget_entity_hyperlink sender.person user %}
+              {% else %}
+                <span class="emails-sync-email emails-sync-no_person" title="{% translate 'Error: no Contact/Organisation is related to this address.' %}">{{sender.email}}</span>
+              {% endif %}
+              {% brick_table_action id='edit' url=sender.get_edit_absolute_url %}
+            {% endwith %}
+            </div>
+        </td>
+        <td>
+            <ul class="emails-sync-recipients">{% url 'emails__mark_email_to_sync_recipient' email_to_sync.id as mark_url %}{% url 'emails__delete_email_to_sync_recipient' email_to_sync.id as del_recipient_url %}
+            {% for recipient in email_to_sync.recipients %}
+                <li>
+                  {% if recipient.person %}
+                    <span class="emails-sync-email">{{recipient.email}}</span>{% widget_entity_hyperlink recipient.person user %}
+                  {% else %}
+                    <span class="emails-sync-email emails-sync-no_person" title="{% translate 'Error: no Contact/Organisation is related to this address.' %}">{{recipient.email}}</span>
+                  {% endif %}
+
+                    <div class="emails-sync-recipient-actions">
+                      {% brick_table_action id='edit' url=recipient.get_edit_absolute_url %}
+                      {% if email_to_sync.recipients|length > 1 %}
+                        {% if not recipient.is_main %}
+                          {% brick_table_action id='update' url=mark_url __id=recipient.id label=_('Mark as main') display='text' help_text=mark_help_text %}
+                        {% endif %}
+                        {% brick_table_action id='delete' url=del_recipient_url __id=recipient.id %}
+                      {% endif %}
+                    </div>
+                </li>
+            {% empty %}
+                {% brick_table_action id='edit' url='emails__fix_email_to_sync'|url:email_to_sync.id label=_('Fix the forwarded email') display='text' class='emails-sync-fix' help_text=_('This email has only been sent to the synchronisation address ; fix it by setting the true sender & recipient.') %}
+            {% endfor %}
+            </ul>
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if email_to_sync.body %}
+                <a data-action="popover" class="brick-action brick-table-action emails-sync-view_body">
+                    {% widget_icon name='view' label=_('View the body') size='brick-table' class='brick-action-icon brick-table-action-icon' %}
+                    <summary>{% translate 'Details' %}</summary>
+                    <details>{{email_to_sync.body|linebreaksbr}}</details>
+                </a>
+            {% else %}
+                <span class="empty-field">—</span>
+            {% endif %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% if email_to_sync.body_html %}
+                <a data-action="popover" class="brick-action brick-table-action emails-sync-view_body">
+                    {% widget_icon name='view' label=_('View the HTMl body') size='brick-table' class='brick-action-icon brick-table-action-icon' %}
+                    <summary>{% translate 'Details' %}</summary>
+                    <details>{{email_to_sync.body_html}}</details>
+                </a>
+            {% else %}
+                <span class="empty-field">—</span>
+            {% endif %}
+        </td>
+        <td>
+        {% with attachments=email_to_sync.attachments.all %}
+          {% if attachments %}
+            <ul class="emails-sync-attachments">{% url 'emails__delete_email_to_sync_attachment' email_to_sync.id as del_attachment_url %}
+              {% for fileref in email_to_sync.attachments.all %}
+                <li>
+                    {{fileref.basename}}
+                    {% brick_table_action id='delete' url=del_recipient_url __id=fileref.id %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <span class="empty-field">—</span>
+          {% endif %}
+        {% endwith %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __ids=email_to_sync.id label=_('Delete this email') %}
+        </td>
+        <td {% brick_table_data_status action %}>
+          {% if email_to_sync.can_be_accepted  %}
+            {% brick_table_action id='delete' url=accept_url __ids=email_to_sync.id label=_('Accept') display='text' help_text=_('Convert into a true entity email') %}
+          {% else %}
+            {% brick_table_action id='delete' label=_('Accept') display='text' help_text=_('Cannot accept because there are errors') enabled=False %}
+          {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No email to synchronise for the moment' %}
+{% endblock %}

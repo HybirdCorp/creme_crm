@@ -1,5 +1,10 @@
 == Version 2.4 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should create a all new virtual environment based on Python 3.7+ .
+    - If you used the emails synchronisation in Creme2.3, you should finish to flush the list of
+      untreated emails (ie: mark them as synchronised or spam) before upgrading to Creme 2.4 .
+
   Users side :
   ------------
     # The setting 'USE_L10N' is now set to 'True' by default (previously only 'False' was working).
@@ -7,6 +12,17 @@
     # Apps :
         * Creme_config :
             - An edition view for semi-fixed relation types has been added.
+        * Emails :
+            - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
+              This feature allows Creme to fetch e-mails from some mailboxes to potentially create true Email entities
+              (eg: you sent a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
+                - Now the mail servers are configured with a GUI (it was in 'settings.py').
+                - IMAP4 is supported (only POP3 was).
+                - Mails are in a sandbox, & entities are created only when you accept them (instead of using the status "Synchronized - Untreated").
+                - Attachments can be ignored, or removed before the mail is transformed into an entity.
+                - ...
+              BEWARE: if you used this feature in Creme 2.3, you'll have to remove the configuration
+                      in your settings (it's not supported anymore) & re-create it in the GUI.
         * Mobile :
             - A "owner" field is now present in forms for of Contacts & Organisations.
         * Crudity :
@@ -32,6 +48,11 @@
                   use 'Relation.objects.prefetch_related("real_object")' instead.'
             - The function 'creme_core.utils.imports.import_object()' is deprecated ;
               use 'django.utils.module_loading.import_string()' instead.
+            - Apps :
+                * Emails :
+                    - In the class 'emails.models._Email':
+                        - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.
+                        - 'SYNCHRONIZATION_STATUSES' is deprecated.
         # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
           so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
         # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
@@ -115,6 +136,8 @@
                       ActObjectivesBrick, SegmentDescriptionsBrick, PatternComponentsBrick.
             * Emails :
                 - A mandatory field "recipient_ctype" has been added to 'models.LightWeightEmail'.
+                - In 'email.js', these actions have been removed :
+                  "emailsync-link", "emailsync-action", "emailsync-delete".
             * Crudity :
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
             * Graphs :

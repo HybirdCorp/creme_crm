@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EMAILS' APP (JavaScript only)
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -d djangojs -l fr -i "static/emails/js/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 2.3\n"
+"Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-11-30 18:50+0100\n"
+"POT-Creation-Date: 2022-03-24 20:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -16,12 +16,35 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-# Already in creme_core
-msgid "Please select at least one entity."
-msgstr ""
+msgid "Some errors occurred."
+msgstr "Des erreurs ont survenu."
 
-msgid "Nothing is selected."
-msgstr "Rien n'est sélectionné."
+msgid "No email is selected."
+msgstr "Aucun e-mail n'est sélectionné."
+
+#, javascript-format
+msgid "%d email has been synchronised"
+msgid_plural "%d emails have been synchronised"
+msgstr[0] "%d e-mail a été synchronisé"
+msgstr[1] "%d e-mails ont été synchronisés"
+
+#, javascript-format
+msgid "%d email cannot be synchronised."
+msgid_plural "%d emails cannot be synchronised."
+msgstr[0] "%d e-mail ne peut pas être synchronisé."
+msgstr[1] "%d e-mails ne peuvent pas être synchronisés."
+
+#, javascript-format
+msgid "%d email has been deleted"
+msgid_plural "%d emails have been deleted"
+msgstr[0] "%d e-mail a été supprimé"
+msgstr[1] "%d e-mails ont été supprimés"
+
+#, javascript-format
+msgid "%d email cannot be deleted."
+msgid_plural "%d emails cannot be deleted."
+msgstr[0] "%d e-mail ne peut pas être supprimé."
+msgstr[1] "%d e-mails ne peuvent pas être supprimés."
 
 # Already in creme_core
 msgid "Error"

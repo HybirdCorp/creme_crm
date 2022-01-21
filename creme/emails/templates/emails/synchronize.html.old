@@ -27,7 +27,6 @@
             <div class="bar-title"><h1>{% translate 'Synchronization of incoming emails with Creme' %}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
-{#                    <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" > #}
                     <a class="bar-button emails-sync-refresh">
                         {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
                     </a>

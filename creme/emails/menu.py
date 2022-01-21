@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.apps import apps
+# from django.apps import apps
 from django.utils.translation import gettext_lazy as _
 
 from creme import emails
@@ -64,12 +64,17 @@ class EmailTemplateCreationEntry(menu.CreationEntry):
     model = EmailTemplate
 
 
-if apps.is_installed('creme.crudity'):
-    class EmailSyncEntry(menu.FixedURLEntry):
-        id = 'emails-sync'
-        label = _('Synchronization of incoming emails')
-        permissions = 'emails'
-        url_name = 'emails__crudity_sync'
-else:
-    class EmailSyncEntry(menu.MenuEntry):
-        pass
+# if apps.is_installed('creme.crudity'):
+#     class EmailSyncEntry(menu.FixedURLEntry):
+#         id = 'emails-sync'
+#         label = _('Synchronization of incoming emails')
+#         permissions = 'emails'
+#         url_name = 'emails__crudity_sync'
+# else:
+#     class EmailSyncEntry(menu.MenuEntry):
+#         pass
+class EmailSyncEntry(menu.FixedURLEntry):
+    id = 'emails-sync'
+    label = _('Synchronization of incoming emails')
+    permissions = 'emails'
+    url_name = 'emails__sync_portal'

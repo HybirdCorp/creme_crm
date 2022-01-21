@@ -19,7 +19,7 @@
     {% brick_table_column title=_('Recipient(s)') %}
     {% brick_table_column title=_('Subject') %}
     {% brick_table_column title=_('Received on') %}
-    {% brick_table_column title=_('Actions') status='action' colspan=5 %}{# TODO: pass rigth colspan #}
+    {% brick_table_column title=_('Actions') status='action' colspan=5 %}
 {% endblock %}
 
 {% block brick_table_rows %}

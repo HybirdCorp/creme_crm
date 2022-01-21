@@ -79,6 +79,8 @@ class EmailsConfig(CremeAppConfig):
             bricks.LwMailPopupBrick,
             bricks.LwMailsHistoryBrick,
             bricks.MySignaturesBrick,
+            bricks.EmailSyncConfigItemsBrick,
+            bricks.EmailsToSyncBrick,
         ).register_hat(
             self.EntityEmail,
             main_brick_cls=bricks.EntityEmailBarHatBrick,
@@ -144,6 +146,10 @@ class EmailsConfig(CremeAppConfig):
         from . import bricks
 
         config_registry.register_user_bricks(bricks.MySignaturesBrick)
+        config_registry.register_app_bricks(
+            'emails',
+            bricks.EmailSyncConfigItemsBrick,
+        )
 
     def register_icons(self, icon_registry):
         from . import models
@@ -174,11 +180,13 @@ class EmailsConfig(CremeAppConfig):
             menu.EmailCampaignCreationEntry,
             menu.MailingListCreationEntry,
             menu.EmailTemplateCreationEntry,
+
+            menu.EmailSyncEntry,
         )
 
-        EmailSyncEntry = menu.EmailSyncEntry
-        if EmailSyncEntry.id:
-            menu_registry.register(EmailSyncEntry)
+        # EmailSyncEntry = menu.EmailSyncEntry
+        # if EmailSyncEntry.id:
+        #     menu_registry.register(EmailSyncEntry)
 
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(

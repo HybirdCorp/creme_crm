@@ -3,3 +3,67 @@
     left: 300px;
     top: -1.3em;
 }
+
+/* Email synchronization */
+
+.emails-sync_config_items-brick .emails-sync-default {
+    color: #9f9f9f;
+    font-style: italic;
+}
+
+.emails-emails_to_sync-brick .emails-sync-email {
+    font-style: italic;
+    color: #317c49;
+    font-weight: 650;
+}
+
+.emails-emails_to_sync-brick .emails-sync-email.emails-sync-no_person {
+    padding: 2px;
+
+    background: #f08080;
+    color: #333;
+}
+
+.emails-emails_to_sync-brick .emails-sync-sender span + a,
+.emails-emails_to_sync-brick .emails-sync-recipients span + a {
+    padding-left: 8px;
+}
+
+.emails-emails_to_sync-brick .emails-sync-recipients,
+.emails-emails_to_sync-brick .emails-sync-attachments {
+    margin: 0px;
+    padding: 0px;
+
+    list-style: none;
+}
+
+.emails-emails_to_sync-brick .emails-sync-sender,
+.emails-emails_to_sync-brick .emails-sync-recipients li,
+.emails-emails_to_sync-brick .emails-sync-recipients .emails-sync-recipient-actions,
+.emails-emails_to_sync-brick .emails-sync-attachments li {
+    display: flex;
+    align-items: center;
+}
+
+.emails-emails_to_sync-brick .emails-sync-sender a,
+.emails-emails_to_sync-brick .emails-sync-recipients a {
+    white-space: nowrap;
+}
+
+.emails-emails_to_sync-brick .emails-sync-recipients .brick-table-action {
+    padding-right: 0;
+}
+
+.emails-emails_to_sync-brick .emails-sync-recipients .action-type-update {
+    font-size: 11.5px;
+}
+
+.emails-emails_to_sync-brick .emails-sync-fix {
+    color: #eb3535;
+}
+
+.emails-emails_to_sync-brick .emails-sync-view_body {
+    cursor: pointer;
+}
+
+/* Email synchronization [end] */
