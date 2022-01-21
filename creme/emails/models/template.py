@@ -26,6 +26,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.fields import UnsafeHTMLField
 
+from ..constants import SUBJECT_LENGTH
 from ..core.validators import TemplateVariablesValidator
 from .signature import EmailSignature
 
@@ -36,7 +37,7 @@ body_validator = TemplateVariablesValidator(
 
 class AbstractEmailTemplate(CremeEntity):
     name = models.CharField(_('Name'), max_length=100)
-    subject = models.CharField(_('Subject'), max_length=100)
+    subject = models.CharField(_('Subject'), max_length=SUBJECT_LENGTH)
 
     body = models.TextField(
         _('Body'),

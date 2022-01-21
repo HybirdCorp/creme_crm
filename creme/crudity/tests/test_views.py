@@ -470,15 +470,18 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     @override_settings(
         CRUDITY_BACKENDS=[{
             'fetcher': 'email',
-            # 'input': 'raw',
-            'input': '',
+            'input': 'raw',
+            # 'input': '',
             'method': 'create',
-            'model': 'emails.entityemail',
+            # 'model': 'emails.entityemail',
+            'model': 'creme_core.fakecontact',
             'password': '',
             'limit_froms': (),
             'in_sandbox': True,
-            'body_map': {},
-            'subject': '*',
+            # 'body_map': {},
+            'body_map': {'user_id': 1},
+            # 'subject': '*',
+            'subject': 'CONTACT_CREATE',
         }],
         CREME_GET_EMAIL_SSL=True,
         CREME_GET_EMAIL_SERVER='pop.test.org',
@@ -493,8 +496,11 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self._build_test_registry()
 
         response = self.assertGET200(reverse('crudity__actions'))
-        self.assertTemplateUsed(response, 'emails/bricks/synchronization.html')
-        self.assertTemplateUsed(response, 'emails/bricks/synchronization-spam.html')
+        # self.assertTemplateUsed(response, 'emails/bricks/synchronization.html')
+        # self.assertTemplateUsed(response, 'emails/bricks/synchronization-spam.html')
+        self.assertTemplateUsed(
+            response, 'crudity/bricks/header-actions/email-creation-template.html'
+        )
 
         get = response.context.get
         self.assertEqual(reverse('crudity__reload_actions_bricks'), get('bricks_reload_url'))
@@ -534,15 +540,18 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
     @override_settings(
         CRUDITY_BACKENDS=[{
             'fetcher':     'email',
-            # 'input': 'raw',
-            'input':       '',
+            'input': 'raw',
+            # 'input':       '',
             'method':      'create',
-            'model':       'emails.entityemail',
+            # 'model':       'emails.entityemail',
+            'model':       'creme_core.fakecontact',
             'password':    '',
             'limit_froms': (),
             'in_sandbox':  True,
-            'body_map':    {},
-            'subject':     '*',
+            # 'body_map':    {},
+            'body_map': {'user_id': 1},
+            # 'subject':     '*',
+            'subject':     'CREATE_CONTACT',
         }],
         CREME_GET_EMAIL_SSL=True,
         CREME_GET_EMAIL_SERVER='pop.test.org',

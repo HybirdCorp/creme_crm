@@ -102,7 +102,6 @@ class SendingsTestCase(_EmailsTestCase):
             url,
             data={
                 'sender':   'another_email@address.com',
-                # 'type':     SENDING_TYPE_IMMEDIATE,
                 'type':     EmailSending.Type.IMMEDIATE,
                 'template': template.id,
             },

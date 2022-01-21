@@ -18,19 +18,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.apps import apps
+# from django.apps import apps
+from collections import defaultdict
+
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import Relation  # CremeEntity
+from creme.creme_core.utils import split_filter
 
 from . import constants
 from .models import (
     EmailRecipient,
     EmailSending,
     EmailSignature,
+    EmailSyncConfigItem,
+    EmailToSync,
+    EmailToSyncPerson,
     LightWeightEmail,
 )
 
@@ -350,59 +356,112 @@ class MySignaturesBrick(QuerysetBrick):
         ))
 
 
-if apps.is_installed('creme.crudity'):
-    from creme.crudity.bricks import BaseWaitingActionsBrick
-    from creme.crudity.utils import is_sandbox_by_user
+class EmailSyncConfigItemsBrick(QuerysetBrick):
+    id_ = QuerysetBrick.generate_id('emails', 'sync_config_items')
+    dependencies = (EmailSyncConfigItem,)
+    order_by = 'id'
+    template_name = 'emails/bricks/sync-config-items.html'
+    configurable = False
 
-    class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
-        dependencies = (EntityEmail,)
-        order_by = '-reception_date'
-        configurable = False
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            EmailSyncConfigItem.objects.all(),
+            has_admin_perm=context['user'].has_perm_to_admin('emails'),
+        ))
 
-    class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
-        id_ = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
-        verbose_name = _('Incoming emails to treat')
-        template_name = 'emails/bricks/synchronization.html'
 
-        def detailview_display(self, context):
-            super().detailview_display(context)
-            context['rtypes'] = (
-                constants.REL_SUB_MAIL_SENDED,
-                constants.REL_SUB_MAIL_RECEIVED,
-                constants.REL_SUB_RELATED_TO,
+class EmailsToSyncBrick(QuerysetBrick):
+    id_ = QuerysetBrick.generate_id('emails', 'emails_to_sync')
+    dependencies = (EmailToSync,)
+    order_by = 'id'
+    template_name = 'emails/bricks/emails-to-sync.html'
+    configurable = False
+    page_size = 50
+
+    def detailview_display(self, context):
+        user = context['user']
+
+        qs = EmailToSync.objects.prefetch_related('attachments')
+        if not user.is_staff:
+            qs = qs.filter(user=user)
+
+        btc = self.get_template_context(context, qs)
+        related_persons = defaultdict(list)
+
+        for r_person in EmailToSyncPerson.objects.order_by('-is_main', 'id').filter(
+            # TODO: <email_to_sync__in=btc['page'].object_list> when MySQL supports it...
+            email_to_sync__in=[*btc['page'].object_list],
+        ).prefetch_related('person'):
+            related_persons[r_person.email_to_sync_id].append(r_person)
+
+        for e2s in btc['page'].object_list:
+            email_persons = related_persons[e2s.id]
+
+            e2s.senders, e2s.recipients = split_filter(
+                (lambda rp: rp.type == EmailToSyncPerson.Type.SENDER),
+                email_persons
+            )
+            # TODO: do not accept if no sender/recipient ? (should not happen...)
+            e2s.can_be_accepted = not any(
+                related.person is None for related in email_persons
             )
 
-            waiting_mails = EntityEmail.objects.filter(
-                is_deleted=False,
-                status=EntityEmail.Status.SYNCHRONIZED_WAITING,
-            )
+        return self._render(btc)
 
-            if is_sandbox_by_user():
-                waiting_mails = waiting_mails.filter(user=context['user'])
-
-            return self._render(self.get_template_context(
-                context, waiting_mails,
-                backend=self.backend,
-            ))
-
-    # TODO: factorise with WaitingSynchronizationMailsBrick ??
-    # TODO: credentials ?? (see template too)
-    class SpamSynchronizationMailsBrick(_SynchronizationMailsBrick):
-        id_ = _SynchronizationMailsBrick.generate_id('emails', 'synchronised_as_spam')
-        verbose_name = _('Spam')
-        template_name = 'emails/bricks/synchronization-spam.html'
-
-        def detailview_display(self, context):
-            super().detailview_display(context)
-
-            waiting_mails = EntityEmail.objects.filter(
-                is_deleted=False,
-                status=EntityEmail.Status.SYNCHRONIZED_SPAM,
-            )
-            if is_sandbox_by_user():
-                waiting_mails = waiting_mails.filter(user=context['user'])
-
-            return self._render(self.get_template_context(
-                context, waiting_mails,
-                backend=self.backend,
-            ))
+# if apps.is_installed('creme.crudity'):
+#     from creme.crudity.bricks import BaseWaitingActionsBrick
+#     from creme.crudity.utils import is_sandbox_by_user
+#
+#     class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
+#         dependencies = (EntityEmail,)
+#         order_by = '-reception_date'
+#         configurable = False
+#
+#     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
+#         id_ = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
+#         verbose_name = _('Incoming emails to treat')
+#         template_name = 'emails/bricks/synchronization.html'
+#
+#         def detailview_display(self, context):
+#             super().detailview_display(context)
+#             context['rtypes'] = (
+#                 constants.REL_SUB_MAIL_SENDED,
+#                 constants.REL_SUB_MAIL_RECEIVED,
+#                 constants.REL_SUB_RELATED_TO,
+#             )
+#
+#             waiting_mails = EntityEmail.objects.filter(
+#                 is_deleted=False,
+#                 status=EntityEmail.Status.SYNCHRONIZED_WAITING,
+#             )
+#
+#             if is_sandbox_by_user():
+#                 waiting_mails = waiting_mails.filter(user=context['user'])
+#
+#             return self._render(self.get_template_context(
+#                 context, waiting_mails,
+#                 backend=self.backend,
+#             ))
+#
+#     # todo: factorise with WaitingSynchronizationMailsBrick ??
+#     # todo: credentials ?? (see template too)
+#     class SpamSynchronizationMailsBrick(_SynchronizationMailsBrick):
+#         id_ = _SynchronizationMailsBrick.generate_id('emails', 'synchronised_as_spam')
+#         verbose_name = _('Spam')
+#         template_name = 'emails/bricks/synchronization-spam.html'
+#
+#         def detailview_display(self, context):
+#             super().detailview_display(context)
+#
+#             waiting_mails = EntityEmail.objects.filter(
+#                 is_deleted=False,
+#                 status=EntityEmail.Status.SYNCHRONIZED_SPAM,
+#             )
+#             if is_sandbox_by_user():
+#                 waiting_mails = waiting_mails.filter(user=context['user'])
+#
+#             return self._render(self.get_template_context(
+#                 context, waiting_mails,
+#                 backend=self.backend,
+#             ))

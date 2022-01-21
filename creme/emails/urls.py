@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from django.apps import apps
+# from django.apps import apps
 from django.urls import include, re_path
 
 from creme import emails
@@ -13,6 +13,7 @@ from .views import (
     recipient,
     sending,
     signature,
+    synchronization,
     template,
 )
 
@@ -167,6 +168,72 @@ urlpatterns = [
         ]),
     ),
 
+    # Synchronization
+    re_path(
+        r'^synchronization/',
+        include([
+            re_path(
+                r'^portal[/]?$',
+                synchronization.SynchronizationPortal.as_view(),
+                name='emails__sync_portal',
+            ),
+            re_path(
+                r'^email_to_sync/accept[/]?$',
+                synchronization.EmailToSyncAcceptation.as_view(),
+                name='emails__accept_email_to_sync',
+            ),
+            re_path(
+                r'^email_to_sync/delete[/]?$',
+                synchronization.EmailToSyncDeletion.as_view(),
+                name='emails__delete_email_to_sync',
+            ),
+
+            re_path(
+                r'^email_to_sync/person/edit/(?P<person_id>\d+)[/]?$',
+                synchronization.EmailToSyncPersonEdition.as_view(),
+                name='emails__edit_email_to_sync_person',
+            ),
+            re_path(
+                r'^email_to_sync/(?P<mail_id>\d+)/fix[/]?$',
+                synchronization.EmailToSyncCorrection.as_view(),
+                name='emails__fix_email_to_sync',
+            ),
+            re_path(
+                r'^email_to_sync/(?P<mail_id>\d+)/recipient/mark[/]?$',
+                synchronization.EmailToSyncRecipientMarking.as_view(),
+                name='emails__mark_email_to_sync_recipient',
+            ),
+            re_path(
+                r'^email_to_sync/(?P<mail_id>\d+)/recipient/delete[/]?$',
+                synchronization.EmailToSyncRecipientDeletion.as_view(),
+                name='emails__delete_email_to_sync_recipient',
+            ),
+
+            re_path(
+                r'^email_to_sync/(?P<mail_id>\d+)/attachment/delete[/]?$',
+                synchronization.EmailToSyncAttachmentDeletion.as_view(),
+                name='emails__delete_email_to_sync_attachment',
+            ),
+
+            # Configuration
+            re_path(
+                r'^config/add[/]?$',
+                synchronization.SynchronizationConfigItemCreation.as_view(),
+                name='emails__create_sync_config_item',
+            ),
+            re_path(
+                r'^config/edit/(?P<item_id>\d+)[/]?$',
+                synchronization.SynchronizationConfigItemEdition.as_view(),
+                name='emails__edit_sync_config_item',
+            ),
+            re_path(
+                r'^config/delete[/]?$',
+                synchronization.SynchronizationConfigItemDeletion.as_view(),
+                name='emails__delete_sync_config_item',
+            ),
+        ]),
+    ),
+
     *swap_manager.add_group(
         emails.emailcampaign_model_is_custom,
         Swappable(
@@ -317,18 +384,18 @@ urlpatterns = [
     ).kept_patterns(),
 ]
 
-if apps.is_installed('creme.crudity'):
-    from .views import crudity
-
-    urlpatterns += [
-        re_path(
-            r'^mail/set_status/(?P<status>\w+)[/]?$',
-            crudity.EmailStatusSetting.as_view(),
-            name='emails__crudity_set_email_status',
-        ),
-        re_path(
-            r'^synchronization[/]?$',
-            crudity.Synchronisation.as_view(),
-            name='emails__crudity_sync',
-        ),
-    ]
+# if apps.is_installed('creme.crudity'):
+#     from .views import crudity
+#
+#     urlpatterns += [
+#         re_path(
+#             r'^mail/set_status/(?P<status>\w+)[/]?$',
+#             crudity.EmailStatusSetting.as_view(),
+#             name='emails__crudity_set_email_status',
+#         ),
+#         re_path(
+#             r'^synchronization[/]?$',
+#             crudity.Synchronisation.as_view(),
+#             name='emails__crudity_sync',
+#         ),
+#     ]

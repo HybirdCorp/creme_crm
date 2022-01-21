@@ -1335,7 +1335,6 @@ CRUDITY_FILESYS_FETCHER_DIR = ''
 #         'input': 'infopath',
 #
 #         # The method of the input to call. Available choices: 'create'
-#         #  Can be omitted if 'subject' is '*' (see below).
 #         'method': 'create',
 #
 #         'model': 'activities.activity',    # The targeted model
@@ -1358,27 +1357,10 @@ CRUDITY_FILESYS_FETCHER_DIR = ''
 #
 #         # Target subject
 #         # NB: in the subject all spaces will be deleted, and it'll be converted to uppercase.
-#         # You can specify * as a fallback (no previous backend handle the data
-#         # returned by the fetcher, but be careful your backend must have the
-#         # method: 'fetcher_fallback').
 #         'subject': 'CREATEACTIVITYIP',
 #     },
 # ]
-CRUDITY_BACKENDS = [
-    {
-        'fetcher': 'email',
-        # 'input': 'raw',
-        'input': '',
-        # 'method': 'create',
-        'method': '',
-        'model': 'emails.entityemail',
-        'password': '',
-        'limit_froms': (),
-        'in_sandbox': True,
-        'body_map': {},
-        'subject': '*',
-    },
-]
+CRUDITY_BACKENDS = []
 
 # TICKETS ----------------------------------------------------------------------
 TICKETS_TICKET_MODEL   = 'tickets.Ticket'

@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -42,9 +42,11 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
         var dialog = creme.dialogs.form(options.url, {submitData: formData}, formData);
 
         dialog.onFormSuccess(function(event, data) {
-                    var deps = ['creme_core.relation'].concat(options.rtypes.map(function(rtype) {
-                                                                                     return 'creme_core.relation.' + rtype;
-                                                                                 }));
+                    var deps = ['creme_core.relation'].concat(
+                        options.rtypes.map(function(rtype) {
+                            return 'creme_core.relation.' + rtype;
+                        })
+                    );
 
                     new creme.bricks.BricksReloader().dependencies(deps).action().start();
                     self.done();
@@ -56,6 +58,7 @@ creme.emails.LinkEMailToAction = creme.component.Action.sub({
     }
 });
 
+// TODO: really useful?
 var _emailSyncSelection = function(registry, data) {
     if (Object.isEmpty(data.id)) {
         return registry._selectedRowValues().filter(Object.isNotEmpty);
@@ -64,43 +67,156 @@ var _emailSyncSelection = function(registry, data) {
     }
 };
 
+creme.emails.MultiSelectedAction = creme.component.Action.sub({
+    _init_: function(brick, ids, options) {
+        options = $.extend({
+             successMessageBuilder: function(count) {
+                 return '%d email(s) have been processed.'.format(count);
+             },
+             failMessageBuilder: function(count) {
+                 return '%d email(s) cannot be processed.'.format(count);
+             }
+        }, options || {});
+
+        this._super_(creme.component.Action, '_init_', this._run, options);
+        this._brick = brick;
+        this._ids = ids;
+
+        Assert.not(Object.isEmpty(options.url), "'url' option is required");
+        this._url = options.url;
+
+        this._successMessageBuilder = options.successMessageBuilder;
+        this._failMessageBuilder = options.failMessageBuilder;
+    },
+
+    _onMultiFail: function(event, data, response) {
+        var message = gettext('Some errors occurred.');
+        var header = creme.ajax.localizedErrorMessage(response.status);
+        var parser = new creme.utils.JSON();
+
+        if (!Object.isEmpty(data) && parser.isJSON(data)) {
+            var results = parser.decode(data);
+            var removedCount = results.count - results.errors.length;
+
+            if (removedCount > 0) {
+                header = this._successMessageBuilder(removedCount);
+            }
+
+            if (results.errors) {
+                header += ' - ' + this._failMessageBuilder(results.errors.length);
+            }
+
+            message = '<ul>' +
+                      results.errors.map(function(item) {
+                           return '<li>' + item + '</li>';
+                      }).join('') +
+                      '</ul>';
+        }
+
+        var brick = this._brick;
+        creme.dialogs.warning(message, {header: header})
+                     .onClose(function() { brick.refresh(); })
+                     .open();
+    },
+
+    _run: function(options) {
+        // options = $.extend({}, this.options(), options || {});
+        var self = this;
+
+        var query = creme.utils.confirmPOSTQuery(self._url, {warnOnFail: false}, {ids: self._ids.join(',')});
+        query.onDone(function() { self._brick.refresh(); })
+             .onFail(this._onMultiFail.bind(this))
+             .start();
+    }
+});
+
 var emailSyncActions = {
-    'emailsync-link': function(url, options, data, e) {
+//    'emailsync-link': function(url, options, data, e) {
+//        var ids = _emailSyncSelection(this, data);
+//
+//        if (Object.isEmpty(ids)) {
+//            return this._warningAction(gettext('Please select at least one entity.'));
+//        }
+//
+//        return new creme.emails.LinkEMailToAction({
+//            url: url,
+//            rtypes: data.rtypes,
+//            ids: ids
+//        });
+//    },
+//
+//    'emailsync-action': function(url, options, data, e) {
+//        var ids = _emailSyncSelection(this, data);
+//
+//        if (Object.isEmpty(ids)) {
+//            return this._warningAction(gettext('Nothing is selected.'));
+//        }
+//
+//        return this._build_update(url, {}, {ids: ids}, e);
+//    },
+//
+//    'emailsync-delete': function(url, options, data, e) {
+//        var ids = _emailSyncSelection(this, data);
+//
+//        if (Object.isEmpty(ids)) {
+//            return this._warningAction(gettext('Nothing is selected.'));
+//        }
+//
+//        return this._build_delete(url, {}, {ids: ids.join(',')}, e);
+//    }
+    'emailsync-accept-multi': function(url, options, data, e) {
         var ids = _emailSyncSelection(this, data);
 
         if (Object.isEmpty(ids)) {
-            return this._warningAction(gettext('Please select at least one entity.'));
+            return this._warningAction(gettext('No email is selected.'));
         }
 
-        return new creme.emails.LinkEMailToAction({
-            url: url,
-            rtypes: data.rtypes,
-            ids: ids
-        });
+        return new creme.emails.MultiSelectedAction(
+            this._brick, ids,
+            {
+                url: url,
+                successMessageBuilder: function(count) {
+                    return ngettext('%d email has been synchronised',
+                                    '%d emails have been synchronised',
+                                    count).format(count);
+                },
+                failMessageBuilder: function(count) {
+                    return ngettext('%d email cannot be synchronised.',
+                                    '%d emails cannot be synchronised.',
+                                    count).format(count);
+                }
+            }
+        );
     },
 
-    'emailsync-action': function(url, options, data, e) {
+    'emailsync-delete-multi': function(url, options, data, e) {
         var ids = _emailSyncSelection(this, data);
 
         if (Object.isEmpty(ids)) {
-            return this._warningAction(gettext('Nothing is selected.'));
+            return this._warningAction(gettext('No email is selected.'));
         }
 
-        return this._build_update(url, {}, {ids: ids}, e);
-    },
-
-    'emailsync-delete': function(url, options, data, e) {
-        var ids = _emailSyncSelection(this, data);
-
-        if (Object.isEmpty(ids)) {
-            return this._warningAction(gettext('Nothing is selected.'));
-        }
-
-        return this._build_delete(url, {}, {ids: ids.join(',')}, e);
+        return new creme.emails.MultiSelectedAction(
+            this._brick, ids,
+            {
+                url: url,
+                successMessageBuilder: function(count) {
+                    return ngettext('%d email has been deleted',
+                                    '%d emails have been deleted',
+                                    count).format(count);
+                },
+                failMessageBuilder: function(count) {
+                    return ngettext('%d email cannot be deleted.',
+                                    '%d emails cannot be deleted.',
+                                    count).format(count);
+                }
+            }
+        );
     }
 };
 
-$(document).on('brick-setup-actions', '.brick.emails-emailsync-brick', function(e, brick, actions) {
+/* $(document).on('brick-setup-actions', '.brick.emails-emailsync-brick', function(e, brick, actions) { */
+$(document).on('brick-setup-actions', '.brick.emails-emails_to_sync-brick', function(e, brick, actions) {
     actions.registerAll(emailSyncActions);
 });
 

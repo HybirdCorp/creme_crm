@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Emails 2.3\n"
+"Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-17 00:03+0100\n"
+"POT-Creation-Date: 2022-03-29 18:46+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -99,12 +99,6 @@ msgstr ""
 msgid "My signatures"
 msgstr "Mes signatures"
 
-msgid "Incoming emails to treat"
-msgstr "E-mails entrants à traiter"
-
-msgid "Spam"
-msgstr "Spam"
-
 msgid "Link this email to"
 msgstr "Relier cet e-mail à"
 
@@ -136,16 +130,40 @@ msgstr "Envoyer les e-mails des campagnes"
 msgid "Send entity emails"
 msgstr "Envoyer les fiches e-mail"
 
-#, python-brace-format
-msgid "{username}'s files received by email"
-msgstr "Fichiers de {username} reçus par e-mail"
-
-msgid "Received with the mail {}"
-msgstr "Reçu avec l'e-mail {}"
+msgid "Synchronize externals emails with Creme"
+msgstr "Synchroniser des e-mails externes avec Creme"
 
 #, python-brace-format
-msgid "Creation of {entity}"
-msgstr "Création de {entity}"
+msgid "There was no message on \"{host}\" for the user \"{user}\""
+msgstr ""
+"Il n'y avait pas de message sur \"{host}\" pour l'utilisateur \"{user}\""
+
+#, python-brace-format
+msgid "There was {count} valid message on \"{host}\" for the user \"{user}\""
+msgid_plural ""
+"There were {count} valid messages on \"{host}\" for the user \"{user}\""
+msgstr[0] ""
+"Il y avait {count} message valide sur \"{host}\" pour l'utilisateur "
+"\"{user}\""
+msgstr[1] ""
+"Il y avait {count} messages valides sur \"{host}\" pour l'utilisateur "
+"\"{user}\""
+
+#, python-brace-format
+msgid "There was {count} erroneous message (see logs for more details)"
+msgid_plural ""
+"There were {count} erroneous messages (see logs for more details)"
+msgstr[0] ""
+"Il y avait {count} message invalide (regardez les logs pour plus de détails)"
+msgstr[1] ""
+"Il y avait {count} messages invalides (regardez les logs pour plus de "
+"détails)"
+
+#, python-brace-format
+msgid "There was {count} ignored message (no known address found)"
+msgid_plural "There were {count} ignored messages (no known address found)"
+msgstr[0] "Il y avait {count} message ignoré (pas d'adresse connue trouvée)"
+msgstr[1] "Il y avait {count} messages ignorés (pas d'adresse connue trouvée)"
 
 msgctxt "emails"
 msgid "Creation form for campaign"
@@ -319,6 +337,36 @@ msgstr "Date d'envoi obligatoire pour un envoi différé"
 msgid "Sending date must be is the future"
 msgstr "La date d'envoi doit être dans le futur"
 
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "*No default user*"
+msgstr "*Pas d'utilisateur par défaut*"
+
+msgid "Leave empty to keep the recorded password"
+msgstr "Laissez vide pour garder mot de passe enregistré"
+
+msgid "Contact or Organisation"
+msgstr "Contact ou Société"
+
+msgid ""
+"The email address of the Contact/Organisation will be automatically updated."
+msgstr ""
+"L'adresse e-mail du Contact (ou de la Société) sera automatiquement mise à "
+"jour."
+
+msgid ""
+"You are not allowed to edit «{}», so the email address cannot be updated"
+msgstr ""
+"Vous n'êtes pas autorisé à modifier «{}», donc l'adresse e-mail ne peut pas "
+"être mise à jour"
+
+msgid "Recipient"
+msgstr "Destinataire"
+
+msgid "This entity has no email address."
+msgstr "Cette fiche n'a pas d'adresse e-mail."
+
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
@@ -355,20 +403,17 @@ msgctxt "emails"
 msgid "Synchronized"
 msgstr "Synchronisé"
 
-msgid "Synchronized - Marked as SPAM"
-msgstr "Synchronisé - Marqué comme SPAM"
+msgid "Synchronized - Marked as SPAM (deprecated)"
+msgstr "Synchronisé - Marqué comme SPAM (obsolète)"
 
-msgid "Synchronized - Untreated"
-msgstr "Synchronisé - Non traité"
+msgid "Synchronized - Untreated (deprecated)"
+msgstr "Synchronisé - Non traité (obsolète)"
 
 msgid "Number of reads"
 msgstr "Nombre de lecture"
 
 msgid "Status"
 msgstr "Statut"
-
-msgid "Recipient"
-msgstr "Destinataire"
 
 msgid "Subject"
 msgstr "Sujet"
@@ -544,6 +589,68 @@ msgstr "Signature d'e-mail"
 msgid "Email signatures"
 msgstr "Signatures d'e-mail"
 
+msgid "Default owner"
+msgstr "Propriétaire par défaut"
+
+msgid ""
+"If no user corresponding to an email address is found (in the fields \"From"
+"\", \"To\", \"CC\" or \"BCC\") to be the owner of the email, this user is "
+"used as default one.\n"
+"Beware: if *No default user* is selected, emails with no address related to "
+"a user are just dropped."
+msgstr ""
+"Si aucun utilisateur correspondant à une adresse e-mail n'est trouvé (dabs "
+"les champs \"From\", \"To\", \"CC\" or \"BCC\") pour être le propriétaire de "
+"l'e-mail, cet utilisateur sera utilisé comme celui par défaut.\n"
+"Attention : si *Aucun utilisateur par défaut* est sélectionné, les emails "
+"sans adresse relative à un utilisateur seront juste jetés."
+
+msgid "Server URL"
+msgstr "URL du serveur"
+
+msgid "Eg: pop.mydomain.org"
+msgstr "Ex: pop.mydomain.org"
+
+# Already in creme_core
+msgid "Username"
+msgstr ""
+
+msgid "Eg: me@mydomain.org"
+msgstr "Ex: me@mydomain.org"
+
+msgid "Port"
+msgstr "Port"
+
+msgid "Leave empty to use the default port"
+msgstr "Laissez vide pour utiliser le port par défaut"
+
+msgid "Use SSL"
+msgstr "Utiliser SSL"
+
+msgid "Keep the attachments"
+msgstr "Garder les fichiers joints"
+
+msgid "Attachments are converted to real Documents when the email is accepted."
+msgstr ""
+"Les fichiers joints sont convertis en vrai Documents quand l'e-mail est "
+"accepté."
+
+msgctxt "emails"
+msgid "Create a server configuration"
+msgstr "Créer une configuration serveur"
+
+msgid "Save the configuration"
+msgstr "Enregistrer la configuration"
+
+msgid "Owner"
+msgstr "Propriétaire"
+
+msgid "Sender/recipient to synchronize"
+msgstr "Émetteur/destinataire à synchroniser"
+
+msgid "Senders/recipients to synchronize"
+msgstr "Émetteurs/destinataires à synchroniser"
+
 msgid "Create an email template"
 msgstr "Créer un patron d'e-mail"
 
@@ -632,33 +739,6 @@ msgstr "Enlever ce fichier joint"
 msgid "No attachment for the moment"
 msgstr "Aucune pièce jointe pour le moment"
 
-msgid "Select all"
-msgstr "Tout sélectionner"
-
-msgid "Sender(s)"
-msgstr "Émetteur(s)"
-
-msgid "Recipient(s)"
-msgstr "Destinataire(s)"
-
-msgid "Received on"
-msgstr "Reçu le"
-
-msgid "Actions"
-msgstr "Actions"
-
-msgid "Select this line"
-msgstr "Sélectionner cette ligne"
-
-msgid "See the entity"
-msgstr "Voir la fiche"
-
-msgid "Delete this email"
-msgstr "Supprimer cet e-mail"
-
-msgid "No received email to synchronize"
-msgstr "Aucun e-mail reçu à synchroniser"
-
 #, python-brace-format
 msgid "{count} Child List"
 msgstr "{count} Liste fille"
@@ -715,6 +795,80 @@ msgstr "Enlever ce contact"
 msgid "No contact recipient for the moment"
 msgstr "Aucun contact destinataire pour le moment"
 
+#, python-brace-format
+msgid "{count} Email to synchronise"
+msgstr "{count} E-mail à synchroniser"
+
+#, python-brace-format
+msgid "{count} Emails to synchronise"
+msgstr "{count} E-mails à synchroniser"
+
+msgid "Emails to synchronise"
+msgstr "E-mails à synchroniser"
+
+msgid "Delete selected emails"
+msgstr "Supprimer les e-mails sélectionnés"
+
+msgid "Accept selected emails"
+msgstr "Accepter les e-mails sélectionnés"
+
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+msgid "Actions"
+msgstr "Actions"
+
+msgid ""
+"Only the recipient marked as main is used to fill the field «Recipient» of "
+"the final e-mail. All recipients are linked to the email anyway."
+msgstr ""
+"Seul le destinataire marqué comme principal est utilisé pour emplir le champ "
+"«Destinataire» de l'e-mail final. Tous les destinataires sont reliés à l'e-"
+"mail dans tous les cas."
+
+msgid "Select this email"
+msgstr "Sélectionner cet e-mail"
+
+msgid "Error: no Contact/Organisation is related to this address."
+msgstr "Erreur : aucun Contact (ou Société) n'est relié à cette adresse."
+
+msgid "Mark as main"
+msgstr "Marquer comme principal"
+
+msgid "Fix the forwarded email"
+msgstr "Corriger l'e-mail transféré"
+
+msgid ""
+"This email has only been sent to the synchronisation address ; fix it by "
+"setting the true sender & recipient."
+msgstr ""
+"Cet e-mail a seulement été envoyé à l'adresse de synchronisation ; réparez "
+"le en indiquant les vrais émetteur & destinataires."
+
+msgid "View the body"
+msgstr "Voir le corps"
+
+msgid "Details"
+msgstr "Détails"
+
+msgid "View the HTMl body"
+msgstr "Voir le corps HTML"
+
+msgid "Delete this email"
+msgstr "Supprimer cet e-mail"
+
+msgid "Accept"
+msgstr "Accepter"
+
+msgid "Convert into a true entity email"
+msgstr "Convertir en une vraie fiches e-mail"
+
+msgid "Cannot accept because there are errors"
+msgstr "Impossible d'accepter car il reste des erreurs"
+
+msgid "No email to synchronise for the moment"
+msgstr "Aucun e-mail à synchroniser pour le moment"
+
 msgid "View external images"
 msgstr "Voir les images externes"
 
@@ -732,9 +886,6 @@ msgstr "{count} E-mail de campagne dans l'historique"
 #, python-brace-format
 msgid "{count} Campaigns emails in the history"
 msgstr "{count} E-mails de campagne dans l'historique"
-
-msgid "Details"
-msgstr "Détails"
 
 msgid "No campaign email in the history"
 msgstr "Pas d'e-mail de campagne dans l'historique"
@@ -907,57 +1058,73 @@ msgstr "Supprimer cette signature"
 msgid "No signature for the moment"
 msgstr "Aucune signature pour le moment"
 
-#, python-format
-msgid "%%s Email selected"
-msgstr "%%s E-mail sélectionné"
-
-#, python-format
-msgid "%%s Emails selected"
-msgstr "%%s E-mails sélectionnés"
+#, python-brace-format
+msgid "{count} Configured server"
+msgstr "{count} Serveur configuré"
 
 #, python-brace-format
-msgid "{count} Incoming email marked as spam"
-msgstr "{count} E-mail entrant marqué comme spam"
+msgid "{count} Configured servers"
+msgstr "{count} Serveurs configurés"
 
-#, python-brace-format
-msgid "{count} Incoming emails marked as spam"
-msgstr "{count} E-mails entrants marqués comme spam"
+msgid "Configured servers"
+msgstr "Serveurs configurés"
 
-msgid "Mark the selection as «to be treated»"
-msgstr "Marquer la sélection comme «à traiter»"
+msgctxt "emails"
+msgid "New server configuration"
+msgstr "Nouvelle configuration de serveur"
 
-msgid "Mark as «to be treated»"
-msgstr "Marquer comme «à traiter»"
+msgid ""
+"Emails sent to these servers can be synchronized (ie: transformed as Creme "
+"Email entities)."
+msgstr ""
+"Les e-mails envoyés à ces serveurs peuvent être synchronisés (c-à-d : "
+"transformés en fiches E-mail Creme)."
 
-#, python-brace-format
-msgid "{count} Incoming email to treat"
-msgstr "{count} E-mail entrant à traiter"
+msgctxt "emails"
+msgid "Edit this configuration"
+msgstr "Modifier cette configuration"
 
-#, python-brace-format
-msgid "{count} Incoming emails to treat"
-msgstr "{count} E-mails entrants à traiter"
+msgctxt "emails"
+msgid "Delete this configuration"
+msgstr "Supprimer cette configuration"
+
+msgid "Default port"
+msgstr "Port par défaut"
+
+msgctxt "emails"
+msgid "No server for the moment"
+msgstr "Aucun serveur pour le moment"
 
 msgid "Link to"
 msgstr "Relier à"
 
-msgid "Mark as treated"
-msgstr "Marquer comme traité"
-
-msgid "Mark as spam"
-msgstr "Marquer comme spam"
-
 msgid "Synchronization of incoming emails with Creme"
 msgstr "Synchronisation des e-mails externes dans Creme"
 
-msgid "Refresh"
-msgstr "Rafraîchir"
-
+#, python-format
 msgid ""
-"The synchronization of external emails is not configured ; contact your "
-"administrator if you want this feature to be enabled."
+"If an email is sent to one of the <a href=\"%(config_url)s\">configured "
+"addresses</a> (Carbon Copy & Blind Carbon Copy work too), and your email "
+"address \"%(email)s\" is found (as sender or recipient), the email can be "
+"synchronized (ie: transformed as a Creme Email entity)."
 msgstr ""
-"La configuration des e-mails externes n'est pas configurée ; contactez votre "
-"administrateur si vous voulez que cette fonctionnalité soit activée."
+"Si un e-mail est envoyé à une des <a href=\"%(config_url)s\">adresses "
+"configurées</a> (les Copies Carbone & Copies Cachées fonctionne aussi), et "
+"que votre adresse e-mail \"%(email)s\" est trouvée (comme émetteur ou "
+"destinataire), l'e-mail peut être synchronisés (c-à-d : transformé en une "
+"fiche Email Creme)."
+
+#, python-format
+msgid ""
+"You have no email server configured; you can configure them <a href="
+"\"%(config_url)s\">here</a>."
+msgstr ""
+"Vous n'avez pas de serveur e-mail configuré ; vous pouvez les configurer <a "
+"href=\"%(config_url)s\">ici</a>."
+
+msgid "The job (which fetches emails to synchronise) is currently disabled."
+msgstr ""
+"Le job (qui récupère les e-mails à synchroniser) est actuellement désactivé."
 
 msgid "Back to the campaign"
 msgstr "Retour à la campagne"
@@ -968,9 +1135,6 @@ msgstr "Nouvelles listes de diffusion pour «{entity}»"
 
 msgid "Link the mailing lists"
 msgstr "Lier les listes de diffusion"
-
-msgid "Operation successfully completed"
-msgstr "Opération effectuée avec succès"
 
 #, python-brace-format
 msgid "Sending an email to «{entity}»"
@@ -1021,12 +1185,111 @@ msgstr "Vous n'êtes pas autorisé à modifier cette signature (pas la vôtre)"
 msgid "You can not delete this signature (not yours)"
 msgstr "Vous n'êtes pas autorisé à supprimer cette signature (pas la vôtre)"
 
+msgctxt "emails"
+msgid "Edit the server configuration"
+msgstr "Modifier la configuration serveur"
+
+msgid "You cannot edit or delete this email (not yours)"
+msgstr ""
+"Vous n'êtes pas autorisé à modifier ou supprimer cet e-mail (pas le vôtre)"
+
+#, python-brace-format
+msgid "{count} email doesn't exist or has been removed."
+msgid_plural "{count} emails don't exist or have been removed."
+msgstr[0] "{count} e-mail n'existe pas ou a été supprimé."
+msgstr[1] "{count} e-mails n'existent pas ou ont été supprimés."
+
+msgid "Operation successfully completed"
+msgstr "Opération effectuée avec succès"
+
+msgid "The sender is not associated to a Contact/Organisation"
+msgstr "L'émetteur n'est pas associé à un un Contact ou une Société"
+
+msgid "There is no recipient marked as main"
+msgstr "Il n'y a pas de destinataire marqué comme principal"
+
+#, python-brace-format
+msgid "The recipient «{email}» is not associated to a Contact/Organisation"
+msgstr ""
+"Le destinataire «{email}» n'est pas associé à un un Contact ou une Société"
+
+#, python-brace-format
+msgid "{username}'s files received by email"
+msgstr "Fichiers de {username} reçus par e-mail"
+
+msgid "You can not delete the last recipient."
+msgstr "Vous ne pouvez pas supprimer les dernier destinataire."
+
 #, python-brace-format
 msgid "New attachments for «{entity}»"
 msgstr "Nouveaux fichiers joints pour «{entity}»"
 
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
+
+#~ msgid "Incoming emails to treat"
+#~ msgstr "E-mails entrants à traiter"
+
+#~ msgid "Spam"
+#~ msgstr "Spam"
+
+#~ msgid "Received with the mail {}"
+#~ msgstr "Reçu avec l'e-mail {}"
+
+#~ msgid "Creation of {entity}"
+#~ msgstr "Création de {entity}"
+
+#~ msgid "Sender(s)"
+#~ msgstr "Émetteur(s)"
+
+#~ msgid "Recipient(s)"
+#~ msgstr "Destinataire(s)"
+
+#~ msgid "Received on"
+#~ msgstr "Reçu le"
+
+#~ msgid "Select this line"
+#~ msgstr "Sélectionner cette ligne"
+
+#~ msgid "See the entity"
+#~ msgstr "Voir la fiche"
+
+#~ msgid "%%s Email selected"
+#~ msgstr "%%s E-mail sélectionné"
+
+#~ msgid "%%s Emails selected"
+#~ msgstr "%%s E-mails sélectionnés"
+
+#~ msgid "{count} Incoming email marked as spam"
+#~ msgstr "{count} E-mail entrant marqué comme spam"
+
+#~ msgid "{count} Incoming emails marked as spam"
+#~ msgstr "{count} E-mails entrants marqués comme spam"
+
+#~ msgid "Mark the selection as «to be treated»"
+#~ msgstr "Marquer la sélection comme «à traiter»"
+
+#~ msgid "Mark as «to be treated»"
+#~ msgstr "Marquer comme «à traiter»"
+
+#~ msgid "{count} Incoming email to treat"
+#~ msgstr "{count} E-mail entrant à traiter"
+
+#~ msgid "{count} Incoming emails to treat"
+#~ msgstr "{count} E-mails entrants à traiter"
+
+#~ msgid "Mark as treated"
+#~ msgstr "Marquer comme traité"
+
+#~ msgid "Refresh"
+#~ msgstr "Rafraîchir"
+
+#~ msgid ""
+#~ "The synchronization of external emails is not configured ; contact your "
+#~ "administrator if you want this feature to be enabled."
+#~ msgstr ""
+#~ "La configuration des e-mails externes n'est pas configurée ; contactez "
+#~ "votre administrateur si vous voulez que cette fonctionnalité soit activée."
 
 #~ msgid "Emails & Campaigns portal"
 #~ msgstr "Portail E-mails & Campagnes"
@@ -1139,14 +1402,8 @@ msgstr "Ajouter les fichiers joints"
 #~ msgid "Emails of a sending"
 #~ msgstr "E-mails d'un envoi"
 
-#~ msgid "Incoming Emails to sync"
-#~ msgstr "E-mails entrants à traiter"
-
 #~ msgid "Spam emails"
 #~ msgstr "E-mails entrants marqués comme spam"
-
-#~ msgid "Portal"
-#~ msgstr "Portail"
 
 #~ msgid "Campaign"
 #~ msgstr "Campagne"

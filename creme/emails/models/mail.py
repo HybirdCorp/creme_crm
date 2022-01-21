@@ -32,7 +32,8 @@ from django.utils.translation import pgettext_lazy
 from creme.creme_core.models import CremeEntity, CremeModel
 from creme.creme_core.models.fields import UnsafeHTMLField
 
-from .. import utils  # constants
+from .. import utils
+from ..constants import SUBJECT_LENGTH
 from .signature import EmailSignature
 
 logger = logging.getLogger(__name__)
@@ -45,9 +46,11 @@ class _Email(CremeModel):
         NOT_SENT             = 2, pgettext_lazy('emails', 'Not sent'),
         SENDING_ERROR        = 3, _('Sending error'),
         SYNCHRONIZED         = 4, pgettext_lazy('emails', 'Synchronized'),
-        SYNCHRONIZED_SPAM    = 5, _('Synchronized - Marked as SPAM'),
-        SYNCHRONIZED_WAITING = 6, _('Synchronized - Untreated'),
+        # DEPRECATED
+        SYNCHRONIZED_SPAM    = 5, _('Synchronized - Marked as SPAM (deprecated)'),
+        SYNCHRONIZED_WAITING = 6, _('Synchronized - Untreated (deprecated)'),
 
+    # DEPRECATED
     SYNCHRONIZATION_STATUSES = {
         Status.SYNCHRONIZED,
         Status.SYNCHRONIZED_SPAM,
@@ -63,8 +66,8 @@ class _Email(CremeModel):
     )
 
     sender    = models.CharField(_('Sender'), max_length=100)
+    subject   = models.CharField(_('Subject'), max_length=SUBJECT_LENGTH, blank=True)
     recipient = models.CharField(_('Recipient'), max_length=100)
-    subject   = models.CharField(_('Subject'), max_length=100, blank=True)
     body      = models.TextField(_('Body'))
 
     sending_date   = models.DateTimeField(_('Sending date'), null=True, editable=False)

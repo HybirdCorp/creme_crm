@@ -43,9 +43,9 @@ from creme.creme_core.models import (
     SearchConfigItem,
     SettingValue,
 )
+from creme.creme_core.utils.date_period import date_period_registry
 
-from . import bricks, buttons, constants, custom_forms, menu
-from .creme_jobs import campaign_emails_send_type, entity_emails_send_type
+from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
 from .setting_keys import emailcampaign_sender
 
 logger = logging.getLogger(__name__)
@@ -267,17 +267,25 @@ class Populator(BasePopulator):
         # ---------------------------
         create_job = Job.objects.get_or_create
         create_job(
-            type_id=entity_emails_send_type.id,
+            type_id=creme_jobs.entity_emails_send_type.id,
             defaults={
                 'language': settings.LANGUAGE_CODE,
                 'status':   Job.STATUS_OK,
             },
         )
         create_job(
-            type_id=campaign_emails_send_type.id,
+            type_id=creme_jobs.campaign_emails_send_type.id,
             defaults={
                 'language': settings.LANGUAGE_CODE,
                 'status':   Job.STATUS_OK,
+            },
+        )
+        create_job(
+            type_id=creme_jobs.entity_emails_sync_type.id,
+            defaults={
+                'language':    settings.LANGUAGE_CODE,
+                'periodicity': date_period_registry.get_period('minutes', 30),
+                'status':      Job.STATUS_OK,
             },
         )
 
@@ -296,9 +304,10 @@ class Populator(BasePopulator):
             create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
             create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
 
-            sync_entry_id = menu.EmailSyncEntry.id
-            if sync_entry_id:
-                create_mitem(entry_id=sync_entry_id, order=30)
+            # sync_entry_id = menu.EmailSyncEntry.id
+            # if sync_entry_id:
+            #     create_mitem(entry_id=sync_entry_id, order=30)
+            create_mitem(entry_id=menu.EmailSyncEntry.id, order=30)
 
         # ---------------------------
         if not already_populated:

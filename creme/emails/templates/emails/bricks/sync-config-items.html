@@ -1,0 +1,58 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks %}
+{% load print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} emails-sync_config_items-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured server') plural=_('{count} Configured servers') empty=_('Configured servers') icon='email' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+{% translate 'New server configuration' context 'emails' as new_label %}
+    {% brick_header_action id='add' url='emails__create_sync_config_item'|url label=new_label enabled=has_admin_perm %}
+{% endblock %}
+
+{% block brick_before_content %}
+    <div class="help">{% translate 'Emails sent to these servers can be synchronized (ie: transformed as Creme Email entities).' %}</div>
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='host' status='primary nowrap' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='type' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='default_user' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='username' %}
+{# NOPE    {% brick_table_column_for_field ctype=objects_ctype field='password' %} #}
+    {% brick_table_column_for_field ctype=objects_ctype field='port' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='use_ssl' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='keep_attachments' %}
+
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+{% url 'emails__delete_sync_config_item' as delete_url %}
+{% translate 'Edit this configuration' context 'emails' as edit_label %}{% translate 'Delete this configuration' context 'emails' as del_label %}
+    {% for item in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{{item.host}}</td>
+        <td>{% print_field object=item field='type' %}</td>
+        <td>{{item.default_user|default_if_none:'—'}}</td>
+        <td>{{item.username}}</td>
+        <td>{% if item.port %}{% print_field object=item field='port' %}{% else %}<span class="emails-sync-default">{% trans 'Default port' %}</span>{% endif %}</td>
+        <td>{% print_field object=item field='use_ssl' %}</td>
+        <td>{% print_field object=item field='keep_attachments' %}</td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url=item.get_edit_absolute_url label=edit_label enabled=has_admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url=delete_url __id=item.id label=del_label enabled=has_admin_perm %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No server for the moment' context 'emails' %}
+{% endblock %}
+

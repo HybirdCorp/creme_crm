@@ -232,7 +232,7 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
                 email = create_n_send_mail(recipient.email)
 
                 create_relation(
-                    subject_entity=email, type_id=REL_SUB_MAIL_SENDED, object_entity=user_contact
+                    subject_entity=email, type_id=REL_SUB_MAIL_SENDED, object_entity=user_contact,
                 )
                 create_relation(
                     subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,

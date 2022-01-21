@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-28 11:28+0200\n"
+"POT-Creation-Date: 2022-03-29 12:37+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3349,6 +3349,14 @@ msgstr "Demain"
 
 msgid "Is not empty"
 msgstr "N'est pas vide"
+
+#, python-brace-format
+msgid ""
+"Error while retrieving emails on \"{host}\" for the user "
+"\"{user}\" [original error: {error}]"
+msgstr ""
+"Erreur pendant la récupération des e-mails sur \"{host}\" pour l'utilisateur "
+"\"{user}\" [erreur originale : {error}]"
 
 msgid "France"
 msgstr "France"

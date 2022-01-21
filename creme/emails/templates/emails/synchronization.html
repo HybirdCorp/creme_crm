@@ -1,0 +1,41 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_bricks creme_ctype creme_widgets %}
+
+{% block page_title %}{% translate 'Synchronization of incoming emails with Creme' %} - {% endblock %}
+
+{% block content %}
+    {% ctype_for_naturalkey app_label='emails' model='emailsyncconfigitem' as conf_item_ctype %}
+    {% url 'creme_config__app_portal' 'emails' as config_url %}
+    {% with config_items=conf_item_ctype.model_class.objects.all %}
+      {% if config_items %}
+        {% blocktranslate with email=user.email asvar help_msg %}If an email is sent to one of the <a href="{{config_url}}">configured addresses</a> (Carbon Copy & Blind Carbon Copy work too), and your email address "{{email}}" is found (as sender or recipient), the email can be synchronized (ie: transformed as a Creme Email entity).{% endblocktranslate %}
+      {% else %}
+        {% blocktranslate asvar help_msg %}You have no email server configured; you can configure them <a href="{{config_url}}">here</a>.{% endblocktranslate %}
+      {% endif %}
+      {% widget_help_sign message=help_msg|safe %}
+    {% endwith %}
+
+    {% if not job.enabled %}
+        {% widget_help_sign message=_('The job (which fetches emails to synchronise) is currently disabled.') %}
+    {% endif %}
+
+    <div class="hat-bar-container">
+        <div class="hat-bar">
+            <div class="bar-icon">{% widget_icon name='email' size='brick-hat-bar' label=_('Emails') %}</div>
+            <div class="bar-title"><h1>{% translate 'Synchronization of incoming emails with Creme' %}</h1></div>
+{% comment %} TODO ????
+            <div class="bar-actions">
+               <div class='bar-action'>
+                    <a class="bar-button">
+                        {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
+                    </a>
+               </div>
+            </div>
+{% endcomment %}
+        </div>
+    </div>
+
+    {% brick_import app='emails' name='emails_to_sync' as sync_brick %}
+    {% brick_display sync_brick %}
+    {% brick_end %}
+{% endblock %}
