@@ -1,9 +1,18 @@
+#!make
+
+# Load dotenv file if exists
+-include .env
+
 SHELL := /bin/bash
 .DEFAULT_GOAL := help
 MAKE_NPROCS ?= $(shell nproc)
 CREME_LANGUAGE ?= fr
 PORT ?= 8000
 
+CREME_SETTINGS ?= ${DJANGO_SETTINGS_MODULE}
+
+## The package django-extensions is needed here and can be installed with "make install-dev"
+CREME_MEDIA ?= $(shell creme print_settings --settings=${CREME_SETTINGS} --skip-checks --no-color STATIC_ROOT --format value)
 
 ## clean - Basic cleanup, mostly temporary files.
 .PHONY: clean
@@ -24,19 +33,18 @@ clean:
 	find . -type d -empty -print -delete
 
 
-## Upgrade the Python requirements
-.PHONY: update-requirements
-update-requirements:
-	pip install --upgrade -e .[dev]
+## Upgrade the Python development requirements
+.PHONY: install-dev
+install-dev:
+	pip install --upgrade -e .[dev,mysql,pgsql,graphs]
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Upgrade the Python requirements, run the migrations, the creme_populate and generatemedia commands
 ## .PHONY: update
-## update: update-requirements
-## 	python creme/manage.py migrate
-## 	python creme/manage.py creme_populate
-## 	python creme/manage.py generatemedia
+## update: install-dev
+## 	creme migrate --settings=${CREME_SETTINGS}
+## 	creme creme_populate --settings=${CREME_SETTINGS}
+## 	creme generatemedia --settings=${CREME_SETTINGS}
 
 
 ## Install or upgrade nodejs requirements
@@ -46,58 +54,67 @@ node-update:
 	npm run eslint-install
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Generate the media files
-## .PHONY: media
-## media:
-## 	python creme/manage.py generatemedia
+.PHONY: media
+media:
+	creme generatemedia --settings=${CREME_SETTINGS}
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the Django test suite
 ## .PHONY: test
 ## test:
-## 	python creme/manage.py test --keepdb --noinput --parallel=${MAKE_NPROCS} $(filter-out $@,$(MAKECMDGOALS))
+## 	creme test --keepdb --noinput \
+## 	    --settings=${CREME_SETTINGS} \
+## 	    --parallel=${MAKE_NPROCS} \
+## 	    $(filter-out $@,$(MAKECMDGOALS))
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the Django test suite and generate coverage reports
-##.PHONY: test-cov
-##test-cov:
-##	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
+## .PHONY: test-cov
+## test-cov:
+## 	$(eval targets := $(filter-out $@,$(MAKECMDGOALS)))
 ##
-##	COVERAGE_PROCESS_START=setup.cfg coverage run --source creme/ creme/manage.py test --noinput --keepdb --parallel=${MAKE_NPROCS} ${targets}
+## 	COVERAGE_PROCESS_START=setup.cfg \
+## 	    coverage run --source creme/ creme/manage.py test --noinput --keepdb \
+## 	        --settings=${CREME_SETTINGS} \
+## 	        --parallel=${MAKE_NPROCS} \
+## 	        ${targets}
 ##
-##	@if [ "$(targets)" ]; then\
-##		coverage combine -a;\
-##	else \
-##		coverage combine;\
-##	fi
+## 	@if [ "$(targets)" ]; then\
+## 		coverage combine -a;\
+## 	else \
+## 		coverage combine;\
+## 	fi
 ##
-##	coverage report
-##	coverage html
-##	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
+## 	coverage report
+## 	coverage html
+## 	@echo "file://$(shell pwd)/artifacts/coverage_html/index.html"
 
 
-## TODO: still useful ?
 ## Cleanup karma coverage html output
 .PHONY: karma-clean
 karma-clean:
 	rm -f artifacts/karma_coverage/html/static/*.html
 	rm -f artifacts/karma_coverage/html/*.html
 
+
 ## Run the Javascript test suite
 .PHONY: karma
 karma: media karma-clean
-	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
+	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
+	    node_modules/.bin/karma start .karma.conf.js \
+	        --browsers=FirefoxHeadless \
+	        --targets=$(filter-out $@,$(MAKECMDGOALS))
+
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
 karma-browsers: media karma-clean
 	CHROME_BIN=/usr/bin/google-chrome \
-		node_modules/.bin/karma start .karma.conf.js \
-			--browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
-			--concurrency 3\
-			--targets=$(filter-out $@,$(MAKECMDGOALS))
+	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
+	    node_modules/.bin/karma start .karma.conf.js \
+	        --browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
+	        --concurrency 3\
+	        --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
@@ -108,25 +125,22 @@ karma-browsers: media karma-clean
 ##	node_modules/.bin/karma start .circleci/.karma.conf.js --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the application
-## .PHONY: serve
-## serve: media
-##     python creme/manage.py runserver ${PORT}
+.PHONY: serve
+serve: media
+	creme runserver ${PORT} --settings=${CREME_SETTINGS}
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Run the jobs
 ## .PHONY: serve-jobs
 ## serve-jobs:
-## 	python creme/manage.py creme_job_manager
+## 	creme creme_job_manager --settings=${CREME_SETTINGS}
 
 
-## TODO: generate in the local project directory (creme_start_project) ?
 ## Run shell
 ## .PHONY: shell
 ## shell:
-## 	python creme/manage.py shell_plus
+## 	creme shell_plus  --settings=${CREME_SETTINGS}
 
 
 ## Run the Javascript linters
@@ -198,14 +212,6 @@ lint: isort-check flake8
 ## Run all the Python linter fixes
 .PHONY: format
 format: isort-fix
-
-
-## TODO: still useful ?
-## TODO: generate in the local project directory (creme_start_project) ?
-## Print some Django settings
-.PHONY: settings
-settings:
-	@python creme/manage.py print_settings INSTALLED_APPS MIDDLEWARE DATABASES LOGGING --format pprint
 
 
 ## Collect the messages to translate for the entire project or the given app directories
