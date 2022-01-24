@@ -181,6 +181,9 @@
 }
 
 .persons-form_block-addresses .persons-form_block-addresses-inner-header {
+    flex: 1;
+    margin: 5px;
+
     text-transform: uppercase;
     font-weight: 700;
     color: #4d4d4d;
@@ -251,11 +254,6 @@ form .table_detail_view.persons-form_block-addresses .td_info>textarea {
     border-left: 2px solid #ccc;
 }
 */
-
-.persons-form_block-addresses .persons-form_block-addresses-inner-header {
-    flex-grow: 1;
-    margin: 5px;
-}
 
 .persons-form_block-addresses .form-block-fields {
     flex-grow: 1;
