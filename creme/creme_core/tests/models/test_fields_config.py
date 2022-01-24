@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from io import StringIO
 from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
+from django.core import serializers
 from django.core.exceptions import ValidationError
 from django.forms import CharField
 from django.utils.translation import gettext as _
@@ -863,3 +864,44 @@ class FieldsConfigTestCase(CremeTestCase):
 
         with self.assertRaises(ValidationError):
             contact.full_clean()
+
+    def test_natural_key(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        config = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        self.assertEqual(config.natural_key(), contact_ct.natural_key())
+
+    def test_manager_get_by_natural_key(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        self.assertIs(
+            FieldsConfig.objects.get_for_model(FakeContact),
+            FieldsConfig.objects.get_by_natural_key(
+                *contact_ct.natural_key()
+            )
+        )
+
+    def test_fieldsconfig_serialization(self):
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+        config = FieldsConfig.objects.create(
+            content_type=FakeContact,
+            descriptions=[],
+        )
+        stream = StringIO()
+        serializers.serialize(
+            'json',
+            [config],
+            use_natural_primary_keys=True,
+            use_natural_foreign_keys=True,
+            stream=stream,
+        )
+        data = json_load(stream.getvalue())
+        self.assertEqual(len(data), 1)
+        self.assertEqual(
+            data[0]["fields"]["content_type"],
+            [*contact_ct.natural_key()])

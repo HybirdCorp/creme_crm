@@ -224,6 +224,8 @@ class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
         # In a normal use, ContentType instances are never deleted ;
         # so CASCADE by default should be OK
         kwargs.setdefault('on_delete', CASCADE)
+        if kwargs.get('primary_key'):
+            kwargs['parent_link'] = True
 
         super().__init__(**kwargs)
 
