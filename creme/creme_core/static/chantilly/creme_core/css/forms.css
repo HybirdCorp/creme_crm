@@ -358,7 +358,7 @@ ul.multi-select {
        -moz-appearance: none;
             appearance: none;
 
-    width: 230px;
+    width: 280px;
     height: 23px;
 
     background: linear-gradient(#f6fcff, #e0f1f7);
@@ -390,7 +390,7 @@ ul.multi-select {
     position: relative;
 
     top: -13px;
-    left: 210px; /* see .form-block-field-value select => width: 230px */
+    left: 260px; /* see .form-block-field-value select => width: 280px */
 
     width: 0;
     height: 0;
