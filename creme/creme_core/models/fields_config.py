@@ -119,6 +119,10 @@ class FieldsConfigManager(models.Manager):
     #         model, depth=0, only_leaves=False,
     #     ).filter(viewable=True, optional=True)
 
+    def get_by_natural_key(self, app_label, model):
+        ct = ContentType.objects.get_by_natural_key(app_label, model)
+        return self.get_for_model(ct.model_class())
+
     def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
         return self.get_for_models((model,))[model]
 
@@ -572,3 +576,6 @@ class FieldsConfig(CremeModel):
                         .get_field(field_name)
                         .formfield(required=True)
                 )
+
+    def natural_key(self):
+        return self.content_type.natural_key()
