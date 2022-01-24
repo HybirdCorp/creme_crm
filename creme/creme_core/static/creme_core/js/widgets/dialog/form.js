@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -167,9 +167,20 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
     _onSubmitDone: function(event, response, dataType) {
         if (this._validate(response, dataType)) {
-            this._destroyDialog();
-
             this._events.trigger('form-success', [response, dataType], this);
+
+            /*
+             * TODO : This is a hotfix for 2.3 release without changing the
+             * behaviour of the DialogForm : actually the "close" event is
+             * considered as the cancellation of the form so we can't send it
+             * along with a "form-success".
+             *
+             * In the next release we will use self.close() and send the "close"
+             * event after ALL valid submits and send a "cancel" event when the
+             * cancel/close button is pressed.
+             */
+            this._frame.clear();
+            this._destroyDialog();
         } else {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
             this._updateButtonState("send", true, 'auto');

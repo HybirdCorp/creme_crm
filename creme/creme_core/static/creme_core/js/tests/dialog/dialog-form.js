@@ -20,13 +20,21 @@ var MOCK_FRAME_CONTENT_FORM_BUTTON = '<form action="mock/submit/button">' +
                                          '<input type="text" name="lastname" required></input>' +
                                          '<button type="submit" class="ui-creme-dialog-action"></button>' +
                                      '</form>';
+var MOCK_FRAME_CONTENT_FORM_WIDGET = '<form action="mock/submit/widget">' +
+                                          '<input type="text" name="firstname"></input>' +
+                                          '<input type="text" name="lastname" required></input>' +
+                                          '<select class="ui-creme-widget ui-creme-dselect widget-auto" widget="ui-creme-dselect" autocomplete name="checkin">' +
+                                              '<option value="true">True</option>' +
+                                              '<option value="false">False</option>' +
+                                          '</select>' +
+                                          '<button type="submit" class="ui-creme-dialog-action"></button>' +
+                                      '</form>';
 var MOCK_FRAME_CONTENT_FORM_WIZARD = '<form action="mock/submit/wizard">' +
                                          '<input type="text" name="firstname"></input>' +
                                          '<input type="text" name="lastname" required></input>' +
                                          '<button type="submit" class="ui-creme-dialog-action" data-no-validate name="previous">Previous</button>' +
                                          '<button type="submit" class="ui-creme-dialog-action"></button>' +
                                      '</form>';
-
 var MOCK_FRAME_CONTENT_FORM_MULTI = '<form action="mock/submit/multi">' +
                                         '<input type="text" name="firstname"></input>' +
                                         '<input type="text" name="lastname" required></input>' +
@@ -84,6 +92,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit': backend.response(200, MOCK_FRAME_CONTENT_FORM),
             'mock/submit/json': backend.response(200, MOCK_FRAME_CONTENT_FORM_JSON),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/widget': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIDGET),
             'mock/submit/fail': backend.response(200, MOCK_FRAME_CONTENT_FORM_ERROR),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/wizard': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIZARD),
@@ -119,6 +128,7 @@ QUnit.module("creme.dialog-form.js", new QUnitMixin(QUnitEventMixin,
             'mock/submit/wizard': backend.response(200, MOCK_FRAME_CONTENT_FORM_WIZARD),
             'mock/submit/required': backend.response(200, MOCK_FRAME_CONTENT_FORM_REQUIRED),
             'mock/submit/button': backend.response(200, MOCK_FRAME_CONTENT_FORM_BUTTON),
+            'mock/submit/widget': backend.response(200, ''),
             'mock/submit/fail': backend.response(400, 'Unable to submit this form'),
             'mock/submit/multi': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI),
             'mock/submit/multi/unnamed': backend.response(200, MOCK_FRAME_CONTENT_FORM_MULTI_UNNAMED),
@@ -413,6 +423,53 @@ QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
             lastname: ['Doe']
         }]
     ], this.mockBackendUrlCalls('mock/submit/button'));
+});
+
+
+QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
+    var dialog = new creme.dialog.FormDialog({url: 'mock/submit/widget', backend: this.backend});
+
+    equal(0, $('.chzn-drop').length);
+
+    dialog.onFormSuccess(this.mockListener('form-success'));
+    dialog.open();
+
+    equal(2, dialog.buttons().find('button').length);
+    equal(gettext('Save'), dialog.button('send').text());
+    equal(gettext('Cancel'), dialog.button('cancel').text());
+
+    dialog.form().find('[name="firstname"]').val('John');
+    dialog.form().find('[name="lastname"]').val('Doe');
+    dialog.form().find('[name="checkin"]').val('true');
+
+    equal(false, dialog.form().find('[name="firstname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="lastname"]').is(':invalid'));
+    equal(false, dialog.form().find('[name="checkin"]').is(':invalid'));
+
+    // checkin combobox is enabled and should have created a chosen droplist
+    equal(1, $('.chzn-drop').length);
+
+    deepEqual([
+        ['GET', {}]
+    ], this.mockBackendUrlCalls('mock/submit/widget'));
+
+    dialog.submit();
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {
+            firstname: ['John'],
+            lastname: ['Doe'],
+            checkin: ['true']
+        }]
+    ], this.mockBackendUrlCalls('mock/submit/widget'));
+
+    deepEqual([
+        ['form-success', {content: '', data: '', type: 'text/html'}, 'text/html']
+    ], this.mockFormSubmitCalls('form-success'));
+
+    // checkin combobox has been removed !!!
+    equal(0, $('.chzn-drop').length);
 });
 
 QUnit.test('creme.dialog.FormDialog (submit, invalid response)', function(assert) {
