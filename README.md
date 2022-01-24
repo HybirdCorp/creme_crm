@@ -3,7 +3,7 @@ Creme is a free/open-source Customer Relationship Management software developed 
 It is designed with an entities/relationships architecture, and is highly configurable, which allows
 adapting Creme to many workflows.
 
-![Detailed view of a contact](screenshot.png)
+![Detailed view of a contact](https://github.com/HybirdCorp/creme_crm/raw/main/screenshot.png)
 
 It provides apps (ie: modules) to manage:
  - Contacts & organisations.
@@ -55,7 +55,7 @@ It's recommended to use a database engine which supports transactions :
  - SQLite support is principally done for developers, but it remains a solution
    for small data-bases (eg: a use as mono-user app with the server running of your computer).
 
-You probably should use 'virtualenv' (for an upgrade from Creme 2.1, you should create a new
+You probably should use 'virtualenv' (for an upgrade from Creme 2.2, you should create a new
 virtual env, in order to keep the old one working).
 
 
@@ -229,3 +229,4 @@ Check out the [Hybird Website](https://hybird.org/).
 Any other questions ?
 Need help ?
 Reach us on the [Creme CRM Forums](https://www.cremecrm.com/forum/).
+Our (french) [Video tutorials](https://www.youtube.com/channel/UCqt-dsKnW7sNwlCWOODTDWQ).
