@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -383,8 +383,18 @@ class FieldsConfig(CremeModel):
 
     @descriptions.setter
     def descriptions(self, value: FieldsDescriptions) -> None:
+        ctype = self.content_type
+        if not ctype:
+            raise ValueError(
+                'FieldsConfig.descriptions: '
+                'the content type has not been passed or is invalid.'
+            )
+
+        model = ctype.model_class()
+        assert model is not None
+
         self.raw_descriptions = json_encode(
-            self._check_descriptions(self.content_type.model_class(), value)[1]
+            self._check_descriptions(model, value)[1]
         )
 
     @property

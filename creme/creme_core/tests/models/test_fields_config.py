@@ -613,7 +613,7 @@ class FieldsConfigTestCase(CremeTestCase):
         self.assertEqual(100,             first_name_f.max_length)
         self.assertTrue(first_name_f.required)
 
-    def test_descriptions_setter(self):
+    def test_descriptions_setter01(self):
         "Auto-repair invalid fields."
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
@@ -628,6 +628,46 @@ class FieldsConfigTestCase(CremeTestCase):
         fconf = self.refresh(fconf)
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
         self.assertEqual(1, len(fconf.descriptions))
+
+    def test_descriptions_setter02(self):
+        "No content type."
+        with self.assertRaises(ValueError) as cm1:
+            FieldsConfig(
+                # content_type=FakeContact,
+                descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+            )
+
+        msg = 'FieldsConfig.descriptions: the content type has not been passed or is invalid.'
+        self.assertEqual(msg, str(cm1.exception))
+
+        # ---
+        fconf = FieldsConfig()
+        with self.assertRaises(ValueError) as cm2:
+            fconf.descriptions = [('phone', {FieldsConfig.HIDDEN: True})]
+
+        self.assertEqual(msg, str(cm2.exception))
+
+        # ---
+        with self.assertNoException():
+            FieldsConfig(
+                descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+                content_type=FakeContact,  # Passed after
+            )
+
+    def test_descriptions_setter03(self):
+        "Invalid content type."
+        ctype = ContentType(app_label='invalid', model='Contact')
+
+        with self.assertRaises(ValueError) as cm:
+            FieldsConfig(
+                content_type=ctype,
+                descriptions=[('phone', {FieldsConfig.HIDDEN: True})],
+            )
+
+        self.assertEqual(
+            'FieldsConfig.descriptions: the content type has not been passed or is invalid.',
+            str(cm.exception),
+        )
 
     def test_descriptions_getter(self):
         "Auto-repair invalid field."
