@@ -303,6 +303,7 @@
 .listview thead th.lv-column.hd_cl_lv input,
 .listview thead th.lv-column.hd_cl_lv select {
     min-width: 150px;
+    max-width: 300px;
 }
 
 .listview thead th.lv-column.hd_cl_lv.right_align input {

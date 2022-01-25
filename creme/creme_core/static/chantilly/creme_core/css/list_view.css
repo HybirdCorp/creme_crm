@@ -665,6 +665,12 @@
     padding: 0 0 0 15px;
 }
 
+.listview thead th.lv-column.hd_cl_lv input,
+.listview thead th.lv-column.hd_cl_lv select {
+    min-width: 150px;
+    max-width: 300px;
+}
+
 .listview tbody .lv-cell-content {
     padding-right: 3px;
     text-align: center;
