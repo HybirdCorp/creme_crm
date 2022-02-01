@@ -1,5 +1,11 @@
 == Version 2.2.10 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Documents :
+            - The uploaded files with extension in capital letters were managed like their extension was not allowed (the suffix '.txt' was added).
+
 
 == Version 2.2.9 ==
 
