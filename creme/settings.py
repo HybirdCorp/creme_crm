@@ -48,7 +48,8 @@ DATABASES = {
     'default': {
         # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
         # NB: 'oracle' backend is not working with creme for now.
-        'ENGINE': 'django.db.backends.mysql',
+        # 'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.sqlite3',
 
         # Name of the database, or path to the database file if using 'sqlite3'.
         'NAME': 'cremecrm',
