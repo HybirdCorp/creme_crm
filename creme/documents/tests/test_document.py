@@ -9,8 +9,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from PIL.Image import open as open_img
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import (
@@ -20,6 +22,7 @@ from creme.creme_core.models import (
     SetCredentials,
 )
 from creme.creme_core.tests.fake_models import FakeOrganisation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model
 from creme.persons.tests.base import skipIfCustomContact
 
@@ -38,7 +41,7 @@ from .base import (
 
 @skipIfCustomDocument
 @skipIfCustomFolder
-class DocumentTestCase(_DocumentsTestCase):
+class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
     def _buid_addrelated_url(self, entity):
         return reverse('documents__create_related_document', args=(entity.id,))
 
@@ -241,6 +244,62 @@ class DocumentTestCase(_DocumentsTestCase):
     # def test_download_error(self):
     #     self.login()
     #     self.assertGET404(reverse('creme_core__dl_file', args=('tmpLz48vy.txt',)))
+
+    @override_settings(ALLOWED_EXTENSIONS=('txt', 'png'))
+    def test_createview06(self):
+        "Upload image + capital extension (bugfix)."
+        self.login()
+
+        with open(
+            join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
+            'rb',
+        ) as image_file:
+            file_obj = self.build_filedata(image_file.read(), suffix='.PNG')
+
+        doc = self._create_doc(title='My image', file_obj=file_obj)
+        self.assertEqual('image/png', doc.mime_type.name)
+
+        filedata = doc.filedata
+
+        name_parts = filedata.name.split('.')
+        self.assertEqual(2, len(name_parts))
+        self.assertEqual('PNG', name_parts[-1])
+
+        with self.assertNoException():
+            with open_img(filedata.path) as img_fd:
+                size = img_fd.size
+
+        self.assertTupleEqual((22, 22), size)
+
+    def test_detailview(self):
+        self.login()
+
+        create_cat = DocumentCategory.objects.create
+        cat1 = create_cat(name='Text')
+        cat2 = create_cat(name='No image')
+
+        doc = self._create_doc(title='Test doc', categories=[cat1.id, cat2.id])
+
+        response = self.assertGET200(doc.get_absolute_url())
+        self.assertTemplateUsed(response, 'documents/bricks/document-hat-bar.html')
+
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), MODELBRICK_ID)
+        self.assertEqual(
+            _('Information on the document'),
+            self.get_brick_title(brick_node),
+        )
+        self.assertEqual(
+            doc.title,
+            self.get_brick_tile(brick_node, 'regular_field-title').text,
+        )
+        self.assertCountEqual(
+            [cat1.name, cat2.name],
+            [
+                n.text
+                for n in self.get_brick_tile(brick_node, 'regular_field-categories')
+                             .findall('.//li')
+            ],
+        )
 
     def test_editview(self):
         user = self.login()
