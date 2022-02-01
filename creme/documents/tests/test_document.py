@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from PIL.Image import open as open_img
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import MODELBRICK_ID
@@ -256,6 +257,32 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         # self.assertEqual('upload/documents/' + file_name, doc.filedata.name)
         self.assertEqual('documents/' + file_name, doc.filedata.name)
         self.assertEqual(file_name, doc.title)
+
+    @override_settings(ALLOWED_EXTENSIONS=('txt', 'png'))
+    def test_createview06(self):
+        "Upload image + capital extension (bugfix)."
+        self.login()
+
+        with open(
+            join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
+            'rb',
+        ) as image_file:
+            file_obj = self.build_filedata(image_file.read(), suffix='.PNG')
+
+        doc = self._create_doc(title='My image', file_obj=file_obj)
+        self.assertEqual('image/png', doc.mime_type.name)
+
+        filedata = doc.filedata
+
+        name_parts = filedata.name.split('.')
+        self.assertEqual(2, len(name_parts))
+        self.assertEqual('PNG', name_parts[-1])
+
+        with self.assertNoException():
+            with open_img(filedata.path) as img_fd:
+                size = img_fd.size
+
+        self.assertTupleEqual((22, 22), size)
 
     def test_detailview(self):
         self.login()
