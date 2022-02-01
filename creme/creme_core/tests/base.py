@@ -563,9 +563,10 @@ class _CremeTestCase:
 
     # def build_filedata(self, content_str, suffix='.txt'):
     @staticmethod
-    def build_filedata(content_str, suffix='.txt'):
+    def build_filedata(content, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix)
-        tmpfile.write(content_str.encode())
+        # tmpfile.write(content_str.encode())
+        tmpfile.write(content.encode() if isinstance(content, str) else content)
         tmpfile.flush()
 
         filedata = tmpfile.file
