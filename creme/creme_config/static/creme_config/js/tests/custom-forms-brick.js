@@ -320,7 +320,17 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
     });
 
     deepEqual([
-        ['mock/group/reorder/0', 'POST', {target: group.index()}, {delay: 0, enableUriSearch: false, sync: true}]
+        [
+            'mock/group/reorder/0', 'POST',
+            {target: group.index()},
+            {delay: 0, enableUriSearch: false, sync: true}
+        ],
+        [
+            'mock/brick/all/reload',
+            'GET',
+            {brick_id: ['brick-for-test'], extra_data: '{}'},
+            {dataType: 'json', delay: 0, enableUriSearch: false, sync: true}
+          ]
     ], this.mockBackendCalls());
 });
 
