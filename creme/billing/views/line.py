@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,6 @@ from json import loads as jsonloads
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
-from django.forms.models import modelformset_factory
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext_lazy as _
@@ -137,11 +136,6 @@ def multi_save_lines(request, document_id):
     formset_to_save = []
     errors = []
 
-    class _LineForm(line_forms.LineEditForm):
-        def __init__(self, *args, **kwargs):
-            self.empty_permitted = False
-            super().__init__(user=user, related_document=b_entity, *args, **kwargs)
-
     # Only modified formsets land here
     for line_ct_id, data in request.POST.items():
         line_model = get_ctype_or_404(line_ct_id).model_class()
@@ -150,16 +144,19 @@ def multi_save_lines(request, document_id):
         if prefix is None:
             raise ConflictError('Invalid model (not a line ?!)')
 
+        # lines = b_entity.get_lines(line_model) ?
         qs = line_model.objects.filter(
             relations__object_entity=b_entity.id,
             relations__type=constants.REL_OBJ_HAS_LINE,
         )
 
-        lineformset_class = modelformset_factory(
-            line_model, form=_LineForm, extra=0, can_delete=True,
-        )
-        lineformset = lineformset_class(
-            jsonloads(data), prefix=prefix, queryset=qs,
+        lineformset = line_forms.BaseLineEditFormset(
+            line_model,
+            user,
+            related_document=b_entity,
+            data=jsonloads(data),
+            prefix=prefix,
+            queryset=qs,
         )
 
         if lineformset.is_valid():

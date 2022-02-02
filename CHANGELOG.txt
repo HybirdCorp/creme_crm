@@ -282,6 +282,7 @@
                         - The class-view 'base.RelatedBaseCreation' does not fill <initial['target']> anymore.
                     - These template files have been removed in "creme/billing/templates/billing/forms/" :
                       add.html, add-popup.html, base.html, edit.html
+                    - The template 'templates/billing/bricks/base/lines.html' needs the variable "line_edit_form_template" to be filled
                 * Opportunities :
                     - In 'forms.opportunity', the classes 'TargetMixin' & 'EmitterMixin' have been removed.
                 * Commercial :
@@ -4481,7 +4482,7 @@
                 - When a FK field is linked to a sub-report, if a related entity does not pass the subfilter, the line is not dropped any more (related values are just empty).
                 - The flattened sub-reports (ie not expanded, see 'selected' attribute) in columns associated to ManyToManyField/ForeignKey/related fields are now used.
                 - The flattened sub-reports manage now all types of columns.
-                - The aggregates are computed in a scope (so result may be different with an aggregate in a sub-report). 
+                - The aggregates are computed in a scope (so result may be different with an aggregate in a sub-report).
             * Invalid columns are automatically removed (eg: removed CustomField).
         * Activities, the calendar has been heavily improved :
             * The version of fullcalendar.js has been updated from 1.4.5 to 1.4.7.
@@ -4562,7 +4563,7 @@
             - /creme_core/relation/predicate/.../content_types/json ==> /creme_core/relation/type/.../content_types/json
         # The function creme_core.utils.currency_format.currency() can now take a Currency instance instead of a Currency ID ;
           idem with the templatetag 'format_amount'.
-          API breaking : 'currency_id' argument changed to 'currency_or_id'. 
+          API breaking : 'currency_id' argument changed to 'currency_or_id'.
         # The unused form field _CommaMultiValueField has been removed.
         # Several elements in creme_core.utils.meta have been deleted :
             * The exception class NotDjangoModel.
@@ -4672,7 +4673,7 @@
     # Lots of changes in creme_core.utils.meta :
         - New system of tags for models fields. Right now, 2 tags are available : 'viewable' & 'clonable'.
         - The following functions have been removed : get_flds_with_fk_flds(), get_flds_with_fk_flds_str().
-        - The following functions have been renamed : 
+        - The following functions have been renamed :
             get_field_infos() became get_instance_field_info()
             get_model_field_infos() became get_model_field_info()
     # In CremeAbstractEntity class 'excluded_fields_in_html_output' and 'header_filter_exclude_fields' attributes have been removed (tags are used instead).
