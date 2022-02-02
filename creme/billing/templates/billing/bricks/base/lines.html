@@ -38,7 +38,8 @@ data-type-global-discount="{{object.discount}}"
                 <div class="bline-hidden-fields" style="display: none">{{form.user}} {{form.DELETE}} {{form.cremeentity_ptr}}</div>
 
                 <div class="bline-fields restorable_{{form.instance.id}}">
-                    {% include 'billing/bricks/frags/line-fields.html' %}
+{#                    {% include 'billing/bricks/frags/line-fields.html' %}#}
+                    {% include line_edit_form_template %}
                 </div>
             </div>
             {% if not forloop.last %}

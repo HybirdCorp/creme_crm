@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.forms.models import modelformset_factory
 from django.utils.translation import gettext_lazy as _
 
 from creme import billing, persons
@@ -36,6 +35,7 @@ from creme.persons import bricks as persons_bricks
 
 from . import constants, function_fields
 from .exporters import BillingExportEngineManager
+from .forms import line as line_forms
 from .models import ExporterConfigItem, Line, PaymentInformation
 from .setting_keys import payment_info_key
 
@@ -88,10 +88,10 @@ class _LinesBrick(SimpleBrick):
     relation_type_deps = (constants.REL_SUB_HAS_LINE, )
     target_ctypes = (CreditNote, Quote, Invoice, SalesOrder, TemplateBase)
     line_model = Line
+    line_edit_form_template = 'billing/bricks/frags/line-fields.html'
 
     # TODO: factorise with views.line.multi_save_lines() ?
     def detailview_display(self, context):
-        from .forms.line import LineEditForm
         from .views.line import LINE_FORMSET_PREFIX
 
         document = context['object']
@@ -99,26 +99,13 @@ class _LinesBrick(SimpleBrick):
         line_model = self.line_model
         lines = document.get_lines(line_model)
 
-        class _LineForm(LineEditForm):
-            def __init__(self, *args, **kwargs):
-                self.empty_permitted = False
-                super().__init__(
-                    user=user,
-                    related_document=document,
-                    *args, **kwargs
-                )
-
-        lineformset_class = modelformset_factory(
+        lineformset = line_forms.BaseLineEditFormset(
             line_model,
-            can_delete=True,
-            form=_LineForm,
-            extra=0,
-        )
-        lineformset = lineformset_class(
+            user,
+            related_document=document,
             prefix=LINE_FORMSET_PREFIX[line_model],
             queryset=lines,
         )
-
         get_ct = ContentType.objects.get_for_model
         related_item_model = line_model.related_item_class()
         return self._render(self.get_template_context(
@@ -128,6 +115,7 @@ class _LinesBrick(SimpleBrick):
             item_count=len(lines),
             related_item_ct=get_ct(related_item_model),  # TODO: templatetag instead ?
             related_item_label=related_item_model._meta.verbose_name,
+            line_edit_form_template=self.line_edit_form_template,
         ))
 
 
