@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,8 @@ from functools import partial
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.transaction import atomic
+from django.forms.formsets import formset_factory
+from django.forms.models import BaseModelFormSet, modelform_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -249,3 +251,27 @@ class AddToCatalogForm(core_forms.CremeForm):
             object_entity=item,
             user=self.user,
         )
+
+
+class BaseLineEditFormset(formset_factory(core_forms.CremeModelForm, formset=BaseModelFormSet)):
+    model = None
+    base_form_class = LineEditForm
+    extra = 0
+    can_delete = True
+
+    def __init__(self, model, user, related_document=None, **kwargs):
+        self.model = model
+        self.user = user
+        self.related_document = related_document
+        # handle prefix here ?
+        super().__init__(**kwargs)
+        self.form_class = modelform_factory(model, form=self.get_form_class())
+
+    def get_form_class(self):
+        return self.base_form_class
+
+    def form(self, **kwargs):
+        return self.form_class(
+            self.user,
+            related_document=self.related_document,
+            **kwargs)
