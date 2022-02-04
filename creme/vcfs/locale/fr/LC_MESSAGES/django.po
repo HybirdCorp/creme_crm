@@ -146,20 +146,20 @@ msgid "Read in VCF File: "
 msgstr "Lu dans le fichier VCF : "
 
 msgid "The referenced image is too large (limit is {} bytes)."
-msgstr "L'image référencée est trop large (la limit est {} octets)."
+msgstr "L'image référencée est trop large (la limite est {} octets)."
 
 msgid ""
 "An error occurred when trying to retrieve the referenced image [original "
 "error: {}]."
 msgstr ""
-"Une erreur est survenue lors de la récupération de l'image référéncée "
+"Une erreur est survenue lors de la récupération de l'image référencée "
 "[erreur originale : {}]."
 
 msgid ""
 "An error occurred when trying to decode the embedded image [original error: "
 "{}]."
 msgstr ""
-"Une erreur est survenue lors ddu décodage de l'image embarquée [erreur "
+"Une erreur est survenue lors du décodage de l'image embarquée [erreur "
 "originale : {}]."
 
 msgid "Invalid image data"
