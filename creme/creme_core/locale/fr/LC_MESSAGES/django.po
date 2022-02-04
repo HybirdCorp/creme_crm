@@ -169,7 +169,7 @@ msgid ""
 "installed apps.\n"
 "App: Core"
 msgstr ""
-"Affiche plusieurs statistiques (ex: le nombre de clients), en function des "
+"Affiche plusieurs statistiques (ex: le nombre de clients), en fonction des "
 "apps installées.\n"
 "App : Cœur"
 
@@ -1161,7 +1161,7 @@ msgid ""
 "=«{value}» (column {column}) on {model}"
 msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
-"de retrouver {field}=«{value}» (column {column}) sur {model}"
+"de retrouver {field}=«{value}» (colonne {column}) sur {model}"
 
 msgid "The entity"
 msgstr "La fiche"
@@ -1415,7 +1415,7 @@ msgstr ""
 "- des Champs Personnalisés\n"
 "- des fiches reliées\n"
 "- …\n"
-"Astuce : ce kind de bloc peut être créé/modifié dans la configuration des "
+"Astuce : ce type de bloc peut être créé/modifié dans la configuration des "
 "blocs («Blocs personnalisés»)."
 
 msgid "Unknown type of block (bad uninstall ?)"
@@ -1506,7 +1506,7 @@ msgstr "{field} vidé {details_link}"
 
 #, python-brace-format
 msgid "{field} set {details_link}"
-msgstr "{field}» modifié {details_link}"
+msgstr "{field} modifié {details_link}"
 
 msgid "(see details)"
 msgstr "(voir détails)"
@@ -1854,7 +1854,7 @@ msgstr ""
 #, python-brace-format
 msgid "Block configuration of Home for role «{role}» uses «{block}»"
 msgstr ""
-"La configuration des blocs pour l'accueil du role «{role}» utilise «{block}»"
+"La configuration des blocs pour l'accueil du rôle «{role}» utilise «{block}»"
 
 #, python-brace-format
 msgid "Block configuration of Home for superusers uses «{block}»"
@@ -1869,12 +1869,12 @@ msgstr "La configuration des blocs pour l'accueil utilise «{block}»"
 #, python-brace-format
 msgid "Block configuration of \"My page\" for «{user}» uses «{block}»"
 msgstr ""
-"La configuration des blocs de \"My page\" pour l'utilisateur «{user}» "
+"La configuration des blocs de \"Ma page\" pour l'utilisateur «{user}» "
 "utilise «{block}»"
 
 #, python-brace-format
 msgid "Default block configuration of \"My page\" uses «{block}»"
-msgstr "La configuration par défaut des blocs de \"My page\" utilise «{block}»"
+msgstr "La configuration par défaut des blocs de \"Ma page\" utilise «{block}»"
 
 msgid "This block is used in the default detail-view configuration"
 msgstr ""

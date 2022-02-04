@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,7 @@ class OwnedGraphFetcher(GraphFetcher):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.verbose_name = _('Belows to the Contact/User')
+        self.verbose_name = _('Belongs to the Contact/User')
 
         if self.value:
             self.error = _('No value is needed.')
@@ -43,7 +43,7 @@ class OwnedGraphFetcher(GraphFetcher):
     def _aux_fetch_4_entity(self, entity, order, user):
         if not isinstance(entity, Contact):
             raise self.IncompatibleContentType(gettext(
-                "The volatile link «Belows to the Contact/User» is only "
+                "The volatile link «Belongs to the Contact/User» is only "
                 "compatible with Contacts ; you should fix your blocks' configuration."
             ))
 
@@ -61,7 +61,7 @@ class OwnedGraphFetcher(GraphFetcher):
 
     @classmethod
     def choices(cls, model):
-        yield '', _('Belows to the Contact/User')
+        yield '', _('Belongs to the Contact/User')
 
     @property
     def linked_models(self):

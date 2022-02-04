@@ -62,7 +62,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         with self.assertNoException():
             choices = [*response.context['form'].fields['fetcher'].widget.choices]
 
-        vname = _('Belows to the Contact/User')
+        vname = _('Belongs to the Contact/User')
         self.assertInChoices(
             value=f'{RGF_OWNED}|',
             label=vname,
@@ -213,7 +213,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
             fetcher.fetch_4_entity(entity=invoice, user=user)
 
         error_msg = _(
-            "The volatile link «Belows to the Contact/User» is only compatible with Contacts ; "
+            "The volatile link «Belongs to the Contact/User» is only compatible with Contacts ; "
             "you should fix your blocks' configuration."
         )
         self.assertEqual(error_msg, str(cm.exception))
