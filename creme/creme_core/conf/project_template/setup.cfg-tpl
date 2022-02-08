@@ -3,7 +3,7 @@ name = {{ project_name }}
 author = my_awesome_compagny.com
 author_email = contact@my_awesome_compagny.com
 url = https://www.my_awesome_compagny.com
-version = attr: {{ project_name }}.__version__
+version = attr: __version__
 
 description = Describe briefly your wonderful project here
 long_description = file: README
@@ -51,7 +51,7 @@ use_parentheses = True
 [flake8]
 exclude =
     */migrations/*
-    {{ project_name }}/_generated_media_names.py
+    _generated_media_names.py
 max-line-length = 99
 ignore =
     E221 ;multiple spaces before operator
