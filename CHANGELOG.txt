@@ -255,7 +255,7 @@
             - The ReportGraph's form has been improved too :
                 - The fields for abscissa & ordinate have been replaced by 2 composite/chained fields.
                 - The new widget for abscissa does not perform AJAX requests & has autocompletion.
-            - A new ReportGraph fetcher specific to Contact has been added : "belows to the Contact/User".
+            - A new ReportGraph fetcher specific to Contact has been added : "belongs to the Contact/User".
             - The volatile link is now used to narrow the related list-view (when you click of a ReportGraph's brick).
             - The report graph bricks set now the compatible entities types (attribute "target_ctypes") ;
               so they are only proposed for detail-view's brick configuration which are relevant.

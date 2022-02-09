@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-02-09 17:09+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -797,7 +797,7 @@ msgid "Contact complementary information"
 msgstr "Informations complémentaires sur le contact"
 
 #: reports.py:38 reports.py:64
-msgid "Belows to the Contact/User"
+msgid "Belongs to the Contact/User"
 msgstr "Appartient au Contact/Utilisateur"
 
 # Already in app 'reports'
@@ -807,7 +807,7 @@ msgstr ""
 
 #: reports.py:46
 msgid ""
-"The volatile link «Belows to the Contact/User» is only compatible with "
+"The volatile link «Belongs to the Contact/User» is only compatible with "
 "Contacts ; you should fix your blocks' configuration."
 msgstr ""
 "Le lien volatile «Appartient au Contact/Utilisateur» est seulement "
@@ -1020,7 +1020,7 @@ msgstr "Aucune société délaissée pour le moment"
 
 #: templates/persons/bricks/organisation-hat-card.html:23
 msgid "Customer"
-msgstr "Clients"
+msgstr "Client"
 
 #: templates/persons/bricks/organisation-hat-card.html:26
 msgid "Supplier"
