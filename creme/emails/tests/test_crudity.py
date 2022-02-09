@@ -2,6 +2,7 @@
 
 from datetime import timedelta
 
+from django.conf import settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -172,7 +173,14 @@ class EmailsCrudityTestCase(_EmailsTestCase):
         )
 
         bricks = get('bricks')
-        self.assertIsList(bricks, min_length=1)
+
+        for backend in settings.CRUDITY_BACKENDS:
+            if backend.get('fetcher') == 'email' and backend.get('subject') == '*':
+                self.assertIsList(bricks, min_length=1)
+                break
+        else:
+            self.assertIsNone(bricks)
+
         # TODO: complete
 
     def test_create01(self):
