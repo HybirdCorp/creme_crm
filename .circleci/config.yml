@@ -162,18 +162,18 @@ jobs:
       - run: flake8 << pipeline.parameters.source_path >>/creme/ --config << pipeline.parameters.source_path >>/setup.cfg
 
 
-  python36-creme-checks:
-    docker:
-      - image: circleci/python:3.6
-    steps:
-#      - checkout
-      - checkout-creme
-      - install-creme-system-packages
-      - run: sudo apt install enchant-2 hunspell hunspell-fr -y
-      - install-py-dev-env:
-          python: "python3.6"
-      - create-creme-project
-      - run: creme i18n_spellcheck --allow-failure --settings=<< pipeline.parameters.instance_directory >>.settings
+#  python36-creme-checks:
+#    docker:
+#      - image: circleci/python:3.6
+#    steps:
+##      - checkout
+#      - checkout-creme
+#      - install-creme-system-packages
+#      - run: sudo apt install enchant-2 hunspell hunspell-fr -y
+#      - install-py-dev-env:
+#          python: "python3.6"
+#      - create-creme-project
+#      - run: creme i18n_spellcheck --allow-failure --settings=<< pipeline.parameters.instance_directory >>.settings
 
 
   python36-tests-mysql:
@@ -482,7 +482,7 @@ workflows:
               only: /.*/
           requires:
             - javascript-lint
-      - python36-creme-checks
+#      - python36-creme-checks
       - python36-lint-isort:
           filters:
             tags:
