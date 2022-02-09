@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin.py makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*"
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-02-09 16:43+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1450,7 +1450,7 @@ msgid ""
 "=«{value}» (column {column}) on {model}"
 msgstr ""
 "Erreur lors de l'extraction de valeur pour construire une Relation: a essayé "
-"de retrouver {field}=«{value}» (column {column}) sur {model}"
+"de retrouver {field}=«{value}» (colonne {column}) sur {model}"
 
 #: forms/mass_import.py:831
 msgid "The entity"
@@ -2128,7 +2128,7 @@ msgstr ""
 #, python-brace-format
 msgid "Block configuration of Home for role «{role}» uses «{block}»"
 msgstr ""
-"La configuration des blocs pour l'accueil du role «{role}» utilise «{block}»"
+"La configuration des blocs pour l'accueil du rôle «{role}» utilise «{block}»"
 
 #: models/bricks.py:390
 #, python-brace-format
@@ -2146,7 +2146,7 @@ msgstr "La configuration des blocs pour l'accueil utilise «{block}»"
 #, python-brace-format
 msgid "Block configuration of \"My page\" for «{user}» uses «{block}»"
 msgstr ""
-"La configuration des blocs de \"My page\" pour l'utilisateur «{user}» "
+"La configuration des blocs de \"Ma page\" pour l'utilisateur «{user}» "
 "utilise «{block}»"
 
 #: models/bricks.py:432
