@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-07 14:30+0100\n"
+"POT-Creation-Date: 2022-02-09 10:56+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1110,12 +1110,6 @@ msgstr "Glissez-déposez les groupes pour les réordonner."
 
 msgid "Add a form for a role"
 msgstr "Ajouter un formulaire pour un rôle"
-
-msgid "Show this form"
-msgstr "Montrer ce formulaire"
-
-msgid "Hide this form"
-msgstr "Cacher ce formulaire"
 
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"
@@ -2304,6 +2298,12 @@ msgstr "Supprimer le rôle"
 
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
+
+#~ msgid "Show this form"
+#~ msgstr "Montrer ce formulaire"
+
+#~ msgid "Hide this form"
+#~ msgstr "Cacher ce formulaire"
 
 #~ msgid "No filter"
 #~ msgstr "Pas de filtre"
