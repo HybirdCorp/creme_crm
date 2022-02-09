@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -395,16 +395,8 @@ def activities_portal(request):
 
     tomorrow = localtime(now_val + timedelta(days=1))
 
-    def build_dt(h, m, s):
-        return datetime(
-            year=tomorrow.year, month=tomorrow.month, day=tomorrow.day,
-            hour=h, minute=m, second=s,
-            tzinfo=tomorrow.tzinfo,
-        )
     tomorrow_act = cred_filter(
-        activities.filter(
-            start__range=(build_dt(0,  0,  0), build_dt(23, 59, 59)),
-        )
+        activities.filter(start__date=tomorrow)
     )
 
     # TODO: populate participants (regroup queries for Relation + real entities) ??
