@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -26,7 +27,12 @@ class SchemaView(DRFSchemaView):
     public = True
     generator_class = openapi.SchemaGenerator
 
-    def get_description(self, context=None, request=None):
+    def get_description(self, request=None):
+        creme_api_app_config = apps.get_app_config('creme_api')
+        context = {
+            'creme_api__base_url': self.request.build_absolute_uri(
+                creme_api_app_config.url_root)
+        }
         description = render_to_string(
             self.description_template, context=context, request=request)
         # Force django safestring into builtin string
@@ -46,7 +52,7 @@ class SchemaView(DRFSchemaView):
         )
 
 
-class CremeApiView(base.BricksView):
+class _DocumentationBaseView(base.BricksView):
     title = _("Creme CRM API")
     permissions = "creme_api"
 
@@ -56,7 +62,7 @@ class CremeApiView(base.BricksView):
         return context
 
 
-class DocumentationView(CremeApiView):
+class DocumentationView(_DocumentationBaseView):
     template_name = 'creme_api/documentation.html'
     extra_context = {'schema_url': 'creme_api__openapi_schema'}
 
@@ -68,7 +74,7 @@ class DocumentationView(CremeApiView):
         return context
 
 
-class ConfigurationView(CremeApiView):
+class ConfigurationView(_DocumentationBaseView):
     template_name = 'creme_api/configuration.html'
 
     def get_brick_ids(self):

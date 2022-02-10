@@ -1,4 +1,5 @@
 from django.urls import include, re_path
+from django.views.decorators.cache import cache_page
 
 from creme.creme_api.api.routes import router
 from creme.creme_api.api.tokens.views import TokenView
@@ -11,11 +12,11 @@ from creme.creme_api.views import (
 )
 
 urlpatterns = [
-    re_path(r"^tokens[/]?$", TokenView.as_view(), name="creme_api__tokens"),
-    # re_path(r"^revoke_token/$", oauth_views.RevokeTokenView.as_view(), name="revoke-token"),
-    # re_path(r"^introspect/$", oauth_views.IntrospectTokenView.as_view(), name="introspect"),
-
-    re_path(r'^openapi[/]?$', SchemaView.as_view(), name='creme_api__openapi_schema'),
+    re_path(
+        r'^openapi[/]?$',
+        cache_page(60 * 15)(SchemaView.as_view()),
+        name='creme_api__openapi_schema',
+    ),
     re_path(r'^documentation[/]?$', DocumentationView.as_view(), name='creme_api__documentation'),
     re_path(r'^configuration[/]?$', ConfigurationView.as_view(), name='creme_api__configuration'),
     re_path(
@@ -33,4 +34,8 @@ urlpatterns = [
             ),
         ]),
     ),
+] + [
+    re_path(r"^tokens/$", TokenView.as_view(), name="creme_api__tokens"),
+    # re_path(r"^revoke_token/$", oauth_views.RevokeTokenView.as_view(), name="revoke-token"),
+    # re_path(r"^introspect/$", oauth_views.IntrospectTokenView.as_view(), name="introspect"),
 ] + router.urls
