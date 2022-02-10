@@ -1,6 +1,7 @@
 from rest_framework import routers
 
 import creme.creme_api.api.auth.viewsets
+import creme.creme_api.api.persons.viewsets
 
 
 class CremeRouter(routers.DefaultRouter):
@@ -27,3 +28,4 @@ router.register_viewset("users", creme.creme_api.api.auth.viewsets.UserViewSet)
 router.register_viewset("teams", creme.creme_api.api.auth.viewsets.TeamViewSet)
 router.register_viewset("roles", creme.creme_api.api.auth.viewsets.UserRoleViewSet)
 router.register_viewset("credentials", creme.creme_api.api.auth.viewsets.SetCredentialsViewSet)
+router.register_viewset("contacts", creme.creme_api.api.persons.viewsets.ContactViewSet)
