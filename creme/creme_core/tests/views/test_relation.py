@@ -1145,7 +1145,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
     def test_add_relations_with_same_type03(self):
-        "Errors"
+        "Errors."
         self.login()
         self._aux_add_relations_with_same_type()
 
@@ -1232,7 +1232,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(allowed02, relation.object_entity)
 
     def test_add_relations_with_same_type05(self):
-        "ContentType constraint errors"
+        "ContentType constraint errors."
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1315,7 +1315,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(good_object.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type07(self):
-        "Is internal"
+        "Is internal."
         user = self.login()
 
         create_entity = partial(CremeEntity.objects.create, user=user)
@@ -1336,6 +1336,45 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFalse(Relation.objects.filter(type=rtype))
+
+    def test_add_relations_with_same_type08(self):
+        "Subject is in the objects."
+        user = self.login()
+
+        create_entity = partial(CremeEntity.objects.create, user=user)
+        subject = create_entity()
+        object02 = create_entity()
+
+        rtype = RelationType.create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )[0]
+        self.assertPOST409(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id':   subject.id,
+                'predicate_id': rtype.id,
+                'entities':     [str(object02.id), str(subject.id)],
+            },
+        )
+        self.assertFalse(Relation.objects.filter(type=rtype))
+
+    def test_add_relations_with_same_type09(self):
+        "Object ID is not an int."
+        self.login()
+
+        response = self.assertPOST404(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id': '1',
+                'predicate_id': 'test-subject_foobar',
+                'entities': ['2', 'notanint'],
+            },
+        )
+        self.assertIn(
+            escape('An ID in the argument "entities" is not an integer.'),
+            response.content.decode(),
+        )
 
     def _delete(self, relation):
         return self.client.post(
