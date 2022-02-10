@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -463,15 +463,26 @@ def add_relations_with_same_type(request):
     POST = request.POST
     subject_id = utils.get_from_POST_or_404(POST, 'subject_id', int)
     rtype_id   = utils.get_from_POST_or_404(POST, 'predicate_id')  # TODO: rename POST arg
-    entity_ids = POST.getlist('entities')  # TODO: rename 'object_id' ?
+
+    # TODO: rename 'object_ids' ?
+    # entity_ids = POST.getlist('entities')
+    try:
+        entity_ids = {int(e_id) for e_id in POST.getlist('entities')}
+    except ValueError:
+        raise Http404('An ID in the argument "entities" is not an integer.')
 
     if not entity_ids:
         raise Http404('Void "entities" parameter.')
 
+    if subject_id in entity_ids:
+        # TODO: gettext ?
+        raise ConflictError('You cannot link an entity with itself.')
+
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
 
-    entity_ids.append(subject_id)  # NB: so we can do only one query
+    # entity_ids.append(subject_id)
+    entity_ids.add(subject_id)  # NB: so we can do only one query
     entities = [*CremeEntity.objects.filter(pk__in=entity_ids)]
 
     subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))

@@ -6,6 +6,13 @@
         * Documents :
             - The uploaded files with extension in capital letters were managed like their extension was not allowed (the suffix '.txt' was added).
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The error message, in a view which creates a relation, raised when you try to link an entity with itself, has been improved.
+
 
 == Version 2.2.9 ==
 
