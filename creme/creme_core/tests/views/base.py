@@ -169,7 +169,8 @@ class MassImportBaseTestCaseMixin:
             if r.messages:
                 self.fail(f'Import error: {r.messages}')
 
-    def _build_file(self, content, extension=None):
+    @staticmethod
+    def _build_file(content, extension=None):
         tmpfile = NamedTemporaryFile(suffix=f'.{extension}' if extension else '')
         tmpfile.write(content)
         tmpfile.flush()
@@ -220,7 +221,8 @@ class MassImportBaseTestCaseMixin:
 
         return self._build_doc(tmpfile)
 
-    def _build_import_url(self, model):
+    @staticmethod
+    def _build_import_url(model):
         ct = ContentType.objects.get_for_model(model)
         return reverse('creme_core__mass_import', args=(ct.id,))
 
@@ -228,7 +230,8 @@ class MassImportBaseTestCaseMixin:
         with self.assertNoException():
             return response.context['job']
 
-    def _get_job_results(self, job):
+    @staticmethod
+    def _get_job_results(job):
         return MassImportJobResult.objects.filter(job=job)
 
     def _execute_job(self, response):

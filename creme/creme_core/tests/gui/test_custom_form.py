@@ -1433,7 +1433,8 @@ class FieldGroupListTestCase(CremeTestCase):
             {p.type for p in edited_instance.properties.all()},
         )
 
-    def _build_basic_relations_groups(self):
+    @staticmethod
+    def _build_basic_relations_groups():
         return FieldGroupList.from_cells(
             model=FakeContact,
             cell_registry=base_cell_registry,
