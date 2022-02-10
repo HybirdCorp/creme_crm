@@ -6,7 +6,6 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.creme_config.core.exporters import Exporter, ExportersRegistry
@@ -847,25 +846,27 @@ class ExportingTestCase(CremeTestCase):
         )
         self.assertContains(
             self.client.get(self.URL),
-            escape(msg_fmt.format(
+            msg_fmt.format(
                 blocks=ExportingInstanceBrick.verbose_name,
                 models=FakeContact._meta.verbose_name,
-            )),
+            ),
             status_code=409,
+            html=True,
         )
 
         # ---
         create_bdl(model=None)
         self.assertContains(
             self.client.get(self.URL),
-            escape(msg_fmt.format(
+            msg_fmt.format(
                 blocks=ExportingInstanceBrick.verbose_name,
                 models='{}, {}'.format(
                     _('Default configuration'),
                     FakeContact._meta.verbose_name,
                 ),
-            )),
+            ),
             status_code=409,
+            html=True,
         )
 
     def test_instance_bricks02(self):
@@ -882,19 +883,17 @@ class ExportingTestCase(CremeTestCase):
         )
 
         BrickHomeLocation.objects.create(brick_id=ibi.brick_id, order=1, superuser=True)
-
         self.assertContains(
             self.client.get(self.URL),
-            escape(
-                _(
-                    'The configuration of blocks for Home cannot be exported '
-                    'because it contains references to some instance-blocks '
-                    '({blocks}), which are not managed.'
-                ).format(
-                    blocks=ExportingInstanceBrick.verbose_name,
-                )
+            _(
+                'The configuration of blocks for Home cannot be exported '
+                'because it contains references to some instance-blocks '
+                '({blocks}), which are not managed.'
+            ).format(
+                blocks=ExportingInstanceBrick.verbose_name,
             ),
             status_code=409,
+            html=True,
         )
 
     def test_instance_bricks03(self):
@@ -911,19 +910,17 @@ class ExportingTestCase(CremeTestCase):
         )
 
         BrickMypageLocation.objects.create(brick_id=ibi.brick_id, order=1)
-
         self.assertContains(
             self.client.get(self.URL),
-            escape(
-                _(
-                    'The configuration of blocks for «My page» cannot be exported '
-                    'because it contains references to some instance-blocks '
-                    '({blocks}), which are not managed.'
-                ).format(
-                    blocks=ExportingInstanceBrick.verbose_name,
-                )
+            _(
+                'The configuration of blocks for «My page» cannot be exported '
+                'because it contains references to some instance-blocks '
+                '({blocks}), which are not managed.'
+            ).format(
+                blocks=ExportingInstanceBrick.verbose_name,
             ),
             status_code=409,
+            html=True,
         )
 
     def test_menu(self):

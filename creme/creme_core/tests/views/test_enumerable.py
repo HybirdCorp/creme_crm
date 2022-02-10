@@ -165,29 +165,30 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
     def test_choices_not_entity_model(self):
         self.login()
-        response = self.assertGET409(
-            self._build_choices_url(models.FakeAddress, 'entity')
-        )
-        self.assertIn(
+        self.assertContains(
+            self.client.get(self._build_choices_url(models.FakeAddress, 'entity')),
             'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
-            response.content.decode(),
+            status_code=409,
         )
 
     def test_choices_no_app_credentials(self):
         self.login(is_superuser=False, allowed_apps=['creme_config'])
-        response = self.assertGET403(
-            self._build_choices_url(models.FakeContact, 'civility'),
-            HTTP_X_REQUESTED_WITH='XMLHttpRequest',
-        )
-        self.assertIn(
+        self.assertContains(
+            self.client.get(
+                self._build_choices_url(models.FakeContact, 'civility'),
+                HTTP_X_REQUESTED_WITH='XMLHttpRequest',
+            ),
             _('You are not allowed to access to the app: {}').format(_('Core')),
-            response.content.decode(),
+            status_code=403,
         )
 
     def test_choices_field_does_not_exist(self):
         self.login()
-        response = self.assertGET404(self._build_choices_url(models.FakeContact, 'unknown'))
-        self.assertIn('This field does not exist.', response.content.decode())
+        self.assertContains(
+            self.client.get(self._build_choices_url(models.FakeContact, 'unknown')),
+            'This field does not exist.',
+            status_code=404,
+        )
 
     def test_custom_enum_not_exists(self):
         self.login()

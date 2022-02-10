@@ -5,7 +5,6 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
@@ -335,7 +334,8 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertContains(
             response,
             status_code=403,
-            text=escape(_('You are not allowed to link this entity: {}').format(act)),
+            text=_('You are not allowed to link this entity: {}').format(act),
+            html=True,
         )
 
     def test_create_linked_opportunity03(self):
@@ -365,10 +365,10 @@ class ActTestCase(CommercialBaseTestCase):
 
         response = self.client.get(reverse('commercial__create_opportunity', args=(act.id,)))
         self.assertContains(
-            response, status_code=403,
-            text=escape(
-                _('You are not allowed to link: {}').format(Opportunity._meta.verbose_name)
-            )
+            response,
+            status_code=403,
+            text=_('You are not allowed to link: {}').format(Opportunity._meta.verbose_name),
+            html=True,
         )
 
     def test_create_linked_opportunity04(self):

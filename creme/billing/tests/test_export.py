@@ -13,7 +13,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.billing.bricks import BillingExportersBrick
@@ -786,15 +785,15 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             flavour_id='',
         )
 
-        url = self._build_export_url(quote)
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self._build_export_url(quote), follow=True)
         self.assertContains(
             response,
-            escape(_(
+            _(
                 'The engine is not configured ; '
                 'go to the configuration of the app «Billing».'
-            )),
+            ),
             status_code=409,
+            html=True,
         )
 
     @skipIfCustomQuote
@@ -808,15 +807,15 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             content_type=quote.entity_type,
         ).update(engine_id=LatexExportEngine.id)
 
-        url = self._build_export_url(quote)
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self._build_export_url(quote), follow=True)
         self.assertContains(
             response,
-            escape(_(
+            _(
                 'The configured exporter is invalid ; '
                 'go to the configuration of the app «Billing».'
-            )),
+            ),
             status_code=409,
+            html=True,
         )
 
     @skipIfCustomQuote
@@ -835,15 +834,15 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             flavour_id='FR/fr_FR/basic',
         )
 
-        url = self._build_export_url(quote)
-        response = self.client.get(url, follow=True)
+        response = self.client.get(self._build_export_url(quote), follow=True)
         self.assertContains(
             response,
-            escape(_(
+            _(
                 'The configured exporter is invalid ; '
                 'go to the configuration of the app «Billing».'
-            )),
+            ),
             status_code=409,
+            html=True,
         )
 
     @skipIfCustomInvoice

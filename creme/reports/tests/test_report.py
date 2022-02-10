@@ -9,7 +9,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.formats import date_format, number_format
-from django.utils.html import escape
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext, pgettext
@@ -638,14 +637,14 @@ class ReportTestCase(BaseReportsTestCase):
         )
 
         url = self.build_inneredit_url(report, 'filter')
-        response = self.assertGET200(url)
         self.assertContains(
-            response,
-            escape(ngettext(
+            self.client.get(url),
+            ngettext(
                 'The filter cannot be changed because it is private.',
                 'The filters cannot be changed because they are private.',
                 1,
-            ))
+            ),
+            html=True,
         )
 
         response = self.assertPOST200(url, data={'field_value': ''})

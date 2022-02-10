@@ -7,7 +7,6 @@ from django.db.models import Max
 from django.db.models.deletion import PROTECT, SET_NULL
 from django.forms import CharField
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -1431,7 +1430,7 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(cat2del)
         self.assertFalse(doc.categories.all())
 
-    def test_delete_uniqneness(self):
+    def test_delete_uniqueness(self):
         self.assertFalse(DeletionCommand.objects.first())
 
         job = Job.objects.create(type_id=deletor_type.id, user=self.user)
@@ -1451,17 +1450,15 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             args=('creme_core', 'fake_position', pos2del2.pk),
         )
 
-        response = self.assertGET409(url)
         msg = _(
             'A deletion process for an instance of «{model}» already exists.'
         ).format(model='Test People position')
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_ERROR
         job.save()
-        response = self.assertGET409(url)
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_OK
@@ -1522,10 +1519,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
         JobResult.objects.create(job=job)
 
-        response = self.assertPOST409(self._build_finish_deletor_url(job))
-        self.assertIn(
-            escape(_('Error. Please contact your administrator.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.post(self._build_finish_deletor_url(job)),
+            _('Error. Please contact your administrator.'),
+            status_code=409,
         )
 
     def test_finish_deletor05(self):
@@ -1538,11 +1535,9 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         messages = ['Dependencies error.', '3 Contacts']
         JobResult.objects.create(job=job, messages=messages)
 
-        response = self.assertPOST409(self._build_finish_deletor_url(job))
-
-        content = response.content.decode()
-        self.assertIn(messages[0], content)
-        self.assertIn(messages[1], content)
+        response = self.client.post(self._build_finish_deletor_url(job))
+        self.assertContains(response, messages[0], status_code=409)
+        self.assertContains(response, messages[1], status_code=409)
 
     def test_finish_deletor06(self):
         "Not deletor job."

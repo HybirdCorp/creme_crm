@@ -828,16 +828,15 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             status=Job.STATUS_WAIT,
         )
         TrashCleaningCommand.objects.create(user=user, job=job1)
-        response = self.assertPOST409(self.EMPTY_TRASH_URL)
-        self.assertIn(
+        self.assertContains(
+            self.client.post(self.EMPTY_TRASH_URL),
             _('A job is already cleaning the trash.'),
-            response.content.decode(),
+            status_code=409,
         )
 
         # Finished job
         job1.status = Job.STATUS_OK
         job1.save()
-
         self.assertPOST200(self.EMPTY_TRASH_URL)
         self.assertDoesNotExist(job1)
 
@@ -846,7 +845,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotEqual(job1, job2)
         self.assertEqual(Job.STATUS_WAIT, job2.status)
 
-    def _build_finish_cleaner_url(self, job):
+    @staticmethod
+    def _build_finish_cleaner_url(job):
         return reverse('creme_core__finish_trash_cleaner', args=(job.id,))
 
     def test_finish_cleaner01(self):

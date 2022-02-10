@@ -5,7 +5,6 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.forms import IntegerField
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -153,10 +152,11 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         )
 
         opp = self._create_opportunity_n_organisations()[0]
-        response = self.assertGET403(self._build_url(opp))
-        self.assertIn(
-            escape(_('You are not allowed to create: {}').format(Contact._meta.verbose_name)),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(self._build_url(opp)),
+            _('You are not allowed to create: {}').format(Contact._meta.verbose_name),
+            status_code=403,
+            html=True,
         )
 
     @parameterized.expand([
