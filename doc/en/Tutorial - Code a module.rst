@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-12-2021 for Creme 2.3
+:Version: 10-02-2022 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -2181,47 +2181,6 @@ class: ::
     class BeaversActivitiesConfig(ActivitiesConfig):
         def register_statistics(self, statistics_registry):
             pass  # the method does nothing now
-
-
-Modifying the menu entries of another app
-*****************************************
-
-The API of the main menu has been designed to allow easy modification of the
-entries from your code. All the following examples should be done in the method
-``register_menu()`` of your ``AppConfig``.
-
-Tips: if you to display (in the terminal) the menu's structure, in order to
-know the different ID et priorities of ``Item``, use this: ::
-
-    print(str(creme_menu))
-
-
-**Modify a label**: ::
-
-    creme_menu.get('features', 'persons-directory', 'persons-contacts').label = _('List of contacts')
-
-
-**Modify the ordre** of an ``Item`` (it works even if the ``Item`` is a
-``ContainerItem``): ::
-
-    creme_menu.get('features', 'persons-directory').change_priority(1, 'persons-contacts')
-
-
-**Remove some entries**: ::
-
-    creme_menu.get('features', 'persons-directory').remove('persons-contacts', 'commercial-salesmen')
-
-
-**Move an entrie** from a container to another one. Indeed, we just combine an
-adding and a deletion: ::
-
-    features = creme_menu.get('features')
-    features.get('activities-main').add(features.get('persons-directory').pop('persons-contacts'))
-
-
-If you want to re-write the whole menu's code of an app, the best way is to
-write your own ``AppConfig`` (as seen before) and to override the method
-``register_menu()``.
 
 
 Hooking forms
