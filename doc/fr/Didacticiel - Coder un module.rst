@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-12-2021 pour la version 2.3 de Creme
+:Version: 10-02-2022 pour la version 2.3 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -2247,48 +2247,6 @@ Puis dans ``my_project/beavers/apps.py``, on créé ladite classe de configurati
     class BeaversActivitiesConfig(ActivitiesConfig):
         def register_statistics(self, statistics_registry):
             pass  # la méthode ne fait plus rien
-
-
-Modifier les entrées de menu d'une autre app
-********************************************
-
-L'API du menu principal a été conçu pour pouvoir facilement modifier les
-entrées depuis votre code. Tous les exemples suivant sont à faire de
-préférence dans la méthode ``register_menu()`` de votre ``AppConfig``.
-
-Avant toute chose, si vous voulez afficher dans la console la structure
-du menu, afin de connaître les différents identifiants et priorités des
-``Item``, faites ceci : ::
-
-    print(str(creme_menu))
-
-
-**Modifier un label** : ::
-
-    creme_menu.get('features', 'persons-directory', 'persons-contacts').label = _('List of contacts')
-
-
-**Modifier l'ordre** d'un ``Item`` (cela marche aussi si cet ``Item`` est un
-``ContainerItem``) : ::
-
-    creme_menu.get('features', 'persons-directory').change_priority(1, 'persons-contacts')
-
-
-**Supprimer des entrées** : ::
-
-    creme_menu.get('features', 'persons-directory').remove('persons-contacts', 'commercial-salesmen')
-
-
-**Transférer une entrée** d'un *container* vers un autre. En fait, on combine
-juste un ajout et une suppression : ::
-
-    features = creme_menu.get('features')
-    features.get('activities-main').add(features.get('persons-directory').pop('persons-contacts'))
-
-
-Si vous voulez réécrire tout le code de menu d'une app, le mieux devrait être
-d'écrire votre propre ``AppConfig`` (comme vu juste avant) et de ré-écrire sa
-méthode ``register_menu()``.
 
 
 Hooking des formulaires
