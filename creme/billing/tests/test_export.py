@@ -324,10 +324,12 @@ class ExporterLocalisationFieldTestCase(FieldTestCase):
 
 @skipIfCustomOrganisation
 class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
-    def _build_conf_url(self, ctype):
+    @staticmethod
+    def _build_conf_url(ctype):
         return reverse('billing__edit_exporter_config', args=(ctype.id,))
 
-    def _build_export_url(self, entity):
+    @staticmethod
+    def _build_export_url(entity):
         return reverse('billing__export', args=(entity.id,))
 
     def test_flavour(self):

@@ -1158,7 +1158,8 @@ class BrickTestCase(CremeTestCase):
 
         return request
 
-    def _build_context(self, request):
+    @staticmethod
+    def _build_context(request):
         context = make_context({}, request)
 
         for processor in Engine.get_default().template_context_processors:

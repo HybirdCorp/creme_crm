@@ -918,7 +918,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response2 = self.assertPOST200(url, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
         self.assertEqual(redir_url, response2.content.decode())
 
-    def _build_test_get_info_fields_url(self, model):
+    @staticmethod
+    def _build_test_get_info_fields_url(model):
         ct = ContentType.objects.get_for_model(model)
 
         return reverse('creme_core__entity_info_fields', args=(ct.id,))
