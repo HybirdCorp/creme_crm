@@ -5,6 +5,8 @@
     # Apps :
         * Documents :
             - The uploaded files with extension in capital letters were managed like their extension was not allowed (the suffix '.txt' was added).
+        * Persons :
+            - The button "Transform into ..." has been improved to not propose to link a managed Organisation with itself.
 
   Developers side :
   -----------------
