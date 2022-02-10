@@ -1,36 +1,244 @@
-from rest_framework import mixins, viewsets
-
 from creme import persons
+from creme.creme_api.api.core.viewsets import (
+    CremeEntityViewSet,
+    CremeModelViewSet,
+)
 from creme.creme_api.api.schemas import CremeSchema
+from creme.persons.models.other_models import (
+    Civility,
+    LegalForm,
+    Position,
+    Sector,
+    StaffSize,
+)
 
-from .serializers import ContactSerializer
+from .serializers import (
+    AddressSerializer,
+    CivilitySerializer,
+    ContactSerializer,
+    LegalFormSerializer,
+    OrganisationSerializer,
+    PositionSerializer,
+    SectorSerializer,
+    StaffSizeSerializer,
+)
 
-Contact = persons.get_contact_model()
 
-
-class ContactViewSet(mixins.CreateModelMixin,
-                     mixins.RetrieveModelMixin,
-                     mixins.UpdateModelMixin,
-                     mixins.DestroyModelMixin,
-                     mixins.ListModelMixin,
-                     viewsets.GenericViewSet):
+class ContactViewSet(CremeEntityViewSet):
     """
     create:
-    POST /contacts
+    Create a contact.
 
     retrieve:
-    GET /contacts/{userId}
+    Retrieve a contact.
 
     update:
-    PUT /contacts/{userId}
+    Update a contact.
 
     partial_update:
-    PATCH /contacts/{userId}
+    Partially update a contact.
 
     list:
-    GET /contacts
+    List contacts.
+
+    delete:
+    Delete a contact.
+
+    trash:
+    Move a contact to the trash.
+
+    restore:
+    Restore a contact from the trash.
 
     """
-    queryset = Contact.objects.all()
+    queryset = persons.get_contact_model().objects.all()
     serializer_class = ContactSerializer
-    schema = CremeSchema(tags=["Contacts"], operation_id_base="Contacts")
+    schema = CremeSchema(tags=["Contacts"])
+
+
+class OrganisationViewSet(CremeEntityViewSet):
+    """
+    create:
+    Create an organisation.
+
+    retrieve:
+    Retrieve an organisation.
+
+    update:
+    Update an organisation.
+
+    partial_update:
+    Partially update an organisation.
+
+    list:
+    List organisations.
+
+    delete:
+    Delete an organisation.
+
+    trash:
+    Move an organisation to the trash.
+
+    restore:
+    Restore an organisation from the trash.
+
+    """
+    queryset = persons.get_organisation_model().objects.all()
+    serializer_class = OrganisationSerializer
+    schema = CremeSchema(tags=["Organisations"])
+
+
+class AddressViewSet(CremeModelViewSet):
+    """
+    create:
+    Create an address.
+
+    retrieve:
+    Retrieve an address.
+
+    update:
+    Update an address.
+
+    partial_update:
+    Partially update an address.
+
+    list:
+    List addresses.
+
+    delete:
+    Delete an address.
+
+    """
+    queryset = persons.get_address_model().objects.all()
+    serializer_class = AddressSerializer
+    schema = CremeSchema(tags=["Addresses"])
+
+
+class CivilityViewSet(CremeModelViewSet):
+    """
+    create:
+    Create a civility.
+
+    retrieve:
+    Retrieve a civility.
+
+    update:
+    Update a civility.
+
+    partial_update:
+    Partially update a civility.
+
+    list:
+    List civilities.
+
+    delete:
+    Delete a civility
+
+    """
+    queryset = Civility.objects.all()
+    serializer_class = CivilitySerializer
+    schema = CremeSchema(tags=["Civilities"])
+
+
+class PositionViewSet(CremeModelViewSet):
+    """
+    create:
+    Create a position.
+
+    retrieve:
+    Retrieve a position.
+
+    update:
+    Update a position.
+
+    partial_update:
+    Partially update a position.
+
+    list:
+    List positions.
+
+    delete:
+    Delete a position
+
+    """
+    queryset = Position.objects.all()
+    serializer_class = PositionSerializer
+    schema = CremeSchema(tags=["Positions"])
+
+
+class StaffSizeViewSet(CremeModelViewSet):
+    """
+    create:
+    Create a staff size.
+
+    retrieve:
+    Retrieve a staff size.
+
+    update:
+    Update a staff size.
+
+    partial_update:
+    Partially update a staff size.
+
+    list:
+    List staff sizes.
+
+    delete:
+    Delete a staff size
+
+    """
+    queryset = StaffSize.objects.all()
+    serializer_class = StaffSizeSerializer
+    schema = CremeSchema(tags=["Staff sizes"])
+
+
+class LegalFormViewSet(CremeModelViewSet):
+    """
+    create:
+    Create a legal form.
+
+    retrieve:
+    Retrieve a legal form.
+
+    update:
+    Update a legal form.
+
+    partial_update:
+    Partially update a legal form.
+
+    list:
+    List legal forms.
+
+    delete:
+    Delete a legal form
+
+    """
+    queryset = LegalForm.objects.all()
+    serializer_class = LegalFormSerializer
+    schema = CremeSchema(tags=["Legal forms"])
+
+
+class SectorViewSet(CremeModelViewSet):
+    """
+    create:
+    Create a sector.
+
+    retrieve:
+    Retrieve a sector.
+
+    update:
+    Update a sector.
+
+    partial_update:
+    Partially update a sector.
+
+    list:
+    List sectors.
+
+    delete:
+    Delete a sector
+
+    """
+    queryset = Sector.objects.all()
+    serializer_class = SectorSerializer
+    schema = CremeSchema(tags=["Sectors"])

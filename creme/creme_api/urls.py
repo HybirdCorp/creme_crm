@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.urls import include, re_path
 from django.views.decorators.cache import cache_page
 
@@ -11,12 +12,11 @@ from creme.creme_api.views import (
     SchemaView,
 )
 
+schema_view = SchemaView.as_view()
+if not settings.DEBUG:
+    schema_view = cache_page(60 * 15)(schema_view)
 urlpatterns = [
-    re_path(
-        r'^openapi[/]?$',
-        cache_page(60 * 15)(SchemaView.as_view()),
-        name='creme_api__openapi_schema',
-    ),
+    re_path(r'^openapi[/]?$', schema_view, name='creme_api__openapi_schema'),
     re_path(r'^documentation[/]?$', DocumentationView.as_view(), name='creme_api__documentation'),
     re_path(r'^configuration[/]?$', ConfigurationView.as_view(), name='creme_api__configuration'),
     re_path(

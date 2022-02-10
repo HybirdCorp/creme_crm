@@ -1,11 +1,8 @@
 import yaml
 from django.urls import reverse_lazy
+from parameterized import parameterized
 
-import creme.creme_api
-from creme.creme_api.views import (
-    documentation_description,
-    documentation_title,
-)
+from creme.creme_api.api.routes import router
 from creme.creme_core.tests.base import CremeTestCase
 
 
@@ -27,13 +24,26 @@ class SchemaViewTestCase(CremeTestCase):
     def test_context(self):
         self.login()
         response = self.assertGET200(self.url)
+        self.assertTemplateUsed(response, 'creme_api/description.md')
         self.assertEqual(response['content-type'], 'application/vnd.oai.openapi')
+
+    @parameterized.expand([
+        (endpoint,) for endpoint in router.resources_list
+    ])
+    def test_all_endpoints_have_documentation(self, endpoint):
+        self.login()
+        response = self.assertGET200(self.url)
         openapi_schema = yaml.safe_load(response.content)
-        self.assertEqual(
-            openapi_schema['info'],
-            {'title': documentation_title,
-             'version': creme.creme_api.VERSION,
-             'description': documentation_description})
+
+        errors = []
+        for url, methods in openapi_schema['paths'].items():
+            if endpoint not in url:
+                continue
+            for method, method_details in methods.items():
+                if not method_details.get('description'):
+                    errors.append((method, url))
+
+        self.assertFalse(errors, "Please document those endpoints.")
 
 
 class DocumentationViewTestCase(CremeTestCase):
@@ -57,5 +67,5 @@ class DocumentationViewTestCase(CremeTestCase):
         self.assertTemplateUsed(response, 'creme_api/documentation.html')
         self.assertEqual(response.context["schema_url"], 'creme_api__openapi_schema')
         self.assertEqual(
-            response.context["creme_api__tokens_url"], 'http://testserver/creme_api/tokens')
+            response.context["creme_api__tokens_url"], 'http://testserver/creme_api/tokens/')
         self.assertEqual(response.context["token_type"], 'Token')

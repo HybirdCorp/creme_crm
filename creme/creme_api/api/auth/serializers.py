@@ -5,11 +5,13 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 
+from creme.creme_api.api.contenttypes.utils import (
+    get_cremeentity_contenttype_queryset,
+)
 from creme.creme_config.forms.user_role import filtered_entity_ctypes
 from creme.creme_core.apps import CremeAppConfig, creme_app_configs
 from creme.creme_core.models import SetCredentials, UserRole
 from creme.creme_core.models.fields import CremeUserForeignKey
-from creme.creme_core.registry import creme_registry
 
 CremeUser = get_user_model()
 
@@ -208,9 +210,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
             (app.label, str(app.verbose_name)) for app in apps if app.credentials & CRED_ADMIN
         )
 
-        models = list(creme_registry.iter_entity_models())
-        content_types = ContentType.objects.get_for_models(*models).values()
-        ct_queryset = ContentType.objects.filter(pk__in=[ct.id for ct in content_types])
+        ct_queryset = get_cremeentity_contenttype_queryset()
 
         creatable_ctypes_f = self.fields['creatable_ctypes']
         creatable_ctypes_f.child_relation.queryset = ct_queryset.all()

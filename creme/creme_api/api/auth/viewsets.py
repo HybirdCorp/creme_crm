@@ -29,19 +29,25 @@ class UserViewSet(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
     create:
-    POST /users
+    Create a user.
 
     retrieve:
-    GET /users/{userId}
+    Retrieve a user.
 
     update:
-    PUT /users/{userId}
+    Update a user.
 
     partial_update:
-    PATCH /users/{userId}
+    Partially update a user.
 
     list:
-    GET /users
+    List users.
+
+    set_password:
+    Change a user's password.
+
+    delete_user:
+    Delete a user.
 
     """
     queryset = CremeUser.objects.filter(is_team=False, is_staff=False)
@@ -50,10 +56,6 @@ class UserViewSet(mixins.CreateModelMixin,
 
     @action(methods=['post'], detail=True, serializer_class=PasswordSerializer)
     def set_password(self, request, pk):
-        """
-        post:
-        POST /users/{userId}/set_password
-        """
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -70,11 +72,7 @@ class UserViewSet(mixins.CreateModelMixin,
         url_name="delete",
         name="delete",
     )
-    def _delete(self, request, pk):
-        """
-        post:
-        POST /users/{userId}/delete
-        """
+    def delete_user(self, request, pk):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -90,19 +88,22 @@ class TeamViewSet(mixins.CreateModelMixin,
                   viewsets.GenericViewSet):
     """
     create:
-    POST /teams
+    Create a team.
 
     retrieve:
-    GET /teams/{teamId}
+    Retrieve a team.
 
     update:
-    PUT /teams/{teamId}
+    Update a team.
 
     partial_update:
-    PATCH /teams/{teamId}
+    Partially update a team.
 
     list:
-    GET /teams
+    List teams.
+
+    delete_team:
+    Delete a team.
 
     """
     queryset = CremeUser.objects.filter(is_team=True, is_staff=False)
@@ -117,11 +118,7 @@ class TeamViewSet(mixins.CreateModelMixin,
         url_name="delete",
         name="delete",
     )
-    def _delete(self, request, pk):
-        """
-        post:
-        POST /teams/{teamId}/delete
-        """
+    def delete_team(self, request, pk):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -138,22 +135,22 @@ class UserRoleViewSet(mixins.CreateModelMixin,
     """
 
     create:
-    POST /roles
+    Create a role.
 
     retrieve:
-    GET /roles/{roleId}
+    Retrieve a role.
 
     update:
-    PUT /roles/{roleId}
+    Update a role
 
     partial_update:
-    PATCH /roles/{roleId}
+    Partially update a role
 
     destroy:
-    DELETE /roles/{roleId}
+    Delete a role.
 
     list:
-    GET /roles
+    List roles.
 
     """
     queryset = UserRole.objects.all()
@@ -176,27 +173,27 @@ class SetCredentialsViewSet(mixins.CreateModelMixin,
     """
 
     create:
-    POST /credentials
+    Create a credential set.
 
     retrieve:
-    GET /credentials/{credentialId}
+    Retrieve a credential set.
 
     update:
-    PUT /credentials/{credentialId}
+    Update a credential set.
 
     partial_update:
-    PATCH /credentials/{credentialId}
+    Partially update a credential set.
 
     destroy:
-    DELETE /credentials/{credentialId}
+    Delete a credential set.
 
     list:
-    GET /credentials
+    List credential sets.
 
     """
     queryset = SetCredentials.objects.all()
     serializer_class = SetCredentialsSerializer
-    schema = CremeSchema(tags=["Credentials"])
+    schema = CremeSchema(tags=["Credential Sets"])
 
     def get_serializer_class(self):
         if self.action == 'create':

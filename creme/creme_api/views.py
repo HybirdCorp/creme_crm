@@ -54,7 +54,6 @@ class SchemaView(DRFSchemaView):
 
 class _DocumentationBaseView(base.BricksView):
     title = _("Creme CRM API")
-    permissions = "creme_api"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -65,6 +64,7 @@ class _DocumentationBaseView(base.BricksView):
 class DocumentationView(_DocumentationBaseView):
     template_name = 'creme_api/documentation.html'
     extra_context = {'schema_url': 'creme_api__openapi_schema'}
+    permissions = "creme_api"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -76,6 +76,7 @@ class DocumentationView(_DocumentationBaseView):
 
 class ConfigurationView(_DocumentationBaseView):
     template_name = 'creme_api/configuration.html'
+    permissions = "creme_api.can_admin"
 
     def get_brick_ids(self):
         return [ApplicationsBrick.id_]
@@ -92,6 +93,7 @@ class ApplicationCreation(generic.CremeModelCreationPopup):
         "Client Secret : {client_secret}\n\n"
         "This is the first and last time this secret displayed!"
     )
+    permissions = "creme_api.can_admin"
 
     def get_success_message(self):
         return self.success_message.format(
@@ -111,6 +113,7 @@ class ApplicationEdition(generic.CremeModelEditionPopup):
     model = Application
     form_class = ApplicationForm
     pk_url_kwarg = 'application_id'
+    permissions = "creme_api.can_admin"
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
