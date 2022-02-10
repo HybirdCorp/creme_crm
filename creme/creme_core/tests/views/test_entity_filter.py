@@ -126,9 +126,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         self.role.save()
         response = self.assertGET200(uri)
         self.assertTemplateUsed(response, 'creme_core/forms/entity-filter.html')
-        self.assertIn(
+        self.assertContains(
+            response,
             _('Create a filter for «%(ctype)s»') % {'ctype': 'Test Contact'},
-            response.content.decode(),
         )
 
         context = response.context
@@ -1017,9 +1017,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         url = efilter.get_edit_absolute_url()
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/forms/entity-filter.html')
-        self.assertIn(
+        self.assertContains(
+            response,
             _('Edit the filter «%(filter)s»') % {'filter': efilter.name},
-            response.content.decode()
         )
 
         with self.assertNoException():

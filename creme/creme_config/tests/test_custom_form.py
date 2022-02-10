@@ -6,7 +6,7 @@ from json import loads as json_load
 from django.contrib.contenttypes.models import ContentType
 from django.forms import IntegerField
 from django.urls import NoReverseMatch, reverse
-from django.utils.html import escape
+# from django.utils.html import escape
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -707,13 +707,15 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertContains(
             self.client.get(build_url(group_id=3)),
-            escape('The group ID "3" is invalid.'),
+            'The group ID "3" is invalid.',
             status_code=409,
+            html=True,
         )
         self.assertContains(
             self.client.get(build_url(group_id=4)),
-            escape('The group ID "4" is invalid.'),
+            'The group ID "4" is invalid.',
             status_code=409,
+            html=True,
         )
 
     def test_group_edition_error02(self):
@@ -731,8 +733,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                 reverse('creme_config__edit_custom_form_group', args=(cfci.id, 0)),
             ),
             # escape(f'The custom form "{cform_id}" is invalid.'),
-            escape(f'The custom form "{descriptor_id}" is invalid.'),
+            f'The custom form "{descriptor_id}" is invalid.',
             status_code=409,
+            html=True,
         )
 
     def test_group_edition_error03(self):
@@ -1524,8 +1527,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST404(url, data={'group_id': 'notanint'})
         self.assertContains(
             self.client.post(url, data={'group_id': 3}),
-            escape('The group ID "3" is invalid.'),
+            'The group ID "3" is invalid.',
             status_code=409,
+            html=True,
         )
 
     def test_delete_cell01(self):

@@ -525,14 +525,12 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         Calendar.objects.get_default_calendar(user)
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=False)
-
-        url = self.build_delete_calendar_url(cal)
-        response = self.assertGET409(url)
-        self.assertIn(
-            escape(_('You cannot delete this calendar: it is not custom.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(self.build_delete_calendar_url(cal)),
+            _('You cannot delete this calendar: it is not custom.'),
+            status_code=409,
+            html=True,
         )
-
         self.get_object_or_fail(Calendar, pk=cal.pk)
 
     def test_delete_calendar02(self):
@@ -619,11 +617,11 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         Calendar.objects.get_default_calendar(other_user)
         cal = Calendar.objects.create(user=other_user, name='Cal #1', is_custom=True)
-
-        response = self.assertGET403(self.build_delete_calendar_url(cal))
-        self.assertIn(
-            escape(_('You are not allowed to delete this calendar.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(self.build_delete_calendar_url(cal)),
+            _('You are not allowed to delete this calendar.'),
+            status_code=403,
+            html=True,
         )
 
     def test_delete_calendar05(self):
@@ -654,18 +652,15 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
 
         url = self.build_delete_calendar_url(cal3)
-
-        response = self.assertGET409(url)
         msg = _(
             'A deletion process for an instance of «{model}» already exists.'
         ).format(model=_('Calendar'))
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_ERROR
         job.save()
-        response = self.assertGET409(url)
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_OK

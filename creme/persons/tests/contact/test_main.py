@@ -4,7 +4,6 @@ from functools import partial
 
 from django.core.exceptions import ValidationError
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
@@ -594,12 +593,11 @@ class ContactTestCase(_BaseTestCase):
         response = self.client.get(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
         self.assertContains(
             response,
-            escape(
-                _('You are not allowed to view this entity: {}').format(
-                    _('Entity #{id} (not viewable)').format(id=orga.id),
-                )
+            _('You are not allowed to view this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=orga.id),
             ),
             status_code=403,
+            html=True,
         )
 
     @skipIfCustomOrganisation

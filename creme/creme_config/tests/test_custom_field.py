@@ -4,7 +4,6 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -407,13 +406,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             name='Nickname',
             is_deleted=True,
         )
-
-        response = self.assertGET409(
-            reverse('creme_config__edit_custom_field', args=(cfield.id,)),
-        )
-        self.assertIn(
-            escape(_('This custom field is deleted.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(
+                reverse('creme_config__edit_custom_field', args=(cfield.id,)),
+            ),
+            _('This custom field is deleted.'),
+            status_code=409,
         )
 
     def test_delete01(self):
@@ -479,18 +477,17 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             custom_field=cfield1,
             value=eval11,
         )
-
-        response = self.assertPOST409(
-            reverse('creme_config__delete_custom_field'),
-            data={'id': cfield1.id},
-        )
-        self.assertIn(
-            escape(ngettext(
+        self.assertContains(
+            self.client.post(
+                reverse('creme_config__delete_custom_field'),
+                data={'id': cfield1.id},
+            ),
+            ngettext(
                 'This custom field is still used by {count} entity, so it cannot be deleted.',
                 'This custom field is still used by {count} entities, so it cannot be deleted.',
                 1
-            ).format(count=1)),
-            response.content.decode(),
+            ).format(count=1),
+            status_code=409,
         )
 
         self.assertStillExists(cfield1)
@@ -796,13 +793,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             field_type=CustomField.MULTI_ENUM,
             is_deleted=True,
         )
-
-        response = self.assertGET409(
-            reverse('creme_config__add_custom_enum', args=(cfield.id,))
-        )
-        self.assertIn(
-            escape(_('This custom field is deleted.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(
+                reverse('creme_config__add_custom_enum', args=(cfield.id,))
+            ),
+            _('This custom field is deleted.'),
+            status_code=409,
         )
 
     def test_edit_enum_value01(self):
@@ -861,12 +857,12 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             is_deleted=True,
         )
         evalue = CustomFieldEnumValue.objects.create(custom_field=cfield, value='A')
-        response = self.assertGET409(
-            reverse('creme_config__edit_custom_enum', args=(evalue.id,))
-        )
-        self.assertIn(
-            escape(_('This custom field is deleted.')),
-            response.content.decode(),
+        self.assertContains(
+            self.client.get(
+                reverse('creme_config__edit_custom_enum', args=(evalue.id,))
+            ),
+            _('This custom field is deleted.'),
+            status_code=409,
         )
 
     def test_delete_enum_value01(self):
@@ -1073,15 +1069,13 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         url = reverse('creme_config__delete_custom_enum', args=(eval02.id,))
-        response = self.assertGET409(url)
         msg = _('A deletion process for a choice already exists.')
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job1.status = Job.STATUS_ERROR
         job1.save()
-        response = self.assertGET409(url)
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job1.status = Job.STATUS_OK

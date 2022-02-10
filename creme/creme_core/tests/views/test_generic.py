@@ -7,7 +7,6 @@ from django.http import Http404
 from django.test import RequestFactory
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -135,15 +134,15 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
             user=self.other_user, first_name='Fox', last_name='McCloud',
         )
 
-        response = self.assertGET403(fox.get_absolute_url())
+        response = self.client.get(fox.get_absolute_url())
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(
-            escape(
-                _('You are not allowed to view this entity: {}').format(
-                    _('Entity #{id} (not viewable)').format(id=fox.id)
-                )
+        self.assertContains(
+            response,
+            _('You are not allowed to view this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=fox.id)
             ),
-            response.content.decode(),
+            status_code=403,
+            html=True,
         )
 
     def test_entity_detail_permission02(self):
@@ -152,13 +151,15 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
         #     checked before the SQL query.
         self.login(is_superuser=False, allowed_apps=['creme_config'])  # Not "creme_core"
 
-        response = self.assertGET403(
+        response = self.client.get(
             reverse('creme_core__view_fake_contact', args=[self.UNUSED_PK])
         )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(
-            escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode(),
+        self.assertContains(
+            response,
+            _('You are not allowed to access to the app: {}').format(_('Core')),
+            status_code=403,
+            html=True,
         )
 
 
@@ -221,11 +222,13 @@ class CreationTestCase(ViewsTestCase):
         "Not app credentials."
         self.login(is_superuser=False, allowed_apps=['creme_config'])
 
-        response = self.assertGET403(reverse('creme_core__create_fake_contact'))
+        response = self.client.get(reverse('creme_core__create_fake_contact'))
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(
-            escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode(),
+        self.assertContains(
+            response,
+            _('You are not allowed to access to the app: {}').format(_('Core')),
+            status_code=403,
+            html=True,
         )
 
     def test_entity_creation_permission02(self):
@@ -705,13 +708,15 @@ class EditionTestCase(ViewsTestCase):
         "Not app credentials."
         self.login(is_superuser=False, allowed_apps=['creme_config'])
 
-        response = self.assertGET403(
+        response = self.client.get(
             reverse('creme_core__edit_fake_contact', args=[self.UNUSED_PK]),
         )
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(
-            escape(_('You are not allowed to access to the app: {}').format(_('Core'))),
-            response.content.decode(),
+        self.assertContains(
+            response,
+            _('You are not allowed to access to the app: {}').format(_('Core')),
+            status_code=403,
+            html=True,
         )
 
     def test_entity_edition_permission02(self):
@@ -859,15 +864,15 @@ class EditionTestCase(ViewsTestCase):
         )
         url = reverse('creme_core__edit_fake_address', args=(address.id,))
 
-        response = self.assertGET403(url)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, 'creme_core/forbidden.html')
-        self.assertIn(
-            escape(
-                _('You are not allowed to edit this entity: {}').format(
-                    _('Entity #{id} (not viewable)').format(id=nerv.id)
-                )
+        self.assertContains(
+            response,
+            _('You are not allowed to edit this entity: {}').format(
+                _('Entity #{id} (not viewable)').format(id=nerv.id)
             ),
-            response.content.decode(),
+            status_code=403,
+            html=True,
         )
 
         # ---
