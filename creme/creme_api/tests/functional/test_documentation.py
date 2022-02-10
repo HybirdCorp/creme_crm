@@ -2,6 +2,7 @@ import yaml
 from django.urls import reverse_lazy
 from parameterized import parameterized
 
+from creme import creme_api
 from creme.creme_api.api.routes import router
 from creme.creme_core.tests.base import CremeTestCase
 
@@ -24,8 +25,14 @@ class SchemaViewTestCase(CremeTestCase):
     def test_context(self):
         self.login()
         response = self.assertGET200(self.url)
-        self.assertTemplateUsed(response, 'creme_api/description.md')
         self.assertEqual(response['content-type'], 'application/vnd.oai.openapi')
+        self.assertTemplateUsed(response, 'creme_api/description.md')
+
+        openapi_schema = yaml.safe_load(response.content)
+        info = openapi_schema['info']
+        self.assertEqual(info['version'], creme_api.VERSION)
+        self.assertTrue(info['title'])
+        self.assertTrue(info['description'])
 
     @parameterized.expand([
         (endpoint,) for endpoint in router.resources_list

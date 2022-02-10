@@ -13,6 +13,9 @@ class ContentTypeViewSet(viewsets.ReadOnlyModelViewSet):
     list:
     List content types.
     """
-    queryset = get_cremeentity_contenttype_queryset()
+    queryset = None
     serializer_class = ContentTypeSerializer
     schema = AutoSchema(tags=['Content Types'])
+
+    def get_queryset(self):
+        return get_cremeentity_contenttype_queryset()
