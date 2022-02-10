@@ -2191,15 +2191,13 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role_2_del2 = UserRole.objects.create(name='Coder')
         url = self._build_del_role_url(role_2_del2)
 
-        response = self.assertGET409(url)
         msg = _('A deletion process for a role already exists.')
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_ERROR
         job.save()
-        response = self.assertGET409(url)
-        self.assertIn(msg, response.content.decode())
+        self.assertContains(self.client.get(url), msg, status_code=409)
 
         # ---
         job.status = Job.STATUS_OK

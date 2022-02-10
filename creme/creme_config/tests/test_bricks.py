@@ -7,7 +7,6 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
@@ -2101,10 +2100,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(
             response,
             status_code=409,
-            text=escape(_(
+            text=_(
                 'This block is used in the detail-view configuration of '
                 '«{model}» for role «{role}»'
-            ).format(model='Test Contact', role=self.role)),
+            ).format(model='Test Contact', role=self.role),
+            html=True,
         )
 
     def test_delete_instancebrick01(self):
@@ -2153,12 +2153,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(
             response,
             status_code=409,
-            text=escape(
-                _(
-                    'This block is used in the detail-view configuration '
-                    'of «{model}»'
-                ).format(model='Test Contact')
-            ),
+            text=_(
+                'This block is used in the detail-view configuration of «{model}»'
+            ).format(model='Test Contact'),
+            html=True,
         )
 
     def test_edit_custombrick01(self):
@@ -2402,12 +2400,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertContains(
             response,
             status_code=409,
-            text=escape(
-                _(
-                    'This block is used in the detail-view '
-                    'configuration of «{model}»'
-                ).format(model='Test Contact')
-            ),
+            text=_(
+                'This block is used in the detail-view configuration of «{model}»'
+            ).format(model='Test Contact'),
+            html=True,
         )
         self.assertStillExists(cbci)
         self.assertStillExists(loc)

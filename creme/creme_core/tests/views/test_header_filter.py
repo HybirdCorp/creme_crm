@@ -58,11 +58,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertFalse(HeaderFilter.objects.filter(entity_type=ct))
 
         url = self._build_add_url(ct)
-        response = self.assertGET200(url)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
-        self.assertIn(
+        self.assertContains(
+            response,
             _('Create a view of list for «%(ctype)s»') % {'ctype': 'Test Mailing list'},
-            response.content.decode(),
         )
         self.assertIs(response.context['form'].initial.get('is_private'), False)
 
@@ -360,11 +360,11 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
 
         url = hf.get_edit_absolute_url()
-        response = self.assertGET200(url)
+        response = self.client.get(url)
         self.assertTemplateUsed(response, 'creme_core/forms/header-filter.html')
-        self.assertIn(
+        self.assertContains(
+            response,
             _('Edit the view of list «%(view)s»') % {'view': hf.name},
-            response.content.decode()
         )
 
         with self.assertNoException():

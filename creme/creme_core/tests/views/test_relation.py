@@ -5,7 +5,6 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
 from django.urls import reverse
-from django.utils.html import escape
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -704,12 +703,13 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
             ('test-object_foobar1',  'is hired by'),
         )[0]
-        response = self.assertGET409(self._build_narrowed_add_url(subject, rtype))
-        self.assertIn(
-            escape(_('This type of relationship is not compatible with «{model}».').format(
+        self.assertContains(
+            self.client.get(self._build_narrowed_add_url(subject, rtype)),
+            _('This type of relationship is not compatible with «{model}».').format(
                 model='Test Contact',
-            )),
-            response.content.decode(),
+            ),
+            status_code=409,
+            html=True,
         )
 
     def test_add_relations_narrowedtype07(self):
@@ -731,18 +731,18 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
             ('test-object_foobar1',  'is hired by'),
         )[0]
-        response = self.assertGET409(self._build_narrowed_add_url(subject, rtype))
-
-        self.assertIn(
+        self.assertContains(
+            self.client.get(self._build_narrowed_add_url(subject, rtype)),
             ngettext(
                 'This type of relationship needs an entity with this property: {properties}.',
                 'This type of relationship needs an entity with these properties: {properties}.',
                 number=1
             ).format(properties=ptype2),
-            response.content.decode(),
+            status_code=409,
         )
 
-    def _build_bulk_add_url(self, ct_id, *subjects, **kwargs):
+    @staticmethod
+    def _build_bulk_add_url(ct_id, *subjects, **kwargs):
         url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
 
         if kwargs.get('GET', False):
