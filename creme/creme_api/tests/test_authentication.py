@@ -89,3 +89,4 @@ class TokenAuthenticationAPITestCase(APITestCase, URLPatternsTestCase):
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.code}')
         response = self.request()
         self.assertEqual(status.HTTP_200_OK, response.status_code)
+        self.assertEqual({'ok': True}, response.data)

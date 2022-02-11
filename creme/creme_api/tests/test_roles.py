@@ -1,13 +1,34 @@
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_api.tests.utils import CremeAPITestCase
+from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 from creme.creme_core.models import UserRole
 from creme.persons import get_contact_model, get_organisation_model
 
 CremeUser = get_user_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()
+
+
+@Factory.register
+def role(factory, **kwargs):
+    contact_ct = ContentType.objects.get_for_model(Contact)
+    orga_ct = ContentType.objects.get_for_model(Organisation)
+    data = {
+        'name': "Basic",
+        'allowed_apps': ['creme_core', 'creme_api', 'persons'],
+        'admin_4_apps': ['creme_core', 'creme_api'],
+        'creatable_ctypes': [contact_ct.id, orga_ct.id],
+        'exportable_ctypes': [contact_ct.id],
+    }
+    data.update(**kwargs)
+    role = UserRole(name=data['name'])
+    role.allowed_apps = data['allowed_apps']
+    role.admin_4_apps = data['admin_4_apps']
+    role.save()
+    role.creatable_ctypes.set(data['creatable_ctypes'])
+    role.exportable_ctypes.set(data['exportable_ctypes'])
+    return role
 
 
 class CreateRoleTestCase(CremeAPITestCase):

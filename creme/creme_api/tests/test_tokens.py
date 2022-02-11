@@ -6,7 +6,7 @@ from creme.creme_api.tests.utils import CremeAPITestCase
 
 class TokensTestCase(CremeAPITestCase):
     auto_login = False
-    url_name = 'creme_api__tokens'
+    url_name = 'creme_api__tokens-list'
     method = 'post'
 
     def test_create_token__missing(self):

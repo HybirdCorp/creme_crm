@@ -1,13 +1,34 @@
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 
-from creme.creme_api.tests.utils import CremeAPITestCase
+from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 from creme.creme_core.models import SetCredentials
 from creme.persons import get_contact_model, get_organisation_model
 
 CremeUser = get_user_model()
 Contact = get_contact_model()
 Organisation = get_organisation_model()
+
+
+@Factory.register
+def credential(factory, **kwargs):
+    contact_ct = ContentType.objects.get_for_model(Contact)
+    perms = {'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink'}
+    data = {
+        'set_type': SetCredentials.ESET_OWN,
+        'ctype': contact_ct,
+        'forbidden': False,
+        'efilter': None,
+        **{p: True for p in perms}
+    }
+    data.update(**kwargs)
+    if 'role' not in data:
+        data['role'] = factory.role()
+    value = {k: data.pop(k) for k in perms}
+    creds = SetCredentials(**data)
+    creds.set_value(**value)
+    creds.save()
+    return creds
 
 
 class CreateSetCredentialTestCase(CremeAPITestCase):

@@ -1,6 +1,5 @@
-from rest_framework import parsers, renderers
+from rest_framework import mixins, parsers, renderers, viewsets
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from creme.creme_api.api.schemas import CremeSchema
 from creme.creme_api.models import Token
@@ -8,7 +7,13 @@ from creme.creme_api.models import Token
 from .serializers import TokenSerializer
 
 
-class TokenView(APIView):
+class TokenViewSet(mixins.CreateModelMixin,
+                   viewsets.GenericViewSet):
+    """
+    create:
+    Create a token.
+
+    """
     throttle_classes = []
     permission_classes = []
     parser_classes = [
@@ -22,18 +27,10 @@ class TokenView(APIView):
     serializer_class = TokenSerializer
     schema = CremeSchema(tags=["Tokens"])
 
-    def get_serializer_context(self):
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
+    # TODO: revoke_token ?
+    # TODO: introspect ?
 
-    def get_serializer(self, *args, **kwargs):
-        kwargs['context'] = self.get_serializer_context()
-        return self.serializer_class(*args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         application = serializer.validated_data['application']

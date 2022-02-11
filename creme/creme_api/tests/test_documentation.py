@@ -46,9 +46,11 @@ class SchemaViewTestCase(CremeTestCase):
         for url, methods in openapi_schema['paths'].items():
             if endpoint not in url:
                 continue
-            for method, method_details in methods.items():
-                if not method_details.get('description'):
-                    errors.append((method, url))
+            errors.extend([
+                (method, url)
+                for method, method_details in methods.items()
+                if not method_details.get('description')
+            ])
 
         self.assertFalse(errors, "Please document those endpoints.")
 

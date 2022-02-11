@@ -1,9 +1,30 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from creme.creme_api.tests.utils import CremeAPITestCase
+from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 
 CremeUser = get_user_model()
+
+
+@Factory.register
+def user(factory, **kwargs):
+    data = factory.user_data(**kwargs)
+    return CremeUser.objects.create(**data)
+
+
+@Factory.register
+def user_data(factory, **kwargs):
+    data = {
+        'username': 'john.doe',
+        'first_name': 'John',
+        'last_name': 'Doe',
+        'email': 'john.doe@provider.com',
+        'is_active': True,
+        'is_superuser': True,
+        'role': None,
+    }
+    data.update(**kwargs)
+    return data
 
 
 class CreateUserTestCase(CremeAPITestCase):

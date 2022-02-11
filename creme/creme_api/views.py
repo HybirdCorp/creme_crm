@@ -27,12 +27,7 @@ class SchemaView(DRFSchemaView):
     public = True
     generator_class = openapi.SchemaGenerator
 
-    def get_description(self, request=None):
-        creme_api_app_config = apps.get_app_config('creme_api')
-        context = {
-            'creme_api__base_url': self.request.build_absolute_uri(
-                creme_api_app_config.url_root)
-        }
+    def get_description(self, context=None, request=None):
         description = render_to_string(
             self.description_template, context=context, request=request)
         # Force django safestring into builtin string
@@ -43,8 +38,11 @@ class SchemaView(DRFSchemaView):
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
+        creme_api_app_config = apps.get_app_config('creme_api')
+        creme_api_rool_url = self.request.build_absolute_uri(creme_api_app_config.url_root)
+        context = {'creme_api_rool_url': creme_api_rool_url}
         title = self.get_title()
-        description = self.get_description(request=request)
+        description = self.get_description(context=context, request=request)
         self.schema_generator = self.generator_class(
             title=title,
             description=description,
@@ -69,7 +67,7 @@ class DocumentationView(_DocumentationBaseView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['creme_api__tokens_url'] = self.request.build_absolute_uri(
-            reverse("creme_api__tokens"))
+            reverse("creme_api__tokens-list"))
         context['token_type'] = TokenAuthentication.keyword
         return context
 

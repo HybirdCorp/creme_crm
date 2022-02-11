@@ -1,101 +1,21 @@
-from django.contrib.auth import get_user_model
-from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from rest_framework.fields import DateTimeField
 from rest_framework.test import APITestCase
 
 from creme.creme_api.api.authentication import TokenAuthentication
 from creme.creme_api.models import Application, Token
-from creme.creme_core.models import SetCredentials, UserRole
-from creme.persons import get_contact_model, get_organisation_model
-
-Contact = get_contact_model()
-CremeUser = get_user_model()
-Organisation = get_organisation_model()
 
 
 class Factory:
-    def user(self, **kwargs):
-        data = {
-            'username': 'john.doe',
-            'first_name': 'John',
-            'last_name': 'Doe',
-            'email': 'john.doe@provider.com',
-            'is_active': True,
-            'is_superuser': True,
-            'role': None,
-        }
-        data.update(**kwargs)
-        return CremeUser.objects.create(**data)
+    @classmethod
+    def register(cls, func):
+        if hasattr(cls, func.__name__):
+            raise AttributeError(func.__name__)
+        setattr(cls, func.__name__, classmethod(func))
 
-    def user_data(self, **kwargs):
-        data = {
-            'username': "john.doe",
-            'first_name': "John",
-            'last_name': "Doe",
-            'email': "john.doe@provider.com",
-            'is_active': True,
-            "is_superuser": True,
-            'role': None,
-        }
-        data.update(**kwargs)
-        return data
 
-    def team(self, **kwargs):
-        data = {
-            'username': 'Team #1',
-        }
-        data.update(**kwargs)
-        if 'name' in data:
-            data['username'] = data.pop('name')
-        data['is_team'] = True
-        teammates = data.pop('teammates', [])
-
-        team = CremeUser.objects.create(**data)
-        team.teammates = teammates
-
-        return team
-
-    def contact(self, **kwargs):
-        return Contact.objects.create(**kwargs)
-
-    def role(self, **kwargs):
-        contact_ct = ContentType.objects.get_for_model(Contact)
-        orga_ct = ContentType.objects.get_for_model(Organisation)
-        data = {
-            'name': "Basic",
-            'allowed_apps': ['creme_core', 'creme_api', 'persons'],
-            'admin_4_apps': ['creme_core', 'creme_api'],
-            'creatable_ctypes': [contact_ct.id, orga_ct.id],
-            'exportable_ctypes': [contact_ct.id],
-        }
-        data.update(**kwargs)
-        role = UserRole(name=data['name'])
-        role.allowed_apps = data['allowed_apps']
-        role.admin_4_apps = data['admin_4_apps']
-        role.save()
-        role.creatable_ctypes.set(data['creatable_ctypes'])
-        role.exportable_ctypes.set(data['exportable_ctypes'])
-        return role
-
-    def credential(self, **kwargs):
-        contact_ct = ContentType.objects.get_for_model(Contact)
-        perms = {'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink'}
-        data = {
-            'set_type': SetCredentials.ESET_OWN,
-            'ctype': contact_ct,
-            'forbidden': False,
-            'efilter': None,
-            **{p: True for p in perms}
-        }
-        data.update(**kwargs)
-        if 'role' not in data:
-            data['role'] = self.role()
-        value = {k: data.pop(k) for k in perms}
-        creds = SetCredentials(**data)
-        creds.set_value(**value)
-        creds.save()
-        return creds
+def to_iso8601(value):
+    return DateTimeField().to_representation(value)
 
 
 class CremeAPITestCase(APITestCase):
@@ -103,6 +23,7 @@ class CremeAPITestCase(APITestCase):
     url_name = None
     method = None
     maxDiff = None
+    to_iso8601 = staticmethod(to_iso8601)
 
     @classmethod
     def setUpClass(cls):
@@ -149,10 +70,6 @@ class CremeAPITestCase(APITestCase):
         else:
             self.assertEqual(response.data, data)
 
-    @staticmethod
-    def to_iso8601(value):
-        return DateTimeField().to_representation(value)
-
     def make_request(self, *, to=None, data=None):
         assert self.url_name is not None
         assert self.method is not None
@@ -160,3 +77,18 @@ class CremeAPITestCase(APITestCase):
         url = reverse(self.url_name, args=args)
         method = getattr(self.client, self.method)
         return method(url, data=data, format='json')
+
+    def consume_list(self, data=None):
+        assert self.url_name is not None and self.url_name.endswith("-list")
+        assert self.method == 'get'
+        method = getattr(self.client, self.method)
+
+        responses = []
+        results = []
+        url = reverse(self.url_name)
+        while url:
+            response = method(url, data=data, format='json')
+            responses.append(response)
+            results.extend(response.data['results'])
+            url = response.data['next']
+        return responses, results

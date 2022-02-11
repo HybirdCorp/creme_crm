@@ -38,7 +38,7 @@ class ContactSerializer(CremeEntitySerializer):
             'sector',
             'is_user',
             'birthday',
-            'image',
+            # 'image',  # Need documents
         ]
 
 

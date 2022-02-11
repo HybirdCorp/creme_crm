@@ -1,0 +1,14 @@
+from .test_authentication import *  # noqa
+from .test_civilities import *  # noqa
+from .test_contacts import *  # noqa
+from .test_contenttypes import *  # noqa
+from .test_credentials import *  # noqa
+from .test_documentation import *  # noqa
+from .test_models import *  # noqa
+from .test_positions import *  # noqa
+from .test_roles import *  # noqa
+from .test_sectors import *  # noqa
+from .test_teams import *  # noqa
+from .test_tokens import *  # noqa
+from .test_users import *  # noqa
+from .utils import *  # noqa

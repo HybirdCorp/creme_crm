@@ -1,11 +1,28 @@
 from django.contrib.auth import get_user_model
 from django.urls import reverse
 
-from creme.creme_api.tests.utils import CremeAPITestCase
+from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 from creme.persons import get_contact_model
 
 CremeUser = get_user_model()
 Contact = get_contact_model()
+
+
+@Factory.register
+def team(factory, **kwargs):
+    data = {
+        'username': 'Team #1',
+    }
+    data.update(**kwargs)
+    if 'name' in data:
+        data['username'] = data.pop('name')
+    data['is_team'] = True
+    teammates = data.pop('teammates', [])
+
+    team = CremeUser.objects.create(**data)
+    team.teammates = teammates
+
+    return team
 
 
 class CreateTeamTestCase(CremeAPITestCase):

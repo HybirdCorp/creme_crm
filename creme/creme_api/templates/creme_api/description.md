@@ -1,7 +1,7 @@
 # Drive Creme CRM from the outside
 
 Some general description
-[Base url]({{ creme_api__base_url }})
+[Base url]({{ creme_api_rool_url }})
 
 ## Authentication
 
