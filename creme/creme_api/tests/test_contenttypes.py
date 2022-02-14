@@ -15,8 +15,8 @@ class RetrieveContentTypeTestCase(CremeAPITestCase):
     def test_retrieve_contenttype(self):
         contact_ct = ContentType.objects.get_for_model(Contact)
 
-        response = self.make_request(to=contact_ct.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=contact_ct.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': contact_ct.id,
             'application': _('Accounts and Contacts'),
             'name': _("Contacts"),

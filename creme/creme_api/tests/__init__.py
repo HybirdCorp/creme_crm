@@ -1,3 +1,4 @@
+from .test_addresses import *  # noqa
 from .test_authentication import *  # noqa
 from .test_civilities import *  # noqa
 from .test_contacts import *  # noqa

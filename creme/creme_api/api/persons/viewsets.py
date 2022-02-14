@@ -50,8 +50,12 @@ class ContactViewSet(CremeEntityViewSet):
     restore:
     Restore a contact from the trash.
 
+    clone:
+    Clone a contact.
+
     """
-    queryset = persons.get_contact_model().objects.all()
+    queryset = persons.get_contact_model().objects.select_related(
+        'billing_address', 'shipping_address')
     serializer_class = ContactSerializer
     schema = CremeSchema(tags=["Contacts"])
 
@@ -81,6 +85,9 @@ class OrganisationViewSet(CremeEntityViewSet):
 
     restore:
     Restore an organisation from the trash.
+
+    clone:
+    Clone an organisation.
 
     """
     queryset = persons.get_organisation_model().objects.all()

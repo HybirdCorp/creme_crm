@@ -1,9 +1,9 @@
-from rest_framework import viewsets
+from django.db.models import ProtectedError
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
-from creme.creme_core.core.exceptions import SpecificProtectedError
+from creme.creme_api.api.core.exceptions import UnprocessableEntity
 
 from .serializers import SimpleCremeEntitySerializer
 
@@ -14,8 +14,8 @@ class CremeModelViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         try:
             instance.delete()
-        except SpecificProtectedError as exc:
-            raise ValidationError(str(exc))
+        except ProtectedError as exc:
+            raise UnprocessableEntity(str(exc), code="protected")
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -32,8 +32,8 @@ class CremeEntityViewSet(CremeModelViewSet):
 
         try:
             instance.trash()
-        except SpecificProtectedError as exc:
-            raise ValidationError(str(exc))
+        except ProtectedError as exc:
+            raise UnprocessableEntity(str(exc), code="protected")
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -42,10 +42,16 @@ class CremeEntityViewSet(CremeModelViewSet):
     def restore(self, request, *args, **kwargs):
         instance = self.get_object()
 
-        try:
-            instance.restore()
-        except SpecificProtectedError as exc:
-            raise ValidationError(str(exc))
+        instance.restore()
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
+
+    @action(methods=['post'], detail=True)
+    def clone(self, request, *args, **kwargs):
+        instance = self.get_object()
+
+        new = instance.clone()
+
+        serializer = self.get_serializer(new)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)

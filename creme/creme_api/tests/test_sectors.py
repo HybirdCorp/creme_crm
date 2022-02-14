@@ -19,16 +19,16 @@ class CreateSectorTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'title': ['required'],
         })
 
     def test_create_sector(self):
         data = self.factory.sector_data()
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         sector = Sector.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': sector.id,
             'title': 'Industry',
         })
@@ -41,8 +41,8 @@ class RetrieveSectorTestCase(CremeAPITestCase):
 
     def test_retrieve_sector(self):
         sector = self.factory.sector()
-        response = self.make_request(to=sector.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=sector.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': sector.id,
             'title': 'Industry',
         })
@@ -56,8 +56,8 @@ class UpdateSectorTestCase(CremeAPITestCase):
         sector = self.factory.sector()
         response = self.make_request(to=sector.id, data={
             'title': "Agro",
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': sector.id,
             'title': 'Agro',
         })
@@ -73,8 +73,8 @@ class PartialUpdateSectorTestCase(CremeAPITestCase):
         sector = self.factory.sector()
         response = self.make_request(to=sector.id, data={
             'title': 'Agro',
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': sector.id,
             'title': 'Agro',
         })
@@ -90,8 +90,8 @@ class ListSectorTestCase(CremeAPITestCase):
         Sector.objects.all().delete()
         sector1 = self.factory.sector(title="1")
         sector2 = self.factory.sector(title="2")
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {'id': sector1.id, 'title': '1'},
             {'id': sector2.id, 'title': '2'},
         ])
@@ -103,6 +103,5 @@ class DeleteSectorTestCase(CremeAPITestCase):
 
     def test_delete_sector(self):
         sector = self.factory.sector()
-        response = self.make_request(to=sector.id)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=sector.id, status_code=204)
         self.assertFalse(Sector.objects.filter(id=sector.id).exists())

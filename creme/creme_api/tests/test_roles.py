@@ -36,7 +36,7 @@ class CreateRoleTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'name': ['required'],
             'allowed_apps': ['required'],
@@ -54,7 +54,7 @@ class CreateRoleTestCase(CremeAPITestCase):
             'creatable_ctypes': [],
             'exportable_ctypes': [],
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'name', ['unique'])
 
     def test_validation(self):
@@ -67,7 +67,7 @@ class CreateRoleTestCase(CremeAPITestCase):
             'creatable_ctypes': [contact_ct.id, orga_ct.id],
             'exportable_ctypes': [contact_ct.id, orga_ct.id],
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationErrors(response, {
             'admin_4_apps': ["admin_4_not_allowed_app", "admin_4_not_allowed_app"],
             'creatable_ctypes': ["not_allowed_ctype", "not_allowed_ctype"],
@@ -84,9 +84,9 @@ class CreateRoleTestCase(CremeAPITestCase):
             'creatable_ctypes': [contact_ct.id, orga_ct.id],
             'exportable_ctypes': [],
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         role = UserRole.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': role.id,
             'name': "CEO",
             'allowed_apps': {'creme_core', 'creme_api', 'persons'},
@@ -111,8 +111,8 @@ class RetrieveRoleTestCase(CremeAPITestCase):
         orga_ct = ContentType.objects.get_for_model(Organisation)
         role = self.factory.role()
 
-        response = self.make_request(to=role.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=role.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': role.id,
             'name': "Basic",
             'allowed_apps': {'creme_core', 'creme_api', 'persons'},
@@ -129,7 +129,7 @@ class UpdateRoleTestCase(CremeAPITestCase):
 
     def test_validation__required(self):
         role = self.factory.role()
-        response = self.make_request(to=role.id, data={})
+        response = self.make_request(to=role.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'name': ['required'],
             'allowed_apps': ['required'],
@@ -149,7 +149,7 @@ class UpdateRoleTestCase(CremeAPITestCase):
             'creatable_ctypes': [contact_ct.id],
             'exportable_ctypes': [orga_ct.id],
         }
-        response = self.make_request(to=role.id, data=data)
+        response = self.make_request(to=role.id, data=data, status_code=400)
         self.assertValidationErrors(response, {
             'admin_4_apps': ["admin_4_not_allowed_app"],
             'creatable_ctypes': ["not_allowed_ctype"],
@@ -167,8 +167,8 @@ class UpdateRoleTestCase(CremeAPITestCase):
             'creatable_ctypes': [contact_ct.id],
             'exportable_ctypes': [orga_ct.id],
         }
-        response = self.make_request(to=role.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=role.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': role.id,
             'name': "CEO",
             'allowed_apps': {'creme_core', 'persons'},
@@ -195,7 +195,7 @@ class PartialUpdateRoleTestCase(CremeAPITestCase):
         data = {
             'name': "UniqueRoleName",
         }
-        response = self.make_request(to=role.id, data=data)
+        response = self.make_request(to=role.id, data=data, status_code=400)
         self.assertValidationError(response, 'name', ['unique'])
 
     def test_validation(self):
@@ -203,7 +203,7 @@ class PartialUpdateRoleTestCase(CremeAPITestCase):
         data = {
             'allowed_apps': ['creme_core'],
         }
-        response = self.make_request(to=role.id, data=data)
+        response = self.make_request(to=role.id, data=data, status_code=400)
         self.assertValidationErrors(response, {
             'admin_4_apps': ["admin_4_not_allowed_app"],
             'creatable_ctypes': ["not_allowed_ctype", "not_allowed_ctype"],
@@ -218,8 +218,8 @@ class PartialUpdateRoleTestCase(CremeAPITestCase):
         data = {
             'name': "CEO",
         }
-        response = self.make_request(to=role.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=role.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': role.id,
             'name': "CEO",
             'allowed_apps': {'creme_core', 'persons', 'creme_api'},
@@ -239,8 +239,8 @@ class PartialUpdateRoleTestCase(CremeAPITestCase):
             'allowed_apps': ['creme_core', 'persons', 'creme_api'],
             'exportable_ctypes': [contact_ct.id, orga_ct.id],
         }
-        response = self.make_request(to=role.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=role.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': role.id,
             'name': "CEO",
             'allowed_apps': {'creme_core', 'persons', 'creme_api'},
@@ -267,8 +267,8 @@ class ListRoleTestCase(CremeAPITestCase):
         role1 = self.factory.role(name='Role #1')
         role2 = self.factory.role(name='Role #2')
 
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {
                 'id': role1.id,
                 'name': "Role #1",
@@ -297,11 +297,9 @@ class DeleteRoleTestCase(CremeAPITestCase):
     def test_delete_role__protected(self):
         role = self.factory.role()
         self.factory.user(role=role)
-        response = self.make_request(to=role.id)
-        self.assertResponseEqual(response, 403)
+        self.make_request(to=role.id, status_code=403)
 
     def test_delete_role(self):
         role = self.factory.role()
-        response = self.make_request(to=role.id)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=role.id, status_code=204)
         self.assertFalse(UserRole.objects.filter(id=role.id).exists())

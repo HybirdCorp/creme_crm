@@ -36,7 +36,7 @@ class CreateSetCredentialTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'role': ['required'],
             'set_type': ['required'],
@@ -63,9 +63,9 @@ class CreateSetCredentialTestCase(CremeAPITestCase):
             "can_unlink": True,
             "forbidden": False,
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         creds = SetCredentials.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': creds.id,
             "role": role.id,
             "set_type": SetCredentials.ESET_ALL,
@@ -92,8 +92,8 @@ class RetrieveSetCredentialTestCase(CremeAPITestCase):
     def test_retrieve_setcredentials(self):
         contact_ct = ContentType.objects.get_for_model(Contact)
         creds = self.factory.credential()
-        response = self.make_request(to=creds.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=creds.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': creds.id,
             "role": creds.role_id,
             "set_type": SetCredentials.ESET_OWN,
@@ -114,7 +114,7 @@ class UpdateSetCredentialTestCase(CremeAPITestCase):
 
     def test_validation__required(self):
         creds = self.factory.credential()
-        response = self.make_request(to=creds.id, data={})
+        response = self.make_request(to=creds.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'set_type': ['required'],
             'ctype': ['required'],
@@ -141,8 +141,8 @@ class UpdateSetCredentialTestCase(CremeAPITestCase):
             "can_unlink": True,
             "forbidden": False,
         }
-        response = self.make_request(to=creds.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=creds.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': creds.id,
             "role": creds.role_id,
             "set_type": SetCredentials.ESET_ALL,
@@ -178,8 +178,8 @@ class PartialUpdateSetCredentialTestCase(CremeAPITestCase):
             "can_delete": False,
             "forbidden": False,
         }
-        response = self.make_request(to=creds.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=creds.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': creds.id,
             "role": creds.role_id,
             "set_type": SetCredentials.ESET_ALL,
@@ -211,8 +211,8 @@ class ListSetCredentialTestCase(CremeAPITestCase):
         creds1 = self.factory.credential(role=role, ctype=contact_ct)
         creds2 = self.factory.credential(role=role, ctype=orga_ct, can_delete=False)
 
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {
                 'id': creds1.id,
                 "role": role.id,
@@ -248,6 +248,5 @@ class DeleteSetCredentialTestCase(CremeAPITestCase):
 
     def test_delete(self):
         creds = self.factory.credential()
-        response = self.make_request(to=creds.id)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=creds.id, status_code=204)
         self.assertFalse(SetCredentials.objects.filter(id=creds.id).exists())

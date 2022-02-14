@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 from creme.persons import get_contact_model
@@ -30,7 +29,7 @@ class CreateTeamTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'name': ['required'],
             'teammates': ['required'],
@@ -38,17 +37,17 @@ class CreateTeamTestCase(CremeAPITestCase):
 
     def test_validation__name_max_length(self):
         data = {'name': "a" * (CremeUser._meta.get_field('username').max_length + 1)}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'name', ['max_length'])
 
     def test_validation__name_invalid_chars(self):
         data = {'name': "*********"}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'name', ['invalid'])
 
     def test_validation__teammates(self):
         data = {'name': "TEAM", 'teammates': [9999]}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'teammates', ['does_not_exist'])
 
     def test_create_team(self):
@@ -56,10 +55,10 @@ class CreateTeamTestCase(CremeAPITestCase):
         user2 = self.factory.user(username="user2")
 
         data = {'name': "creme-team", 'teammates': [user1.id, user2.id]}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         team = CremeUser.objects.get(id=response.data['id'])
 
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [user1.id, user2.id],
             'name': "creme-team",
@@ -78,8 +77,8 @@ class RetrieveTeamTestCase(CremeAPITestCase):
         user = self.factory.user()
         team = self.factory.team(teammates=[user])
 
-        response = self.make_request(to=team.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=team.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [user.id],
             'name': 'Team #1',
@@ -92,7 +91,7 @@ class UpdateTeamTestCase(CremeAPITestCase):
 
     def test_validation__required(self):
         team = self.factory.team()
-        response = self.make_request(to=team.id, data={})
+        response = self.make_request(to=team.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'name': ['required'],
             'teammates': ['required'],
@@ -104,9 +103,9 @@ class UpdateTeamTestCase(CremeAPITestCase):
 
         user2 = self.factory.user(username="user2")
         data = {'name': "Sales", 'teammates': [user2.id]}
-        response = self.make_request(to=team.id, data=data)
+        response = self.make_request(to=team.id, data=data, status_code=200)
 
-        self.assertResponseEqual(response, 200, {
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [user2.id],
             'name': 'Sales',
@@ -127,8 +126,8 @@ class PartialUpdateTeamTestCase(CremeAPITestCase):
         team = self.factory.team(teammates=[user])
 
         data = {'name': "Sales"}
-        response = self.make_request(to=team.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=team.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [user.id],
             'name': 'Sales',
@@ -146,8 +145,8 @@ class PartialUpdateTeamTestCase(CremeAPITestCase):
         # change
         user2 = self.factory.user(username='user2')
         data = {'teammates': [user2.id]}
-        response = self.make_request(to=team.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=team.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [user2.id],
             'name': 'Team #1',
@@ -160,8 +159,8 @@ class PartialUpdateTeamTestCase(CremeAPITestCase):
 
         # empty
         data = {'teammates': []}
-        response = self.make_request(to=team.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=team.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': team.id,
             'teammates': [],
             'name': 'Team #1',
@@ -185,8 +184,8 @@ class ListTeamTestCase(CremeAPITestCase):
         teams = CremeUser.objects.filter(is_team=True)
         self.assertEqual(teams.count(), 2, teams)
 
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {
                 'id': team1.id,
                 'teammates': [user1.id],
@@ -201,13 +200,17 @@ class ListTeamTestCase(CremeAPITestCase):
 
 
 class DeleteTeamTestCase(CremeAPITestCase):
-    url_name = 'creme_api__teams-delete'
-    method = 'post'
+    url_name = 'creme_api__teams-detail'
+    method = 'delete'
 
     def test_delete(self):
-        url = reverse('creme_api__teams-detail', args=[1])
-        response = self.client.delete(url, format='json')
-        self.assertResponseEqual(response, 405)
+        team = self.factory.team()
+        self.make_request(to=team.id, data={}, status_code=405)
+
+
+class PostDeleteTeamTestCase(CremeAPITestCase):
+    url_name = 'creme_api__teams-delete'
+    method = 'post'
 
     def test_delete_team(self):
         user = self.factory.user()
@@ -216,16 +219,14 @@ class DeleteTeamTestCase(CremeAPITestCase):
         contact = self.factory.contact(user=team2)
 
         data = {'transfer_to': team1.id}
-        response = self.make_request(to=team2.id, data=data)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=team2.id, data=data, status_code=204)
 
         self.assertFalse(CremeUser.objects.filter(username='team2').exists())
         contact.refresh_from_db()
         self.assertEqual(contact.user, team1)
 
         data = {'transfer_to': user.id}
-        response = self.make_request(to=team1.id, data=data)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=team1.id, data=data, status_code=204)
 
         self.assertFalse(CremeUser.objects.filter(username='team1').exists())
         contact.refresh_from_db()

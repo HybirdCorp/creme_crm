@@ -20,7 +20,7 @@ class CreateCivilityTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'title': ['required'],
             'shortcut': ['required'],
@@ -28,9 +28,9 @@ class CreateCivilityTestCase(CremeAPITestCase):
 
     def test_create_civility(self):
         data = self.factory.civility_data()
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         civility = Civility.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': civility.id,
             'title': 'Captain',
             'shortcut': 'Cpt',
@@ -45,8 +45,8 @@ class RetrieveCivilityTestCase(CremeAPITestCase):
 
     def test_retrieve_civility(self):
         civility = self.factory.civility()
-        response = self.make_request(to=civility.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=civility.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': civility.id,
             'title': 'Captain',
             'shortcut': 'Cpt',
@@ -62,8 +62,8 @@ class UpdateCivilityTestCase(CremeAPITestCase):
         response = self.make_request(to=civility.id, data={
             'title': "CAPTAIN",
             'shortcut': "CAP",
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': civility.id,
             'title': 'CAPTAIN',
             'shortcut': 'CAP',
@@ -81,8 +81,8 @@ class PartialUpdateCivilityTestCase(CremeAPITestCase):
         civility = self.factory.civility()
         response = self.make_request(to=civility.id, data={
             'shortcut': "CAP",
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': civility.id,
             'title': 'Captain',
             'shortcut': 'CAP',
@@ -100,8 +100,8 @@ class ListCivilityTestCase(CremeAPITestCase):
         Civility.objects.all().delete()
         civility1 = self.factory.civility(title="1", shortcut="1")
         civility2 = self.factory.civility(title="2", shortcut="2")
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {'id': civility1.id, 'title': '1', 'shortcut': '1'},
             {'id': civility2.id, 'title': '2', 'shortcut': '2'},
         ])
@@ -113,6 +113,5 @@ class DeleteCivilityTestCase(CremeAPITestCase):
 
     def test_delete_civility(self):
         civility = self.factory.civility()
-        response = self.make_request(to=civility.id)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=civility.id, status_code=204)
         self.assertFalse(Civility.objects.filter(id=civility.id).exists())

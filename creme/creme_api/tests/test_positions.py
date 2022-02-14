@@ -19,16 +19,16 @@ class CreatePositionTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'title': ['required'],
         })
 
     def test_create_position(self):
         data = self.factory.position_data()
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         position = Position.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': position.id,
             'title': 'Captain',
         })
@@ -41,8 +41,8 @@ class RetrievePositionTestCase(CremeAPITestCase):
 
     def test_retrieve_position(self):
         position = self.factory.position()
-        response = self.make_request(to=position.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=position.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': position.id,
             'title': 'Captain',
         })
@@ -56,8 +56,8 @@ class UpdatePositionTestCase(CremeAPITestCase):
         position = self.factory.position()
         response = self.make_request(to=position.id, data={
             'title': "CAPTAIN",
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': position.id,
             'title': 'CAPTAIN',
         })
@@ -73,8 +73,8 @@ class PartialUpdatePositionTestCase(CremeAPITestCase):
         position = self.factory.position()
         response = self.make_request(to=position.id, data={
             'title': 'CAPTAIN',
-        })
-        self.assertResponseEqual(response, 200, {
+        }, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': position.id,
             'title': 'CAPTAIN',
         })
@@ -90,8 +90,8 @@ class ListPositionTestCase(CremeAPITestCase):
         Position.objects.all().delete()
         position1 = self.factory.position(title="1")
         position2 = self.factory.position(title="2")
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {'id': position1.id, 'title': '1'},
             {'id': position2.id, 'title': '2'},
         ])
@@ -103,6 +103,5 @@ class DeletePositionTestCase(CremeAPITestCase):
 
     def test_delete_position(self):
         position = self.factory.position()
-        response = self.make_request(to=position.id)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=position.id, status_code=204)
         self.assertFalse(Position.objects.filter(id=position.id).exists())

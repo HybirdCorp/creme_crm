@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.urls import reverse
 
 from creme.creme_api.tests.utils import CremeAPITestCase, Factory
 
@@ -32,7 +31,7 @@ class CreateUserTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_validation__required(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'username': ['required'],
             'first_name': ['required'],
@@ -42,30 +41,30 @@ class CreateUserTestCase(CremeAPITestCase):
 
     def test_validation__username_max_length(self):
         data = {'username': "a" * (CremeUser._meta.get_field('username').max_length + 1)}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'username', ['max_length'])
 
     def test_validation__username_invalid_chars(self):
         data = {'username': "*********"}
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, 'username', ['invalid'])
 
     def test_validation__is_superuser_xor_role(self):
         role = self.factory.role()
 
         data = self.factory.user_data(is_superuser=False, role=None)
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
         data = self.factory.user_data(is_superuser=True, role=role.id)
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
     def test_create_superuser(self):
         data = self.factory.user_data(is_superuser=True, role=None)
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         user = CremeUser.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': user.id,
             'username': 'john.doe',
             'last_name': 'Doe',
@@ -85,9 +84,9 @@ class CreateUserTestCase(CremeAPITestCase):
     def test_create_user(self):
         role = self.factory.role()
         data = self.factory.user_data(is_superuser=False, role=role.id)
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=201)
         user = CremeUser.objects.get(id=response.data['id'])
-        self.assertResponseEqual(response, 201, {
+        self.assertPayloadEqual(response, {
             'id': user.id,
             'username': 'john.doe',
             'last_name': 'Doe',
@@ -110,8 +109,8 @@ class RetrieveUserTestCase(CremeAPITestCase):
 
     def test_get_user(self):
         user = self.factory.user()
-        response = self.make_request(to=user.id)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=user.id, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': user.id,
             'username': user.username,
             'last_name': user.last_name,
@@ -133,7 +132,7 @@ class UpdateUserTestCase(CremeAPITestCase):
 
     def test_validation__required(self):
         user = self.factory.user()
-        response = self.make_request(to=user.id, data={})
+        response = self.make_request(to=user.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'username': ['required'],
             'first_name': ['required'],
@@ -146,19 +145,19 @@ class UpdateUserTestCase(CremeAPITestCase):
         user = self.factory.user(is_superuser=True, role=None)
 
         data = self.factory.user_data(is_superuser=False, role=None)
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
         data = self.factory.user_data(is_superuser=True, role=role.id)
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
     def test_update_user(self):
         user = self.factory.user()
 
         data = self.factory.user_data(last_name="Smith", username="Nick")
-        response = self.make_request(to=user.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=user.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': user.id,
             'username': 'Nick',
             'last_name': 'Smith',
@@ -186,11 +185,11 @@ class PartialUpdateUserTestCase(CremeAPITestCase):
         user = self.factory.user(username='user1', is_superuser=True, role=None)
 
         data = {'role': role.id}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
         data = {'is_superuser': False}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
     def test_validation__is_superuser_xor_role__role(self):
@@ -198,18 +197,18 @@ class PartialUpdateUserTestCase(CremeAPITestCase):
         user = self.factory.user(username='user2', is_superuser=False, role=role)
 
         data = {'role': None}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
         data = {'is_superuser': True}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, '', ['is_superuser_xor_role'])
 
     def test_partial_update_user(self):
         user = self.factory.user()
         data = {'theme': "chantilly"}
-        response = self.make_request(to=user.id, data=data)
-        self.assertResponseEqual(response, 200, {
+        response = self.make_request(to=user.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {
             'id': user.id,
             'username': 'john.doe',
             'last_name': 'Doe',
@@ -236,8 +235,8 @@ class ListUserTestCase(CremeAPITestCase):
         user = self.factory.user(username="user", theme='chantilly')
         self.assertEqual(CremeUser.objects.count(), 2)
 
-        response = self.make_request()
-        self.assertResponseEqual(response, 200, [
+        response = self.make_request(status_code=200)
+        self.assertPayloadEqual(response, [
             {
                 'id': fulbert.id,
                 'username': 'root',
@@ -275,7 +274,7 @@ class SetPasswordUserTestCase(CremeAPITestCase):
 
     def test_password_validation__required(self):
         user = self.factory.user()
-        response = self.make_request(to=user.id, data={})
+        response = self.make_request(to=user.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'password': ['required']
         })
@@ -284,15 +283,15 @@ class SetPasswordUserTestCase(CremeAPITestCase):
         user = self.factory.user()
 
         data = {'password': ''}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, 'password', ['blank'])
 
     def test_password_validation__no_trim(self):
         user = self.factory.user()
 
         data = {'password': "  StrongPassword  "}
-        response = self.make_request(to=user.id, data=data)
-        self.assertResponseEqual(response, 200, {})
+        response = self.make_request(to=user.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {})
 
         user.refresh_from_db()
         self.assertTrue(user.check_password("  StrongPassword  "))
@@ -306,44 +305,48 @@ class SetPasswordUserTestCase(CremeAPITestCase):
         )
 
         data = {'password': user.username}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, 'password', ['password_too_similar'])
 
         data = {'password': user.first_name}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, 'password', ['password_too_similar'])
 
         data = {'password': user.last_name}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, 'password', ['password_too_similar'])
 
         data = {'password': user.email.split("@")[0]}
-        response = self.make_request(to=user.id, data=data)
+        response = self.make_request(to=user.id, data=data, status_code=400)
         self.assertValidationError(response, 'password', ['password_too_similar'])
 
     def test_set_password_user(self):
         user = self.factory.user()
 
         data = {'password': "StrongPassword"}
-        response = self.make_request(to=user.id, data=data)
-        self.assertResponseEqual(response, 200, {})
+        response = self.make_request(to=user.id, data=data, status_code=200)
+        self.assertPayloadEqual(response, {})
 
         user.refresh_from_db()
         self.assertTrue(user.check_password("StrongPassword"))
 
 
-class DeleteUserTestCase(CremeAPITestCase):
+class DeletePositionTestCase(CremeAPITestCase):
+    url_name = 'creme_api__users-detail'
+    method = 'delete'
+
+    def test_delete(self):
+        user = self.factory.user()
+        self.make_request(to=user.id, data={}, status_code=405)
+
+
+class PostDeleteUserTestCase(CremeAPITestCase):
     url_name = 'creme_api__users-delete'
     method = 'post'
 
-    def test_delete(self):
-        url = reverse('creme_api__users-detail', args=[1])
-        response = self.client.delete(url, format='json')
-        self.assertResponseEqual(response, 405)
-
     def test_validation__required(self):
         user = self.factory.user()
-        response = self.make_request(to=user.id, data={})
+        response = self.make_request(to=user.id, data={}, status_code=400)
         self.assertValidationErrors(response, {
             'transfer_to': ['required']
         })
@@ -355,16 +358,14 @@ class DeleteUserTestCase(CremeAPITestCase):
         contact = self.factory.contact(user=user2)
 
         data = {'transfer_to': user1.id}
-        response = self.make_request(to=user2.id, data=data)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=user2.id, data=data, status_code=204)
 
         self.assertFalse(CremeUser.objects.filter(username='user2').exists())
         contact.refresh_from_db()
         self.assertEqual(contact.user, user1)
 
         data = {'transfer_to': team.id}
-        response = self.make_request(to=user1.id, data=data)
-        self.assertResponseEqual(response, 204)
+        self.make_request(to=user1.id, data=data, status_code=204)
 
         self.assertFalse(CremeUser.objects.filter(username='user1').exists())
         contact.refresh_from_db()

@@ -1,5 +1,10 @@
+import difflib
+import pprint
+from collections import OrderedDict
+
 from django.urls import reverse
 from rest_framework.fields import DateTimeField
+from rest_framework.response import Response
 from rest_framework.test import APITestCase
 
 from creme.creme_api.api.authentication import TokenAuthentication
@@ -12,10 +17,21 @@ class Factory:
         if hasattr(cls, func.__name__):
             raise AttributeError(func.__name__)
         setattr(cls, func.__name__, classmethod(func))
+        return func
 
 
 def to_iso8601(value):
     return DateTimeField().to_representation(value)
+
+
+class PrettyPrinter(pprint.PrettyPrinter):
+    _dispatch = pprint.PrettyPrinter._dispatch
+    _dispatch[OrderedDict.__repr__] = pprint.PrettyPrinter._pprint_dict
+
+
+def pformat(obj):
+    return PrettyPrinter(indent=2, width=80, depth=None,
+                         compact=False, sort_dicts=True).pformat(obj)
 
 
 class CremeAPITestCase(APITestCase):
@@ -56,27 +72,41 @@ class CremeAPITestCase(APITestCase):
         }
         self.assertEqual(current_errors, errors, response.data)
 
-    def assertResponseEqual(self, response, status_code, data=None):
-        self.assertEqual(response.status_code, status_code, response.data)
-        if data is None:
-            return
-        if isinstance(data, dict):
-            self.assertDictEqual(dict(response.data), data)
-        elif isinstance(data, list):
-            self.assertEqual(len(response.data['results']), len(data))
-            for i, (obj1, obj2) in enumerate(zip(response.data['results'], data)):
-                self.assertDictEqual(
-                    dict(obj1), obj2, msg=f"Elements response.data['results'][{i}] differ.")
-        else:
-            self.assertEqual(response.data, data)
+    def _assertPayloadEqual(self, first, second):
+        if first != second:
+            first = self._prepare_payload(first)
+            diff = '\n'.join(difflib.unified_diff(
+                pformat(first).splitlines(),
+                pformat(second).splitlines()))
+            self.fail(f"Payload error:\n{diff}")
 
-    def make_request(self, *, to=None, data=None):
+    def _prepare_payload(self, data):
+        if isinstance(data, list):
+            return [self._prepare_payload(obj) for obj in data]
+        if isinstance(data, dict):
+            return {key: self._prepare_payload(value) for key, value in data.items()}
+        return data
+
+    def assertPayloadEqual(self, response, expected):
+        self.assertIsInstance(response, Response, 'First argument is not a Response')
+        data = response.data
+        if isinstance(expected, dict):
+            self._assertPayloadEqual(data, expected)
+        elif isinstance(expected, list):
+            self.assertEqual(len(data['results']), len(expected))
+            self._assertPayloadEqual(data['results'], expected)
+        else:
+            self.assertEqual(response, expected)
+
+    def make_request(self, *, to=None, data=None, status_code=None):
         assert self.url_name is not None
         assert self.method is not None
         args = [to] if to is not None else None
         url = reverse(self.url_name, args=args)
         method = getattr(self.client, self.method)
-        return method(url, data=data, format='json')
+        response = method(url, data=data, format='json')
+        self.assertEqual(response.status_code, status_code, response.data)
+        return response
 
     def consume_list(self, data=None):
         assert self.url_name is not None and self.url_name.endswith("-list")

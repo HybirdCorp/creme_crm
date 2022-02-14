@@ -10,7 +10,7 @@ class TokensTestCase(CremeAPITestCase):
     method = 'post'
 
     def test_create_token__missing(self):
-        response = self.make_request(data={})
+        response = self.make_request(data={}, status_code=400)
         self.assertValidationErrors(response, {
             'client_id': ['required'],
             'client_secret': ['required'],
@@ -21,7 +21,7 @@ class TokensTestCase(CremeAPITestCase):
             "client_id": "",  # trim
             "client_secret": "",
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationErrors(response, {
             'client_id': ['invalid'],  # Must be a valid UUID.
             'client_secret': ['blank'],
@@ -32,7 +32,7 @@ class TokensTestCase(CremeAPITestCase):
             "client_id": uuid4().hex,
             "client_secret": "Secret",
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=400)
         self.assertValidationErrors(response, {
             '': ['authentication_failure'],
         })
@@ -42,6 +42,6 @@ class TokensTestCase(CremeAPITestCase):
             "client_id": self.application.client_id,
             "client_secret": self.application._client_secret,
         }
-        response = self.make_request(data=data)
+        response = self.make_request(data=data, status_code=200)
         token = Token.objects.get(application=self.application)
-        self.assertResponseEqual(response, 200, {"token": token.code})
+        self.assertPayloadEqual(response, {"token": token.code})
