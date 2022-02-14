@@ -1,4 +1,8 @@
-== Version 2.2.10 Work in progress (not released -- this is a draft) ==
+== Version 2.2.11 Work in progress (not released -- this is a draft) ==
+
+
+
+== Version 2.2.10 ==
 
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 2.2 (2.2.27 or more).
