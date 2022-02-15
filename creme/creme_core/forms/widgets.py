@@ -799,16 +799,16 @@ class MultiEntityCreatorWidget(SelectorList):
             url = self.creation_url
             if url:
                 allowed = self.creation_allowed
-                name = 'create'
+                action_name = 'create'
                 label = self.creation_label or model.creation_label
                 icon = 'add'
                 button_list.add_action(
-                    name=name, label=label, icon=icon,
+                    name=action_name, label=label, icon=icon,
                     enabled=False, hidden=True,
                     title=_('Create') if allowed else _("Can't create"),
                     popupUrl=url,
                 )
-                self.add_action(name=name, label=label, icon=icon, enabled=allowed)
+                self.add_action(name=action_name, label=label, icon=icon, enabled=allowed)
 
         button_list.delegate = delegate
 
