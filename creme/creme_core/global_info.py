@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -28,12 +28,12 @@
 
 from collections import defaultdict
 from functools import wraps
+# try:
+#     from threading import currentThread
+# except ImportError:
+#     from dummy_threading import currentThread  # type: ignore
+from threading import currentThread
 from typing import DefaultDict, Hashable
-
-try:
-    from threading import currentThread
-except ImportError:
-    from dummy_threading import currentThread  # type: ignore
 
 _globals: DefaultDict = defaultdict(dict)
 

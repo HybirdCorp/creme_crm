@@ -236,10 +236,12 @@ class SubProcessFilter(Filter):
         #                 stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
         #                 universal_newlines=True)
         #     output, error = cmd.communicate(input)
-        cmd = Popen(command,
-                    stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
-                    universal_newlines=True,
-                   )
+        cmd = Popen(
+            command,
+            stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf-8',
+            # universal_newlines=True,
+            text=True,
+        )
         output, error = cmd.communicate(input)
         retcode = cmd.wait()
 
@@ -248,7 +250,7 @@ class SubProcessFilter(Filter):
                 'Command returned bad result',
                 stderr=error,
                 stdout=output,
-                retcode=retcode
+                retcode=retcode,
             )
 
         return output
