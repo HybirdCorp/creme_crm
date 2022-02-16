@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,8 @@ from django.db import models
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeModel
-from creme.creme_core.models import fields as creme_fields
 
 
 class WaitingAction(CremeModel):
@@ -41,12 +41,12 @@ class WaitingAction(CremeModel):
     raw_data = models.BinaryField(blank=True, null=True)  # Pickled data
 
     # Redundant, but faster bd recovery
-    ct = creme_fields.CTypeForeignKey(verbose_name=_('Type of resource'))
+    ct = core_fields.CTypeForeignKey(verbose_name=_('Type of resource'))
 
     subject = models.CharField(_('Subject'), max_length=100)
 
     # If sandbox per user
-    user = creme_fields.CremeUserForeignKey(
+    user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner'), blank=True, null=True, default=None,
     )
 

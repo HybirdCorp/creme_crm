@@ -10,6 +10,8 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+import creme.creme_core.forms.entity_filter.fields as ef_fields
+import creme.creme_core.forms.entity_filter.widgets as ef_widgets
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
@@ -29,8 +31,6 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RelationSubFilterConditionHandler,
     SubFilterConditionHandler,
 )
-from creme.creme_core.forms.entity_filter import fields as ef_fields
-from creme.creme_core.forms.entity_filter import widgets as ef_widgets
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,

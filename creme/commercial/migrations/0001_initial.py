@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 from django.utils.timezone import now
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
@@ -85,7 +86,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'ctype',
-                    creme_fields.CTypeForeignKey(
+                    core_fields.CTypeForeignKey(
                         blank=True, editable=False, to='contenttypes.ContentType',
                         null=True, verbose_name='Counted type',
                     ),
@@ -135,7 +136,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('success_rate', models.PositiveIntegerField(verbose_name='Success rate')),
-                ('ctype', creme_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
+                ('ctype', core_fields.CTypeForeignKey(blank=True, editable=False, to='contenttypes.ContentType', null=True, verbose_name='Counted type')),
                 (
                     'filter',
                     models.ForeignKey(
@@ -168,7 +169,7 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 (
                     'creation_date',
-                    creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True),
+                    core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True),
                 ),
                 (
                     'entity',
@@ -178,7 +179,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'entity_content_type',
-                    creme_fields.EntityCTypeForeignKey(
+                    core_fields.EntityCTypeForeignKey(
                         editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType',
                     )
                 ),

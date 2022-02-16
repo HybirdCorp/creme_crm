@@ -22,8 +22,8 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.forms import CremeModelForm, FieldBlockManager
-from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.gui.fields_config import fields_config_registry
 from creme.creme_core.models import CremeEntity, FieldsConfig

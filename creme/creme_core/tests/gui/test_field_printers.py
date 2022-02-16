@@ -67,7 +67,6 @@ from creme.creme_core.models import (
     FakeSector,
     SetCredentials,
 )
-# from ..fake_constants import FAKE_AMOUNT_UNIT, FAKE_PERCENT_UNIT
 from creme.creme_core.tests.base import CremeTestCase
 
 

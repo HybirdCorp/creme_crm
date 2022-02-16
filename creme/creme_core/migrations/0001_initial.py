@@ -9,8 +9,8 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import migrations, models
 from django.utils.timezone import now
 
-from creme.creme_core.models import deletion as creme_deletion
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.deletion as creme_deletion
+import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
@@ -158,7 +158,7 @@ class Migration(migrations.Migration):
                 ('zone', models.PositiveSmallIntegerField()),
                 (
                     'content_type',
-                    creme_fields.CTypeForeignKey(
+                    core_fields.CTypeForeignKey(
                         verbose_name='Related type', to='contenttypes.ContentType', null=True,
                     )
                 ),
@@ -233,7 +233,7 @@ class Migration(migrations.Migration):
                 ('order', models.PositiveIntegerField(verbose_name='Priority')),
                 (
                     'content_type',
-                    creme_fields.CTypeForeignKey(
+                    core_fields.CTypeForeignKey(
                         verbose_name='Related type', to='contenttypes.ContentType', null=True,
                     )
                 ),
@@ -270,12 +270,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
-                ('created', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
-                ('modified', creme_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
+                ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('modified', core_fields.ModificationDateTimeField(default=now, verbose_name='Last modification', editable=False, blank=True)),
                 ('header_filter_search_field', models.CharField(max_length=200, editable=False)),
                 ('is_deleted', models.BooleanField(default=False, editable=False)),
-                ('entity_type', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                ('user', core_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
                 ('sandbox', models.ForeignKey(editable=False, null=True, on_delete=models.PROTECT, to='creme_core.Sandbox')),
                 ('description', models.TextField(blank=True, verbose_name='Description')),
             ],
@@ -357,7 +357,7 @@ class Migration(migrations.Migration):
                 ('json_cells', models.TextField(default='[]', editable=False)),
                 (
                     'content_type',
-                    creme_fields.CTypeForeignKey(
+                    core_fields.CTypeForeignKey(
                         editable=False, to='contenttypes.ContentType', verbose_name='Related type',
                     )
                 ),
@@ -372,7 +372,7 @@ class Migration(migrations.Migration):
                 ('field_type', models.PositiveSmallIntegerField(verbose_name='Field type')),
                 (
                     'content_type',
-                    creme_fields.CTypeForeignKey(
+                    core_fields.CTypeForeignKey(
                         verbose_name='Related type', to='contenttypes.ContentType',
                     )
                 ),
@@ -593,10 +593,10 @@ class Migration(migrations.Migration):
                         ],
                     )
                 ),
-                ('entity_type', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
                 (
                     'user',
-                    creme_fields.CremeUserForeignKey(
+                    core_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
                         null=True, blank=True,
                         help_text='All users can see this filter, but only the owner can edit or delete it',
@@ -630,7 +630,7 @@ class Migration(migrations.Migration):
                 ('basename', models.CharField(max_length=200)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('temporary', models.BooleanField(default=True, verbose_name='Is temporary?')),
-                ('user', creme_fields.CremeUserForeignKey(null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user')),
+                ('user', core_fields.CremeUserForeignKey(null=True, to=settings.AUTH_USER_MODEL, verbose_name='Owner user')),
             ],
         ),
         migrations.CreateModel(
@@ -641,10 +641,10 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True, editable=False)),
                 ('is_private', models.BooleanField(default=False, verbose_name='Is private?')),
                 ('json_cells', models.TextField(null=True, editable=False)),
-                ('entity_type', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
+                ('entity_type', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType')),
                 (
                     'user',
-                    creme_fields.CremeUserForeignKey(
+                    core_fields.CremeUserForeignKey(
                         verbose_name='Owner user', blank=True, to=settings.AUTH_USER_MODEL, null=True,
                     )
                 ),
@@ -658,12 +658,12 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('username', models.CharField(max_length=30)),
-                ('date', creme_fields.CreationDateTimeField(default=now, verbose_name='Date', editable=False, blank=True)),
+                ('date', core_fields.CreationDateTimeField(default=now, verbose_name='Date', editable=False, blank=True)),
                 ('type', models.PositiveSmallIntegerField(verbose_name='Type')),
                 ('value', models.TextField(null=True)),
                 ('entity', models.ForeignKey(on_delete=models.SET_NULL, to='creme_core.CremeEntity', null=True)),
-                ('entity_ctype', creme_fields.CTypeForeignKey(to='contenttypes.ContentType')),
-                ('entity_owner', creme_fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL)),
+                ('entity_ctype', core_fields.CTypeForeignKey(to='contenttypes.ContentType')),
+                ('entity_owner', core_fields.CremeUserForeignKey(to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'verbose_name': 'Line of history',
@@ -783,7 +783,7 @@ class Migration(migrations.Migration):
             name='Relation',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('created', creme_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
+                ('created', core_fields.CreationDateTimeField(default=now, verbose_name='Creation date', editable=False, blank=True)),
                 (
                     'object_entity',
                     models.ForeignKey(
@@ -798,7 +798,7 @@ class Migration(migrations.Migration):
                 ),
                 ('symmetric_relation', models.ForeignKey(to='creme_core.Relation', null=True, on_delete=models.CASCADE)),
                 ('type', models.ForeignKey(to='creme_core.RelationType', on_delete=models.CASCADE)),
-                ('user', creme_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
+                ('user', core_fields.CremeUserForeignKey(verbose_name='Owner user', to=settings.AUTH_USER_MODEL)),
             ],
             options={
                 'unique_together': {('type', 'subject_entity', 'object_entity')},
@@ -827,7 +827,7 @@ class Migration(migrations.Migration):
                 ('disabled', models.BooleanField(default=False, verbose_name='Disabled?')),
                 (
                     'content_type',
-                    creme_fields.EntityCTypeForeignKey(verbose_name='Related resource', to='contenttypes.ContentType')
+                    core_fields.EntityCTypeForeignKey(verbose_name='Related resource', to='contenttypes.ContentType')
                 ),
                 (
                     'role',
@@ -882,7 +882,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'ctype',
-                    creme_fields.EntityCTypeForeignKey(
+                    core_fields.EntityCTypeForeignKey(
                         to='contenttypes.ContentType',
                         blank=True, null=True, on_delete=models.CASCADE,
                         verbose_name='Apply to a specific type',
@@ -953,7 +953,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     'content_type',
-                    creme_fields.CTypeOneToOneField(
+                    core_fields.CTypeOneToOneField(
                         primary_key=True, serialize=False, editable=False,
                         to='contenttypes.ContentType',
                     )
@@ -969,7 +969,7 @@ class Migration(migrations.Migration):
                 ('enabled', models.BooleanField(default=True, verbose_name='Enabled', editable=False)),
                 ('language', models.CharField(verbose_name='Language', max_length=10, editable=False)),
                 ('reference_run', models.DateTimeField(verbose_name='Reference run')),
-                ('periodicity', creme_fields.DatePeriodField(null=True, verbose_name='Periodicity')),
+                ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity')),
                 ('last_run', models.DateTimeField(verbose_name='Last run', null=True, editable=False)),
                 ('ack_errors', models.PositiveIntegerField(default=0, editable=False)),
                 (
@@ -988,7 +988,7 @@ class Migration(migrations.Migration):
                 ('data', models.JSONField(editable=False, null=True)),
                 (
                     'user',
-                    creme_fields.CremeUserForeignKey(
+                    core_fields.CremeUserForeignKey(
                         editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='User',
                     )
                 ),
@@ -1039,7 +1039,7 @@ class Migration(migrations.Migration):
             fields=[
                 (
                     'content_type',
-                    creme_fields.CTypeOneToOneField(
+                    core_fields.CTypeOneToOneField(
                         editable=False, on_delete=models.CASCADE,
                         primary_key=True, serialize=False,
                         to='contenttypes.ContentType',
@@ -1079,7 +1079,7 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
-                    ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                    ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ],
                 options={
                     'ordering': ('name',),
@@ -1352,7 +1352,7 @@ class Migration(migrations.Migration):
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('title', models.CharField(max_length=100, verbose_name='Title')),
                     ('is_custom', models.BooleanField(default=True)),
-                    ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                    ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ],
                 options={
                     'ordering': ('order',),
@@ -1375,8 +1375,8 @@ class Migration(migrations.Migration):
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
-                    ('phone', creme_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
-                    ('mobile', creme_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
+                    ('phone', core_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
+                    ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
                     ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
                     ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
@@ -1491,17 +1491,17 @@ class Migration(migrations.Migration):
                     ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                     ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                     ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
-                    ('periodicity', creme_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),
+                    ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),
                     (
                         'total_vat',
-                        creme_fields.MoneyField(
+                        core_fields.MoneyField(
                             decimal_places=2, default=0, editable=False, max_digits=14,
                             null=True, verbose_name='Total with VAT',
                         )
                     ),
                     (
                         'total_no_vat',
-                        creme_fields.MoneyField(
+                        core_fields.MoneyField(
                             decimal_places=2, default=0, editable=False, max_digits=14,
                             null=True, verbose_name='Total without VAT',
                         )
@@ -1568,7 +1568,7 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=200, verbose_name='Name')),
-                    ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
+                    ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
                     ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
@@ -1664,7 +1664,7 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
-                    ('ctype', creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
+                    ('ctype', core_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')),
                     (
                         'efilter',
                         models.ForeignKey(
@@ -1818,7 +1818,7 @@ class Migration(migrations.Migration):
                     ),
                     (
                         'entity_content_type',
-                        creme_fields.EntityCTypeForeignKey(
+                        core_fields.EntityCTypeForeignKey(
                             editable=False, on_delete=models.CASCADE,
                             related_name='+', to='contenttypes.ContentType',
                         )

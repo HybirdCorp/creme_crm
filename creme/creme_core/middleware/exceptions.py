@@ -27,7 +27,7 @@ from django.shortcuts import render
 from django.utils.deprecation import MiddlewareMixin
 from django.utils.encoding import smart_str
 
-from creme.creme_core.core import exceptions as creme_exceptions
+import creme.creme_core.core.exceptions as core_exceptions
 from creme.creme_core.http import is_ajax
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ class _AlternativeErrorMiddleware(MiddlewareMixin):
 
 
 class BadRequestMiddleware(_AlternativeErrorMiddleware):
-    error = creme_exceptions.BadRequestError
+    error = core_exceptions.BadRequestError
     template = '400.html'
 
 
@@ -74,7 +74,7 @@ class Ajax404Middleware(_AlternativeErrorMiddleware):
 
 
 class Beautiful409Middleware(_AlternativeErrorMiddleware):
-    error = creme_exceptions.ConflictError
+    error = core_exceptions.ConflictError
     status = 409
     template = 'creme_core/conflict_error.html'
 

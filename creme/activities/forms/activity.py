@@ -30,7 +30,7 @@ from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core import forms as core_forms
+import creme.creme_core.forms as core_forms
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.chunktools import iter_as_chunk

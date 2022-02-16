@@ -156,7 +156,7 @@ class CommercialConfig(CremeAppConfig):
         setting_key_registry.register(setting_keys.orga_approaches_key)
 
     def hook_activities(self):
-        from creme.activities import custom_forms as act_cforms
+        import creme.activities.custom_forms as act_cforms
         from creme.activities import get_activity_model
         from creme.commercial.forms.activity import IsCommercialApproachSubCell
 

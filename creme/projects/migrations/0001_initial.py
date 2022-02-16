@@ -4,8 +4,8 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE
-from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
@@ -27,9 +27,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('color_code', creme_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
+                ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
-                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -75,10 +75,10 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('color_code', creme_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
+                ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
             ],
             options={
                 'ordering': ('order',),

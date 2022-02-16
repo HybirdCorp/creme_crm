@@ -20,8 +20,8 @@
 
 from typing import Sequence, Union
 
+import creme.billing.forms.base as base_forms
 from creme import persons
-from creme.billing.forms import base as base_forms
 from creme.billing.models import Base
 from creme.creme_core.utils import bool_from_str_extended
 from creme.creme_core.views import generic

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeEntity, CremeModel, FieldsConfig
-from creme.creme_core.models import fields as creme_fields
 
 
 class AbstractAddress(CremeModel):
@@ -50,14 +50,14 @@ class AbstractAddress(CremeModel):
         _('Country'), max_length=40, blank=True,
     ).set_tags(optional=True)
 
-    content_type = creme_fields.EntityCTypeForeignKey(
+    content_type = core_fields.EntityCTypeForeignKey(
         related_name='+', editable=False,
     ).set_tags(viewable=False)
     object = models.ForeignKey(
         CremeEntity, related_name='persons_addresses',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    owner = creme_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
+    owner = core_fields.RealEntityForeignKey(ct_field='content_type', fk_field='object')
 
     creation_label = _('Create an address')
     save_label     = _('Save the address')

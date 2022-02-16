@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core import models as creme_models
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models as core_models
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.utils import ellipsis
 
 
@@ -32,18 +32,19 @@ class MemoManager(models.Manager):
         return self.filter(user__in=[user, *user.teams])
 
 
-class Memo(creme_models.CremeModel):
-    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+class Memo(core_models.CremeModel):
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
     content = models.TextField(_('Content'))
     on_homepage = models.BooleanField(_('Displayed on homepage'), default=False)
-    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    creation_date = core_fields.CreationDateTimeField(_('Creation date'), editable=False)
 
-    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
-        creme_models.CremeEntity,  related_name='assistants_memos',
+        core_models.CremeEntity,
+        related_name='assistants_memos',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    creme_entity = creme_fields.RealEntityForeignKey(
+    creme_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 

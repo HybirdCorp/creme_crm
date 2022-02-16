@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,26 +22,26 @@ from django.conf import settings
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core import models as creme_models
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models as core_models
+import creme.creme_core.models.fields as core_fields
 
 
-class CommercialApproach(creme_models.CremeModel):
+class CommercialApproach(core_models.CremeModel):
     title = models.CharField(_('Title'), max_length=200)
     description = models.TextField(_('Description'), blank=True)
-    creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
+    creation_date = core_fields.CreationDateTimeField(_('Creation date'), editable=False)
 
     related_activity = models.ForeignKey(
         settings.ACTIVITIES_ACTIVITY_MODEL, null=True,
         editable=False, on_delete=models.CASCADE,
     )
 
-    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
-        creme_models.CremeEntity, related_name='commercial_approaches',
+        core_models.CremeEntity, related_name='commercial_approaches',
         editable=False, on_delete=models.CASCADE,
     )  # .set_tags(viewable=False) uncomment if it becomes an auxiliary (get_related_entity())
-    creme_entity = creme_fields.RealEntityForeignKey(
+    creme_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 

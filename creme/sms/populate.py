@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,8 +24,8 @@ from functools import partial
 from django.apps import apps
 from django.utils.translation import gettext as _
 
+import creme.creme_core.bricks as core_bricks
 from creme import sms
-from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
@@ -242,7 +242,7 @@ class Populator(BasePopulator):
                     'Assistants app is installed => we use the assistants blocks on detail views'
                 )
 
-                from creme.assistants import bricks as a_bricks
+                import creme.assistants.bricks as a_bricks
 
                 for model in (SMSCampaign, MessagingList):
                     BrickDetailviewLocation.objects.multi_create(

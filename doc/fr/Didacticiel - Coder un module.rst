@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-02-2022 pour la version 2.3 de Creme
+:Version: 16-02-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1520,7 +1520,7 @@ Si on veut que le bloc soit présent dans la configuration de base pour les cast
 l'installation, il faut s'en occuper dans notre fichier ``beavers/populate.py`` : ::
 
     [...]
-    from creme.creme_core import bricks as core_bricks
+    from creme.creme_core.bricks as core_bricks
     from creme.creme_core.models import BrickDetailviewLocation
 
     from .bricks import BeaverAgeBrick

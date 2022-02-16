@@ -31,10 +31,10 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+import creme.creme_core.forms.base as core_forms
+import creme.creme_core.forms.fields as core_fields
 from creme import emails, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.forms import base as base_forms
-from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.utils.html import strip_html
@@ -51,7 +51,7 @@ EntityEmail   = emails.get_entityemail_model()
 EmailTemplate = emails.get_emailtemplate_model()
 
 
-class EntityEmailForm(base_forms.CremeEntityQuickForm):
+class EntityEmailForm(core_forms.CremeEntityQuickForm):
     """Mails are related to the selected contacts/organisations & the 'current' entity.
     Mails are send to selected contacts/organisations.
     """
@@ -71,7 +71,7 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
         'empty_bodies': _('Both bodies cannot be empty at the same time.'),
     }
 
-    blocks = base_forms.FieldBlockManager(
+    blocks = core_forms.FieldBlockManager(
         {
             'id': 'recipients',
             'label': _('Who'),
@@ -242,7 +242,7 @@ class EntityEmailForm(base_forms.CremeEntityQuickForm):
             entity_emails_send_type.refresh_job()
 
 
-class TemplateSelectionFormStep(base_forms.CremeForm):
+class TemplateSelectionFormStep(core_forms.CremeForm):
     template = core_fields.CreatorEntityField(
         label=pgettext_lazy('emails', 'Template'),
         model=EmailTemplate,

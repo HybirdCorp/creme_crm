@@ -28,6 +28,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
+import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_core.apps import (
     CremeAppConfig,
     creme_app_configs,
@@ -46,7 +47,6 @@ from creme.creme_core.forms import (
     FieldBlockManager,
     MultiEntityCTypeChoiceField,
 )
-from creme.creme_core.forms import widgets as creme_widgets
 from creme.creme_core.models import (
     CremeEntity,
     CremeUser,
@@ -120,10 +120,10 @@ class CredentialsGeneralStep(CremeModelForm):
         model = SetCredentials
         exclude = ('value', )  # fields ??
         widgets = {
-            'set_type':  creme_widgets.CremeRadioSelect,
+            'set_type':  core_widgets.CremeRadioSelect,
             # TODO: always this widget for CTypeForeignKey ??
-            'ctype':     creme_widgets.DynamicSelect(attrs={'autocomplete': True}),
-            'forbidden': creme_widgets.CremeRadioSelect,
+            'ctype':     core_widgets.DynamicSelect(attrs={'autocomplete': True}),
+            'forbidden': core_widgets.CremeRadioSelect,
         }
 
     def __init__(self, *args, **kwargs):
@@ -163,7 +163,7 @@ class CredentialsGeneralStep(CremeModelForm):
 class CredentialsFilterStep(CremeModelForm):
     name = EntityFilter._meta.get_field('name').formfield(label=_('Name of the filter'))
     use_or = EntityFilter._meta.get_field('use_or').formfield(
-        widget=creme_widgets.CremeRadioSelect,
+        widget=core_widgets.CremeRadioSelect,
     )
 
     class Meta:
@@ -252,7 +252,7 @@ class CredentialsFilterStep(CremeModelForm):
             fields.clear()
             fields['no_filter_label'] = forms.CharField(
                 label=_('Conditions'),
-                required=False, widget=creme_widgets.Label,
+                required=False, widget=core_widgets.Label,
                 initial=_('No filter, no condition.'),
             )
 
@@ -349,7 +349,7 @@ class UserRoleDeletionForm(CremeModelForm):
         else:
             self.fields['info'] = forms.CharField(
                 label=gettext('Information'), required=False,
-                widget=creme_widgets.Label,
+                widget=core_widgets.Label,
                 initial=gettext(
                     'This role is not used by any user, you can delete it safely.'
                 ),
@@ -535,7 +535,7 @@ class UserRoleCredentialsGeneralStep(CredentialsGeneralStep):
         fields['can_view'] = forms.CharField(
             label=fields['can_view'].label,
             required=False,
-            widget=creme_widgets.Label,
+            widget=core_widgets.Label,
             initial=_('Yes'),
         )
 

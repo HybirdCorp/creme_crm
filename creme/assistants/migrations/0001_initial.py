@@ -5,7 +5,7 @@ from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 from django.utils.timezone import now
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields as creme_fields
 
 
 class Migration(migrations.Migration):

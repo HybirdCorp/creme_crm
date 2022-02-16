@@ -158,7 +158,7 @@ class PersonsConfig(CremeAppConfig):
         )
 
     def register_menu_entries(self, menu_registry):
-        from creme.creme_core import menu as core_menu
+        import creme.creme_core.menu as core_menu
 
         from . import menu
 

@@ -29,7 +29,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core import models as core_models
+import creme.creme_core.models as core_models
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.models.fields import BasicAutoField
 from creme.persons import get_organisation_model

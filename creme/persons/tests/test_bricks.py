@@ -32,7 +32,7 @@ from .base import (
 )
 
 if apps.is_installed('creme.activities'):
-    from creme.activities import constants as act_constants
+    import creme.activities.constants as act_constants
     from creme.activities.models import Activity
     from creme.activities.tests.base import skipIfCustomActivity
 

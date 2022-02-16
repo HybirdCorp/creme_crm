@@ -27,10 +27,10 @@ from django.forms.widgets import Textarea
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.core.deletion import FixedValueReplacer
 from creme.creme_core.creme_jobs import deletor_type
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import DeletionCommand, Job
 from creme.creme_core.models.custom_field import (

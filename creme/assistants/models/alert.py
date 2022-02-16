@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core import models as creme_models
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models as core_models
+import creme.creme_core.models.fields as core_fields
 
 
 class AlertManager(models.Manager):
@@ -31,8 +31,8 @@ class AlertManager(models.Manager):
         return self.filter(user__in=[user, *user.teams])
 
 
-class Alert(creme_models.CremeModel):
-    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+class Alert(core_models.CremeModel):
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
     title = models.CharField(_('Title'), max_length=200)
     description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
@@ -41,12 +41,13 @@ class Alert(creme_models.CremeModel):
     # Needed by creme_core.core.reminder
     reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
 
-    entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
+    entity_content_type = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
-        creme_models.CremeEntity, related_name='assistants_alerts',
+        core_models.CremeEntity,
+        related_name='assistants_alerts',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    creme_entity = creme_fields.RealEntityForeignKey(
+    creme_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 

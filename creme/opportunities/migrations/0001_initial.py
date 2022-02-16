@@ -3,8 +3,8 @@
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
-from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
@@ -34,7 +34,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
                 ('lost', models.BooleanField(default=False, verbose_name='Lost')),
             ],

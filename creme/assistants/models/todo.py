@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import CremeEntity, CremeModel
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models as core_models
+import creme.creme_core.models.fields as creme_fields
 
 
 class ToDoManager(models.Manager):
@@ -31,7 +31,7 @@ class ToDoManager(models.Manager):
         return self.filter(user__in=[user, *user.teams])
 
 
-class ToDo(CremeModel):
+class ToDo(core_models.CremeModel):
     user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
     title = models.CharField(_('Title'), max_length=200)
     is_ok = models.BooleanField(_('Done?'), editable=False, default=False)
@@ -45,7 +45,8 @@ class ToDo(CremeModel):
 
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
-        CremeEntity, related_name='assistants_todos',
+        core_models.CremeEntity,
+        related_name='assistants_todos',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
     creme_entity = creme_fields.RealEntityForeignKey(

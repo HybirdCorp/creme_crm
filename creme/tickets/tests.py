@@ -11,11 +11,11 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+import creme.creme_core.tests.views.base as views_base
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.models import HeaderFilter, RelationType
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.views import base as views_base
 from creme.persons import get_contact_model
 
 from . import (

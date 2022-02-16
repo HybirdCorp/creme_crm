@@ -2,9 +2,9 @@
 
 from django.utils.translation import gettext_lazy as _
 
+import creme.recurrents.forms.recurrentgenerator as base
 from creme import recurrents
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
-from creme.recurrents.forms import recurrentgenerator as base
 
 RecurrentGenerator = recurrents.get_rgenerator_model()
 

@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+import creme.creme_core.gui.bricks as gui_bricks
 from creme.creme_config import bricks
 from creme.creme_core.bricks import (
     CustomFieldsBrick,
@@ -24,7 +25,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.function_field import function_field_registry
-from creme.creme_core.gui import bricks as gui_bricks
 from creme.creme_core.gui.bricks import (
     Brick,
     InstanceBrick,
