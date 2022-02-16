@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from typing import (
@@ -129,7 +131,7 @@ class MenuEntry:
         return True
 
     @property
-    def children(self) -> Iterator['MenuEntry']:
+    def children(self) -> Iterator[MenuEntry]:
         yield from ()
 
     def render_label(self, context) -> str:
@@ -385,7 +387,7 @@ class MenuRegistry:
     def __init__(self):
         self._entry_classes = {}
 
-    def register(self, *entry_classes: Type[MenuEntry]) -> 'MenuRegistry':
+    def register(self, *entry_classes: Type[MenuEntry]) -> MenuRegistry:
         setdefault = self._entry_classes.setdefault
 
         for entry_cls in entry_classes:
@@ -478,7 +480,7 @@ class _PriorityList:
     def __len__(self):
         return len(self._items)
 
-    def add(self, *items, **kwargs) -> '_PriorityList':
+    def add(self, *items, **kwargs) -> _PriorityList:
         """Adds several items at once.
 
         @param items: Instances.
@@ -676,7 +678,7 @@ class _CreationViewLinksGroup:
             id: str,
             model=None,
             priority=None,
-            **kwargs) -> '_CreationViewLinksGroup':
+            **kwargs) -> _CreationViewLinksGroup:
         """Add a link to a creation view.
         @param id: unique (in this group) string, which allows to do queries
                (change property, remove...).
@@ -717,7 +719,7 @@ class CreationMenuRegistry:
             self,
             group_id: str,
             label,
-            priority=None) -> '_CreationViewLinksGroup':
+            priority=None) -> _CreationViewLinksGroup:
         """Get a group of links by its ID, & create it if it does not exist."""
         groups = self._groups
 

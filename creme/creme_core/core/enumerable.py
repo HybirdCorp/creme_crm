@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from typing import Iterable, Iterator, List, Tuple, Type
 
 from django.db.models import Field, Model
@@ -220,7 +222,7 @@ class _EnumerableRegistry:
                        model: Type[CremeEntity],
                        field_name: str,
                        enumerator_class: Type[Enumerator],
-                       ) -> '_EnumerableRegistry':
+                       ) -> _EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
@@ -246,7 +248,7 @@ class _EnumerableRegistry:
     def register_field_type(self,
                             field_class: Type[Field],
                             enumerator_class: Type[Enumerator],
-                            ) -> '_EnumerableRegistry':
+                            ) -> _EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field class.
 
@@ -263,7 +265,7 @@ class _EnumerableRegistry:
     def register_related_model(self,
                                model: Type[CremeEntity],
                                enumerator_class: Type[Enumerator],
-                               ) -> '_EnumerableRegistry':
+                               ) -> _EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for ForeignKeys/ManyToManyFields
         which reference a specific model.

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from typing import Dict, Union
 
@@ -91,7 +93,7 @@ class SettingValueManager(models.Manager):
         except KeyError:
             return default
 
-    def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> 'SettingValue':
+    def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> SettingValue:
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -105,7 +107,7 @@ class SettingValueManager(models.Manager):
         """
         return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
 
-    def get_4_keys(self, *values_info: dict) -> Dict[str, 'SettingValue']:
+    def get_4_keys(self, *values_info: dict) -> Dict[str, SettingValue]:
         """Get several SettingValue corresponding to several SettingKeys at once.
          It's faster than calling 'get_4_key()' several times, because only one
          SQL query is performed (in the worst case)

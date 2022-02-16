@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import uuid
 from collections import OrderedDict, defaultdict
@@ -227,7 +229,7 @@ class UserRole(models.Model):
         """
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 
-    def _get_setcredentials(self) -> List['SetCredentials']:
+    def _get_setcredentials(self) -> List[SetCredentials]:
         setcredentials = self._setcredentials
 
         if setcredentials is None:
@@ -442,7 +444,7 @@ class SetCredentials(models.Model):
         return EntityCredentials.NONE
 
     @staticmethod
-    def get_perms(sc_sequence: Sequence['SetCredentials'],
+    def get_perms(sc_sequence: Sequence[SetCredentials],
                   user,
                   entity: 'CremeEntity',
                   ) -> int:
@@ -461,7 +463,7 @@ class SetCredentials(models.Model):
 
     @classmethod
     def _can_do(cls,
-                sc_sequence: Sequence['SetCredentials'],
+                sc_sequence: Sequence[SetCredentials],
                 user,
                 model: Type['CremeEntity'],
                 owner=None,
@@ -497,7 +499,7 @@ class SetCredentials(models.Model):
     @classmethod
     def _aux_filter(cls,
                     model: Type['CremeEntity'],
-                    sc_sequence: Sequence['SetCredentials'],
+                    sc_sequence: Sequence[SetCredentials],
                     user,
                     queryset: QuerySet,
                     perm: int,
@@ -556,7 +558,7 @@ class SetCredentials(models.Model):
 
     @classmethod
     def filter(cls,
-               sc_sequence: Sequence['SetCredentials'],
+               sc_sequence: Sequence[SetCredentials],
                user,
                queryset: QuerySet,
                perm: int,
@@ -582,7 +584,7 @@ class SetCredentials(models.Model):
 
     @classmethod
     def filter_entities(cls,
-                        sc_sequence: Sequence['SetCredentials'],
+                        sc_sequence: Sequence[SetCredentials],
                         user,
                         queryset: QuerySet,
                         perm: int,
@@ -1183,7 +1185,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_link(self,
                          entity_or_model: _EntityInstanceOrClass,
-                         owner: Optional['CremeUser'] = None,
+                         owner: Optional[CremeUser] = None,
                          ) -> bool:
         """Can the user link a future entity of a given class ?
         @param entity_or_model: {Instance of} class inheriting CremeEntity.

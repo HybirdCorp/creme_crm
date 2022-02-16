@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import uuid
 from collections import defaultdict
@@ -149,7 +151,7 @@ class CremeEntity(CremeModel):
             gettext('Entity #{id} (not viewable)').format(id=self.id)
         )
 
-    def get_real_entity(self) -> 'CremeEntity':
+    def get_real_entity(self) -> CremeEntity:
         entity = self._real_entity
 
         if entity is True:
@@ -220,7 +222,7 @@ class CremeEntity(CremeModel):
     def get_related_entities(self,
                              relation_type_id: str,
                              real_entities: bool = True,
-                             ) -> List['CremeEntity']:
+                             ) -> List[CremeEntity]:
         return [
             relation.object_entity.get_real_entity()
             for relation in self.get_relations(relation_type_id, real_entities)
@@ -255,7 +257,7 @@ class CremeEntity(CremeModel):
         return relations
 
     @staticmethod
-    def populate_real_entities(entities: Sequence['CremeEntity']) -> None:
+    def populate_real_entities(entities: Sequence[CremeEntity]) -> None:
         """Faster than calling get_real_entity() of each CremeEntity object,
         because it groups queries by ContentType.
         @param entities: Sequence of CremeEntity instances.
@@ -276,7 +278,7 @@ class CremeEntity(CremeModel):
             entity._real_entity = entities_map[entity.id]
 
     @staticmethod
-    def populate_relations(entities: Sequence['CremeEntity'],
+    def populate_relations(entities: Sequence[CremeEntity],
                            relation_type_ids: Sequence[str],
                            ) -> None:
         from . import Relation
@@ -311,7 +313,7 @@ class CremeEntity(CremeModel):
         return cvalue
 
     @staticmethod
-    def populate_custom_values(entities: Sequence['CremeEntity'],
+    def populate_custom_values(entities: Sequence[CremeEntity],
                                custom_fields: Sequence['CustomField'],
                                ) -> None:
         from . import CustomField
@@ -356,7 +358,7 @@ class CremeEntity(CremeModel):
         return self._properties
 
     @staticmethod
-    def populate_properties(entities: Sequence['CremeEntity']) -> None:
+    def populate_properties(entities: Sequence[CremeEntity]) -> None:
         from . import CremeProperty
 
         properties_map: DefaultDict[int, list] = defaultdict(list)
@@ -426,7 +428,7 @@ class CremeEntity(CremeModel):
         """
         pass
 
-    def _clone_m2m(self, source: 'CremeEntity') -> None:
+    def _clone_m2m(self, source: CremeEntity) -> None:
         """Handle the clone of all many to many fields."""
         for field in source._meta.many_to_many:
             field_name = field.name
@@ -454,7 +456,7 @@ class CremeEntity(CremeModel):
 
         return new_entity
 
-    def _copy_properties(self, source: 'CremeEntity') -> None:
+    def _copy_properties(self, source: CremeEntity) -> None:
         from . import CremeProperty
 
         creme_property_create = CremeProperty.objects.safe_create
@@ -465,7 +467,7 @@ class CremeEntity(CremeModel):
             creme_property_create(type_id=type_id, creme_entity=self)
 
     def _copy_relations(self,
-                        source: 'CremeEntity',
+                        source: CremeEntity,
                         allowed_internal: Sequence[str] = (),
                         ) -> None:
         """@param allowed_internal: Sequence of RelationTypes PK with <is_internal=True>.
@@ -492,7 +494,7 @@ class CremeEntity(CremeModel):
             )
 
     @atomic
-    def clone(self) -> 'CremeEntity':
+    def clone(self) -> CremeEntity:
         """Take an entity and makes it copy.
         @returns : A new entity (with a different pk) with sames values
         """

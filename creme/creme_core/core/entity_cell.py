@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from collections import defaultdict
@@ -160,7 +162,7 @@ class EntityCell:
         return listview_css_class
 
     @classmethod
-    def build(cls, model: Type[Model], name: str) -> Optional['EntityCell']:
+    def build(cls, model: Type[Model], name: str) -> Optional[EntityCell]:
         raise NotImplementedError
 
     @property
@@ -189,7 +191,7 @@ class EntityCell:
         return issubclass(self._get_field_class(), MULTILINE_FIELDS)
 
     @staticmethod
-    def mixed_populate_entities(cells: Iterable['EntityCell'],
+    def mixed_populate_entities(cells: Iterable[EntityCell],
                                 entities: Sequence[CremeEntity],
                                 user,
                                 ) -> None:
@@ -201,7 +203,7 @@ class EntityCell:
         @param entities: Instances of CremeEntities (or subclass).
         @param user: Instance of <contrib.auth.get_user_model()>.
         """
-        cell_groups: DefaultDict[Type['EntityCell'], List['EntityCell']] = defaultdict(list)
+        cell_groups: DefaultDict[Type[EntityCell], List[EntityCell]] = defaultdict(list)
 
         for cell in cells:
             cell_groups[cell.__class__].append(cell)
@@ -210,7 +212,7 @@ class EntityCell:
             cell_cls.populate_entities(cell_group, entities, user)
 
     @staticmethod
-    def populate_entities(cells: Iterable['EntityCell'],
+    def populate_entities(cells: Iterable[EntityCell],
                           entities: Sequence[CremeEntity],
                           user,
                           ) -> None:
@@ -533,7 +535,7 @@ class EntityCellCustomField(EntityCell):
     @classmethod
     def build(cls,
               model: Type[Model],
-              customfield_id: str) -> Optional['EntityCellCustomField']:
+              customfield_id: str) -> Optional[EntityCellCustomField]:
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
         try:
@@ -622,7 +624,7 @@ class EntityCellFunctionField(EntityCell):
     def build(cls,
               model: Type[Model],
               func_field_name: str,
-              ) -> Optional['EntityCellFunctionField']:
+              ) -> Optional[EntityCellFunctionField]:
         func_field = cls.field_registry.get(model, func_field_name)
 
         if func_field is None:
@@ -683,7 +685,7 @@ class EntityCellRelation(EntityCell):
               model: Type[Model],
               rtype_id: str,
               is_hidden: bool = False,
-              ) -> Optional['EntityCellRelation']:
+              ) -> Optional[EntityCellRelation]:
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:

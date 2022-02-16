@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from typing import (
@@ -68,7 +70,7 @@ class ExporterFlavour:
         return f'ExporterFlavour("{self.country}", "{self.language}", "{self.theme}")'
 
     @classmethod
-    def agnostic(cls) -> 'ExporterFlavour':
+    def agnostic(cls) -> ExporterFlavour:
         "A variation not related to a country or a language."
         return cls(country=AGNOSTIC)
 
@@ -77,7 +79,7 @@ class ExporterFlavour:
         return FlavourId(f'{self.country}/{self.language}/{self.theme}')
 
     @classmethod
-    def from_id(cls, flavour_id: FlavourId) -> 'ExporterFlavour':
+    def from_id(cls, flavour_id: FlavourId) -> ExporterFlavour:
         """Get an instance from an ID."""
         return cls(*flavour_id.split('/', 2))
 

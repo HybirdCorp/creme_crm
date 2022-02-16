@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from typing import (
@@ -57,7 +59,7 @@ class SearchConfigItemManager(models.Manager):
                          fields: Iterable[str],
                          role: Union[UserRole, str, None] = None,
                          disabled: bool = False,
-                         ) -> 'SearchConfigItem':
+                         ) -> SearchConfigItem:
         """Create a config item & its fields if one does not already exists.
         @param model: Model class the configuration is related to.
         @param fields: Sequence of strings representing regular field names.
@@ -91,7 +93,7 @@ class SearchConfigItemManager(models.Manager):
     def iter_for_models(self,
                         models: Iterable[Type[CremeEntity]],
                         user,
-                        ) -> Iterator['SearchConfigItem']:
+                        ) -> Iterator[SearchConfigItem]:
         "Get the SearchConfigItem instances corresponding to the given models (generator)."
         get_ct = ContentType.objects.get_for_model
         ctypes = [get_ct(model) for model in models]

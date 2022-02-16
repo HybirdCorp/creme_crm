@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from functools import partial
 from typing import Iterable, Iterator, List, Sequence, Tuple, Type, Union
@@ -715,7 +717,7 @@ class HistoryRegistry:
     def register_line_explainer(self,
                                 htype: int,
                                 explainer_class: Type[HistoryLineExplainer],
-                                ) -> 'HistoryRegistry':
+                                ) -> HistoryRegistry:
         self._line_explainer_classes[htype] = explainer_class
 
         return self

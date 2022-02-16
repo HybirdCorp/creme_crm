@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from typing import Callable, Dict, Optional, Tuple, Type
@@ -281,7 +283,7 @@ class IconRegistry:
         self._icons: Dict[Type[Model], str] = {}
         self._icons_4_objects: Dict[Type[Model], _IconInfoFunc] = {}
 
-    def register(self, model: Type[Model], path: str) -> 'IconRegistry':
+    def register(self, model: Type[Model], path: str) -> IconRegistry:
         """eg: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
@@ -290,7 +292,7 @@ class IconRegistry:
     def register_4_instance(self,
                             model: Type[Model],
                             info_function: _IconInfoFunc,
-                            ) -> 'IconRegistry':
+                            ) -> IconRegistry:
         """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
 

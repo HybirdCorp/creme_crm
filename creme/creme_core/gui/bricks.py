@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from typing import (
@@ -701,7 +703,7 @@ class BricksManager:
         return dep_map
 
     @staticmethod
-    def get(context) -> 'BricksManager':
+    def get(context) -> BricksManager:
         return context[BricksManager.var_name]  # Will raise exception if not created: OK
 
     def get_remaining_groups(self) -> List[str]:
@@ -760,7 +762,7 @@ class _BrickRegistry:
         self._instance_brick_classes: Dict[str, Type[InstanceBrick]] = {}
         self._invalid_models: Set[Type[CremeEntity]] = set()
 
-    def register(self, *brick_classes: Type[Brick]) -> '_BrickRegistry':
+    def register(self, *brick_classes: Type[Brick]) -> _BrickRegistry:
         setdefault = self._brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -781,7 +783,7 @@ class _BrickRegistry:
         return self
 
     # TODO: factorise
-    def register_4_instance(self, *brick_classes: Type[InstanceBrick]) -> '_BrickRegistry':
+    def register_4_instance(self, *brick_classes: Type[InstanceBrick]) -> _BrickRegistry:
         setdefault = self._instance_brick_classes.setdefault
 
         for brick_cls in brick_classes:
@@ -800,7 +802,7 @@ class _BrickRegistry:
 
         return self
 
-    def register_invalid_models(self, *models: Type[CremeEntity]) -> '_BrickRegistry':
+    def register_invalid_models(self, *models: Type[CremeEntity]) -> _BrickRegistry:
         """Register some models which cannot have a bricks configuration for
         their detail-views (eg: they have no detail-view, or they are not 'classical' ones).
         @param models: Classes inheriting CremeEntity.
@@ -816,7 +818,8 @@ class _BrickRegistry:
     # TODO: had a boolean argument "override" ??
     def register_4_model(self,
                          model: Type[CremeEntity],
-                         brick_cls: Type[Brick]) -> '_BrickRegistry':
+                         brick_cls: Type[Brick],
+                         ) -> _BrickRegistry:
         assert brick_cls.id_ == MODELBRICK_ID
 
         # NB: the key is the class, not the ContentType.id because it can cause
@@ -827,7 +830,8 @@ class _BrickRegistry:
 
     def register_hat(self, model: Type[CremeEntity],
                      main_brick_cls: Optional[Type[Brick]] = None,
-                     secondary_brick_classes: Iterable[Type[Brick]] = ()) -> '_BrickRegistry':
+                     secondary_brick_classes: Iterable[Type[Brick]] = (),
+                     ) -> _BrickRegistry:
         brick_classes = self._hat_brick_classes[model]
 
         if main_brick_cls is not None:
@@ -867,7 +871,8 @@ class _BrickRegistry:
 
     def get_brick_4_instance(self,
                              ibi: InstanceBrickConfigItem,
-                             entity: Optional[CremeEntity] = None) -> InstanceBrick:
+                             entity: Optional[CremeEntity] = None,
+                             ) -> InstanceBrick:
         """Get a Brick instance corresponding to a InstanceBrickConfigItem.
         @param ibi: InstanceBrickConfigItem instance.
         @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
@@ -900,7 +905,8 @@ class _BrickRegistry:
 
     def get_bricks(self,
                    brick_ids: Sequence[str],
-                   entity: Optional[CremeEntity] = None) -> Iterator[Brick]:
+                   entity: Optional[CremeEntity] = None,
+                   ) -> Iterator[Brick]:
         """Bricks type can be SpecificRelationsBrick/InstanceBrickConfigItem:
         in this case, they are not really registered, but created on the fly.
         @param brick_ids: Sequence of bricks' IDs.
@@ -979,9 +985,9 @@ class _BrickRegistry:
                 yield brick_cls()
 
     # TODO: python 3.8 => '/' argument ?
-    def get_brick_4_object(
-            self,
-            obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity]) -> Brick:
+    def get_brick_4_object(self,
+                           obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity],
+                           ) -> Brick:
         """Return the Brick that displays fields for a CremeEntity instance.
         @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType instance
                           representing this model, or instance of this model.
@@ -1029,9 +1035,9 @@ class _BrickRegistry:
 
         return brick
 
-    def get_compatible_bricks(
-            self,
-            model: Optional[Type[CremeEntity]] = None) -> Iterator[Brick]:
+    def get_compatible_bricks(self,
+                              model: Optional[Type[CremeEntity]] = None,
+                              ) -> Iterator[Brick]:
         """Returns the registered bricks that are configurable and
         compatible with the given ContentType.
         @param model: Constraint on a CremeEntity class ;

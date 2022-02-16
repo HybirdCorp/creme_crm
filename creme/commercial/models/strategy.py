@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 # import warnings
 from typing import (
     TYPE_CHECKING,
@@ -194,17 +196,17 @@ class AbstractStrategy(CremeEntity):
                                 orga: 'Organisation',
                                 asset_id: AssetId,
                                 segment_desc_id: SegmentDescId,
-                                ) -> 'CommercialAssetScore':
+                                ) -> CommercialAssetScore:
         return self._get_assets_scores_objects(orga)[segment_desc_id][asset_id]
 
     def get_asset_score(self,
                         orga: 'Organisation',
-                        asset: 'CommercialAsset',
-                        segment_desc: 'MarketSegmentDescription'
+                        asset: CommercialAsset,
+                        segment_desc: MarketSegmentDescription,
                         ) -> Score:
         return self._get_asset_score_object(orga, asset.id, segment_desc.id).score
 
-    def get_assets_list(self) -> List['CommercialAsset']:
+    def get_assets_list(self) -> List[CommercialAsset]:
         if self._assets_list is None:
             self._assets_list = [*self.assets.all()]
 
@@ -213,18 +215,18 @@ class AbstractStrategy(CremeEntity):
     def _get_charm_score_object(self,
                                 orga: 'Organisation',
                                 charm_id: CharmId,
-                                segment_desc_id: 'SegmentDescId',
-                                ) -> 'MarketSegmentCharmScore':
+                                segment_desc_id: SegmentDescId,
+                                ) -> MarketSegmentCharmScore:
         return self._get_charms_scores_objects(orga)[segment_desc_id][charm_id]
 
     def get_charm_score(self,
                         orga: 'Organisation',
-                        charm: 'MarketSegmentCharm',
-                        segment_desc: 'MarketSegmentDescription',
+                        charm: MarketSegmentCharm,
+                        segment_desc: MarketSegmentDescription,
                         ) -> Score:
         return self._get_charm_score_object(orga, charm.id, segment_desc.id).score
 
-    def get_charms_list(self) -> List['MarketSegmentCharm']:
+    def get_charms_list(self) -> List[MarketSegmentCharm]:
         if self._charms_list is None:
             self._charms_list = [*self.charms.all()]
 
@@ -278,7 +280,7 @@ class AbstractStrategy(CremeEntity):
 
     def _get_segments_categories(self,
                                  orga: 'Organisation',
-                                 ) -> Dict[Category, List['MarketSegmentDescription']]:
+                                 ) -> Dict[Category, List[MarketSegmentDescription]]:
         """@return A dictionary with key=Category (int, between 1 & 4) and
                    value=list of MarketSegmentDescription.
         """
@@ -332,7 +334,7 @@ class AbstractStrategy(CremeEntity):
     def get_segments_for_category(self, orga: 'Organisation', category):
         return self._get_segments_categories(orga)[category]
 
-    def get_segment_descriptions_list(self) -> List['MarketSegmentDescription']:
+    def get_segment_descriptions_list(self) -> List[MarketSegmentDescription]:
         if self._segments_list is None:
             self._segments_list = [*self.segment_info.select_related('segment')]
 

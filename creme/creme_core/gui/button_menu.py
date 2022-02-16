@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from typing import (
     Dict,
@@ -108,7 +110,7 @@ class ButtonsRegistry:
     def __init__(self):
         self._button_classes: Dict[str, Type[Button]] = {}
 
-    def register(self, *button_classes: Type[Button]) -> 'ButtonsRegistry':
+    def register(self, *button_classes: Type[Button]) -> ButtonsRegistry:
         """
         @type button_classes: creme_core.gui.menu_buttons.Button child classes.
         """

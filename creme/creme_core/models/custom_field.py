@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import uuid
 from collections import OrderedDict, defaultdict
 from typing import Any, DefaultDict, Dict, Iterable, Sequence, Type
@@ -51,7 +53,7 @@ class CustomFieldManager(models.Manager):
         return self.filter(content_type=as_ctype(ct_or_model))
 
     # TODO: python 3.8 '/' argument ?
-    def get_for_model(self, ct_or_model) -> Dict[int, 'CustomField']:
+    def get_for_model(self, ct_or_model) -> Dict[int, CustomField]:
         ct = as_ctype(ct_or_model)
         cache = get_per_request_cache()
         key = f'creme_core-custom_fields-{ct.id}'
@@ -116,7 +118,7 @@ class CustomField(CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def value_class(self) -> Type['CustomFieldValue']:
+    def value_class(self) -> Type[CustomFieldValue]:
         return _TABLES[self.field_type]
 
     def get_formfield(self, custom_value, user=None):
@@ -124,7 +126,7 @@ class CustomField(CremeModel):
 
     @staticmethod
     def get_custom_values_map(entities: Iterable[CremeEntity],
-                              custom_fields: Iterable['CustomField'],
+                              custom_fields: Iterable[CustomField],
                               ) -> DefaultDict[int, Dict[int, Any]]:
         """
         @return { Entity's id -> { CustomField's id -> CustomValue } }

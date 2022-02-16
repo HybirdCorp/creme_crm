@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from collections import defaultdict
@@ -84,15 +86,15 @@ class _ModelSmartColumnsRegistry:
 
         return rtype
 
-    def register_function_field(self, func_field_name: str) -> '_ModelSmartColumnsRegistry':
+    def register_function_field(self, func_field_name: str) -> _ModelSmartColumnsRegistry:
         self._cells.append((EntityCellFunctionField, func_field_name))
         return self
 
-    def register_field(self, field_name: str) -> '_ModelSmartColumnsRegistry':
+    def register_field(self, field_name: str) -> _ModelSmartColumnsRegistry:
         self._cells.append((EntityCellRegularField, field_name))
         return self
 
-    def register_relationtype(self, rtype_id: str) -> '_ModelSmartColumnsRegistry':
+    def register_relationtype(self, rtype_id: str) -> _ModelSmartColumnsRegistry:
         self._cells.append((EntityCellRelation, rtype_id))
         return self
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 from typing import Dict, List, Optional, Type
 
@@ -348,7 +350,7 @@ class ActionsRegistry:
         for action_class in self.bulk_action_classes(model):
             yield action_class(**ctxt)
 
-    def register_instance_actions(self, *action_classes: Type[UIAction]) -> 'ActionsRegistry':
+    def register_instance_actions(self, *action_classes: Type[UIAction]) -> ActionsRegistry:
         """Register several instances actions.
         @param action_classes: Classes inheriting UIAction.
         @return Self to chain calls.
@@ -356,7 +358,7 @@ class ActionsRegistry:
         self._instance_action_classes.register_actions(*action_classes)
         return self
 
-    def register_bulk_actions(self, *action_classes: Type[UIAction]) -> 'ActionsRegistry':
+    def register_bulk_actions(self, *action_classes: Type[UIAction]) -> ActionsRegistry:
         """Register several bulk actions.
         @param action_classes: Classes inheriting BulkAction.
         @return Self to chain calls.
@@ -366,7 +368,8 @@ class ActionsRegistry:
 
     def void_instance_actions(self,
                               model: Type[Model],
-                              *action_classes: Type[UIAction]) -> 'ActionsRegistry':
+                              *action_classes: Type[UIAction],
+                              ) -> ActionsRegistry:
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
@@ -382,7 +385,8 @@ class ActionsRegistry:
 
     def void_bulk_actions(self,
                           model: Type[Model],
-                          *action_classes: Type[UIAction]) -> 'ActionsRegistry':
+                          *action_classes: Type[UIAction],
+                          ) -> ActionsRegistry:
         """Like void_instance_actions() but for bulk actions."""
         self._bulk_action_classes.void_actions(model, *action_classes)
         return self

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from json import loads as json_load
 from typing import TYPE_CHECKING, List, Union
 
@@ -67,7 +69,7 @@ class CustomFormConfigItemManager(models.Manager):
     def get_for_user(self, *,
                      descriptor: Union[str, 'CustomFormDescriptor'],
                      user,
-                     ) -> 'CustomFormConfigItem':
+                     ) -> CustomFormConfigItem:
         no_user_qs = self.filter(
             descriptor_id=descriptor if isinstance(descriptor, str) else descriptor.id,
         )

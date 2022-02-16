@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 from typing import Dict, Iterator, Optional, Tuple, Type
 
@@ -46,7 +48,7 @@ class FieldAggregationRegistry:
     def __init__(self):
         self._aggregations: Dict[str, FieldAggregation] = {}
 
-    def register(self, field_aggregation: FieldAggregation) -> 'FieldAggregationRegistry':
+    def register(self, field_aggregation: FieldAggregation) -> FieldAggregationRegistry:
         """Register a type of aggregation for reports.
         @param field_aggregation: Instance of FieldAggregation.
         @return A reference to self, to allow fluent chaining of 'register()' calls.

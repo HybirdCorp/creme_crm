@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import re
 from typing import (
     TYPE_CHECKING,
@@ -214,7 +216,7 @@ class _ModelConfig:
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
         self.brick_cls: Type[GenericModelBrick] = GenericModelBrick
 
-    def brick_class(self, brick_cls: Type[GenericModelBrick]) -> '_ModelConfig':
+    def brick_class(self, brick_cls: Type[GenericModelBrick]) -> _ModelConfig:
         """ Set the Brick class to use ; can be used in a fluent way.
 
         @param brick_cls: Class inheriting GenericModelBrick.
@@ -234,7 +236,7 @@ class _ModelConfig:
                  form_class: Optional[Type[ModelForm]] = None,
                  url_name: Optional[str] = None,
                  enable_func=None,
-                 ) -> '_ModelConfig':
+                 ) -> _ModelConfig:
         """ Set the creation behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -261,7 +263,7 @@ class _ModelConfig:
                 form_class: Optional[Type[ModelForm]] = None,
                 url_name: Optional[str] = None,
                 enable_func=None,
-                ) -> '_ModelConfig':
+                ) -> _ModelConfig:
         """ Set the edition behaviour ; can be used in a fluent way.
 
         @param form_class: Class inheriting <django.forms.ModelForm>
@@ -289,7 +291,7 @@ class _ModelConfig:
                  form_class: Optional[Type['DeletionForm']] = None,
                  url_name: Optional[str] = None,
                  enable_func=None,
-                 ) -> '_ModelConfig':
+                 ) -> _ModelConfig:
         """ Set the deletion behaviour ; can be used in a fluent way.
 
         @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.
@@ -340,7 +342,8 @@ class _AppConfigRegistry:
     def __init__(self,
                  name: str,
                  verbose_name: str,
-                 config_registry: '_ConfigRegistry'):
+                 config_registry: _ConfigRegistry,
+                 ):
         self.name = name
         self.verbose_name = verbose_name
         self._models: Dict[Type[Model], _ModelConfig] = {}
@@ -353,7 +356,8 @@ class _AppConfigRegistry:
 
     def _register_model(self,
                         model: Type[Model],
-                        model_name: str) -> _ModelConfig:
+                        model_name: str,
+                        ) -> _ModelConfig:
         # NB: the key is the model & not the ContentType.id, because these IDs
         #     are not always consistent with the test-models.
         models = self._models

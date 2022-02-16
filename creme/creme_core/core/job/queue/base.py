@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from json import loads as json_load
 from typing import Optional
 
@@ -39,15 +41,15 @@ class Command:
         self.data = data
 
     @classmethod
-    def _build_START_command(cls, data) -> 'Command':
+    def _build_START_command(cls, data) -> Command:
         return cls(cmd_type=cls.START, data_id=int(data))
 
     @classmethod
-    def _build_END_command(cls, data) -> 'Command':
+    def _build_END_command(cls, data) -> Command:
         return cls(cmd_type=cls.END, data_id=int(data))
 
     @classmethod
-    def _build_REFRESH_command(cls, data) -> 'Command':
+    def _build_REFRESH_command(cls, data) -> Command:
         job_id, refresh_data = data.split('-', 1)
 
         return cls(
@@ -57,11 +59,11 @@ class Command:
         )
 
     @classmethod
-    def _build_PING_command(cls, data) -> 'Command':
+    def _build_PING_command(cls, data) -> Command:
         return cls(cmd_type=cls.PING, data_id=data)
 
     @classmethod
-    def build(cls, cmd_type, data) -> 'Command':
+    def build(cls, cmd_type, data) -> Command:
         method = getattr(cls, f'_build_{cmd_type}_command', None)
         if method is None:
             raise ValueError(f'The command type "{cmd_type}" is invalid.')
