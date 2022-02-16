@@ -4,31 +4,37 @@ __version__ = '2.4-alpha1'
 
 # App registry hooking ---------------------------------------------------------
 
-from django.apps.config import AppConfig
-from django.apps.registry import Apps
+try:
+    from django.apps.config import AppConfig
+    from django.apps.registry import Apps
+except ImportError:
+    import sys
 
-AppConfig.all_apps_ready = lambda self: None
+    sys.stderr.write(
+        'Django is not installed ; '
+        'ignore this message if you are installing Creme.'
+    )
+else:
+    AppConfig.all_apps_ready = lambda self: None
 
-_original_populate = Apps.populate
+    _original_populate = Apps.populate
 
+    def _hooked_populate(self, installed_apps=None):
+        if self.ready:
+            return
 
-def _hooked_populate(self, installed_apps=None):
-    if self.ready:
-        return
-
-    if getattr(self, '_all_apps_ready', False):
-        return
-
-    _original_populate(self, installed_apps)
-
-    with self._lock:
         if getattr(self, '_all_apps_ready', False):
             return
 
-        for app_config in self.get_app_configs():
-            app_config.all_apps_ready()
+        _original_populate(self, installed_apps)
 
-        self._all_apps_ready = True
+        with self._lock:
+            if getattr(self, '_all_apps_ready', False):
+                return
 
+            for app_config in self.get_app_configs():
+                app_config.all_apps_ready()
 
-Apps.populate = _hooked_populate
+            self._all_apps_ready = True
+
+    Apps.populate = _hooked_populate
