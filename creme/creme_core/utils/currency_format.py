@@ -98,7 +98,8 @@ def currency(val, currency_or_id=None):
         )
         return f'{val} {smb}'
 
-    s = locale.format(f'%.{digits}f', abs(val), grouping=True, monetary=True)
+    # s = locale.format(f'%.{digits}f', abs(val), grouping=True, monetary=True)
+    s = locale.format_string(f'%.{digits}f', abs(val), grouping=True, monetary=True)
 
     # '<' and '>' are markers if the sign must be inserted between symbol and value
     s = '<' + s + '>'

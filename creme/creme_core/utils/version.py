@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2017-2020 Hybird
+# Copyright (c) 2017-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,8 @@ def get_hg_info() -> dict:
         """hg log -r tip --template '{date(date, "%Y-%m-%dT%H:%M%z")}#{node}'""",
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         shell=True, cwd=repo_dir,
-        universal_newlines=True,
+        # universal_newlines=True,
+        text=True,
     )
 
     raw_result, error = hg_log.communicate()
@@ -114,7 +115,8 @@ def get_git_info() -> dict:
         "git log -n 1 --format='%H#%cI'",
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         shell=True, cwd=repo_dir,
-        universal_newlines=True,
+        # universal_newlines=True,
+        text=True,
     )
 
     raw_result, error = git_log.communicate()
