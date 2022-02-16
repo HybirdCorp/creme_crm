@@ -1,5 +1,8 @@
 == Version 2.2.11 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # A crash during an installation from source (with old version of setuptools) has been fixed.
 
 
 == Version 2.2.10 ==
