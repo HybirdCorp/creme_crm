@@ -1,6 +1,7 @@
 # syntax = docker/dockerfile:1.3
 
-FROM python:3.6-slim-buster as creme-demo
+# FROM python:3.6-slim-buster as creme-demo
+FROM python:3.7-slim-buster as creme-demo
 
 SHELL ["/bin/bash", "-c"]
 
@@ -35,7 +36,7 @@ RUN --mount=type=bind,source=.,target=/tmp/src \
     mkdir -p /srv/creme/logs; \
     mkdir -p /srv/creme/data; \
     cp -r /tmp/src /srv/creme/src; \
-    python3.6 -m venv /srv/creme/venv; \
+    python3 -m venv /srv/creme/venv; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip --upgrade pip setuptools wheel; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip /srv/creme/src[mysql,pgsql]; \
     /srv/creme/venv/bin/pip install --cache-dir=/srv/creme/.cache/pip --upgrade uWSGI supervisor; \
