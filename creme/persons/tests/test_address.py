@@ -8,8 +8,8 @@ from django.urls import reverse
 from django.utils.html import format_html
 from django.utils.translation import gettext as _
 
+import creme.creme_core.forms.listview as lv_forms
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.forms import listview as lv_form
 from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.models.history import (
@@ -628,7 +628,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
             cell=EntityCellRegularField.build(model=Organisation, name='billing_address'),
             user=self.user,
         )
-        self.assertIsInstance(field.widget, lv_form.TextLVSWidget)
+        self.assertIsInstance(field.widget, lv_forms.TextLVSWidget)
 
         to_python = field.to_python
         self.assertEqual(Q(), to_python(value=''))

@@ -29,8 +29,8 @@ from django.forms.models import BaseModelFormSet, modelform_factory
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms as core_forms
 from creme import billing, products
-from creme.creme_core import forms as core_forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import Relation, Vat

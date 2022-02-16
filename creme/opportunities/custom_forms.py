@@ -2,9 +2,9 @@
 
 from django.utils.translation import gettext_lazy as _
 
+import creme.opportunities.forms.opportunity as opp_forms
 from creme import opportunities
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
-from creme.opportunities.forms import opportunity as opp_forms
 
 Opportunity = opportunities.get_opportunity_model()
 

@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields as core_fields
 
 EF_USER = 1
 
@@ -32,7 +32,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the report')),
                 (
                     'ct',
-                    creme_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')
+                    core_fields.EntityCTypeForeignKey(verbose_name='Entity type', to='contenttypes.ContentType')
                 ),
                 (
                     'filter',

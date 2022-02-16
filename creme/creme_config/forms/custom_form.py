@@ -22,12 +22,12 @@ from django import forms
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.header_filter as hf_forms
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellRegularField,
 )
 from creme.creme_core.forms import CremeModelForm, FieldBlockManager
-from creme.creme_core.forms import header_filter as hf_forms
 from creme.creme_core.gui.custom_form import (
     CustomFormDescriptor,
     EntityCellCustomFormExtra,

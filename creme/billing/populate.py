@@ -27,8 +27,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+import creme.creme_core.bricks as core_bricks
 from creme import billing, persons, products
-from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (
     EntityCellFunctionField,
     EntityCellRegularField,
@@ -689,7 +689,7 @@ class Populator(BasePopulator):
                     'Assistants app is installed => we use the assistants blocks on detail views'
                 )
 
-                from creme.assistants import bricks as a_bricks
+                import creme.assistants.bricks as a_bricks
 
                 for t in models_4_blocks:
                     BrickDetailviewLocation.objects.multi_create(

@@ -4,8 +4,8 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
+import creme.creme_core.models.fields as creme_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
-from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):

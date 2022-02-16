@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,13 +28,13 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeEntity, CremeModel, JobResult
+import creme.creme_core.models as core_models
 from creme.creme_core.models import fields as creme_fields
 
 logger = logging.getLogger(__name__)
 
 
-class UserMessagePriority(CremeModel):
+class UserMessagePriority(core_models.CremeModel):
     title = models.CharField(_('Title'), max_length=200)
 
     # Used by creme_config
@@ -52,7 +52,7 @@ class UserMessagePriority(CremeModel):
         return self.title
 
 
-class UserMessage(CremeModel):
+class UserMessage(core_models.CremeModel):
     title = models.CharField(_('Title'), max_length=200)
     body = models.TextField(_('Message body'))
     creation_date = models.DateTimeField(_('Creation date'))
@@ -72,7 +72,8 @@ class UserMessage(CremeModel):
         null=True, related_name='+', editable=False,
     )
     entity = models.ForeignKey(
-        CremeEntity, null=True,  related_name='assistants_messages',
+        core_models.CremeEntity,
+        null=True,  related_name='assistants_messages',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
     creme_entity = creme_fields.RealEntityForeignKey(
@@ -121,6 +122,7 @@ class UserMessage(CremeModel):
 
         usermessages_send_type.refresh_job()
 
+    # TODO: move code to Job?
     @classmethod
     def send_mails(cls, job):
         from django.conf import settings
@@ -149,7 +151,7 @@ class UserMessage(CremeModel):
                 connection.send_messages(messages)
         except Exception as e:
             logger.critical('Error while sending user-messages emails (%s)', e)
-            JobResult.objects.create(
+            core_models.JobResult.objects.create(
                 job=job,
                 messages=[
                     gettext('An error occurred while sending emails'),

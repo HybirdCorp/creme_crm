@@ -33,11 +33,11 @@ from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+import creme.creme_core.forms.fields as core_fields
+import creme.creme_core.forms.header_filter as hf_forms
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeForm  # CremeEntityForm
-from creme.creme_core.forms import fields as core_fields
-from creme.creme_core.forms import header_filter as hf_form
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import (  # EntityFilter
     CremeEntity,
@@ -321,26 +321,26 @@ class LinkFieldToReportForm(CremeForm):
 
 # Fields form ------------------------------------------------------------------
 
-class ReportEntityCellRelatedWidget(hf_form.UniformEntityCellsWidget):
+class ReportEntityCellRelatedWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands/related.html'
     type_id = ReportEntityCellRelated.type_id
 
 
-class ReportEntityCellRegularAggregatesWidget(hf_form.UniformEntityCellsWidget):
+class ReportEntityCellRegularAggregatesWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands/regular-aggregates.html'
     type_id = ReportEntityCellRegularAggregate.type_id
 
 
-class ReportEntityCellCustomAggregatesWidget(hf_form.UniformEntityCellsWidget):
+class ReportEntityCellCustomAggregatesWidget(hf_forms.UniformEntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands/custom-aggregates.html'
     type_id = ReportEntityCellCustomAggregate.type_id
 
 
-class ReportHandsWidget(hf_form.EntityCellsWidget):
+class ReportHandsWidget(hf_forms.EntityCellsWidget):
     template_name = 'reports/forms/widgets/report-hands/widget.html'
 
 
-class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
+class ReportEntityCellRegularFieldsField(hf_forms.EntityCellRegularFieldsField):
     def _regular_fields_enum(self, model):
         fields = super()._regular_fields_enum(model)
         fields.filter(
@@ -355,7 +355,7 @@ class ReportEntityCellRegularFieldsField(hf_form.EntityCellRegularFieldsField):
 
 
 # TODO: add a similar EntityCell type in creme_core (& so move this code in core) ??
-class ReportEntityCellRelatedField(hf_form.UniformEntityCellsField):
+class ReportEntityCellRelatedField(hf_forms.UniformEntityCellsField):
     widget = ReportEntityCellRelatedWidget
     cell_class = ReportEntityCellRelated
 
@@ -389,7 +389,7 @@ class ReportEntityCellRelatedField(hf_form.UniformEntityCellsField):
                 yield cell.key, cell
 
 
-class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
+class ReportEntityCellRegularAggregatesField(hf_forms.UniformEntityCellsField):
     widget = ReportEntityCellRegularAggregatesWidget
     cell_class = ReportEntityCellRegularAggregate
 
@@ -425,7 +425,7 @@ class ReportEntityCellRegularAggregatesField(hf_form.UniformEntityCellsField):
                     yield cell.key, cell
 
 
-class ReportEntityCellCustomAggregatesField(hf_form.UniformEntityCellsField):
+class ReportEntityCellCustomAggregatesField(hf_forms.UniformEntityCellsField):
     widget = ReportEntityCellCustomAggregatesWidget
     cell_class = ReportEntityCellCustomAggregate
 
@@ -457,14 +457,14 @@ class ReportEntityCellCustomAggregatesField(hf_form.UniformEntityCellsField):
                     yield cell.key, cell
 
 
-class ReportHandsField(hf_form.EntityCellsField):
+class ReportHandsField(hf_forms.EntityCellsField):
     widget: Type[ReportHandsWidget] = ReportHandsWidget
 
     field_classes = {
         ReportEntityCellRegularFieldsField,
-        hf_form.EntityCellCustomFieldsField,
-        hf_form.EntityCellFunctionFieldsField,
-        hf_form.EntityCellRelationsField,
+        hf_forms.EntityCellCustomFieldsField,
+        hf_forms.EntityCellFunctionFieldsField,
+        hf_forms.EntityCellRelationsField,
         ReportEntityCellRelatedField,
         ReportEntityCellRegularAggregatesField,
         ReportEntityCellCustomAggregatesField,

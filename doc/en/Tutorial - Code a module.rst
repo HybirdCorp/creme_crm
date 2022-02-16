@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-02-2022 for Creme 2.3
+:Version: 16-02-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1479,7 +1479,7 @@ If we want the brick to be present in the default configuration (ie: at
 deployment), we have to improve our file ``beavers/populate.py``: ::
 
     [...]
-    from creme.creme_core import bricks as core_bricks
+    import creme.creme_core.bricks as core_bricks
     from creme.creme_core.models import BrickDetailviewLocation
 
     from .bricks import BeaverAgeBrick

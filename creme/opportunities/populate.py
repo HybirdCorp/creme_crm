@@ -25,8 +25,8 @@ from django.apps import apps
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
+import creme.creme_core.bricks as core_bricks
 from creme import persons, products
-from creme.creme_core import bricks as core_bricks
 from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
@@ -464,7 +464,7 @@ class Populator(BasePopulator):
                     ' => we use the "Future activities" & "Past activities" blocks'
                 )
 
-                from creme.activities import bricks as act_bricks
+                import creme.activities.bricks as act_bricks
 
                 BrickDetailviewLocation.objects.multi_create(
                     defaults={'model': Opportunity, 'zone': RIGHT},
@@ -480,7 +480,7 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail views and portal'
                 )
 
-                from creme.assistants import bricks as a_bricks
+                import creme.assistants.bricks as a_bricks
 
                 BrickDetailviewLocation.objects.multi_create(
                     defaults={'model': Opportunity, 'zone': RIGHT},
@@ -550,7 +550,6 @@ class Populator(BasePopulator):
 
         from creme import reports
         from creme.creme_core.utils.meta import FieldInfo
-        # from creme.reports import constants as rep_constants
         from creme.reports.constants import RFT_FIELD, RFT_RELATION
         from creme.reports.core.graph.fetcher import SimpleGraphFetcher
         from creme.reports.models import Field

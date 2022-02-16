@@ -20,7 +20,7 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core import forms as core_corms
+import creme.creme_core.forms as core_corms
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 
 from .. import get_organisation_model

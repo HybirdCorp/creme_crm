@@ -8,7 +8,7 @@ from django.forms import ChoiceField, IntegerField
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from creme.creme_core.forms import widgets as core_widgets
+import creme.creme_core.forms.widgets as core_widgets
 from creme.creme_core.forms.fields import (
     ChoiceOrCharField,
     ColorField,

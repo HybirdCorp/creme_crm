@@ -29,9 +29,9 @@ from django.db.models import Count
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.base as core_forms
 from creme.creme_core.core import setting_key
 from creme.creme_core.core.entity_filter import EF_USER
-from creme.creme_core.forms import base as base_forms
 from creme.creme_core.gui.bricks import (
     Brick,
     BricksManager,
@@ -498,9 +498,9 @@ class CustomFormsBrick(PaginatedBrick):
         return self._render(self.get_template_context(
             context,
             self.get_ctype_descriptors(user=user, expanded_ctype_id=expanded_ctype_id),
-            LAYOUT_REGULAR=base_forms.LAYOUT_REGULAR,
-            LAYOUT_DUAL_FIRST=base_forms.LAYOUT_DUAL_FIRST,
-            LAYOUT_DUAL_SECOND=base_forms.LAYOUT_DUAL_SECOND,
+            LAYOUT_REGULAR=core_forms.LAYOUT_REGULAR,
+            LAYOUT_DUAL_FIRST=core_forms.LAYOUT_DUAL_FIRST,
+            LAYOUT_DUAL_SECOND=core_forms.LAYOUT_DUAL_SECOND,
 
             # NB: '+ 2' is for default config + super-users config.
             max_conf_count=UserRole.objects.count() + 2,

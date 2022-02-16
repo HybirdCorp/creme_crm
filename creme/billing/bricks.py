@@ -22,6 +22,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
+import creme.persons.bricks as persons_bricks
 from creme import billing, persons
 from creme.creme_core.gui.bricks import (
     Brick,
@@ -31,7 +32,6 @@ from creme.creme_core.gui.bricks import (
 )
 from creme.creme_core.models import Relation, SettingValue
 from creme.creme_core.utils.unicode_collation import collator
-from creme.persons import bricks as persons_bricks
 
 from . import constants, function_fields
 from .exporters import BillingExportEngineManager

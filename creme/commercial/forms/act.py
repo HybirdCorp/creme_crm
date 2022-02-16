@@ -24,9 +24,9 @@ from django import forms
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+import creme.creme_core.forms.base as core_forms
+import creme.creme_core.forms.fields as core_fields
 from creme import commercial
-from creme.creme_core.forms import base as base_forms
-from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.models import EntityFilter
 
 from ..models import ActObjective, ActObjectivePatternComponent
@@ -34,7 +34,7 @@ from ..models import ActObjective, ActObjectivePatternComponent
 ActObjectivePattern = commercial.get_pattern_model()
 
 
-class ObjectiveForm(base_forms.CremeModelForm):
+class ObjectiveForm(core_forms.CremeModelForm):
     entity_counting = core_fields.FilteredEntityTypeField(
         label=_('Entity counting'), required=False,
         empty_label=_('Do not count entity'),
@@ -85,7 +85,7 @@ class ObjectiveForm(base_forms.CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class ObjectivesFromPatternForm(base_forms.CremeForm):
+class ObjectivesFromPatternForm(core_forms.CremeForm):
     pattern = forms.ModelChoiceField(
         label=_('Pattern'), empty_label=None,
         queryset=ActObjectivePattern.objects.all(),
@@ -121,7 +121,7 @@ class ObjectivesFromPatternForm(base_forms.CremeForm):
         create_objectives_from_components(pattern.get_components_tree(), won_opps)
 
 
-class _PatternComponentForm(base_forms.CremeModelForm):
+class _PatternComponentForm(core_forms.CremeModelForm):
     entity_counting = core_fields.FilteredEntityTypeField(
         label=_('Entity counting'), required=False,
         empty_label=_('Do not count entity'),

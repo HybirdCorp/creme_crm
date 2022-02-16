@@ -16,7 +16,7 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
-from creme.creme_config.forms import fields as config_fields
+import creme.creme_config.forms.fields as config_fields
 from creme.creme_config.models import FakeConfigEntity
 from creme.creme_core import constants
 from creme.creme_core.auth.entity_credentials import EntityCredentials

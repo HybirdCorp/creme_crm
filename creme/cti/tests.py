@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
-from creme.activities import constants as a_constants
+import creme.activities.constants as a_constants
 from creme.activities import get_activity_model
 from creme.activities.models import ActivitySubType, ActivityType, Calendar
 from creme.activities.tests.base import skipIfCustomActivity

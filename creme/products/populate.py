@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -306,7 +306,7 @@ class Populator(BasePopulator):
                     ' => we use the assistants blocks on detail views and portal'
                 )
 
-                from creme.assistants import bricks as a_bricks
+                import creme.assistants.bricks as a_bricks
 
                 for model in (Product, Service):
                     BrickDetailviewLocation.objects.multi_create(

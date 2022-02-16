@@ -1544,7 +1544,6 @@ about this fantastic animation studio."""
         pline = FakeInvoiceLine.objects.create(
             item='DeathNote', user=user,
             linked_invoice=invoice, quantity=Decimal('1'),
-            # discount_unit=FAKE_AMOUNT_UNIT,
             discount_unit=FakeInvoiceLine.Discount.AMOUNT,
         )
 

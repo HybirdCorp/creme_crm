@@ -29,10 +29,11 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
 
+import creme.creme_core.gui.listview as lv_gui
+import creme.persons.constants as persons_constants
 from creme import persons
 from creme.creme_core.actions import ViewAction
 from creme.creme_core.core.entity_cell import EntityCellRelation
-from creme.creme_core.gui import listview as lv_gui
 from creme.creme_core.gui.actions import EntityAction
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
@@ -40,7 +41,6 @@ from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.custom_forms import OPPORTUNITY_CREATION_CFORM
-from creme.persons import constants as persons_constants
 from creme.persons.views.contact import ContactsList
 
 from .. import constants, custom_forms, get_event_model, gui

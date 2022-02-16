@@ -4,7 +4,7 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
-from creme.creme_core.models import fields as creme_fields
+import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
@@ -30,9 +30,9 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name of the generator', blank=True)),
                 ('first_generation', models.DateTimeField(verbose_name='Date of the first generation')),
                 ('last_generation', models.DateTimeField(verbose_name='Date of the last generation', null=True, editable=False)),
-                ('periodicity', creme_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
+                ('periodicity', core_fields.DatePeriodField(verbose_name='Periodicity of the generation')),
                 ('is_working', models.BooleanField(default=True, verbose_name='Active ?', editable=False)),
-                ('ct', creme_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Type of the recurrent resource')),
+                ('ct', core_fields.CTypeForeignKey(editable=False, to='contenttypes.ContentType', verbose_name='Type of the recurrent resource')),
                 (
                     'template',
                     models.ForeignKey(
