@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from builtins import getattr
@@ -241,7 +243,7 @@ class _HistoryLineTypeRegistry:
     __slots__ = ('_hltypes', )
 
     def __init__(self):
-        self._hltypes: Dict[int, Type['_HistoryLineType']] = {}
+        self._hltypes: Dict[int, Type[_HistoryLineType]] = {}
 
     def __call__(self, type_id: int):
         assert type_id not in self._hltypes, 'ID collision'
@@ -253,10 +255,10 @@ class _HistoryLineTypeRegistry:
 
         return _aux
 
-    def __getitem__(self, i: int) -> Type['_HistoryLineType']:
+    def __getitem__(self, i: int) -> Type[_HistoryLineType]:
         return self._hltypes[i]
 
-    def __iter__(self) -> Iterator[Type['_HistoryLineType']]:
+    def __iter__(self) -> Iterator[Type[_HistoryLineType]]:
         return iter(self._hltypes.values())
 
 
@@ -793,7 +795,7 @@ class _HLTRelatedEntity(_HistoryLineType):
     has_related_line = True
 
     @classmethod
-    def create_lines(cls, entity: CremeEntity, related_line: 'HistoryLine'):
+    def create_lines(cls, entity: CremeEntity, related_line: HistoryLine):
         relations = Relation.objects.filter(
             subject_entity=entity.id,
             type__in=HistoryConfigItem.objects.configured_relation_type_ids(),
@@ -863,7 +865,8 @@ class _HLTRelation(_HistoryLineType):
     def _create_lines(cls,
                       relation: Relation,
                       sym_cls: Type[_HistoryLineType],
-                      date=None) -> None:
+                      date=None,
+                      ) -> None:
         create_line = partial(HistoryLine._create_line_4_instance, date=date)
         hline     = create_line(relation.subject_entity, cls.type_id)
         hline_sym = create_line(
@@ -1087,7 +1090,8 @@ class _HLTEntityExport(_HistoryLineType):
                     user,
                     count: int,
                     hfilter: HeaderFilter,
-                    efilter: Optional[EntityFilter] = None) -> 'HistoryLine':
+                    efilter: Optional[EntityFilter] = None,
+                    ) -> HistoryLine:
         """Builder of HistoryLine representing a CSV/XLS/... massive export.
 
         @param ctype: ContentType instance ; type of exported entities.
@@ -1244,7 +1248,11 @@ class HistoryLine(Model):
         instance._hline_reassigned = (old_reference, new_reference, field_name)
 
     @classmethod
-    def _encode_attrs(cls, instance, modifs=(), related_line_id: Optional[int] = None) -> str:
+    def _encode_attrs(cls,
+                      instance,
+                      modifs=(),
+                      related_line_id: Optional[int] = None,
+                      ) -> str:
         value: list = [str(instance)]
         if related_line_id:
             value.append(related_line_id)
@@ -1315,7 +1323,7 @@ class HistoryLine(Model):
         return self._related_line_id
 
     @staticmethod
-    def populate_users(hlines: Sequence['HistoryLine'], user):
+    def populate_users(hlines: Sequence[HistoryLine], user):
         """Set the internal cache for 'user' in some HistoryLines, to optimize queries.
 
         @param hlines: Sequence of HistoryLine instances (need to be iterated twice)
@@ -1341,7 +1349,7 @@ class HistoryLine(Model):
             hline.user = users.get(hline.username)
 
     @classmethod
-    def populate_related_lines(cls, hlines: Sequence['HistoryLine']):
+    def populate_related_lines(cls, hlines: Sequence[HistoryLine]) -> None:
         pool = {hline.id: hline for hline in hlines}
         unpopulated = [hline for hline in hlines if hline._related_line is False]
 
@@ -1358,7 +1366,7 @@ class HistoryLine(Model):
             hline._related_line = pool.get(hline._get_related_line_id())
 
     @property
-    def related_line(self) -> Optional['HistoryLine']:
+    def related_line(self) -> Optional[HistoryLine]:
         if self._related_line is False:
             self._related_line = None
             line_id = self._get_related_line_id()

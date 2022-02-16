@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 
 from django.conf import settings
@@ -189,7 +191,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
         super().trash()
 
     @classmethod
-    def _create_linked_contact(cls, user, **kwargs) -> 'AbstractContact':
+    def _create_linked_contact(cls, user, **kwargs) -> AbstractContact:
         # TODO: assert user is not a team + enforce non team clean() ?
         owner = user
 

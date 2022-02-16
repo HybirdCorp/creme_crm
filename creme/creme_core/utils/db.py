@@ -23,6 +23,8 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
@@ -310,7 +312,7 @@ class PreFetcher:
 
         return prefetched[model].get(pk)
 
-    def order(self, model: Type[Model], pks: Iterable) -> 'PreFetcher':
+    def order(self, model: Type[Model], pks: Iterable) -> PreFetcher:
         if self._prefetched is not None:
             raise RuntimeError('PreFetcher already (hint: call order() before proceed() only)')
 
@@ -318,7 +320,7 @@ class PreFetcher:
 
         return self
 
-    def proceed(self) -> 'PreFetcher':
+    def proceed(self) -> PreFetcher:
         if self._prefetched is not None:
             raise RuntimeError('PreFetcher already (hint: call proceed() only once)')
 

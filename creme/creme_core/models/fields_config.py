@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from functools import partial
@@ -113,12 +115,12 @@ class FieldsConfigManager(models.Manager):
         ct = ContentType.objects.get_by_natural_key(app_label, model)
         return self.get_for_model(ct.model_class())
 
-    def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
+    def get_for_model(self, model: Type['Model']) -> FieldsConfig:
         return self.get_for_models((model,))[model]
 
     def get_for_models(self,
                        models: Sequence[Type['Model']],
-                       ) -> Dict[Type['Model'], 'FieldsConfig']:
+                       ) -> Dict[Type['Model'], FieldsConfig]:
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-{}'.format
@@ -205,7 +207,7 @@ class FieldsConfig(CremeModel):
         #
         #     return self.get_for_model(model)
 
-        def get_for_model(self, model: Type['Model']) -> 'FieldsConfig':
+        def get_for_model(self, model: Type['Model']) -> FieldsConfig:
             return self.get_for_models((model,))[model]
 
         # def get_4_models(self,
@@ -221,7 +223,7 @@ class FieldsConfig(CremeModel):
 
         def get_for_models(self,
                            models: Iterable[Type['Model']],
-                           ) -> Dict[Type['Model'], 'FieldsConfig']:
+                           ) -> Dict[Type['Model'], FieldsConfig]:
             result = {}
             configs = self._configs
             missing_models = []

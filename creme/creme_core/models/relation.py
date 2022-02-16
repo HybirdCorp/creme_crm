@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from collections import defaultdict
@@ -68,7 +70,7 @@ class RelationTypeManager(models.Manager):
         is_internal: bool = False,
         is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
         minimal_display: Tuple[bool, bool] = (False, False),
-    ) -> Tuple['RelationType', 'RelationType']:
+    ) -> Tuple[RelationType, RelationType]:
         """Create or update 2 symmetric RelationTypes, with their constraints.
         @param subject_desc: Tuple describing the subject RelationType instance
                (
@@ -187,7 +189,7 @@ class RelationManager(models.Manager):
         except IntegrityError:
             logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
 
-    def safe_get_or_create(self, **kwargs) -> 'Relation':
+    def safe_get_or_create(self, **kwargs) -> Relation:
         """Kind of safe version of 'get_or_create'.
         Safe means the UNIQUE constraint of Relation is respected, &
         this method will never raise an IntegrityError.
@@ -224,7 +226,7 @@ class RelationManager(models.Manager):
         return relation
 
     def safe_multi_save(self,
-                        relations: Iterable['Relation'],
+                        relations: Iterable[Relation],
                         check_existing: bool = True,
                         ) -> int:
         """Save several instances of Relation by taking care of the UNIQUE
@@ -513,7 +515,7 @@ class Relation(CremeModel):
             )
 
     @staticmethod
-    def populate_real_object_entities(relations: Iterable['Relation']) -> None:
+    def populate_real_object_entities(relations: Iterable[Relation]) -> None:
         """Faster than call get_real_entity() on each relation.object_entity.
         @param relations: Iterable of Relation objects.
 

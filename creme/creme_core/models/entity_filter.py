@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from itertools import zip_longest
 from json import loads as json_load
@@ -72,13 +74,13 @@ class EntityFilterList(list):
         super().__init__(
             EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
         )
-        self._selected: Optional['EntityFilter'] = None
+        self._selected: Optional[EntityFilter] = None
 
     @property
-    def selected(self) -> Optional['EntityFilter']:
+    def selected(self) -> Optional[EntityFilter]:
         return self._selected
 
-    def select_by_id(self, *ids: str) -> Optional['EntityFilter']:
+    def select_by_id(self, *ids: str) -> Optional[EntityFilter]:
         """Try several EntityFilter ids."""
         # Linear search but with few items after all...
         for efilter_id in ids:
@@ -91,7 +93,7 @@ class EntityFilterList(list):
 
 
 class EntityFilterManager(models.Manager):
-    def get_latest_version(self, base_pk: str) -> 'EntityFilter':
+    def get_latest_version(self, base_pk: str) -> EntityFilter:
         """Get the latest EntityFilter from the family which uses the 'base_pk'.
         @raises EntityFilter.DoesNotExist If there is none instance in this family
         """
@@ -161,16 +163,16 @@ class EntityFilterManager(models.Manager):
             )
         )
 
-    def smart_update_or_create(
-            self,
-            pk: str,
-            name: str,
-            model: Type[CremeEntity],
-            is_custom: bool = False,
-            user=None,
-            use_or: bool = False,
-            is_private: bool = False,
-            conditions=()) -> 'EntityFilter':
+    def smart_update_or_create(self,
+                               pk: str,
+                               name: str,
+                               model: Type[CremeEntity],
+                               is_custom: bool = False,
+                               user=None,
+                               use_or: bool = False,
+                               is_private: bool = False,
+                               conditions=()
+                               ) -> EntityFilter:
         """Creation helper ; useful for populate.py scripts.
         @param user: Can be None (ie: 'All users'), a User instance, or the string
                      'admin', which means 'the first admin user'.
@@ -436,7 +438,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         return self.can_edit(user)
 
-    def check_cycle(self, conditions: Iterable['EntityFilterCondition']) -> None:
+    def check_cycle(self, conditions: Iterable[EntityFilterCondition]) -> None:
         assert self.id
 
         # Ids of EntityFilters that are referenced by these conditions
@@ -518,11 +520,11 @@ class EntityFilter(models.Model):  # CremeModel ???
                         ).format(parent_filter.name)
                     )
 
-    def _check_privacy_sub_filters(
-            self,
-            conditions: Iterable['EntityFilterCondition'],
-            is_private: bool,
-            owner) -> None:
+    def _check_privacy_sub_filters(self,
+                                   conditions: Iterable[EntityFilterCondition],
+                                   is_private: bool,
+                                   owner,
+                                   ) -> None:
         # TODO: factorise
         ref_filter_ids = {
             sf_id
@@ -596,12 +598,11 @@ class EntityFilter(models.Model):  # CremeModel ???
                     ).format(', '.join(invalid_filter_names))
                 )
 
-    def check_privacy(
-            self,
-            conditions: Iterable['EntityFilterCondition'],
-            is_private: bool,
-            owner,
-    ) -> None:
+    def check_privacy(self,
+                      conditions: Iterable[EntityFilterCondition],
+                      is_private: bool,
+                      owner,
+                      ) -> None:
         "@raises EntityFilter.PrivacyError"
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
@@ -654,7 +655,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         return sfc
 
-    def _iter_parent_conditions(self) -> Iterator['EntityFilterCondition']:
+    def _iter_parent_conditions(self) -> Iterator[EntityFilterCondition]:
         pk = self.id
 
         for cond in self._get_subfilter_conditions():
@@ -732,7 +733,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         self._conditions_cache = checked_conds
 
-    def get_conditions(self) -> List['EntityFilterCondition']:
+    def get_conditions(self) -> List[EntityFilterCondition]:
         if self._conditions_cache is None:
             self._build_conditions_cache(self.conditions.all())
 
@@ -845,8 +846,8 @@ class EntityFilterCondition(models.Model):
         return self.handler.accept(entity=entity, user=user)
 
     @staticmethod
-    def conditions_equal(conditions1: Iterable['EntityFilterCondition'],
-                         conditions2: Iterable['EntityFilterCondition'],
+    def conditions_equal(conditions1: Iterable[EntityFilterCondition],
+                         conditions2: Iterable[EntityFilterCondition],
                          ) -> bool:
         """Compare 2 sequences on EntityFilterConditions related to the _same_
         EntityFilter instance.
@@ -917,7 +918,7 @@ class EntityFilterCondition(models.Model):
     def model(self) -> Type[CremeEntity]:  # TODO: test
         return self._model or self.filter.entity_type.model_class()
 
-    def update(self, other_condition: 'EntityFilterCondition') -> bool:
+    def update(self, other_condition: EntityFilterCondition) -> bool:
         """Fill a condition with the content a another one
         (in order to reuse the old instance if possible).
         @return True if there is at least one change, else False.

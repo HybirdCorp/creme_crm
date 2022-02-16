@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from typing import Optional
@@ -74,7 +76,7 @@ class ListViewState:
         request.session[self.url] = serialized
 
     @classmethod
-    def get_state(cls, request, url=None) -> Optional['ListViewState']:
+    def get_state(cls, request, url=None) -> Optional[ListViewState]:
         lvs = None
         data = request.session.get(url or request.path)
 
@@ -90,7 +92,7 @@ class ListViewState:
         return lvs
 
     @classmethod
-    def build_from_request(cls, arguments, url: str, **kwargs) -> 'ListViewState':
+    def build_from_request(cls, arguments, url: str, **kwargs) -> ListViewState:
         kwargs.update((str(k), v) for k, v in arguments.items())
         kwargs['url'] = url
 
@@ -98,7 +100,7 @@ class ListViewState:
 
     # TODO: rename "url" => "id" ?
     @classmethod
-    def get_or_create_state(cls, request, url: str, **kwargs) -> 'ListViewState':
+    def get_or_create_state(cls, request, url: str, **kwargs) -> ListViewState:
         state = cls.get_state(request, url)
 
         if state is None:

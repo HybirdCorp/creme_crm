@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Dict, Iterator, Type
@@ -45,7 +47,7 @@ class GraphFetcherRegistry:
 
         return fetcher
 
-    def register(self, *fetcher_classes: Type[GraphFetcher]) -> 'GraphFetcherRegistry':
+    def register(self, *fetcher_classes: Type[GraphFetcher]) -> GraphFetcherRegistry:
         set_default = self._fetcher_classes.setdefault
 
         for fetcher_cls in fetcher_classes:

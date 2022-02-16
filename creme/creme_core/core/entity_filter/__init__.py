@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from collections import OrderedDict
@@ -58,7 +60,7 @@ class _EntityFilterRegistry:
 
     def register_condition_handlers(
             self,
-            *classes: Type['FilterConditionHandler']) -> '_EntityFilterRegistry':
+            *classes: Type['FilterConditionHandler']) -> _EntityFilterRegistry:
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -78,7 +80,7 @@ class _EntityFilterRegistry:
 
     def register_operands(
             self,
-            *classes: Type['ConditionDynamicOperand']) -> '_EntityFilterRegistry':
+            *classes: Type['ConditionDynamicOperand']) -> _EntityFilterRegistry:
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -98,7 +100,7 @@ class _EntityFilterRegistry:
 
     def register_operators(
             self,
-            *classes: Type['ConditionOperator']) -> '_EntityFilterRegistry':
+            *classes: Type['ConditionOperator']) -> _EntityFilterRegistry:
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -200,7 +202,7 @@ class _EntityFilterSuperRegistry:
     def __iter__(self) -> Iterator[_EntityFilterRegistry]:
         return iter(self._registries.values())
 
-    def register(self, *registries: _EntityFilterRegistry) -> '_EntityFilterSuperRegistry':
+    def register(self, *registries: _EntityFilterRegistry) -> _EntityFilterSuperRegistry:
         set_default = self._registries.setdefault
 
         for registry in registries:

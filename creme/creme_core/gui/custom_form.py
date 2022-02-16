@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from abc import ABC
 from collections import OrderedDict
@@ -375,7 +377,7 @@ class FieldGroupList:
                    data: List[Union[dict, ExtraFieldGroup]],
                    cell_registry: EntityCellsRegistry,
                    allowed_extra_group_classes: Iterable[Type[ExtraFieldGroup]] = (),
-                   ) -> 'FieldGroupList':
+                   ) -> FieldGroupList:
         """High level builder of FieldGroupList and contained AbstractFieldGroups.
         @param model: related model (hint: EntityCells use it).
         @param data: list of dicts or ExtraFieldGroups. The format of the dicts:
@@ -447,7 +449,7 @@ class FieldGroupList:
                    data: List[dict],
                    cell_registry: EntityCellsRegistry,
                    allowed_extra_group_classes: Sequence[Type[ExtraFieldGroup]] = (),
-                   ) -> 'FieldGroupList':
+                   ) -> FieldGroupList:
         """Builder of FieldGroupList and contained AbstractFieldGroups
         from de-serialized dicts.
         Hint: see as_dict() methods for ExtraFieldGroup/FieldGroup.
@@ -962,7 +964,7 @@ class CustomFormDescriptorRegistry:
     def get(self, id: str) -> Optional[CustomFormDescriptor]:
         return self._descriptors.get(id)
 
-    def register(self, *descriptors: CustomFormDescriptor) -> 'CustomFormDescriptorRegistry':
+    def register(self, *descriptors: CustomFormDescriptor) -> CustomFormDescriptorRegistry:
         setdefault = self._descriptors.setdefault
 
         for desc in descriptors:

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import sys
 from collections.abc import Sequence
 from datetime import date, datetime
@@ -213,7 +215,7 @@ class FlowPaginator:
 
         return qs
 
-    def get_page(self, page_info=None) -> 'FlowPage':
+    def get_page(self, page_info=None) -> FlowPage:
         if page_info is not None and not isinstance(page_info, dict):
             page_obj = self.page()
         else:
@@ -226,7 +228,7 @@ class FlowPaginator:
 
         return page_obj
 
-    def page(self, page_info: Optional[dict] = None) -> 'FlowPage':
+    def page(self, page_info: Optional[dict] = None) -> FlowPage:
         """Get the wanted page.
         @param page_info: A dictionary returned by the methods
                           info()/next_page_info()/previous_page_info() of a page,
@@ -308,7 +310,7 @@ class FlowPaginator:
             next_item=next_item, first_page=first_page,
         )
 
-    def pages(self) -> Iterator['FlowPage']:
+    def pages(self) -> Iterator[FlowPage]:
         page = self.page()
 
         while True:

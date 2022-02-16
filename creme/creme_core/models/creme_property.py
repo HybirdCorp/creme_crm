@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from typing import Iterable, Type, Union
@@ -56,7 +58,7 @@ class CremePropertyTypeManager(models.Manager):
         subject_ctypes: Iterable[Union[ContentType, CremeEntity]] = (),
         is_custom: bool = False,
         is_copiable: bool = True,
-    ) -> 'CremePropertyType':
+    ) -> CremePropertyType:
         """Helps the creation of new CremePropertyType instance.
         @param str_pk: Used as ID value (or it's prefix -- see generate_pk).
         @param generate_pk: If True, 'str_pk' argument is used as prefix to
@@ -142,7 +144,7 @@ class CremePropertyManager(models.Manager):
         return prop
 
     def safe_multi_save(self,
-                        properties: Iterable['CremeProperty'],
+                        properties: Iterable[CremeProperty],
                         check_existing: bool = True) -> int:
         """Save several instances of CremeProperty by taking care of the UNIQUE
         constraint on ('type', 'creme_entity').

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from typing import (
     Collection,
     Container,
@@ -232,7 +234,7 @@ class GraphHandConstraintsRegistry:
     def register_cell_constraint(self, *,
                                  constraint_class: Type[GraphHandCellConstraint],
                                  rgraph_types: Iterable[int],
-                                 ) -> 'GraphHandConstraintsRegistry':
+                                 ) -> GraphHandConstraintsRegistry:
         set_constraint_by_type_id = self._constraints_by_type_id.setdefault
         set_constraint_by_rgtype = self._constraints_by_rgtype.setdefault
 
@@ -257,7 +259,7 @@ class GraphHandConstraintsRegistry:
     def register_parameter_validator(self, *,
                                      rgraph_types: Iterable[int],
                                      formfield: forms.Field,
-                                     ) -> 'GraphHandConstraintsRegistry':
+                                     ) -> GraphHandConstraintsRegistry:
         set_validator = self._param_validators.setdefault
 
         for rgtype in rgraph_types:
@@ -484,7 +486,7 @@ class AggregatorConstraintsRegistry:
     def register_cell_constraints(
             self,
             *constraint_classes: Type[AggregatorCellConstraint],
-    ) -> 'AggregatorConstraintsRegistry':
+    ) -> AggregatorConstraintsRegistry:
         for constraint_cls in constraint_classes:
             if self._constraints_by_type_id.setdefault(
                     constraint_cls.type_id, constraint_cls,

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 from datetime import timedelta
 from typing import Dict, Optional, Type
@@ -34,7 +36,7 @@ class _ImprintManager:
     def __init__(self):
         self._granularities: Dict[Type[CremeEntity], timedelta] = {}
 
-    def register(self, model: Type[CremeEntity], **timedelta_kwargs) -> '_ImprintManager':
+    def register(self, model: Type[CremeEntity], **timedelta_kwargs) -> _ImprintManager:
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from functools import partial
 from json import loads as json_load
@@ -78,7 +80,7 @@ class BrickDetailviewLocationManager(models.Manager):
             order: int,
             zone: int,
             model: Union[Type[CremeEntity], ContentType, None] = None,
-            role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
+            role: Union[None, UserRole, str] = None) -> BrickDetailviewLocation:
         """Create an instance of BrickDetailviewLocation, but if only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
@@ -114,12 +116,12 @@ class BrickDetailviewLocationManager(models.Manager):
             **kwargs
         )[0]
 
-    def create_for_model_brick(
-            self,
-            order: int,
-            zone: int,
-            model: Union[Type[CremeEntity], ContentType, None] = None,
-            role: Union[None, UserRole, str] = None) -> 'BrickDetailviewLocation':
+    def create_for_model_brick(self,
+                               order: int,
+                               zone: int,
+                               model: Union[Type[CremeEntity], ContentType, None] = None,
+                               role: Union[None, UserRole, str] = None,
+                               ) -> BrickDetailviewLocation:
         return self.create_if_needed(
             brick=MODELBRICK_ID, order=order,
             zone=zone, model=model, role=role,
@@ -130,10 +132,10 @@ class BrickDetailviewLocationManager(models.Manager):
             content_type=ContentType.objects.get_for_model(model),
         )
 
-    def multi_create(
-            self, *,
-            defaults: Optional[dict] = None,
-            data: Iterable[dict]) -> List['BrickDetailviewLocation']:
+    def multi_create(self, *,
+                     defaults: Optional[dict] = None,
+                     data: Iterable[dict],
+                     ) -> List[BrickDetailviewLocation]:
         """Create several instances at once.
         Each instance is created only if related brick is not already on the
         configuration.
@@ -429,7 +431,7 @@ class StoredBrickClassMixin:
 
 
 class RelationBrickItemManager(models.Manager):
-    def create_if_needed(self, relation_type: Union[RelationType, str]) -> 'RelationBrickItem':
+    def create_if_needed(self, relation_type: Union[RelationType, str]) -> RelationBrickItem:
         """Create an instance of RelationBrickItem corresponding to a RelationType
         or return the existing one.
 
@@ -563,7 +565,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
     # TODO: accept model too ?
-    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> 'RelationBrickItem':
+    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> RelationBrickItem:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
 
@@ -778,7 +780,7 @@ class BrickStateManager(models.Manager):
 
         return {FIELDS[svalue.key_id]: svalue.value for svalue in svalues.values()}
 
-    def get_for_brick_id(self, *, brick_id: str, user) -> 'BrickState':
+    def get_for_brick_id(self, *, brick_id: str, user) -> BrickState:
         """Returns current state of a brick.
         @param brick_id: A brick id.
         @param user: owner of the BrickState.
@@ -789,7 +791,7 @@ class BrickStateManager(models.Manager):
         except self.model.DoesNotExist:
             return self.model(brick_id=brick_id, user=user, **self._get_fields_values())
 
-    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> Dict[str, 'BrickState']:
+    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> Dict[str, BrickState]:
         """Get current states of several bricks.
         @param brick_ids: a list of brick IDs.
         @param user: owner of the BrickStates.

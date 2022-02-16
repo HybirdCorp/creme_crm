@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
 
 from creme.creme_core.models import CremeEntity
@@ -45,7 +47,8 @@ class QuickFormsRegistry:
     # TODO: rename form=>form_class
     def register(self,
                  model: Type[CremeEntity],
-                 form: Type['CremeEntityQuickForm']) -> 'QuickFormsRegistry':
+                 form: Type['CremeEntityQuickForm'],
+                 ) -> QuickFormsRegistry:
         """Register a form for a given model.
         @raise RegistrationError if a form is already registered.
         """

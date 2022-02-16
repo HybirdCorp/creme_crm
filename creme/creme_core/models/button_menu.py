@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Optional, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
@@ -38,7 +40,7 @@ class ButtonMenuItemManager(models.Manager):
                          model: Optional[Type[CremeEntity]] = None,
                          button: Union[Type['Button'], str],
                          order: int,
-                         ) -> 'ButtonMenuItem':
+                         ) -> ButtonMenuItem:
         """Creation helper ; useful for populate.py scripts.
         @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".

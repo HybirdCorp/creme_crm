@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 from typing import (
     TYPE_CHECKING,
@@ -194,7 +196,8 @@ class _FunctionFieldRegistry:
 
     def register(self,
                  model: Type[Model],
-                 *function_field_classes: Type[FunctionField]) -> '_FunctionFieldRegistry':
+                 *function_field_classes: Type[FunctionField],
+                 ) -> _FunctionFieldRegistry:
         """Register some FunctionField classes related to a model.
 
         @param model: A model class.

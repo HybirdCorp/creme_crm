@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from collections import OrderedDict
@@ -316,7 +318,7 @@ class FieldBlockManager:
 
     def new(self,
             *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict],
-            ) -> 'FieldBlockManager':
+            ) -> FieldBlockManager:
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
                If you use the dictionary format, you can use an extra key "order"
@@ -424,16 +426,16 @@ class HookableFormMixin:
     _creme_post_save_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
-    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type['HookableFormMixin']:
+    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type[HookableFormMixin]:
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
         return cls
 
     @classmethod
-    def add_post_clean_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
+    def add_post_clean_callback(cls, callback: _FormCallback) -> Type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
-    def add_post_init_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
+    def add_post_init_callback(cls, callback: _FormCallback) -> Type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 # from collections import defaultdict
@@ -59,13 +61,13 @@ class HeaderFilterList(list):
             HeaderFilter.objects.filter_by_user(user)
                                 .filter(entity_type=content_type)
         )
-        self._selected: Optional['HeaderFilter'] = None
+        self._selected: Optional[HeaderFilter] = None
 
     @property
-    def selected(self) -> Optional['HeaderFilter']:
+    def selected(self) -> Optional[HeaderFilter]:
         return self._selected
 
-    def select_by_id(self, *ids: str) -> Optional['HeaderFilter']:
+    def select_by_id(self, *ids: str) -> Optional[HeaderFilter]:
         """Try several HeaderFilter ids"""
         # Linear search but with few items after all...
         for hf_id in ids:
@@ -110,7 +112,7 @@ class HeaderFilterManager(models.Manager):
             user=None,
             is_private: bool = False,
             cells_desc: Iterable[Union['EntityCell', Tuple[Type['EntityCell'], dict]]] = (),
-    ) -> 'HeaderFilter':
+    ) -> HeaderFilter:
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
             - an instance of EntityCell (one of its child class of course).

@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from itertools import chain
@@ -262,7 +264,7 @@ class Field(CremeModel):
         if sub_report:
             sub_report._build_columns(self.selected)
 
-    def clone(self, report: Optional['AbstractReport'] = None) -> 'Field':
+    def clone(self, report: Optional['AbstractReport'] = None) -> Field:
         fields_kv = {}
 
         for field in self._meta.fields:

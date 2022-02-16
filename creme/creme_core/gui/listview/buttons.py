@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from typing import Any, Dict, Iterator, Optional, Type
 
 from django.contrib.contenttypes.models import ContentType
@@ -133,7 +135,7 @@ class ListViewButtonList(FluentList):
         super(ListViewButtonList, self).__init__(*args, **kwargs)
         self._context = {}
 
-    def update_context(self, **kwargs) -> 'ListViewButtonList':
+    def update_context(self, **kwargs) -> ListViewButtonList:
         """Add information items in the context passed to the button instances."""
         self._context.update(**kwargs)
         return self

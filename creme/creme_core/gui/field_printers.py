@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from os.path import splitext
 from typing import Any, Callable, Iterator, Type
 
@@ -255,7 +257,7 @@ class FKPrinter:
 
         return sub_printer(entity, fval, user, field)
 
-    def register(self, model: Type[Model], printer: FieldPrinter) -> 'FKPrinter':
+    def register(self, model: Type[Model], printer: FieldPrinter) -> FKPrinter:
         self._sub_printers[model] = printer
         return self
 
@@ -307,7 +309,8 @@ class BaseM2MPrinter:
     def register(self,
                  model: Type[Model],
                  printer: M2MInstancePrinter,
-                 enumerator: M2MEnumerator) -> 'BaseM2MPrinter':
+                 enumerator: M2MEnumerator,
+                 ) -> BaseM2MPrinter:
         self._sub_printers[model] = (printer, enumerator)
         return self
 
@@ -546,7 +549,7 @@ class _FieldPrintersRegistry:
             self,
             field: Type[models.Field],
             printer: FieldPrinter,
-            output: str = 'html') -> '_FieldPrintersRegistry':
+            output: str = 'html') -> _FieldPrintersRegistry:
         """Register a field printer.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
@@ -559,7 +562,7 @@ class _FieldPrintersRegistry:
     def register_choice_printer(
             self,
             printer: FieldPrinter,
-            output: str = 'html') -> '_FieldPrintersRegistry':
+            output: str = 'html') -> _FieldPrintersRegistry:
         """Register a printer for fields with a "choices" attribute.
         @param printer: A callable object. See print_choice() for arguments/return.
         @param output: string in {'html', 'csv'}.
@@ -572,7 +575,7 @@ class _FieldPrintersRegistry:
             self,
             field: Type[models.Field],
             css_class: str,
-            header_css_class: str) -> '_FieldPrintersRegistry':
+            header_css_class: str) -> _FieldPrintersRegistry:
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
