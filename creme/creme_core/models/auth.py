@@ -144,7 +144,8 @@ class UserRole(models.Model):
         self._allowed_apps = {*apps}
         self.raw_allowed_apps = '\n'.join(apps)
 
-    def _build_extended_apps(self, apps: Iterable[str]) -> Set[str]:
+    @staticmethod
+    def _build_extended_apps(apps: Iterable[str]) -> Set[str]:
         from ..apps import extended_app_configs
 
         return {app_config.label for app_config in extended_app_configs(apps)}
