@@ -742,7 +742,7 @@ class BricksManager:
 
     @used_relationtypes_ids.setter
     def used_relationtypes_ids(self, relationtypes_ids: Iterable[str]) -> None:
-        "@param relation_type_deps: Iterable of RelationType objects' IDs."
+        "@param relationtypes_ids: Iterable of RelationType objects' IDs."
         self._used_relationtypes = {*relationtypes_ids}
 
 
