@@ -255,8 +255,8 @@ class BoundFieldBlocks:
         return iter(self._blocks_data.values())
 
 
-# DEPRECATED
-FieldBlocksGroup = BoundFieldBlocks
+# # DEPRECATED
+# FieldBlocksGroup = BoundFieldBlocks
 
 
 class FieldBlockManager:

@@ -15,7 +15,9 @@
             - The files "creme/local_settings.py" & "creme/project_settings.py" are now loaded anymore.
             - The folder "creme/media/upload" have been removed.
             - The file "creme/django.wsgi" has been removed.
-            - The class 'creme_core.forms.fields.AjaxModelChoiceField' has been removed.
+            - In 'creme_core.forms' :
+                - The alias 'base.FieldBlocksGroup' has been removed.
+                - The class 'fields.AjaxModelChoiceField' has been removed.
             - In 'creme_core.models' :
                 - The method 'CremePropertyType.create()' has been removed.
                 - The method 'Job.not_finished_jobs()' has been removed.
