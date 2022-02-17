@@ -86,7 +86,7 @@
         {% if display_review and activity.minutes %}
         <div class="activity-group activity-info-group">
             <div class="activity-group-key">{% translate 'Minutes' %}</div>
-            <div class="activity-group-value">{{activity.minutes}}</div>
+            <div class="activity-group-value">{{activity.minutes|linebreaks}}</div>
         </div>
         {% endif %}
     </div>
