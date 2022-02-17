@@ -300,6 +300,21 @@ jobs:
       - setup-creme-unit-tests
       - run-creme-unit-tests
 
+  python310-tests-sqlite3:
+    docker:
+      - image: circleci/python:3.10-browsers
+    resource_class: large
+    steps:
+      - checkout-creme
+      - setup-locale:
+          language: fr_FR
+          encoding: UTF-8
+      - install-creme-system-packages
+      - install-py-dev-env:
+          python: "python3.10"
+      - create-creme-project
+      - setup-creme-unit-tests
+      - run-creme-unit-tests
 
   javascript-lint:
     docker:
@@ -483,6 +498,10 @@ workflows:
 #            - python36-lint-isort
             - python37-lint-isort
 #            - python36-lint-flake8
+            - python37-lint-flake8
+      - python310-tests-sqlite3:
+          requires:
+            - python37-lint-isort
             - python37-lint-flake8
       - docker-build-creme-demo:
           filters:
