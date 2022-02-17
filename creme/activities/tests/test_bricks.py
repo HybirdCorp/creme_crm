@@ -153,6 +153,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         past = [
             create_activity(
                 title=f'Past #{i}',
+                # TODO: test linebreaks + \n
                 minutes=f'Very interesting info about Past #{i}',
                 start=yesterday + timedelta(hours=i),
                 end=yesterday + timedelta(hours=i, minutes=30),
@@ -192,7 +193,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         future_minutes = {
             n.text
-            for n in future_brick_node.findall('.//div[@class="activity-group-value"]')
+            for n in future_brick_node.findall('.//div[@class="activity-group-value"]/p')
         }
         self.assertIn(future[0].minutes, future_minutes)
         self.assertIn(future[1].minutes, future_minutes)
@@ -208,7 +209,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         past_minutes = {
             n.text
-            for n in past_brick_node.findall('.//div[@class="activity-group-value"]')
+            for n in past_brick_node.findall('.//div[@class="activity-group-value"]/p')
         }
         self.assertIn(past[0].minutes, past_minutes)
         self.assertIn(past[1].minutes, past_minutes)
