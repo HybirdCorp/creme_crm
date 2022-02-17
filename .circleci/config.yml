@@ -35,7 +35,6 @@ commands:
     steps:
       - restore_cache:
           keys:
-#            - <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
             - << parameters.python >>-creme_crm-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
             - << parameters.python >>-creme_crm
 
@@ -43,14 +42,12 @@ commands:
       # Require setuptools v46.4.0 at least
       - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
-#      - run: pip install -U -e .[dev,mysql,pgsql,graphs]
       - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,graphs]
       - run: python --version
       - run: pip freeze
       - run: pip list --outdated
 
       - save_cache:
-#          key: <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
           key: << parameters.python >>-creme_crm-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
