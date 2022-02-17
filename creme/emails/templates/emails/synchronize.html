@@ -3,6 +3,23 @@
 
 {% block page_title %}{% translate 'Synchronization of incoming emails with Creme' %} - {% endblock %}
 
+{% block extrahead %}
+{# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
+    <script type='text/javascript'>
+        $(document).ready(function() {
+            $('.bar-button.emails-sync-refresh').on('click', function() {
+                creme.utils
+                     .ajaxQuery(
+                        '{% url 'crudity__refresh_actions' %}',
+                        {action: 'post', warnOnFail: true, reloadOnFail: true}
+                     ).onDone(function(event, data) {
+                        if (data.length) { creme.utils.reload(); }
+                     }).start();
+            });
+        });
+    </script>
+{% endblock %}
+
 {% block content %}
     <div class="hat-bar-container">
         <div class="hat-bar">
@@ -10,7 +27,8 @@
             <div class="bar-title"><h1>{% translate 'Synchronization of incoming emails with Creme' %}</h1></div>
             <div class="bar-actions">
                <div class='bar-action'>
-                    <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" >
+{#                    <a class="bar-button" onclick="refreshWaitingActions('{% url 'crudity__refresh_actions' %}');" > #}
+                    <a class="bar-button emails-sync-refresh">
                         {% widget_icon name='refresh' size='brick-hat-bar-button' label=_('Refresh') %}
                     </a>
                </div>
