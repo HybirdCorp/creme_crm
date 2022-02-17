@@ -8,6 +8,7 @@ try:
     from django.apps.config import AppConfig
     from django.apps.registry import Apps
 except ImportError:
+    # This error may appear with old versions of setuptools during installation
     import sys
 
     sys.stderr.write(
