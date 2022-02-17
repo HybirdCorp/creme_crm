@@ -497,6 +497,10 @@
     fill: #666;
 }
 
+.activities-list-brick .activity-group-value p {
+    margin: 0;
+}
+
 .activities-list-brick .typography-mdash {
     position: relative;
     top: -1px;
