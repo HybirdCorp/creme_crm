@@ -3,6 +3,9 @@
   Users side :
   ------------
     # A crash during an installation from source (with old version of setuptools) has been fixed.
+    # Apps :
+        * Emails :
+            - The "Refresh" button in synchronization page has been fixed.
 
 
 == Version 2.2.10 ==
