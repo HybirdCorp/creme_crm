@@ -324,6 +324,28 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             _('A semi-fixed type of relationship with this type and this object already exists.'),
         )
 
+    def test_edit(self):
+        predicate = 'Is loving Iori'
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate=predicate,
+            relation_type=self.loves,
+            object_entity=self.iori,
+        )
+
+        url = reverse('creme_config__edit_semifixed_rtype', args=(sfrt.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+
+        self.assertNotIn('semi_relation', fields)
+        self.assertNotIn('relation_type', fields)
+        self.assertNotIn('object_entity', fields)
+
+        predicate += ' very much'
+        self.assertNoFormError(self.client.post(url, data={'predicate': predicate}))
+        self.assertEqual(predicate, self.refresh(sfrt).predicate)
+
     def test_delete(self):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Is loving Iori',
