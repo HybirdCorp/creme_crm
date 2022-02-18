@@ -178,6 +178,11 @@ relation_type_patterns = [
         name='creme_config__create_semifixed_rtype',
     ),
     re_path(
+        r'^semi_fixed/edit/(?P<semifixed_rtype_id>\d+)[/]?$',
+        relation_type.SemiFixedRelationTypeEdition.as_view(),
+        name='creme_config__edit_semifixed_rtype',
+    ),
+    re_path(
         r'^semi_fixed/delete[/]?$',
         relation_type.SemiFixedRelationTypeDeletion.as_view(),
         name='creme_config__delete_semifixed_rtype',

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -52,6 +52,12 @@ class RelationTypeEdition(base.ConfigModelEdition):
     form_class = rtype_forms.RelationTypeEditForm
     pk_url_kwarg = 'rtype_id'
     title = pgettext_lazy('creme_config-relationship', 'Edit the type «{object}»')
+
+
+class SemiFixedRelationTypeEdition(base.ConfigModelEdition):
+    model = SemiFixedRelationType
+    form_class = rtype_forms.SemiFixedRelationTypeEditionForm
+    pk_url_kwarg = 'semifixed_rtype_id'
 
 
 class RelationTypeDeletion(base.ConfigDeletion):

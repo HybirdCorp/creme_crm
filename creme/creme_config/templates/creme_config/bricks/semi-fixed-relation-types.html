@@ -32,6 +32,9 @@
         <td>{% widget_entity_hyperlink sf_rtype.object_entity.get_real_entity user %}</td>
         <td>{{sf_rtype.relation_type}}</td>
         <td {% brick_table_data_status action %}>
+            {% brick_table_action id='edit' url='creme_config__edit_semifixed_rtype'|url:sf_rtype.id label=_('Edit this type') enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=sf_rtype.id label=_('Delete this type') enabled=admin_perm %}
         </td>
     </tr>
