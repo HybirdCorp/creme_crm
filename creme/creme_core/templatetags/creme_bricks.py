@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -212,7 +212,7 @@ def brick_action(context, id, url='',
            confirmation popup is displayed with this message.
            Default is None.
     @param loading: Loading message.
-    @param help_text: String. Same as label if not defined
+    @param help_text: String. Same as label if not defined.
     @param kwargs:
            These keys have a precise meaning:
                 - 'type': String used to generate the CSS class "action-type-{{action_type}}" ;
