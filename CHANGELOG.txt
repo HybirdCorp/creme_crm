@@ -3,6 +3,7 @@
   Users side :
   ------------
     # A crash during an installation from source (with old version of setuptools) has been fixed.
+    # The buttons on hat-card bricks use now better the given 'help_text'.
     # Apps :
         * Activities :
             - The display for the attribute "minutes" in related activities' brick has been improved.
