@@ -10,6 +10,14 @@
         * Emails :
             - The "Refresh" button in synchronization page has been fixed.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # With ForeignKeys to a CremeEntity model, the attribute "help_text" is
+          now automatically used in the related form-field as expected.
+
 
 == Version 2.3 ==
 
