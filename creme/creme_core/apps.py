@@ -616,6 +616,7 @@ class CremeCoreConfig(CremeAppConfig):
                     model=model,
                     required=not self.blank,
                     q_filter=limit_choices_to,
+                    help_text=self.help_text,
                 )
 
             return original_fk_formfield(
