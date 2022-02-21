@@ -12,9 +12,9 @@
             total += parseInt($(this).attr('search-count'));
         });
 
-        var title_fmt = pluralidx(total) ? '{{plural_msg|escapejs}}' : '{{singular_msg|escapejs}}';
+        var titleFmt = pluralidx(total) ? '{{plural_msg|escapejs}}' : '{{singular_msg|escapejs}}';
 
-        $('#search_results_title').text(title_fmt.format(total));
+        $('#search_results_title').text(titleFmt.format(total));
     });
 
     var SEARCH = '{{research|escapejs|lower}}';

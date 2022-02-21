@@ -34,7 +34,7 @@
            ["skype",       "Skype"]
         ];
 
-        function random_options(threshold) {
+        function randomOptions(threshold) {
             var options = [];
 
             CHOSEN_TEST_OPTIONS.forEach(function(value) {
@@ -50,7 +50,7 @@
             var mockbackend = new creme.ajax.MockAjaxBackend({sync: true});
             var urls = {
                 'mock/options': function() {
-                    return mockbackend.response(200, random_options(Math.random()));
+                    return mockbackend.response(200, randomOptions(Math.random()));
                 }
             };
 

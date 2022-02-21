@@ -3,9 +3,9 @@
     <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
     <li>{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
     <script type="text/javascript">
-        creme.forms.optionalWidgetHandler = function(check_box) {
-            var jq_check_box = $(check_box);
-            jq_check_box.parent().siblings('li').css('display', jq_check_box.is(':checked') ? '' : 'none');
+        creme.forms.optionalWidgetHandler = function(checkBox) {
+            var jqCheckBox = $(checkBox);
+            jqCheckBox.parent().siblings('li').css('display', jqCheckBox.is(':checked') ? '' : 'none');
         };
 
         $(document).ready(function() {

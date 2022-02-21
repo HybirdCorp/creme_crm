@@ -23,7 +23,7 @@
             {value: "skype",       label: "Skype"}
         ];
 
-        function random_options(threshold) {
+        function randomOptions(threshold) {
             var options = [];
 
             TEST_OPTIONS.forEach(function(value) {
@@ -37,7 +37,7 @@
 
         $(document).ready(function() {
             $('button.random-model').on('click', function() {
-                var options = random_options(Math.random());
+                var options = randomOptions(Math.random());
                 $('select.ui-creme-dselect.random-model').each(function() {
                     $(this).creme().widget().model().reset(options);
                 });

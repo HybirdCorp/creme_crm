@@ -30,15 +30,15 @@
         creme.utils.converters().register("horizontalBargraphData", "jqplotData", function(data) {
             var reference = data[0];
             var real = data[1];
-            var h_reference = [];
-            var h_real = [];
+            var hReference = [];
+            var hReal = [];
 
             for (var index = 0; index < 12; ++index) {
-                h_reference.push([(index < reference.length) ? reference[index] : 0.0, index + 1]);
-                h_real.push([(index < real.length) ? real[index] : 0.0, index + 1]);
+                hReference.push([(index < reference.length) ? reference[index] : 0.0, index + 1]);
+                hReal.push([(index < real.length) ? real[index] : 0.0, index + 1]);
             }
 
-            return [h_reference, h_real];
+            return [hReference, hReal];
         });
 
         $(document).ready(function() {
