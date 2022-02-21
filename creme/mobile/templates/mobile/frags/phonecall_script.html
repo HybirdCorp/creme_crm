@@ -2,11 +2,11 @@
 <script type="text/javascript">
   var PHONECALL_COOKIE = 'phone_call=';
   var CSRF_COOKIE = 'csrftoken=';  // eslint-disable-line
-  var csrf_token;
-  var phonecall_data;
+  var csrfToken;
+  var phonecallData;
 
 {% comment %}
-  Attributes of 'phonecall_data':
+  Attributes of 'phonecallData':
     -pcall_id   -> ID of the existing delayed PhoneCall that contains the phone number the user clicked on.
                     Can be undefined.
     -call_start -> start date (as JSON string) of the last call (ie: when the user clicked on number).
@@ -18,34 +18,34 @@
     if (e.target.href !== undefined && e.target.href.indexOf('tel:') === 0) {
       var now = new Date();
 
-      phonecall_data = {number: e.target.text, call_start: now.toJSON()};
+      phonecallData = {number: e.target.text, call_start: now.toJSON()};
 
-      var person_component = e.target;
-      var person_id;
+      var personComponent = e.target;
+      var personId;
 
-      while ((person_component = person_component.parentElement)) {
-        person_id = person_component.getAttribute('data-person-id');
-        if (person_id) {
-          phonecall_data.person_id = person_id;
+      while ((personComponent = personComponent.parentElement)) {
+        personId = personComponent.getAttribute('data-person-id');
+        if (personId) {
+          phonecallData.person_id = personId;
           break;
         }
       }
 
-      var activity_component = e.target;
-      var activity_id;
+      var activityComponent = e.target;
+      var activityId;
 
-      while ((activity_component = activity_component.parentElement)) {
-        activity_id = activity_component.getAttribute('data-activity-id');
+      while ((activityComponent = activityComponent.parentElement)) {
+        activityId = activityComponent.getAttribute('data-activity-id');
 
-        if (activity_id && activity_component.classList.contains('editable-phonecall')) {
-          phonecall_data.pcall_id = activity_id;
+        if (activityId && activityComponent.classList.contains('editable-phonecall')) {
+          phonecallData.pcall_id = activityId;
           break;
         }
       }
 
       // Cookie way (page is reload after click on a phone number)
       now.setTime(now.getTime() + 24 * 60 * 60 * 1000);
-      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecall_data) + "; expires=" + now.toUTCString();
+      document.cookie = PHONECALL_COOKIE + JSON.stringify(phonecallData) + "; expires=" + now.toUTCString();
 
       // Timer way (page is just suspended after click on a phone number)
       setTimeout(displayWorkflowPanel, 3000);
@@ -59,10 +59,10 @@
       var cookie = cookies[i].trim();
 
       if (cookie.indexOf(PHONECALL_COOKIE) === 0)  {
-        phonecall_data = JSON.parse(cookie.substring(PHONECALL_COOKIE.length));
+        phonecallData = JSON.parse(cookie.substring(PHONECALL_COOKIE.length));
         displayWorkflowPanel();
       } else if (cookie.indexOf(CSRF_COOKIE) === 0) {
-        csrf_token = decodeURIComponent(cookie.substring(CSRF_COOKIE.length));
+        csrfToken = decodeURIComponent(cookie.substring(CSRF_COOKIE.length));
       }
     }
   }
@@ -82,11 +82,11 @@
   }
 
   function setPanelContent(content) {
-    var display_hideable = content ? 'none' : 'block';
+    var displayHiddable = content ? 'none' : 'block';
     var elements = document.querySelectorAll('.hideable-content');
 
     for (var i = 0; i < elements.length; ++i) {
-      elements[i].style.display = display_hideable;
+      elements[i].style.display = displayHiddable;
     }
 
     document.getElementById("workflow_panel").innerHTML = content;
@@ -94,7 +94,7 @@
 
   function displayWorkflowPanel() {
     var xhr = new XMLHttpRequest();
-    xhr.open("GET", "{% url 'mobile__pcall_panel' %}?" + objectToParameters(phonecall_data), false);
+    xhr.open("GET", "{% url 'mobile__pcall_panel' %}?" + objectToParameters(phonecallData), false);
     xhr.send();
 
     if (xhr.status !== 200) {
@@ -106,7 +106,7 @@
 
   function clearCookie() {
     document.cookie = PHONECALL_COOKIE + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-    phonecall_data = undefined;
+    phonecallData = undefined;
   }
 
   function closePanel() {  // eslint-disable-line
@@ -131,9 +131,9 @@
     var xhr = new XMLHttpRequest();
     xhr.open("POST", url, false);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+    xhr.setRequestHeader("X-CSRFToken", csrfToken);
 
-    var postData = objectToParameters(phonecall_data);
+    var postData = objectToParameters(phonecallData);
 
     var minutes = document.querySelector('textarea.activity-minutes').value;
     if (minutes) {

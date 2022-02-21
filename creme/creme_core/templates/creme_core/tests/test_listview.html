@@ -23,30 +23,30 @@
     </style>
     <script type="text/javascript">
     (function() {
-        var openFilterSelection = function(ct_id, q_filter, multiple, listeners) {
+        var openFilterSelection = function(ctId, qFilter, multiple, listeners) {
             var url = "{% url 'creme_core__listview_popup' %}";
 
             var action = new creme.lv_widget.ListViewDialogAction({
                                                  url: url,
                                                  selectionMode: multiple ? 'multiple' : 'single',
                                                  data: {
-                                                     ct_id: ct_id,
-                                                     q_filter: q_filter
+                                                     ct_id: ctId,
+                                                     q_filter: qFilter
                                                  }
                                              });
 
             return action.one(listeners).start();
         };
 
-        var openFilterView = function(ct_id, q_filter) {
+        var openFilterView = function(ctId, qFilter) {
             var url = "{% url 'creme_core__listview_popup' %}";
 
             var action = new creme.lv_widget.ListViewDialogAction({
                                                  url: url,
                                                  selectionMode: 'none',
                                                  data: {
-                                                     ct_id: ct_id,
-                                                     q_filter: q_filter
+                                                     ct_id: ctId,
+                                                     q_filter: qFilter
                                                  }
                                              });
             action.start();
