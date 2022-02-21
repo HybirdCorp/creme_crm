@@ -170,6 +170,8 @@ USE_I18N = True
 # TODO: pass to 'True' by default  (in a future release...)
 USE_L10N = False
 
+LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
+
 DEFAULT_ENCODING = 'UTF8'
 
 
@@ -321,7 +323,6 @@ INSTALLED_DJANGO_APPS = [
     'formtools',
     'creme.creme_core.apps.MediaGeneratorConfig',  # It manages JS, CSS & static images
 ]
-
 INSTALLED_CREME_APPS = [
     # ----------------------
     # MANDATORY CREME APPS #
@@ -454,7 +455,7 @@ INSTALLED_CREME_APPS = [
     # I can be useful to plan a business itinerary.
     'creme.geolocation',
 ]
-
+INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
 ALLOWED_IMAGES_EXTENSIONS = [
     'gif', 'png', 'jpeg', 'jpg', 'jpe', 'bmp', 'psd', 'tif', 'tiff', 'tga', 'svg',
@@ -1473,11 +1474,8 @@ GEOLOCATION_OSM_COPYRIGHT_TITLE = 'OpenStreetMap contributors'
 #         "use the new project layout <see command 'creme_start_project'>.",
 #         DeprecationWarning,
 #     )
-
-# GENERAL [FINAL SETTINGS]------------------------------------------------------
-# TODO: move up this code & remove this whole section in Creme 2.4 when
-#       local_settings/project_settings loading has been removed.
-
-LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
-
-INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
+#
+# # GENERAL [FINAL SETTINGS]------------------------------------------------------
+#
+# LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
+# INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
