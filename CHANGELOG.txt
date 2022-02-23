@@ -5,6 +5,8 @@
     # A crash during an installation from source (with old version of setuptools) has been fixed.
     # The package 'reportlab' is temporarily pinned because 3.6.7 is not compatible with 'xhtml2pdf 0.2.5'.
     # Apps :
+        * Billing :
+            - There was a crash when the field "number" was removed in the creation custom-forms.
         * Emails :
             - The "Refresh" button in synchronization page has been fixed.
 

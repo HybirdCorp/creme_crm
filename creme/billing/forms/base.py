@@ -115,7 +115,11 @@ class BaseCustomForm(CremeEntityForm):
         self.source_cell_key = get_key(BillingSourceSubCell)
         self.target_cell_key = get_key(BillingTargetSubCell)
 
-        if not instance.pk and type(instance).generate_number_in_create:
+        if (
+            not instance.pk
+            and type(instance).generate_number_in_create
+            and 'number' in self.fields
+        ):
             managed_orga = first_managed_organisation()
             if managed_orga:
                 self.fields['number'].help_text = gettext(

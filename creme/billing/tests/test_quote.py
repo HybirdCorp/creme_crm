@@ -10,8 +10,14 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui import actions
-from creme.creme_core.models import Currency, SetCredentials
+from creme.creme_core.gui.custom_form import FieldGroupList
+from creme.creme_core.models import (
+    Currency,
+    CustomFormConfigItem,
+    SetCredentials,
+)
 from creme.persons.constants import REL_SUB_PROSPECT
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -20,6 +26,8 @@ from creme.persons.tests.base import (
 
 from ..actions import ExportQuoteAction
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..custom_forms import QUOTE_CREATION_CFORM
+from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
 from ..models import QuoteStatus, SimpleBillingAlgo
 from .base import (
     Address,
@@ -183,6 +191,40 @@ class QuoteTestCase(_BillingTestCase):
         number = 'Q123'
         quote, source, target = self.create_quote_n_orgas('My Quote', number=number)
         self.assertEqual(number, quote.number)
+
+    def test_createview04(self):
+        "The field 'number' is not in the form."
+        self.login()
+
+        cfci = CustomFormConfigItem.objects.get(cform_id=QUOTE_CREATION_CFORM.id)
+        cfci.store_groups(FieldGroupList.from_cells(
+            model=Quote,
+            data=[
+                {
+                    'name': _('General information'),
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'discount'}),
+                        (EntityCellRegularField, {'name': 'currency'}),
+                        (EntityCellRegularField, {'name': 'status'}),
+
+                        BillingSourceSubCell(model=Quote).into_cell(),
+                        BillingTargetSubCell(model=Quote).into_cell(),
+                    ],
+                },
+            ],
+            cell_registry=QUOTE_CREATION_CFORM.build_cell_registry(),
+            allowed_extra_group_classes=(*QUOTE_CREATION_CFORM.extra_group_classes,)
+        ))
+        cfci.save()
+
+        response = self.assertGET200(reverse('billing__create_quote'))
+
+        with self.assertNoException():
+            fields = response.context['form'].fields
+
+        self.assertNotIn('number', fields)
 
     def test_create_related01(self):
         user = self.login()
