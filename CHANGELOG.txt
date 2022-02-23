@@ -9,6 +9,8 @@
     # Apps :
         * Activities :
             - The display for the attribute "minutes" in related activities' brick has been improved.
+        * Billing :
+            - There was a crash when the field "number" was removed in the creation custom-forms.
         * Emails :
             - The "Refresh" button in synchronization page has been fixed.
 
