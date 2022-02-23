@@ -63,7 +63,7 @@ creme.lv_widget.DeleteSelectedAction = creme.component.Action.sub({
             header = '';
 
             if (removed_count > 0) {
-                header = ngettext('%d entity have been deleted.',
+                header = ngettext('%d entity has been deleted.',
                                   '%d entities have been deleted.',
                                   removed_count).format(removed_count);
             }

@@ -232,7 +232,7 @@ QUnit.test('creme.listview.DeleteSelectedAction (partially allowed)', function(a
     this.assertOpenedDialog();
     this.acceptConfirmDialog();
 
-    var header = ngettext('%d entity have been deleted.', '%d entities have been deleted.', 1).format(1) +
+    var header = ngettext('%d entity has been deleted.', '%d entities have been deleted.', 1).format(1) +
                  ngettext(' %d entity cannot be deleted.', ' %d entities cannot be deleted.', 2).format(2);
 
     deepEqual([], this.mockListenerCalls('action-fail'));
