@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP (JavaScript only)
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -d djangojs -l fr -i "static/creme_core/js/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-02-23 17:00+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -118,7 +118,7 @@ msgstr[0] "Ne sélectionnez pas plus de %d ligne"
 msgstr[1] "Ne sélectionnez pas plus de %d lignes"
 
 #, javascript-format
-msgid "%d entity have been deleted."
+msgid "%d entity has been deleted."
 msgid_plural "%d entities have been deleted."
 msgstr[0] "%d entité a été supprimée."
 msgstr[1] "%d entités ont été supprimées."
