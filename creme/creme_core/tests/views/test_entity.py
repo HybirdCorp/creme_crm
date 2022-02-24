@@ -11,6 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db.models import Max
 from django.forms import CharField
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -1651,33 +1652,36 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(mario_desc, self.refresh(mario).description)  # Not allowed
         self.assertEqual('',         self.refresh(luigi).description)
 
-    def test_regular_field_datetime(self):
+    @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y'])
+    def test_regular_field_date(self):
         self.login()
 
         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
-        response = self.client.post(
+
+        birthday = date(2000, 1, 31)
+        response1 = self.assertPOST200(
             url,
             data={
-                'field_value': 'bad date',
+                # 'field_value': 'bad date',
+                'field_value': birthday.strftime('%d-%m-%y'),
                 'entities': [mario.id, luigi.id]
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value', _('Enter a valid date.'),
+            response1, 'form', 'field_value', _('Enter a valid date.'),
         )
 
-        # TODO: @override_settings...
-        # This weird format have few chances to be present in settings
-        settings.DATE_INPUT_FORMATS += ('-%dT%mU%Y-',)
+        # settings.DATE_INPUT_FORMATS += ('-%dT%mU%Y-',)
 
-        self.client.post(
+        response2 = self.client.post(
             url,
             data={
-                'field_value': '-31T01U2000-',
+                # 'field_value': '-31T01U2000-',
+                'field_value': self.formfield_value_date(birthday),
                 'entities': [mario.id, luigi.id],
             },
         )
-        birthday = date(2000, 1, 31)
+        self.assertNoFormError(response2)
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
@@ -1751,16 +1755,17 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         )
 
         mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
+        birthday = date(2000, 1, 31)
         response = self.client.post(
             url,
             data={
-                'field_value': '31-01-2000',
+                # 'field_value': '31-01-2000',
+                'field_value': self.formfield_value_date(birthday),
                 'entities': [mario.id, luigi.id],
             },
         )
         self.assertNoFormError(response)
 
-        birthday = date(2000, 1, 31)
         self.assertEqual(birthday, self.refresh(mario).birthday)
         self.assertEqual(birthday, self.refresh(luigi).birthday)
 
@@ -2041,7 +2046,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_str, self.refresh(mario))
         self.assertRaises(DoesNotExist, self.get_cf_values, cf_str, self.refresh(luigi))
 
-    def test_custom_field_date(self):
+    @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y %H:%M:%S'])
+    def test_custom_field_datetime(self):
         self.login()
 
         get_cf_values = self.get_cf_values
@@ -2053,21 +2059,20 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             field=_CUSTOMFIELD_FORMAT.format(cf_date.id),
         )
 
-        # TODO: use @override_settings
-        # This weird format have few chances to be present in settings
-        settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
+        # settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
 
         # Date
+        dt = self.create_datetime(2000, 1, 31)
         response = self.client.post(
             url,
             data={
-                'field_value': '-31T01U2000-',
+                # 'field_value': '-31T01U2000-',
+                'field_value': self.formfield_value_datetime(dt),
                 'entities': [mario.pk, luigi.pk],
             },
         )
         self.assertNoFormError(response)
 
-        dt = self.create_datetime(2000, 1, 31)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(mario)).value)
         self.assertEqual(dt, get_cf_values(cf_date, self.refresh(luigi)).value)
 

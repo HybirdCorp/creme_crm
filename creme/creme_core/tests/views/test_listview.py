@@ -1378,7 +1378,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(bebop, orgas_set)
         self.assertNotIn(seele, orgas_set)
 
-    def test_search_datefields01(self):
+    def test_search_datefields(self):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1392,32 +1392,38 @@ class ListViewTestCase(ViewsTestCase):
         url = self.url
 
         # ----------------------------------------------------------------------
+        date_value = self.formfield_value_date
+
         def post(start, end=''):
             ckey = cell.key
             return self.assertPOST200(
                 url,
                 data={
                     'hfilter': hf.id,
+                    # f'search-{ckey}-start': start,
                     f'search-{ckey}-start': start,
                     f'search-{ckey}-end': end,
                 },
             )
 
-        response = post('1-1-2075')
+        # response = post('1-1-2075')
+        response = post(date_value(2075, 1, 1))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        response = post('', '1-1-2075')
+        # response = post('', '1-1-2075')
+        response = post('', date_value(2075, 1, 1))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        response = post('1-1-2074', '31-12-2074')
+        # response = post('1-1-2074', '31-12-2074')
+        response = post(date_value(2074, 1, 1), date_value(2074, 12, 31))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
@@ -1431,7 +1437,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,   content)
         self.assertIn(dragons.name,   content)
 
-    def test_search_datetimefields01(self):
+    def test_search_datetimefields(self):
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1467,22 +1473,27 @@ class ListViewTestCase(ViewsTestCase):
             )
             return self._get_lv_content(self._get_lv_node(response))
 
-        content = post('1-1-2075')
+        date_value = self.formfield_value_date
+        # content = post('1-1-2075')
+        content = post(date_value(2075, 1, 1))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
 
-        content = post('', '1-1-2075')
+        # content = post('', '1-1-2075')
+        content = post('', date_value(2075, 1, 1))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        content = post('1-1-2074', '31-12-2074')
+        # content = post('1-1-2074', '31-12-2074')
+        content = post(date_value(2074, 1, 1), date_value(2074, 12, 31))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        content = post('5-6-2074', '5-6-2074')
+        # content = post('5-6-2074', '5-6-2074')
+        content = post(date_value(2074, 6, 5), date_value(2074, 6, 5))
         self.assertNotIn(bebop.name,      content)
         self.assertIn(swordfish.name,     content)
         self.assertNotIn(swordfish2.name, content)
@@ -2402,39 +2413,47 @@ class ListViewTestCase(ViewsTestCase):
         hf = self._build_hf(cell)
 
         # ----------------------------------------------------------------------
+        date_value = self.formfield_value_date
 
-        def post(start, end=''):
+        # def post(start, end=''):
+        def post(start=None, end=None):
             ckey = cell.key
             response = self.assertPOST200(
                 self.url,
                 data={
                     'hfilter': hf.id,
-                    f'search-{ckey}-start': start,
-                    f'search-{ckey}-end': end,
+                    # f'search-{ckey}-start': start,
+                    # f'search-{ckey}-end': end,
+                    f'search-{ckey}-start': date_value(start) if start else '',
+                    f'search-{ckey}-end':   date_value(end)   if end   else '',
                 },
             )
 
             return self._get_lv_content(self._get_lv_node(response))
 
-        content = post('2075-1-1')
+        # content = post('2075-1-1')
+        content = post(start=date(2075, 1, 1))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        content = post('', '1-1-2075')
+        # content = post('', '1-1-2075')
+        content = post(end=date(2075, 1, 1))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        content = post('1-1-2074', '31-12-2074')
+        # content = post('1-1-2074', '31-12-2074')
+        content = post(date(2074, 1, 1), date(2074, 12, 31))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        content = post('5-6-2074', '5-6-2074')
+        # content = post('5-6-2074', '5-6-2074')
+        content = post(date(2074, 6, 5), date(2074, 6, 5))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
@@ -2496,15 +2515,19 @@ class ListViewTestCase(ViewsTestCase):
         cell_flight = EntityCellCustomField(cfield_flight)
         cell_blood  = EntityCellCustomField(cfield_blood)
         hf = self._build_hf(cell_flight, cell_blood)
+        date_value = self.formfield_value_date
         response = self.assertPOST200(
             self.url,
             data={
                 'hfilter': hf.id,
-                f'search-{cell_flight.key}-start': '1-1-2074',
-                f'search-{cell_flight.key}-end':   '31-12-2074',
+                # f'search-{cell_flight.key}-start': '1-1-2074',
+                f'search-{cell_flight.key}-start': date_value(2074, 1, 1),
+                # f'search-{cell_flight.key}-end':   '31-12-2074',
+                f'search-{cell_flight.key}-end':   date_value(2074, 12, 31),
 
                 f'search-{cell_blood.key}-start': '',
-                f'search-{cell_blood.key}-end':   '1-1-2075',
+                # f'search-{cell_blood.key}-end':   '1-1-2075',
+                f'search-{cell_blood.key}-end':   date_value(2075, 1, 1),
             },
         )
         content = self._get_lv_content(self._get_lv_node(response))

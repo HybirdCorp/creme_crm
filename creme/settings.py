@@ -164,47 +164,45 @@ LANGUAGES = [
 # to load the internationalization machinery.
 USE_I18N = True
 
-# DO NOT CHANGE THIS VALUE, Creme is not ready for that yet.
 # If you set this to True, Django will format dates, numbers and calendars
 # according to user current locale.
-# TODO: pass to 'True' by default  (in a future release...)
-USE_L10N = False
+# USE_L10N = False
+USE_L10N = True
 
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 
 DEFAULT_ENCODING = 'UTF8'
 
+# XXX: we prefer now localized formats (USE_L10N=True) ;
+#      & we fallback on default formats (django/conf/global_settings.py) if USE_L10N=False
+# DATE_FORMAT         = 'd-m-Y'
+# SHORT_DATE_FORMAT   = 'd-m-Y'
+# DATE_INPUT_FORMATS = [
+#     '%d-%m-%Y', '%d/%m/%Y',
+#     # '%Y-%m-%d',
+#     '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
+#     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
+#     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
+# ]
+#
+# DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
+# DATETIME_INPUT_FORMATS  = [
+#     # '%d-%m-%Y', '%d/%m/%Y',
+#     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M',  # '%Y-%m-%d',
+#     '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M',  # '%m/%d/%Y',
+#     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M',  # '%m/%d/%y',
+#     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
+#     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
+#     # '%Y-%m-%dT%H:%M:%S.%fZ',
+# ]
 
-DATE_FORMAT         = 'd-m-Y'
-SHORT_DATE_FORMAT   = 'd-m-Y'
-DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2022)')
-DATE_FORMAT_JS      = {
-    DATE_FORMAT: 'dd-mm-yy',
-}
-DATE_FORMAT_JS_SEP = '-'  # DATE_FORMAT_JS values separator
-DATE_INPUT_FORMATS = [
-    '%d-%m-%Y', '%d/%m/%Y',
-    '%Y-%m-%d',  # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
-    '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
-    '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
-    '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
-]
-
-DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-DATETIME_FORMAT_VERBOSE = _(
-    'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)'
-)
-DATETIME_INPUT_FORMATS  = [
-    '%d-%m-%Y', '%d/%m/%Y',
-    '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M', '%Y-%m-%d',
-    '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M', '%m/%d/%Y',
-    '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M', '%m/%d/%y',
-    '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
-    '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
-    # DO NOT REMOVE ! Needed by the core (eg: to store queries in session)
-    '%Y-%m-%dT%H:%M:%S.%fZ',
-    '%Y-%m-%dT%H:%M:%S',  # Needed for infopath
-]
+# XXX: not used anymore
+# DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2022)')
+# DATE_FORMAT_JS = { DATE_FORMAT: 'dd-mm-yy'}
+# DATE_FORMAT_JS_SEP = '-'
+# DATETIME_FORMAT_VERBOSE = _(
+#     'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)'
+# )
 
 # I18N / L10N [END]#############################################################
 
@@ -648,7 +646,7 @@ KARMA = {
 ESLINT = {
     'config': '.eslintrc',
     'ignore': '.eslintignore',
-    'output': '.eslint.output.html'
+    'output': '.eslint.output.html',
 }
 
 # GUI ##########################################################################
@@ -680,7 +678,6 @@ FORMS_RELATION_FIELDS = True
 URLIZE_TARGET_BLANK = False
 
 # URL used in the GUI to indicate the repository address
-# REPOSITORY = 'https://bitbucket.org/hybird/creme_crm/src/'
 REPOSITORY = 'https://github.com/HybirdCorp/creme_crm'
 SCM = 'git'  # Other possible values: 'hg'
 

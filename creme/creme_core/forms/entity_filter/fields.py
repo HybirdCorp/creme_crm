@@ -33,7 +33,7 @@ from django.db.models import ForeignKey as ModelForeignKey
 from django.db.models.query_utils import Q
 from django.forms import DateField, ModelMultipleChoiceField
 from django.forms.fields import CallableChoiceIterator
-from django.utils.formats import date_format
+from django.utils.formats import get_format  # date_format
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_filter import (
@@ -382,9 +382,14 @@ class DateFieldsConditionsField(_ConditionsField):
 
         return self._fields
 
-    def _format_date(self, date_dict):
-        """@param date_dict: dict or None; if not None => {"year": 2011, "month": 7, "day": 25}"""
-        return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
+    def _format_date(self, date_dict) -> str:
+        """@param date_dict: dict (like {"year": 2011, "month": 7, "day": 25}) or None."""
+        # return date_format(date(**date_dict), 'DATE_FORMAT') if date_dict else ''
+        if date_dict:
+            date_obj = date(**date_dict)
+            return date_obj.strftime(get_format('DATE_INPUT_FORMATS')[0])
+
+        return ''
 
     # TODO: factorise with RegularFieldsConditionsField
     def _value_to_jsonifiable(self, value):

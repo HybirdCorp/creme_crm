@@ -252,9 +252,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
                 'status':               status.pk,
 
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
-                f'{self.EXTRA_END_KEY}_0':   '2010-1-10',
+                # f'{self.EXTRA_END_KEY}_0':   '2010-1-10',
+                f'{self.EXTRA_END_KEY}_0':   self.formfield_value_date(2010, 1, 10),
                 f'{self.EXTRA_END_KEY}_1':   '18:45:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -332,7 +334,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
 
-                f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
@@ -414,7 +417,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title':              title,
                 'status':             status.pk,
 
-                f'{self.EXTRA_START_KEY}_0': '2013-3-26',
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-26',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 26),
                 f'{self.EXTRA_START_KEY}_1': '12:10:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -457,7 +461,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         "No end but end time."
         act = self._create_activity_by_view(
             **{
-                f'{self.EXTRA_START_KEY}_0': '2013-3-29',
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-29',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 29),
                 f'{self.EXTRA_START_KEY}_1': '14:30:00',
                 f'{self.EXTRA_END_KEY}_1': '15:45:00',
             }
@@ -477,8 +482,10 @@ class ActivityTestCase(_ActivitiesTestCase):
         "FLOATING_TIME type."
         act = self._create_activity_by_view(
             **{
-                f'{self.EXTRA_START_KEY}_0': '2013-3-30',
-                f'{self.EXTRA_END_KEY}_0':   '2013-3-30',
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-30',
+                # f'{self.EXTRA_END_KEY}_0':   '2013-3-30',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 30),
+                f'{self.EXTRA_END_KEY}_0':   self.formfield_value_date(2013, 3, 30),
             }
         )
         create_dt = partial(self.create_datetime, year=2013, month=3, day=30)
@@ -493,7 +500,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual('00:00:00', atype.default_hour_duration)
 
         act = self._create_activity_by_view(
-            'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            'TGS', atype.id,
+            # **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
 
         create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
@@ -504,7 +513,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         "default_day_duration=1 + is_all_day."
         act = self._create_activity_by_view(
             'TGS', constants.ACTIVITYTYPE_SHOW, is_all_day=True,
-            **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            # **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
 
         create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
@@ -522,7 +532,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         act = self._create_activity_by_view(
-            'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            'TGS', atype.id,
+            # **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
 
         create_dt = partial(self.create_datetime, year=2013, month=7)
@@ -540,7 +552,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         act = self._create_activity_by_view(
-            'TGS', atype.id, **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            'TGS', atype.id,
+            # **{f'{self.EXTRA_START_KEY}_0': '2013-7-3'}
+            **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 3)}
         )
 
         create_dt = partial(self.create_datetime, year=2013, month=7, day=3)
@@ -619,7 +633,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                f'{self.EXTRA_START_KEY}_0': '2015-03-10',
+                # f'{self.EXTRA_START_KEY}_0': '2015-03-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2015, 3, 10),
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -683,7 +698,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
             self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-            f'{self.EXTRA_END_KEY}_0': '2013-3-29',
+            # f'{self.EXTRA_END_KEY}_0': '2013-3-29',
+            f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 3, 29),
 
             f'{self.EXTRA_MYPART_KEY}_0': True,
             f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -697,14 +713,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         response2 = self.assertPOST200(
-            url, follow=True, data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-30'},
+            url, follow=True,
+            # data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-30'},
+            data={**data, f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 30)},
         )
         self.assertFormError(response2, 'form', None, _('End is before start'))
 
         response3 = self.assertPOST200(
             url,
             follow=True,
-            data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-29', 'busy': True},
+            data={
+                **data,
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-29',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 29),
+                'busy': True,
+            },
         )
         self.assertFormError(
             response3, 'form', None,
@@ -806,12 +829,16 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
 
-                self.EXTRA_ALERTDT_KEY: '2010-2-10 10:05',
+                # self.EXTRA_ALERTDT_KEY: '2010-2-10 10:05',
+                self.EXTRA_ALERTDT_KEY: self.formfield_value_datetime(
+                    year=2010, month=2, day=10, hour=10, minute=5,
+                ),
 
                 f'{self.EXTRA_ALERTPERIOD_KEY}_0': 'days',
                 f'{self.EXTRA_ALERTPERIOD_KEY}_1': 2,
@@ -857,7 +884,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 ),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-3-28',
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-28',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 28),
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -957,7 +985,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 ),
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.id,
@@ -1037,7 +1066,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype.id, subtype.id),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -1093,7 +1123,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, subtype.id),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -1122,7 +1153,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 ),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
             },
         )
@@ -1148,7 +1180,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
                 f'{self.EXTRA_START_KEY}_1': '10:00:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -1188,7 +1221,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 ),
 
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                 f'{self.EXTRA_START_KEY}_1': '17:30:00',
 
                 self.EXTRA_PARTUSERS_KEY: [other_user.pk],
@@ -1297,7 +1331,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
                 ),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-5-21',
+                # f'{self.EXTRA_START_KEY}_0': '2013-5-21',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
                 f'{self.EXTRA_START_KEY}_1': '9:30:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -1325,7 +1360,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-5-21',
+                # f'{self.EXTRA_START_KEY}_0': '2013-5-21',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
                 f'{self.EXTRA_START_KEY}_1': '9:30:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -1405,7 +1441,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user': self.user.pk,
                 'title': title,
-                f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
             },
         ))
@@ -1441,7 +1478,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={
                 'user':  user.pk,
                 'title': title,
-                f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -1492,10 +1530,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': task01.title,
                 'busy':  True,
 
-                f'{self.EXTRA_START_KEY}_0': '2013-4-17',
+                # f'{self.EXTRA_START_KEY}_0': '2013-4-17',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 17),
                 f'{self.EXTRA_START_KEY}_1': '14:30:00',
 
-                f'{self.EXTRA_END_KEY}_0': '2013-4-17',
+                # f'{self.EXTRA_END_KEY}_0': '2013-4-17',
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 4, 17),
                 f'{self.EXTRA_END_KEY}_1': '16:00:00',
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
@@ -1520,7 +1560,8 @@ class ActivityTestCase(_ActivitiesTestCase):
     def test_editview04(self):
         "Edit FLOATING_TIME activity."
         task = self._create_activity_by_view(
-            **{f'{self.EXTRA_START_KEY}_0': '2013-7-25'}
+            # **{f'{self.EXTRA_START_KEY}_0': '2013-7-25'}
+            **{f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 7, 25)}
         )
         self.assertEqual(constants.FLOATING_TIME, task.floating_type)
 
@@ -1554,10 +1595,12 @@ class ActivityTestCase(_ActivitiesTestCase):
             'user':       user.pk,
             'title':      activity.title,
 
-            f'{self.EXTRA_START_KEY}_0':      '2015-1-1',
+            # f'{self.EXTRA_START_KEY}_0': '2015-1-1',
+            f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2015, 1, 1),
             f'{self.EXTRA_START_KEY}_1': '14:30:00',
 
-            f'{self.EXTRA_END_KEY}_0': '2015-1-1',
+            # f'{self.EXTRA_END_KEY}_0': '2015-1-1',
+            f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2015, 1, 1),
             f'{self.EXTRA_END_KEY}_1': '16:00:00',
         }
 
@@ -2081,10 +2124,12 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
 
-                f'{self.EXTRA_START_KEY}_0': '2013-3-27',
+                # f'{self.EXTRA_START_KEY}_0': '2013-3-27',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 27),
                 f'{self.EXTRA_START_KEY}_1': '09:00:00',
 
-                f'{self.EXTRA_END_KEY}_0': '2010-3-27',
+                # f'{self.EXTRA_END_KEY}_0': '2010-3-27',
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2010, 3, 27),
                 f'{self.EXTRA_END_KEY}_1': '11:00:00',
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -2130,10 +2175,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                 f'{self.EXTRA_START_KEY}_1': '09:08:07',
 
-                f'{self.EXTRA_END_KEY}_0':  '2010-1-12',
+                # f'{self.EXTRA_END_KEY}_0': '2010-1-12',
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2010, 1, 12),
                 f'{self.EXTRA_END_KEY}_1': '06:05:04',
 
                 self.EXTRA_PARTUSERS_KEY: [user.id, other_user.id],
@@ -2183,8 +2230,10 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 'cform_extra-activities_unavailability_subtype': subtype.id,
 
-                f'{self.EXTRA_START_KEY}_0': '2010-1-10',
-                f'{self.EXTRA_END_KEY}_0':   '2010-1-12',
+                # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
+                # f'{self.EXTRA_END_KEY}_0':   '2010-1-12',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
+                f'{self.EXTRA_END_KEY}_0':   self.formfield_value_date(2010, 1, 12),
 
                 self.EXTRA_PARTUSERS_KEY: [user.id],
             },
@@ -2251,10 +2300,12 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.id,
                 'title': title,
 
-                f'{self.EXTRA_START_KEY}_0': '2020-11-17',
+                # f'{self.EXTRA_START_KEY}_0': '2020-11-17',
+                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2020, 11, 17),
                 f'{self.EXTRA_START_KEY}_1': '14:00:00',
 
-                f'{self.EXTRA_END_KEY}_0': '2020-11-17',
+                # f'{self.EXTRA_END_KEY}_0': '2020-11-17',
+                f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2020, 11, 17),
                 f'{self.EXTRA_END_KEY}_1': '17:30:00',
 
                 self.EXTRA_PARTUSERS_KEY: [user.id],

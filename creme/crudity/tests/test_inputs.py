@@ -8,6 +8,7 @@ from tempfile import NamedTemporaryFile, mkdtemp
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.db.models.query_utils import Q
+from django.test.utils import override_settings
 
 from creme.activities.constants import (
     ACTIVITYSUBTYPE_MEETING_MEETING,
@@ -35,6 +36,11 @@ else:
         return _aux
 
 
+@override_settings(
+    USE_L10N=False,
+    DATE_INPUT_FORMATS=['%d/%m/%Y', '%d-%m-%Y'],
+    DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M'],
+)
 class InputsBaseTestCase(CrudityTestCase):  # TODO: rename EmailInputBaseTestCase ?
     def setUp(self):
         super().setUp()
@@ -130,7 +136,11 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertFalse(WaitingAction.objects.all())
         email_input.create(self._get_pop_email(
-            body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nfirst_name=é',
+            # body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nfirst_name=é',
+            body='password=creme\nuser_id={user_id}\ncreated={created}\nfirst_name=é'.format(
+                user_id=user.id,
+                created=self.formfield_value_date(2003, 2, 1),
+            ),
             senders=('creme@crm.org',),
             subject='create_ce',
         ))

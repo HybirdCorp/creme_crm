@@ -20,15 +20,17 @@
 
 import copy
 import logging
+from datetime import date
 from functools import partial
 from types import GeneratorType
 from typing import Optional
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import widgets
 from django.urls import reverse
+from django.utils.formats import get_format
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy, pgettext, pgettext_lazy
 
@@ -93,6 +95,27 @@ class WidgetAction:
             'attrs': attrs,
             'title': title,
         }
+
+
+class DatePickerMixin:
+    @classmethod
+    def get_date_format(cls):
+        return get_format('DATE_INPUT_FORMATS')[0]
+
+    # TODO: memoize?
+    @classmethod
+    def js_date_format(cls, py_date_format=None):
+        if py_date_format is None:
+            py_date_format = cls.get_date_format()
+
+        return (
+            py_date_format.replace('%Y', 'yy')
+                          .replace('%y', 'y')
+                          .replace('%m', 'mm')
+                          .replace('%b', 'M')
+                          .replace('%B', 'MM')
+                          .replace('%d', 'dd')
+        )
 
 
 # TODO: to be improved....
@@ -335,8 +358,10 @@ class PolymorphicInput(widgets.TextInput):
         return context
 
 
-class DateRangeSelect(widgets.Widget):
+# class DateRangeSelect(widgets.Widget):
+class DateRangeSelect(DatePickerMixin, widgets.Widget):
     template_name = 'creme_core/forms/widgets/date-range-select.html'
+    range_registry = date_range_registry
 
     def __init__(self, attrs=None, choices=None):
         super().__init__(attrs)
@@ -345,7 +370,8 @@ class DateRangeSelect(widgets.Widget):
     def range_choices(self):
         return [
             ('', pgettext_lazy('creme_core-date_range', 'Customized')),
-            *date_range_registry.choices(),
+            # *date_range_registry.choices(),
+            *self.range_registry.choices(),
         ]
 
     def get_context(self, name, value, attrs):
@@ -365,7 +391,8 @@ class DateRangeSelect(widgets.Widget):
         final_attrs['class'] = 'ui-creme-input ' + widget_type
 
         widget_cxt['type'] = 'hidden'
-        widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        # widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        widget_cxt['date_format'] = self.js_date_format()
         widget_cxt['choices'] = self.range_choices() if self.choices is None else self.choices
 
         return context
@@ -841,19 +868,21 @@ class FilteredEntityTypeWidget(ChainedInput):
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
-class DateTimeWidget(widgets.DateTimeInput):
-    is_localized = True
+# class DateTimeWidget(widgets.DateTimeInput):
+class DateTimeWidget(DatePickerMixin, widgets.DateTimeInput):
+    is_localized = True  # TODO: settings.USE_L10N?
     template_name = 'creme_core/forms/widgets/datetime.html'
 
-    def __init__(self, attrs=None):
-        super().__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
+    # def __init__(self, attrs=None):
+    #     super().__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['type'] = 'hidden'
-        widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        # widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        widget_cxt['date_format'] = self.js_date_format()
 
         return context
 
@@ -876,17 +905,26 @@ class TimeWidget(widgets.TextInput):
         return value
 
 
-class CalendarWidget(widgets.TextInput):
+# class CalendarWidget(widgets.TextInput):
+class CalendarWidget(DatePickerMixin, widgets.TextInput):
     is_localized = True
     template_name = 'creme_core/forms/widgets/date.html'
-    default_help_text = settings.DATE_FORMAT_VERBOSE
+    # default_help_text = settings.DATE_FORMAT_VERBOSE
+    default_help_text = _('Eg: {}')
+
+    def get_default_help_text(self, date_format):
+        return self.default_help_text.format(
+            date.today().replace(month=12, day=31).strftime(date_format)
+        )
 
     def get_context(self, name, value, attrs):
+        date_format = self.get_date_format()
         widget_type = 'ui-creme-datepicker'
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
-        widget_cxt['format_help_text'] = self.default_help_text
+        # widget_cxt['format_help_text'] = self.default_help_text
+        widget_cxt['format_help_text'] = self.get_default_help_text(date_format)
 
         final_attrs = widget_cxt['attrs']
 
@@ -898,7 +936,8 @@ class CalendarWidget(widgets.TextInput):
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type  # TODO: data-widget-type
         # TODO: data-date-format
-        final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        # final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        final_attrs['format'] = self.js_date_format(date_format)
 
         return context
 

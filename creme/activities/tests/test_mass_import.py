@@ -76,24 +76,40 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         title6 = 'Task#6'
         title7 = 'Task#7'
 
+        date_value = self.formfield_value_date
+        dt_value = self.formfield_value_datetime
         lines = [
             (title1, '', ''),
-            (title2, '2014-05-28 15:00', '2014-05-28 17:00'),
+            # (title2, '2014-05-28 15:00', '2014-05-28 17:00'),
+            (
+                title2,
+                dt_value(year=2014, month=5, day=28, hour=15),
+                dt_value(year=2014, month=5, day=28, hour=17),
+            ),
 
             # Start > end !!
-            (title3, '2014-05-28 19:00', '2014-05-28 18:00'),
+            # (title3, '2014-05-28 19:00', '2014-05-28 18:00'),
+            (
+                title3,
+                dt_value(year=2014, month=5, day=28, hour=19),
+                dt_value(year=2014, month=5, day=28, hour=18),
+            ),
 
             # No end
-            (title4, '2014-05-29 12:00', ''),
+            # (title4, '2014-05-29 12:00', ''),
+            (title4, dt_value(year=2014, month=5, day=29, hour=12), ''),
 
             # FLOATING_TIME
-            (title5, '2014-05-30', ''),
+            # (title5, '2014-05-30', ''),
+            (title5, date_value(2014, 5, 30), ''),
 
             # FLOATING_TIME too
-            (title6, '2014-06-01', '2014-06-01'),
+            # (title6, '2014-06-01', '2014-06-01'),
+            (title6, date_value(2014, 6, 1), date_value(2014, 6, 1)),
 
             # Not FLOATING_TIME
-            (title7, '2014-06-02', '2014-06-02 18:00'),
+            # (title7, '2014-06-02', '2014-06-02 18:00'),
+            (title7, date_value(2014, 6, 2), dt_value(year=2014, month=6, day=2, hour=18)),
         ]
 
         doc = self._build_csv_doc(lines)

@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.3\n"
+"Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-09 10:56+0100\n"
+"POT-Creation-Date: 2022-03-02 19:32+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1338,6 +1338,9 @@ msgctxt "creme_core-verb"
 msgid "Select"
 msgstr "Sélectionner"
 
+msgid "Eg: {}"
+msgstr "Ex: {}"
+
 #, python-brace-format
 msgid "{dateperiod_value}{dateperiod_type}"
 msgstr "{dateperiod_value}{dateperiod_type}"
@@ -2272,18 +2275,6 @@ msgstr "Cette vue ne peut être supprimée"
 msgid "You are not allowed to edit/delete this view"
 msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
 
-#, python-brace-format
-msgid "Set field “{field}”"
-msgstr "Champ “{field}” modifié"
-
-#, python-brace-format
-msgid "Set field “{field}” to “{value}”"
-msgstr "Champ “{field}” mis à “{value}”"
-
-#, python-brace-format
-msgid "Set field “{field}” from “{oldvalue}” to “{value}”"
-msgstr "Champ “{field}” passe de “{oldvalue}” à “{value}”"
-
 msgid "Creation"
 msgstr "Création"
 
@@ -2295,12 +2286,6 @@ msgstr "Modification (champs personnalisés)"
 
 msgid "Deletion"
 msgstr "Suppression"
-
-msgid "Sent to the trash"
-msgstr "Envoyé dans la corbeille"
-
-msgid "Restored"
-msgstr "Restauré"
 
 msgid "Related modification"
 msgstr "Modification liée"
@@ -2332,30 +2317,14 @@ msgstr "Suppression de la relation “{}”"
 msgid "Auxiliary (creation)"
 msgstr "Auxiliaire (création)"
 
-#, python-brace-format
-msgid "Add <{type}>: “{value}”"
-msgstr "Ajout de <{type}>: “{value}”"
-
 msgid "Auxiliary (edition)"
 msgstr "Auxiliaire (modification)"
-
-#, python-brace-format
-msgid "Edit <{type}>: “{value}”"
-msgstr "Modification de <{type}>: “{value}”"
 
 msgid "Auxiliary (deletion)"
 msgstr "Auxiliaire (suppression)"
 
-#, python-brace-format
-msgid "Delete <{type}>: “{value}”"
-msgstr "Suppression de <{type}>: “{value}”"
-
 msgid "Mass export"
 msgstr "Export en masse"
-
-#, python-brace-format
-msgid "Export of {count} «{model}» (view «{view}» & filter «{filter}»)"
-msgstr "Export de {count} «{model}» (vue «{view}» & filtre «{filter}»)"
 
 msgid "Type"
 msgstr "Type"
@@ -3099,6 +3068,12 @@ msgstr "%(predicate)s vers “%(entity)s“ enlevée"
 msgid "%(predicate)s to %(entity_link)s removed"
 msgstr "%(predicate)s vers %(entity_link)s enlevée"
 
+msgid "Sent to the trash"
+msgstr "Envoyé dans la corbeille"
+
+msgid "Restored"
+msgstr "Restauré"
+
 msgid "List of jobs"
 msgstr "Liste des jobs"
 
@@ -3625,6 +3600,27 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "Set field “{field}”"
+#~ msgstr "Champ “{field}” modifié"
+
+#~ msgid "Set field “{field}” to “{value}”"
+#~ msgstr "Champ “{field}” mis à “{value}”"
+
+#~ msgid "Set field “{field}” from “{oldvalue}” to “{value}”"
+#~ msgstr "Champ “{field}” passe de “{oldvalue}” à “{value}”"
+
+#~ msgid "Add <{type}>: “{value}”"
+#~ msgstr "Ajout de <{type}>: “{value}”"
+
+#~ msgid "Edit <{type}>: “{value}”"
+#~ msgstr "Modification de <{type}>: “{value}”"
+
+#~ msgid "Delete <{type}>: “{value}”"
+#~ msgstr "Suppression de <{type}>: “{value}”"
+
+#~ msgid "Export of {count} «{model}» (view «{view}» & filter «{filter}»)"
+#~ msgstr "Export de {count} «{model}» (vue «{view}» & filtre «{filter}»)"
 
 #~ msgid "Code"
 #~ msgstr "Code"

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2021 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -89,13 +89,21 @@ def dt_from_str(dt_str: str) -> Optional[datetime]:
     if dt:
         return make_aware_dt(dt) if is_naive(dt) else dt
 
-    for fmt in formats.get_format('DATETIME_INPUT_FORMATS'):
-        try:
-            return make_aware_dt(datetime(*time_strptime(dt_str, fmt)[:6]))
-        except ValueError:
-            continue
-        except TypeError:
-            break
+    # for fmt in formats.get_format('DATETIME_INPUT_FORMATS'):
+    #     try:
+    #         return make_aware_dt(datetime(*time_strptime(dt_str, fmt)[:6]))
+    #     except ValueError:
+    #         continue
+    #     except TypeError:
+    #         break
+    for fmt_name in ('DATETIME_INPUT_FORMATS', 'DATE_INPUT_FORMATS'):
+        for fmt in formats.get_format(fmt_name):
+            try:
+                return make_aware_dt(datetime(*time_strptime(dt_str, fmt)[:6]))
+            except ValueError:
+                continue
+            except TypeError:
+                break
 
     return None
 

@@ -512,8 +512,10 @@ class CreditNoteTestCase(_BillingTestCase):
                 'user': user.pk,
                 'name': name,
 
-                'issuing_date':     '2020-2-12',
-                'expiration_date':  '2020-3-14',
+                # 'issuing_date':     '2020-2-12',
+                # 'expiration_date':  '2020-3-14',
+                'issuing_date':    self.formfield_value_date(2020, 2, 12),
+                'expiration_date': self.formfield_value_date(2020, 3, 14),
 
                 'status': status.id,
 

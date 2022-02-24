@@ -52,6 +52,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         goal = 'I want to rule the world'
         segment = self._create_segment('customers', 'Customers')
         expected_count = 8
+        start = date(year=2013, month=7, day=26)
+        due_date = date(year=2013, month=8, day=27)
         response = self.client.post(
             url,
             follow=True,
@@ -59,8 +61,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'user':           user.id,
                 'name':           name,
                 'goal':           goal,
-                'start':          '26-7-2013',
-                'due_date':       '27-8-2013',
+                'start':          start,
+                'due_date':       due_date,
                 'segment':        segment.id,
                 'expected_count': expected_count,
             },
@@ -70,8 +72,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         camp = self.get_object_or_fail(PollCampaign, name=name)
         self.assertEqual(user, camp.user)
         self.assertEqual(goal, camp.goal)
-        self.assertEqual(date(year=2013, month=7, day=26), camp.start)
-        self.assertEqual(date(year=2013, month=8, day=27), camp.due_date)
+        self.assertEqual(start, camp.start)
+        self.assertEqual(due_date, camp.due_date)
         self.assertEqual(segment, camp.segment)
         self.assertEqual(expected_count, camp.expected_count)
 
@@ -86,6 +88,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         name = 'Campaign#1'
         goal = 'I want to rule the world'
         expected_count = 10
+        start = date(year=2013, month=9,  day=26)
+        due_date = date(year=2013, month=10, day=27)
         response = self.client.post(
             url,
             follow=True,
@@ -93,8 +97,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'user':           user.id,
                 'name':           name,
                 'goal':           goal,
-                'start':          '26-9-2013',
-                'due_date':       '27-10-2013',
+                'start':          start,
+                'due_date':       due_date,
                 'expected_count': expected_count,
             },
         )
@@ -102,8 +106,8 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         camp = self.refresh(camp)
         self.assertEqual(goal, camp.goal)
-        self.assertEqual(date(year=2013, month=9,  day=26), camp.start)
-        self.assertEqual(date(year=2013, month=10, day=27), camp.due_date)
+        self.assertEqual(start, camp.start)
+        self.assertEqual(due_date, camp.due_date)
         self.assertEqual(expected_count, camp.expected_count)
 
     def test_listview(self):

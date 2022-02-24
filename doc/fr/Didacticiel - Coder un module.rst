@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-02-2022 pour la version 2.4 de Creme
+:Version: 04-03-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -3363,7 +3363,7 @@ Créez un fichier ``beavers/tests.py`` : ::
 
     # -*- coding: utf-8 -*-
 
-    import datetime
+    from datetime import date
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -3378,15 +3378,16 @@ Créez un fichier ``beavers/tests.py`` : ::
             url = Beaver.get_create_absolute_url()
             self.assertGET200(url)
 
-            name   = 'Hector'
+            name = 'Hector'
             status = Status.objects.all()[0]
+            birthday = date(year=2015, month=12, day=3)
             response = self.client.post(
                 url,
                 follow=True,
                 data={
                     'user':     user.pk,
                     'name':     name,
-                    'birthday': '2015-12-3',
+                    'birthday': birthday,
                     'status':   status.id,
                 },
             )
@@ -3396,12 +3397,9 @@ Créez un fichier ``beavers/tests.py`` : ::
             self.assertEqual(1, len(beavers))
 
             beaver = beavers[0]
-            self.assertEqual(name,   beaver.name)
-            self.assertEqual(status, beaver.status)
-            self.assertEqual(
-                datetime.date(year=2015, month=12, day=3),
-                beaver.birthday,
-            )
+            self.assertEqual(name,     beaver.name)
+            self.assertEqual(status,   beaver.status)
+            self.assertEqual(birthday, beaver.birthday)
 
 
 Vous pouvez alors lancer vos tests : ::
@@ -3432,3 +3430,55 @@ MySQL/PostgreSQL pour corriger un test réfractaire par exemple, utilisez
 l'option ``--keepdb`` de la commande ``test`` afin de grandement réduire le
 temps que prend la commande (il ne faut en revanche pas modifier les modèles
 entre 2 exécutions des tests).
+
+
+4. Autre
+--------
+
+Personnalisation des formats (date, nombre)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Note** : cette section n'est pas spécifique à Creme et n'utilise que des
+outils fournis par Django ; mais comme il est probable que des utilisateurs de
+Creme cherchent ici, elle pourra se révéler utile.
+
+Les formats de date et de nombre peuvent être personnalisés. Vous trouverez
+les différentes clés dans la `documentation officielle <https://docs.djangoproject.com/fr/3.2/ref/settings/#date-format>`_
+de Django.
+
+**Remarque** : notez que les formats utilisés dans les formulaires
+(``DATE_INPUT_FORMATS``, ``DATETIME_INPUT_FORMATS`` …) sont différents et
+distincts des formats utilisés pour le simple affichage (``DATE_FORMAT``,
+``DATETIME_FORMAT`` …).
+
+Selon la valeur de la clé de *settings* ``USE_L10N``, l'endroit où sont lues les
+chaînes de format est différent.
+
+Cas USE_L10N = True
+*******************
+
+C'est la valeur par défaut dans Creme. Les formats sont différents selon la
+langue de l'utilisateur, et on va donc logiquement les trouver dans les
+répertoires ``locale/``. Vous pouvez trouver un exemple en regardant le fichier
+``/votre/virtual/env/lib/pythonXXX/site-packages/django/conf/locale/fr/formats.py``
+qui est utilisé par défaut en français.
+
+Pour utiliser vos propres valeurs (pour le français dans cet exemple), créez
+tout d'abord les fichiers suivant :
+
+-  ``my_project/beavers/locale/__init__.py``
+-  ``my_project/beavers/locale/fr/__init__.py``
+-  ``my_project/beavers/locale/fr/formats.py``
+
+Dans ce dernier fichier, mettez les valeurs que vous voulez écraser. Puis dans
+vos *settings* mettez la valeur : ::
+
+    FORMAT_MODULE_PATH = 'my_project.beavers.locale'
+
+
+Cas USE_L10N = False
+********************
+
+Dans ce cas, les formats utilisés sont toujours les mêmes, quelle que soit la
+langue de l'utilisateur. Mettez les valeurs vues au dessus directement dans
+votre fichier ``my_project/settings.py``.

@@ -112,11 +112,13 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         self.assertEqual(
-            number_format('7000.00', use_l10n=True, force_grouping=True),
+            # number_format('7000.00', use_l10n=True, force_grouping=True),
+            number_format('7000.00', force_grouping=True),
             funf(target, user).for_html()
         )
         self.assertEqual(
-            number_format('7000.00', use_l10n=True),
+            # number_format('7000.00', use_l10n=True),
+            number_format('7000.00'),
             funf(target, user).for_csv()
         )
 
@@ -184,8 +186,10 @@ class FunctionFieldTestCase(_BillingTestCase):
             total1 = funf(target01, user).for_csv()
             total2 = funf(target02, user).for_csv()
 
-        self.assertEqual(number_format('3500.00', use_l10n=True), total1)
-        self.assertEqual(number_format('3300.00', use_l10n=True), total2)
+        # self.assertEqual(number_format('3500.00', use_l10n=True), total1)
+        self.assertEqual(number_format('3500.00'), total1)
+        # self.assertEqual(number_format('3300.00', use_l10n=True), total2)
+        self.assertEqual(number_format('3300.00'), total2)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -278,7 +282,8 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         funf = function_field_registry.get(Organisation, 'total_pending_payment')
         funf.populate_entities([target], user)
-        self.assertEqual(number_format('5500.00', use_l10n=True), funf(target, user).for_csv())
+        # self.assertEqual(number_format('5500.00', use_l10n=True), funf(target, user).for_csv())
+        self.assertEqual(number_format('5500.00'), funf(target, user).for_csv())
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -299,7 +304,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNumQueries(2):
             total1 = funf(target, user).for_csv()
 
-        self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+        # self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+        self.assertEqual(number_format('2000.00'), total1)
 
         other_user = self.other_user
         other_user.is_superuser = True
@@ -309,7 +315,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNumQueries(2):
             total2 = funf(target, other_user).for_csv()
 
-        self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+        # self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+        self.assertEqual(number_format('2000.00'), total2)
 
         with self.assertNumQueries(0):  # Cache is kept
             funf(target, user).for_csv()
@@ -336,7 +343,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNumQueries(0):
             total1 = funf(target, user).for_csv()
 
-        self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+        # self.assertEqual(number_format('2000.00', use_l10n=True), total1)
+        self.assertEqual(number_format('2000.00'), total1)
 
         other_user = self.other_user
         other_user.is_superuser = True
@@ -349,7 +357,8 @@ class FunctionFieldTestCase(_BillingTestCase):
         with self.assertNumQueries(0):
             total2 = funf(target, other_user).for_csv()
 
-        self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+        # self.assertEqual(number_format('2000.00', use_l10n=True), total2)
+        self.assertEqual(number_format('2000.00'), total2)
 
         with self.assertNumQueries(0):  # Cache is kept
             funf(target, user).for_csv()
@@ -398,11 +407,13 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         self.assertEqual(
-            number_format('5300.00', use_l10n=True, force_grouping=True),
+            # number_format('5300.00', use_l10n=True, force_grouping=True),
+            number_format('5300.00', force_grouping=True),
             funf(target, user).for_html(),
         )
         self.assertEqual(
-            number_format('5300.00', use_l10n=True),
+            # number_format('5300.00', use_l10n=True),
+            number_format('5300.00'),
             funf(target, user).for_csv(),
         )
 
@@ -476,8 +487,10 @@ class FunctionFieldTestCase(_BillingTestCase):
             total1 = funf(target01, user).for_csv()
             total2 = funf(target02, user).for_csv()
 
-        self.assertEqual(number_format('5000.00', use_l10n=True), total1)
-        self.assertEqual(number_format('4000.00', use_l10n=True), total2)
+        # self.assertEqual(number_format('5000.00', use_l10n=True), total1)
+        self.assertEqual(number_format('5000.00'), total1)
+        # self.assertEqual(number_format('4000.00', use_l10n=True), total2)
+        self.assertEqual(number_format('4000.00'), total2)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine
@@ -551,11 +564,13 @@ class FunctionFieldTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         self.assertEqual(
-            number_format('6000.00', use_l10n=True, force_grouping=True),
+            # number_format('6000.00', use_l10n=True, force_grouping=True),
+            number_format('6000.00', force_grouping=True),
             funf(target, user).for_html(),
         )
         self.assertEqual(
-            number_format('6000.00', use_l10n=True),
+            # number_format('6000.00', use_l10n=True),
+            number_format('6000.00'),
             funf(target, user).for_csv(),
         )
 
@@ -628,8 +643,10 @@ class FunctionFieldTestCase(_BillingTestCase):
             total1 = funf(target01, user).for_csv()
             total2 = funf(target02, user).for_csv()
 
-        self.assertEqual(number_format('5000.00', use_l10n=True), total1)
-        self.assertEqual(number_format('2500.00', use_l10n=True), total2)
+        # self.assertEqual(number_format('5000.00', use_l10n=True), total1)
+        self.assertEqual(number_format('5000.00'), total1)
+        # self.assertEqual(number_format('2500.00', use_l10n=True), total2)
+        self.assertEqual(number_format('2500.00'), total2)
 
     @skipIfCustomQuote
     @skipIfCustomProductLine

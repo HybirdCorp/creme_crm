@@ -19,7 +19,6 @@ from creme.creme_core.bricks import JobErrorsBrick
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
@@ -102,7 +101,6 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -146,7 +144,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             'user':        self.user.pk,
             'title':       title,
             'description': '',
-            'deadline':    '2013-6-7',
+            # 'deadline':    '2013-6-7',
+            'deadline':    self.formfield_value_date(2013, 6, 7),
         }
         response = self.assertPOST200(url, data=data)
         self.assertFormError(

@@ -351,8 +351,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'name':  'Invoice001',
                 'status': 1,
 
-                'issuing_date':    '2011-9-7',
-                'expiration_date': '2011-10-13',
+                # 'issuing_date':    '2011-9-7',
+                # 'expiration_date': '2011-10-13',
+                'issuing_date':    self.formfield_value_date(2011,  9,  7),
+                'expiration_date': self.formfield_value_date(2011, 10, 13),
 
                 self.SOURCE_KEY: source.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
@@ -430,8 +432,10 @@ class InvoiceTestCase(_BillingTestCase):
                 'name':   name,
                 'status': status.id,
 
-                'issuing_date':    '2013-12-15',
-                'expiration_date': '2014-1-22',
+                # 'issuing_date':    '2013-12-15',
+                # 'expiration_date': '2014-1-22',
+                'issuing_date':    self.formfield_value_date(2013, 12, 15),
+                'expiration_date': self.formfield_value_date(2014,  1, 22),
 
                 'currency': currency.id,
                 'discount': Decimal(),
@@ -649,8 +653,10 @@ class InvoiceTestCase(_BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                'issuing_date':    '2010-9-7',
-                'expiration_date': '2011-11-14',
+                # 'issuing_date':    '2010-9-7',
+                # 'expiration_date': '2011-11-14',
+                'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                'expiration_date': self.formfield_value_date(2011, 11, 14),
                 'status':          1,
                 'currency':        currency.pk,
                 'discount':        Decimal(),
@@ -708,7 +714,8 @@ class InvoiceTestCase(_BillingTestCase):
                 'name':   invoice.name,
                 'status': invoice.status.id,
 
-                'expiration_date': '2011-11-14',
+                # 'expiration_date': '2011-11-14',
+                'expiration_date': self.formfield_value_date(2011, 11, 14),
 
                 'currency': invoice.currency.id,
                 'discount': invoice.discount,
@@ -775,8 +782,10 @@ class InvoiceTestCase(_BillingTestCase):
             data={
                 'user':            user.id,
                 'name':            'Dreamcast',
-                'issuing_date':    '2010-9-7',
-                'expiration_date': '2010-10-13',
+                # 'issuing_date':    '2010-9-7',
+                # 'expiration_date': '2010-10-13',
+                'issuing_date':    self.formfield_value_date(2010,  9,  7),
+                'expiration_date': self.formfield_value_date(2010, 10, 13),
                 'status':          1,
                 'currency':        currency.pk,
                 'discount':        Decimal(),

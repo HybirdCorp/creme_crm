@@ -13,6 +13,7 @@ from django.utils.formats import date_format, number_format
 from django.utils.html import escape
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -30,7 +31,11 @@ from creme.creme_core.gui.field_printers import (
     print_boolean_html,
     print_choice,
     print_date,
+    print_date_csv,
+    print_date_html,
     print_datetime,
+    print_datetime_csv,
+    print_datetime_html,
     print_decimal_csv,
     print_decimal_html,
     print_email_html,
@@ -139,7 +144,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = 1234
         self.assertEqual(
-            number_format(value, use_l10n=True, force_grouping=True),
+            # number_format(value, use_l10n=True, force_grouping=True),
+            number_format(value, force_grouping=True),
             print_integer_html(o, fval=value, user=user, field=field)
         )
 
@@ -162,7 +168,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = Decimal('1234.56')
         self.assertEqual(
-            number_format(value, use_l10n=True, force_grouping=True),
+            # number_format(value, use_l10n=True, force_grouping=True),
+            number_format(value, force_grouping=True),
             print_decimal_html(line, fval=value, user=user, field=field)
         )
 
@@ -177,7 +184,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = Decimal('1234.56')
         self.assertEqual(
-            number_format(value, use_l10n=True),
+            # number_format(value, use_l10n=True),
+            number_format(value),
             print_decimal_csv(line, fval=value, user=user, field=field)
         )
 
@@ -238,7 +246,7 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_url_html(o, fval=url2, user=user, field=field)
         )
 
-    def test_print_date(self):
+    def test_print_date(self):  # DEPRECATED
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('birthday')
@@ -250,7 +258,58 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_date(c, value, user, field)
         )
 
-    def test_print_datetime(self):
+    def test_print_date_html(self):
+        c = FakeContact()
+        user = CremeUser()
+        field = c._meta.get_field('birthday')
+        self.assertEqual('', print_date_html(c, None, user, field))
+
+        value = date(year=2019, month=8, day=21)
+
+        with override_settings(
+            USE_L10N=False,
+            DATE_FORMAT='j F Y',
+            DATE_INPUT_FORMATS=['%d-%m-%Y'],
+        ):
+            self.assertEqual(
+                date_format(value, 'DATE_FORMAT'),
+                print_date_html(c, value, user, field),
+            )
+
+        with override_settings(USE_L10N=True):
+            with override_language('en'):
+                self.assertEqual(
+                    date_format(value, 'DATE_FORMAT'),
+                    print_date_html(c, value, user, field),
+                )
+
+    def test_print_date_csv(self):
+        c = FakeContact()
+        user = CremeUser()
+        field = c._meta.get_field('birthday')
+        self.assertEqual('', print_date_csv(c, None, user, field))
+
+        value = date(year=2019, month=8, day=21)
+        date_input_format = '%d-%m-%Y'
+
+        with override_settings(
+                USE_L10N=False,
+                DATE_FORMAT='j F Y',
+                DATE_INPUT_FORMATS=[date_input_format],
+        ):
+            self.assertEqual(
+                value.strftime(date_input_format),
+                print_date_csv(c, value, user, field),
+            )
+
+        with override_settings(USE_L10N=True):
+            with override_language('en'):
+                self.assertEqual(
+                    value.strftime('%Y-%m-%d'),
+                    print_date_csv(c, value, user, field),
+                )
+
+    def test_print_datetime(self):  # DEPRECATED
         a = FakeActivity()
         user = CremeUser()
         field = a._meta.get_field('start')
@@ -258,9 +317,61 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
         self.assertEqual(
-            date_format(value, 'DATETIME_FORMAT'),  # TODO: localtime() ??
+            date_format(value, 'DATETIME_FORMAT'),
             print_datetime(a, value, user, field)
         )
+
+    def test_print_datetime_html(self):
+        a = FakeActivity()
+        user = CremeUser()
+        field = a._meta.get_field('start')
+        self.assertEqual('', print_datetime_html(a, None, user, field))
+
+        value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
+
+        with override_settings(
+            USE_L10N=False,
+            DATETIME_FORMAT='j F Y H:i',
+            DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+        ):
+            self.assertEqual(
+                date_format(value, 'DATETIME_FORMAT'),  # TODO: localtime() ??
+                print_datetime_html(a, value, user, field)
+            )
+
+        with override_settings(USE_L10N=True):
+            with override_language('en'):
+                self.assertEqual(
+                    date_format(value, 'DATETIME_FORMAT'),
+                    print_datetime_html(a, value, user, field),
+                )
+
+    def test_print_datetime_csv(self):
+        a = FakeActivity()
+        user = CremeUser()
+        field = a._meta.get_field('start')
+        self.assertEqual('', print_datetime_csv(a, None, user, field))
+
+        value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
+
+        dt_input_format = '%d-%m-%Y %H:%M:%S'
+
+        with override_settings(
+            USE_L10N=False,
+            DATETIME_FORMAT='j F Y H:i',
+            DATETIME_INPUT_FORMATS=[dt_input_format],
+        ):
+            self.assertEqual(
+                value.strftime(dt_input_format),  # TODO: localtime() ??
+                print_datetime_csv(a, value, user, field)
+            )
+
+        with override_settings(USE_L10N=True):
+            with override_language('en'):
+                self.assertEqual(
+                    value.strftime('%Y-%m-%d %H:%M:%S'),
+                    print_datetime_csv(a, value, user, field),
+                )
 
     def test_print_email_html(self):
         c = FakeContact()
@@ -941,7 +1052,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             item='Swords',  quantity='3.00', unit_price='125.6',
             discount_unit=FakeInvoiceLine.Discount.PERCENT,
         )
-        dec_format = partial(number_format, use_l10n=True)
+        # dec_format = partial(number_format, use_l10n=True)
+        dec_format = partial(number_format)
         self.assertEqual(dec_format('3.00'),  get_csv_val(line1, 'quantity',   user))
         self.assertEqual(dec_format('125.6'), get_csv_val(line1, 'unit_price', user))
 
@@ -1062,9 +1174,21 @@ class FieldsPrintersTestCase(CremeTestCase):
             get_csv_val(casca, 'image__description', user)
         )
 
-        date_str = date_format(localtime(casca.created), 'DATETIME_FORMAT')
-        self.assertEqual(date_str, get_html_val(casca, 'created', user))
-        self.assertEqual(date_str, get_csv_val(casca,  'created', user))
+        # date_str = date_format(localtime(casca.created), 'DATETIME_FORMAT')
+        # self.assertEqual(date_str, get_html_val(casca, 'created', user))
+        # self.assertEqual(date_str, get_csv_val(casca,  'created', user))
+        local_dt = localtime(casca.created)
+        self.assertEqual(
+            date_format(local_dt, 'DATETIME_FORMAT'),
+            get_html_val(casca, 'created', user),
+        )
+
+        dt_fmt = '%d-%m-%Y %H:%M:%S'
+        with override_settings(USE_L10N=False, DATETIME_INPUT_FORMATS=[dt_fmt]):
+            self.assertEqual(
+                local_dt.strftime(dt_fmt),
+                get_csv_val(casca, 'created', user),
+            )
 
         self.assertEqual(
             f'<ul><li>{cat1.name}</li><li>{cat2.name}</li></ul>',

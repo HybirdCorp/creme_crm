@@ -452,6 +452,7 @@ class CreationTestCase(ViewsTestCase):
         title = 'My activity'
         place = 'Mars'
         atype = FakeActivityType.objects.first()
+        date_value = self.formfield_value_date
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -463,8 +464,10 @@ class CreationTestCase(ViewsTestCase):
                 'place':       place,
                 # 'minutes':   ...,
 
-                'cform_extra-fakeactivity_start': '26-08-2020',
-                'cform_extra-fakeactivity_end':   '26-09-2020',
+                # 'cform_extra-fakeactivity_start': '26-08-2020',
+                'cform_extra-fakeactivity_start': date_value(2020, 8, 26),
+                # 'cform_extra-fakeactivity_end':   '26-09-2020',
+                'cform_extra-fakeactivity_end':   date_value(2020, 9, 26),
             },
         ))
 
@@ -518,6 +521,7 @@ class CreationTestCase(ViewsTestCase):
         title = 'My meeting'
         place = 'Mars capital'
         atype = FakeActivityType.objects.get(name='Meeting')
+        date_value = self.formfield_value_date
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -527,10 +531,12 @@ class CreationTestCase(ViewsTestCase):
                 'place': place,
                 'type':  atype.id,
 
-                'cform_extra-fakeactivity_start': '28-09-2020',
+                # 'cform_extra-fakeactivity_start': '28-09-2020',
+                'cform_extra-fakeactivity_start': date_value(2020, 9, 28),
 
                 # Should not be used
-                'cform_extra-fakeactivity_end': '30-09-2020',
+                # 'cform_extra-fakeactivity_end': '30-09-2020',
+                'cform_extra-fakeactivity_end': date_value(2020, 9, 30),
                 'minutes': 'Should not be used',
             },
         ))
@@ -793,6 +799,7 @@ class EditionTestCase(ViewsTestCase):
 
         title = activity.title.title()
         place = f'{activity.place} #2'
+        date_value = self.formfield_value_date
         self.assertNoFormError(self.client.post(
             url,
             follow=True,
@@ -806,8 +813,10 @@ class EditionTestCase(ViewsTestCase):
                 'type':  atype2.id,
                 'place': place,
 
-                'cform_extra-fakeactivity_start': '26-08-2020',
-                'cform_extra-fakeactivity_end':   '26-09-2020',
+                # 'cform_extra-fakeactivity_start': '26-08-2020',
+                'cform_extra-fakeactivity_start': date_value(2020, 8, 26),
+                # 'cform_extra-fakeactivity_end':   '26-09-2020',
+                'cform_extra-fakeactivity_end':   date_value(2020, 9, 26),
             },
         ))
 

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 from functools import partial
 from json import dumps as json_dump
 from unittest import skipIf
@@ -118,14 +118,18 @@ class ProjectsTestCase(CremeTestCase):
 
         return response
 
-    def create_activity(self, resource, start='2015-05-19', end='2015-06-03',
-                        duration='8', atype=None, busy='', errors=False):
+    def create_activity(self, resource,
+                        start=date(2015, 5, 19), end=date(2015, 6, 3),
+                        duration='8', atype=None, busy='', errors=False,
+                        ):
         response = self.client.post(
             self._build_add_activity_url(resource.task), follow=True,
             data={
                 'resource':      resource.linked_contact_id,
-                'start':         start,
-                'end':           end,
+                # 'start':         start,
+                # 'end':           end,
+                'start':         self.formfield_value_datetime(start),
+                'end':           self.formfield_value_datetime(end),
                 'duration':      duration,
                 'type_selector': atype or self._build_type_value(),
                 'user':          self.user.id,
@@ -153,7 +157,10 @@ class ProjectsTestCase(CremeTestCase):
         self.assertTrue(range(len(pstatus_orders) + 1), pstatus_orders)
 
     def create_project(self, name,
-                       status=None, start_date='2010-10-11', end_date='2010-12-31'):
+                       status=None,
+                       # start_date='2010-10-11', end_date='2010-12-31',
+                       start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
+                       ):
         status = status or ProjectStatus.objects.all()[0]
         manager = Contact.objects.create(user=self.user, first_name='Gendo', last_name='Ikari')
         currency = Currency.objects.all()[0]
@@ -164,8 +171,10 @@ class ProjectsTestCase(CremeTestCase):
                 'name':         name,
                 'status':       status.id,
                 'currency':     currency.id,
-                'start_date':   start_date,
-                'end_date':     end_date,
+                # 'start_date':   start_date,
+                # 'end_date':     end_date,
+                'start_date': self.formfield_value_datetime(start_date),
+                'end_date':   end_date,
 
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
@@ -175,15 +184,18 @@ class ProjectsTestCase(CremeTestCase):
         return self.get_object_or_fail(Project, name=name), manager
 
     def create_task(self, project, title,
-                    status=None, atype=ACTIVITYTYPE_TASK, sub_type=None):
+                    status=None, atype=ACTIVITYTYPE_TASK, sub_type=None,
+                    ):
         status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
         response = self.client.post(
             self._build_add_task_url(project), follow=True,
             data={
                 'user':          self.user.id,
                 'title':         title,
-                'start':         '2010-10-11',
-                'end':           '2010-10-30',
+                # 'start':         '2010-10-11',
+                # 'end':           '2010-10-30',
+                'start':         self.formfield_value_date(2010, 10, 11),
+                'end':           self.formfield_value_date(2010, 10, 30),
                 'duration':      50,
                 'tstatus':       status.id,
                 'type_selector': self._build_type_value(atype, sub_type),
@@ -197,7 +209,10 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         status = ProjectStatus.objects.all()[0]
-        project = self.create_project('Eva00', status, '2010-10-11', '2010-12-31')[0]
+        # project = self.create_project('Eva00', status, '2010-10-11', '2010-12-31')[0]
+        project = self.create_project(
+            'Eva00', status, start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
+        )[0]
         response = self.assertGET200(project.get_absolute_url())
         self.assertTemplateUsed(response, 'projects/view_project.html')
 
@@ -208,7 +223,10 @@ class ProjectsTestCase(CremeTestCase):
 
         name = 'Eva00'
         status = ProjectStatus.objects.all()[0]
-        project, manager = self.create_project(name, status, '2010-10-11', '2010-12-31')
+        # project, manager = self.create_project(name, status, '2010-10-11', '2010-12-31')
+        project, manager = self.create_project(
+            name, status, start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
+        )
         self.assertEqual(user,   project.user)
         self.assertEqual(name,   project.name)
         self.assertEqual(status, project.status)
@@ -254,8 +272,10 @@ class ProjectsTestCase(CremeTestCase):
                 'user':         user.pk,
                 'name':         'Eva00',
                 'status':       ProjectStatus.objects.all()[0].id,
-                'start_date':   '2011-10-11',
-                'end_date':     '2011-12-31',
+                # 'start_date':   '2011-10-11',
+                # 'end_date':     '2011-12-31',
+                'start_date':   self.formfield_value_date(2011, 10, 11),
+                'end_date':     self.formfield_value_date(2011, 12, 31),
 
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
@@ -278,8 +298,10 @@ class ProjectsTestCase(CremeTestCase):
                 'user':         user.pk,
                 'name':         'Eva00',
                 'status':       ProjectStatus.objects.all()[0].id,
-                'start_date':   '2012-2-16',
-                'end_date':     '2012-2-15',
+                # 'start_date':   '2012-2-16',
+                # 'end_date':     '2012-2-15',
+                'start_date':   self.formfield_value_date(2012, 2, 16),
+                'end_date':     self.formfield_value_date(2012, 2, 15),
 
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
@@ -324,7 +346,10 @@ class ProjectsTestCase(CremeTestCase):
 
     def test_listview_instance_actions_closed(self):
         user = self.login()
-        project = self.create_project('Eva00', start_date='2012-2-16', end_date='2012-3-26')[0]
+        # project = self.create_project('Eva00', start_date='2012-2-16', end_date='2012-3-26')[0]
+        project = self.create_project(
+            'Eva00', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
+        )[0]
         project.effective_end_date = now()
         project.save()
 
@@ -350,7 +375,10 @@ class ProjectsTestCase(CremeTestCase):
     def test_project_inner_edit01(self):
         self.login()
 
-        project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
+        # project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
+        project = self.create_project(
+            'Eva01', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
+        )[0]
         url = self.build_inneredit_url(project, 'start_date')
         self.assertGET200(url)
 
@@ -358,7 +386,8 @@ class ProjectsTestCase(CremeTestCase):
             url,
             data={
                 'entities_lbl': [str(project)],
-                'field_value':  '2012-3-4',
+                # 'field_value':  '2012-3-4',
+                'field_value':  self.formfield_value_date(2012, 3, 4),
             },
         ))
         self.assertEqual(
@@ -371,13 +400,15 @@ class ProjectsTestCase(CremeTestCase):
         self.login()
 
         project = self.create_project(
-            'Eva01', start_date='2012-02-20', end_date='2012-03-25',
+            # 'Eva01', start_date='2012-02-20', end_date='2012-03-25',
+            'Eva01', start_date=date(2012, 2, 20), end_date=date(2012, 3, 25),
         )[0]
         response = self.assertPOST200(
             self.build_inneredit_url(project, 'start_date'),
             data={
                 'entities_lbl': [str(project)],
-                'field_value':  '2012-03-27',  # <= after end_date
+                # 'field_value':  '2012-03-27',  # <= after end_date
+                'field_value':  date(2012, 3, 27),  # <= after end_date
             },
         )
 
@@ -412,6 +443,7 @@ class ProjectsTestCase(CremeTestCase):
         # ---
         tstatus = TaskStatus.objects.all()[0]
         title = 'head'
+        dt_value = self.formfield_value_datetime
 
         def post(duration):
             return self.client.post(
@@ -420,8 +452,10 @@ class ProjectsTestCase(CremeTestCase):
                 data={
                     'user':     user.id,
                     'title':    title,
-                    'start':    '2010-10-11 15:00',
-                    'end':      '2010-10-11 17:00',
+                    # 'start':    '2010-10-11 15:00',
+                    # 'end':      '2010-10-11 17:00',
+                    'start':    dt_value(year=2010, month=10, day=11, hour=15),
+                    'end':      dt_value(year=2010, month=10, day=11, hour=17),
                     'duration': duration,
                     'tstatus':  tstatus.id,
                 },
@@ -444,14 +478,17 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(tstatus, task1.tstatus)
 
         duration_2 = 180
+        dt_value = self.formfield_value_datetime
         response = self.client.post(
             url,
             follow=True,
             data={
                 'user':     user.id,
                 'title':    'torso',
-                'start':    '2010-10-11 17:01',
-                'end':      '2010-10-11 17:30',
+                # 'start':    '2010-10-11 17:01',
+                # 'end':      '2010-10-11 17:30',
+                'start':    dt_value(year=2010, month=10, day=11, hour=17, minute=1),
+                'end':      dt_value(year=2010, month=10, day=11, hour=17, minute=30),
                 'duration': duration_2,
                 'tstatus':  TaskStatus.objects.all()[0].id,
 
@@ -495,8 +532,10 @@ class ProjectsTestCase(CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    'head',
-                'start':    '2010-10-11',
-                'end':      '2010-10-30',
+                # 'start':    '2010-10-11',
+                # 'end':      '2010-10-30',
+                'start':    self.formfield_value_date(2010, 10, 11),
+                'end':      self.formfield_value_date(2010, 10, 30),
                 'duration': 50,
                 'tstatus':  TaskStatus.objects.all()[0].id,
 
@@ -549,8 +588,10 @@ class ProjectsTestCase(CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    title,
-                'start':    '2011-5-16',
-                'end':      '2012-6-17',
+                # 'start':    '2011-5-16',
+                # 'end':      '2012-6-17',
+                'start':    self.formfield_value_date(2011, 5, 16),
+                'end':      self.formfield_value_date(2012, 6, 17),
                 'duration': duration,
                 'tstatus':  tstatus.id,
             },
@@ -586,8 +627,10 @@ class ProjectsTestCase(CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    title,
-                'start':    '2011-5-16',
-                'end':      '2012-6-17',
+                # 'start':    '2011-5-16',
+                # 'end':      '2012-6-17',
+                'start':    self.formfield_value_date(2011, 5, 16),
+                'end':      self.formfield_value_date(2012, 6, 17),
                 'duration': duration,
                 'tstatus':  TaskStatus.objects.all()[0].id,
             },
@@ -829,8 +872,10 @@ class ProjectsTestCase(CremeTestCase):
             url, follow=True,
             data={
                 'resource':      worker.id,
-                'start':         '2010-10-11',
-                'end':           '2010-10-12',
+                # 'start':         '2010-10-11',
+                # 'end':           '2010-10-12',
+                'start':         self.formfield_value_date(2010, 10, 11),
+                'end':           self.formfield_value_date(2010, 10, 12),
                 'duration':      10,
                 'user':          user.id,
                 'type_selector': self._build_type_value(),
@@ -873,12 +918,22 @@ class ProjectsTestCase(CremeTestCase):
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
 
-        self.create_activity(resource, '2010-10-11 15:00', '2010-10-11 17:00', busy='on')
+        # self.create_activity(resource, '2010-10-11 15:00', '2010-10-11 17:00', busy='on')
+        self.create_activity(
+            resource,
+            start=datetime(year=2010, month=10, day=11, hour=15),
+            end=datetime(year=2010, month=10, day=11, hour=17),
+            busy='on'
+        )
         act1 = task.related_activities[0]
         self.assertTrue(act1.busy)
 
         response = self.create_activity(
-            resource, '2010-10-11 16:59', '2010-10-11 17:30', busy='on', errors=True,
+            # resource, '2010-10-11 16:59', '2010-10-11 17:30', busy='on', errors=True,
+            resource,
+            start=datetime(year=2010, month=10, day=11, hour=16, minute=59),
+            end=datetime(year=2010, month=10, day=11, hour=17, minute=30),
+            busy='on', errors=True,
         )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(
@@ -910,8 +965,10 @@ class ProjectsTestCase(CremeTestCase):
 
         data = {
             'resource':      worker1.id,
-            'start':         '2015-05-21',
-            'end':           '2015-05-22',
+            # 'start':         '2015-05-21',
+            # 'end':           '2015-05-22',
+            'start':        self.formfield_value_date(2015, 5, 21),
+            'end':          self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
             'type_selector': self._build_type_value(),
@@ -958,8 +1015,10 @@ class ProjectsTestCase(CremeTestCase):
 
         data = {
             'resource':      worker1.id,
-            'start':         '2015-05-21',
-            'end':           '2015-05-22',
+            # 'start':         '2015-05-21',
+            # 'end':           '2015-05-22',
+            'start':         self.formfield_value_date(2015, 5, 21),
+            'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
             'type_selector': self._build_type_value(),
@@ -1013,8 +1072,10 @@ class ProjectsTestCase(CremeTestCase):
             self._build_add_activity_url(task2), follow=True,
             data={
                 'resource':      resource1.id,
-                'start':         '2016-05-19',
-                'end':           '2016-06-03',
+                # 'start':         '2016-05-19',
+                # 'end':           '2016-06-03',
+                'start':         self.formfield_value_date(2016, 5, 19),
+                'end':           self.formfield_value_date(2016, 6,  3),
                 'duration':      8,
                 'type_selector': self._build_type_value(),
                 'user':          user.id,
@@ -1062,8 +1123,10 @@ class ProjectsTestCase(CremeTestCase):
             follow=True,
             data={
                 'resource':      self.other_user.linked_contact.id,
-                'start':         '2020-09-14',
-                'end':           '2020-12-31',
+                # 'start':         '2020-09-14',
+                # 'end':           '2020-12-31',
+                'start':         self.formfield_value_date(2020,  9, 14),
+                'end':           self.formfield_value_date(2020, 12, 31),
                 'duration':      100,
                 'user':          user.id,
                 'type_selector': self._build_type_value(),
@@ -1472,8 +1535,10 @@ class ProjectsTestCase(CremeTestCase):
         self.create_resource(task, worker)
         resource = task.get_resources()[0]
 
-        self.create_activity(resource, '2015-05-20', '2015-05-21')
-        self.create_activity(resource, '2015-05-22', '2015-05-23')
+        # self.create_activity(resource, '2015-05-20', '2015-05-21')
+        # self.create_activity(resource, '2015-05-22', '2015-05-23')
+        self.create_activity(resource, start=date(2015, 5, 20), end=date(2015, 5, 21))
+        self.create_activity(resource, start=date(2015, 5, 22), end=date(2015, 5, 23))
         self.assertSetEqual(
             {'Eva00 - head - 001', 'Eva00 - head - 002'},
             {a.title for a in task.related_activities},

@@ -5,6 +5,7 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.forms import ChoiceField, IntegerField
+from django.test.utils import override_settings
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -334,13 +335,17 @@ class DateRangeFieldTestCase(FieldTestCase):
         self.assertFieldValidationError(DateRangeField, 'required', clean, None)
 
     def test_start_before_end(self):
+        date_value = self.formfield_value_date
         self.assertFieldValidationError(
             DateRangeField, 'customized_invalid',
-            DateRangeField().clean, ['', '2011-05-16', '2011-05-15'],
+            # DateRangeField().clean, ['', '2011-05-16', '2011-05-15'],
+            DateRangeField().clean, ['', date_value(2011, 5, 16), date_value(2011, 5, 15)],
         )
 
-    def test_ok01(self):
-        drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
+    def _aux_test_ok(self):
+        # drange = DateRangeField().clean(['', '2013-05-29', '2013-06-16'])
+        date_value = self.formfield_value_date
+        drange = DateRangeField().clean(['', date_value(2013, 5, 29), date_value(2013, 6, 16)])
         dt = self.create_datetime
         self.assertIsInstance(drange, DateRange)
         self.assertIsInstance(drange, CustomRange)
@@ -352,7 +357,15 @@ class DateRangeFieldTestCase(FieldTestCase):
             drange.get_dates(now()),
         )
 
+    @override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'])
+    def test_ok01(self):
+        self._aux_test_ok()
+
+    @override_settings(USE_L10N=True)
     def test_ok02(self):
+        self._aux_test_ok()
+
+    def test_ok_special_range(self):
         drange = DateRangeField().clean([CurrentYearRange.name, '', ''])
         dt = self.create_datetime
         self.assertIsInstance(drange, CurrentYearRange)
@@ -364,7 +377,7 @@ class DateRangeFieldTestCase(FieldTestCase):
             drange.get_dates(dt(year=2013, month=5, day=29, hour=11)),
         )
 
-    def test_ok03(self):
+    def test_ok_empty(self):
         drange = DateRangeField(required=False).clean(['', '', ''])
         self.assertIsNone(drange)
 

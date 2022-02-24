@@ -33,6 +33,7 @@ from typing import (
 
 from django.db import connection
 from django.db.models import Max, Min, Q, QuerySet
+from django.utils.formats import get_format
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.enumerable import enumerable_registry
@@ -68,9 +69,37 @@ def _db_grouping_format() -> str:
     raise RuntimeError(f'Unsupported vendor: {vendor}')
 
 
+def _generate_date_format(*, year=False, month=False, day=False):
+    """Generate a reduced date format (strftime format) derived from the
+    configured DATE_INPUT_FORMATS, using only the wanted information.
+    """
+    find_fmt = get_format('DATE_INPUT_FORMATS')[0].find
+
+    def find_option(*options):
+        for option in options:
+            index = find_fmt(option)
+            if index != -1:
+                return index, option
+
+        return 0, options[0]
+
+    parts = []
+    if year:
+        parts.append(find_option('%Y', '%y'))
+    if month:
+        parts.append(find_option('%m'))  # XXX: %b ? %B ?
+    if day:
+        parts.append(find_option('%d'))
+    parts.sort(key=lambda t: t[0])
+
+    separator = find_option('/', '-', '.', ' ')[1]
+
+    return separator.join(t[1] for t in parts)
+
+
 class ReportGraphHand:
     "Class that computes abscissa & ordinate values of a ReportGraph."
-    verbose_name: str = 'OVERLOADME'
+    verbose_name: str = 'OVERRIDE_ME'
     hand_id: int  # Set by ReportGraphHandRegistry decorator
 
     def __init__(self, graph: 'AbstractReportGraph'):
@@ -92,14 +121,16 @@ class ReportGraphHand:
                entities: QuerySet,
                order: str,
                user,
-               extra_q: Optional[Q]) -> Iterator[Tuple[str, Any]]:
+               extra_q: Optional[Q],
+               ) -> Iterator[Tuple[str, Any]]:
         yield from ()
 
     def fetch(self,
               entities: QuerySet,
               order: str,
               user,
-              extra_q: Optional[Q] = None) -> Tuple[List[str], list]:
+              extra_q: Optional[Q] = None,
+              ) -> Tuple[List[str], list]:
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
         @param order: 'ASC' or 'DESC'.
@@ -226,7 +257,8 @@ class _RGHRegularField(ReportGraphHand):
 
     def _get_dates_values(self, *,
                           entities, abscissa, kind, qdict_builder,
-                          date_format, order, extra_q):
+                          date_format, order, extra_q,
+                          ):
         """
         @param kind: 'day', 'month' or 'year'.
         @param order: 'ASC' or 'DESC'.
@@ -275,7 +307,9 @@ class RGHDay(_RGHRegularField):
                 month_key: date.month,
                 day_key:   date.day,
             },
-            date_format='%d/%m/%Y', order=order,
+            # date_format='%d/%m/%Y',
+            date_format=_generate_date_format(year=True, month=True, day=True),
+            order=order,
             extra_q=extra_q,
         )
 
@@ -296,7 +330,9 @@ class RGHMonth(_RGHRegularField):
                 year_key:  date.year,
                 month_key: date.month,
             },
-            date_format='%m/%Y', order=order,
+            # date_format='%m/%Y',
+            date_format=_generate_date_format(year=True, month=True),
+            order=order,
             extra_q=extra_q,
         )
 
@@ -313,7 +349,9 @@ class RGHYear(_RGHRegularField):
             entities=entities,
             abscissa=abscissa, kind='year',
             qdict_builder=lambda date: {f'{abscissa}__year': date.year},
-            date_format='%Y', order=order,
+            # date_format='%Y',
+            date_format=_generate_date_format(year=True),
+            order=order,
             extra_q=extra_q,
         )
 
@@ -415,16 +453,27 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             intervals = DateInterval.generate(days - 1, min_date, max_date, order)
             aggregates = self._aggregate_dates_by_key(entities, abscissa, x_value_key, 'ASC')
 
+            label_fmt = _generate_date_format(year=True, month=True, day=True)
+            # TODO: unicode char never used as separator instead?
+            label_sep = '-' if '-' not in label_fmt else '/'
+
             # Fill missing aggregate values and zip them with the date intervals
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '{}-{}'.format(
-                    interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                    interval.end.strftime('%d/%m/%Y')
+                # range_label = '{}-{}'.format(
+                #     interval.begin.strftime('%d/%m/%Y'),
+                #     interval.end.strftime('%d/%m/%Y')
+                # )
+                range_label = '{}{}{}'.format(
+                    interval.begin.strftime(label_fmt),
+                    label_sep,
+                    interval.end.strftime(label_fmt),
                 )
                 url = build_url({
                     query_cmd: [
-                        interval.before.strftime('%Y-%m-%d'),
-                        interval.after.strftime('%Y-%m-%d'),
+                        # interval.before.strftime('%Y-%m-%d'),
+                        # interval.after.strftime('%Y-%m-%d'),
+                        interval.before,
+                        interval.after,
                     ],
                 })
 
@@ -447,24 +496,34 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
             entities_filter = entities.filter
             y_value_func = self._y_calculator.aggregate
 
+            label_fmt = _generate_date_format(year=True, month=True, day=True)
+            label_sep = '-' if '-' not in label_fmt else '/'
+
             for interval in DateInterval.generate(
-                    (graph.days or 1) - 1, min_date, max_date, order,
+                (graph.days or 1) - 1, min_date, max_date, order,
             ):
                 before = interval.before
                 after  = interval.after
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
 
                 yield (
-                    '{}-{}'.format(
-                        interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                        interval.end.strftime('%d/%m/%Y'),
+                    # '{}-{}'.format(
+                    #     interval.begin.strftime('%d/%m/%Y'),
+                    #     interval.end.strftime('%d/%m/%Y'),
+                    # ),
+                    '{}{}{}'.format(
+                        interval.begin.strftime(label_fmt),
+                        label_sep,
+                        interval.end.strftime(label_fmt),
                     ),
                     [
                         y_value_func(sub_entities),
                         build_url({
                             query_cmd: [
-                                before.strftime('%Y-%m-%d'),
-                                after.strftime('%Y-%m-%d'),
+                                # before.strftime('%Y-%m-%d'),
+                                # after.strftime('%Y-%m-%d'),
+                                before,
+                                after,
                             ],
                         }),
                     ],
@@ -654,13 +713,13 @@ class RGHCustomDay(_RGHCustomField):
                 f'{value_rname}__value__month': date.month,
                 f'{value_rname}__value__day': date.day,
             },
-            date_format='%d/%m/%Y',
+            # date_format='%d/%m/%Y',
+            date_format=_generate_date_format(year=True, month=True, day=True),
             order=order,
             extra_q=extra_q,
         )
 
 
-# @RGRAPH_HANDS_MAP(constants.RGT_CUSTOM_MONTH)
 @RGRAPH_HANDS_MAP(AbscissaGroup.CUSTOM_MONTH)
 class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
@@ -676,7 +735,8 @@ class RGHCustomMonth(_RGHCustomField):
                 f'{value_rname}__value__year':  date.year,
                 f'{value_rname}__value__month': date.month,
             },
-            date_format='%m/%Y',
+            # date_format='%m/%Y',
+            date_format=_generate_date_format(year=True, month=True),
             order=order,
             extra_q=extra_q,
         )
@@ -695,7 +755,8 @@ class RGHCustomYear(_RGHCustomField):
             qdict_builder=lambda date: {
                 f'{value_rname}__value__year': date.year,
             },
-            date_format='%Y',
+            # date_format='%Y',
+            date_format=_generate_date_format(year=True),
             order=order,
             extra_q=extra_q
         )
@@ -723,7 +784,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
     def _fetch(self, *, entities, order, user, extra_q):
         return self._fetch_method(entities, order, extra_q)
 
-    # TODO: This is almost identical to RGHRange and most of it could be factored together
+    # TODO: This is almost identical to RGHRange and most of it could be factorised together
     def _fetch_with_group_by(self, entities, order, extra_q):
         cfield = self._cfield
         value_meta = cfield.value_class._meta
@@ -753,18 +814,27 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             intervals = DateInterval.generate(days - 1, min_date, max_date, order)
             aggregates = self._aggregate_by_key(entities, x_value_key, 'ASC')
 
+            label_fmt = _generate_date_format(year=True, month=True, day=True)
+            label_sep = '-' if '-' not in label_fmt else '/'
+
             for interval, value in sparsezip(intervals, aggregates, 0):
-                range_label = '{}-{}'.format(
-                    interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                    interval.end.strftime('%d/%m/%Y'),
+                # range_label = '{}-{}'.format(
+                #     interval.begin.strftime('%d/%m/%Y'),
+                #     interval.end.strftime('%d/%m/%Y'),
+                # )
+                range_label = '{}{}{}'.format(
+                    interval.begin.strftime(label_fmt),
+                    label_sep,
+                    interval.end.strftime(label_fmt),
                 )
-                value_range = [
-                    interval.before.strftime('%Y-%m-%d'),
-                    interval.after.strftime('%Y-%m-%d'),
-                ]
                 url = build_url({
                     f'{value_rname}__custom_field': cfield.id,
-                    f'{value_rname}__value__range': value_range,
+                    f'{value_rname}__value__range': [
+                        # interval.before.strftime('%Y-%m-%d'),
+                        # interval.after.strftime('%Y-%m-%d'),
+                        interval.before,
+                        interval.after,
+                    ],
                 })
 
                 yield range_label, [value, url]
@@ -782,6 +852,9 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
         min_date = date_aggregates['min_date']
         max_date = date_aggregates['max_date']
 
+        label_fmt = _generate_date_format(year=True, month=True, day=True)
+        label_sep = '-' if '-' not in label_fmt else '/'
+
         if min_date is not None and max_date is not None:
             y_value_func = self._y_calculator.aggregate
             build_url = self._listview_url_builder(extra_q=extra_q)
@@ -797,17 +870,24 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 })
 
                 yield (
-                    '{}-{}'.format(
-                        interval.begin.strftime('%d/%m/%Y'),  # TODO: use format from settings ??
-                        interval.end.strftime('%d/%m/%Y'),
+                    # '{}-{}'.format(
+                    #     interval.begin.strftime('%d/%m/%Y'),
+                    #     interval.end.strftime('%d/%m/%Y'),
+                    # ),
+                    '{}{}{}'.format(
+                        interval.begin.strftime(label_fmt),
+                        label_sep,
+                        interval.end.strftime(label_fmt),
                     ),
                     [
                         y_value_func(sub_entities),
                         build_url({
                             f'{value_rname}__custom_field': cfield.id,
                             f'{value_rname}__value__range': [
-                                before.strftime('%Y-%m-%d'),
-                                after.strftime('%Y-%m-%d'),
+                                # before.strftime('%Y-%m-%d'),
+                                # after.strftime('%Y-%m-%d'),
+                                interval.before,
+                                interval.after,
                             ],
                         }),
                     ]

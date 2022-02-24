@@ -5,6 +5,8 @@ from functools import partial
 
 from django.core.serializers.base import SerializationError
 from django.db.models import Q
+from django.test.utils import override_settings
+from django.utils.translation import override as override_language
 
 from creme.creme_core.utils.queries import QSerializer
 
@@ -19,7 +21,7 @@ from ..fake_models import (
 )
 
 
-class QueriesTestCase(CremeTestCase):
+class QSerializerTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -71,7 +73,7 @@ class QueriesTestCase(CremeTestCase):
             position=self.boxer,
         )
 
-    def test_q_serializer_01(self):
+    def test_simple_charfield(self):
         self.login()
         self._create_contacts()
 
@@ -85,8 +87,8 @@ class QueriesTestCase(CremeTestCase):
         self.assertIsInstance(q2, Q)
         self._assertQEqual(FakeContact, q1, q2)
 
-    def test_q_serializer_02(self):
-        "2 conditions + operator"
+    def test_two_conditions(self):
+        "2 conditions + operator."
         user = self.create_user()
 
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -104,8 +106,7 @@ class QueriesTestCase(CremeTestCase):
         self.assertIsInstance(q2, Q)
         self._assertQEqual(FakeContact, q1, q2)
 
-    def test_q_serializer_03(self):
-        "AND"
+    def test_and(self):
         self.login()
         self._create_contacts()
 
@@ -115,8 +116,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_04(self):
-        "OR"
+    def test_or(self):
         self.login()
         self._create_contacts()
 
@@ -126,8 +126,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_05(self):
-        "NOT"
+    def test_not(self):
         self.login()
         self._create_contacts()
 
@@ -137,8 +136,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_06(self):
-        "Dates"
+    def _aux_test_date_field(self):
         self.login()
         self._create_contacts()
 
@@ -148,8 +146,25 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeContact, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_07(self):
-        "Datetimes"
+    @override_settings(
+        USE_L10N=False,
+        DATE_INPUT_FORMATS=['%d-%m-%Y', '%Y/%m/%d'],
+        DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M'],
+    )
+    def test_date_field_no_l10n(self):
+        self._aux_test_date_field()
+
+    @override_settings(USE_L10N=True)
+    @override_language('en')
+    def test_date_field_l10n_en(self):
+        self._aux_test_date_field()
+
+    @override_settings(USE_L10N=True)
+    @override_language('fr')
+    def test_date_field_l10n_fr(self):
+        self._aux_test_date_field()
+
+    def _aux_test_datetime_field(self):
         user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
@@ -168,8 +183,25 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_08(self):
-        "Range."
+    @override_settings(
+        USE_L10N=False,
+        DATE_INPUT_FORMATS=['%d-%m-%Y', '%Y/%m/%d'],
+        DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M'],
+    )
+    def test_datetime_field_no_l10n(self):
+        self._aux_test_datetime_field()
+
+    @override_settings(USE_L10N=True)
+    @override_language('en')
+    def test_datetime_field_l10n_en(self):
+        self._aux_test_datetime_field()
+
+    @override_settings(USE_L10N=True)
+    @override_language('fr')
+    def test_datetime_field_l10n_fr(self):
+        self._aux_test_datetime_field()
+
+    def test_range_integer(self):
         user = self.create_user()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -183,8 +215,7 @@ class QueriesTestCase(CremeTestCase):
         str_q = QSerializer().dumps(q)
         self._assertQEqual(FakeOrganisation, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_09(self):
-        "Datetime range."
+    def test_range_datetime(self):
         user = self.create_user()
 
         create_dt = partial(self.create_datetime, year=2015, month=2, minute=0)
@@ -210,8 +241,8 @@ class QueriesTestCase(CremeTestCase):
         # print(str_q)
         self._assertQEqual(FakeActivity, q, QSerializer().loads(str_q))
 
-    def test_q_serializer_10(self):
-        "Value is a model instance"
+    def test_fk(self):
+        "Value is a model instance."
         self.login()
         self._create_contacts()
 
@@ -222,8 +253,8 @@ class QueriesTestCase(CremeTestCase):
         str_q = qsr.dumps(q)
         self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
-    def test_q_serializer_11(self):
-        "__in=[...] + model instance"
+    def test_range_fk(self):
+        "__in=[...] + model instance."
         self.login()
         self._create_contacts()
 
@@ -234,8 +265,8 @@ class QueriesTestCase(CremeTestCase):
         str_q = qsr.dumps(q)
         self._assertQEqual(FakeContact, q, qsr.loads(str_q))
 
-    def test_q_serializer_12(self):
-        "__in=QuerySet -> error"
+    def test_error_subqueryset(self):
+        "__in=QuerySet -> error."
         self.login()
         self._create_contacts()
 

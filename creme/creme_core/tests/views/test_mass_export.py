@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str
-from django.utils.formats import date_format
+# from django.utils.formats import date_format
 from django.utils.html import format_html
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -223,8 +223,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(1, len(result))
         self.assertEqual(result[0], [hfi.title for hfi in cells])
 
-    def test_list_view_export01(self):
-        "csv."
+    def test_list_view_export_csv(self):
         user = self.login()
         hf = self._build_hf_n_contacts()
         existing_hline_ids = [*HistoryLine.objects.values_list('id', flat=True)]
@@ -283,8 +282,7 @@ class MassExportViewsTestCase(ViewsTestCase):
             html_history_registry.line_explainers([hline], user)[0].render(),
         )
 
-    def test_list_view_export02(self):
-        "scsv."
+    def test_list_view_export_scsv(self):
         self.login()
         cells = self._build_hf_n_contacts().cells
 
@@ -300,7 +298,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         with self.assertRaises(StopIteration):
             next(it)
 
-    def test_list_view_export03(self):
+    def test_list_view_export_credentials03(self):
         "'export' credential."
         self.login(is_superuser=False)
         self._build_hf_n_contacts()
@@ -311,8 +309,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.role.exportable_ctypes.set([self.ct])  # Set the 'export' credentials
         self.assertGET200(url)
 
-    def test_list_view_export04(self):
-        "Credential."
+    def test_list_view_export_credentials02(self):
+        "Views credential."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([self.ct])
 
@@ -338,8 +336,12 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[2], '"","Spiegel","Spike","Swordfish",""')
         self.assertEqual(result[3], '"","Wong","Edward","","is a girl"')
 
-    def test_list_view_export05(self):
-        "Datetime field."
+    @override_settings(
+        USE_L10N=False,
+        DATETIME_FORMAT='j F Y H:i',
+        DATETIME_INPUT_FORMATS=['%d-%m-%Y %H:%M:%S'],
+    )
+    def test_list_view_export_datetime(self):
         user = self.login()
 
         hf = HeaderFilter.objects.create_if_needed(
@@ -360,11 +362,12 @@ class MassExportViewsTestCase(ViewsTestCase):
             result[1],
             '"{}","{}"'.format(
                 spike.last_name,
-                date_format(localtime(spike.created), 'DATETIME_FORMAT'),
-            )
+                # date_format(localtime(spike.created), 'DATETIME_FORMAT'),
+                localtime(spike.created).strftime('%d-%m-%Y %H:%M:%S'),
+            ),
         )
 
-    def test_list_view_export06(self):
+    def test_list_view_export_fk_entity(self):
         "FK field on CremeEntity."
         user = self.login(is_superuser=False)
         self.role.exportable_ctypes.set([self.ct])
@@ -404,7 +407,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(next(it), f'"Spiegel","{HIDDEN_VALUE}","{HIDDEN_VALUE}"')
         self.assertEqual(next(it), '"Valentine","",""')
 
-    def test_list_view_export07(self):
+    def test_list_view_export_m2m_entities(self):
         "M2M field on CremeEntities."
         user = self.login()
 
@@ -437,8 +440,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual(result[2], '"Camp#2","ML#3"')
         self.assertEqual(result[3], '"Camp#3",""')
 
-    def test_list_view_export08(self):
-        "FieldsConfig."
+    def test_list_view_export_fieldsconfig(self):
         self.login()
         self._build_hf_n_contacts()
 
@@ -562,6 +564,10 @@ class MassExportViewsTestCase(ViewsTestCase):
         # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
         self.assertEqual(join(settings.MEDIA_ROOT, 'xls'), dirname(fullpath))
 
+    @override_settings(
+        USE_L10N=False,
+        DATE_INPUT_FORMATS=['%d,%m,%Y'],
+    )
     def test_xls_export02(self):
         "Other CT, other type of fields."
         user = self.login()
@@ -600,7 +606,8 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertListEqual(next(it), [orga01.name, _('Yes'), ''])
         self.assertListEqual(
             next(it),
-            [orga02.name, _('No'), date_format(orga02.creation_date, 'DATE_FORMAT')],
+            # [orga02.name, _('No'), date_format(orga02.creation_date, 'DATE_FORMAT')],
+            [orga02.name, _('No'), orga02.creation_date.strftime('%d,%m,%Y')],
         )
         with self.assertRaises(StopIteration):
             next(it)

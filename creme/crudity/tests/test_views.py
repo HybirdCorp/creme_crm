@@ -668,7 +668,10 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         response = self.client.post(
             url,
             data={
-                'reference_run': '26-06-2016 14:00:00',
+                # 'reference_run': '26-06-2016 14:00:00',
+                'reference_run': self.formfield_value_datetime(
+                    year=2016, month=6, day=26, hour=14,
+                ),
                 'periodicity_0': pdict['type'],
                 'periodicity_1': str(pdict['value']),
 
@@ -681,7 +684,7 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         self.assertEqual(pdict, job.periodicity.as_dict())
         self.assertEqual(
             self.create_datetime(year=2016, month=6, day=26, hour=14),
-            job.reference_run
+            job.reference_run,
         )
         self.assertDictEqual({'user': other_user.id}, job.data)
 

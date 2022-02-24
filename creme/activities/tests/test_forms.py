@@ -182,7 +182,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
         self.assertTupleEqual(
             (date(year=2020, month=12, day=8), time(hour=18, minute=44)),
-            field.clean(['2020-12-8', '18:44:00']),
+            # field.clean(['2020-12-8', '18:44:00']),
+            field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
         )
 
     def test_clean_only_date(self):
@@ -190,7 +191,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
         self.assertTupleEqual(
             (date(year=2020, month=11, day=9), None),
-            field.clean(['2020-11-9']),
+            # field.clean(['2020-11-9']),
+            field.clean([self.formfield_value_date(2020, 11, 9)]),
         )
 
     def test_required_property01(self):
@@ -211,7 +213,8 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         )
 
         with self.assertNoException():
-            res = field.clean(['2020-11-9'])
+            # res = field.clean(['2020-11-9'])
+            res = field.clean([self.formfield_value_date(2020, 11, 9)])
 
         self.assertTupleEqual((date(year=2020, month=11, day=9), None), res)
 
