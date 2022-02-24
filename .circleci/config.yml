@@ -390,7 +390,7 @@ jobs:
           command: docker logs creme_demo
           when: always
       - run:
-          command: docker rm creme_demo
+          command: docker rm --force --volumes creme_demo
           when: always
 
   docker-push-creme-demo:
