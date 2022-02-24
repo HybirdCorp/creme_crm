@@ -7,6 +7,8 @@
     # Apps :
         * Billing :
             - There was a crash when the field "number" was removed in the creation custom-forms.
+        * Mobile :
+            - The JavaScript code to create phone calls was broken.
         * Emails :
             - The "Refresh" button in synchronization page has been fixed.
 
