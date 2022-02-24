@@ -59,9 +59,11 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_OBJ_EMPLOYED_BY,
     FAKE_REL_SUB_EMPLOYED_BY,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.xlrd_utils import XlrdReader
 
 from ..actions import ExportReportAction
+from ..bricks import ReportFieldsBrick, ReportGraphsBrick
 from ..constants import (
     RFT_AGG_CUSTOM,
     RFT_AGG_FIELD,
@@ -77,7 +79,7 @@ from .base import BaseReportsTestCase, Report, skipIfCustomReport
 
 
 @skipIfCustomReport
-class ReportTestCase(BaseReportsTestCase):
+class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def assertHeaders(self, names, report):
         self.assertEqual(names, [f.name for f in report.get_children_fields_flat()])
 
@@ -195,6 +197,17 @@ class ReportTestCase(BaseReportsTestCase):
         report = self._create_simple_contacts_report('My report')
         response = self.assertGET200(report.get_absolute_url())
         self.assertTemplateUsed(response, 'reports/view_report.html')
+
+        tree = self.get_html_tree(response.content)
+        brick_node1 = self.get_brick_node(tree, ReportFieldsBrick.id_)
+        self.assertEqual(
+            _('Columns of the report'), self.get_brick_title(brick_node1),
+        )
+
+        brick_node2 = self.get_brick_node(tree, ReportGraphsBrick.id_)
+        self.assertEqual(
+            pgettext('reports-graphs', 'Graphs'), self.get_brick_title(brick_node2),
+        )
 
     def test_createview01(self):
         "No EntityFilter, no HeaderFilter."
