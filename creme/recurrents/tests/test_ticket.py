@@ -72,6 +72,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         queue.clear()
 
         name = 'Recurrent tickets'
+        first_generation = self.create_datetime(year=2014, month=6, day=11, hour=9)
         response = self.client.post(
             url,
             data={
@@ -79,7 +80,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
                 '0-user':             user.id,
                 '0-name':             name,
-                '0-first_generation': '11-06-2014 09:00',
+                '0-first_generation': first_generation,
                 '0-periodicity_0':    'days',
                 '0-periodicity_1':    '4',
 
@@ -130,10 +131,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         self.assertIsInstance(periodicity, DatePeriod)
         self.assertEqual({'type': 'days', 'value': 4}, periodicity.as_dict())
 
-        self.assertEqual(
-            self.create_datetime(year=2014, month=6, day=11, hour=9),
-            gen.first_generation
-        )
+        self.assertEqual(first_generation, gen.first_generation)
         self.assertIsNone(gen.last_generation)
         self.assertEqual(tpl, gen.template.get_real_entity())
         self.assertTrue(gen.is_working)
@@ -171,13 +169,14 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         queue.clear()
 
         name = gen.name.upper()
+        first_generation = self.create_datetime(year=2014, month=6, day=12, hour=10)
         response = self.client.post(
             url,
             follow=True,
             data={
                 'user':             user.id,
                 'name':             name,
-                'first_generation': '12-06-2014 10:00',
+                'first_generation': first_generation,
 
                 'periodicity_0':      'months',
                 'periodicity_1':      '1',
@@ -193,10 +192,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
         gen = self.refresh(gen)
         self.assertEqual(name, gen.name)
-        self.assertEqual(
-            self.create_datetime(year=2014, month=6, day=12, hour=10),
-            gen.first_generation,
-        )
+        self.assertEqual(first_generation, gen.first_generation)
         self.assertEqual(self.ct, gen.ct)
         self.assertEqual(tpl1, gen.template.get_real_entity())
         self.assertEqual({'type': 'months', 'value': 1}, gen.periodicity.as_dict())

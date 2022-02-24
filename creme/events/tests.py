@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from datetime import date, datetime
 from functools import partial
 from unittest import skipIf
 
@@ -85,7 +85,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(EventType.objects.exists())
 
-    def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
+    # def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
+    def _create_event(self, name, etype=None, start_date=date(2010, 11, 3), **extra_data):
         etype = etype or EventType.objects.all()[0]
 
         self.assertNoFormError(self.client.post(
@@ -95,7 +96,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':       self.user.id,
                 'name':       name,
                 'type':       etype.pk,
-                'start_date': start_date,
+                # 'start_date': start_date,
+                'start_date': self.formfield_value_datetime(start_date),
                 **extra_data
             },
         ))
@@ -139,7 +141,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         etype = EventType.objects.all()[1]
         event = self._create_event(
             'Comiket', etype,
-            start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
+            # start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
+            start_date=datetime(year=2016, month=7, day=25, hour=8),
+            end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
         self.assertEqual(etype, event.type)
 
@@ -163,8 +167,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':       user.pk,
                 'name':       'Comicon',
                 'type':       etype.pk,
-                'start_date': '2016-7-29 8:00',
-                'end_date':   '2016-7-28 18:30',
+                # 'start_date': '2016-7-29 8:00',
+                # 'end_date':   '2016-7-28 18:30',
+                'start_date': datetime(year=2016, month=7, day=29, hour=8),
+                'end_date':   datetime(year=2016, month=7, day=28, hour=18, minute=30),
             },
         )
         self.assertFormError(
@@ -182,7 +188,10 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         event = self._create_event(
-            'Comiket', start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
+            'Comiket',
+            # start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
+            start_date=datetime(year=2016, month=7, day=25, hour=8),
+            end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
         self.assertEqual(
             self.create_datetime(year=2016, month=7, day=25, hour=8),
@@ -207,7 +216,8 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':       user.pk,
                 'name':       name,
                 'type':       etype.pk,
-                'start_date': '2010-11-4',
+                # 'start_date': '2010-11-4',
+                'start_date': self.formfield_value_date(2010, 11, 4),
             },
         ))
 

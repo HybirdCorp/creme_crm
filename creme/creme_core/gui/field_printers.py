@@ -20,6 +20,7 @@
 
 from __future__ import annotations
 
+import warnings
 from os.path import splitext
 from typing import Any, Callable, Iterator, Type
 
@@ -29,7 +30,7 @@ from django.db import models
 from django.db.models import Field, Manager, Model
 from django.template.defaultfilters import linebreaks
 from django.urls import reverse
-from django.utils.formats import date_format, number_format
+from django.utils.formats import date_format, get_format, number_format
 from django.utils.html import escape, format_html, format_html_join
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
@@ -177,20 +178,20 @@ print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_
 
 
 def print_integer_html(entity: Model, fval, user, field: Field) -> str:
-    # TODO remove 'use_l10n' when settings.USE_L10N == True
     # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
     #     to not impact CSV output, reports etc...
-    return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+    # return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+    return number_format(fval, force_grouping=True) if fval is not None else ''
 
 
 def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
-    # TODO remove 'use_l10n' when settings.USE_L10N == True
-    return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+    # return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
+    return number_format(fval, force_grouping=True) if fval is not None else ''
 
 
 def print_decimal_csv(entity: Model, fval, user, field: Field) -> str:
-    # TODO remove 'use_l10n' when settings.USE_L10N == True
-    return number_format(fval, use_l10n=True) if fval is not None else ''
+    # return number_format(fval, use_l10n=True) if fval is not None else ''
+    return number_format(fval) if fval is not None else ''
 
 
 def print_boolean_html(entity: Model, fval, user, field: Field) -> str:
@@ -209,11 +210,39 @@ def print_url_html(entity: Model, fval, user, field: Field) -> str:
 
 
 def print_datetime(entity: Model, fval, user, field: Field) -> str:
+    warnings.warn(
+        'creme_core.gui.field_printers.print_datetime() is deprecated ; '
+        'use print_datetime_html()/print_datetime_csv() instead.',
+        DeprecationWarning,
+    )
     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
 
+def print_datetime_html(entity: Model, fval, user, field: Field) -> str:
+    return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
+
+
+def print_datetime_csv(entity: Model, fval, user, field: Field) -> str:
+    # CSV is often used for import/export of data ;
+    # so we choose a format friendly for machines.
+    return localtime(fval).strftime(get_format('DATETIME_INPUT_FORMATS')[0]) if fval else ''
+
+
 def print_date(entity: Model, fval, user, field: Field) -> str:
+    warnings.warn(
+        'creme_core.gui.field_printers.print_date() is deprecated ; '
+        'use print_date_html()/print_date_csv() instead.',
+        DeprecationWarning,
+    )
     return date_format(fval, 'DATE_FORMAT') if fval else ''
+
+
+def print_date_html(entity: Model, fval, user, field: Field) -> str:
+    return date_format(fval, 'DATE_FORMAT') if fval else ''
+
+
+def print_date_csv(entity: Model, fval, user, field: Field) -> str:
+    return fval.strftime(get_format('DATE_INPUT_FORMATS')[0]) if fval else ''
 
 
 class FKPrinter:
@@ -463,8 +492,10 @@ class _FieldPrintersRegistry:
                 (models.BooleanField,       print_boolean_html),
                 (models.NullBooleanField,   print_boolean_html),
 
-                (models.DateField,          print_date),
+                # (models.DateField,          print_date),
+                (models.DateField,          print_date_html),
                 (models.DateTimeField,      print_datetime),
+                (models.DateTimeField,      print_datetime_html),
 
                 (models.TextField,          print_text_html),
                 (models.EmailField,         print_email_html),
@@ -495,8 +526,11 @@ class _FieldPrintersRegistry:
                 (models.BooleanField,       print_boolean_csv),
                 (models.NullBooleanField,   print_boolean_csv),
 
-                (models.DateField,          print_date),
-                (models.DateTimeField,      print_datetime),
+                # (models.DateField,          print_date),
+                (models.DateField,          print_date_csv),
+                # (models.DateTimeField,      print_datetime),
+                (models.DateTimeField,      print_datetime_csv),
+
                 # (models.ImageField,         print_image_csv, TODO ??
 
                 (models.ForeignKey,         print_foreignkey_csv),

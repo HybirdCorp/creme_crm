@@ -18,7 +18,6 @@ from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue, job_type_registry
 from creme.creme_core.core.job import get_queue, job_type_registry
 from creme.creme_core.creme_jobs.batch_process import batch_process_type
 from creme.creme_core.models import (
@@ -90,7 +89,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
     def test_batching_upper01(self):
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

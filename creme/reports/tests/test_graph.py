@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import ProtectedError
 from django.db.models.query_utils import Q
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -1446,15 +1447,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         rgraph = create_graph(15)
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='Target Orga1', creation_date='2013-06-01')
-        create_orga(name='Target Orga2', creation_date='2013-06-05')
-        create_orga(name='Target Orga3', creation_date='2013-06-14')
-        create_orga(name='Target Orga4', creation_date='2013-06-15', capital=1000)
-        create_orga(name='Target Orga5', creation_date='2013-06-16', capital=1100)
-        create_orga(name='Target Orga6', creation_date='2013-06-30', capital=200)
+        create_orga(name='Target Orga1', creation_date=date(2013, 6,  1))
+        create_orga(name='Target Orga2', creation_date=date(2013, 6,  5))
+        create_orga(name='Target Orga3', creation_date=date(2013, 6, 14))
+        create_orga(name='Target Orga4', creation_date=date(2013, 6, 15), capital=1000)
+        create_orga(name='Target Orga5', creation_date=date(2013, 6, 16), capital=1100)
+        create_orga(name='Target Orga6', creation_date=date(2013, 6, 30), capital=200)
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(
             ['01/06/2013-15/06/2013', '16/06/2013-30/06/2013'], x_asc,
         )
@@ -1470,19 +1473,24 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([2, fmt('2013-06-16', '2013-06-30')], y_asc[1])
 
         # DESC -----------------------------------------------------------------
-        x_desc, y_desc = rgraph.fetch(user=user, order='DESC')
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
+            x_desc, y_desc = rgraph.fetch(user=user, order='DESC')
+
         self.assertListEqual(
-            ['30/06/2013-16/06/2013', '15/06/2013-01/06/2013'], x_desc,
+            # ['30/06/2013-16/06/2013', '15/06/2013-01/06/2013'],
+            ['2013-06-30/2013-06-16', '2013-06-15/2013-06-01'],
+            x_desc,
         )
         self.assertListEqual([2, fmt('2013-06-16', '2013-06-30')], y_desc[0])
         self.assertListEqual([4, fmt('2013-06-01', '2013-06-15')], y_desc[1])
 
         # Extra q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
-        self.assertListEqual(
-            ['15/06/2013-29/06/2013'], x_xtra,
-        )
+
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        self.assertListEqual(['15/06/2013-29/06/2013'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
         self.assertEqual(2, extra_value)
@@ -1521,15 +1529,18 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='Orga1', creation_date='2013-06-22', capital=100)
-        create_orga(name='Orga2', creation_date='2013-06-25', capital=200)
-        create_orga(name='Orga3', creation_date='2013-07-5',  capital=150)
-        create_orga(name='Orga4', creation_date='2013-07-5',  capital=1000, is_deleted=True)
+        create_orga(name='Orga1', creation_date=date(2013, 6, 22), capital=100)
+        create_orga(name='Orga2', creation_date=date(2013, 6, 25), capital=200)
+        create_orga(name='Orga3', creation_date=date(2013, 7,  5), capital=150)
+        create_orga(name='Orga4', creation_date=date(2013, 7,  5), capital=1000, is_deleted=True)
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(
-            ['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'], x_asc,
+            # ['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'], x_asc,
+            ['2013/06/22-2013/07/01', '2013/07/02-2013/07/11'], x_asc,
         )
 
         def fmt(*dates):
@@ -1541,7 +1552,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([150, fmt('2013-07-02', '2013-07-11')], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+
         self.assertListEqual(
             ['05/07/2013-26/06/2013', '25/06/2013-16/06/2013'], x_desc,
         )
@@ -1558,23 +1571,23 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 user=user, linked_report=report,
                 name=f'Number of organisation created / {days} day(s)',
                 abscissa_cell_value='creation_date',
-                # abscissa_type=RGT_RANGE, abscissa_parameter=str(days),
                 abscissa_type=ReportGraph.Group.RANGE, abscissa_parameter=str(days),
-                # ordinate_type=RGA_COUNT,
                 ordinate_type=ReportGraph.Aggregator.COUNT,
             )
 
         rgraph = create_graph(15)
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='Target Orga1', creation_date='2013-12-21')
-        create_orga(name='Target Orga2', creation_date='2013-12-26')
-        create_orga(name='Target Orga3', creation_date='2013-12-31')
-        create_orga(name='Target Orga4', creation_date='2014-01-03')
-        create_orga(name='Target Orga5', creation_date='2014-01-05')
-        create_orga(name='Target Orga6', creation_date='2014-01-07')
+        create_orga(name='Target Orga1', creation_date=date(2013, 12, 21))
+        create_orga(name='Target Orga2', creation_date=date(2013, 12, 26))
+        create_orga(name='Target Orga3', creation_date=date(2013, 12, 31))
+        create_orga(name='Target Orga4', creation_date=date(2014,  1,  3))
+        create_orga(name='Target Orga5', creation_date=date(2014,  1,  5))
+        create_orga(name='Target Orga6', creation_date=date(2014,  1,  7))
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(
             ['21/12/2013-04/01/2014', '05/01/2014-19/01/2014'], x_asc,
         )
@@ -1590,7 +1603,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([2, fmt('2014-01-05', '2014-01-19')], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        x_desc, y_desc = rgraph.fetch(user=user, order='DESC', extra_q=None)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_desc, y_desc = rgraph.fetch(user=user, order='DESC', extra_q=None)
+
         self.assertListEqual(
             ['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'], x_desc,
         )
@@ -1659,7 +1674,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(
             ['21/12/2013-04/01/2014', '05/01/2014-19/01/2014'], x_asc,
         )
@@ -1734,7 +1751,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(
             ['21/12/2013-04/01/2014', '05/01/2014-19/01/2014'], x_asc,
         )
@@ -1745,7 +1764,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
+                # customfielddatetime__value__range=['2013-12-21', '2014-01-04'],
+                customfielddatetime__value__range=[
+                    '2013-12-21T00:00:00.000000Z',
+                    '2014-01-04T00:00:00.000000Z',
+                ],
             ),
         )
 
@@ -1755,14 +1778,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
+                # customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
+                customfielddatetime__value__range=[
+                    '2014-01-05T00:00:00.000000Z',
+                    '2014-01-19T00:00:00.000000Z',
+                ],
             ),
         )
 
         # DESC ----------------------------------------------------------------
-        x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
+            x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+
         self.assertListEqual(
-            ['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'], x_desc,
+            # ['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'], x_desc,
+            ['2014-01-07/2013-12-24', '2013-12-23/2013-12-09'], x_desc,
         )
 
         self.assertEqual(5, y_desc[0][0])
@@ -1771,7 +1801,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                customfielddatetime__value__range=['2013-12-24', '2014-01-07'],
+                # customfielddatetime__value__range=['2013-12-24', '2014-01-07'],
+                customfielddatetime__value__range=[
+                    '2013-12-24T00:00:00.000000Z',
+                    '2014-01-07T00:00:00.000000Z',
+                ],
             ),
         )
 
@@ -1781,13 +1815,20 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                customfielddatetime__value__range=['2013-12-09', '2013-12-23'],
+                # customfielddatetime__value__range=['2013-12-09', '2013-12-23'],
+                customfielddatetime__value__range=[
+                    '2013-12-09T00:00:00.000000Z',
+                    '2013-12-23T00:00:00.000000Z',
+                ],
             ),
         )
 
         # Extra Q --------------------------------------------------------------
         extra_q = Q(capital__gt=500)
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
         self.assertListEqual(['26/12/2013-09/01/2014'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
@@ -1797,7 +1838,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=extra_q & Q(
                 customfielddatetime__custom_field=cf.id,
-                customfielddatetime__value__range=['2013-12-26', '2014-01-09'],
+                # customfielddatetime__value__range=['2013-12-26', '2014-01-09'],
+                customfielddatetime__value__range=[
+                    '2013-12-26T00:00:00.000000Z',
+                    '2014-01-09T00:00:00.000000Z',
+                ],
             ),
         )
 
@@ -1831,12 +1876,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='House Stark',     creation_date='2013-06-22', capital=100)
-        create_orga(name='House Lannister', creation_date='2013-06-22', capital=200)
-        create_orga(name='Wildlings',       creation_date='2013-07-5',  capital=130)
+        create_orga(name='House Stark',     creation_date=date(2013, 6, 22), capital=100)
+        create_orga(name='House Lannister', creation_date=date(2013, 6, 22), capital=200)
+        create_orga(name='Wildlings',       creation_date=date(2013, 7, 5),  capital=130)
 
         # ASC ------------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertListEqual(['22/06/2013', '05/07/2013'], x_asc)
 
         self.assertEqual(150, y_asc[0][0])
@@ -1853,13 +1900,19 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(130, y_asc[1][0])
 
         # DESC -----------------------------------------------------------------
-        self.assertListEqual(
-            ['05/07/2013', '22/06/2013'], rgraph.fetch(user=user, order='DESC')[0],
-        )
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
+            self.assertListEqual(
+                # ['05/07/2013', '22/06/2013'],
+                ['2013-07-05', '2013-06-22'],
+                rgraph.fetch(user=user, order='DESC')[0],
+            )
 
         # Extra Q --------------------------------------------------------------
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=Q(name__startswith='House'))
-        self.assertListEqual(['22/06/2013'], x_xtra)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=Q(name__startswith='House'))
+
+        # self.assertListEqual(['22/06/2013'], x_xtra)
+        self.assertListEqual(['2013/06/22'], x_xtra)
 
         self.assertEqual(150, y_xtra[0][0])
         self.assertURL(
@@ -1900,7 +1953,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_cell_key='regular_field-capital',
         )
 
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(['22/06/2013', '05/07/2013'], x_asc)
         self.assertEqual(150, y_asc[0][0])
         self.assertEqual(130, y_asc[1][0])
@@ -1953,7 +2008,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertListEqual(['22/06/2013', '05/07/2013'], x_asc)
         self.assertEqual(150, y_asc[0][0])
         self.assertEqual(130, y_asc[1][0])
@@ -1968,14 +2025,21 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertURL(url=url, model=FakeOrganisation, expected_q=expected_q)
 
         # DESC ----------------------------------------------------------------
-        self.assertListEqual(
-            ['05/07/2013', '22/06/2013'], rgraph.fetch(user=user, order='DESC')[0],
-        )
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            self.assertListEqual(
+                # ['05/07/2013', '22/06/2013'],
+                ['2013/07/05', '2013/06/22'],
+                rgraph.fetch(user=user, order='DESC')[0],
+            )
 
         # ASC -----------------------------------------------------------------
         extra_q = Q(description='Westeros')
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
-        self.assertListEqual(['22/06/2013'], x_xtra)
+
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        # self.assertListEqual(['22/06/2013'], x_xtra)
+        self.assertListEqual(['2013-06-22'], x_xtra)
 
         xtra_value, xtra_url = y_xtra[0]
         self.assertEqual(150, xtra_value)
@@ -2008,7 +2072,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             _('the custom field does not exist any more.'), hand.abscissa_error,
         )
 
-    def test_fetch_by_month01(self):
+    def test_fetch_by_month(self):
         "Count."
         user = self.login()
         report = self._create_simple_organisations_report()
@@ -2022,12 +2086,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='Orga1', creation_date='2013-06-22')
-        create_orga(name='Orga2', creation_date='2013-06-25')
-        create_orga(name='Orga3', creation_date='2013-08-5')
+        create_orga(name='Orga1', creation_date=date(2013, 6, 22))
+        create_orga(name='Orga2', creation_date=date(2013, 6, 25))
+        create_orga(name='Orga3', creation_date=date(2013, 8, 5))
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertEqual(['06/2013', '08/2013'], x_asc)
 
         self.assertEqual(2, y_asc[0][0])
@@ -2040,9 +2106,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(1, y_asc[1][0])
 
         # DESC ----------------------------------------------------------------
-        self.assertListEqual(
-            ['08/2013', '06/2013'], rgraph.fetch(user=user, order='DESC')[0],
-        )
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
+            self.assertListEqual(
+                # ['08/2013', '06/2013'],
+                ['2013-08', '2013-06'],
+                rgraph.fetch(user=user, order='DESC')[0],
+            )
 
     def test_fetch_by_custommonth_date(self):
         "Count."
@@ -2070,7 +2139,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertListEqual(['06/2013', '08/2013'], x_asc)
 
         value0, url0 = y_asc[0]
@@ -2109,13 +2180,13 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of houses by 1rst victory (period of 1 month)',
-            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_MONTH,
             abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_MONTH,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertListEqual(['06/2013', '08/2013'], x_asc)
 
         value0, url0 = y_asc[0]
@@ -2134,8 +2205,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # Extra Q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
-        self.assertListEqual(['06/2013'], x_xtra)
+
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d-%m-%Y']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        # self.assertListEqual(['06/2013'], x_xtra)
+        self.assertListEqual(['06-2013'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
         self.assertEqual(1, extra_value)
@@ -2157,12 +2232,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        create_orga(name='Orga1', creation_date='2013-06-22')
-        create_orga(name='Orga2', creation_date='2013-07-25')
-        create_orga(name='Orga3', creation_date='2014-08-5')
+        create_orga(name='Orga1', creation_date=date(2013, 6, 22))
+        create_orga(name='Orga2', creation_date=date(2013, 7, 25))
+        create_orga(name='Orga3', creation_date=date(2014, 8,  5))
 
         # ASC -----------------------------------------------------------------
-        x_asc, y_asc = rgraph.fetch(user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            x_asc, y_asc = rgraph.fetch(user)
+
         self.assertEqual(['2013', '2014'], x_asc)
 
         def fmt(year):
@@ -2174,8 +2251,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertListEqual([1, fmt(2014)], y_asc[1])
 
         # DESC ----------------------------------------------------------------
-        x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
-        self.assertListEqual(['2014', '2013'], x_desc)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%m-%d-%y']):
+            x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
+
+        # self.assertListEqual(['2014', '2013'], x_desc)
+        self.assertListEqual(['14', '13'], x_desc)
         self.assertListEqual([1, fmt(2014)], y_desc[0])
         self.assertListEqual([2, fmt(2013)], y_desc[1])
 
@@ -2184,11 +2264,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         user = self.login()
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
-        lannisters = create_orga(name='House Lannister', creation_date='2013-06-22')
-        starks     = create_orga(name='House Stark',     creation_date='2013-07-25')
-        baratheons = create_orga(name='House Baratheon', creation_date='2014-08-5')
-        tullies    = create_orga(name='House Tully',     creation_date='2016-08-5')
-        create_orga(name='House Targaryen', creation_date='2015-08-5')
+        lannisters = create_orga(name='House Lannister', creation_date=date(2013, 6, 22))
+        starks     = create_orga(name='House Stark',     creation_date=date(2013, 7, 25))
+        baratheons = create_orga(name='House Baratheon', creation_date=date(2014, 8,  5))
+        tullies    = create_orga(name='House Tully',     creation_date=date(2016, 8,  5))
+        create_orga(name='House Targaryen', creation_date=date(2015, 8, 5))
 
         cf = CustomField.objects.create(
             content_type=self.ct_orga, name='Vine', field_type=CustomField.FLOAT,
@@ -2385,7 +2465,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertListEqual(['2013', '2014'], x_asc)
 
         value0, url0 = y_asc[0]
@@ -2424,7 +2506,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
-        x_asc, y_asc = rgraph.fetch(user=user)
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
+            x_asc, y_asc = rgraph.fetch(user=user)
+
         self.assertListEqual(['2013', '2014'], x_asc)
 
         value0, url0 = y_asc[0]
@@ -2442,8 +2526,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         # Extra q --------------------------------------------------------------
         extra_q = Q(capital__gt=200)
-        x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
-        self.assertListEqual(['2013'], x_xtra)
+
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%y-%m-%d']):
+            x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
+
+        # self.assertListEqual(['2013'], x_xtra)
+        self.assertListEqual(['13'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
         self.assertEqual(1, extra_value)
@@ -2898,8 +2986,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga1 = create_orga(name='BullFrog')
         orga2 = create_orga(name='Maxis')
-        self._create_invoice(orga1, orga2, issuing_date='2015-10-16', total_vat=Decimal('1212.12'))
-        self._create_invoice(orga1, orga2, issuing_date='2015-10-03', total_vat=Decimal('33.24'))
+        self._create_invoice(
+            orga1, orga2, issuing_date=date(2015, 10, 16), total_vat=Decimal('1212.12'),
+        )
+        self._create_invoice(
+            orga1, orga2, issuing_date=date(2015, 10,  3), total_vat=Decimal('33.24'),
+        )
 
         self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
 
@@ -3006,30 +3098,27 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         url = self._build_add_brick_url(rgraph)
-        response = self.assertGET200(url)
+        response_get = self.assertGET200(url)
         self.assertTemplateUsed(
-            response,
+            response_get,
             'creme_core/generics/blockform/add-popup.html',
         )
 
-        context = response.context
+        get_ctxt1 = response_get.context.get
         self.assertEqual(
             _('Create an instance block for «{entity}»').format(entity=rgraph),
-            context.get('title'),
+            get_ctxt1('title'),
         )
-        self.assertEqual(_('Save the block'), context.get('submit_label'))
+        self.assertEqual(_('Save the block'), get_ctxt1('submit_label'))
 
         # ---
-        response = self.client.post(url)
+        response_post_error = self.assertPOST200(url)
         self.assertFormError(
-            response, 'form', 'fetcher',
+            response_post_error, 'form', 'fetcher',
             _('This field is required.'),
         )
 
-        self.assertNoFormError(self.client.post(
-            url,
-            data={'fetcher': RGF_NOLINK},
-        ))
+        self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_NOLINK}))
 
         items = InstanceBrickConfigItem.objects.filter(entity=rgraph.id)
         self.assertEqual(1, len(items))
@@ -3059,23 +3148,22 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # ----------------------------------------------------------------------
-        response = self.assertPOST200(
-            url,
-            data={'fetcher': RGF_NOLINK},
-        )
+        response_duplicate = self.assertPOST200(url, data={'fetcher': RGF_NOLINK})
         self.assertFormError(
-            response, 'form', 'fetcher',
+            response_duplicate, 'form', 'fetcher',
             _('The instance block for «{graph}» with these parameters already exists!').format(
                 graph=rgraph.name,
             ),
         )
 
         # ----------------------------------------------------------------------
-        response = self.assertGET200(reverse('reports__instance_bricks_info', args=(rgraph.id,)))
-        self.assertTemplateUsed(response, 'reports/bricks/instance-bricks-info.html')
-        self.assertEqual(rgraph, response.context.get('object'))
+        response_info = self.assertGET200(
+            reverse('reports__instance_bricks_info', args=(rgraph.id,))
+        )
+        self.assertTemplateUsed(response_info, 'reports/bricks/instance-bricks-info.html')
+        self.assertEqual(rgraph, response_info.context.get('object'))
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
+            self.get_html_tree(response_info.content),
             brick_id=InstanceBricksInfoBrick.id_,
         )
         vname_node = self.get_html_node_or_fail(brick_node, './/td[@data-table-primary-column]')
@@ -3085,9 +3173,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # Display on home
         BrickHomeLocation.objects.all().delete()
         BrickHomeLocation.objects.create(brick_id=brick_id, order=1)
-        response = self.assertGET200('/')
-        self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), brick_id)
+        response_home = self.assertGET200('/')
+        self.assertTemplateUsed(response_home, 'reports/bricks/graph.html')
+        self.get_brick_node(self.get_html_tree(response_home.content), brick_id)
 
         # ----------------------------------------------------------------------
         # Display on detailview
@@ -3104,43 +3192,47 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         orga2 = create_orga(name='Maxis')
         orga3 = create_orga(name='Bitmap brothers')
 
-        invoice = self._create_invoice(orga1, orga2, issuing_date='2014-10-16')
-        self._create_invoice(orga1, orga3, issuing_date='2014-11-03')
+        invoice = self._create_invoice(orga1, orga2, issuing_date=date(2014, 10, 16))
+        self._create_invoice(orga1, orga3, issuing_date=date(2014, 11, 3))
 
-        response = self.assertGET200(invoice.get_absolute_url())
-        self.assertTemplateUsed(response, 'reports/bricks/graph.html')
-        self.get_brick_node(self.get_html_tree(response.content), brick_id)
+        response_dview = self.assertGET200(invoice.get_absolute_url())
+        self.assertTemplateUsed(response_dview, 'reports/bricks/graph.html')
+        self.get_brick_node(self.get_html_tree(response_dview.content), brick_id)
 
-        # ----------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
+        # ASC ------------------------------------------------------------------
+        url_fetch_asc = self._build_fetchfrombrick_url(item, invoice, 'ASC')
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d/%m/%Y']):
+            result_asc = self.assertGET200(url_fetch_asc).json()
 
-        result = response.json()
-        self.assertIsInstance(result, dict)
-        self.assertEqual(2, len(result))
+            self.assertIsInstance(result_asc, dict)
+            self.assertEqual(2, len(result_asc))
 
-        x_fmt = '{:02}/2014'.format  # NB: ReportGraph.Group.MONTH
-        self.assertEqual([x_fmt(10), x_fmt(11)], result.get('x'))
+            self.assertListEqual(['10/2014', '11/2014'], result_asc.get('x'))
 
-        y = result.get('y')
-        self.assertEqual(0, y[0][0])
+            y_asc = result_asc.get('y')
+            self.assertEqual(0, y_asc[0][0])
+            self.assertURL(
+                y_asc[0][1],
+                FakeInvoice,
+                Q(issuing_date__month=10, issuing_date__year=2014),
+            )
+
+            result_asc2 = self.assertGET200(url_fetch_asc).json()
+            self.assertEqual(result_asc, result_asc2)
+
+        # DESC -----------------------------------------------------------------
+        with override_settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d-%m-%Y']):
+            result_desc = self.assertGET200(
+                self._build_fetchfrombrick_url(item, invoice, 'DESC'),
+            ).json()
+
+        # self.assertListEqual(['11/2014', '10/2014'], result_desc.get('x'))
+        self.assertListEqual(['11-2014', '10-2014'], result_desc.get('x'))
+
+        y_desc = result_desc.get('y')
+        self.assertEqual(0, y_desc[0][0])
         self.assertURL(
-            y[0][1],
-            FakeInvoice,
-            Q(issuing_date__month=10, issuing_date__year=2014),
-        )
-
-        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'ASC'))
-        self.assertEqual(result, response.json())
-
-        # ----------------------------------------------------------------------
-        response = self.assertGET200(self._build_fetchfrombrick_url(item, invoice, 'DESC'))
-        result = response.json()
-        self.assertEqual([x_fmt(11), x_fmt(10)], result.get('x'))
-
-        y = result.get('y')
-        self.assertEqual(0, y[0][0])
-        self.assertURL(
-            y[0][1],
+            y_desc[0][1],
             FakeInvoice,
             Q(issuing_date__month=11, issuing_date__year=2014),
         )
@@ -3189,7 +3281,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertEqual(title, ReportGraphBrick(item).verbose_name)
         self.assertEqual(title, str(item))
 
-        # Display on detailview
+        # Display on detail-view
         create_folder = partial(FakeReportsFolder.objects.create, user=user)
         folder1 = create_folder(title='Internal')
         folder2 = create_folder(title='External')

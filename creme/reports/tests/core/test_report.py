@@ -5,6 +5,7 @@ from decimal import Decimal
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -142,6 +143,11 @@ class ReportHandTestCase(CremeTestCase):
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
+    @override_settings(
+        USE_L10N=False,
+        DATETIME_FORMAT='j F Y H:i',
+        DATETIME_INPUT_FORMATS=['%Y/%m/%d %H:%M:%S'],
+    )
     def test_regular_field_datetime(self):
         user = self.create_user()
 
@@ -152,7 +158,8 @@ class ReportHandTestCase(CremeTestCase):
 
         aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
         self.assertEqual(
-            date_format(localtime(aria.modified), 'DATETIME_FORMAT'),
+            # date_format(localtime(aria.modified), 'DATETIME_FORMAT'),
+            localtime(aria.modified).strftime('%Y/%m/%d %H:%M:%S'),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
@@ -343,7 +350,8 @@ class ReportHandTestCase(CremeTestCase):
         value = Decimal('235.50')
         cfield.value_class.objects.create(custom_field=cfield, entity=aria, value=value)
         self.assertEqual(
-            number_format(value, use_l10n=True),
+            # number_format(value, use_l10n=True),
+            number_format(value),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 
@@ -505,7 +513,8 @@ class ReportHandTestCase(CremeTestCase):
         create_orga(name='Lannisters', capital=1000)
 
         self.assertEqual(
-            number_format(Decimal('750.0'), use_l10n=True),
+            # number_format(Decimal('750.0'), use_l10n=True),
+            number_format(Decimal('750.0')),
             hand.get_value(entity=starks, user=user, scope=FakeOrganisation.objects.all())
         )
 
@@ -604,7 +613,8 @@ class ReportHandTestCase(CremeTestCase):
         create_cf_value(entity=sansa, value=Decimal('175.60'))
 
         self.assertEqual(
-            number_format(Decimal('164.5'), use_l10n=True),
+            # number_format(Decimal('164.5'), use_l10n=True),
+            number_format(Decimal('164.5')),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
 

@@ -1489,8 +1489,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             'form', 'answer', _('Enter a valid date.'),
         )
 
-        self.assertNoFormError(self._fill(preply, '8-6-2012'))
-        self.assertEqual(date(year=2012, month=6, day=8), self.refresh(rline).answer)
+        answer = date(year=2012, month=6, day=8)
+        self.assertNoFormError(self._fill(preply, answer))
+        self.assertEqual(answer, self.refresh(rline).answer)
 
     def test_fillview_hour01(self):
         "One HOUR question"
@@ -2186,7 +2187,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
-        self._fill(preply, '19-09-2012')
+        answer = date(year=2012, month=9, day=19)
+        self._fill(preply, answer)
         self.assertTrue(self.refresh(preply).is_complete)
 
         response = self.assertGET200(self._build_edit_answer_url(preply, rline))
@@ -2194,7 +2196,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         with self.assertNoException():
             answer_f = response.context['form'].fields['answer']
 
-        self.assertEqual(date(year=2012, month=9, day=19), answer_f.initial)
+        self.assertEqual(answer, answer_f.initial)
 
     # TODO: test other type initial ???
 

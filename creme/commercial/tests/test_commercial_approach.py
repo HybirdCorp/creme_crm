@@ -201,7 +201,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'title':  title,
                 'status': Status.objects.all()[0].pk,
 
-                'cform_extra-activities_start_0': '2011-5-18',
+                # 'cform_extra-activities_start_0': '2011-5-18',
+                'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
                 'cform_extra-activities_subtype': json_dump({
                     'type':     ACTIVITYTYPE_MEETING,
@@ -244,7 +245,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 'description': description,
                 'status':      Status.objects.all()[0].pk,
 
-                'cform_extra-activities_start_0': '2011-5-18',
+                # 'cform_extra-activities_start_0': '2011-5-18',
+                'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
                 'cform_extra-activities_subtype': json_dump({
                     'type': ACTIVITYTYPE_MEETING,

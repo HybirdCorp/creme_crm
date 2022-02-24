@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,16 +20,18 @@
 
 import decimal
 import logging
-import unicodedata
+# import unicodedata
 from collections import OrderedDict  # defaultdict
+from datetime import datetime
 from functools import partial
 from re import compile as compile_re
 from typing import Type
 
-from django.conf import settings
+# from django.conf import settings
 from django.db.models.query_utils import Q
 from django.forms import Field, Widget
-from django.utils.formats import get_format
+# from django.utils.formats import get_format
+from django.utils.formats import get_format_lazy, sanitize_separators
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
@@ -37,9 +39,10 @@ from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.core import enumerable
 from creme.creme_core.forms.base import CremeForm
+from creme.creme_core.forms.widgets import DatePickerMixin
 from creme.creme_core.models import Relation
+# from creme.creme_core.utils.dates import dt_from_str
 from creme.creme_core.utils.date_range import CustomRange
-from creme.creme_core.utils.dates import dt_from_str
 
 logger = logging.getLogger(__name__)
 NULL = 'NULL'
@@ -192,7 +195,8 @@ class SelectLVSWidget(ListViewSearchWidget):
 
 
 # TODO: extends MultiWidget & remove/improve get_context() ?
-class DateRangeLVSWidget(ListViewSearchWidget):
+# class DateRangeLVSWidget(ListViewSearchWidget):
+class DateRangeLVSWidget(DatePickerMixin, ListViewSearchWidget):
     """Search-widget to enter a couple of dates."""
     template_name = 'creme_core/listview/search-widgets/date-range.html'
 
@@ -200,7 +204,8 @@ class DateRangeLVSWidget(ListViewSearchWidget):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         w_ctxt = context['widget']
-        w_ctxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        # w_ctxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
+        w_ctxt['date_format'] = self.js_date_format()
         w_ctxt['value_start'] = value[0]
         w_ctxt['value_end']   = value[1]
 
@@ -313,36 +318,35 @@ class BaseDecimalField(BaseIntegerField):
     #     (without colliding with operators), but it should be OK in many cases...
     OPERATION_RE = compile_re(r'^(.*?)(\-?[0-9]*[\.,]?[0-9]*)$')
 
-    # NB: copy of <django.utils.formats.sanitize_separators()> which forces <use_l10n=True>
-    # TODO: remove when 'settings.USE_L10N = True' is set by default
-    @staticmethod
-    def _sanitize_separators(value):
-        # if isinstance(value, str):
-        parts = []
-        decimal_separator = get_format(
-            'DECIMAL_SEPARATOR',
-            use_l10n=True,  # <=========
-        )
-        if decimal_separator in value:
-            value, decimals = value.split(decimal_separator, 1)
-            parts.append(decimals)
-
-        if settings.USE_THOUSAND_SEPARATOR:
-            thousand_sep = get_format('THOUSAND_SEPARATOR')
-            if thousand_sep == '.' and value.count('.') == 1 and len(value.split('.')[-1]) != 3:
-                pass
-            else:
-                for replacement in {
-                    thousand_sep,
-                    unicodedata.normalize('NFKD', thousand_sep)
-                }:
-                    value = value.replace(replacement, '')
-        parts.append(value)
-
-        return '.'.join(reversed(parts))
+    # @staticmethod
+    # def _sanitize_separators(value):
+    #     # if isinstance(value, str):
+    #     parts = []
+    #     decimal_separator = get_format(
+    #         'DECIMAL_SEPARATOR',
+    #         use_l10n=True,  # <=========
+    #     )
+    #     if decimal_separator in value:
+    #         value, decimals = value.split(decimal_separator, 1)
+    #         parts.append(decimals)
+    #
+    #     if settings.USE_THOUSAND_SEPARATOR:
+    #         thousand_sep = get_format('THOUSAND_SEPARATOR')
+    #         if thousand_sep == '.' and value.count('.') == 1 and len(value.split('.')[-1]) != 3:
+    #             pass
+    #         else:
+    #             for replacement in {
+    #                 thousand_sep,
+    #                 unicodedata.normalize('NFKD', thousand_sep)
+    #             }:
+    #                 value = value.replace(replacement, '')
+    #     parts.append(value)
+    #
+    #     return '.'.join(reversed(parts))
 
     def _str_to_number(self, number_str):
-        sanitized_number_str = self._sanitize_separators(number_str)
+        # sanitized_number_str = self._sanitize_separators(number_str)
+        sanitized_number_str = sanitize_separators(number_str)
 
         try:
             number = decimal.Decimal(sanitized_number_str)
@@ -479,23 +483,43 @@ class RegularChoiceField(BaseChoiceField):
         return Q(**{f'{self.cell.value}__isnull': True})
 
 
-class RegularDateField(ListViewSearchField):
+class TemporalLVSMixin:
+    input_formats = get_format_lazy('DATE_INPUT_FORMATS')
+
+    # TODO: leave errors?
+    def parse_temporal(self, time_str):
+        if time_str:
+            for fmt in self.input_formats:
+                try:
+                    return self.strptime(time_str, fmt)
+                except (ValueError, TypeError):
+                    continue
+
+            logger.warning('RegularDateField => invalid temporal value: %s', time_str)
+
+        return None
+
+    def strptime(self, value, format_str):
+        return datetime.strptime(value, format_str).date()
+
+
+# class RegularDateField(ListViewSearchField):
+class RegularDateField(TemporalLVSMixin, ListViewSearchField):
     widget = DateRangeLVSWidget
 
-    # TODO: remove/rework (leave errors)
-    def _get_date(self, date_str):
-        if date_str:
-            try:
-                return dt_from_str(date_str).date()
-            except AttributeError:
-                logger.warning('RegularDateField => invalid date: %s', date_str)
+    # def _get_date(self, date_str) -> Optional[date]:
+    #     if date_str:
+    #         try:
+    #             return dt_from_str(date_str).date()
+    #         except AttributeError:
+    #             logger.warning('RegularDateField => invalid date: %s', date_str)
 
-    # TODO: datetime validation
     def to_python(self, value):
         start_str, end_str = value
 
         if start_str or end_str:
-            get_date = self._get_date
+            # get_date = self._get_date
+            get_date = self.parse_temporal
             start = get_date(start_str)
             end = get_date(end_str)
 
@@ -642,25 +666,23 @@ class CustomBooleanField(ListViewSearchField):
         return super().to_python(value=value)
 
 
-# TODO: factorise ?
-class CustomDatetimeField(ListViewSearchField):
+# class CustomDatetimeField(ListViewSearchField):
+class CustomDatetimeField(TemporalLVSMixin, ListViewSearchField):
     widget = DateRangeLVSWidget
 
-    # TODO: factorise
-    # TODO: remove/rework (leave errors)
-    def _get_date(self, date_str):
-        if date_str:
-            try:
-                return dt_from_str(date_str).date()
-            except AttributeError:
-                logger.warning('CustomDatetimeField => invalid date: %s', date_str)
+    # def _get_date(self, date_str):
+    #     if date_str:
+    #         try:
+    #             return dt_from_str(date_str).date()
+    #         except AttributeError:
+    #             logger.warning('CustomDatetimeField => invalid date: %s', date_str)
 
-    # TODO: datetime validation
     def to_python(self, value):
         start_str, end_str = value
 
         if start_str or end_str:
-            get_date = self._get_date
+            # get_date = self._get_date
+            get_date = self.parse_temporal
             start = get_date(start_str)
             end = get_date(end_str)
 

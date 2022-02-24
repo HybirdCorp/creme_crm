@@ -1025,10 +1025,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         conditions = field.clean(json_dump([
             {
                 'field': {'name': name01, 'type': 'date'},
-                'range': {'type': '', 'start': '2011-5-12'},
+                # 'range': {'type': '', 'start': '2011-5-12'},
+                'range': {'type': '', 'start': self.formfield_value_date(2011, 5, 12)},
             }, {
                 'field': {'name': name02, 'type': 'date__null'},
-                'range': {'type': '', 'end': '2012-6-13'},
+                # 'range': {'type': '', 'end': '2012-6-13'},
+                'range': {'type': '', 'end': self.formfield_value_date(2012, 6, 13)},
             },
         ]))
         self.assertEqual(2, len(conditions))
@@ -1057,7 +1059,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         name = 'modified'
         conditions = clean(json_dump([{
             'field': {'name': name, 'type': 'date'},
-            'range': {'type': '', 'start': '2010-3-24', 'end': '2011-7-25'},
+            # 'range': {'type': '', 'start': '2010-3-24', 'end': '2011-7-25'},
+            'range': {
+                'type': '',
+                'start': self.formfield_value_date(2010, 3, 24),
+                'end': self.formfield_value_date(2011, 7, 25),
+            },
         }]))
         self.assertEqual(1, len(conditions))
 
@@ -1110,7 +1117,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         def build_data(fname):
             return json_dump([{
                 'field': {'name': fname, 'type': 'date__null'},
-                'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                # 'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                'range': {
+                    'type': '',
+                    'start': self.formfield_value_date(2015, 3, 24),
+                    'end':   self.formfield_value_date(2015, 7, 25),
+                },
             }])
 
         conditions = field.clean(build_data(valid_fname))
@@ -1140,7 +1152,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         def build_data(fname):
             return json_dump([{
                 'field': {'name': fname, 'type': 'date__null'},
-                'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                # 'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'},
+                'range': {
+                    'type': '',
+                    'start': self.formfield_value_date(2015, 3, 24),
+                    'end':   self.formfield_value_date(2015, 7, 25),
+                },
             }])
 
         clean = DateFieldsConditionsField(model=FakeInvoiceLine).clean
@@ -1173,7 +1190,12 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
             DateFieldsConditionsField(model=FakeContact).clean,
             json_dump([{
                 'field': {'name': f'image__{hidden_fname}', 'type': 'date__null'},
-                'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'}
+                # 'range': {'type': '', 'start': '2015-3-24', 'end': '2015-7-25'}
+                'range': {
+                    'type': '',
+                    'start': self.formfield_value_date(2015, 3, 24),
+                    'end':   self.formfield_value_date(2015, 7, 25),
+                }
             }]),
         )[0]
         self.assertEqual(
@@ -1204,7 +1226,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             conditions = field.clean(json_dump([{
                 'field': {'name': hidden_fname, 'type': 'date__null'},
-                'range': {'type': '', 'start': '2000-1-1'},
+                # 'range': {'type': '', 'start': '2000-1-1'},
+                'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
         self.assertEqual(1, len(conditions))
@@ -1236,7 +1259,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             conditions = field.clean(json_dump([{
                 'field': {'name': hidden_sfname, 'type': 'date__null'},
-                'range': {'type': '', 'start': '2000-1-1'},
+                # 'range': {'type': '', 'start': '2000-1-1'},
+                'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
         self.assertEqual(1, len(conditions))
@@ -1267,7 +1291,8 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         with self.assertNoException():
             conditions = field.clean(json_dump([{
                 'field': {'name': hidden_sfname, 'type': 'date__null'},
-                'range': {'type': '', 'start': '2000-1-1'},
+                # 'range': {'type': '', 'start': '2000-1-1'},
+                'range': {'type': '', 'start': self.formfield_value_date(2000, 1, 1)},
             }]))
 
         self.assertEqual(1, len(conditions))
@@ -1275,6 +1300,53 @@ class DateFieldsConditionsFieldTestCase(FieldTestCase):
         condition = conditions[0]
         self.assertEqual(DateRegularFieldConditionHandler.type_id, condition.type)
         self.assertEqual(hidden_sfname,                            condition.name)
+
+    def test_initial(self):
+        fname1 = 'birthday'
+        fname2 = 'modified'
+        fname3 = 'created'
+
+        date1 = date(year=2000, month=1, day=1)
+        date2 = date(year=2001, month=2, day=2)
+
+        drange3 = 'current_year'
+
+        field = DateFieldsConditionsField()
+        build_cond = partial(
+            DateRegularFieldConditionHandler.build_condition, model=FakeContact,
+        )
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            conditions=[
+                build_cond(field_name=fname1, start=date1),
+                build_cond(field_name=fname2, end=date2),
+                build_cond(field_name=fname3,  date_range=drange3),
+            ],
+        )
+
+        with self.assertNoException():
+            decoded_value = json_load(field.widget.from_python(field.initial))
+
+        date_value = self.formfield_value_date
+        self.assertListEqual(
+            [
+                {
+                    'field': {'name': fname1, 'type': 'daterange__null'},
+                    'range': {
+                        'type': '', 'start': date_value(date1), 'end': '',
+                    },
+                }, {
+                    'field': {'name': fname2, 'type': 'daterange'},
+                    'range': {
+                        'type': '', 'start': '', 'end': date_value(date2),
+                    },
+                }, {
+                    'field': {'name': fname3, 'type': 'daterange'},
+                    'range': {'end': '', 'start': '', 'type': drange3},
+                },
+            ],
+            decoded_value,
+        )
 
 
 class CustomFieldsConditionsFieldTestCase(FieldTestCase):
@@ -1873,13 +1945,19 @@ class DateCustomFieldsConditionsFieldTestCase(FieldTestCase):
         range_type = 'current_year'
         cfield01 = self.cfield01
         cfield02 = self.cfield02
+        date_value = self.formfield_value_date
         conditions = field.clean(json_dump([
             {'field': str(cfield01.id), 'range': {'type': range_type}},
-            {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12'}},
-            {'field': str(cfield01.id), 'range': {'type': '', 'end': '2012-6-13'}},
+            # {'field': str(cfield02.id), 'range': {'type': '', 'start': '2011-5-12'}},
+            {'field': str(cfield02.id), 'range': {'type': '', 'start': date_value(2011, 5, 12)}},
+            # {'field': str(cfield01.id), 'range': {'type': '', 'end': '2012-6-13'}},
+            {'field': str(cfield01.id), 'range': {'type': '', 'end': date_value(2012, 6, 13)}},
             {
                 'field': str(cfield02.id),
-                'range': {'type': '', 'start': '2011-5-12', 'end': '2012-6-13'},
+                # 'range': {'type': '', 'start': '2011-5-12', 'end': '2012-6-13'},
+                'range': {
+                    'type': '', 'start': date_value(2011, 5, 12), 'end': date_value(2012, 6, 13),
+                },
             },
         ]))
         self.assertEqual(4, len(conditions))

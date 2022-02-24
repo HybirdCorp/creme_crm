@@ -3,7 +3,7 @@
 import sys
 import warnings
 from contextlib import ContextDecorator
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
@@ -21,6 +21,7 @@ from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.urls import reverse
+from django.utils.formats import get_format
 from django.utils.timezone import get_current_timezone, make_aware, utc
 
 from ..global_info import clear_global_info
@@ -718,6 +719,27 @@ class _CremeTestCase:
             args.append(fieldname)
 
         return reverse('creme_core__bulk_update', args=args)
+
+    @staticmethod
+    def formfield_value_date(*args):
+        if len(args) == 1:
+            date_obj = args[0]
+        else:
+            year, month, day = args
+            date_obj = date(year, month, day)
+
+        return date_obj.strftime(get_format('DATE_INPUT_FORMATS')[0])
+
+    @staticmethod
+    def formfield_value_datetime(dt_obj=None, **kwargs):
+        if kwargs:
+            dt_obj = datetime(**kwargs)
+
+        return dt_obj.strftime(
+            get_format(
+                'DATETIME_INPUT_FORMATS' if isinstance(dt_obj, datetime) else 'DATE_INPUT_FORMATS'
+            )[0]
+        )
 
     @staticmethod
     def formfield_value_generic_entity(entity):

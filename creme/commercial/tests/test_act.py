@@ -86,8 +86,10 @@ class ActTestCase(CommercialBaseTestCase):
                 'user':           user.id,
                 'name':           name,
                 'expected_sales': 1000,
-                'start':          '2011-11-20',
-                'due_date':       '2011-12-25',
+                # 'start':          '2011-11-20',
+                # 'due_date':       '2011-12-25',
+                'start':          self.formfield_value_date(2011, 11, 20),
+                'due_date':       self.formfield_value_date(2011, 12, 25),
                 'act_type':       atype.id,
                 'segment':        segment.id,
             },
@@ -118,8 +120,10 @@ class ActTestCase(CommercialBaseTestCase):
                 'user':           user.id,
                 'name':           'Act#1',
                 'expected_sales': 1000,
-                'start':          '2011-11-20',
-                'due_date':       '2011-09-25',
+                # 'start':          '2011-11-20',
+                # 'due_date':       '2011-09-25',
+                'start':          self.formfield_value_date(2011, 11, 20),
+                'due_date':       self.formfield_value_date(2011,  9, 25),
                 'act_type':       atype.id,
                 'segment':        segment.id,
             },
@@ -149,8 +153,11 @@ class ActTestCase(CommercialBaseTestCase):
             )
 
         msg = _('This field is required.')
-        self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
-        self.assertFormError(post(due_date='2011-11-20'), 'form', 'start',    msg)
+        # self.assertFormError(post(start='2011-11-20'),    'form', 'due_date', msg)
+        # self.assertFormError(post(due_date='2011-11-20'), 'form', 'start',    msg)
+        date_str = self.formfield_value_date(2011, 11, 20)
+        self.assertFormError(post(start=date_str),    'form', 'due_date', msg)
+        self.assertFormError(post(due_date=date_str), 'form', 'start',    msg)
 
     def create_act(self, name='NAME', expected_sales=1000):
         return Act.objects.create(
@@ -181,8 +188,10 @@ class ActTestCase(CommercialBaseTestCase):
             data={
                 'user':            user.id,
                 'name':            name,
-                'start':           '2011-11-20',
-                'due_date':        '2011-12-25',
+                # 'start':           '2011-11-20',
+                # 'due_date':        '2011-12-25',
+                'start':           self.formfield_value_date(2011, 11, 20),
+                'due_date':        self.formfield_value_date(2011, 12, 25),
                 'expected_sales':  expected_sales,
                 'cost':            cost,
                 'goal':            goal,
@@ -215,8 +224,10 @@ class ActTestCase(CommercialBaseTestCase):
             data={
                 'user':            user.id,
                 'name':            'Act#1',
-                'start':           '2011-11-20',
-                'due_date':        '2011-09-25',
+                # 'start':           '2011-11-20',
+                # 'due_date':        '2011-09-25',
+                'start':           self.formfield_value_date(2011, 11, 20),
+                'due_date':        self.formfield_value_date(2011,  9, 25),
                 'expected_sales':  2000,
                 'cost':            100,
                 'goal':            'Win',

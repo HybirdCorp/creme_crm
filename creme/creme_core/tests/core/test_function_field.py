@@ -182,11 +182,13 @@ class FunctionFieldsTestCase(CremeTestCase):
         value = Decimal('1234.45')
         result = FunctionFieldDecimal(value)
         self.assertEqual(
-            number_format(value, use_l10n=True, force_grouping=True),
+            # number_format(value, use_l10n=True, force_grouping=True),
+            number_format(value, force_grouping=True),
             result.for_html(),
         )
         self.assertEqual(
-            number_format(value, use_l10n=True),
+            # number_format(value, use_l10n=True),
+            number_format(value),
             result.for_csv(),
         )
 

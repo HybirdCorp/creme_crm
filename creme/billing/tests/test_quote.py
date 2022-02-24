@@ -250,8 +250,10 @@ class QuoteTestCase(_BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                'issuing_date':    '2013-12-14',
-                'expiration_date': '2014-1-21',
+                # 'issuing_date':    '2013-12-14',
+                # 'expiration_date': '2014-1-21',
+                'issuing_date':    self.formfield_value_date(2013, 12, 14),
+                'expiration_date': self.formfield_value_date(2014, 1,  21),
                 'status':          status.id,
                 'currency':        currency.id,
                 'discount':        Decimal(),
@@ -370,9 +372,12 @@ class QuoteTestCase(_BillingTestCase):
                 'user': user.pk,
                 'name': name,
 
-                'issuing_date':     '2012-2-12',
-                'expiration_date':  '2012-3-14',
-                'acceptation_date': '2012-3-13',
+                # 'issuing_date':     '2012-2-12',
+                # 'expiration_date':  '2012-3-14',
+                # 'acceptation_date': '2012-3-13',
+                'issuing_date':     self.formfield_value_date(2012, 2, 12),
+                'expiration_date':  self.formfield_value_date(2012, 3, 14),
+                'acceptation_date': self.formfield_value_date(2012, 3, 13),
 
                 'status': status.id,
 

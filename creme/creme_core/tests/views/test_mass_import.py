@@ -1631,7 +1631,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         birthday = '1995'
         lines = [('First name',   'Last name', 'Birthday')] if header else []
         lines.append((first_name, last_name,   birthday))      # Error
-        lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
+        # lines.append(('Asuka',    'Langley',   '01-02-1997'))  # OK
+        lines.append(('Asuka',    'Langley',   self.formfield_value_date(1997, 2, 1)))  # OK
 
         doc = doc_builder(lines)
         data = {

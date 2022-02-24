@@ -6,7 +6,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.formats import date_format
+# from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -249,7 +249,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview03(self):
         "Periodic: edit periodicity + specific data."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = self.queue
         queue.clear()
 
@@ -288,9 +287,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             url,
             data={
-                'reference_run': date_format(
-                    localtime(job.reference_run), 'DATETIME_FORMAT',
-                ),
+                # 'reference_run': date_format(
+                #     localtime(job.reference_run), 'DATETIME_FORMAT',
+                # ),
+                'reference_run': self.formfield_value_datetime(localtime(job.reference_run)),
                 'periodicity_0': 'minutes',
                 'periodicity_1': '180',
 
@@ -321,7 +321,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview04(self):
         "Periodic: edit reference_run."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = self.queue
         queue.clear()
 
@@ -336,7 +335,10 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             job.get_edit_absolute_url(),
             data={
-                'reference_run': '26-08-2014 14:00:00',
+                # 'reference_run': '26-08-2014 14:00:00',
+                'reference_run': self.formfield_value_datetime(
+                    year=2014, month=8, day=26, hour=14,
+                ),
                 'periodicity_0': pdict['type'],
                 'periodicity_1': str(pdict['value']),
 
@@ -358,7 +360,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
     def test_editview05(self):
         "No change of periodicity/reference_run."
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = self.queue
         queue.clear()
 
@@ -373,10 +374,11 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             job.get_edit_absolute_url(),
             data={
-                'reference_run': date_format(
-                    localtime(job.reference_run),
-                    'DATETIME_FORMAT',
-                ),
+                # 'reference_run': date_format(
+                #     localtime(job.reference_run),
+                #     'DATETIME_FORMAT',
+                # ),
+                'reference_run': self.formfield_value_datetime(localtime(job.reference_run)),
                 'periodicity_0': pdict['type'],
                 'periodicity_1': str(pdict['value']),
 

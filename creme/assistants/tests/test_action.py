@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import timedelta
+from datetime import date, timedelta
 from functools import partial
 
 from django.conf import settings
@@ -47,7 +47,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'title':             title,
                 'description':       descr,
                 'expected_reaction': reaction,
-                'deadline':          deadline,
+                # 'deadline':          deadline,
+                'deadline':          self.formfield_value_date(deadline),
             },
         )
         self.assertNoFormError(response)
@@ -71,7 +72,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         descr = 'DESCRIPTION'
         reaction = 'REACTION'
-        deadline = '2010-12-24'
+        # deadline = '2010-12-24'
+        deadline = date(2010, 12, 24)
         action = self._create_action(deadline, title, descr, reaction)
 
         self.assertEqual(title,     action.title)
@@ -106,7 +108,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         descr = 'DESCRIPTION'
         reaction = 'REACTION'
-        action = self._create_action('2010-12-24', title, descr, reaction)
+        # action = self._create_action('2010-12-24', title, descr, reaction)
+        action = self._create_action(date(2010, 12, 24), title, descr, reaction)
 
         url = action.get_edit_absolute_url()
         context = self.assertGET200(url).context
@@ -119,7 +122,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title    += '_edited'
         descr    += '_edited'
         reaction += '_edited'
-        deadline = '2011-11-25'
         response = self.client.post(
             url,
             data={
@@ -127,7 +129,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'title':             title,
                 'description':       descr,
                 'expected_reaction': reaction,
-                'deadline':          deadline,
+                # 'deadline':          '2011-11-25',
+                'deadline':          self.formfield_value_date(2011, 11, 25),
                 'deadline_time':     '17:37:00',
             },
         )
@@ -143,12 +146,14 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
     def test_delete_entity01(self):
-        action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         self.entity.delete()
         self.assertDoesNotExist(action)
 
     def _aux_test_delete(self, ajax=False):
-        action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         ct = self.get_ct(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
         response = self.client.post(
@@ -257,7 +262,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertInstanceLink(home_brick_node_ko, entity2)
 
     def test_validate(self):
-        action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
+        action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
 
@@ -275,13 +281,15 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         def creator(contact01, contact02):
             create = self._create_action
             create(
-                deadline='2011-2-9',
+                # deadline='2011-2-9',
+                deadline=date(2011, 2, 9),
                 title='Fight', descr='I have trained',
                 reaction='I expect a fight',
                 entity=contact01,
             )
             create(
-                deadline='2011-2-10',
+                # deadline='2011-2-10',
+                deadline=date(2011, 2, 10),
                 title='Rendezvous', descr='I have flower',
                 reaction='I want a rendezvous',
                 entity=contact02,

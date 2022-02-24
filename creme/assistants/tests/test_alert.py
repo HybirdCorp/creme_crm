@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 from functools import partial
 
 from django.conf import settings
@@ -16,7 +16,6 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
 from creme.creme_core.models import (
@@ -43,7 +42,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _create_alert(self,
                       title='TITLE',
                       description='DESCRIPTION',
-                      trigger_date='2010-9-29',
+                      # trigger_date='2010-9-29',
+                      trigger_date=date(year=2010, month=9, day=29),
                       entity=None,
                       ):
         entity = entity or self.entity
@@ -53,7 +53,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'user':         self.user.pk,
                 'title':        title,
                 'description':  description,
-                'trigger_date': trigger_date,
+                # 'trigger_date': trigger_date,
+                'trigger_date': self.formfield_value_date(trigger_date),
             },
         )
         self.assertNoFormError(response)
@@ -63,7 +64,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(Alert.objects.exists())
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 
@@ -76,7 +76,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(_('Save the alert'), context.get('submit_label'))
 
         title = 'Title'
-        alert = self._create_alert(title, 'Description', '2010-9-29')
+        # alert = self._create_alert(title, 'Description', '2010-9-29')
+        alert = self._create_alert(title, 'Description', date(2010, 9, 29))
         self.assertEqual(1, Alert.objects.count())
 
         self.assertIs(False,        alert.is_validated)
@@ -108,16 +109,21 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         user_pk = self.user.pk
         _fail_creation(
-            user=user_pk, title='',      description='description', trigger_date='2010-9-29',
+            user=user_pk, description='description',
+            title='',  # <==
+            # trigger_date='2010-9-29',
+            trigger_date=self.formfield_value_date(2010, 9, 29),
         )
         _fail_creation(
-            user=user_pk, title='title', description='description', trigger_date='',
+            user=user_pk, title='title', description='description',
+            trigger_date='',  # <===
         )
 
     def test_edit(self):
         title = 'Title'
         description = 'Description'
-        alert = self._create_alert(title, description, '2010-9-29')
+        # alert = self._create_alert(title, description, '2010-9-29')
+        alert = self._create_alert(title, description)
 
         url = alert.get_edit_absolute_url()
         context = self.assertGET200(url).context
@@ -135,7 +141,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'user':         self.user.pk,
                 'title':        title,
                 'description':  description,
-                'trigger_date': '2011-10-30',
+                # 'trigger_date': '2011-10-30',
+                'trigger_date': self.formfield_value_date(2011, 10, 30),
                 'trigger_time': '15:12:00',
             },
         )
@@ -212,10 +219,13 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
-        self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
-        self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
+        # self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
+        self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
+        # self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
+        self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
 
-        alert3 = self._create_alert('Alert03', 'Description03', trigger_date='2010-10-3')
+        # alert3 = self._create_alert('Alert03', 'Description03', trigger_date='2010-10-3')
+        alert3 = self._create_alert('Alert03', 'Description03', trigger_date=date(2010, 10, 3))
         alert3.is_validated = True
         alert3.save()
 
@@ -227,18 +237,24 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'."
         user = self.user
-        self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
-        self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
+        # self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
+        self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
+        # self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
+        self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
 
         entity02 = CremeEntity.objects.create(user=user)
 
         alert3 = self._create_alert(
-            'Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02,
+            # 'Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02,
+            'Alert03', 'Description03', trigger_date=date(2010, 10, 3), entity=entity02,
         )
         alert3.is_validated = True
         alert3.save()
 
-        self._create_alert('Alert04', 'Description04', trigger_date='2010-10-3', entity=entity02)
+        # self._create_alert('Alert04', 'Description04', trigger_date='2010-10-3', entity=entity02)
+        self._create_alert(
+            'Alert04', 'Description04', trigger_date=date(2010, 10, 3), entity=entity02,
+        )
 
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
@@ -254,8 +270,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
     def test_merge(self):
         def creator(contact01, contact02):
-            self._create_alert('Alert01', 'Fight against him', '2011-1-9',  contact01)
-            self._create_alert('Alert02', 'Train with him',    '2011-1-10', contact02)
+            self._create_alert('Alert01', 'Fight against him', date(2011, 1, 9),  contact01)
+            self._create_alert('Alert02', 'Train with him',    date(2011, 1, 10), contact02)
             self.assertEqual(2, Alert.objects.count())
 
         def assertor(contact01):

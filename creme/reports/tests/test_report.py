@@ -6,12 +6,15 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import smart_str
-from django.utils.formats import date_format, number_format
+from django.utils.formats import get_format, number_format  # date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
-from django.utils.translation import ngettext, pgettext
+from django.utils.translation import ngettext
+from django.utils.translation import override as override_language
+from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
@@ -905,8 +908,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type': 'csv',
                 'date_filter_0': '',
-                'date_filter_1': '1990-01-01',
-                'date_filter_2': '1990-12-31',
+                # 'date_filter_1': '1990-01-01',
+                # 'date_filter_2': '1990-12-31',
+                'date_filter_1': self.formfield_value_date(1990,  1,  1),
+                'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    'birthday',
             },
         )
@@ -984,8 +989,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type':      'csv',
                 'date_filter_0': '',
-                'date_filter_1': '1990-01-01',
-                'date_filter_2': '1990-12-31',
+                # 'date_filter_1': '1990-01-01',
+                # 'date_filter_2': '1990-12-31',
+                'date_filter_1': self.formfield_value_date(1990,  1,  1),
+                'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    'birthday',
             }
         )
@@ -1045,8 +1052,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type':      'csv',
                 'date_filter_0': '',
-                'date_filter_1': '01-01-1990',
-                'date_filter_2': '31-12-1990',
+                # 'date_filter_1': '01-01-1990',
+                # 'date_filter_2': '31-12-1990',
+                'date_filter_1': self.formfield_value_date(1990,  1,  1),
+                'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    date_field,
             },
         )
@@ -1236,8 +1245,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'doc_type': 'csv',
                 'date_field': 'birthday',
                 'date_filter_0': '',
-                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+                # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+                'date_filter_1': self.formfield_value_date(1980, 1, 1),
+                'date_filter_2': self.formfield_value_date(2000, 1, 1),
             },
         )
 
@@ -1282,8 +1293,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'doc_type': 'csv',
             'date_field': 'birthday',
             'date_filter_0': '',
-            'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-            'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+            # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+            # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+            'date_filter_1': self.formfield_value_date(1980, 1, 1),
+            'date_filter_2': self.formfield_value_date(2000, 1, 1),
         }
 
         def export(status, **kwargs):
@@ -1291,8 +1304,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         export(409, date_field='invalidfield')
         export(409, date_field='first_name')  # Not a date field
-        export(200, date_filter_1='1980-01-01')  # Invalid format
-        export(200, date_filter_2='2000-01-01')  # Invalid format
+        # export(200, date_filter_1='1980-01-01')  # Invalid format
+        # export(200, date_filter_2='2000-01-01')  # Invalid format
+
+        self.assertNotIn(r'%Y\%m\%d', get_format('DATE_INPUT_FORMATS'))
+        export(409, date_filter_1=r'1980\01\01')  # Invalid format
+        export(409, date_filter_2=r'2000\01\01')  # Invalid format
 
     def test_report_csv06(self):
         "With FieldsConfig."
@@ -1359,8 +1376,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'doc_type': 'xls',
                 'date_field': 'birthday',
                 'date_filter_0': '',
-                'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+                # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
+                # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
+                'date_filter_1': self.formfield_value_date(1980, 1, 1),
+                'date_filter_2': self.formfield_value_date(2000, 1, 1),
             },
             follow=True,
         )
@@ -2197,8 +2216,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             report.fetch_all_lines(),
         )
 
+    @override_settings(USE_L10N=True)
+    @override_language('en')
     def test_fetch_field_02(self):
-        "FK, date, filter, invalid one"
+        "FK, date, filter, invalid one."
         self.login()
 
         self._aux_test_fetch_persons(
@@ -2237,7 +2258,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                     starks.name,
                     username,
                     lform.title,
-                    date_format(starks.creation_date, 'DATE_FORMAT'),
+                    # date_format(starks.creation_date, 'DATE_FORMAT'),
+                    starks.creation_date.strftime('%Y-%m-%d'),
                 ],
             ],
             report.fetch_all_lines(),
@@ -3337,7 +3359,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         create_invoice(hord, name='Invoice#4', total_vat=Decimal('1000'))  # Should not be used
 
         def fmt_number(n):
-            return number_format(n, use_l10n=True, decimal_pos=2)
+            # return number_format(n, use_l10n=True, decimal_pos=2)
+            return number_format(n, decimal_pos=2)
 
         total_lannisters = fmt_number(invoice2.total_vat + invoice3.total_vat)
         total_starks     = fmt_number(invoice1.total_vat)
@@ -3375,7 +3398,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report = self.report_orga
         Field.objects.create(report=report, name=f'{cfield.id}__sum', type=RFT_AGG_CUSTOM, order=2)
 
-        agg_value = number_format(starks_gold + lannisters_gold, use_l10n=True, decimal_pos=2)
+        # agg_value = number_format(starks_gold + lannisters_gold, use_l10n=True, decimal_pos=2)
+        agg_value = number_format(starks_gold + lannisters_gold, decimal_pos=2)
         self.assertListEqual(
             [
                 [lannisters.name, agg_value],

@@ -214,7 +214,6 @@ class Job(models.Model):
         the next runs should be earlier, or disabled.
         @param force: Boolean ; <True> means the message is sent even if no field has changed.
         """
-        # from ..core.job import JobSchedulerQueue
         from ..core.job import get_queue
 
         queue_error = False

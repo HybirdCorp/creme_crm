@@ -2,6 +2,8 @@
 
   Users side :
   ------------
+    # The setting 'USE_L10N' is now set to 'True' by default (previously only 'False' was working).
+      So, by default, the formats for dates & times depend on the user's language.
     # Apps :
         * Creme_config :
             - An edition view for semi-fixed relation types has been added.
@@ -13,6 +15,10 @@
 
     Non breaking changes :
     ----------------------
+        # Deprecations :
+            - In 'creme_core.gui.field_printers', these functions are now deprecated :
+                - print_date()
+                - print_datetime()
 
     Breaking changes :
     ------------------
@@ -54,6 +60,17 @@
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' has been removed.
+        # There are 2 major changes in formats (dates, numbers) :
+           - 'USE_L10N = True' by default.
+           - The formats in creme/settings.py (DATE_FORMAT, DATE_INPUT_FORMATS...) have been cleared,
+             so the django's values are used if you set 'USE_L10N = False'.
+          So you may encounter some changes if you parse dates in your code & were relying of some specific formats.
+        # In 'creme_core.forms' :
+            - The attribute 'widgets.CalendarWidget.default_help_text' is now a format string.
+            - These methods have been removed :
+                - listview.RegularDateField._get_date()
+                - listview.CustomDatetimeField._get_date()
+                - listview.BaseDecimalField._sanitize_separators()
         # Apps :
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.

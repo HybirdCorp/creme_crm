@@ -9,7 +9,6 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -71,7 +70,6 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(UserMessage.objects.exists())
 
-        # queue = JobSchedulerQueue.get_main_queue()
         queue = get_queue()
         queue.clear()
 

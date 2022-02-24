@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-
+from datetime import date
 from functools import partial
 
 from django.urls import reverse
@@ -82,6 +82,7 @@ class OrganisationTestCase(_BaseTestCase):
 
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertEqual(description, orga.description)
+        self.assertIsNone(orga.creation_date)
         self.assertIsNone(orga.billing_address)
         self.assertIsNone(orga.shipping_address)
 
@@ -89,10 +90,11 @@ class OrganisationTestCase(_BaseTestCase):
 
     @skipIfCustomAddress
     def test_createview02(self):
-        "With addresses."
+        "With addresses, creation date."
         user = self.login()
 
         name = 'Bebop'
+        creation_date = date(year=2005, month=11, day=5)
 
         b_address = 'Mars gate'
         b_po_box = 'Mars1233546'
@@ -109,6 +111,7 @@ class OrganisationTestCase(_BaseTestCase):
             data={
                 'user': user.pk,
                 'name': name,
+                'creation_date': creation_date,
 
                 'billing_address-address':    b_address,
                 'billing_address-po_box':     b_po_box,
@@ -124,6 +127,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertNoFormError(response)
 
         orga = self.get_object_or_fail(Organisation, name=name)
+        self.assertEqual(creation_date, orga.creation_date)
 
         billing_address = orga.billing_address
         self.assertIsNotNone(billing_address)

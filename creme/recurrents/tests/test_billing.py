@@ -84,7 +84,10 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
                 '0-user':             user.id,
                 '0-name':             gen_name,
-                '0-first_generation': '08-07-2014 11:00',
+                # '0-first_generation': '08-07-2014 11:00',
+                '0-first_generation': self.formfield_value_datetime(
+                    year=2014, month=7, day=8, hour=11,
+                ),
                 '0-periodicity_0':    'months',
                 '0-periodicity_1':    '1',
 
@@ -245,7 +248,10 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
                     '0-cform_extra-recurrents_ctype': ct.id,
 
-                    '0-first_generation': '08-07-2014 11:00',
+                    # '0-first_generation': '08-07-2014 11:00',
+                    '0-first_generation': self.formfield_value_datetime(
+                        year=2014, month=7, day=8, hour=11,
+                    ),
 
                     '0-periodicity_0': 'weeks',
                     '0-periodicity_1': '3',

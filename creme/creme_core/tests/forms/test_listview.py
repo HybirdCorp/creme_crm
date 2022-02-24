@@ -3,11 +3,13 @@
 from decimal import Decimal
 from functools import partial
 
-from django.conf import settings
+# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
+from django.test.utils import override_settings
 from django.utils.formats import get_format, number_format
 from django.utils.translation import gettext as _
+from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
 import creme.creme_core.forms.listview as lv_forms
@@ -179,7 +181,11 @@ class SearchWidgetsTestCase(CremeTestCase):
             widget.render(name=name, value='a'),
         )
 
-    def test_daterangewidget(self):
+    @override_settings(
+        USE_L10N=False,
+        DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
+    )
+    def test_daterangewidget01(self):
         widget = lv_forms.DateRangeLVSWidget()
         get_value = partial(widget.value_from_datadict, files=None)
         self.assertListEqual(['', ''], get_value(data={}, name='foobar'))
@@ -197,27 +203,32 @@ class SearchWidgetsTestCase(CremeTestCase):
         )
 
         name = 'search-birthday'
+        self.maxDiff = None
         self.assertHTMLEqual(
             '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">'
             ' <div class="date-start">'
             '    <label for="id_birth-start">{start_label}</label>'
             '    <input data-format="{format}" id="id_birth-start" name="{name}-start" '
-            '           value="12-02-2019" />'
+            # '           value="12-02-2019" />'
+            '           value="2019-02-12" />'
             ' </div>'
             ' <div class="date-end">'
             '   <label for="id_birth-end">{end_label}</label>'
             '   <input data-format="{format}" id="id_birth-end" name="{name}-end" '
-            '          value="14-02-2019" />'
+            # '          value="14-02-2019" />'
+            '          value="2019-02-14" />'
             ' </div>'
             '</div>'.format(
                 name=name,
                 start_label=_('Start'),
                 end_label=_('End'),
-                format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
+                # format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
+                format='yy-mm-dd',
             ),
             widget.render(
                 name=name,
-                value=['12-02-2019', '14-02-2019'],
+                # value=['12-02-2019', '14-02-2019'],
+                value=['2019-02-12', '2019-02-14'],
                 attrs={'id': 'id_birth'},
             ),
         )
@@ -348,7 +359,7 @@ class SearchFieldsTestCase(CremeTestCase):
             to_python(value='>=100; <notanint')
         )
 
-    def test_regular_decimalfield(self):
+    def _aux_test_regular_decimalfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
         field = lv_forms.RegularDecimalField(cell=cell, user=self.user)
 
@@ -385,17 +396,30 @@ class SearchFieldsTestCase(CremeTestCase):
         )
 
         # With decimal part ---
-        # TODO: fix when 'settings.USE_L10N = True' is set by default
-        dec_sep = get_format('DECIMAL_SEPARATOR', use_l10n=True)
+        dec_sep = get_format('DECIMAL_SEPARATOR')
         self.assertEqual(Q(), to_python(value=dec_sep))
         self.assertEqual(
             Q(discount__exact=Decimal('10.5')),
-            to_python(value=number_format(Decimal('10.5'), use_l10n=True)),
+            to_python(value=number_format(Decimal('10.5'))),
         )
         # No whole part
         self.assertEqual(
             Q(discount__exact=Decimal('0.5')), to_python(value=dec_sep + '5'),
         )
+
+    @override_settings(USE_L10N=False)
+    def test_regular_decimalfield_no_l10n(self):
+        self._aux_test_regular_decimalfield()
+
+    @override_settings(USE_L10N=True)
+    @override_language('en')
+    def test_regular_decimalfield_l10n_en(self):
+        self._aux_test_regular_decimalfield()
+
+    @override_settings(USE_L10N=True)
+    @override_language('fr')
+    def test_regular_decimalfield_l10n_fr(self):
+        self._aux_test_regular_decimalfield()
 
     def test_regular_floatfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='discount')
@@ -417,10 +441,9 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(discount__gte=123.0), to_python(value='>=123'))
         self.assertEqual(Q(discount__lte=25.0), to_python(value='<=25'))
 
-        # TODO: fix when 'settings.USE_L10N = True' is set by default
         self.assertEqual(
             Q(discount__gt=10.5),
-            to_python(value='>' + number_format(10.5, use_l10n=True)),
+            to_python(value='>' + number_format(10.5)),
         )
 
     def test_regular_datefield(self):
@@ -431,31 +454,37 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=['', '']))
 
         dt = self.create_datetime
+        date_value = self.formfield_value_date
         self.assertEqual(
             Q(created__range=(
                 dt(day=22, month=2, year=2019),
                 dt(day=28, month=2, year=2019, hour=23, minute=59, second=59),
             )),
-            to_python(value=['22-02-2019', '28-02-2019']),
+            # to_python(value=['22-02-2019', '28-02-2019']),
+            to_python(value=[date_value(2019, 2, 22), date_value(2019, 2, 28)]),
         )
         self.assertEqual(
             Q(created__gte=dt(day=21, month=2, year=2019)),
-            to_python(value=['21-02-2019', '']),
+            # to_python(value=['21-02-2019', '']),
+            to_python(value=[date_value(2019, 2, 21), '']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=25, month=2, year=2019, hour=23, minute=59, second=59)),
-            to_python(value=['', '25-02-2019']),
+            # to_python(value=['', '25-02-2019']),
+            to_python(value=['', date_value(2019, 2, 25)]),
         )
 
         # Invalid dates
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
         self.assertEqual(
             Q(created__gte=dt(day=22, month=2, year=2019)),
-            to_python(value=['22-02-2019', 'zblu']),
+            # to_python(value=['22-02-2019', 'zblu']),
+            to_python(value=[date_value(2019, 2, 22), 'zblu']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=26, month=2, year=2019, hour=23, minute=59, second=59)),
-            to_python(value=['123', '26-02-2019']),
+            # to_python(value=['123', '26-02-2019']),
+            to_python(value=['123', date_value(2019, 2, 26)]),
         )
 
     def test_regular_choicefield(self):
@@ -872,8 +901,7 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertListEqual([ken.id], [*range_v])
 
         # With decimal part ---
-        # TODO: fix when 'settings.USE_L10N = True' is set by default
-        q_sep = to_python(value=number_format(Decimal('120.5'), use_l10n=True))
+        q_sep = to_python(value=number_format(Decimal('120.5')))
         __, sep_v = q_sep.children[0]
         self.assertListEqual([zangief.id], [*sep_v])
 
@@ -908,7 +936,9 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=['', '']))
 
         # ---
-        q_range = to_python(value=['01-02-2019', '28-02-2019'])
+        date_value = self.formfield_value_date
+        # q_range = to_python(value=['01-02-2019', '28-02-2019'])
+        q_range = to_python(value=[date_value(2019, 2, 1), date_value(2019, 2, 28)])
         self.assertIsInstance(q_range, Q)
         self.assertFalse(q_range.negated)
 
@@ -919,12 +949,14 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
-        q_start = to_python(value=['01-02-2019', ''])
+        # q_start = to_python(value=['01-02-2019', ''])
+        q_start = to_python(value=[date_value(2019, 2, 1), ''])
         k, v = q_start.children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        q_end = to_python(value=['', '01-03-2019'])
+        # q_end = to_python(value=['', '01-03-2019'])
+        q_end = to_python(value=['', date_value(2019, 3, 1)])
         k, v = q_end.children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
@@ -932,11 +964,13 @@ class SearchFieldsTestCase(CremeTestCase):
         # Invalid dates ---------------------------
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
 
-        k, v = to_python(value=['01-02-2019', 'zblu']).children[0]
+        # k, v = to_python(value=['01-02-2019', 'zblu']).children[0]
+        k, v = to_python(value=[date_value(2019, 2, 1), 'zblu']).children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        v = to_python(value=['123', '28-02-2019']).children[0][1]
+        # v = to_python(value=['123', '28-02-2019']).children[0][1]
+        v = to_python(value=['123', date_value(2019, 2, 28)]).children[0][1]
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
     def test_custom_enumfield(self):
@@ -1227,10 +1261,13 @@ class SearchFormTestCase(CremeTestCase):
         nerd_cell  = build_cell(name='is_a_nerd')
         birth_cell = build_cell(name='birthday')
 
+        fname_value = 'yui'
+        bday_value = self.formfield_value_date(2019, 2, 25)
         data = {
-            f'search-{fname_cell.key}': 'yui',
+            f'search-{fname_cell.key}': fname_value,
             f'search-{nerd_cell.key}': '1',
-            f'search-{birth_cell.key}-start': '25-02-2019',
+            # f'search-{birth_cell.key}-start': '25-02-2019',
+            f'search-{birth_cell.key}-start': bday_value,
         }
         form = lv_forms.ListViewSearchForm(
             field_registry=ListViewSearchFieldRegistry(),
@@ -1244,15 +1281,16 @@ class SearchFormTestCase(CremeTestCase):
         form.full_clean()
 
         self.assertEqual(
-            Q(first_name__icontains='yui')
+            Q(first_name__icontains=fname_value)
             & Q(is_a_nerd=True)
             & Q(birthday__gte=self.create_datetime(day=25, month=2, year=2019)),
             form.search_q,
         )
 
-        self.assertIn('value="yui"',        str(form[fname_cell.key]))
-        self.assertIn('value="1" selected', str(form[nerd_cell.key]))
-        self.assertIn('value="25-02-2019"', str(form[birth_cell.key]))
+        self.assertIn(f'value="{fname_value}"', str(form[fname_cell.key]))
+        self.assertIn('value="1" selected',     str(form[nerd_cell.key]))
+        # self.assertIn('value="25-02-2019"',     str(form[birth_cell.key]))
+        self.assertIn(f'value="{bday_value}"',  str(form[birth_cell.key]))
 
         self.assertNotIn('value="', str(form[lname_cell.key]))
 

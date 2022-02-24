@@ -58,7 +58,8 @@ class StatisticsTestCase(CremeTestCase):
                     '{count} meetings per month',
                     1
                 ).format(
-                    count=number_format(1, decimal_pos=1, use_l10n=True),
+                    # count=number_format(1, decimal_pos=1, use_l10n=True),
+                    count=number_format(1, decimal_pos=1),
                 ),
                 _('No phone call since one year'),
             ],
@@ -102,7 +103,8 @@ class StatisticsTestCase(CremeTestCase):
                     '{count} meetings per month',
                     1.5
                 ).format(
-                    count=number_format(1.5, decimal_pos=1, use_l10n=True),
+                    # count=number_format(1.5, decimal_pos=1, use_l10n=True),
+                    count=number_format(1.5, decimal_pos=1),
                 ),
                 _('No phone call since one year'),
             ],
@@ -138,7 +140,8 @@ class StatisticsTestCase(CremeTestCase):
                     '{count} phone calls per month',
                     0.5
                 ).format(
-                    count=number_format(0.5, decimal_pos=1, use_l10n=True),
+                    # count=number_format(0.5, decimal_pos=1, use_l10n=True),
+                    count=number_format(0.5, decimal_pos=1),
                 ),
             ],
             AveragePerMonthStatistics(Activity)(),

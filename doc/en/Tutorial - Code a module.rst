@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-02-2022 for Creme 2.4
+:Version: 04-03-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -2503,7 +2503,7 @@ it's particularly true with the tricky following manipulations).
 #. Beware, it's the trickiest step: rename the table corresponding to the base
    model (with PHPMyAdmin or pgAdmin for example), by giving it the name Django
    Django would give to the table of your model. The important thing is to
-   follow the Django's convention. In the tickets' example we seen before,, it
+   follow the Django's convention. In the tickets' example we've seen before, it
    means rename the table "tickets_ticket" into "my_tickets_ticket". Normally,
    the modern RDBMS do a nice job, and the related constraints (like the
    ForeignKeys to this table) are correctly modified. But some old versions of
@@ -3229,7 +3229,7 @@ Add a file ``beavers/tests.py``: ::
 
     # -*- coding: utf-8 -*-
 
-    import datetime
+    from datetime import date
 
     from creme.creme_core.tests.base import CremeTestCase
 
@@ -3244,15 +3244,16 @@ Add a file ``beavers/tests.py``: ::
             url = Beaver.get_create_absolute_url()
             self.assertGET200(url)
 
-            name   = 'Hector'
+            name = 'Hector'
             status = Status.objects.all()[0]
+            birthday = date(year=2015, month=12, day=3)
             response = self.client.post(
                 url,
                 follow=True,
                 data={
                     'user':     user.pk,
                     'name':     name,
-                    'birthday': '2020-01-14',
+                    'birthday': birthday,
                     'status':   status.id,
                 },
             )
@@ -3262,12 +3263,9 @@ Add a file ``beavers/tests.py``: ::
             self.assertEqual(1, len(beavers))
 
             beaver = beavers[0]
-            self.assertEqual(name,   beaver.name)
-            self.assertEqual(status, beaver.status)
-            self.assertEqual(
-                datetime.date(year=2020, month=1, day=14),
-                beaver.birthday,
-            )
+            self.assertEqual(name,     beaver.name)
+            self.assertEqual(status,   beaver.status)
+            self.assertEqual(birthday, beaver.birthday)
 
 To run the tests: ::
 
@@ -3295,3 +3293,53 @@ and/or PostgreSQL.
 ``--keepdb`` of the command ``test`` in order to reduce the launch time of the
 command after the fisrt run ; it's useful to fix failing tests (but you cannot
 modify models between 2 runs).
+
+
+4. Other
+--------
+
+Customisation of formats (date, number)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Note** : this section is not specific to Creme and use only tools provided
+by Django ; but some Creme users will probably search here, so it could be
+useful.
+
+Date and number formats can be customised. You'll find the different keys in the
+`official documentation <https://docs.djangoproject.com/en/3.2/ref/settings/#date-format>`_
+de Django.
+
+**Remark** : notice that the formats used in forms (``DATE_INPUT_FORMATS``,
+``DATETIME_INPUT_FORMATS`` …) are different and distinct from the formats used
+for simple display (``DATE_FORMAT``, ``DATETIME_FORMAT`` …).
+
+Depending on the value of the settings key ``USE_L10N``, the place where the
+format string are read is different.
+
+Case USE_L10N = True
+********************
+
+It's the default value in Creme. The formats are different according to the
+user's language, so we'll logically find them in the folders ``locale/``. You
+can see an example in the file
+``/your/virtual/env/lib/pythonXXX/site-packages/django/conf/locale/en/formats.py``
+which is used by default in english.
+
+To use your own values (for english in this example), create first the following
+files :
+
+-  ``my_project/beavers/locale/__init__.py``
+-  ``my_project/beavers/locale/en/__init__.py``
+-  ``my_project/beavers/locale/en/formats.py``
+
+In this last file, set the values you want to override. Then in your settings
+set the value : ::
+
+    FORMAT_MODULE_PATH = 'my_project.beavers.locale'
+
+
+Case USE_L10N = False
+*********************
+
+In this case, the formats are always the same, ignoring the user's language.
+Set the values seen before directly in your file ``my_project/settings.py``.

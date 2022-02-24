@@ -415,7 +415,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 year=2014, month=4, day=17,
                 hour=16, minute=18, second=5,
             ),
-            call_start
+            call_start,
         )
         self.assertEqual(gally, contact)
         self.assertNotIn('called_orga', context)
