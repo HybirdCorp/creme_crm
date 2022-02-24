@@ -7,7 +7,7 @@
 
 {% comment %}
   Attributes of 'phonecall_data':
-    -pcall_id   -> ID of the existings delayed PhoneCall thats contains the phone number the user clicked on.
+    -pcall_id   -> ID of the existing delayed PhoneCall that contains the phone number the user clicked on.
                     Can be undefined.
     -call_start -> start date (as JSON string) of the last call (ie: when the user clicked on number).
     -person_id  -> ID of the contact/orga associated to the phone number.
@@ -51,22 +51,22 @@
       setTimeout(displayWorkflowPanel, 3000);
     }
   });
-/*
-  function checkCallCookies() {
+
+  function checkCallCookies() {  // eslint-disable-line
     var cookies = document.cookie.split(';');
 
     for (var i in cookies) {
       var cookie = cookies[i].trim();
 
-      if (cookie.indexOf(PHONECALL_COOKIE) == 0)  {
+      if (cookie.indexOf(PHONECALL_COOKIE) === 0)  {
         phonecall_data = JSON.parse(cookie.substring(PHONECALL_COOKIE.length));
         displayWorkflowPanel();
-      } else if (cookie.indexOf(CSRF_COOKIE) == 0) {
+      } else if (cookie.indexOf(CSRF_COOKIE) === 0) {
         csrf_token = decodeURIComponent(cookie.substring(CSRF_COOKIE.length));
       }
     }
   }
-*/
+
   function objectToParameters(obj) {
     var parameters = "";
 
