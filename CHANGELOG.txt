@@ -8,6 +8,8 @@
     # The form widget to select several entities ('MultiEntityCreatorWidget') was broken when a button "Create" is displayed.
     # The buttons on hat-card bricks use now better the given 'help_text'.
     # Apps :
+        * Persons :
+            - The callback URL of the creation button in the employees & managers bricks was broken after a reloading.
         * Activities :
             - The display for the attribute "minutes" in related activities' brick has been improved.
         * Billing :
