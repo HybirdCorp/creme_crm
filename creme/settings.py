@@ -1332,7 +1332,7 @@ CRUDITY_FILESYS_FETCHER_DIR = ''
 #
 #         # The name of the input (which is registered with).
 #         #  Available choices:
-#         #   - for the fetcher 'email': 'raw', 'infopath' (that needs "lcab" program).
+#         #   - for the fetcher 'email': 'raw'
 #         #   - for the fetcher 'filesystem': 'ini'.
 #         # Can be omitted if 'subject' is '*' (see below).
 #         'input': 'infopath',

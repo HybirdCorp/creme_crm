@@ -35,7 +35,7 @@ class WaitingAction(CremeModel):
 
     # TODO: split into 2 CharFields 'fetcher' & 'input' ?
     # NB: - If default backend (subject="*"): fetcher_name.
-    #     - If not  'fetcher_name - input_name'  (eg: email - raw, email - infopath, sms - raw...).
+    #     - If not  'fetcher_name - input_name'  (eg: email - raw, sms - raw...).
     source = models.CharField(_('Source'), max_length=100)
 
     raw_data = models.BinaryField(blank=True, null=True)  # Pickled data

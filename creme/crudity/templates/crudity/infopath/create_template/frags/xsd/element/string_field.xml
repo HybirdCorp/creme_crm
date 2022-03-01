@@ -1,5 +1,0 @@
-{% if field.model_field.null %}
-<xsd:element name="{{ field.name }}" type="xsd:string"/>
-{% else %}
-<xsd:element name="{{ field.name }}" type="my:requiredString"/>
-{% endif %}

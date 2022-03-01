@@ -1,3 +1,0 @@
-<xsf:xmlToEdit name="{{ field.name }}" item="/my:CremeCRMCrudity/my:{{ field.name }}/my:{{ field.name }}_value">
-    <xsf:editWith autoComplete="no" component="xTextList"></xsf:editWith>
-</xsf:xmlToEdit>
