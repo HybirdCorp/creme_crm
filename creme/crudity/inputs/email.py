@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,11 +21,8 @@
 import logging
 import re
 from typing import Iterable, Optional
-from xml.etree import ElementTree as ET
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import FieldDoesNotExist
-from django.db.models import FileField, ForeignKey
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.utils.html import strip_html
@@ -35,7 +32,7 @@ from ..backends.models import CrudityBackend
 from ..constants import LEFT_MULTILINE_SEP, RIGHT_MULTILINE_SEP
 from ..fetchers.pop import PopEmail
 from ..models import WaitingAction
-from ..utils import decode_b64binary, is_sandbox_by_user
+from ..utils import is_sandbox_by_user
 from .base import CrudityInput
 
 Document = get_document_model()
@@ -193,93 +190,3 @@ class CreateEmailInput(EmailInput):
                 break
 
         return allowed
-
-
-remove_pattern = re.compile('[\t\n\r\f\v]')
-
-
-class CreateInfopathInput(CreateEmailInput):
-    name         = 'infopath'
-    verbose_name = _('Email - Infopath')
-    brickheader_action_templates = ('crudity/bricks/header-actions/infopath-creation-form.html',)
-
-    MIME_TYPES = ['application/x-microsoft-infopathform']
-
-    def _pre_process_data(self, backend, data):
-        model_get_field = backend.model._meta.get_field
-
-        for field_name, field_value in data.items():
-            try:
-                field = model_get_field(field_name)
-            except FieldDoesNotExist:
-                continue
-
-            if (
-                field_value is not None
-                and (
-                    isinstance(field, ForeignKey)
-                    and issubclass(field.remote_field.model, Document)
-                ) or isinstance(field, FileField)
-            ):
-                data[field_name] = decode_b64binary(field_value.encode())  # (filename, image_blob)
-
-    def create(self, email):
-        backend = self.get_backend(
-            CrudityBackend.normalize_subject(email.subject)
-        ) or self.get_backend("*")
-
-        if backend is None:
-            return None
-
-        MIME_TYPES = self.MIME_TYPES
-        attachments = [a for a in email.attachments if a[1].content_type in MIME_TYPES]
-
-        if attachments and self.authorize_senders(backend, email.senders):
-            body = (self.strip_html(email.body_html) or email.body).replace('\r', '')
-            split_body = [line.replace('\t', '') for line in body.split('\n') if line.strip()]
-
-            if self.is_allowed_password(backend.password, split_body):
-                is_created = False
-                for data in filter(
-                    lambda x: x is not None,
-                    (
-                        self.get_data_from_infopath_file(backend, attachment)
-                        for name, attachment in attachments
-                    )
-                ):
-                    self._create(backend, data, email.senders[0])
-                    is_created = True
-
-                if is_created:
-                    return backend
-
-    def get_data_from_infopath_file(self, backend, xml_file):
-        content = xml_file.read().decode()
-        content = re.sub(remove_pattern, '', content.strip(), re.U)
-        content = re.sub(r'>[\s]*<', '><', content, re.U)
-
-        if not content:
-            return None
-
-        try:
-            xml = ET.fromstring(content)
-        except ET.ParseError as e:
-            logger.error('CreateInfopathInput.get_data_from_infopath_file(): %s', e)
-            return None
-
-        data = backend.body_map.copy()
-        for node in xml:
-            try:
-                tag = re.search(r'[{].*[}](?P<tag>[-_\d\s\w]+)', node.tag)['tag']  # TODO: compile
-            except AttributeError:
-                continue
-
-            if tag in data:
-                children = [*node]
-
-                if children:  # Multi-line
-                    data[tag] = '\n'.join(child.text or '' for child in children)
-                else:
-                    data[tag] = node.text
-
-        return data

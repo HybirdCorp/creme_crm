@@ -36,7 +36,7 @@ class History(CremeModel):
     # Action (i.e: create, update...)
     action = models.CharField(_('Action'), max_length=100)
 
-    # Source (i.e: email raw, email from infopath, sms raw...)
+    # Source (i.e: email raw, sms raw...)
     source = models.CharField(_('Source'), max_length=100)
 
     description = models.TextField(_('Description'), blank=True, null=True)

@@ -86,8 +86,6 @@ virtual env, in order to keep the old one working).
        - you can also use the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
      - creme.graphs :
        - pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
-     - creme.crudity :
-       - lcab (if you want Infopath forms export, and your server doesn't run on Windows)
 
 Installation with 'pip':
  - You should probably use "virtualenv" (on a Python >= 3.6).

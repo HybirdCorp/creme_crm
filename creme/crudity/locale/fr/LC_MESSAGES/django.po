@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'CRUDITY' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr -i "tests/*" -e py -e html -e xml --no-location
+# > django-admin makemessages -l fr -i "tests/*" -e py -e html --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Crudity 2.3\n"
+"Project-Id-Version: Creme Creme-Crudity 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-03-01 16:30+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -37,9 +37,6 @@ msgstr "Actions en attente"
 
 msgid "History"
 msgstr "Historique"
-
-msgid "Create"
-msgstr "Créer"
 
 msgid "Synchronize externals data sent to Creme"
 msgstr "Synchroniser les données externes envoyées à Creme"
@@ -70,8 +67,8 @@ msgstr ""
 msgid "Email - Raw"
 msgstr "E-mail - Simple"
 
-msgid "Email - Infopath"
-msgstr "E-mail - Infopath"
+msgid "Create"
+msgstr "Créer"
 
 msgid "File - INI"
 msgstr "Fichier - INI"
@@ -119,10 +116,6 @@ msgstr "Est-ce que les actions en attente sont par utilisateur ?"
 #, python-format
 msgid "Download email template for «%(model)s»"
 msgstr "Télécharger un modèle d'e-mail pour «%(model)s»"
-
-#, python-format
-msgid "Download Infopath form for «%(model)s»"
-msgstr "Télécharger un formulaire Infopath pour «%(model)s»"
 
 #, python-format
 msgid "File .ini template for «%(model)s»"
@@ -191,15 +184,6 @@ msgstr "Aucune action en attente pour «%(ctype)s» venant de «%(backend)s»"
 msgid "History of automated creations"
 msgstr "Historique des créations automatisées"
 
-msgid "Invalid email"
-msgstr "E-mail invalide"
-
-msgid "Enter a valid email address. For example: creme@crm.org"
-msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
-
-msgid "Select..."
-msgstr "Sélectionner..."
-
 msgid "Refresh"
 msgstr "Rafraîchir"
 
@@ -214,6 +198,15 @@ msgstr ""
 msgid "Operation successfully completed"
 msgstr ""
 
+#~ msgid "Invalid email"
+#~ msgstr "E-mail invalide"
+
+#~ msgid "Enter a valid email address. For example: creme@crm.org"
+#~ msgstr "Entrez une adresse e-mail valide. Par exemple: creme@crm.org"
+
+#~ msgid "Select..."
+#~ msgstr "Sélectionner..."
+
 #~ msgid "Email waiting actions"
 #~ msgstr "Actions en attente pour les e-mails"
 
@@ -222,9 +215,6 @@ msgstr ""
 
 #~ msgid "Email template for «%(verbose_name)s»"
 #~ msgstr "Modèle d'e-mail pour «%(verbose_name)s»"
-
-#~ msgid "Infopath form for «%(verbose_name)s»"
-#~ msgstr "Formulaire Infopath pour «%(verbose_name)s»"
 
 #~ msgid "Ressource's type"
 #~ msgstr "Type de ressource"

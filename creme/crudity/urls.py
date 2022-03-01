@@ -2,7 +2,7 @@
 
 from django.urls import re_path
 
-from .views import actions, email, filesystem, history, infopath
+from .views import actions, email, filesystem, history
 
 urlpatterns = [
     re_path(
@@ -43,11 +43,6 @@ urlpatterns = [
     ),
 
     # TODO: only one URL which handles all templates ? (+ Class based)
-    re_path(
-        r'^infopath/create_form/(?P<subject>\w+)[/]?$',
-        infopath.create_form,
-        name='crudity__dl_infopath_form',
-    ),
     re_path(
         r'^download_email_template/(?P<subject>\w+)[/]?$',
         email.download_email_template,
