@@ -1431,6 +1431,19 @@ class Migration(migrations.Migration):
                 bases=(models.Model,),
             ),
             migrations.CreateModel(
+                name='FakeCountry',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test country',
+                    'verbose_name_plural': 'Test countries',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakePosition',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
@@ -1514,7 +1527,18 @@ class Migration(migrations.Migration):
                             null=True, verbose_name='Related user',
                         )
                     ),
-                    ('languages', models.ManyToManyField(to='creme_core.Language', verbose_name='Spoken language(s)', blank=True)),
+                    (
+                        'languages',
+                        models.ManyToManyField(
+                            to='creme_core.Language', verbose_name='Spoken language(s)', blank=True,
+                        )
+                    ),
+                    (
+                        'preferred_countries',
+                        models.ManyToManyField(
+                            to='creme_core.FakeCountry', verbose_name='Preferred countries', blank=True,
+                        )
+                    ),
                     (
                         'image',
                         models.ForeignKey(

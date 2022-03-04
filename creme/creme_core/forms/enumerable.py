@@ -170,7 +170,7 @@ class EnumerableChoiceSet:
                     )
                 )
         else:
-            # The selected items count is greater than the limit, so we obiouvsly need more
+            # The selected items count is greater than the limit, so we obviously need more
             more = True
             choices = [
                 EnumerableChoice(**choice, selected=True)

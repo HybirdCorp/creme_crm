@@ -76,6 +76,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         'is_a_nerd_colselect':    0,
         'loves_comics_colselect': 0,
         'languages_colselect':    0,
+        'preferred_countries_colselect': 0,
 
         # 'property_types',
         # 'fixed_relations',
