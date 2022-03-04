@@ -423,8 +423,9 @@ class CremeEntity(CremeModel):
     def _clone_m2m(self, source: CremeEntity) -> None:
         """Handle the clone of all many to many fields."""
         for field in source._meta.many_to_many:
-            field_name = field.name
-            getattr(self, field_name).set(getattr(source, field_name).all())
+            if field.get_tag(FieldTag.CLONABLE):
+                field_name = field.name
+                getattr(self, field_name).set(getattr(source, field_name).all())
 
     def _clone_object(self):
         """Clone and returns a new saved instance of self.

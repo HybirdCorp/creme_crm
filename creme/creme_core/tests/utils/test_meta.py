@@ -435,6 +435,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('phone',        _('Phone')),
             ('image',        _('Photograph')),
             ('position',     _('Position')),
+            ('preferred_countries', _('Preferred countries')),
             ('languages',    _('Spoken language(s)')),
             ('url_site',     _('Web Site')),
         ]

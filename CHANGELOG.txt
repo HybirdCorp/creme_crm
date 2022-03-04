@@ -88,8 +88,11 @@
             - A class 'FieldEnumerableChoiceSet' has been added;
               it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
             - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
-        # In 'creme_core.models', some database indexes were added to improve general performance with large volumes of data on:
-            - HistoryLine
+        # In 'creme_core.models':
+            - Some database indexes were added to improve general performance with large volumes of data on:
+                - HistoryLine
+            - The method 'CremeEntity.clone()' now avoids copying 'ManyToManyFields' which are tagged as <clonable=False>
+              (see '_clone_m2m()').
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
 
