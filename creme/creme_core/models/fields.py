@@ -17,7 +17,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from collections import defaultdict
 from json import loads as json_load
 
 from django.conf import settings
@@ -238,6 +238,7 @@ class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
         )
 
 
+# NB: based on <django.contrib.contenttypes.fields.GenericForeignKey>
 class RealEntityForeignKey(FieldCacheMixin):
     """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
      - a ForeignKey to CremeEntity.
@@ -288,8 +289,10 @@ class RealEntityForeignKey(FieldCacheMixin):
     def contribute_to_class(self, cls, name, **kwargs):
         self.name = name
         self.model = cls
-        cls._meta.add_field(self, private=True)  # TODO: test ?
+        cls._meta.add_field(self, private=True)
+        # breakpoint()
         setattr(cls, name, self)
+        # print('ATTR', cls, name, getattr(cls, name, 'NOPE'))
 
     def check(self, **kwargs):
         from .entity import CremeEntity
@@ -346,9 +349,9 @@ class RealEntityForeignKey(FieldCacheMixin):
             )
 
     def __get__(self, instance, cls=None):
-        # TODO ?
-        # if instance is None:
-        #     return self
+        # NB: when reading the attribute from the class (ex: prefetch_related()).
+        if instance is None:
+            return self
 
         real_entity = self.get_cached_value(instance, default=None)
 
@@ -413,6 +416,44 @@ class RealEntityForeignKey(FieldCacheMixin):
 
     def get_cache_name(self):  # See FieldCacheMixin
         return self.name
+
+    def get_prefetch_queryset(self, instances, queryset=None):
+        if queryset is not None:
+            raise ValueError("Custom queryset can't be used for this lookup.")
+
+        # For efficiency, group the instances by content type and then do 1 query per model
+        fk_dict = defaultdict(set)
+
+        # We need one instance for each group in order to get the right db
+        instance_dict = {}
+
+        get_field = self.model._meta.get_field
+        ct_attname = get_field(self._ct_field_name).get_attname()
+        fk_field = get_field(self._fk_field_name).get_attname()
+
+        for instance in instances:
+            # We avoid looking for values if either ct_id or fkey value is None
+            ct_id = getattr(instance, ct_attname)
+            if ct_id is not None:
+                entity_id = getattr(instance, fk_field)
+                if entity_id is not None:
+                    fk_dict[ct_id].add(entity_id)
+                    instance_dict[ct_id] = instance
+
+        entities = []
+        for ct_id, fkeys in fk_dict.items():
+            instance = instance_dict[ct_id]
+            ct = ContentType.objects.db_manager(instance._state.db).get_for_id(ct_id)
+            entities.extend(ct.get_all_objects_for_this_type(pk__in=fkeys))
+
+        return (
+            entities,
+            lambda entity: entity.pk,
+            lambda obj: getattr(obj, fk_field),
+            True,  # single
+            self.name,  # cache name
+            True,  # is descriptor (can use setattr())
+        )
 
 
 class BasicAutoField(models.PositiveIntegerField):

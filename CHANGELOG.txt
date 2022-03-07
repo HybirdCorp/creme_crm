@@ -19,6 +19,8 @@
             - In 'creme_core.gui.field_printers', these functions are now deprecated :
                 - print_date()
                 - print_datetime()
+        # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
+          so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
 
     Breaking changes :
     ------------------
@@ -72,8 +74,12 @@
                 - listview.CustomDatetimeField._get_date()
                 - listview.BaseDecimalField._sanitize_separators()
         # Apps :
+            * Assistants :
+                - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
+            * Commercial :
+                - The method 'bricks.ApproachesBrick._populate_related_real_entities()' has been removed.
             * Crudity :
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
 

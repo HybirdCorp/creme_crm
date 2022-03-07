@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -332,3 +333,66 @@ class RealEntityForeignKeyTestCase(CremeTestCase):
         self.assertEqual(orga, todo.creme_entity)
         self.assertEqual(orga.id, todo.entity_id)
         self.assertEqual(FakeOrganisation, todo.entity_content_type.model_class())
+
+    def test_get_prefetch_queryset(self):
+        user = self.user
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        akane = create_contact(first_name='Akane', last_name='Tendo')
+        ranma = create_contact(first_name='Ranma', last_name='Saotome')
+
+        dojo = FakeOrganisation.objects.create(user=user, name='Tendo no dojo')
+
+        # # Reference ------------------------------------------------------------
+        # from creme.creme_core.models import DateReminder
+        #
+        # self.assertTrue(hasattr(DateReminder, 'model_content_type'))
+        # self.assertTrue(hasattr(DateReminder, 'model_id'))
+        # self.assertTrue(hasattr(DateReminder, 'object_of_reminder'))
+        #
+        # create_reminder = DateReminder.objects.create
+        # rem1 = create_reminder(ident='123', object_of_reminder=akane)
+        # create_reminder(ident='789', object_of_reminder=dojo)
+        # create_reminder(ident='456', object_of_reminder=ranma)
+        #
+        # self.assertTrue(hasattr(rem1, 'object_of_reminder'))
+        #
+        # with self.assertNumQueries(3):
+        #     rems = [
+        #         *DateReminder.objects
+        #                      .order_by('id')
+        #                      .prefetch_related('object_of_reminder'),
+        #     ]
+        #
+        # with self.assertNumQueries(0):
+        #     entities = [rem.object_of_reminder for rem in rems]
+        #
+        # self.assertListEqual([akane, dojo, ranma], entities)
+        # ----------------------------------------------------------------------
+
+        meta = FakeTodo._meta
+        with self.assertNoException():
+            meta.get_field('entity_content_type')
+            meta.get_field('entity')
+        self.assertListEqual(['creme_entity'], [f.name for f in meta.private_fields])
+
+        self.assertTrue(hasattr(FakeTodo, 'entity'))
+        # self.assertTrue(hasattr(FakeTodo, 'entity_content_type')) TODO?
+        self.assertTrue(hasattr(FakeTodo, 'creme_entity'))
+
+        create_todo = FakeTodo.objects.create
+        create_todo(creme_entity=akane, title='Todo#1'),
+        create_todo(creme_entity=dojo,  title='Todo#2'),
+        create_todo(creme_entity=ranma, title='Todo#3'),
+
+        with self.assertNumQueries(3):
+            todos = [*FakeTodo.objects.order_by('id').prefetch_related('creme_entity')]
+        self.assertEqual(3, len(todos))
+
+        with self.assertNumQueries(0):
+            entities = [todo.creme_entity for todo in todos]
+        self.assertListEqual([akane, dojo, ranma], entities)
+
+        with self.assertNumQueries(0):
+            base_entities = [todo.entity for todo in todos]
+        self.assertListEqual([akane, dojo, ranma], base_entities)
