@@ -256,7 +256,8 @@ class RecentEntitiesEntry(menu.MenuEntry):
             li_tags = format_html_join(
                 '',
                 '<li><a href="{}"><span class="ui-creme-navigation-ctype">{}</span>{}</a></li>',
-                ((lvi.url, lvi.ctype or '', lvi.name) for lvi in lv_items)
+                # ((lvi.url, lvi.ctype or '', lvi.name) for lvi in lv_items)
+                ((lvi.url, lvi.ctype, lvi.name) for lvi in lv_items)
             )
         else:
             li_tags = format_html(
