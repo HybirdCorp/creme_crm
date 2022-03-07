@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from collections import defaultdict
+# from collections import defaultdict
 from itertools import chain
 
 from django.contrib.contenttypes.models import ContentType
@@ -59,22 +59,21 @@ class ApproachesBrick(QuerysetBrick):
     order_by = '-creation_date'
     template_name = 'commercial/bricks/approaches.html'
 
-    # TODO: factorise with assistants blocks (CremeEntity method ??)
-    @staticmethod
-    def _populate_related_real_entities(comapps, user):
-        entities_ids_by_ct = defaultdict(set)
-
-        for comapp in comapps:
-            entities_ids_by_ct[comapp.entity_content_type_id].add(comapp.entity_id)
-
-        entities_map = {}
-        get_ct = ContentType.objects.get_for_id
-
-        for ct_id, entities_ids in entities_ids_by_ct.items():
-            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
-
-        for comapp in comapps:
-            comapp.creme_entity = entities_map[comapp.entity_id]
+    # @staticmethod
+    # def _populate_related_real_entities(comapps, user):
+    #     entities_ids_by_ct = defaultdict(set)
+    #
+    #     for comapp in comapps:
+    #         entities_ids_by_ct[comapp.entity_content_type_id].add(comapp.entity_id)
+    #
+    #     entities_map = {}
+    #     get_ct = ContentType.objects.get_for_id
+    #
+    #     for ct_id, entities_ids in entities_ids_by_ct.items():
+    #         entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
+    #
+    #     for comapp in comapps:
+    #         comapp.creme_entity = entities_map[comapp.entity_id]
 
     def detailview_display(self, context):
         entity = context['object']
@@ -98,12 +97,16 @@ class ApproachesBrick(QuerysetBrick):
         return self._render(self.get_template_context(context, approaches))
 
     def home_display(self, context):
-        btc = self.get_template_context(
-            context, CommercialApproach.get_approaches(),
-        )
-        self._populate_related_real_entities(btc['page'].object_list, context['user'])
-
-        return self._render(btc)
+        # btc = self.get_template_context(
+        #     context, CommercialApproach.get_approaches(),
+        # )
+        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
+        #
+        # return self._render(btc)
+        return self._render(self.get_template_context(
+            context,
+            CommercialApproach.get_approaches().prefetch_related('creme_entity'),
+        ))
 
 
 class SegmentsBrick(QuerysetBrick):
