@@ -58,8 +58,9 @@ class LastViewedItem:
 
     @property
     def ctype(self):
-        ct_id = self.ctype_id
-        return None if ct_id is None else ContentType.objects.get_for_id(ct_id)
+        # ct_id = self.ctype_id
+        # return None if ct_id is None else ContentType.objects.get_for_id(ct_id)
+        return ContentType.objects.get_for_id(self.ctype_id)
 
     @classmethod
     def from_dict(cls, data: dict):
@@ -68,10 +69,8 @@ class LastViewedItem:
         for attr in ('pk', 'url', 'name'):
             setattr(instance, attr, data[attr])
 
-        # TODO: make mandatory once we're sure a Session flush has been made (creme 2.4?)
-        #       + rework @ctype
-        #       + rework creme.creme_core.menu.RecentEntitiesEntry
-        instance.ctype_id = data.get('ctype_id')
+        # instance.ctype_id = data.get('ctype_id')
+        instance.ctype_id = data['ctype_id']
 
         instance.modified = dt_from_ISO8601(data['modified'])
 
