@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -70,7 +70,7 @@ class Preview(generic.EntityDetail):
                 user = self.request.user
                 ct = report.ct
 
-                if not EntityCredentials.filter(user, ct.model_class().objects.all()).exists():
+                if not EntityCredentials.filter(user, ct.get_all_objects_for_this_type()).exists():
                     empty_message = _('You can see no «{model}»').format(model=ct)
                 elif report.filter and not report.fetch_all_lines(limit_to=1, user=user):
                     empty_message = _('No «{model}» matches the filter «{filter}»').format(

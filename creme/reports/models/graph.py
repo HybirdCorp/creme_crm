@@ -192,7 +192,7 @@ class AbstractReportGraph(CremeEntity):
         report = self.linked_report
         entities = EntityCredentials.filter(
             user=user,
-            queryset=report.ct.model_class().objects.filter(is_deleted=False),
+            queryset=report.ct.get_all_objects_for_this_type(is_deleted=False),
         )
 
         if report.filter is not None:

@@ -209,7 +209,7 @@ class ActObjective(CremeModel):
 
             if ctype:
                 if self.filter:
-                    qs = ctype.model_class().objects.filter(
+                    qs = ctype.get_all_objects_for_this_type(
                         is_deleted=False,  # TODO: test deleted=False
                         relations__type=REL_SUB_COMPLETE_GOAL,
                         relations__object_entity=self.act_id,
