@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/table.html' %}
-{% load i18n creme_bricks %}
+{% load i18n creme_bricks creme_ctype %}
 {% load has_perm_to mult url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} commercial-components-brick{% endblock %}
@@ -17,7 +17,8 @@
 {% has_perm_to change object as has_perm %}
     <table class="brick-table-content">
     {% if components %}
-        <tbody>{% url 'creme_core__delete_related_to_entity' ct_id as delete_url %}
+{#        {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %} #}
+        <tbody>{% ctype_for_model components.0 as comp_ctype %}{% url 'creme_core__delete_related_to_entity' comp_ctype.id as delete_url %}
         {% for component in components %}
             <tr>
                 <td {% brick_table_data_status primary %}>

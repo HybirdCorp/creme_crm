@@ -21,7 +21,7 @@
 # from collections import defaultdict
 from itertools import chain
 
-from django.contrib.contenttypes.models import ContentType
+# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
@@ -32,18 +32,17 @@ from creme.opportunities.constants import REL_SUB_TARGETS
 from creme.persons import get_organisation_model
 
 from .constants import REL_OBJ_COMPLETE_GOAL
-from .models import (
+from .models import (  # MarketSegmentDescription
     ActObjective,
     ActObjectivePatternComponent,
     CommercialApproach,
     CommercialAsset,
     MarketSegment,
     MarketSegmentCharm,
-    MarketSegmentDescription,
 )
 from .setting_keys import orga_approaches_key
 
-get_ct = ContentType.objects.get_for_model
+# get_ct = ContentType.objects.get_for_model
 Opportunity = get_opportunity_model()
 Act = commercial.get_act_model()
 ActObjectivePattern = commercial.get_pattern_model()
@@ -135,7 +134,7 @@ class SegmentDescriptionsBrick(PaginatedBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
             context, strategy.get_segment_descriptions_list(),
-            ct_id=get_ct(MarketSegmentDescription).id,
+            # ct_id=get_ct(MarketSegmentDescription).id,
         ))
 
 
@@ -261,7 +260,7 @@ class ActObjectivesBrick(QuerysetBrick):
             context,
             # NB: "act.objectives.all()" causes a strange additional query...
             ActObjective.objects.filter(act=act_id),
-            ct_id=get_ct(ActObjective).id,
+            # ct_id=get_ct(ActObjective).id,
         ))
 
 
@@ -304,5 +303,5 @@ class PatternComponentsBrick(Brick):
         return self._render(self.get_template_context(
             context,
             components=flattened_tree,
-            ct_id=get_ct(ActObjectivePatternComponent).id,
+            # ct_id=get_ct(ActObjectivePatternComponent).id,
         ))
