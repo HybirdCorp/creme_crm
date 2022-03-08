@@ -236,15 +236,16 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/semi-fixed-relation-types.html'
 
     def detailview_display(self, context):
-        btc = self.get_template_context(
-            context, SemiFixedRelationType.objects.all(),
-        )
-
-        CremeEntity.populate_real_entities(
-            [sfrt.object_entity for sfrt in btc['page'].object_list]
-        )
-
-        return self._render(btc)
+        # btc = self.get_template_context(
+        #     context, SemiFixedRelationType.objects.all(),
+        # )
+        # CremeEntity.populate_real_entities(
+        #     [sfrt.object_entity for sfrt in btc['page'].object_list]
+        # )
+        # return self._render(btc)
+        return self._render(self.get_template_context(
+            context, SemiFixedRelationType.objects.prefetch_related('real_object'),
+        ))
 
 
 class FieldsConfigsBrick(PaginatedBrick):

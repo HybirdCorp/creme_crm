@@ -1485,17 +1485,20 @@ class FieldGroupListTestCase(CremeTestCase):
         sfrt1 = create_strt(
             predicate='Lives at April',
             relation_type=rtype2,
-            object_entity=orga2,
+            # object_entity=orga2,
+            real_object=orga2,
         )
         sfrt2 = create_strt(
             predicate='Hamato Yoshi is a sensei',
             relation_type=rtype1,
-            object_entity=contact2,
+            # object_entity=contact2,
+            real_object=contact2,
         )
         create_strt(
             predicate='Do not use me',
             relation_type=sym_rtype2,
-            object_entity=contact2,
+            # object_entity=contact2,
+            real_object=contact2,
         )
 
         fields_groups = self._build_basic_relations_groups()

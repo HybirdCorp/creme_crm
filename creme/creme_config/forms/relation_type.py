@@ -201,7 +201,7 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
             rtype, entity = cdata['semi_relation']
 
             if SemiFixedRelationType.objects.filter(
-                relation_type=rtype, object_entity=entity,
+                relation_type=rtype, object_entity_id=entity.id,
             ).exists():
                 raise ValidationError(
                     _(
@@ -215,7 +215,8 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        instance.relation_type, instance.object_entity = self.cleaned_data['semi_relation']
+        # instance.relation_type, instance.object_entity = self.cleaned_data['semi_relation']
+        instance.relation_type, instance.real_object = self.cleaned_data['semi_relation']
 
         return super().save(*args, **kwargs)
 

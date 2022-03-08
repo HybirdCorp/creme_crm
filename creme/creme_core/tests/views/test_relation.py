@@ -376,19 +376,23 @@ class RelationViewsTestCase(ViewsTestCase):
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
             predicate='Related to "object01"',
-            relation_type=self.rtype01, object_entity=self.object01,
+            # relation_type=self.rtype01, object_entity=self.object01,
+            relation_type=self.rtype01, real_object=self.object01,
         )
         sfrt2 = create_sfrt(
             predicate='Related to "object02"',
-            relation_type=self.rtype02, object_entity=self.object02,
+            # relation_type=self.rtype02, object_entity=self.object02,
+            relation_type=self.rtype02, real_object=self.object02,
         )
         sfrt3 = create_sfrt(
             predicate='Linked to "object02"',
-            relation_type=rtype03, object_entity=self.object02,
+            # relation_type=rtype03, object_entity=self.object02,
+            relation_type=rtype03, real_object=self.object02,
         )
         create_sfrt(
             predicate='Linked to "object01"',
-            relation_type=rtype04, object_entity=self.object01,
+            # relation_type=rtype04, object_entity=self.object01,
+            relation_type=rtype04, real_object=self.object01,
         )  # Should not be proposed
 
         url = self._build_add_url(subject)
@@ -422,17 +426,20 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt1 = create_sfrt(
             predicate='Related to "object01"',
             relation_type=self.rtype01,
-            object_entity=self.object01,
+            # object_entity=self.object01,
+            real_object=self.object01,
         )
         sfrt2 = create_sfrt(
             predicate='Related to "object02"',
             relation_type=self.rtype02,
-            object_entity=self.object02,
+            # object_entity=self.object02,
+            real_object=self.object02,
         )
         create_sfrt(
             predicate='Related to "subject01"',
             relation_type=self.rtype02,
-            object_entity=self.subject01,
+            # object_entity=self.subject01,
+            real_object=self.subject01,
         )  # Should not be proposed
 
         url = self._build_add_url(subject)
@@ -477,11 +484,13 @@ class RelationViewsTestCase(ViewsTestCase):
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
             predicate='Related to "object01"',
-            relation_type=self.rtype01, object_entity=self.object01,
+            # relation_type=self.rtype01, object_entity=self.object01,
+            relation_type=self.rtype01, real_object=self.object01,
         )
         sfrt2 = create_sfrt(
             predicate='Related to "object02"',
-            relation_type=self.rtype02, object_entity=self.object02,
+            # relation_type=self.rtype02, object_entity=self.object02,
+            relation_type=self.rtype02, real_object=self.object02,
         )
 
         response = self.client.post(
@@ -511,12 +520,14 @@ class RelationViewsTestCase(ViewsTestCase):
         create_sfrt(
             predicate='Related to "unlinkable"',
             relation_type=self.rtype01,
-            object_entity=unlinkable,  # <===
+            # object_entity=unlinkable,  # <===
+            real_object=unlinkable,  # <===
         )
         sfrt2 = create_sfrt(
             predicate='Related to "object02"',
             relation_type=self.rtype02,
-            object_entity=self.object02,
+            # object_entity=self.object02,
+            real_object=self.object02,
         )
 
         response = self.assertGET200(self._build_add_url(self.subject01))
@@ -552,11 +563,13 @@ class RelationViewsTestCase(ViewsTestCase):
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
             predicate='Rules "object01"',
-            relation_type=rtype03, object_entity=self.object01,
+            # relation_type=rtype03, object_entity=self.object01,
+            relation_type=rtype03, real_object=self.object01,
         )
         sfrt2 = create_sfrt(
             predicate='Is the hero of "object02"',
-            relation_type=rtype04, object_entity=self.object02,
+            # relation_type=rtype04, object_entity=self.object02,
+            relation_type=rtype04, real_object=self.object02,
         )
 
         url = self._build_add_url(subject)
@@ -633,12 +646,14 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt1 = create_sfrt(
             predicate='Related to "object01"',
             relation_type=allowed_rtype,
-            object_entity=self.object01,
+            # object_entity=self.object01,
+            real_object=self.object01,
         )
         create_sfrt(
             predicate='Related to "object02"',
             relation_type=self.rtype02,
-            object_entity=self.object02,
+            # object_entity=self.object02,
+            real_object=self.object02,
         )
 
         url = self._build_narrowed_add_url(subject, allowed_rtype)
@@ -890,7 +905,7 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
     def test_add_relations_bulk06(self):
-        "With SemiFixedRelationType"
+        "With SemiFixedRelationType."
         self._aux_test_add_relations()
 
         # This relation should not be recreated by the view
@@ -898,13 +913,14 @@ class RelationViewsTestCase(ViewsTestCase):
             user=self.user,
             subject_entity=self.subject02,
             type=self.rtype02,
-            object_entity=self.object02
+            object_entity=self.object02,
         )
 
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Related to "object01"',
             relation_type=self.rtype01,
-            object_entity=self.object01,
+            # object_entity=self.object01,
+            real_object=self.object01,
         )
 
         response = self.client.post(

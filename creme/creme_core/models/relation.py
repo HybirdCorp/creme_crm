@@ -530,7 +530,12 @@ class Relation(CremeModel):
 class SemiFixedRelationType(CremeModel):
     predicate = models.CharField(_('Predicate'), max_length=100, unique=True)
     relation_type = models.ForeignKey(RelationType, on_delete=models.CASCADE)
+
+    object_ctype = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     object_entity = models.ForeignKey(CremeEntity, on_delete=models.CASCADE)
+    real_object = creme_fields.RealEntityForeignKey(
+        ct_field='object_ctype', fk_field='object_entity',
+    )
 
     creation_label = _('Create a semi-fixed type of relationship')
     save_label     = _('Save the type')
