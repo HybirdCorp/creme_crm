@@ -41,7 +41,7 @@ class GraphBarHatBrick(Brick):
             logger.warning(
                 'The package "pygraphviz" is not installed ; '
                 'please install creme with the `graphs` flag. '
-                'I.E `pip install creme[mysql,graphs]`'
+                'I.E `pip install creme-crm[mysql,graphs]`'
             )
             dl_button = False
         else:

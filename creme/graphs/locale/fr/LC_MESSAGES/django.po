@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'GRAPHS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-08-27 14:09+0200\n"
+"POT-Creation-Date: 2022-03-08 15:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -142,7 +142,7 @@ msgid "Edit this node"
 msgstr "Modifier ce nœud"
 
 msgid "Remove this node"
-msgstr "Enlever ce nœuds"
+msgstr "Enlever ce nœud"
 
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
