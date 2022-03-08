@@ -272,12 +272,18 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(2, len(rnodes))
 
         self.assertSetEqual(
-            {contact, orga},
-            {rnode.entity.get_real_entity() for rnode in rnodes}
+            {FakeContact, FakeOrganisation},
+            {rnode.entity_ctype.model_class() for rnode in rnodes},
+        )
+        entities = {contact, orga}
+        self.assertSetEqual(
+            entities, {rnode.entity.get_real_entity() for rnode in rnodes},
         )
         self.assertSetEqual(
-            {rtype01, rtype02},
-            {*rnodes[0].relation_types.all()},
+            entities, {rnode.real_entity for rnode in rnodes},
+        )
+        self.assertSetEqual(
+            {rtype01, rtype02}, {*rnodes[0].relation_types.all()},
         )
 
         # Delete
@@ -305,7 +311,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         )[0]
 
         graph = Graph.objects.create(user=user, name='Graph01')
-        rnode = RootNode.objects.create(graph=graph, entity=orga)
+        # rnode = RootNode.objects.create(graph=graph, entity=orga)
+        rnode = RootNode.objects.create(graph=graph, real_entity=orga)
         rnode.relation_types.set([rtype01])
 
         url = rnode.get_edit_absolute_url()
@@ -333,7 +340,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         graph = Graph.objects.create(user=user, name='Graph01')
-        rnode = RootNode.objects.create(graph=graph, entity=orga)
+        # rnode = RootNode.objects.create(graph=graph, entity=orga)
+        rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
         self.assertPOST200(
             reverse('graphs__remove_root'),
@@ -354,7 +362,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
-        rnode = RootNode.objects.create(graph=graph, entity=orga)
+        # rnode = RootNode.objects.create(graph=graph, entity=orga)
+        rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
         self.assertPOST403(
             reverse('graphs__remove_root'),

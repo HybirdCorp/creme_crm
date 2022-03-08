@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ import logging
 
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
-from creme.creme_core.models import CremeEntity
 
 from . import get_graph_model
 from .models import RootNode
@@ -60,10 +60,12 @@ class RootNodesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         graph = context['object']
-        btc = self.get_template_context(context, graph.roots.select_related('entity'))
-        CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
-
-        return self._render(btc)
+        # btc = self.get_template_context(context, graph.roots.select_related('entity'))
+        # CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
+        # return self._render(btc)
+        return self._render(self.get_template_context(
+            context, graph.roots.prefetch_related('real_entity')),
+        )
 
 
 class OrbitalRelationTypesBrick(QuerysetBrick):
