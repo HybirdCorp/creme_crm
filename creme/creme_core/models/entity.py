@@ -272,7 +272,9 @@ class CremeEntity(CremeModel):
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entity_ids in entities_by_ct.items():
-            entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entity_ids))
+            entities_map.update(
+                get_ct(ct_id).get_all_objects_for_this_type().in_bulk(entity_ids)
+            )
 
         for entity in entities:
             entity._real_entity = entities_map[entity.id]

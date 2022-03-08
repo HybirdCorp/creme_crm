@@ -158,7 +158,7 @@ class AbstractReport(CremeEntity):
         user = user or get_user_model()(is_superuser=True)
         entities = EntityCredentials.filter(
             user,
-            self.ct.model_class().objects.filter(is_deleted=False),
+            self.ct.get_all_objects_for_this_type(is_deleted=False),
         )
 
         if self.filter is not None:

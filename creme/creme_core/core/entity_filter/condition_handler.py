@@ -1478,8 +1478,9 @@ class RelationSubFilterConditionHandler(BaseRelationConditionHandler):
     # TODO: use a filter "relations__*" when there is only one condition on Relations ??
     def get_q(self, user):
         subfilter = self.subfilter
-        filtered = subfilter.filter(subfilter.entity_type.model_class().objects.all()) \
-                            .values_list('id', flat=True)
+        filtered = subfilter.filter(
+            subfilter.entity_type.get_all_objects_for_this_type(),
+        ).values_list('id', flat=True)
 
         query = Q(
             pk__in=Relation.objects

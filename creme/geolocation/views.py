@@ -139,7 +139,7 @@ class NeighboursInformation(BaseAddressesInformation):
 
             # Filter owners of neighbours
             owner_ids = entity_filter.filter(
-                ctype.model_class().objects.filter(
+                ctype.get_all_objects_for_this_type(
                     is_deleted=False,
                     pk__in=neighbours.values_list('address__object_id', flat=True),
                 )

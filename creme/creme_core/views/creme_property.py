@@ -215,7 +215,7 @@ class TaggedEntitiesBrick(QuerysetBrick):
 
         return self._render(self.get_template_context(
             context,
-            ctype.model_class().objects.filter(properties__type=ptype),
+            ctype.get_all_objects_for_this_type(properties__type=ptype),
             ptype_id=ptype.id,
             ctype=ctype,  # If the model is inserted in the context,
                           #  the template call it and create an instance...
