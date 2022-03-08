@@ -373,12 +373,14 @@ class CreationTestCase(ViewsTestCase):
         sfrt1 = create_strt(
             predicate='Pilots the Swordfish',
             relation_type=rtype2,
-            object_entity=orga2,
+            # object_entity=orga2,
+            real_object=orga2,
         )
         sfrt2 = create_strt(
             predicate='Loves Faye',
             relation_type=rtype1,
-            object_entity=contact2,
+            # object_entity=contact2,
+            real_object=contact2,
         )
 
         url = reverse('creme_core__create_fake_contact')

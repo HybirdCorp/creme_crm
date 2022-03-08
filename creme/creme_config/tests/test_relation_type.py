@@ -254,12 +254,13 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         self.assertGET200(url)
 
         predicate = 'Is loving Iori'
+        iori = self.iori
         response = self.client.post(
             url,
             data={
                 'predicate':     predicate,
                 'semi_relation': self.formfield_value_relation_entity(
-                    self.loves.id, self.iori,
+                    self.loves.id, iori,
                 ),
             },
         )
@@ -271,15 +272,18 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         smr = semi_fixed_relations[0]
         self.assertEqual(predicate,  smr.predicate)
         self.assertEqual(self.loves, smr.relation_type)
-        self.assertEqual(self.iori,  smr.object_entity.get_real_entity())
+        self.assertEqual(iori.entity_type, smr.object_ctype)
+        self.assertEqual(iori, smr.object_entity.get_real_entity())
+        self.assertEqual(iori, smr.real_object)
 
     def test_create02(self):
-        "Predicate is unique"
+        "Predicate is unique."
         predicate = 'Is loving Iori'
         SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            object_entity=self.iori,
+            # object_entity=self.iori,
+            real_object=self.iori,
         )
 
         itsuki = FakeContact.objects.create(user=self.user, first_name='Itsuki', last_name='Akiba')
@@ -304,7 +308,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            object_entity=self.iori,
+            # object_entity=self.iori,
+            real_object=self.iori,
         )
 
         url = self.ADD_URL
@@ -329,7 +334,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            object_entity=self.iori,
+            # object_entity=self.iori,
+            real_object=self.iori,
         )
 
         url = reverse('creme_config__edit_semifixed_rtype', args=(sfrt.id,))
@@ -350,7 +356,8 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Is loving Iori',
             relation_type=self.loves,
-            object_entity=self.iori,
+            # object_entity=self.iori,
+            real_object=self.iori,
         )
         self.assertPOST200(
             reverse('creme_config__delete_semifixed_rtype'),

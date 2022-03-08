@@ -601,10 +601,12 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+            # predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+            predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
         )
         sfrt2 = create_strt(
-            predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+            # predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+            predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
         )
 
         form1 = FakeContactForm(user=user)
@@ -669,10 +671,12 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+            # predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
+            predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
         )
         sfrt2 = create_strt(
-            predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+            # predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
+            predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
         )
 
         form = FakeContactForm(
@@ -841,10 +845,12 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            predicate='Loves Kanbaru', relation_type=rtype, object_entity=contact1,
+            # predicate='Loves Kanbaru', relation_type=rtype, object_entity=contact1,
+            predicate='Loves Kanbaru', relation_type=rtype, real_object=contact1,
         )
         sfrt2 = create_strt(
-            predicate='Loves Hitagi', relation_type=rtype, object_entity=contact2,
+            # predicate='Loves Hitagi', relation_type=rtype, object_entity=contact2,
+            predicate='Loves Hitagi', relation_type=rtype, real_object=contact2,
         )
 
         form = FakeContactForm(user=user)
@@ -879,7 +885,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         )[1]
 
         sfrt = SemiFixedRelationType.objects.create(
-            predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+            # predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+            predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
         )
 
         fields = FakeContactForm(user=user).fields
@@ -975,7 +982,8 @@ class CremeEntityFormTestCase(CremeTestCase):
             ('test-object_heals',  'is healed by'),
         )[1]
         sfrt = SemiFixedRelationType.objects.create(
-            predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+            # predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
+            predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
         )
 
         data = {
@@ -1086,7 +1094,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         SemiFixedRelationType.objects.create(
             predicate='has registered Oshino',
             relation_type=rtype,
-            object_entity=orga,
+            # object_entity=orga,
+            real_object=orga,
         )  # Not available
 
         # ---
@@ -1141,7 +1150,8 @@ class CremeEntityFormTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Registered the Bebop',
             relation_type=rtype1,
-            object_entity=orga,
+            # object_entity=orga,
+            real_object=orga,
         )
 
         # ---
