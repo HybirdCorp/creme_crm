@@ -240,7 +240,7 @@ SECRET_KEY = ''
 
 # A list of strings representing the host/domain names that this Django site can serve.
 # You should set this list for security purposes.
-# See: https://docs.djangoproject.com/en/1.8/ref/settings/#allowed-hosts
+# See: https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = '*'
 
 # SITE: URLs / PATHS / ... [END]################################################
