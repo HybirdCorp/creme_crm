@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2021  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -73,7 +73,10 @@ class _TrashCleanerType(JobType):
                 EntityJobResult.objects.update_or_create(
                     job=job,
                     entity=entity,
-                    defaults={'messages': [msg]},
+                    defaults={
+                        'entity_ctype': entity.entity_type,
+                        'messages': [msg],
+                    },
                 )
 
             # NB: 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN'

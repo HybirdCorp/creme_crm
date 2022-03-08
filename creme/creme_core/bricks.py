@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -448,7 +448,6 @@ class JobErrorsBrick(JobResultsBrick):
     template_name = 'creme_core/bricks/job-errors.html'
 
     def _build_queryset(self, job):
-        # return super()._build_queryset(job).filter(raw_messages__isnull=False)
         return super()._build_queryset(job).filter(messages__isnull=False)
 
     def _extra_context(self, job):
@@ -461,12 +460,18 @@ class EntityJobErrorsBrick(JobErrorsBrick):
     dependencies = (EntityJobResult,)
     template_name = 'creme_core/bricks/entity-job-errors.html'
 
+    def _build_queryset(self, job):
+        return super()._build_queryset(job).prefetch_related('real_entity')
+
 
 class MassImportJobErrorsBrick(JobErrorsBrick):
     id_ = QuerysetBrick.generate_id('creme_core', 'mass_import_job_errors')
     # verbose_name  = 'Mass import job errors'
     dependencies = (MassImportJobResult,)
     template_name = 'creme_core/bricks/massimport-errors.html'
+
+    def _build_queryset(self, job):
+        return super()._build_queryset(job).prefetch_related('real_entity')
 
 
 class JobsBrick(QuerysetBrick):

@@ -1378,7 +1378,8 @@ class ImportForm(CremeModelForm):
                                 getattr(instance, m2m.name).set(extr_value)
                                 append_error(err_msg)
 
-                        job_result.entity = instance
+                        # job_result.entity = instance
+                        job_result.real_entity = instance
                         if self.import_errors:
                             job_result.messages = self.import_errors
                         job_result.save()
