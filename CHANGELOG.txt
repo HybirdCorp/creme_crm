@@ -79,7 +79,10 @@
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
             * Commercial :
-                - The method 'bricks.ApproachesBrick._populate_related_real_entities()' has been removed.
+                - In 'bricks' :
+                    - The method 'ApproachesBrick._populate_related_real_entities()' has been removed.
+                    - The context variable "ct_id" is not injected any more in the following bricks :
+                      ActObjectivesBrick, SegmentDescriptionsBrick, PatternComponentsBrick.
             * Crudity :
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
 
