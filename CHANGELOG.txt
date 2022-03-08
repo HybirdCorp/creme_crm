@@ -73,6 +73,7 @@
                 - listview.RegularDateField._get_date()
                 - listview.CustomDatetimeField._get_date()
                 - listview.BaseDecimalField._sanitize_separators()
+        # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # Apps :
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
