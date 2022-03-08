@@ -10,8 +10,8 @@ search-count="{{page.paginator.count}}"
 {% endblock %}
 
 {% block brick_header_title %}
-    {% ctype_counted_instances_label ctype page.paginator.count as title %}
-    {% widget_icon ctype=ctype size='brick-header' as ct_icon %}
+    {% ctype_counted_instances_label objects_ctype page.paginator.count as title %}
+    {% widget_icon ctype=objects_ctype size='brick-header' as ct_icon %}
     {% brick_header_title title=title icon=ct_icon %}
 {% endblock %}
 
