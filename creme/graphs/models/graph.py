@@ -28,6 +28,7 @@ from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import (
     CremeEntity,
     CremeModel,
@@ -93,7 +94,8 @@ class AbstractGraph(CremeEntity):
         has_perm_to_view = user.has_perm_to_view
         roots = [
             root
-            for root in RootNode.objects.filter(graph=self.id).select_related('entity')
+            # for root in RootNode.objects.filter(graph=self.id).select_related('entity')
+            for root in RootNode.objects.filter(graph=self.id).prefetch_related('real_entity')
             if not root.entity.is_deleted and has_perm_to_view(root.entity)
         ]
 
@@ -102,11 +104,12 @@ class AbstractGraph(CremeEntity):
 
         # TODO: entity cache ? regroups relations by type ? ...
 
-        # Small optimisation
-        CremeEntity.populate_real_entities([root.entity for root in roots])
+        # # Small optimisation
+        # CremeEntity.populate_real_entities([root.entity for root in roots])
 
         for root in roots:
-            add_node(str(root.entity), shape='box')
+            # add_node(str(root.entity), shape='box')
+            add_node(str(root.real_entity), shape='box')
             # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
             # add_node(
             #     'filled box v2', shape='box', style='filled',
@@ -116,7 +119,8 @@ class AbstractGraph(CremeEntity):
         orbital_nodes = {}  # Cache
 
         for root in roots:
-            subject = root.entity
+            # subject = root.entity
+            subject = root.real_entity
             str_subject = str(subject)
             relations = subject.relations.filter(
                 type__in=root.relation_types.all(),
@@ -125,20 +129,19 @@ class AbstractGraph(CremeEntity):
             Relation.populate_real_object_entities(relations)  # Small optimisation
 
             for relation in relations:
-                object_ = relation.object_entity
-                if not user.has_perm_to_view(object_):
+                object_entity = relation.object_entity
+                if not user.has_perm_to_view(object_entity):
                     continue
 
-                uni_object = str(object_)
-                str_object = uni_object
+                object_as_str = str(object_entity)
 
-                orbital_node = orbital_nodes.get(object_.id)
+                orbital_node = orbital_nodes.get(object_entity.id)
                 if not orbital_node:
-                    add_node(uni_object)
-                    orbital_nodes[object_.id] = str_object
+                    add_node(object_as_str)
+                    orbital_nodes[object_entity.id] = object_as_str
 
                 add_edge(
-                    str_subject, str_object,
+                    str_subject, object_as_str,
                     label=str(relation.type.predicate),
                 )
                 # add_edge(
@@ -209,9 +212,15 @@ class RootNode(CremeModel):
         settings.GRAPHS_GRAPH_MODEL, related_name='roots',
         editable=False, on_delete=models.CASCADE,
     )
+
+    entity_ctype = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
         CremeEntity, editable=False, on_delete=models.CASCADE,
     )
+    real_entity = core_fields.RealEntityForeignKey(
+        ct_field='entity_ctype', fk_field='entity',
+    )
+
     # TODO: editable=False is only to avoid inner edition with an ugly widget
     relation_types = models.ManyToManyField(RelationType, editable=False)
 

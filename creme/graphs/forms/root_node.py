@@ -18,11 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from functools import partial
+
 from django.forms import ModelMultipleChoiceField
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, CremeModelForm
+import creme.creme_core.forms as core_forms
 from creme.creme_core.forms.fields import MultiGenericEntityField
 from creme.creme_core.models import RelationType
 
@@ -34,7 +36,7 @@ class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
         return smart_str(obj.predicate)
 
 
-class AddRootNodesForm(CremeForm):
+class AddRootNodesForm(core_forms.CremeForm):
     entities = MultiGenericEntityField(label=_('Root entities'))
     relation_types = RelationTypeMultipleChoiceField(
         label=_('Related types of relations'), queryset=RelationType.objects.all(),
@@ -47,18 +49,17 @@ class AddRootNodesForm(CremeForm):
         entities_field.initial = [[(entities_field.get_ctypes()[0].pk, None)]]
 
     def save(self):
-        graph = self.graph
         cleaned_data = self.cleaned_data
-        entities = cleaned_data['entities']
         rtypes = cleaned_data['relation_types']
-        create_node = RootNode.objects.create
+        create_node = partial(RootNode.objects.create, graph=self.graph)
 
-        for entity in entities:
-            root_node = create_node(entity=entity, graph=graph)
+        for entity in cleaned_data['entities']:
+            # root_node = create_node(entity=entity)
+            root_node = create_node(real_entity=entity)
             root_node.relation_types.set(rtypes)
 
 
-class EditRootNodeForm(CremeModelForm):
+class EditRootNodeForm(core_forms.CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(
         label=_('Related types of relations'), queryset=RelationType.objects.all(),
     )
