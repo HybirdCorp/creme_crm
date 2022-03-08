@@ -73,7 +73,10 @@
                 - listview.RegularDateField._get_date()
                 - listview.CustomDatetimeField._get_date()
                 - listview.BaseDecimalField._sanitize_separators()
-        # A mandatory field "object_ctype" has been added to 'models.SemiFixedRelationType'.
+        # In 'creme_core.models' :
+            - A mandatory field "object_ctype" has been added to 'SemiFixedRelationType'.
+            - In the models 'EntityJobResult' & 'MassImportJobResult', the new fields "entity_ctype" have to be
+              filled when the field "entity" is not NULL (hint: use the new virtual field "real_entity").
         # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # Apps :
             * Assistants :

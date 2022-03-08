@@ -34,8 +34,8 @@ from django.utils.translation import gettext_lazy as _
 
 from ..utils.date_period import HoursPeriod, date_period_registry
 from ..utils.dates import dt_from_ISO8601, dt_to_ISO8601, round_hour
+from . import fields as core_fields
 from .entity import CremeEntity
-from .fields import CremeUserForeignKey, DatePeriodField
 
 if TYPE_CHECKING:
     from ..creme_jobs import JobType
@@ -89,13 +89,13 @@ class Job(models.Model):
     STATUS_OK    = 20
 
     type_id = models.CharField(_('Type of job'), max_length=48, editable=False)
-    user = CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
+    user = core_fields.CremeUserForeignKey(verbose_name=_('User'), null=True, editable=False)
     enabled = models.BooleanField(_('Enabled'), default=True, editable=False)
     language = models.CharField(_('Language'), max_length=10, editable=False)
     # created = CreationDateTimeField(_('Creation date'))
 
     reference_run = models.DateTimeField(_('Reference run'))
-    periodicity = DatePeriodField(_('Periodicity'), null=True)
+    periodicity = core_fields.DatePeriodField(_('Periodicity'), null=True)
     last_run = models.DateTimeField(_('Last run'), null=True, editable=False)
 
     # Number of errors of communication with the queue.
@@ -323,7 +323,6 @@ class Job(models.Model):
 
 class BaseJobResult(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE)
-    # raw_messages = models.TextField(null=True)
     messages = models.JSONField(null=True)
 
     class Meta:
@@ -340,20 +339,34 @@ class JobResult(BaseJobResult):
 
 
 class EntityJobResult(BaseJobResult):
+    entity_ctype = core_fields.EntityCTypeForeignKey(
+        related_name='+', editable=False, null=True,
+    )
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
+    real_entity = core_fields.RealEntityForeignKey(
+        ct_field='entity_ctype', fk_field='entity',
+    )
 
     def __repr__(self):
         return (
             f'EntityJobResult('
             f'job={self.job_id}, '
             f'messages={self.messages}, '
+            f'entity_ctype={self.entity_ctype}, '
             f'entity={self.entity_id}'
             f')'
         )
 
 
 class MassImportJobResult(BaseJobResult):
+    entity_ctype = core_fields.EntityCTypeForeignKey(
+        null=True, related_name='+', editable=False,
+    )
     entity = models.ForeignKey(CremeEntity, null=True, on_delete=models.CASCADE)
+    real_entity = core_fields.RealEntityForeignKey(
+        ct_field='entity_ctype', fk_field='entity',
+    )
+
     line = models.JSONField(default=list)
 
     # False: entity created / True: entity updated

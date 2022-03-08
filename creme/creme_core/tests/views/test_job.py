@@ -570,7 +570,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
         orga = FakeOrganisation.objects.create(user=user)
-        jresult = EntityJobResult.objects.create(job=job, entity=orga)
+        # jresult = EntityJobResult.objects.create(job=job, entity=orga)
+        jresult = EntityJobResult.objects.create(job=job, real_entity=orga)
 
         del_url = self._build_delete_url(job)
         self.assertGET405(del_url)
@@ -586,7 +587,8 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
         orga = FakeOrganisation.objects.create(user=user)
-        jresult = EntityJobResult.objects.create(job=job, entity=orga)
+        # jresult = EntityJobResult.objects.create(job=job, entity=orga)
+        jresult = EntityJobResult.objects.create(job=job, real_entity=orga)
 
         response = self.assertPOST200(
             self._build_delete_url(job),

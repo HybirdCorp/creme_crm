@@ -668,7 +668,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             [_('Enter a whole number.')],  # TODO: add the field verbose name !!
             jr_error.messages,
         )
+        self.assertEqual(ryomou.entity_type, jr_error.entity_ctype)
         self.assertEqual(ryomou, jr_error.entity.get_real_entity())
+        self.assertEqual(ryomou, jr_error.real_entity)
 
     def test_mass_import_customfields02(self):
         "CustomField.ENUM/MULTI_ENUM (no creation of choice)."
@@ -1587,6 +1589,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
+        self.assertIsNone(jr_error.entity_ctype)
         self.assertIsNone(jr_error.entity)
         self.assertListEqual(
             [_('The field «{}» has been configured as required.').format(_('Phone number'))],
@@ -1614,7 +1617,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertNoFormError(response)
 
         job = self._get_job(response)
-        MassImportJobResult.objects.create(job=job, entity=rei)  # We simulate an interrupted job
+        # We simulate an interrupted job
+        # MassImportJobResult.objects.create(job=job, entity=rei)
+        MassImportJobResult.objects.create(job=job, real_entity=rei)
 
         mass_import_type.execute(job)
         self.assertEqual(count + 1, FakeContact.objects.count())

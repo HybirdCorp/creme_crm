@@ -765,6 +765,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         jresult1 = jresults.get(entity01.id)
         self.assertIsNotNone(jresult1)
+        self.assertEqual(entity01.entity_type, jresult1.entity_ctype)
         self.assertListEqual(
             [_('Can not be deleted because of its dependencies.')],
             jresult1.messages,
@@ -907,7 +908,8 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             status=Job.STATUS_OK,
         )
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
-        EntityJobResult.objects.create(job=job, entity=nerv)
+        # EntityJobResult.objects.create(job=job, entity=nerv)
+        EntityJobResult.objects.create(job=job, real_entity=nerv)
 
         url = self._build_finish_cleaner_url(job)
         redir_url = job.get_absolute_url()
