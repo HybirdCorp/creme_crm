@@ -265,7 +265,9 @@ class UserRole(models.Model):
         @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser) ;
                      should be related to the UserRole instance.
         @param queryset: A Queryset on a child class of CremeEntity.
-        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param perm: A combination of values in (EntityCredentials.{VIEW, CHANGE} etc...).
+               Eg: 'EntityCredentials.DELETE'
+                   'EntityCredentials.VIEW | EntityCredentials.CHANGE'
         @return: A new (filtered) queryset on the same model.
         """
         model = queryset.model
@@ -290,9 +292,11 @@ class UserRole(models.Model):
         of CremeEntity.
 
         @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser) ;
-                     should be related to the UserRole instance.
+               should be related to the UserRole instance.
         @param queryset: A Queryset with model=CremeEntity.
-        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param perm: A value in EntityCredentials.{VIEW, CHANGE, ...}.
+               If the argument "as_model" is not None, you can use a combination
+               of values like 'EntityCredentials.VIEW | EntityCredentials.CHANGE'.
         @param as_model: A model inheriting CremeEntity, or None.
                If a model is given, all the entities in the queryset are
                filtered with the credentials for this model.
@@ -509,51 +513,58 @@ class SetCredentials(models.Model):
         ESET_ALL = cls.ESET_ALL
         ESET_OWN = cls.ESET_OWN
 
-        forbidden, allowed = split_filter(
-            lambda sc: sc.forbidden,
-            sorted(
-                (
-                    sc
-                    for sc in sc_sequence
-                    if sc.ctype_id in allowed_ctype_ids and sc.value & perm
-                ),
-                # NB: we sort to get ESET_ALL creds before ESET_OWN ones, then ESET_FILTER ones.
-                key=lambda sc: sc.set_type,
-            )
-        )
-
-        if not allowed:
-            return queryset.none()
-
-        if any(f.set_type == ESET_ALL for f in forbidden):
-            return queryset.none()
-
-        def user_filtering_kwargs():  # TODO: cache/lazy
-            teams = user.teams
-            return {'user__in': [user, *teams]} if teams else {'user': user}
-
         filtered_qs = queryset
 
-        q = Q()
-        for cred in allowed:
-            set_type = cred.set_type
+        # TODO: _PERMS_MAP public ?
+        for single_perm in EntityCredentials._PERMS_MAP.values():
+            if not single_perm & perm:
+                continue
 
-            if set_type == ESET_ALL:
-                break
+            forbidden, allowed = split_filter(
+                lambda sc: sc.forbidden,
+                sorted(
+                    (
+                        sc
+                        for sc in sc_sequence
+                        # if sc.ctype_id in allowed_ctype_ids and sc.value & perm
+                        if sc.ctype_id in allowed_ctype_ids and sc.value & single_perm
+                    ),
+                    # NB: we sort to get ESET_ALL creds before ESET_OWN ones,
+                    #     then ESET_FILTER ones.
+                    key=lambda sc: sc.set_type,
+                )
+            )
 
-            if set_type == ESET_OWN:
-                q |= Q(**user_filtering_kwargs())
-            else:  # SetCredentials.ESET_FILTER
-                # TODO: distinct ? (see EntityFilter.filter())
-                q |= cred.efilter.get_q(user=user)
-        else:
-            filtered_qs = filtered_qs.filter(q)
+            if not allowed:
+                return queryset.none()
 
-        for cred in forbidden:
-            if cred.set_type == ESET_OWN:
-                filtered_qs = filtered_qs.exclude(**user_filtering_kwargs())
-            else:  # SetCredentials.ESET_FILTER
-                filtered_qs = filtered_qs.exclude(cred.efilter.get_q(user=user))
+            if any(f.set_type == ESET_ALL for f in forbidden):
+                return queryset.none()
+
+            def user_filtering_kwargs():  # TODO: cache/lazy
+                teams = user.teams
+                return {'user__in': [user, *teams]} if teams else {'user': user}
+
+            q = Q()
+            for cred in allowed:
+                set_type = cred.set_type
+
+                if set_type == ESET_ALL:
+                    break
+
+                if set_type == ESET_OWN:
+                    q |= Q(**user_filtering_kwargs())
+                else:  # SetCredentials.ESET_FILTER
+                    # TODO: distinct ? (see EntityFilter.filter())
+                    q |= cred.efilter.get_q(user=user)
+            else:
+                filtered_qs = filtered_qs.filter(q)
+
+            for cred in forbidden:
+                if cred.set_type == ESET_OWN:
+                    filtered_qs = filtered_qs.exclude(**user_filtering_kwargs())
+                else:  # SetCredentials.ESET_FILTER
+                    filtered_qs = filtered_qs.exclude(cred.efilter.get_q(user=user))
 
         return filtered_qs
 
@@ -571,7 +582,9 @@ class SetCredentials(models.Model):
         @param sc_sequence: A sequence of SetCredentials instances.
         @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser).
         @param queryset: A Queryset on a child class of CremeEntity.
-        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param perm: A combination of values in EntityCredentials.{VIEW, CHANGE, ...}.
+               Eg: 'EntityCredentials.DELETE'
+                   'EntityCredentials.VIEW | EntityCredentials.CHANGE'
         @return: A new queryset on the same model.
         """
         model = queryset.model
@@ -597,9 +610,11 @@ class SetCredentials(models.Model):
         of CremeEntity.
 
         @param sc_sequence: A sequence of SetCredentials instances.
-        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).e.
+        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).
         @param queryset: Queryset with model=CremeEntity.
-        @param perm: A value in (EntityCredentials.VIEW, EntityCredentials.CHANGE etc...).
+        @param perm: A value in EntityCredentials.{VIEW, CHANGE, ...}.
+               If the argument "as_model" is not None, you can use a combination
+               of values like 'EntityCredentials.VIEW | EntityCredentials.CHANGE'.
         @param models: An iterable of CremeEntity-child-classes, corresponding
                to allowed models.
         @param as_model: A model inheriting CremeEntity, or None. If a model is
@@ -634,6 +649,13 @@ class SetCredentials(models.Model):
             return cls._aux_filter(
                 model=as_model, sc_sequence=narrowed_sc, user=user,
                 queryset=queryset, perm=perm,
+            )
+
+        # TODO: use int.bit_count() with Python 3.10
+        if bin(perm).count('1') > 1:
+            raise ValueError(
+                'filter_entities() does not (yet) manage permissions '
+                'combination when the argument "as_model" is None.',
             )
 
         all_ct_ids = {
