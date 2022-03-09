@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,7 +123,8 @@ class EntityCredentials:
     def filter(cls,
                user,
                queryset: QuerySet,
-               perm: int = VIEW) -> QuerySet:
+               perm: int = VIEW,
+               ) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, the model class must be a child class of CremeEntity,
         but cannot be CremeEntity itself.
@@ -131,7 +132,8 @@ class EntityCredentials:
         @param user: A <django.contrib.auth.get_user_model()> instance.
         @param queryset: A Queryset on a CremeEntity inheriting model
                (better if not yet retrieved).
-        @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
+        @param perm: A combination of values in (VIEW, CHANGE, DELETE, LINK, UNLINK)
+               Eg: 'DELETE', 'VIEW | CHANGE'
         @return: A new Queryset on the same model, more selective (not retrieved).
         """
         from creme.creme_core.models import CremeEntity
@@ -168,7 +170,9 @@ class EntityCredentials:
         @param user: A <django.contrib.auth.get_user_model()> instance.
         @param queryset: A <Queryset> with model=CremeEntity
                (better if not yet retrieved).
-        @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK) [TODO: allow combination ?]
+        @param perm: A value in (VIEW, CHANGE, DELETE, LINK, UNLINK).
+               If the argument "as_model" is not None, you can use a combination
+               of values like 'VIEW | CHANGE'.
         @param as_model: A model inheriting CremeEntity, or None.
                If a model is given, all the entities in the queryset are
                filtered with the credentials for this model.

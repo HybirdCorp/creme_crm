@@ -21,6 +21,8 @@
                 - print_datetime()
         # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
           so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
+        # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
+          can now be called with a combination of permissions (like 'VIEW | CHANGE').
 
     Breaking changes :
     ------------------

@@ -1486,9 +1486,9 @@ class ImportForm4CremeEntity(ImportForm):
             extracted_values=extracted_values,
         ).exclude(is_deleted=True)
 
-        # TODO: VIEW | CHANGE
         return EntityCredentials.filter(
-            user=self.user, queryset=qs, perm=EntityCredentials.CHANGE,
+            user=self.user, queryset=qs,
+            perm=EntityCredentials.VIEW | EntityCredentials.CHANGE,
         )
 
     def _post_instance_creation(self, instance, line, updated):
