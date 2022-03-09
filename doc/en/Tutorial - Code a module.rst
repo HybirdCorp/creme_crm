@@ -2503,7 +2503,7 @@ it's particularly true with the tricky following manipulations).
 #. Beware, it's the trickiest step: rename the table corresponding to the base
    model (with PHPMyAdmin or pgAdmin for example), by giving it the name Django
    Django would give to the table of your model. The important thing is to
-   follow the Django's convention. In the tickets' example we seen before,, it
+   follow the Django's convention. In the tickets' example we seen before, it
    means rename the table "tickets_ticket" into "my_tickets_ticket". Normally,
    the modern RDBMS do a nice job, and the related constraints (like the
    ForeignKeys to this table) are correctly modified. But some old versions of
