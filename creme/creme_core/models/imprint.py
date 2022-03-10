@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2020  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,14 +22,21 @@ from django.conf import settings
 from django.db import models
 
 from . import CremeEntity
+from . import fields as core_fields
 
 
 # TODO: + ForeignKey to ContentType ? (takes more space but less queries)
 class Imprint(models.Model):  # CremeModel ?
     date = models.DateTimeField(auto_now_add=True)
+
+    entity_ctype = core_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
         CremeEntity, related_name='imprints', on_delete=models.CASCADE,
     )
+    real_entity = core_fields.RealEntityForeignKey(
+        ct_field='entity_ctype', fk_field='entity',
+    )
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, related_name='imprints', on_delete=models.CASCADE,
     )

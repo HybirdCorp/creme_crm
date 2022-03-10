@@ -42,8 +42,8 @@ from .models import (
     Relation,
     RelationType,
 )
+# from .utils.db import populate_related
 from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
-from .utils.db import populate_related
 
 logger = logging.getLogger(__name__)
 
@@ -307,27 +307,30 @@ class ImprintsBrick(QuerysetBrick):
         return self._render(self.get_template_context(context, qs))
 
     def home_display(self, context):
-        can_view = context['user'].is_superuser
-        # qs = Imprint.objects.all() if can_view else Imprint.objects.none()
-        qs = Imprint.objects.select_related('entity') if can_view else Imprint.objects.none()
-        btc = self.get_template_context(context, qs)
-
-        # NB: optimisations
-        if can_view:
-            # CremeEntity.populate_real_entities(
-            #     CremeEntity.objects.filter(
-            #         id__in=[imprint.entity_id for imprint in btc['page'].object_list],
-            #     )
-            # )
-            imprints = btc['page'].object_list
-            CremeEntity.populate_real_entities(
-                [imprint.entity for imprint in imprints]
-            )
+        # can_view = context['user'].is_superuser
+        # qs = Imprint.objects.select_related('entity') if can_view else Imprint.objects.none()
+        # btc = self.get_template_context(context, qs)
+        #
+        # # NB: optimisations
+        # if can_view:
+        #     imprints = btc['page'].object_list
+        #     CremeEntity.populate_real_entities(
+        #         [imprint.entity for imprint in imprints]
+        #     )
+        #
+        #     # NB: there will still be queries for each different Contacts
+        #     #     corresponding to users...
+        #     populate_related(instances=imprints, field_names=['user'])
+        #
+        # return self._render(btc)
+        return self._render(self.get_template_context(
+            context,
             # NB: there will still be queries for each different Contacts
             #     corresponding to users...
-            populate_related(instances=imprints, field_names=['user'])
-
-        return self._render(btc)
+            Imprint.objects.prefetch_related('real_entity', 'user')
+            if context['user'].is_superuser else
+            Imprint.objects.none()
+        ))
 
 
 class TrashBrick(QuerysetBrick):

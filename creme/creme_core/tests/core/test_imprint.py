@@ -47,12 +47,15 @@ class ImprintManagerTestCase(CremeTestCase):
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
         self.assertFalse(Imprint.objects.all())
 
+        # imprint = manager.create_imprint(entity=willy, user=user)
         imprint = manager.create_imprint(entity=willy, user=user)
         self.assertIsInstance(imprint, Imprint)
         self.assertIsNotNone(imprint.id)
         self.assertDatetimesAlmostEqual(now(), imprint.date)
-        self.assertEqual(imprint.entity.get_real_entity(), willy)
-        self.assertEqual(imprint.user, user)
+        self.assertEqual(willy.entity_type, imprint.entity_ctype)
+        self.assertEqual(willy, imprint.entity.get_real_entity())
+        self.assertEqual(willy, imprint.real_entity)
+        self.assertEqual(user, imprint.user)
 
     def test_create02(self):
         "Delay is not passed."
@@ -62,7 +65,8 @@ class ImprintManagerTestCase(CremeTestCase):
         user = self.login()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
-        imprint1 = Imprint.objects.create(entity=willy, user=user)
+        # imprint1 = Imprint.objects.create(entity=willy, user=user)
+        imprint1 = Imprint.objects.create(real_entity=willy, user=user)
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))
 
         # Other entity
@@ -87,7 +91,8 @@ class ImprintManagerTestCase(CremeTestCase):
         user = self.login()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
-        imprint1 = Imprint.objects.create(entity=willy, user=user)
+        # imprint1 = Imprint.objects.create(entity=willy, user=user)
+        imprint1 = Imprint.objects.create(real_entity=willy, user=user)
         Imprint.objects.filter(id=imprint1.id).update(date=now() - timedelta(minutes=31))
 
         self.assertIsNotNone(manager.create_imprint(entity=willy, user=user))
