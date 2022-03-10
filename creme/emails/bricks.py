@@ -24,7 +24,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import Relation  # CremeEntity
 
 from . import constants
 from .models import (
@@ -245,16 +245,20 @@ class MailsBrick(QuerysetBrick):
     configurable = False
 
     def detailview_display(self, context):
-        btc = self.get_template_context(
+        # btc = self.get_template_context(
+        #     context,
+        #     context['object'].mails_set.select_related('recipient_entity'),
+        # )
+        #
+        # CremeEntity.populate_real_entities(
+        #     [*filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list))]
+        # )
+        #
+        # return self._render(btc)
+        return self._render(self.get_template_context(
             context,
-            context['object'].mails_set.select_related('recipient_entity'),
-        )
-
-        CremeEntity.populate_real_entities(
-            [*filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list))]
-        )
-
-        return self._render(btc)
+            context['object'].mails_set.prefetch_related('real_recipient'),
+        ))
 
 
 class MailsHistoryBrick(QuerysetBrick):

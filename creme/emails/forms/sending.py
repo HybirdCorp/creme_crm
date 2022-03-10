@@ -188,7 +188,8 @@ class SendingCreateForm(CremeModelForm):
                 sender=instance.sender,
                 recipient=address,
                 sending_date=instance.sending_date,
-                recipient_entity=recipient_entity,
+                # recipient_entity=recipient_entity,
+                real_recipient=recipient_entity,
             )
 
             if recipient_entity:

@@ -34,6 +34,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeEntity, CremeModel
 
 from ..utils import EMailSender, ImageFromHTMLError, generate_id
@@ -171,10 +172,17 @@ class LightWeightEmail(_Email):
         EmailSending, verbose_name=_('Related sending'),
         related_name='mails_set', editable=False, on_delete=models.CASCADE,
     )
+
+    recipient_ctype = core_fields.EntityCTypeForeignKey(
+        null=True, related_name='+', editable=False,
+    )
     recipient_entity = models.ForeignKey(
         CremeEntity,
         null=True, on_delete=models.CASCADE,
         related_name='received_lw_mails', editable=False,
+    )
+    real_recipient = core_fields.RealEntityForeignKey(
+        ct_field='recipient_ctype', fk_field='recipient_entity',
     )
 
     class Meta:
