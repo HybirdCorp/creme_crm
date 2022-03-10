@@ -66,7 +66,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(1, Imprint.objects.count())  # still not 2
 
     def test_brick01(self):
-        "Detailview"
+        "Detailview."
         user = self.login()
 
         orga = FakeOrganisation.objects.create(user=user, name='Middle Earth')
