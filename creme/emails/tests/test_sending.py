@@ -30,15 +30,9 @@ from creme.persons.tests.base import (
 )
 
 from ..bricks import MailsBrick
-from ..constants import SETTING_EMAILCAMPAIGN_SENDER  # MAIL_STATUS_NOTSENT
+from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 from ..creme_jobs import campaign_emails_send_type
 from ..models import EmailRecipient, EmailSending, LightWeightEmail
-# from ..models.sending import (
-#     SENDING_STATE_DONE,
-#     SENDING_STATE_PLANNED,
-#     SENDING_TYPE_DEFERRED,
-#     SENDING_TYPE_IMMEDIATE,
-# )
 from .base import (
     Contact,
     EmailCampaign,
@@ -279,15 +273,15 @@ class SendingsTestCase(_EmailsTestCase):
             },
         ))
 
-        sendings = EmailCampaign.objects.get(pk=camp.id).sendings_set.all()
+        sendings = self.refresh(camp).sendings_set.all()  # refresh is probably be useless...
         self.assertEqual(1, len(sendings))
 
         sending = sendings[0]
         self.assertEqual(EmailSending.Type.IMMEDIATE, sending.type)
         self.assertEqual(EmailSending.State.PLANNED,  sending.state)
-        self.assertEqual(subject,                sending.subject)
-        self.assertEqual(body,                   sending.body)
-        self.assertEqual('',                     sending.body_html)
+        self.assertEqual(subject,                     sending.subject)
+        self.assertEqual(body,                        sending.body)
+        self.assertEqual('',                          sending.body_html)
 
         mails = sending.mails_set.all()
         self.assertEqual(len(addresses), len(mails))
@@ -295,9 +289,14 @@ class SendingsTestCase(_EmailsTestCase):
         addr_set = {mail.recipient for mail in mails}
         self.assertTrue(all(address in addr_set for address in addresses))
 
-        related_set = {mail.recipient_entity_id for mail in mails}
-        self.assertTrue(all(c.id in related_set for c in contacts))
-        self.assertTrue(all(o.id in related_set for o in orgas))
+        related_set = {
+            (mail.recipient_ctype_id, mail.recipient_entity_id)
+            for mail in mails
+        }
+        for c in contacts:
+            self.assertIn((c.entity_type_id, c.id), related_set)
+        for o in orgas:
+            self.assertIn((o.entity_type_id, o.id), related_set)
 
         self.assertEqual('', sending.mails_set.filter(recipient_entity=None)[0].body)
         self.assertEqual('', sending.mails_set.get(recipient_entity=contacts[0].id).body)

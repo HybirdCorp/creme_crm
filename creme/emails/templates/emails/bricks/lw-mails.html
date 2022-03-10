@@ -18,7 +18,8 @@
 {% block brick_table_rows %}
 {% has_perm_to change object.campaign as delete_perm %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_mail_url %}
     {% for mail in page.object_list %}
-    {% with entity=mail.recipient_entity %}
+{#    {% with entity=mail.recipient_entity %} #}
+    {% with entity=mail.real_recipient %}
     <tr>
         <td {% brick_table_data_status primary %} class="lw-mail-address">
         {% if entity %}{% has_perm_to view entity as view_address_perm %}
