@@ -75,6 +75,8 @@ h2 {
 }
 
 a {
+    cursor: pointer; /* XXX: when no link, only if a[data-action] ? */
+
     color: #22439f;
     text-decoration: none;
 }
