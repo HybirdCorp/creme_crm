@@ -132,6 +132,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         if self._http_server is not None:
             print('Shutting down HTTP server...')
             self._http_server.terminate()
+            self._http_server.wait()
             self._http_server = None
 
     def teardown_test_environment(self, **kwargs):
