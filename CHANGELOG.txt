@@ -82,6 +82,7 @@
         # Apps :
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
+                - In models, the fields "creme_entity" have been renamed "real_entity" for consistency.
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
             * Commercial :

@@ -204,7 +204,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         with self.assertNoException():
             todo = self.refresh(todo)
-            entity2 = todo.creme_entity
+            # entity2 = todo.creme_entity
+            entity2 = todo.real_entity
 
         self.assertEqual(entity, entity2)
         self.assertGET403(todo.get_edit_absolute_url())
@@ -249,7 +250,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def create_todo(title, entity, is_ok=False):
             return ToDo.objects.create(
-                user=user, title=title, creme_entity=entity, is_ok=is_ok,
+                # user=user, title=title, creme_entity=entity, is_ok=is_ok,
+                user=user, title=title, real_entity=entity, is_ok=is_ok,
             )
 
         todo1 = create_todo('Recall',         entity1)
@@ -475,7 +477,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(todos))
 
             for todo in todos:
-                self.assertEqual(contact01, todo.creme_entity)
+                # self.assertEqual(contact01, todo.creme_entity)
+                self.assertEqual(contact01, todo.real_entity)
 
         self.aux_test_merge(creator, assertor)
 
@@ -492,7 +495,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         job = self.get_reminder_job()
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
-        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        # create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        create_todo = partial(ToDo.objects.create, real_entity=self.entity, user=user)
         todo1 = create_todo(title='Todo#1', deadline=now_value)
         create_todo(title='Todo#2', deadline=now_value + timedelta(days=2))
         create_todo(title='Todo#3')
@@ -546,7 +550,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
         ToDo.objects.create(
-            creme_entity=self.entity, user=self.user,
+            # creme_entity=self.entity, user=self.user,
+            real_entity=self.entity, user=self.user,
             title='Todo#1', deadline=now_value,
         )
 
@@ -573,7 +578,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         def create_todo(title):
             ToDo.objects.create(
                 title=title, deadline=now_value,
-                creme_entity=self.entity, user=self.user,
+                # creme_entity=self.entity, user=self.user,
+                real_entity=self.entity, user=self.user,
             )
 
         create_todo('Todo#1')
@@ -634,7 +640,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.save()
 
         ToDo.objects.create(
-            title='Todo#1', deadline=now_value, creme_entity=self.entity, user=team,
+            # title='Todo#1', deadline=now_value, creme_entity=self.entity, user=team,
+            title='Todo#1', deadline=now_value, real_entity=self.entity, user=team,
         )
 
         self.execute_reminder_job()
@@ -659,7 +666,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def create_todo(title, deadline, **kwargs):
             ToDo.objects.create(
-                creme_entity=self.entity, user=self.user,
+                # creme_entity=self.entity, user=self.user,
+                real_entity=self.entity, user=self.user,
                 title=title, deadline=deadline, **kwargs
             )
 
@@ -691,7 +699,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.save()
 
         ToDo.objects.create(
-            creme_entity=self.entity, user=self.user,
+            # creme_entity=self.entity, user=self.user,
+            real_entity=self.entity, user=self.user,
             title='Todo#1',
             deadline=now_value + timedelta(days=2),
         )
@@ -713,11 +722,13 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         sv.save()
 
         ToDo.objects.create(
-            creme_entity=self.entity, user=self.user, title='Todo#1',
+            # creme_entity=self.entity, user=self.user, title='Todo#1',
+            real_entity=self.entity, user=self.user, title='Todo#1',
             deadline=now_value + timedelta(days=2),
         )
         alert = Alert.objects.create(
-            creme_entity=self.entity, user=self.user, title='Alert#1',
+            # creme_entity=self.entity, user=self.user, title='Alert#1',
+            real_entity=self.entity, user=self.user, title='Alert#1',
             trigger_date=now_value + timedelta(days=3),
         )
 
@@ -753,7 +764,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         "Edition."
         user = self.user
         akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        # todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        todo = ToDo.objects.create(user=user, real_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo.description = description = 'Conquer the world'
@@ -796,7 +808,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         "Deletion."
         user = self.user
         akane = FakeContact.objects.create(user=user, first_name='Akane', last_name='Tendo')
-        todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        # todo = ToDo.objects.create(user=user, creme_entity=akane, title='Todo#1')
+        todo = ToDo.objects.create(user=user, real_entity=akane, title='Todo#1')
         old_count = HistoryLine.objects.count()
 
         todo.delete()
@@ -836,7 +849,8 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         team2 = create_user(username='Team #2', is_team=True)
         team2.teammates = [self.other_user, teammate2]
 
-        create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        # create_todo = partial(ToDo.objects.create, creme_entity=self.entity, user=user)
+        create_todo = partial(ToDo.objects.create, real_entity=self.entity, user=user)
         todo1 = create_todo(title='Todo#1')
         create_todo(title='Todo#2', user=self.other_user)  # No (other user)
         todo3 = create_todo(title='Todo#3', user=team1)

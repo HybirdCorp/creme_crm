@@ -43,13 +43,15 @@ class ToDo(core_models.CremeModel):
     creation_date = creme_fields.CreationDateTimeField(_('Creation date'), editable=False)
     deadline = models.DateTimeField(_('Deadline'), blank=True, null=True)
 
+    # TODO: rename "entity_ctype" for consistency?
     entity_content_type = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     entity = models.ForeignKey(
         core_models.CremeEntity,
         related_name='assistants_todos',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    creme_entity = creme_fields.RealEntityForeignKey(
+    # creme_entity = creme_fields.RealEntityForeignKey(
+    real_entity = creme_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 
@@ -70,7 +72,8 @@ class ToDo(core_models.CremeModel):
         return reverse('assistants__edit_todo', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
-        return self.creme_entity
+        # return self.creme_entity
+        return self.real_entity
 
     @property
     def to_be_reminded(self):

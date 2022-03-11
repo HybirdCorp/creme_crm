@@ -39,12 +39,14 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% print_field object=alert field='title' %}</td>
         {% if not object %}
-            <td>{% widget_entity_hyperlink alert.creme_entity user %}</td>
+{#            <td>{% widget_entity_hyperlink alert.creme_entity user %}</td> #}
+            <td>{% widget_entity_hyperlink alert.real_entity user %}</td>
         {% endif %}
         <td>{% print_field object=alert field='user' %}</td>
         <td data-type="date" class="{% if alert.trigger_date >= today %}brick-table-data-valid{% else %}brick-table-data-error{% endif %}">{% print_field object=alert field='trigger_date' %}</td>
         <td>{% print_field object=alert field='description' %}</td>
-        {% has_perm_to change alert.creme_entity as has_perm %}
+{#        {% has_perm_to change alert.creme_entity as has_perm %} #}
+        {% has_perm_to change alert.real_entity as has_perm %}
         <td {% brick_table_data_status action %}>
             {% if alert.is_validated %}
                 {% widget_icon name='ok' label=_('Validated') size='brick-table' class='brick-table-icon' %}

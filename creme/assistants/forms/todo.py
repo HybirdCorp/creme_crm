@@ -45,7 +45,8 @@ class ToDoForm(CremeModelForm):
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.instance.creme_entity = entity
+        # self.instance.creme_entity = entity
+        self.instance.real_entity = entity
 
         deadline = self.instance.deadline
         if deadline:
