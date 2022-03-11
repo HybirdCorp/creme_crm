@@ -1543,6 +1543,10 @@ class PropertyConditionHandler(FilterConditionHandler):
 
         return not accepted if self._exclude else accepted
 
+    @property
+    def applicable_on_entity_base(self):
+        return True
+
     @classmethod
     def build(cls, *, model, name, data):
         if not isinstance(data, bool):
