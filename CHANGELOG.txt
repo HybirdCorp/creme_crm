@@ -4,6 +4,11 @@
   ------------
     # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
     # The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
+    # Apps :
+        * Billing :
+            - The number of cloned Quote/SalesOrder has been improved.
+              With managed source: it was incremented twice.
+              With not managed source: it was copied (now set to '0' like newly created Quotes/Order).
 
 
 == Version 2.3.1 ==
