@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -262,6 +262,7 @@ class Base(CremeEntity):
 
         return credit_notes
 
+    # TODO: remove "source" argument?
     def generate_number(self, source=None):
         # Lazy loading of number generators
         from creme.billing.registry import algo_registry
@@ -341,11 +342,11 @@ class Base(CremeEntity):
         self.source = source.source
         self.target = source.target
 
-        if self.generate_number_in_create:
-            # self.generate_number(source.get_source())
-            self.generate_number(source.source)
-        else:
-            self.number = ''
+        # if self.generate_number_in_create:
+        #     self.generate_number(source.source)
+        # else:
+        #     self.number = ''
+        self.number = ''
 
     def _copy_relations(self, source):
         from ..registry import relationtype_converter
