@@ -654,7 +654,8 @@ class QuoteTestCase(_BillingTestCase):
 
     @skipIfCustomAddress
     @skipIfCustomServiceLine
-    def test_clone(self):
+    def test_clone01(self):
+        "Organisation not managed => number is set to '0'."
         user = self.login()
         source, target = self.create_orgas(user=user)
 
@@ -670,6 +671,7 @@ class QuoteTestCase(_BillingTestCase):
         quote = self.create_quote(
             'Quote001', source, target,
             # status=status,
+            number='12',
         )
         quote.acceptation_date = date.today()
         quote.save()
@@ -683,6 +685,7 @@ class QuoteTestCase(_BillingTestCase):
 
         self.assertIsNone(cloned.acceptation_date)
         # self.assertTrue(cloned.status.is_default) TODO
+        self.assertEqual('0', cloned.number)
 
         self.assertNotEqual(quote, cloned)  # Not the same pk
         self.assertEqual(source, cloned.source)
@@ -699,6 +702,19 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(cloned,      billing_address.owner)
         self.assertEqual(b_addr.name, billing_address.name)
         self.assertEqual(b_addr.city, billing_address.city)
+
+    def test_clone02(self):
+        "Organisation is managed => number is generated (but only once BUGFIX)."
+        self.login()
+
+        source, target = self.create_orgas()
+        self._set_managed(source)
+
+        quote = self.create_quote('My Quote', source=source, target=target)
+        self.assertEqual('DE1', quote.number)
+
+        cloned = quote.clone()
+        self.assertEqual('DE2', cloned.number)
 
     def test_num_queries(self):
         """Avoid the queries about line sa creation
