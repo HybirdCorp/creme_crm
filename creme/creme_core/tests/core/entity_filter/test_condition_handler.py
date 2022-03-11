@@ -3629,6 +3629,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertIs(handler._exclude, False)
 
         self.assertIsNone(handler.error)
+        self.assertIs(handler.applicable_on_entity_base, True)
 
         self.assertQEqual(
             Q(pk__in=CremeProperty.objects.none()),
