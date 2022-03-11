@@ -1122,6 +1122,7 @@ class InvoiceTestCase(_BillingTestCase):
         # self.assertEqual(target, cloned.get_target().get_real_entity())
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
+        self.assertEqual('',     cloned.number)
 
         # Lines are cloned
         src_line_ids = [line.id for line in invoice.iter_all_lines()]

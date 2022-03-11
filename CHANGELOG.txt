@@ -8,6 +8,9 @@
     # Apps :
         * Billing :
             - There was a crash when the field "number" was removed in the creation custom-forms.
+            - The number of cloned Quote/SalesOrder has been improved.
+              With managed source: it was incremented twice.
+              With not managed source: it was copied (now set to '0' like newly created Quotes/Order).
         * Mobile :
             - The JavaScript code to create phone calls was broken.
         * Emails :
