@@ -1098,6 +1098,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertIsNone(cloned.payment_terms)    # Should not be cloned
         self.assertEqual(source, cloned.source)
         self.assertEqual(target, cloned.target)
+        self.assertEqual('',     cloned.number)
 
         # Lines are cloned
         src_line_ids = [line.id for line in invoice.iter_all_lines()]
