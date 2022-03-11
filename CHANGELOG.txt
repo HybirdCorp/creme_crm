@@ -2,6 +2,7 @@
 
   Users side :
   ------------
+    # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
     # The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
 
 
