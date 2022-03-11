@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -62,12 +62,14 @@ class ReminderAlert(AssistantReminder):
 
     def generate_email_subject(self, object):
         return _('Reminder concerning a Creme CRM alert related to {entity}').format(
-            entity=object.creme_entity,
+            # entity=object.creme_entity,
+            entity=object.real_entity,
         )
 
     def generate_email_body(self, object):
         return self.body.format(
-            entity=object.creme_entity,
+            # entity=object.creme_entity,
+            entity=object.real_entity,
             title=object.title,
             description=object.description,
         )
@@ -103,12 +105,14 @@ class ReminderTodo(AssistantReminder):
 
     def generate_email_subject(self, object):
         return _('Reminder concerning a Creme CRM todo related to {entity}').format(
-            entity=object.creme_entity,
+            # entity=object.creme_entity,
+            entity=object.real_entity,
         )
 
     def generate_email_body(self, object):
         return self.body.format(
-            entity=object.creme_entity,
+            # entity=object.creme_entity,
+            entity=object.real_entity,
             title=object.title,
             description=object.description,
         )

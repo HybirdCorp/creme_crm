@@ -856,6 +856,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(2, len(alerts))
 
         alert1 = alerts[0]
+        self.assertEqual(act, alert1.real_entity)
         self.assertEqual(_('Alert of activity'), alert1.title)
         self.assertEqual(
             _('Alert related to {activity}').format(activity=act),

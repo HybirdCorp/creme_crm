@@ -62,7 +62,8 @@ class _AssistantsBrick(QuerysetBrick):
 
         # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
         for assistant in btc['page'].object_list:
-            assistant.creme_entity = entity
+            # assistant.creme_entity = entity
+            assistant.real_entity = entity
 
         return self._render(btc)
 
@@ -75,7 +76,7 @@ class _AssistantsBrick(QuerysetBrick):
         # return self._render(btc)
         return self._render(self.get_template_context(
             context,
-            self._get_queryset_for_home(context).prefetch_related('creme_entity'),
+            self._get_queryset_for_home(context).prefetch_related('real_entity'),
         ))
 
 

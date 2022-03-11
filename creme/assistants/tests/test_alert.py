@@ -279,7 +279,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(alerts))
 
             for alert in alerts:
-                self.assertEqual(contact01, alert.creme_entity)
+                # self.assertEqual(contact01, alert.creme_entity)
+                self.assertEqual(contact01, alert.real_entity)
 
         self.aux_test_merge(creator, assertor)
 
@@ -296,7 +297,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            creme_entity=self.entity, user=user, trigger_date=now_value,
+            # creme_entity=self.entity, user=user, trigger_date=now_value,
+            real_entity=self.entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
         alert2 = create_alert(title='Alert#2', trigger_date=now_value + timedelta(minutes=70))
@@ -339,7 +341,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            creme_entity=self.entity, user=self.user, trigger_date=now_value,
+            # creme_entity=self.entity, user=self.user, trigger_date=now_value,
+            real_entity=self.entity, user=self.user, trigger_date=now_value,
         )
         create_alert(title='Alert#2', is_validated=True)
         create_alert(title='Alert#4', reminded=True)
@@ -383,7 +386,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            creme_entity=self.entity, user=user, trigger_date=now_value,
+            # creme_entity=self.entity, user=user, trigger_date=now_value,
+            real_entity=self.entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1')
         create_alert(title='Alert#2', user=team2)  # No (other team)
@@ -409,7 +413,8 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             return Alert.objects.create(
                 user=user,
                 title=title,
-                creme_entity=entity,
+                # creme_entity=entity,
+                real_entity=entity,
                 trigger_date=now() + timedelta(days=5),
                 is_validated=is_validated,
             )

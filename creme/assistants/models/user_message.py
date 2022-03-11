@@ -76,7 +76,8 @@ class UserMessage(core_models.CremeModel):
         null=True,  related_name='assistants_messages',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    creme_entity = creme_fields.RealEntityForeignKey(
+    # creme_entity = creme_fields.RealEntityForeignKey(
+    real_entity = creme_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
 
@@ -112,7 +113,8 @@ class UserMessage(core_models.CremeModel):
             body=body,
             priority_id=priority_id,
             sender=sender,
-            creme_entity=entity,
+            # creme_entity=entity,
+            real_entity=entity,
         )
         cls.objects.bulk_create(
             build_msg(recipient=user) for user in users_map.values()

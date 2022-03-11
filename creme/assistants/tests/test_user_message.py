@@ -185,7 +185,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         message = messages[0]
         self.assertIsNone(message.entity_id)
         self.assertIsNone(message.entity_content_type_id)
-        self.assertIsNone(message.creme_entity)
+        # self.assertIsNone(message.creme_entity)
+        self.assertIsNone(message.real_entity)
 
     def test_create04(self):
         "One team."
@@ -246,7 +247,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 priority=priority,
                 sender=self.other_user,
                 recipient=user,
-                creme_entity=entity,
+                # creme_entity=entity,
+                real_entity=entity,
             )
 
         msg1 = create_message(entity1, 'Recall')
@@ -351,7 +353,8 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(messages))
 
             for msg in messages:
-                self.assertEqual(contact01, msg.creme_entity)
+                # self.assertEqual(contact01, msg.creme_entity)
+                self.assertEqual(contact01, msg.real_entity)
 
         self.aux_test_merge(creator, assertor, moved_count=0)
 

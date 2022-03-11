@@ -253,7 +253,8 @@ class _AssistantSubCell(CustomFormExtraSubCell):
         Alert.objects.create(
             user=activity.user,
             trigger_date=trigger_date,
-            creme_entity=activity,
+            # creme_entity=activity,
+            real_entity=activity,
             title=gettext('Alert of activity'),
             description=gettext('Alert related to {activity}').format(activity=activity),
         )

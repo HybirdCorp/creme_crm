@@ -27,10 +27,13 @@
 {% endblock %}
 
 {% block brick_table_rows %}{% url 'creme_core__delete_related_to_entity' objects_ctype.id as delete_url %}
-    {% for memo in page.object_list %}{% has_perm_to change memo.creme_entity as has_perm %}
+    {% for memo in page.object_list %}
+{# {% has_perm_to change memo.creme_entity as has_perm %} #}
+{% has_perm_to change memo.real_entity as has_perm %}
     <tr>
         {% if not object %}
-            <td>{% widget_entity_hyperlink memo.creme_entity user %}</td>
+{#            <td>{% widget_entity_hyperlink memo.creme_entity user %}</td> #}
+            <td>{% widget_entity_hyperlink memo.real_entity user %}</td>
         {% endif %}
         <td {% brick_table_data_status primary %}>{% print_field object=memo field='user' %}</td>
         <td data-type="date">{{memo.creation_date|date:'DATE_FORMAT'}}</td>

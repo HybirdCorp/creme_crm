@@ -83,7 +83,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(entity.entity_type_id, action.entity_content_type_id)
         self.assertEqual(entity.id,             action.entity_id)
-        self.assertEqual(entity.id,             action.creme_entity.id)
+        # self.assertEqual(entity.id,             action.creme_entity.id)
+        self.assertEqual(entity,                action.real_entity)
 
         self.assertDatetimesAlmostEqual(now(), action.creation_date)
         self.assertEqual(
@@ -301,7 +302,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(actions))
 
             for action in actions:
-                self.assertEqual(contact01, action.creme_entity)
+                # self.assertEqual(contact01, action.creme_entity)
+                self.assertEqual(contact01, action.real_entity)
 
         self.aux_test_merge(creator, assertor)
 
@@ -329,7 +331,8 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_action = partial(
             Action.objects.create,
-            creme_entity=self.entity, user=user,
+            # creme_entity=self.entity, user=user,
+            real_entity=self.entity, user=user,
             deadline=now_value + timedelta(days=1),
         )
 
