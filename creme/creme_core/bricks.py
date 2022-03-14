@@ -129,9 +129,12 @@ class RelationsBrick(QuerysetBrick):
         reloading_info = self._reloading_info
 
         if reloading_info is None:  # NB: it's not a reload, it's the initial render()
-            # TODO: when it's the only use of 'used_relationtypes_ids()',
-            #       inline the call (+ deprecate method) ?
-            used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
+            # used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
+            used_rtype_ids = {
+                rt_id
+                for brick in BricksManager.get(context).bricks
+                for rt_id in brick.relation_type_deps
+            }
             excluded_rtype_ids_set = {
                 *RelationType.objects.filter(
                     id__in=used_rtype_ids,

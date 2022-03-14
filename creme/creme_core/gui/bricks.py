@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 from typing import (
     DefaultDict,
@@ -655,8 +656,10 @@ class BricksManager:
 
     def __init__(self):
         self._bricks: List[Brick] = []
-        # TODO: simplify because only used for RelationType IDs
+
+        # DEPRECATED
         self._dependencies_map: Optional[DefaultDict[Union[Type[Model], str], List[Brick]]] = None
+
         self._bricks_groups: DefaultDict[str, List[Brick]] = defaultdict(list)
         self._used_relationtypes: Optional[Set[str]] = None
         self._state_cache: Optional[Dict[str, BrickState]] = None
@@ -680,7 +683,16 @@ class BricksManager:
         brick_id = brick.id_
         return any(b.id_ == brick_id for b in self._bricks)
 
+    @property
+    def bricks(self):
+        yield from self._bricks
+
     def _build_dependencies_map(self) -> DefaultDict[Union[Type[Model], str], List[Brick]]:
+        warnings.warn(
+            'The method BricksManager._build_dependencies_map() is deprecated.',
+            DeprecationWarning,
+        )
+
         dep_map = self._dependencies_map
 
         if dep_map is None:
@@ -706,6 +718,7 @@ class BricksManager:
     def get(context) -> BricksManager:
         return context[BricksManager.var_name]  # Will raise exception if not created: OK
 
+    # TODO: property
     def get_remaining_groups(self) -> List[str]:
         return [*self._bricks_groups.keys()]
 
@@ -732,6 +745,11 @@ class BricksManager:
 
     @property
     def used_relationtypes_ids(self) -> Set[str]:
+        warnings.warn(
+            'The property (getter) BricksManager.used_relationtypes_ids is deprecated.',
+            DeprecationWarning,
+        )
+
         if self._used_relationtypes is None:
             self._used_relationtypes = {
                 rt_id for brick in self._build_dependencies_map()[Relation]
@@ -743,6 +761,11 @@ class BricksManager:
     @used_relationtypes_ids.setter
     def used_relationtypes_ids(self, relationtypes_ids: Iterable[str]) -> None:
         "@param relationtypes_ids: Iterable of RelationType objects' IDs."
+        warnings.warn(
+            'The property (setter) BricksManager.used_relationtypes_ids is deprecated.',
+            DeprecationWarning,
+        )
+
         self._used_relationtypes = {*relationtypes_ids}
 
 

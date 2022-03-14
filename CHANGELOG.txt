@@ -16,9 +16,14 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
-            - In 'creme_core.gui.field_printers', these functions are now deprecated :
-                - print_date()
-                - print_datetime()
+            - In 'creme_core.gui' :
+                - In 'bricks.BricksManager' :
+                    - The attribute '_dependencies_map' is deprecated.
+                    - The method '_build_dependencies_map()' is deprecated.
+                    - The property 'used_relationtypes_ids' is deprecated.
+                - In 'field_printers', these functions are now deprecated :
+                    - print_date()
+                    - print_datetime()
         # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
           so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
         # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
