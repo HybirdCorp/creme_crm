@@ -284,7 +284,10 @@ class Populator(BasePopulator):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
 
             # ---------------------------
-            rbi = RelationBrickItem.objects.create_if_needed(constants.REL_OBJ_LINKED_2_TICKET)
+            # rbi = RelationBrickItem.objects.create_if_needed(constants.REL_OBJ_LINKED_2_TICKET)
+            rbi = RelationBrickItem.objects.get_or_create(
+                relation_type_id=constants.REL_OBJ_LINKED_2_TICKET,
+            )[0]
 
             RIGHT = BrickDetailviewLocation.RIGHT
 

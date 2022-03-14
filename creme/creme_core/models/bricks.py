@@ -21,6 +21,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from functools import partial
 from json import loads as json_load
 from typing import (
@@ -438,7 +439,12 @@ class RelationBrickItemManager(models.Manager):
         @param relation_type: Instance of RelationType, or RelationType ID.
         @return: A saved instance of RelationBrickItem.
         """
-        from creme.creme_core.gui.bricks import SpecificRelationsBrick
+        # from creme.creme_core.gui.bricks import SpecificRelationsBrick
+        warnings.warn(
+            'The method RelationBrickItemManager.create_if_needed() is deprecated ; '
+            'use <get_or_create(relation_type=rtype)[0]> instead.',
+            DeprecationWarning,
+        )
 
         rtype_id = relation_type.id if isinstance(relation_type, RelationType) else relation_type
 
@@ -448,7 +454,7 @@ class RelationBrickItemManager(models.Manager):
             except self.model.DoesNotExist:
                 try:
                     rbi = self.create(
-                        brick_id=SpecificRelationsBrick.generate_id('creme_config', rtype_id),
+                        # brick_id=SpecificRelationsBrick.generate_id('creme_config', rtype_id),
                         relation_type_id=rtype_id,
                     )
                 except IntegrityError:
@@ -468,14 +474,8 @@ class RelationBrickItemManager(models.Manager):
         return rbi
 
 
-# class RelationBrickItem(CremeModel):
 class RelationBrickItem(StoredBrickClassMixin, CremeModel):
-    # TODO: 'brick_id' not really useful (can be dynamically generated with the RelationType)
-    #        + in the 'brick_id':
-    #           1) remove the app_name
-    #           2) "specificblock_" => "rtypebrick_" (need data migration)
-    brick_id = models.CharField(_('Block ID'), max_length=100, editable=False)
-
+    # brick_id = models.CharField(_('Block ID'), max_length=100, editable=False)
     relation_type = models.OneToOneField(
         RelationType, on_delete=models.CASCADE,
         verbose_name=_('Related type of relationship'),
@@ -488,6 +488,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
     save_label     = _('Save the block')
 
     _cells_map = None
+    _brick_id_prefix = 'rtype_brick'
 
     class Meta:
         app_label = 'creme_core'
@@ -514,6 +515,37 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             compat_ctype_ids.discard(ct_id)
 
         return not bool(compat_ctype_ids)
+
+    @property
+    def brick_id(self) -> str:
+        my_id = self.id
+
+        if my_id is None:
+            raise ValueError(
+                f'{type(self).__name__}.brick_id: must be called on a saved instance.'
+            )
+
+        return f'{self._brick_id_prefix}-{my_id}'
+
+    @classmethod
+    def id_from_brick_id(cls, brick_id: str) -> Optional[int]:
+        try:
+            prefix, rbi_id = brick_id.split('-', 1)
+        except ValueError:  # Unpacking error
+            return None
+
+        if prefix != cls._brick_id_prefix:
+            return None
+
+        try:
+            return int(rbi_id)
+        except ValueError:
+            logger.critical(
+                '%s.id_from_brick_id(): invalid instance ID stored in Brick ID: %s',
+                cls.__name__, brick_id,
+            )
+
+        return None
 
     def _dump_cells_map(self):
         self.json_cells_map = json_encode({
@@ -593,6 +625,7 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     save_label     = _('Save the block')
 
     _brick: Optional['InstanceBrick'] = None
+    # TODO: 'instance_brick'
     _brick_id_prefix = 'instanceblock'
 
     class Meta:
@@ -702,6 +735,7 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
+        # TODO: custom_brick + attribute
         return f'customblock-{self.id}'
 
     @atomic

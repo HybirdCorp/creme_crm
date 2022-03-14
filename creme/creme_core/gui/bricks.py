@@ -527,13 +527,13 @@ class SpecificRelationsBrick(QuerysetBrick):
     def generate_id(app_name: str, name: str) -> str:
         return f'specificblock_{app_name}-{name}'
 
-    @staticmethod
-    def id_is_specific(id_: str) -> bool:
-        return id_.startswith('specificblock_')
+    # @staticmethod
+    # def id_is_specific(id_: str) -> bool:
+    #     return id_.startswith('specificblock_')
 
     def detailview_display(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
-        #       & display an message in the block (and disable the creation button)
+        #       & display an message in the brick (and disable the creation button)
         #       if constraints are broken ? (beware: add CremePropertyType in dependencies)
         #       (problem: it needs additional queries)
         entity = context['object']
@@ -933,30 +933,43 @@ class _BrickRegistry:
         """Bricks type can be SpecificRelationsBrick/InstanceBrickConfigItem:
         in this case, they are not really registered, but created on the fly.
         @param brick_ids: Sequence of bricks' IDs.
-        @param entity: if the bricks are displayed of the detail-view of an entity,
-                       it should be given.
+        @param entity: if the bricks are displayed of the detail-view of an
+               entity, it should be given.
         """
-        specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
-        instance_ids = [*filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids))]
-        custom_ids   = [*filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids))]
+        # specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
+        rtypes_item_ids = [
+            *filter(None, map(RelationBrickItem.id_from_brick_id, brick_ids)),
+        ]
+        instance_item_ids = [
+            *filter(None, map(InstanceBrickConfigItem.id_from_brick_id, brick_ids)),
+        ]
+        custom_item_ids  = [
+            *filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)),
+        ]
 
+        # relation_bricks_items = {
+        #     rbi.brick_id: rbi
+        #     for rbi in RelationBrickItem.objects
+        #                                 .filter(brick_id__in=specific_ids)
+        #                                 .prefetch_related('relation_type')
+        # } if specific_ids else {}
         relation_bricks_items = {
             rbi.brick_id: rbi
             for rbi in RelationBrickItem.objects
-                                        .filter(brick_id__in=specific_ids)
+                                        .filter(id__in=rtypes_item_ids)
                                         .prefetch_related('relation_type')
-        } if specific_ids else {}
+        } if rtypes_item_ids else {}
         instance_bricks_items = {
             ibi.brick_id: ibi
             # TODO: CremeEntity.populate_real_entities
             for ibi in InstanceBrickConfigItem.objects
-                                              .filter(id__in=instance_ids)
+                                              .filter(id__in=instance_item_ids)
                                               .prefetch_related('entity')
-        } if instance_ids else {}
+        } if instance_item_ids else {}
         custom_bricks_items = {
             cbci.brick_id: cbci
-            for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_ids)
-        } if custom_ids else {}
+            for cbci in CustomBrickConfigItem.objects.filter(id__in=custom_item_ids)
+        } if custom_item_ids else {}
 
         for id_ in brick_ids:
             rbi = relation_bricks_items.get(id_)

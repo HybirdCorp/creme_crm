@@ -79,7 +79,8 @@ from creme.creme_core.tests.fake_menu import FakeContactsEntry
 
 class ImportingTestCase(CremeTestCase):
     URL = reverse('creme_config__transfer_import')
-    VERSION = '1.2'
+    # VERSION = '1.2'
+    VERSION = '1.3'
 
     def test_creds(self):
         "Not staff."
@@ -2711,8 +2712,8 @@ class ImportingTestCase(CremeTestCase):
         ct_str1 = 'creme_core.fakecontact'
         ct_str2 = 'creme_core.fakeorganisation'
 
-        brick_id01 = 'specificblock_creme_core-test01'
-        brick_id03 = 'specificblock_creme_core-test03'
+        # brick_id01 = 'specificblock_creme_core-test01'
+        # brick_id03 = 'specificblock_creme_core-test03'
 
         rtype01, rtype02 = RelationType.objects.filter(
             is_custom=False, id__contains='-subject_',
@@ -2727,8 +2728,8 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        RelationBrickItem(
-            brick_id=brick_id01,
+        rbi1 = RelationBrickItem(
+            # brick_id=brick_id01,
             relation_type=rtype01,
         ).set_cells(
             get_ct(FakeContact),
@@ -2736,13 +2737,16 @@ class ImportingTestCase(CremeTestCase):
                 EntityCellRegularField.build(FakeContact, 'first_name'),
                 EntityCellRegularField.build(FakeContact, 'last_name'),
             ],
-        ).save()
+        )
+        rbi1.save()
 
         # Will be removed
         rbi2 = RelationBrickItem.objects.create(
-            brick_id='specificblock_creme_core-test02',
+            # brick_id='specificblock_creme_core-test02',
             relation_type=rtype02,
         )
+
+        rbi_id3 = rbi2.id + 1
 
         rtypes_data = [
             {
@@ -2758,10 +2762,12 @@ class ImportingTestCase(CremeTestCase):
 
         rbi_data = [
             {
-                'brick_id': brick_id01,
+                # 'brick_id': brick_id01,
+                'id': rbi1.id,
                 'relation_type': rtype01.id,
             }, {
-                'brick_id': brick_id03,
+                # 'brick_id': brick_id03,
+                'id': rbi_id3,
                 'relation_type': rtype03_id,
                 'cells': [
                     [
@@ -2792,14 +2798,17 @@ class ImportingTestCase(CremeTestCase):
 
         self.assertDoesNotExist(rbi2)
 
-        rbi1 = self.get_object_or_fail(RelationBrickItem, relation_type=rtype01)
-        self.assertEqual(brick_id01, rbi1.brick_id)
+        # rbi1 = self.get_object_or_fail(RelationBrickItem, relation_type=rtype01)
+        rbi1 = self.assertStillExists(rbi1)
+        self.assertEqual(rtype01, rbi1.relation_type)
+        # self.assertEqual(brick_id01, rbi1.brick_id)
         self.assertFalse([*rbi1.iter_cells()])
 
         cfield = self.get_object_or_fail(CustomField, uuid=cf_uuid)
 
         rbi3 = self.get_object_or_fail(RelationBrickItem, relation_type_id=rtype03_id)
-        self.assertEqual(brick_id03, rbi3.brick_id)
+        # self.assertEqual(brick_id03, rbi3.brick_id)
+        self.assertEqual(rbi_id3, rbi3.id)
 
         def assert_cells(model, keys):
             cells = rbi3.get_cells(get_ct(model))

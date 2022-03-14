@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -77,7 +77,7 @@ class ImportForm(CremeForm):
                 )
 
             # see ..views.transfer.ConfigExport
-            if deserialized_data.get('version') != '1.2':
+            if deserialized_data.get('version') != '1.3':
                 raise ValidationError(
                     self.error_messages['invalid_version'], code='invalid_version',
                 )

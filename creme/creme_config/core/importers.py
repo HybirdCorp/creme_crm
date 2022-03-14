@@ -1565,7 +1565,8 @@ class RelationBrickItemsImporter(Importer):
         for info in deserialized_section:
             rtype_id = info['relation_type']
             data.append({
-                'brick_id': info['brick_id'],
+                # 'brick_id': info['brick_id'],
+                'id': info['id'],
                 'relation_type_id': rtype_id,
                 'cells': [
                     load_ctype_cells(rtype_id, ctype_cells)
