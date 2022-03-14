@@ -197,7 +197,8 @@ class CremeBricksTagsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_brick_get_by_ids01(self):
         self.login()
         rtype = RelationType.objects.get(id=REL_SUB_HAS)
-        rbi = RelationBrickItem.objects.create_if_needed(rtype)
+        # rbi = RelationBrickItem.objects.create_if_needed(rtype)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         with self.assertNoException():
             render = Template(

@@ -351,19 +351,16 @@ class RTypeBrickAddForm(base.CremeModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-        existing_type_ids = RelationBrickItem.objects.values_list('relation_type_id', flat=True)
-
         self.fields['relation_type'].queryset = RelationType.objects.exclude(
-            pk__in=existing_type_ids,
+            pk__in=RelationBrickItem.objects.values_list('relation_type_id', flat=True),
         )
 
-    def save(self, *args, **kwargs):
-        self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(
-            'creme_config',
-            self.cleaned_data['relation_type'].id,
-        )
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(
+    #         'creme_config',
+    #         self.cleaned_data['relation_type'].id,
+    #     )
+    #     return super().save(*args, **kwargs)
 
 
 class RTypeBrickItemAddCtypeForm(base.CremeModelForm):

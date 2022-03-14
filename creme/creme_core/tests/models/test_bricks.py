@@ -505,10 +505,24 @@ class BrickTestCase(CremeTestCase):
             ('test-object_loved',  'is loved by'),
         )[0]
 
+        # DEPRECATED: => RelationBrickItem.objects.create(relation_type=rtype)
         rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
         self.assertIsInstance(rbi, RelationBrickItem)
         self.assertIsNotNone(rbi.pk)
         self.assertEqual(rtype.id, rbi.relation_type_id)
+        # self.assertEqual('specificblock_creme_config-test-subject_loves', rbi.brick_id)
+
+        brick_id = f'rtype_brick-{rbi.id}'
+        self.assertEqual(brick_id, rbi.brick_id)
+
+        id_from_brick_id = RelationBrickItem.id_from_brick_id
+        self.assertEqual(rbi.id, id_from_brick_id(brick_id))
+        self.assertIsNone(id_from_brick_id('invalid'))
+        self.assertIsNone(id_from_brick_id(f'invalid-{rbi.id}'))
+        self.assertIsNone(id_from_brick_id('rtype_brick-notanint'))
+
+        with self.assertRaises(ValueError):
+            _ = RelationBrickItem(relation_type=rtype).brick_id
 
         get_ct = ContentType.objects.get_for_model
         ct_contact = get_ct(FakeContact)
@@ -558,10 +572,11 @@ class BrickTestCase(CremeTestCase):
             ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
         )[0]
 
-        rbi = RelationBrickItem.objects.create_if_needed(rtype)
-        self.assertIsInstance(rbi, RelationBrickItem)
-        self.assertIsNotNone(rbi.pk)
-        self.assertEqual(rtype.id, rbi.relation_type_id)
+        # rbi = RelationBrickItem.objects.create_if_needed(rtype)
+        # self.assertIsInstance(rbi, RelationBrickItem)
+        # self.assertIsNotNone(rbi.pk)
+        # self.assertEqual(rtype.id, rbi.relation_type_id)
+        rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
 
         get_ct = ContentType.objects.get_for_model
 
@@ -588,7 +603,8 @@ class BrickTestCase(CremeTestCase):
             ('test-object_rented',  'rents'),
         )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
+        # rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)
         rbi.set_cells(
@@ -622,7 +638,8 @@ class BrickTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=user)
         state1 = create_state(brick_id=rbi.brick_id)
@@ -641,7 +658,8 @@ class BrickTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         def try_delete(msg, locs):
             with self.assertRaises(ProtectedError) as cm:

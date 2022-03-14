@@ -225,7 +225,8 @@ class RelationBrickItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.RelationBrickItem)
 
         data = {
-            'brick_id':      instance.brick_id,
+            # 'brick_id':      instance.brick_id,
+            'id':            instance.id,
             'relation_type': instance.relation_type_id,
         }
 

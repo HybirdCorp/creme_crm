@@ -46,7 +46,8 @@ class ConfigExport(generic.CheckedView):
         info: Dict[str, Any] = OrderedDict()
         # 2.2: 1.0
         # 2.3: 1.1/1.2 the models for search & custom-forms have changed
-        info[ID_VERSION] = '1.2'
+        # 2.4: 1.3 RelationBrickItem.brick_id has been removed (use 'id' now)
+        info[ID_VERSION] = '1.3'
         info.update((e_id, exporter()) for e_id, exporter in self.registry)
 
         return info

@@ -25,11 +25,8 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.function_field import function_field_registry
-from creme.creme_core.gui.bricks import (
-    Brick,
-    InstanceBrick,
-    SpecificRelationsBrick,
-)
+# SpecificRelationsBrick
+from creme.creme_core.gui.bricks import Brick, InstanceBrick
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -769,8 +766,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
         )[0]
 
-        rtype_brick_id = SpecificRelationsBrick.generate_id('test', 'foobar')
-        RelationBrickItem.objects.create(brick_id=rtype_brick_id, relation_type=rtype)
+        # rtype_brick_id = SpecificRelationsBrick.generate_id('test', 'foobar')
+        # RelationBrickItem.objects.create(brick_id=rtype_brick_id, relation_type=rtype)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
 
@@ -785,7 +783,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             fields = response.context['form'].fields
             locations_choices = [brick_id for (brick_id, brick) in fields['locations'].choices]
 
-        self.assertIn(rtype_brick_id, locations_choices)
+        # self.assertIn(rtype_brick_id, locations_choices)
+        self.assertIn(rbi.brick_id, locations_choices)
         self.assertIn(ibci.brick_id, locations_choices)
 
     def test_edit_detailview08(self):
@@ -1650,7 +1649,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         rb_item = rb_items[0]
         self.assertEqual(rt.id, rb_item.relation_type.id)
-        self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
+        # self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
     def test_add_relationbrick_ctypes_wizard01(self):
@@ -1661,7 +1660,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )[0]
 
         rb_item = RelationBrickItem.objects.create(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rt,
         )
 
@@ -1758,7 +1757,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
         )[0]
         rb_item = RelationBrickItem.objects.create(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rtype,
         )
 
@@ -1794,7 +1793,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate',  [FakeContact]),
         )[0]
         rb_item = RelationBrickItem.objects.create(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rtype,
         )
 
@@ -1832,7 +1831,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )[0]
 
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rt,
         )
         rb_item.set_cells(ct, ())
@@ -1882,7 +1881,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with URLField & ForeignKey."
         self.login()
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -1917,7 +1916,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with M2M"
         self.login()
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -1955,7 +1954,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )[0]
 
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rt1,
         )
         rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
@@ -1991,7 +1990,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=rt,
         )
         build_cell = EntityCellRegularField.build
@@ -2029,7 +2028,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ct = get_ct(FakeContact)
 
         rb_item = RelationBrickItem(
-            brick_id='specificblock_creme_config-test-subfoo',
+            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -2054,7 +2053,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=user)
         state1 = create_state(brick_id=rbi.brick_id)
@@ -2076,7 +2076,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
+        rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         url = reverse('creme_config__delete_rtype_brick')
         data = {'id': rbi.id}

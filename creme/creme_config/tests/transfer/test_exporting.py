@@ -35,11 +35,8 @@ from creme.creme_core.forms import (
     LAYOUT_DUAL_SECOND,
     LAYOUT_REGULAR,
 )
-from creme.creme_core.gui.bricks import (
-    InstanceBrick,
-    SpecificRelationsBrick,
-    brick_registry,
-)
+# SpecificRelationsBrick
+from creme.creme_core.gui.bricks import InstanceBrick, brick_registry
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
@@ -92,6 +89,8 @@ class ExportingInstanceBrick(InstanceBrick):
 
 class ExportingTestCase(CremeTestCase):
     URL = reverse('creme_config__transfer_export')
+    # VERSION = '1.2'
+    VERSION = '1.3'
 
     @classmethod
     def setUpClass(cls):
@@ -298,7 +297,7 @@ class ExportingTestCase(CremeTestCase):
             content = response.json()
 
         self.assertIsInstance(content, dict)
-        self.assertEqual('1.2', content.get('version'))
+        self.assertEqual(self.VERSION, content.get('version'))
 
         roles_info = content.get('roles')
         self.assertIsList(roles_info, length=1)
@@ -367,12 +366,13 @@ class ExportingTestCase(CremeTestCase):
             ('test-objbar', 'object_predicate02'),
         )[0]
 
-        rtype_brick_id01 = SpecificRelationsBrick.generate_id('test', 'foo')
-        RelationBrickItem.objects.create(brick_id=rtype_brick_id01, relation_type=rtype01)
+        # rtype_brick_id01 = SpecificRelationsBrick.generate_id('test', 'foo')
+        # RelationBrickItem.objects.create(brick_id=rtype_brick_id01, relation_type=rtype01)
+        rbi1 = RelationBrickItem.objects.create(relation_type=rtype01)
 
-        rtype_brick_id02 = SpecificRelationsBrick.generate_id('test', 'bar')
-        RelationBrickItem(
-            brick_id=rtype_brick_id02,
+        # rtype_brick_id02 = SpecificRelationsBrick.generate_id('test', 'bar')
+        rbi2 = RelationBrickItem(
+            # brick_id=rtype_brick_id02,
             relation_type=rtype02,
         ).set_cells(
             get_ct(FakeContact),
@@ -383,7 +383,8 @@ class ExportingTestCase(CremeTestCase):
         ).set_cells(
             get_ct(FakeOrganisation),
             [EntityCellRegularField.build(FakeOrganisation, 'name')],
-        ).save()
+        )
+        rbi2.save()
 
         response = self.assertGET200(self.URL)
         content = response.json()
@@ -402,7 +403,8 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(1, len(all_rbi_info01))
 
         rbi_info01 = all_rbi_info01[0]
-        self.assertEqual(rtype_brick_id01, rbi_info01.get('brick_id'))
+        # self.assertEqual(rtype_brick_id01, rbi_info01.get('brick_id'))
+        self.assertEqual(rbi1.id, rbi_info01.get('id'))
         self.assertNotIn('cells', rbi_info01)
 
         # ----
@@ -416,7 +418,8 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(1, len(all_rbi_info02))
 
         rbi_info02 = all_rbi_info02[0]
-        self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
+        # self.assertEqual(rtype_brick_id02, rbi_info02.get('brick_id'))
+        self.assertEqual(rbi2.id, rbi_info02.get('id'))
 
         cells_info = rbi_info02.get('cells')
         self.assertIsList(cells_info, length=2)
