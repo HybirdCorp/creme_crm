@@ -952,6 +952,10 @@ class BricksManagerTestCase(CremeTestCase):
         mngr.add_group(name1, brick1, brick2, brick3)
         self.assertTrue(mngr.brick_is_registered(brick1))
         self.assertFalse(mngr.brick_is_registered(brick4))
+        self.assertCountEqual(
+            [brick1, brick2, brick3],
+            [*mngr.bricks],
+        )
         self.assertRaises(BricksManager.Error, mngr.add_group, name1, brick4)  # Same name
         _ = mngr.used_relationtypes_ids
 
