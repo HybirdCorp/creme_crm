@@ -543,7 +543,11 @@ class ProductTestCase(_ProductsTestCase):
         img_5 = create_image(ident=5, user=user)
         response = post(img_1, img_5)
         self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'images', _('This entity does not exist.'))
+        # self.assertFormError(response4, 'form', 'images', _('This entity does not exist.'))
+        self.assertFormError(
+            response, 'form', 'images',
+            _('«%(entity)s» violates the constraints.') % {'entity': img_1},
+        )
 
     def test_add_images02(self):
         "Related is not a Product"
