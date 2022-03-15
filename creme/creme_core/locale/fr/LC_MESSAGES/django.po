@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-02 19:32+0100\n"
+"POT-Creation-Date: 2022-03-15 15:28+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -906,6 +906,14 @@ msgstr "Type invalide"
 
 msgid "This entity does not exist."
 msgstr "Cette fiche n'existe pas."
+
+#, python-format
+msgid "«%(entity)s» is in the trash."
+msgstr "«%(entity)s» est dans la corbeille."
+
+#, python-format
+msgid "«%(entity)s» violates the constraints."
+msgstr "«%(entity)s» enfreint les contraintes."
 
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
@@ -1921,9 +1929,6 @@ msgstr "Ce bloc est utilisé dans la configuration par défaut de \"Ma page\""
 msgid "This block is used in the configuration of «{}» for \"My page\""
 msgstr "Ce bloc est utilisé dans la configuration de «{}» pour \"Ma page\""
 
-msgid "Block ID"
-msgstr "Identifiant de bloc"
-
 msgid "Related type of relationship"
 msgstr "Type de relation associé"
 
@@ -1938,6 +1943,9 @@ msgstr "Fiche associée au bloc"
 
 msgid "Create a block"
 msgstr "Créer un bloc"
+
+msgid "Block ID"
+msgstr "Identifiant de bloc"
 
 msgid "Button ID"
 msgstr "Identifiant de bouton"

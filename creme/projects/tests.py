@@ -543,7 +543,9 @@ class ProjectsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_PARENTTASKS_KEY, _('This entity does not exist.'),
+            # response, 'form', self.EXTRA_PARENTTASKS_KEY, _('This entity does not exist.'),
+            response, 'form', self.EXTRA_PARENTTASKS_KEY,
+            _('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
 
     def test_task_createview03(self):
@@ -682,7 +684,8 @@ class ProjectsTestCase(CremeTestCase):
                 url,
                 data={'parents': self.formfield_value_multi_creator_entity(task02)},
             ),
-            'form', 'parents', _('This entity does not exist.'),
+            # 'form', 'parents', _('This entity does not exist.'),
+            'form', 'parents', _('«%(entity)s» violates the constraints.') % {'entity': task02},
         )
 
     @skipIfCustomTask
@@ -701,7 +704,9 @@ class ProjectsTestCase(CremeTestCase):
             data={'parents': self.formfield_value_multi_creator_entity(task01)},
         )
         self.assertFormError(
-            response, 'form', 'parents', _('This entity does not exist.'),
+            # response, 'form', 'parents', _('This entity does not exist.'),
+            response, 'form', 'parents',
+            _('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
 
     @skipIfCustomTask
@@ -731,7 +736,11 @@ class ProjectsTestCase(CremeTestCase):
         response = self.client.post(
             build_url(task01), data={'parents': field_value(task03)},
         )
-        self.assertFormError(response, 'form', 'parents', _('This entity does not exist.'))
+        # self.assertFormError(response, 'form', 'parents', _('This entity does not exist.'))
+        self.assertFormError(
+            response, 'form', 'parents',
+            _('«%(entity)s» violates the constraints.') % {'entity': task03},
+        )
 
     @skipIfCustomTask
     def test_duration01(self):
@@ -1066,12 +1075,12 @@ class ProjectsTestCase(CremeTestCase):
 
         resources = [*task1.resources_set.all()]
         self.assertEqual(1, len(resources))
-        resource1 = resources[0]
+        # resource1 = resources[0]
 
         response = self.assertPOST200(
             self._build_add_activity_url(task2), follow=True,
             data={
-                'resource':      resource1.id,
+                'resource':      worker.id,
                 # 'start':         '2016-05-19',
                 # 'end':           '2016-06-03',
                 'start':         self.formfield_value_date(2016, 5, 19),
@@ -1082,7 +1091,9 @@ class ProjectsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'resource', _('This entity does not exist.'),
+            # response, 'form', 'resource', _('This entity does not exist.'),
+            response, 'form', 'resource',
+            _('«%(entity)s» violates the constraints.') % {'entity': worker},
         )
 
     @skipIfCustomActivity
@@ -1117,12 +1128,12 @@ class ProjectsTestCase(CremeTestCase):
 
         project = self.create_project('Eva02')[0]
         task = self.create_task(project, 'arms')
-
+        contact = self.other_user.linked_contact
         response = self.assertPOST200(
             self._build_add_activity_url(task),
             follow=True,
             data={
-                'resource':      self.other_user.linked_contact.id,
+                'resource':      contact.id,
                 # 'start':         '2020-09-14',
                 # 'end':           '2020-12-31',
                 'start':         self.formfield_value_date(2020,  9, 14),
@@ -1133,7 +1144,9 @@ class ProjectsTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'resource', _('This entity does not exist.'),
+            # response, 'form', 'resource', _('This entity does not exist.'),
+            response, 'form', 'resource',
+            _('«%(entity)s» violates the constraints.') % {'entity': contact},
         )
 
     @skipIfCustomTask
