@@ -323,7 +323,9 @@ class CreditNoteTestCase(_BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response, 'form', 'credit_notes', _('This entity does not exist.'),
+            # response, 'form', 'credit_notes', _('This entity does not exist.'),
+            response, 'form', 'credit_notes',
+            _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
 
         self.assertFalse(Relation.objects.filter(
@@ -337,7 +339,7 @@ class CreditNoteTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_addrelated_view_already_linked(self):
-        "cannot attach credit note in US Dollar to invoice in Euro"
+        "Cannot attach credit note in US Dollar to invoice in Euro."
         user = self.login()
         create_line = partial(ProductLine.objects.create, user=user)
         us_dollar = Currency.objects.all()[1]
@@ -380,7 +382,9 @@ class CreditNoteTestCase(_BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response, 'form', 'credit_notes', _('This entity does not exist.'),
+            # response, 'form', 'credit_notes', _('This entity does not exist.'),
+            response, 'form', 'credit_notes',
+            _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
 
         self.assertEqual(
@@ -427,7 +431,9 @@ class CreditNoteTestCase(_BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            response, 'form', 'credit_notes', _('This entity does not exist.'),
+            # response, 'form', 'credit_notes', _('This entity does not exist.'),
+            response, 'form', 'credit_notes',
+            _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
 
         self.assertFalse(

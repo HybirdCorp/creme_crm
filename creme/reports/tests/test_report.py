@@ -2060,8 +2060,13 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
 
         # Incompatible CT
-        response = self.assertPOST200(url, data={'report': self._build_image_report().id})
-        self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
+        img_report = self._build_image_report()
+        response = self.assertPOST200(url, data={'report': img_report.id})
+        # self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
+        self.assertFormError(
+            response, 'form', 'report',
+            _('«%(entity)s» violates the constraints.') % {'entity': img_report},
+        )
 
         orga_report = self._build_orga_report()
         self.assertNoFormError(self.client.post(url, data={'report': orga_report.id}))
@@ -2143,7 +2148,11 @@ class ReportTestCase(BaseReportsTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(url, data={'report': orga_report.id})
-        self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
+        # self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
+        self.assertFormError(
+            response, 'form', 'report',
+            _('«%(entity)s» violates the constraints.') % {'entity': orga_report},
+        )
 
         # Invalid field -> no 500 error
         rfield = create_field(name='invalid', type=RFT_FIELD, order=3)

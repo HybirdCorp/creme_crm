@@ -4,6 +4,9 @@
   ------------
     # A crash during an installation from source (with old version of setuptools) has been fixed.
     # The package 'reportlab' is temporarily pinned because 3.6.7 is not compatible with 'xhtml2pdf 0.2.5'.
+    # The behaviour of form fields to select entities has been improved.
+      Entities in the trash & entities which are excluded from the given filter can be used as initial value (it was causing error 500).
+      Validation error messages are better with deleted & excluded entities.
     # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
     # Apps :
         * Billing :
@@ -15,6 +18,16 @@
             - The JavaScript code to create phone calls was broken.
         * Emails :
             - The "Refresh" button in synchronization page has been fixed.
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # In 'creme_core.forms.fields' :
+            - some error messages have changed.
+            - some exceptions are raised when invalid PKs are cleaned on not required fields (when <None> was returned).
+          (it may affect your unit tests)
 
 
 == Version 2.2.10 ==

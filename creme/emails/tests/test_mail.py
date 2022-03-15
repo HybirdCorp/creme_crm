@@ -626,11 +626,14 @@ class EntityEmailTestCase(_EmailsTestCase):
                 'body_html':    '<p>Freeze !</p>',
             },
         )
+        msg = _('«%(entity)s» violates the constraints.')
         self.assertFormError(
-            response, 'form', 'c_recipients', _('This entity does not exist.')
+            # response, 'form', 'c_recipients', _('This entity does not exist.'),
+            response, 'form', 'c_recipients', msg % {'entity': contact01},
         )
         self.assertFormError(
-            response, 'form', 'o_recipients', _('This entity does not exist.')
+            # response, 'form', 'o_recipients', _('This entity does not exist.'),
+            response, 'form', 'o_recipients', msg % {'entity': orga01},
         )
 
     @skipIfCustomEmailTemplate

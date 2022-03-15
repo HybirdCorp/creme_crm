@@ -807,7 +807,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         ranma = Contact.objects.create(user=user, first_name='Ranma', last_name='Saotome')
-
+        other = self.other_user.linked_contact
         response = self.assertPOST200(
             self.ACTIVITY_CREATION_URL, follow=True,
             data={
@@ -827,13 +827,14 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 # 'other_participants': self.formfield_value_multi_creator_entity(
                 self.EXTRA_OTHERPART_KEY: self.formfield_value_multi_creator_entity(
-                    self.other_user.linked_contact,
+                    other,
                 ),
             },
         )
         self.assertFormError(
-            # response, 'form', 'other_participants', _('This entity does not exist.'),
-            response, 'form', self.EXTRA_OTHERPART_KEY, _('This entity does not exist.'),
+            response, 'form', self.EXTRA_OTHERPART_KEY,
+            # _('This entity does not exist.'),
+            _('«%(entity)s» violates the constraints.') % {'entity': other},
         )
 
     def test_createview_errors04(self):
