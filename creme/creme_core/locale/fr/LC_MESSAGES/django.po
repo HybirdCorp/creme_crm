@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'CREME_CORE' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" -i "templates/creme_core/tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-09 10:56+0100\n"
+"POT-Creation-Date: 2022-03-15 21:57+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -906,6 +906,14 @@ msgstr "Type invalide"
 
 msgid "This entity does not exist."
 msgstr "Cette fiche n'existe pas."
+
+#, python-format
+msgid "«%(entity)s» is in the trash."
+msgstr "«%(entity)s» est dans la corbeille."
+
+#, python-format
+msgid "«%(entity)s» violates the constraints."
+msgstr "«%(entity)s» enfreint les contraintes."
 
 msgid "The entity is required."
 msgstr "La fiche est obligatoire."
