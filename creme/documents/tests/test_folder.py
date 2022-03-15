@@ -331,7 +331,18 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             user=user,
         )
 
-        self.assertNoFormError(self.client.post(
+        # self.assertNoFormError(self.client.post(
+        #     folder.get_edit_absolute_url(),
+        #     follow=True,
+        #     data={
+        #         'user':          user.pk,
+        #         'title':         folder.title,
+        #         'description':   folder.description,
+        #         'parent_folder': folder.id,
+        #     },
+        # ))
+        # self.assertIsNone(self.refresh(folder).parent_folder)
+        response = self.assertPOST200(
             folder.get_edit_absolute_url(),
             follow=True,
             data={
@@ -340,8 +351,11 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
                 'description':   folder.description,
                 'parent_folder': folder.id,
             },
-        ))
-        self.assertIsNone(self.refresh(folder).parent_folder)
+        )
+        self.assertFormError(
+            response, 'form', 'parent_folder',
+            _('«%(entity)s» violates the constraints.') % {'entity': folder},
+        )
 
     def test_editview03(self):
         "A folder cannot be the parent of one of its parents."
@@ -424,9 +438,9 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
 
         url = self.build_inneredit_url(folder1, 'parent_folder')
-        response = self.assertPOST200(url, data={'field_value': folder3.id})
+        response1 = self.assertPOST200(url, data={'field_value': folder3.id})
         self.assertFormError(
-            response, 'form', None,
+            response1, 'form', None,
             '{} : {}'.format(
                 _('Parent folder'),
                 _('This folder is one of the child folders of «%(folder)s»') % {
@@ -436,9 +450,13 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
         # -----
-        response = self.client.post(url, data={'field_value': folder1.pk})
-        self.assertNoFormError(response)
-        self.assertIsNone(self.refresh(folder1).parent_folder)
+        response2 = self.client.post(url, data={'field_value': folder1.pk})
+        # self.assertNoFormError(response2)
+        # self.assertIsNone(self.refresh(folder1).parent_folder)
+        self.assertFormError(
+            response2, 'form', 'field_value',
+            _('«%(entity)s» violates the constraints.') % {'entity': folder1},
+        )
 
     def test_bulkedit_parent(self):
         user = self.login()

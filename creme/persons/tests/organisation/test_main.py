@@ -806,7 +806,11 @@ class OrganisationTestCase(_BaseTestCase):
             url,
             data={'organisations': self.formfield_value_multi_creator_entity(orga1)},
         )
-        self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
+        # self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
+        self.assertFormError(
+            response, 'form', 'organisations',
+            _('«%(entity)s» violates the constraints.') % {'entity': orga1},
+        )
 
     def test_set_orga_as_managed02(self):
         "Not super-user."
