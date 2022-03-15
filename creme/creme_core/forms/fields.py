@@ -140,7 +140,9 @@ class JSONField(fields.CharField):
     default_error_messages = {
         'invalidformat':    _('Invalid format'),
         'invalidtype':      _('Invalid type'),
-        'doesnotexist':     _('This entity does not exist.'),
+        'doesnotexist':     _('This entity does not exist.'),  # TODO: 'An entity ...' ?
+        'isdeleted':        _('«%(entity)s» is in the trash.'),
+        'isexcluded':       _('«%(entity)s» violates the constraints.'),
 
         # Used by child classes
         'entityrequired':   _('The entity is required.'),
@@ -291,7 +293,8 @@ class JSONField(fields.CharField):
             assert issubclass(model, CremeEntity)
 
             try:
-                entity = model.objects.get(is_deleted=False, pk=entity_pk)
+                # entity = model.objects.get(is_deleted=False, pk=entity_pk)
+                entity = model.objects.get(pk=entity_pk)
             except model.DoesNotExist as e:
                 raise ValidationError(
                     self.error_messages['doesnotexist'],
@@ -301,11 +304,19 @@ class JSONField(fields.CharField):
                     },
                     code='doesnotexist',
                 ) from e
+            else:
+                if entity.is_deleted:
+                    raise ValidationError(
+                        self.error_messages['isdeleted'],
+                        code='isdeleted',
+                        params={'entity': entity.allowed_str(self._user)},
+                    )
 
         return entity
 
     def _entity_queryset(self, model, qfilter=None):
-        query = model.objects.filter(is_deleted=False)
+        # query = model.objects.filter(is_deleted=False)
+        query = model.objects.all()
 
         if qfilter is not None:
             query = query.filter(qfilter)
@@ -313,14 +324,36 @@ class JSONField(fields.CharField):
         return query
 
     def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
+        # try:
+        #     return self._entity_queryset(model, qfilter).get(pk=entity_pk)
+        # except model.DoesNotExist as e:
+        #     if self.required:
+        #         raise ValidationError(
+        #             self.error_messages['doesnotexist'],
+        #             code='doesnotexist',
+        #         ) from e
         try:
-            return self._entity_queryset(model, qfilter).get(pk=entity_pk)
+            entity = self._entity_queryset(model, qfilter).get(pk=entity_pk)
         except model.DoesNotExist as e:
-            if self.required:
+            if qfilter:
+                entity = self._entity_queryset(model).filter(pk=entity_pk).first()
+                if entity is not None:
+                    raise ValidationError(
+                        self.error_messages['isexcluded'],
+                        code='isexcluded',
+                        params={'entity': entity.allowed_str(self._user)},
+                    ) from e
+
+            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist') from e
+        else:
+            if entity.is_deleted:
                 raise ValidationError(
-                    self.error_messages['doesnotexist'],
-                    code='doesnotexist',
-                ) from e
+                    self.error_messages['isdeleted'],
+                    code='isdeleted',
+                    params={'entity': entity.allowed_str(self._user)},
+                )
+
+            return entity
 
     def _value_from_unjsonfied(self, data):
         "Build the field value from deserialized data."
@@ -597,16 +630,28 @@ class MultiGenericEntityField(GenericEntityField):
 
         # Build the list of entities (ignore invalid entries)
         for ct_id, ctype_entity_pks in entities_by_ctype.items():
-            ctype_entities = self._clean_ctype(ct_id).model_class() \
-                                                     .objects \
-                                                     .filter(is_deleted=False) \
-                                                     .in_bulk(ctype_entity_pks)
+            # ctype_entities = self._clean_ctype(ct_id).model_class() \
+            #                                          .objects \
+            #                                          .filter(is_deleted=False) \
+            #                                          .in_bulk(ctype_entity_pks)
+            ctype_entities = self._clean_ctype(ct_id) \
+                                 .get_all_objects_for_this_type() \
+                                 .in_bulk(ctype_entity_pks)
 
             if not all(pk in ctype_entities for pk in ctype_entity_pks):
                 raise ValidationError(
                     self.error_messages['doesnotexist'],
                     code='doesnotexist',
                 )
+
+            # TODO: factorise
+            for entity in ctype_entities.values():
+                if entity.is_deleted:
+                    raise ValidationError(
+                        self.error_messages['isdeleted'],
+                        code='isdeleted',
+                        params={'entity': entity.allowed_str(self._user)},
+                    )
 
             entities_map.update(ctype_entities)
 
@@ -862,16 +907,26 @@ class MultiRelationEntityField(RelationEntityField):
         for ctype, entity_pks in ctypes_cache.values():
             ctype_entities = {
                 entity.pk: entity
-                for entity in ctype.model_class()
-                                   .objects
-                                   .filter(is_deleted=False, pk__in=entity_pks)
+                # for entity in ctype.model_class()
+                #                    .objects
+                #                    .filter(is_deleted=False, pk__in=entity_pks)
+                for entity in ctype.get_all_objects_for_this_type(pk__in=entity_pks)
             }
 
             if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
                 raise ValidationError(
                     self.error_messages['doesnotexist'],
                     code='doesnotexist',
+                    # TODO: params={'entity_id': ...} ?
                 )
+
+            for entity in ctype_entities.values():
+                if entity.is_deleted:
+                    raise ValidationError(
+                        self.error_messages['isdeleted'],
+                        code='isdeleted',
+                        params={'entity': entity.allowed_str(self._user)},
+                    )
 
             entities_cache.update(ctype_entities)
 
@@ -1035,7 +1090,8 @@ class CreatorEntityField(EntityCredsJSONField):
     def _value_to_jsonifiable(self, value):
         if isinstance(value, int):
             if not self._entity_queryset(
-                self.model, self.q_filter_query,
+                self.model,
+                # self.q_filter_query,
             ).filter(pk=value).exists():
                 raise ValueError(f'No such entity with id={value}.')
 

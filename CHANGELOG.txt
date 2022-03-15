@@ -2,6 +2,9 @@
 
   Users side :
   ------------
+    # The behaviour of form fields to select entities has been improved.
+      Entities in the trash & entities which are excluded from the given filter can be used as initial value (it was causing error 500).
+      Validation error messages are better with deleted & excluded entities.
     # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
     # The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
     # Apps :
@@ -9,6 +12,16 @@
             - The number of cloned Quote/SalesOrder has been improved.
               With managed source: it was incremented twice.
               With not managed source: it was copied (now set to '0' like newly created Quotes/Order).
+
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ------------------
+        # In 'creme_core.forms.fields' :
+            - some error messages have changed.
+            - some exceptions are raised when invalid PKs are cleaned on not required fields (when <None> was returned).
+          (it may affect your unit tests)
 
 
 == Version 2.3.1 ==

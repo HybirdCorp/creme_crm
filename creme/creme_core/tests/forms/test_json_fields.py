@@ -180,18 +180,30 @@ class JSONFieldTestCase(_JSONFieldBaseTestCase):
             JSONField, 'doesnotexist', clean, FakeOrganisation, contact.pk,
         )
         self.assertFieldValidationError(
-            JSONField, 'doesnotexist', clean, FakeContact, 10000,
+            JSONField, 'doesnotexist', clean, FakeContact, self.UNUSED_PK,
         )
 
     def test_clean_filtered_entity_from_model(self):
-        self.login()
+        user = self.login()
         contact = self.create_contact()
-        field = JSONField(required=True)
+        field = JSONField(required=True, user=user)
 
         clean = field._clean_entity_from_model
         self.assertEqual(contact, clean(FakeContact, contact.pk, qfilter=Q(pk=contact.pk)))
         self.assertFieldValidationError(
-            JSONField, 'doesnotexist', clean, FakeContact, contact.pk, ~Q(pk=contact.pk),
+            # JSONField, 'doesnotexist', clean, FakeContact, contact.pk, ~Q(pk=contact.pk),
+            JSONField, 'isexcluded', clean, FakeContact, contact.pk, ~Q(pk=contact.pk),
+            message_args={'entity': str(contact)},
+        )
+
+    def test_clean_deleted_entity_from_model(self):
+        user = self.login()
+        contact = self.create_contact(is_deleted=True)
+        field = JSONField(user=user)
+        self.assertFieldValidationError(
+            JSONField, 'isdeleted',
+            field._clean_entity_from_model, FakeContact, contact.pk, Q(pk=contact.pk),
+            message_args={'entity': str(contact)},
         )
 
 
@@ -353,12 +365,18 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        self.login()
+        user = self.login()
         contact = self.create_contact(is_deleted=True)
+
+        field = GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage])
+        field.user = user
+
         self.assertFieldValidationError(
-            GenericEntityField, 'doesnotexist',
-            GenericEntityField(models=[FakeOrganisation, FakeContact, FakeImage]).clean,
+            # GenericEntityField, 'doesnotexist',
+            type(field), 'isdeleted',
+            field.clean,
             self.build_field_data(contact.entity_type_id, contact.pk),
+            message_args={'entity': str(contact)},
         )
 
     def test_clean_entity(self):
@@ -773,12 +791,16 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        self.login()
-        cls = MultiGenericEntityField
+        user = self.login()
         contact = self.create_contact(is_deleted=True)
-        clean = cls(models=[FakeOrganisation, FakeContact, FakeImage]).clean
+        field = MultiGenericEntityField(
+            models=[FakeOrganisation, FakeContact, FakeImage],
+            user=user,
+        )
         self.assertFieldValidationError(
-            cls, 'doesnotexist', clean, self.build_data(contact),
+            # type(field), 'doesnotexist', field.clean, self.build_data(contact),
+            type(field), 'isdeleted', field.clean, self.build_data(contact),
+            message_args={'entity': str(contact)},
         )
 
     def test_clean_entities(self):
@@ -870,7 +892,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         ).clean
         ct_id = str(contact.entity_type_id)
         self.assertFieldValidationError(
-            RelationEntityField, 'required', clean,
+            MultiGenericEntityField, 'required', clean,
             json_dump([
                 {'ctype': {'id': ct_id}},
                 {'ctype': {'id': ct_id}, 'entity': None},
@@ -1194,14 +1216,20 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        self.login()
+        user = self.login()
         orga = self.create_orga(is_deleted=True)
         rtype1 = self.create_employed_rtype()[0]
         rtype2 = self.create_customer_rtype()[0]
+
+        field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+        field.user = user
+
         self.assertFieldValidationError(
-            RelationEntityField, 'doesnotexist',
-            RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
+            # RelationEntityField, 'doesnotexist',
+            type(field), 'isdeleted',
+            field.clean,
             self.build_data(rtype1.id, orga),
+            message_args={'entity': str(orga)},
         )
 
     def test_clean_relation(self):
@@ -1545,16 +1573,21 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        self.login()
+        user = self.login()
         contact = self.create_contact(is_deleted=True)
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
 
+        field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+        field.user = user
+
         self.assertFieldValidationError(
-            MultiRelationEntityField, 'doesnotexist',
-            MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
-            self.build_data([rtype1.id, contact])
+            # MultiRelationEntityField, 'doesnotexist',
+            type(field), 'isdeleted',
+            field.clean,
+            self.build_data([rtype1.id, contact]),
+            message_args={'entity': str(contact)},
         )
 
     def test_clean_relations(self):
@@ -1894,58 +1927,58 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = CreatorEntityField(model=FakeContact, q_filter=qfilter)
         self.assertEqual(field.q_filter, qfilter)
 
-    def test_format_object_with_qfilter01(self):
-        "q_filter is a dict."
-        self.login()
-        contact = self.create_contact()
-        contact2 = self.create_contact()
-        field = CreatorEntityField(model=FakeContact, q_filter={'pk': contact2.pk})
-
-        jsonified = str(contact.pk)
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python(contact))
-
-        with self.assertRaises(ValueError) as error:
-            field.from_python(contact.pk)
-
-        self.assertEqual(
-            str(error.exception), f'No such entity with id={contact.id}.',
-        )
-
-    def test_format_object_with_qfilter02(self):
-        "qfilter is a callable returning a dict."
-        self.login()
-        contact = self.create_contact()
-        contact2 = self.create_contact()
-        field = CreatorEntityField(model=FakeContact, q_filter=lambda: {'pk': contact2.pk})
-
-        jsonified = str(contact.pk)
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python(contact))
-
-        with self.assertRaises(ValueError) as error:
-            field.from_python(contact.pk)
-
-        self.assertEqual(
-            str(error.exception), f'No such entity with id={contact.id}.',
-        )
-
-    def test_format_object_with_qfilter03(self):
-        "q_filter is Q."
-        self.login()
-        contact = self.create_contact()
-        field = CreatorEntityField(model=FakeContact, q_filter=~Q(pk=contact.id))
-
-        jsonified = str(contact.pk)
-        self.assertEqual(jsonified, field.from_python(jsonified))
-        self.assertEqual(jsonified, field.from_python(contact))
-
-        with self.assertRaises(ValueError) as error:
-            field.from_python(contact.id)
-
-        self.assertEqual(
-            str(error.exception), f'No such entity with id={contact.id}.',
-        )
+    # def test_format_object_with_qfilter01(self):
+    #     "q_filter is a dict."
+    #     self.login()
+    #     contact = self.create_contact()
+    #     contact2 = self.create_contact()
+    #     field = CreatorEntityField(model=FakeContact, q_filter={'pk': contact2.pk})
+    #
+    #     jsonified = str(contact.pk)
+    #     self.assertEqual(jsonified, field.from_python(jsonified))
+    #     self.assertEqual(jsonified, field.from_python(contact))
+    #
+    #     with self.assertRaises(ValueError) as error:
+    #         field.from_python(contact.pk)
+    #
+    #     self.assertEqual(
+    #         str(error.exception), f'No such entity with id={contact.id}.',
+    #     )
+    #
+    # def test_format_object_with_qfilter02(self):
+    #     "qfilter is a callable returning a dict."
+    #     self.login()
+    #     contact = self.create_contact()
+    #     contact2 = self.create_contact()
+    #     field = CreatorEntityField(model=FakeContact, q_filter=lambda: {'pk': contact2.pk})
+    #
+    #     jsonified = str(contact.pk)
+    #     self.assertEqual(jsonified, field.from_python(jsonified))
+    #     self.assertEqual(jsonified, field.from_python(contact))
+    #
+    #     with self.assertRaises(ValueError) as error:
+    #         field.from_python(contact.pk)
+    #
+    #     self.assertEqual(
+    #         str(error.exception), f'No such entity with id={contact.id}.',
+    #     )
+    #
+    # def test_format_object_with_qfilter03(self):
+    #     "q_filter is Q."
+    #     self.login()
+    #     contact = self.create_contact()
+    #     field = CreatorEntityField(model=FakeContact, q_filter=~Q(pk=contact.id))
+    #
+    #     jsonified = str(contact.pk)
+    #     self.assertEqual(jsonified, field.from_python(jsonified))
+    #     self.assertEqual(jsonified, field.from_python(contact))
+    #
+    #     with self.assertRaises(ValueError) as error:
+    #         field.from_python(contact.id)
+    #
+    #     self.assertEqual(
+    #         str(error.exception), f'No such entity with id={contact.id}.',
+    #     )
 
     def test_format_object_from_other_model(self):
         self.login()
@@ -2162,24 +2195,38 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertEqual('linknotallowed', cm.exception.code)
 
     def test_clean_deleted_entity(self):
-        self.login()
+        # self.login()
+        # self.assertFieldValidationError(
+        #     CreatorEntityField, 'doesnotexist',
+        #     CreatorEntityField(model=FakeContact).clean,
+        #     str(self.create_contact(is_deleted=True).pk),
+        # )
+        user = self.login()
+        contact = self.create_contact(is_deleted=True)
         self.assertFieldValidationError(
-            CreatorEntityField, 'doesnotexist',
-            CreatorEntityField(model=FakeContact).clean,
-            str(self.create_contact(is_deleted=True).pk),
+            CreatorEntityField, 'isdeleted',
+            CreatorEntityField(model=FakeContact, user=user).clean,
+            str(contact.pk),
+            message_args={'entity': str(contact)},
         )
 
     def test_clean_filtered_entity01(self):
         "q_filter is a dict."
         user = self.login()
-        contact = self.create_contact()
+        contact1 = self.create_contact()
 
         with self.assertNumQueries(0):
             field = CreatorEntityField(model=FakeContact)
 
         field.user = user
-        field.q_filter = {'pk': contact.pk}
-        self.assertEqual(contact, field.clean(str(contact.pk)))
+        field.q_filter = {'pk': contact1.pk}
+        self.assertEqual(contact1, field.clean(str(contact1.pk)))
+
+        contact2 = self.create_contact()
+        self.assertFieldValidationError(
+            CreatorEntityField, 'isexcluded', field.clean, str(contact2.pk),
+            message_args={'entity': str(contact2)},
+        )
 
     def test_clean_filtered_entity02(self):
         "q_filter is a Q."
@@ -2192,7 +2239,9 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
         field.q_filter = ~Q(name__startswith=orga.name)
         self.assertFieldValidationError(
-            CreatorEntityField, 'doesnotexist', field.clean, str(orga.pk),
+            # CreatorEntityField, 'doesnotexist', field.clean, str(orga.pk),
+            CreatorEntityField, 'isexcluded', field.clean, str(orga.pk),
+            message_args={'entity': str(orga)},
         )
 
         field.q_filter = Q(name__startswith=orga.name)
@@ -2444,11 +2493,18 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_deleted_entity(self):
-        self.login()
+        user = self.login()
+        contact = self.create_contact(is_deleted=True)
+
+        field = MultiCreatorEntityField(model=FakeContact)
+        field.user = user
+
         self.assertFieldValidationError(
-            MultiCreatorEntityField, 'doesnotexist',
-            MultiCreatorEntityField(model=FakeContact).clean,
-            f'[{self.create_contact(is_deleted=True).id}]',
+            # MultiCreatorEntityField, 'doesnotexist',
+            MultiCreatorEntityField, 'isdeleted',
+            field.clean,
+            f'[{contact.id}]',
+            message_args={'entity': str(contact)},
         )
 
     def test_clean_entities(self):
@@ -2473,7 +2529,9 @@ class MultiCreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.user = user
         self.assertFieldValidationError(
-            MultiCreatorEntityField, 'doesnotexist', field.clean, f'[{contact.id}]',
+            # MultiCreatorEntityField, 'doesnotexist', field.clean, f'[{contact.id}]',
+            MultiCreatorEntityField, 'isexcluded', field.clean, f'[{contact.id}]',
+            message_args={'entity': str(contact)},
         )
 
         field.q_filter = {'pk': contact.pk}

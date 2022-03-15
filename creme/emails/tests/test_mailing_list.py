@@ -114,10 +114,10 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(campaign.mailing_lists.exists())
 
         url = reverse('emails__add_mlists_to_campaign', args=(campaign.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New mailing lists for «{entity}»').format(entity=campaign),
             context.get('title')
@@ -131,15 +131,19 @@ class MailingListsTestCase(_EmailsTestCase):
                 data={'mailing_lists': self.formfield_value_multi_creator_entity(*mlists)},
             )
 
-        response = post(mlist01, mlist02)
-        self.assertNoFormError(response)
+        response2 = post(mlist01, mlist02)
+        self.assertNoFormError(response2)
         self.assertSetEqual({mlist01, mlist02}, {*campaign.mailing_lists.all()})
 
         # Duplicates ---------------------
         mlist03 = create_ml(name='Ml03')
-        response = post(mlist01, mlist03)
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'mailing_lists', _('This entity does not exist.'))
+        response3 = post(mlist01, mlist03)
+        self.assertEqual(200, response3.status_code)
+        self.assertFormError(
+            response3, 'form', 'mailing_lists',
+            # _('This entity does not exist.')
+            _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
+        )
 
     def test_ml_and_campaign02(self):
         "Remove list from campaign."
