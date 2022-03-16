@@ -183,7 +183,8 @@ class Base(CremeEntity):
     def source(self):
         if not self._source:
             self._source_rel = rel = self.relations.get(type=REL_SUB_BILL_ISSUED)
-            self._source = rel.object_entity.get_real_entity()
+            # self._source = rel.object_entity.get_real_entity()
+            self._source = rel.real_object
 
         return self._source
 
@@ -201,7 +202,8 @@ class Base(CremeEntity):
     def target(self):
         if not self._target:
             self._target_rel = rel = self.relations.get(type=REL_SUB_BILL_RECEIVED)
-            self._target = rel.object_entity.get_real_entity()
+            # self._target = rel.object_entity.get_real_entity()
+            self._target = rel.real_object
 
         return self._target
 
@@ -222,15 +224,24 @@ class Base(CremeEntity):
             self._creditnotes_cache = credit_notes = []
 
             if self.id:
-                relations = Relation.objects.filter(
-                    subject_entity=self.id,
-                    type=REL_OBJ_CREDIT_NOTE_APPLIED,
-                ).select_related('object_entity')
-                Relation.populate_real_object_entities(relations)
+                # relations = Relation.objects.filter(
+                #     subject_entity=self.id,
+                #     type=REL_OBJ_CREDIT_NOTE_APPLIED,
+                # ).select_related('object_entity')
+                # Relation.populate_real_object_entities(relations)
+                # credit_notes.extend(
+                #     rel.object_entity.get_real_entity()
+                #     for rel in relations
+                #     if not rel.object_entity.is_deleted
+                # )
                 credit_notes.extend(
-                    rel.object_entity.get_real_entity()
-                    for rel in relations
-                    if not rel.object_entity.is_deleted
+                    rel.real_object
+                    for rel in Relation.objects
+                                       .filter(
+                                           subject_entity=self.id,
+                                           type=REL_OBJ_CREDIT_NOTE_APPLIED,
+                                       ).prefetch_related('real_object')
+                    if not rel.real_object.is_deleted
                 )
 
         return credit_notes

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,14 +74,17 @@ class AbstractCreditNote(Base):
         return super().build(template)
 
     def _update_linked_docs(self):
-        # TODO: factorise (Relation.get_real_objects() ??)
-        relations = Relation.objects.filter(
+        # relations = Relation.objects.filter(
+        #     subject_entity=self.id, type=REL_SUB_CREDIT_NOTE_APPLIED,
+        # ).select_related('object_entity')
+        # Relation.populate_real_object_entities(relations)
+        #
+        # for rel in relations:
+        #     rel.object_entity.get_real_entity().save()
+        for rel in Relation.objects.filter(
             subject_entity=self.id, type=REL_SUB_CREDIT_NOTE_APPLIED,
-        ).select_related('object_entity')
-        Relation.populate_real_object_entities(relations)
-
-        for rel in relations:
-            rel.object_entity.get_real_entity().save()
+        ).prefetch_related('real_object'):
+            rel.real_object.save()
 
     def restore(self):
         super().restore()

@@ -121,9 +121,12 @@ class RelationsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
+        # relations = entity.relations.select_related(
+        #     'type', 'type__symmetric_type', 'object_entity',
+        # )
         relations = entity.relations.select_related(
-            'type', 'type__symmetric_type', 'object_entity',
-        )
+            'type', 'type__symmetric_type',
+        ).prefetch_related('real_object')
         included_rtype_ids = self._included_rtype_ids
         excluded_rtype_ids = self._excluded_rtype_ids
         reloading_info = self._reloading_info
@@ -161,15 +164,19 @@ class RelationsBrick(QuerysetBrick):
         if excluded_rtype_ids:
             relations = relations.exclude(type__in=excluded_rtype_ids)
 
-        btc = self.get_template_context(
+        # btc = self.get_template_context(
+        #     context, relations,
+        #     excluded_rtype_ids=excluded_rtype_ids,
+        # )
+        #
+        # # NB: DB optimisation
+        # Relation.populate_real_object_entities(btc['page'].object_list)
+        #
+        # return self._render(btc)
+        return self._render(self.get_template_context(
             context, relations,
             excluded_rtype_ids=excluded_rtype_ids,
-        )
-
-        # NB: DB optimisation
-        Relation.populate_real_object_entities(btc['page'].object_list)
-
-        return self._render(btc)
+        ))
 
 
 class CustomFieldsBrick(Brick):

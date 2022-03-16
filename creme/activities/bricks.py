@@ -99,16 +99,23 @@ class SubjectsBrick(QuerysetBrick):
     target_ctypes = (Activity, )
 
     def detailview_display(self, context):
-        activity = context['object']
-        btc = self.get_template_context(
+        # activity = context['object']
+        # btc = self.get_template_context(
+        #     context,
+        #     activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
+        #             .select_related('type', 'object_entity'),
+        # )
+        #
+        # Relation.populate_real_object_entities(btc['page'].object_list)
+        #
+        # return self._render(btc)
+        return self._render(self.get_template_context(
             context,
-            activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-                    .select_related('type', 'object_entity'),
-        )
-
-        Relation.populate_real_object_entities(btc['page'].object_list)
-
-        return self._render(btc)
+            context['object'].relations
+                             .filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
+                             .select_related('type')
+                             .prefetch_related('real_object'),
+        ))
 
 
 class _RelatedActivitiesBrick(QuerysetBrick):

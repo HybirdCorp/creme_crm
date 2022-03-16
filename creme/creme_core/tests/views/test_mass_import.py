@@ -448,7 +448,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         relations = Relation.objects.filter(subject_entity=rei, type=employed)
         self.assertEqual(1, len(relations))
 
-        employer = relations[0].object_entity.get_real_entity()
+        # employer = relations[0].object_entity.get_real_entity()
+        employer = relations[0].real_object
         self.assertIsInstance(employer, FakeOrganisation)
         self.assertEqual(orga_name, employer.name)
 

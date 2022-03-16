@@ -23,7 +23,8 @@
     {% regroup page.object_list by type as relations_by_rtype %}
     {% for rtype, relations in relations_by_rtype %}
         {% if not relation.type.is_internal %}
-            {% for relation in relations %}{% with relation.object_entity.get_real_entity as entity_obj %}
+{#            {% for relation in relations %}{% with relation.object_entity.get_real_entity as entity_obj %} #}
+            {% for relation in relations %}{% with entity_obj=relation.real_object %}
                 {% has_perm_to unlink entity_obj as object_unlink_perm %}
         <tr>
             <td {% brick_table_data_status primary %}>{% if forloop.first %}{{rtype.predicate}}{% else %}&nbsp;{% endif %}</td>

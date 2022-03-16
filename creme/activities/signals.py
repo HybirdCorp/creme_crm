@@ -46,9 +46,11 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
 
     if type_id == REL_SUB_PART_2_ACTIVITY:
         contact  = instance.subject_entity.get_real_entity()
-        activity = instance.object_entity.get_real_entity()
+        # activity = instance.object_entity.get_real_entity()
+        activity = instance.real_object
     elif type_id == REL_OBJ_PART_2_ACTIVITY:
-        contact  = instance.object_entity.get_real_entity()
+        # contact  = instance.object_entity.get_real_entity()
+        contact  = instance.real_object
         activity = instance.subject_entity.get_real_entity()
     else:
         return
@@ -70,7 +72,8 @@ def _set_orga_as_subject(sender, instance, **kwargs):
     if instance.symmetric_relation_id is None:
         return
 
-    activity = instance.object_entity.get_real_entity()
+    # activity = instance.object_entity.get_real_entity()
+    activity = instance.real_object
 
     if not is_auto_orga_subject_enabled():
         return

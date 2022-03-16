@@ -217,7 +217,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             prop_emitter = opportunity.emitter
         self.assertEqual(emitter, prop_emitter)
 
-        with self.assertNumQueries(3):
+        # with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             prop_target = opportunity.target
         self.assertEqual(target, prop_target)
 

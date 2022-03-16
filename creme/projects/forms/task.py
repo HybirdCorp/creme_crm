@@ -167,7 +167,7 @@ class RelatedActivityEditForm(CremeEntityForm):
         try:
             return Relation.objects.get(
                 subject_entity=self.instance.pk, type=REL_SUB_LINKED_2_PTASK,
-            ).object_entity.get_real_entity()
+            ).real_object  # .object_entity.get_real_entity()
         except Relation.DoesNotExist as e:
             raise ConflictError('This Activity is not related to a project task.') from e
 

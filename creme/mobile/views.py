@@ -457,7 +457,8 @@ def phonecall_panel(request):
         user.has_perm_to_view_or_die(pcall)
 
         context['participant_contacts'] = [
-            r.object_entity.get_real_entity()
+            # r.object_entity.get_real_entity()
+            r.real_object
             for r in pcall.get_participant_relations()
         ]
         context['participant_organisations'] = [*mobile_organisation_subjects(pcall)]

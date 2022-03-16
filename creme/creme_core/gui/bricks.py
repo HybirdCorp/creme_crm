@@ -541,19 +541,24 @@ class SpecificRelationsBrick(QuerysetBrick):
         relation_type = config_item.relation_type
         btc = self.get_template_context(
             context,
+            # entity.relations
+            #       .filter(type=relation_type)
+            #       .select_related('type', 'object_entity'),
             entity.relations
                   .filter(type=relation_type)
-                  .select_related('type', 'object_entity'),
+                  .select_related('type')
+                  .prefetch_related('real_object'),
             config_item=config_item,
             relation_type=relation_type,
         )
         relations = btc['page'].object_list
         entities_by_ct: DefaultDict[int, List[CremeEntity]] = defaultdict(list)
 
-        Relation.populate_real_object_entities(relations)  # DB optimisation
+        # Relation.populate_real_object_entities(relations)  # DB optimisation
 
         for relation in relations:
-            entity = relation.object_entity.get_real_entity()
+            # entity = relation.object_entity.get_real_entity()
+            entity = relation.real_object
             entity.srb_relation_cache = relation
             entities_by_ct[entity.entity_type_id].append(entity)
 
