@@ -166,10 +166,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
             ],
         ).select_related('object_entity')
 
-        # TODO: Missing test case
         if relations:
             Relation.populate_real_object_entities(relations)
-            # vat_value = Vat.get_default_vat()
             vat_value = Vat.objects.default()
             Product = get_product_model()
 
