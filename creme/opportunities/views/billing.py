@@ -158,21 +158,29 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
         b_document.save()
 
+        # relations = Relation.objects.filter(
+        #     subject_entity=opp.id,
+        #     type__in=[
+        #         constants.REL_OBJ_LINKED_PRODUCT,
+        #         constants.REL_OBJ_LINKED_SERVICE,
+        #     ],
+        # ).select_related('object_entity')
         relations = Relation.objects.filter(
             subject_entity=opp.id,
             type__in=[
                 constants.REL_OBJ_LINKED_PRODUCT,
                 constants.REL_OBJ_LINKED_SERVICE,
             ],
-        ).select_related('object_entity')
+        ).prefetch_related('real_object')
 
         if relations:
-            Relation.populate_real_object_entities(relations)
+            # Relation.populate_real_object_entities(relations)
             vat_value = Vat.objects.default()
             Product = get_product_model()
 
             for relation in relations:
-                item = relation.object_entity.get_real_entity()
+                # item = relation.object_entity.get_real_entity()
+                item = relation.real_object
                 line_klass = ProductLine if isinstance(item, Product) else ServiceLine
                 line_klass.objects.create(
                     related_item=item,
@@ -188,7 +196,6 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         if workflow_action:
             workflow_action(opp.emitter, opp.target, user)
 
-        # if request.is_ajax():
         if is_ajax(request):
             return HttpResponse()
 

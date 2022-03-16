@@ -129,7 +129,8 @@ class AbstractProjectTask(CremeEntity):
     @property
     def related_activities(self):
         activities = [
-            r.object_entity.get_real_entity()
+            # r.object_entity.get_real_entity()
+            r.real_object
             for r in self.get_relations(REL_OBJ_LINKED_2_PTASK, real_obj_entities=True)
         ]
         resource_per_contactid = {r.linked_contact_id: r for r in self.get_resources()}

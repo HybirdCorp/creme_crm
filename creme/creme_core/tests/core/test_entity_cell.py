@@ -792,6 +792,9 @@ class EntityCellTestCase(CremeTestCase):
         self.assertListEqual([norio], objs3)
         self.assertListEqual([],      objs4)
 
+        with self.assertNumQueries(0):
+            r1[0].real_object  # NOQA
+
     def test_mixed_populate_entities04(self):
         "Mixed types."
         user = self.create_user()

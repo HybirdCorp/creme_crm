@@ -208,7 +208,8 @@ class AbstractOpportunity(core_models.CremeEntity):
     def target(self):
         if not self._opp_target:
             self._opp_target_rel = rel = self.relations.get(type=constants.REL_SUB_TARGETS)
-            self._opp_target = rel.object_entity.get_real_entity()
+            # self._opp_target = rel.object_entity.get_real_entity()
+            self._opp_target = rel.real_object
 
         return self._opp_target
 

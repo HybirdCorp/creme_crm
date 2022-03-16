@@ -59,7 +59,8 @@
                 {% blocktranslate count counter=activity.get_subject_relations|length %}{{counter}} Subject{% plural %}{{counter}} Subjects{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
-            {% for relation in activity.get_subject_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+{#            {% for relation in activity.get_subject_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %} #}
+            {% for relation in activity.get_subject_relations %}{% widget_join %}<a href="{{relation.real_object.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
             </div>
         </div>
         {% endif %}
@@ -69,7 +70,8 @@
                 {% blocktranslate count counter=activity.get_participant_relations|length %}{{counter}} Participant{% plural %}{{counter}} Participants{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
-            {% for relation in activity.get_participant_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+{#            {% for relation in activity.get_participant_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %} #}
+            {% for relation in activity.get_participant_relations %}{% widget_join %}<a href="{{relation.real_object.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
             </div>
         </div>
         {% endif %}
@@ -79,7 +81,8 @@
                 {% blocktranslate count counter=activity.get_linkedto_relations|length %}{{counter}} Is related to{% plural %}{{counter}} Are related to{% endblocktranslate %}
             </div>
             <div class="activity-group-value">
-            {% for relation in activity.get_linkedto_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
+{#            {% for relation in activity.get_linkedto_relations %}{% widget_join %}<a href="{{relation.object_entity.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %} #}
+            {% for relation in activity.get_linkedto_relations %}{% widget_join %}<a href="{{relation.real_object.get_absolute_url}}" class="activity-relation">{{relation.object_entity}}</a>{% end_widget_join %}{% endfor %}
             </div>
         </div>
         {% endif %}

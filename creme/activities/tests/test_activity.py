@@ -656,7 +656,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(3, len(relations))
         self.assertSetEqual(
             {musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
-            {r.object_entity.get_real_entity() for r in relations},
+            # {r.object_entity.get_real_entity() for r in relations},
+            {r.real_object for r in relations},
         )
 
     def test_createview_light_customform(self):

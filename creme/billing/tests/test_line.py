@@ -456,7 +456,8 @@ class LineTestCase(_BillingTestCase):
         self.assertRelationCount(1, product_line, REL_SUB_LINE_RELATED_ITEM, product)
 
         product_line = self.refresh(product_line)
-        with self.assertNumQueries(3):
+        # with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             p = product_line.related_item
 
         self.assertEqual(product, p)

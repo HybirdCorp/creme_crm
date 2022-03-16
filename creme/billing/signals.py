@@ -121,7 +121,8 @@ def handle_replace_statuses(sender, model_field, replacing_instance, **kwargs):
 def manage_linked_credit_notes(sender, instance, **kwargs):
     "The calculated totals of Invoices have to be refreshed."
     if instance.type_id == constants.REL_SUB_CREDIT_NOTE_APPLIED:
-        instance.object_entity.get_real_entity().save()
+        # instance.object_entity.get_real_entity().save()
+        instance.real_object.save()
 
 
 # TODO: problem, if several lines are deleted at once, lots of useless queries (workflow engine ??)
@@ -129,7 +130,8 @@ def manage_linked_credit_notes(sender, instance, **kwargs):
 def manage_line_deletion(sender, instance, **kwargs):
     "The calculated totals (Invoice, Quote...) have to be refreshed."
     if instance.type_id == constants.REL_OBJ_HAS_LINE:
-        instance.object_entity.get_real_entity().save()
+        # instance.object_entity.get_real_entity().save()
+        instance.real_object.save()
 
 
 _WORKFLOWS = {

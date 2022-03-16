@@ -122,14 +122,17 @@ class AbstractGraph(CremeEntity):
             # subject = root.entity
             subject = root.real_entity
             str_subject = str(subject)
+            # relations = subject.relations.filter(
+            #     type__in=root.relation_types.all(),
+            # ).select_related('object_entity', 'type')
+            # Relation.populate_real_object_entities(relations)  # Small optimisation
             relations = subject.relations.filter(
                 type__in=root.relation_types.all(),
-            ).select_related('object_entity', 'type')
-
-            Relation.populate_real_object_entities(relations)  # Small optimisation
+            ).select_related('type').prefetch_related('real_object')
 
             for relation in relations:
-                object_entity = relation.object_entity
+                # object_entity = relation.object_entity
+                object_entity = relation.real_object
                 if not user.has_perm_to_view(object_entity):
                     continue
 

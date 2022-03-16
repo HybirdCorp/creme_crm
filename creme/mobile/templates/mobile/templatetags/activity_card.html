@@ -30,7 +30,8 @@
   {% if participant_relations or organisations %}
     <div class="participants">
       {% for relation in participant_relations %}
-        {% with contact=relation.object_entity.get_real_entity %}
+{#        {% with contact=relation.object_entity.get_real_entity %} #}
+        {% with contact=relation.real_object %}
           {% if contact.id != user_contact_id %}
             {% include 'mobile/frags/contact_card.html' with card_classes='participant participant-type-contact card-component' %}
           {% endif %}

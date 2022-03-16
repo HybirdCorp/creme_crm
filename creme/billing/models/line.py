@@ -193,7 +193,7 @@ class Line(CremeEntity):
                 related = self.relations.get(
                     type=constants.REL_OBJ_HAS_LINE,
                     subject_entity=self.id,
-                ).object_entity.get_real_entity()
+                ).real_object  # .object_entity.get_real_entity()
             except Relation.DoesNotExist:
                 related = None
 
@@ -214,7 +214,7 @@ class Line(CremeEntity):
                 self._related_item = self.relations.get(
                     type=constants.REL_SUB_LINE_RELATED_ITEM,
                     subject_entity=self.id,
-                ).object_entity.get_real_entity()
+                ).real_object  # .object_entity.get_real_entity()
             except Relation.DoesNotExist:
                 logger.warning('Line.related_item(): relation does not exist !!')
 

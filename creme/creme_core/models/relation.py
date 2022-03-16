@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 # import warnings
+import warnings
 from collections import defaultdict
 from typing import Iterable, Tuple, Type, Union
 
@@ -466,8 +467,13 @@ class Relation(CremeModel):
     subject_entity = models.ForeignKey(
         CremeEntity, related_name='relations', on_delete=models.PROTECT,
     )
+
+    object_ctype = creme_fields.EntityCTypeForeignKey(related_name='+', editable=False)
     object_entity = models.ForeignKey(
         CremeEntity, related_name='relations_where_is_object', on_delete=models.PROTECT,
+    )
+    real_object = creme_fields.RealEntityForeignKey(
+        ct_field='object_ctype', fk_field='object_entity',
     )
 
     objects = RelationManager()
@@ -495,6 +501,9 @@ class Relation(CremeModel):
             )
             return
 
+        if not self.object_ctype and self.object_entity:
+            self.object_ctype = self.object_entity.entity_type
+
         with atomic():
             super().save(using=using, force_insert=force_insert)
 
@@ -504,7 +513,8 @@ class Relation(CremeModel):
                 type=self.type.symmetric_type,
                 symmetric_relation=self,
                 subject_entity=self.object_entity,
-                object_entity=self.subject_entity,
+                # object_entity=self.subject_entity,
+                real_object=self.subject_entity,
             )
             super(cls, sym_relation).save(using=using, force_insert=force_insert)
 
@@ -522,6 +532,12 @@ class Relation(CremeModel):
         Tips: better if object_entity attribute is already populated
         -> (eg: use select_related('object_entity') on the queryset)
         """
+        warnings.warn(
+            'Relation.populate_real_object_entities() is deprecated ; '
+            'use Relation.objects.prefetch_related("real_object") instead.',
+            DeprecationWarning,
+        )
+
         CremeEntity.populate_real_entities([
             relation.object_entity for relation in relations
         ])

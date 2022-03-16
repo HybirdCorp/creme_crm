@@ -665,7 +665,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertSetEqual(
             {user.linked_contact, other_contact},
             {
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pcall.get_participant_relations()
             },
         )
@@ -719,14 +720,16 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertListEqual(
             [user.linked_contact],
             [
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pcall.get_participant_relations()
             ],
         )
         self.assertListEqual(
             [kuzu],
             [
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pcall.get_subject_relations()
             ],
         )
@@ -814,7 +817,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertSetEqual(
             participants,
             {
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in failed_pcall.get_participant_relations()
             },
         )
@@ -839,7 +843,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertSetEqual(
             participants,
             {
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pp_pcall.get_participant_relations()
             },
         )
@@ -931,7 +936,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertSetEqual(
             {self.user.linked_contact, other_contact},
             {
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pcall.get_participant_relations()
             },
         )
@@ -1046,7 +1052,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertSetEqual(
             {user.linked_contact, other_contact},
             {
-                r.object_entity.get_real_entity()
+                # r.object_entity.get_real_entity()
+                r.real_object
                 for r in pcall.get_participant_relations()
             },
         )
