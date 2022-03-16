@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 04-03-2022 pour la version 2.4 de Creme
+:Version: 16-03-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1623,7 +1623,7 @@ une convention) : ::
 
 
     class CreateTicketButton(Button):
-        id_ = Button.generate_id('beavers', 'create_ticket')
+        id = Button.generate_id('beavers', 'create_ticket')
         verbose_name = _('Create a ticket to notify that a beaver is sick.')
         template_name = 'beavers/buttons/ticket.html'
         permission = 'tickets.add_ticket'

@@ -46,7 +46,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_wizard(self):
         class TestButton(Button):
-            id_ = Button.generate_id('creme_config', 'test_wizard')
+            # id_ = Button.generate_id('creme_config', 'test_wizard')
+            id = Button.generate_id('creme_config', 'test_wizard')
             verbose_name = 'Testing purpose'
 
         button_registry.register(TestButton)
@@ -81,8 +82,10 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             choices = ctxt2['form'].fields['button_ids'].choices
 
         self.assertInChoices(
-            value=TestButton.id_,
-            label=button_registry.get_button(TestButton.id_),
+            # value=TestButton.id_,
+            value=TestButton.id,
+            # label=button_registry.get_button(TestButton.id_),
+            label=button_registry.get_button(TestButton.id),
             choices=choices,
         )
 
@@ -91,12 +94,14 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             url,
             data={
                 step_key: '1',
-                '1-button_ids': [TestButton.id_],
+                # '1-button_ids': [TestButton.id_],
+                '1-button_ids': [TestButton.id],
             },
         )
         self.assertNoFormError(response3)
         self.assertListEqual(
-            [(TestButton.id_, 1000)],
+            # [(TestButton.id_, 1000)],
+            [(TestButton.id, 1000)],
             [
                 *ButtonMenuItem.objects
                                .filter(content_type=ct)
@@ -111,7 +116,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
 
     def test_edit_default(self):
         class TestButton(Button):
-            id_ = Button.generate_id('creme_config', 'test_edit02')
+            # id_ = Button.generate_id('creme_config', 'test_edit02')
+            id = Button.generate_id('creme_config', 'test_edit02')
             verbose_name = 'Testing purpose'
 
         button_registry.register(TestButton)
@@ -128,20 +134,24 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             choices = context['form'].fields['button_ids'].choices
 
         self.assertInChoices(
-            value=TestButton.id_,
-            label=button_registry.get_button(TestButton.id_),
+            # value=TestButton.id_,
+            value=TestButton.id,
+            # label=button_registry.get_button(TestButton.id_),
+            label=button_registry.get_button(TestButton.id),
             choices=choices,
         )
 
         # ---
-        response2 = self.client.post(url, data={'button_ids': TestButton.id_})
+        # response2 = self.client.post(url, data={'button_ids': TestButton.id_})
+        response2 = self.client.post(url, data={'button_ids': TestButton.id})
         self.assertNoFormError(response2)
         self.assertListEqual(
-            [(TestButton.id_, 1)],
+            # [(TestButton.id_, 1)],
+            [(TestButton.id, 1)],
             [
-                *ButtonMenuItem.objects
-                               .filter(content_type=None)
-                               .values_list('button_id', 'order'),
+                *ButtonMenuItem.objects.filter(
+                    content_type=None,
+                ).values_list('button_id', 'order'),
             ],
         )
 
@@ -149,18 +159,21 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         ct = self.contact_ct
 
         class TestButton01(Button):
-            id_ = Button.generate_id('creme_config', 'test_edit03_1')
+            # id_ = Button.generate_id('creme_config', 'test_edit03_1')
+            id = Button.generate_id('creme_config', 'test_edit03_1')
             verbose_name = 'Test button #1'
 
         class TestButton02(Button):
-            id_ = Button.generate_id('creme_config', 'test_edit03_2')
+            # id_ = Button.generate_id('creme_config', 'test_edit03_2')
+            id = Button.generate_id('creme_config', 'test_edit03_2')
             verbose_name = 'Test button #2'
 
             def get_ctypes(self):
                 return [FakeContact, FakeOrganisation]
 
         class TestButton03(Button):
-            id_ = Button.generate_id('creme_config', 'test_edit03_3')
+            # id_ = Button.generate_id('creme_config', 'test_edit03_3')
+            id = Button.generate_id('creme_config', 'test_edit03_3')
             verbose_name = 'Test button #3'
 
             def get_ctypes(self):
@@ -183,27 +196,34 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             choices = context['form'].fields['button_ids'].choices
 
         self.assertInChoices(
-            value=TestButton01.id_,
-            label=button_registry.get_button(TestButton01.id_),
+            # value=TestButton01.id_,
+            value=TestButton01.id,
+            # label=button_registry.get_button(TestButton01.id_),
+            label=button_registry.get_button(TestButton01.id),
             choices=choices,
         )
         self.assertInChoices(
-            value=TestButton02.id_,
-            label=button_registry.get_button(TestButton02.id_),
+            # value=TestButton02.id_,
+            value=TestButton02.id,
+            # label=button_registry.get_button(TestButton02.id_),
+            label=button_registry.get_button(TestButton02.id),
             choices=choices,
         )
 
         # NB: Button03 is incompatible with Contact
-        self.assertNotInChoices(value=TestButton03.id_, choices=choices)
+        # self.assertNotInChoices(value=TestButton03.id_, choices=choices)
+        self.assertNotInChoices(value=TestButton03.id, choices=choices)
 
         self.assertNoFormError(self.client.post(
             url,
             data={
-                'button_ids': [TestButton01.id_, TestButton02.id_],
+                # 'button_ids': [TestButton01.id_, TestButton02.id_],
+                'button_ids': [TestButton01.id, TestButton02.id],
             },
         ))
         self.assertListEqual(
-            [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
+            # [(TestButton01.id_, 1000), (TestButton02.id_, 1001)],
+            [(TestButton01.id, 1000), (TestButton02.id, 1001)],
             [
                 *ButtonMenuItem.objects
                                .filter(content_type=ct)
@@ -216,7 +236,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
         ct = self.contact_ct
 
         class TestButton01(Button):
-            id_ = Button.generate_id('creme_config', 'test_edit_set_empty')
+            # id_ = Button.generate_id('creme_config', 'test_edit_set_empty')
+            id = Button.generate_id('creme_config', 'test_edit_set_empty')
             verbose_name = 'Test button'
 
         button_registry.register(TestButton01)

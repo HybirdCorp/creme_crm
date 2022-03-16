@@ -26,7 +26,8 @@ from .constants import REL_SUB_LINKED_2_TICKET
 
 
 class Linked2TicketButton(Button):
-    id_ = Button.generate_id('tickets', 'linked2ticket')
+    # id_ = Button.generate_id('tickets', 'linked2ticket')
+    id = Button.generate_id('tickets', 'linked2ticket')
     verbose_name = _('Is linked to a ticket')
     description = _(
         'This button links the current entity to a selected ticket, '

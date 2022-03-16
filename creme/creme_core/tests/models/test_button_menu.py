@@ -15,7 +15,8 @@ class ButtonMenuItemTestCase(CremeTestCase):
         old_count = ButtonMenuItem.objects.count()
 
         class TestButton(Button):
-            id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed01')
+            # id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed01')
+            id = Button.generate_id('creme_core', 'test_manager_create_if_needed01')
             verbose_name = 'Testing purpose'
 
         order = 10
@@ -27,11 +28,13 @@ class ButtonMenuItemTestCase(CremeTestCase):
         bmi = self.get_object_or_fail(
             ButtonMenuItem,
             content_type=content_type,
-            button_id=TestButton.id_,
+            # button_id=TestButton.id_,
+            button_id=TestButton.id,
         )
-        self.assertEqual(FakeContact,    bmi.content_type.model_class())
-        self.assertEqual(TestButton.id_, bmi.button_id)
-        self.assertEqual(order,          bmi.order)
+        self.assertEqual(FakeContact,   bmi.content_type.model_class())
+        # self.assertEqual(TestButton.id_, bmi.button_id)
+        self.assertEqual(TestButton.id, bmi.button_id)
+        self.assertEqual(order,         bmi.order)
 
         bmi = ButtonMenuItem.objects.create_if_needed(
             model=FakeContact, button=TestButton, order=order + 5,
@@ -42,7 +45,8 @@ class ButtonMenuItemTestCase(CremeTestCase):
     def test_manager_create_if_needed02(self):
         "Default config (content_type=None)."
         class TestButton(Button):
-            id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed02')
+            # id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed02')
+            id = Button.generate_id('creme_core', 'test_manager_create_if_needed02')
             verbose_name = 'Testing purpose'
 
         old_count = ButtonMenuItem.objects.count()
@@ -55,15 +59,18 @@ class ButtonMenuItemTestCase(CremeTestCase):
     def test_manager_create_if_needed03(self):
         "Button ID."
         class TestButton(Button):
-            id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed03')
+            # id_ = Button.generate_id('creme_core', 'test_manager_create_if_needed03')
+            id = Button.generate_id('creme_core', 'test_manager_create_if_needed03')
             verbose_name = 'Testing purpose'
 
         order = 10
         ButtonMenuItem.objects.create_if_needed(
-            model=FakeContact, button=TestButton.id_, order=order,
+            # model=FakeContact, button=TestButton.id_, order=order,
+            model=FakeContact, button=TestButton.id, order=order,
         )
         self.get_object_or_fail(
             ButtonMenuItem,
             content_type=ContentType.objects.get_for_model(FakeContact),
-            button_id=TestButton.id_,
+            # button_id=TestButton.id_,
+            button_id=TestButton.id,
         )

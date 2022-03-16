@@ -57,27 +57,32 @@ class _TestButton(Button):
 
 
 class TestButton01(_TestButton):
-    id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu01')
+    # id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu01')
+    id = Button.generate_id('creme_core', 'test_ttags_creme_menu01')
     action_id = 'creme_core-tests-dosomethingawesome01'
 
 
 class TestButton02(_TestButton):
-    id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu02')
+    # id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu02')
+    id = Button.generate_id('creme_core', 'test_ttags_creme_menu02')
     action_id = 'creme_core-tests-dosomethingawesome02'
 
 
 class TestButton03(_TestButton):
-    id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu03')
+    # id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu03')
+    id = Button.generate_id('creme_core', 'test_ttags_creme_menu03')
     action_id = 'creme_core-tests-dosomethingawesome03'
 
 
 class TestButton04(_TestButton):
-    id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu04')
+    # id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu04')
+    id = Button.generate_id('creme_core', 'test_ttags_creme_menu04')
     action_id = 'creme_core-tests-dosomethingawesome04'
 
 
 class TestButton05(_TestButton):
-    id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu05')
+    # id_ = Button.generate_id('creme_core', 'test_ttags_creme_menu05')
+    id = Button.generate_id('creme_core', 'test_ttags_creme_menu05')
     action_id = 'creme_core-tests-dosomethingawesome05'
 
 
