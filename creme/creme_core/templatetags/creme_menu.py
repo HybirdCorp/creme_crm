@@ -62,7 +62,8 @@ def menu_buttons_display(context):
     buttons = OrderedDict()
 
     for button in button_menu.button_registry.get_buttons(bmi, entity):
-        buttons[button.id_] = button.render(button_ctxt)
+        # buttons[button.id_] = button.render(button_ctxt)
+        buttons[button.id] = button.render(button_ctxt)
 
     context['buttons'] = [*buttons.values()]
 

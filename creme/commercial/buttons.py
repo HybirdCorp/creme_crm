@@ -28,7 +28,8 @@ from .constants import REL_SUB_COMPLETE_GOAL
 
 
 class CompleteGoalButton(Button):
-    id_ = Button.generate_id('commercial', 'complete_goal')
+    # id_ = Button.generate_id('commercial', 'complete_goal')
+    id = Button.generate_id('commercial', 'complete_goal')
     verbose_name = _('Completes a goal (Commercial action)')
     description = _(
         'This button links the current entity with a selected commercial action, '

@@ -27,7 +27,8 @@ from . import get_opportunity_model
 
 
 class LinkedOpportunityButton(Button):
-    id_ = Button.generate_id('opportunities', 'linked_opportunity')
+    # id_ = Button.generate_id('opportunities', 'linked_opportunity')
+    id = Button.generate_id('opportunities', 'linked_opportunity')
     verbose_name = _('Create a linked opportunity')
     description = _(
         'This button displays the creation form for opportunities. '

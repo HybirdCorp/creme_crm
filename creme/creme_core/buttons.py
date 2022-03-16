@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from .gui.button_menu import Button
 
 
 class Restrict2SuperusersButton(Button):
-    id_ = Button.generate_id('creme_core', 'restrict_2_superusers')
+    # id_ = Button.generate_id('creme_core', 'restrict_2_superusers')
+    id = Button.generate_id('creme_core', 'restrict_2_superusers')
     verbose_name = _('Restrict to superusers')
     description = _(
         'This button moves the current entity within a sandbox reserved to the '

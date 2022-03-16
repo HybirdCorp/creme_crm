@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,8 @@ from creme.persons import get_contact_model
 
 
 class GenerateVcfButton(Button):
-    id_ = Button.generate_id('vcfs', 'generate_vcf')
+    # id_ = Button.generate_id('vcfs', 'generate_vcf')
+    id = Button.generate_id('vcfs', 'generate_vcf')
     verbose_name = _('Generate a VCF file')
     description = _(
         'This button generates a VCF file from the current contact.\n'

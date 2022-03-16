@@ -286,42 +286,52 @@ class GuiTestCase(CremeTestCase):
 
     def test_button_registry01(self):
         class TestButton1(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_1')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_1')
+            id = Button.generate_id('creme_core', 'test_button_registry_1')
 
         class TestButton2(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_2')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_2')
+            id = Button.generate_id('creme_core', 'test_button_registry_2')
 
             def ok_4_display(self, entity):
                 return False
 
         class TestButton3(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_3')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_3')
+            id = Button.generate_id('creme_core', 'test_button_registry_3')
 
         class TestButton4(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_4')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_4')
+            id = Button.generate_id('creme_core', 'test_button_registry_4')
 
         registry = ButtonsRegistry()
         registry.register(TestButton1, TestButton2, TestButton3, TestButton4)
 
         class DuplicatedTestButton(Button):
-            id_ = TestButton1.id_
+            # id_ = TestButton1.id_
+            id = TestButton1.id
 
         with self.assertRaises(ButtonsRegistry.RegistrationError):
             registry.register(DuplicatedTestButton)
 
         get = registry.get_button
-        self.assertIsInstance(get(TestButton1.id_), TestButton1)
-        self.assertIsInstance(get(TestButton2.id_), TestButton2)
+        # self.assertIsInstance(get(TestButton1.id_), TestButton1)
+        self.assertIsInstance(get(TestButton1.id), TestButton1)
+        # self.assertIsInstance(get(TestButton2.id_), TestButton2)
+        self.assertIsInstance(get(TestButton2.id), TestButton2)
         self.assertIsNone(get(Button.generate_id('creme_core', 'test_button_registry_invalid')))
 
         c = FakeContact(first_name='Casca', last_name='Mylove')
         buttons = [
             *registry.get_buttons(
                 [
-                    TestButton3.id_,
-                    TestButton2.id_,  # No because ok_4_display() returns False
+                    # TestButton3.id_,
+                    TestButton3.id,
+                    # TestButton2.id_,
+                    TestButton2.id,  # No because ok_4_display() returns False
                     'test_button_registry_invalid',
-                    TestButton1.id_,
+                    # TestButton1.id_,
+                    TestButton1.id,
                 ],
                 entity=c,
             ),
@@ -335,15 +345,18 @@ class GuiTestCase(CremeTestCase):
 
         button_item = all_button_items[0]
         self.assertIsInstance(button_item[1], Button)
-        self.assertEqual(button_item[0], button_item[1].id_)
+        # self.assertEqual(button_item[0], button_item[1].id_)
+        self.assertEqual(button_item[0], button_item[1].id)
 
     def test_button_registry02(self):
         "Duplicated ID."
         class TestButton1(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry_1')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry_1')
+            id = Button.generate_id('creme_core', 'test_button_registry_1')
 
         class TestButton2(TestButton1):
-            # id_ = Button.generate_id('creme_core', 'test_button_registry_2') NOPE
+            # # id_ = Button.generate_id('creme_core', 'test_button_registry_2') NOPE
+            # id = Button.generate_id('creme_core', 'test_button_registry_2') NOPE
             pass
 
         registry = ButtonsRegistry()
@@ -352,14 +365,16 @@ class GuiTestCase(CremeTestCase):
             registry.register(TestButton1, TestButton2)
 
         self.assertEqual(
-            f"Duplicated button's ID (or button registered twice) : {TestButton1.id_}",
+            # f"Duplicated button's ID (or button registered twice) : {TestButton1.id_}",
+            f"Duplicated button's ID (or button registered twice) : {TestButton1.id}",
             str(cm.exception)
         )
 
     def test_button_registry03(self):
         "Empty ID."
         class TestButton(Button):
-            # id_ = Button.generate_id('creme_core', 'test_button_registry') # NOPE
+            # # id_ = Button.generate_id('creme_core', 'test_button_registry') # NOPE
+            # id = Button.generate_id('creme_core', 'test_button_registry') # NOPE
             pass
 
         registry = ButtonsRegistry()
@@ -368,8 +383,9 @@ class GuiTestCase(CremeTestCase):
             registry.register(TestButton)
 
         self.assertEqual(
-            f'Button class with empty id_: {TestButton}',
-            str(cm.exception)
+            # f'Button class with empty id_: {TestButton}',
+            f'Button class with empty id: {TestButton}',
+            str(cm.exception),
         )
 
     def test_button_registry04(self):
@@ -383,7 +399,8 @@ class GuiTestCase(CremeTestCase):
         super_ctxt = {'user': self.other_user}
 
         class TestButton01(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_01')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_01')
+            id = Button.generate_id('creme_core', 'test_button_registry04_01')
             permissions = 'creme_core'
 
         has_perm1 = TestButton01().has_perm
@@ -392,7 +409,8 @@ class GuiTestCase(CremeTestCase):
 
         # Other app ---
         class TestButton02(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_02')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_02')
+            id = Button.generate_id('creme_core', 'test_button_registry04_02')
             permissions = 'documents'
 
         has_perm2 = TestButton02().has_perm
@@ -401,11 +419,13 @@ class GuiTestCase(CremeTestCase):
 
         # Creation permission ---
         class TestButton03(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_03')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_03')
+            id = Button.generate_id('creme_core', 'test_button_registry04_03')
             permissions = 'creme_core.add_fakecontact'
 
         class TestButton04(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_04')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_04')
+            id = Button.generate_id('creme_core', 'test_button_registry04_04')
             permissions = 'creme_core.add_fakeorganisation'
 
         self.assertTrue(TestButton03().has_perm(basic_ctxt))
@@ -413,11 +433,13 @@ class GuiTestCase(CremeTestCase):
 
         # Several permissions ---
         class TestButton05(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_05')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_05')
+            id = Button.generate_id('creme_core', 'test_button_registry04_05')
             permissions = ['persons', 'creme_core.add_fakecontact']
 
         class TestButton06(Button):
-            id_ = Button.generate_id('creme_core', 'test_button_registry04_06')
+            # id_ = Button.generate_id('creme_core', 'test_button_registry04_06')
+            id = Button.generate_id('creme_core', 'test_button_registry04_06')
             permissions = ['persons', 'creme_core.add_fakeorganisation']
 
         self.assertTrue(TestButton05().has_perm(basic_ctxt))

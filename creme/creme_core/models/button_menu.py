@@ -45,7 +45,7 @@ class ButtonMenuItemManager(models.Manager):
         @param pk: Unique string.
         @param model: Class inheriting CremeEntity, or <None> for "all models".
         @param button: class inheriting <creme_core.gui.button_menu.Button>,
-               or button's ID (string -- see Button.id_).
+               or button's ID (string -- see Button.id).
         @param order: Order of the button if the menu (see ButtonMenuItem.order).
         @return A ButtonMenuItem instance.
         """
@@ -56,7 +56,8 @@ class ButtonMenuItemManager(models.Manager):
 
         return self.get_or_create(
             content_type=ct,
-            button_id=button if isinstance(button, str) else button.id_,
+            # button_id=button if isinstance(button, str) else button.id_,
+            button_id=button if isinstance(button, str) else button.id,
             defaults={'order': order},
         )[0]
 

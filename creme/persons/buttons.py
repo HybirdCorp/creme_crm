@@ -63,7 +63,8 @@ class CrmButton(Button):
 
 
 class BecomeCustomerButton(CrmButton):
-    id_ = Button.generate_id('persons', 'become_customer')
+    # id_ = Button.generate_id('persons', 'become_customer')
+    id = Button.generate_id('persons', 'become_customer')
     verbose_name = _('Transform into a customer')
     description = _(
         'This button links the current entity to an Organisation managed by Creme, '
@@ -74,7 +75,8 @@ class BecomeCustomerButton(CrmButton):
 
 
 class BecomeProspectButton(CrmButton):
-    id_ = Button.generate_id('persons', 'become_prospect')
+    # id_ = Button.generate_id('persons', 'become_prospect')
+    id = Button.generate_id('persons', 'become_prospect')
     verbose_name = _('Transform into a prospect')
     description = _(
         'This button links the current entity to an Organisation managed by Creme, '
@@ -85,7 +87,8 @@ class BecomeProspectButton(CrmButton):
 
 
 class BecomeSuspectButton(CrmButton):
-    id_ = Button.generate_id('persons', 'become_suspect')
+    # id_ = Button.generate_id('persons', 'become_suspect')
+    id = Button.generate_id('persons', 'become_suspect')
     verbose_name = _('Transform into a suspect')
     description = _(
         'This button links the current entity to an Organisation managed by Creme, '
@@ -96,7 +99,8 @@ class BecomeSuspectButton(CrmButton):
 
 
 class BecomeInactiveButton(CrmButton):
-    id_ = Button.generate_id('persons', 'become_inactive')
+    # id_ = Button.generate_id('persons', 'become_inactive')
+    id = Button.generate_id('persons', 'become_inactive')
     verbose_name = _('Transform into an inactive customer')
     description = _(
         'This button links the current entity to an Organisation managed by Creme, '
@@ -107,7 +111,8 @@ class BecomeInactiveButton(CrmButton):
 
 
 class BecomeSupplierButton(CrmButton):
-    id_ = Button.generate_id('persons', 'become_supplier')
+    # id_ = Button.generate_id('persons', 'become_supplier')
+    id = Button.generate_id('persons', 'become_supplier')
     verbose_name = _('Transform into a supplier')
     description = _(
         'This button links the current entity to an Organisation managed by Creme, '
@@ -118,7 +123,8 @@ class BecomeSupplierButton(CrmButton):
 
 
 class AddLinkedContactButton(Button):
-    id_ = Button.generate_id('persons', 'add_linked_contact')
+    # id_ = Button.generate_id('persons', 'add_linked_contact')
+    id = Button.generate_id('persons', 'add_linked_contact')
     verbose_name = _('Create a related contact')
     description = _(
         'This button displays the creation form for contacts. '
