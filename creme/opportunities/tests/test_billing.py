@@ -16,12 +16,17 @@ from creme.creme_core.models import (
     RelationType,
     SetCredentials,
     SettingValue,
+    Vat,
 )
 from creme.opportunities import constants
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT
 from creme.persons.tests.base import skipIfCustomOrganisation
+from creme.products import get_product_model, get_service_model
+from creme.products.models import SubCategory
+from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
 from .. import setting_keys
+from ..constants import REL_SUB_LINKED_PRODUCT, REL_SUB_LINKED_SERVICE
 from .base import (
     Contact,
     OpportunitiesBaseTestCase,
@@ -106,14 +111,35 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         )
 
     @skipIfCustomOrganisation
+    @skipIfCustomProduct
+    @skipIfCustomService
     def test_generate_new_doc01(self):
-        self.login()
-
+        user = self.login()
         self.assertEqual(0, Quote.objects.count())
 
-        opportunity, target, emitter = self._create_opportunity_n_organisations()
-        url = self._build_gendoc_url(opportunity)
+        subcat = SubCategory.objects.first()
+        product = get_product_model().objects.create(
+            user=user,
+            category=subcat.category,
+            sub_category=subcat,
+            unit_price=Decimal('12'),
+            unit='pack',
+        )
+        service = get_service_model().objects.create(
+            user=user,
+            category=subcat.category,
+            sub_category=subcat,
+            unit_price=Decimal('15'),
+            unit='week',
+        )
 
+        opportunity, target, emitter = self._create_opportunity_n_organisations()
+
+        create_rel = partial(Relation.objects.create, user=user, object_entity=opportunity)
+        create_rel(subject_entity=product, type_id=REL_SUB_LINKED_PRODUCT)
+        create_rel(subject_entity=service, type_id=REL_SUB_LINKED_SERVICE)
+
+        url = self._build_gendoc_url(opportunity)
         self.assertGET405(url)
         self.assertPOST200(url, follow=True)
 
@@ -134,6 +160,20 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         self.assertRelationCount(1, quote, constants.REL_SUB_CURRENT_DOC,   opportunity)
 
         self.assertRelationCount(1, target, REL_SUB_PROSPECT, emitter)
+
+        lines = [*quote.iter_all_lines()]
+        self.assertEqual(2, len(lines))
+
+        line1 = lines[0]
+        self.assertEqual(product.unit_price,    line1.unit_price)
+        self.assertEqual(product.unit,          line1.unit)
+        self.assertEqual(Vat.objects.default(), line1.vat_value)
+        self.assertEqual(product,               line1.related_item)
+
+        line2 = lines[1]
+        self.assertEqual(service.unit_price, line2.unit_price)
+        self.assertEqual(service.unit,       line2.unit)
+        self.assertEqual(service,            line2.related_item)
 
     @skipIfCustomOrganisation
     def test_generate_new_doc02(self):

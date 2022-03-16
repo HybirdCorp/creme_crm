@@ -2,16 +2,15 @@
 
 from unittest import skipIf
 
-from creme import opportunities
+from creme import opportunities, persons
 from creme.creme_core.tests.base import CremeTestCase
 from creme.opportunities.models import SalesPhase
-from creme.persons import get_contact_model, get_organisation_model
 
 Opportunity = opportunities.get_opportunity_model()
 skip_opportunity_tests = opportunities.opportunity_model_is_custom()
 
-Organisation = get_organisation_model()
-Contact = get_contact_model()
+Organisation = persons.get_organisation_model()
+Contact = persons.get_contact_model()
 
 
 def skipIfCustomOpportunity(test_func):
