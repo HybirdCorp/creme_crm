@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-15 15:28+0100\n"
+"POT-Creation-Date: 2022-03-17 15:52+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2762,6 +2762,9 @@ msgstr "Nouvelles relations"
 
 msgid "Action"
 msgstr "Action"
+
+msgid "Cannot delete this relationship (internal type)"
+msgstr "Vous ne pouvez pas supprimer cette relation (type interne)"
 
 msgid "Delete this relationship"
 msgstr "Supprimer cette relation"
