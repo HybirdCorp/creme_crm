@@ -7,6 +7,7 @@
       Validation error messages are better with deleted & excluded entities.
     # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
     # The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
+    # The button to delete internal relationships in the relationships' brick is now disabled.
     # Apps :
         * Billing :
             - The number of cloned Quote/SalesOrder has been improved.
