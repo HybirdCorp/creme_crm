@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-17 15:52+0100\n"
+"POT-Creation-Date: 2022-03-28 11:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -676,11 +676,15 @@ msgid_plural "{count} lines in the file."
 msgstr[0] "{count} ligne dans le fichier."
 msgstr[1] "{count} lignes dans le fichier."
 
-msgid "Reminders"
-msgstr "Mémentos"
+msgid "Reminders (notification emails)"
+msgstr "Mémentos (e-mails de notification)"
 
-msgid "Execute all reminders"
-msgstr "Exécuter tous les mémentos"
+#, python-brace-format
+msgid "Execute reminders for «{model}»"
+msgstr "Exécuter les mémentos pour «{model}»"
+
+msgid "None of your apps uses reminders"
+msgstr "Aucune de vos apps n'utilise de mémentos"
 
 msgid "Temporary files cleaner"
 msgstr "Nettoyeur de fichiers temporaires"
@@ -2404,6 +2408,9 @@ msgstr "Type de relation semi-fixé"
 msgid "Reminder"
 msgstr "Mémento"
 
+msgid "Reminders"
+msgstr "Mémentos"
+
 msgid "Related resource"
 msgstr "Ressource associée"
 
@@ -3612,6 +3619,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
+#~ msgid "Execute all reminders"
+#~ msgstr "Exécuter tous les mémentos"
+
 #~ msgid "Set field “{field}”"
 #~ msgstr "Champ “{field}” modifié"
 
@@ -3700,9 +3710,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "You can not edit this model"
 #~ msgstr "Vous ne pouvez pas modifier ce modèle"
-
-#~ msgid "Quick creation of «{model}»"
-#~ msgstr "Création rapide de «{model}»"
 
 #~ msgid "Edit «{}»"
 #~ msgstr "Modifier «{}»"
