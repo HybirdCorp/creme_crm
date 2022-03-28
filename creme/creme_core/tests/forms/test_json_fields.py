@@ -30,6 +30,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeImage,
     FakeOrganisation,
+    Relation,
     RelationType,
     SetCredentials,
 )
@@ -2246,6 +2247,39 @@ class CreatorEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         field.q_filter = Q(name__startswith=orga.name)
         self.assertEqual(orga, field.clean(str(orga.pk)))
+
+    def test_clean_filtered_entity03(self):
+        "Several objects returned with the same pk (not distinct)."
+        user = self.login()
+        onibaku = self.create_orga()
+        teachers = self.create_orga(name='teachers')
+
+        create_contact = partial(FakeContact.objects.create, user=user)
+        onizuka = create_contact(first_name='Eikichi', last_name='Onizuka')
+        ryuji   = create_contact(first_name='Ryuji',   last_name='Danma')
+        azusa   = create_contact(first_name='Azusa',   last_name='Fuyutsuki')
+
+        rtype = self.create_employed_rtype()[0]
+
+        create_rel = partial(
+            Relation.objects.create, user=user, type=rtype
+        )
+        create_rel(subject_entity=onizuka, object_entity=onibaku)
+        create_rel(subject_entity=ryuji,   object_entity=onibaku)
+        create_rel(subject_entity=onizuka, object_entity=teachers)
+        create_rel(subject_entity=azusa,   object_entity=teachers)
+
+        field = CreatorEntityField(
+            model=FakeContact,
+            q_filter=Q(
+                relations__type_id=rtype,
+                relations__object_entity_id__in=[onibaku.id, teachers.id],
+            ),
+            user=user,
+        )
+
+        # Beware onizuka is linked twice
+        self.assertEqual(onizuka, field.clean(str(onizuka.pk)))
 
     def test_hook(self):
         user = self.login()
