@@ -293,6 +293,7 @@ class JSONField(fields.CharField):
             assert issubclass(model, CremeEntity)
 
             try:
+                # TODO: use filter(..).first() if we allow extra Q filter
                 # entity = model.objects.get(is_deleted=False, pk=entity_pk)
                 entity = model.objects.get(pk=entity_pk)
             except model.DoesNotExist as e:
@@ -332,9 +333,8 @@ class JSONField(fields.CharField):
         #             self.error_messages['doesnotexist'],
         #             code='doesnotexist',
         #         ) from e
-        try:
-            entity = self._entity_queryset(model, qfilter).get(pk=entity_pk)
-        except model.DoesNotExist as e:
+        entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
+        if entity is None:
             if qfilter:
                 entity = self._entity_queryset(model).filter(pk=entity_pk).first()
                 if entity is not None:
@@ -342,9 +342,9 @@ class JSONField(fields.CharField):
                         self.error_messages['isexcluded'],
                         code='isexcluded',
                         params={'entity': entity.allowed_str(self._user)},
-                    ) from e
+                    )
 
-            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist') from e
+            raise ValidationError(self.error_messages['doesnotexist'], code='doesnotexist')
         else:
             if entity.is_deleted:
                 raise ValidationError(
