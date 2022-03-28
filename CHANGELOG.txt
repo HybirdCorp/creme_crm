@@ -29,6 +29,7 @@
             - some error messages have changed.
             - some exceptions are raised when invalid PKs are cleaned on not required fields (when <None> was returned).
           (it may affect your unit tests)
+            - 'CreatorEntityField.clean()' failed when an entity is found several times in a query with a JOIN.
         # The CSS class "forbidden" has been added to several buttons to be consistent.
 
 
