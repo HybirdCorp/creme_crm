@@ -9,6 +9,8 @@
     # The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
     # The button to delete internal relationships in the relationships' brick is now disabled.
     # Apps :
+        * Creme_config :
+            - In the users' configuration, the deletion button is disabled for the current user.
         * Billing :
             - The number of cloned Quote/SalesOrder has been improved.
               With managed source: it was incremented twice.
