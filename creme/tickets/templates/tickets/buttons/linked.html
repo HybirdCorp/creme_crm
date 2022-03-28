@@ -1,6 +1,8 @@
 {% load i18n creme_ctype creme_widgets %}{% load blockjsondata has_perm_to from creme_core_tags %}
 {% has_perm_to link object as link_perm %}{% ctype_for_swappable 'TICKETS_TICKET_MODEL' as ticket_ct %}
-<a class="menu_button menu-button-icon{% if not has_perm or not link_perm %} forbidden is-disabled{% endif %}" title="{{description}}" data-action="creme_core-hatmenubar-addrelationships">
+<a class="menu_button menu-button-icon{% if not has_perm or not link_perm %} forbidden is-disabled{% endif %}"
+   title="{% if not has_perm %}{% translate 'You are not allowed to access to the app «Tickets»' %}{% elif not link_perm %}{% translate 'You are not allowed to link this entity' %}{% else %}{{description}}{% endif %}"
+   data-action="creme_core-hatmenubar-addrelationships">
     {% widget_icon name='ticket' size='instance-button' label=_('Ticket') %}
     {% translate 'Link to a ticket' %}
     {% blockjsondata %}{
