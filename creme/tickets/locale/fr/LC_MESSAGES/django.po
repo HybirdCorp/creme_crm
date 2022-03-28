@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-03-28 16:10+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -225,6 +225,12 @@ msgstr "Amélioration"
 
 msgid "Error"
 msgstr "Erreur"
+
+msgid "You are not allowed to access to the app «Tickets»"
+msgstr "Vous n'avez pas accès à l'application «Tickets»"
+
+msgid "You are not allowed to link this entity"
+msgstr "Vous n'êtes pas autorisé à relier cette fiche"
 
 msgid "Link to a ticket"
 msgstr "Lier à un ticket"
