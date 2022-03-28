@@ -62,7 +62,11 @@
             {% brick_table_action id='edit' url='creme_config__edit_user'|url:user.id label=_('Edit this user') enabled=admin_perm %}
         </td>
         <td {% brick_table_data_status action %} class="user-delete">
+          {% if user == request.user %}
+            {% brick_table_action id='edit' label=_("You can't delete the current user.") icon='delete' enabled=False %}
+          {% else %}
             {% brick_table_action id='edit' url='creme_config__delete_user'|url:user.id label=_('Delete this user') icon='delete' enabled=admin_perm %}
+          {% endif %}
         </td>
     </tr>
     {% endfor %}
