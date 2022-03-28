@@ -58,9 +58,9 @@ class GenerateInvoiceNumberButton(Button):
 
 class _AddBillingDocumentButton(Button):
     template_name = 'billing/buttons/add-billing-document.html'
-    model_to_create = Base  # Overload
+    model_to_create = Base  # Override
 
-    url_name = 'OVERLOADME'
+    url_name = 'OVERRIDE_ME'
 
     def get_ctypes(self):
         return persons.get_organisation_model(), persons.get_contact_model()
@@ -130,8 +130,8 @@ class AddQuoteButton(_AddBillingDocumentButton):
 
 class _ConvertToButton(Button):
     template_name = 'billing/buttons/convert-to.html'
-    target_model = Base  # Overload
-    target_modelname = ''
+    target_model = Base  # Override
+    target_modelname = ''  # Override
 
     def get_ctypes(self):
         return tuple(get_models_for_conversion(self.target_modelname))
@@ -147,6 +147,7 @@ class _ConvertToButton(Button):
     def render(self, context):
         context['verbose_name'] = self.verbose_name
         context['convert_to'] = self.target_modelname
+        context['model_vname'] = self.target_model._meta.verbose_name
 
         return super().render(context)
 
