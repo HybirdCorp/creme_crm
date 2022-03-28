@@ -1,13 +1,13 @@
 # FR LOCALISATION OF 'BILLING' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Billing 2.3\n"
+"Project-Id-Version: Creme Billing 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-16 23:52+0100\n"
+"POT-Creation-Date: 2022-03-28 14:48+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -203,7 +203,8 @@ msgid ""
 "App: Billing"
 msgstr ""
 "Ce bouton affiche le formulaire de création des bons de commande. La fiche "
-"courante est pré-sélectionnée pour être la cible du bon créé.App: Facturation"
+"courante est pré-sélectionnée pour être la cible du bon créé.\n"
+"App: Facturation"
 
 msgid "Create a related quote"
 msgstr "Créer un devis lié"
@@ -214,7 +215,8 @@ msgid ""
 "App: Billing"
 msgstr ""
 "Ce bouton affiche le formulaire de création des devis. La fiche courante est "
-"pré-sélectionnée pour être la cible du devis créé.App: Facturation"
+"pré-sélectionnée pour être la cible du devis créé.\n"
+"App: Facturation"
 
 msgid "Convert to Invoice"
 msgstr "Convertir en Facture"
@@ -1178,6 +1180,16 @@ msgid "Target contact"
 msgstr "Contact récepteur"
 
 #, python-format
+msgid "You are not allowed to create: «%(model)s»"
+msgstr "Vous n'êtes pas autorisé à créer : «%(model)s»"
+
+msgid "You are not allowed to link this entity"
+msgstr "Vous n'êtes pas autorisé à relier cette fiche"
+
+msgid "You are not allowed to change this entity"
+msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
+
+#, python-format
 msgid "Errors on the line <strong>«%(item)s»:</strong>"
 msgstr "Erreurs sur la ligne <strong>«%(item)s» :</strong>"
 
@@ -1255,292 +1267,3 @@ msgstr "Créer un devis pour «{entity}»"
 #, python-brace-format
 msgid "Create a salesorder for «{entity}»"
 msgstr "Créer un bon de commande pour «{entity}»"
-
-#~ msgid "Total"
-#~ msgstr "Total"
-
-#~ msgid "Amount"
-#~ msgstr "Montant"
-
-#~ msgid "Total discount ?"
-#~ msgstr "Remise totale ?"
-
-#~ msgid "forbidden"
-#~ msgstr "interdit"
-
-#~ msgid "Credit notes for «%s»"
-#~ msgstr "Avoirs consommables par «%s»"
-
-#~ msgid "Save the credit notes"
-#~ msgstr "Enregistrer les avoirs"
-
-#~ msgid "Create an invoice for «%s»"
-#~ msgstr "Créer une facture pour «%s»"
-
-#~ msgid "Add one or more product to «%s»"
-#~ msgstr "Ajouter un ou plusieurs produits à «%s»"
-
-#~ msgid "Add one or more service to «%s»"
-#~ msgstr "Ajouter un ou plusieurs services à «%s»"
-
-#~ msgid "Create a quote for «%s»"
-#~ msgstr "Créer un devis pour «%s»"
-
-#~ msgid "Create a salesorder for «%s»"
-#~ msgstr "Créer un bon de commande pour «%s»"
-
-#~ msgctxt "billing-quote_stats"
-#~ msgid "%s won"
-#~ msgid_plural "%s won"
-#~ msgstr[0] "%s gagné"
-#~ msgstr[1] "%s gagnés"
-
-#~ msgctxt "billing-quote_stats"
-#~ msgid "%s in all"
-#~ msgstr "%s en tout"
-
-#~ msgid "Number of invoices"
-#~ msgstr "Nombre de facture(s)"
-
-#~ msgid "Number of quotes"
-#~ msgstr "Nombre de devis"
-
-#~ msgid "Number of salesorders"
-#~ msgstr "Nombre de bon(s) de commande"
-
-#~ msgid "add to catalog"
-#~ msgstr "ajouter au catalogue"
-
-#~ msgid "add to catalog (forbidden)"
-#~ msgstr "ajouter au catalogue (interdit)"
-
-#~ msgid "Information on the billing document"
-#~ msgstr "Informations sur le document comptable"
-
-#~ msgid "Expiration Date"
-#~ msgstr "Échéance"
-
-#~ msgid "%s Payment information"
-#~ msgstr "%s Information de paiement"
-
-#~ msgid "%s Payments information"
-#~ msgstr "%s Informations de paiement"
-
-#~ msgid ""
-#~ "The field «Payment information» is hidden ; in order to use this block, "
-#~ "you have to reactivate it (so please contact your administrator)."
-#~ msgstr ""
-#~ "Le champ «Informations de paiement» est caché ; pour pouvoir utiliser ce "
-#~ "bloc, vous devez le reéactiver (et donc veuillez contacter votre "
-#~ "administrateur)."
-
-#~ msgid "Selected by default in this document"
-#~ msgstr "Sélectionné par défaut dans ce document"
-
-#~ msgid "%s Credit Note"
-#~ msgstr "%s Avoir"
-
-#~ msgid "%s Credit Notes"
-#~ msgstr "%s Avoirs"
-
-#~ msgid "Rib key"
-#~ msgstr "Clé RIB"
-
-#~ msgid "Statistics"
-#~ msgstr "Statistiques"
-
-#~ msgid "%s Product"
-#~ msgstr "%s Produit"
-
-#~ msgid "%s Products"
-#~ msgstr "%s Produits"
-
-#~ msgid "Product"
-#~ msgstr "Produit"
-
-#~ msgid "Add one or more product"
-#~ msgstr "Ajouter un ou plusieurs produits"
-
-#~ msgid "Billing document"
-#~ msgstr "Document comptable"
-
-#~ msgid "%s Received invoice"
-#~ msgstr "%s Facture reçue"
-
-#~ msgid "%s Received invoices"
-#~ msgstr "%s Factures reçues"
-
-#~ msgid "%s Service"
-#~ msgstr "%s Service"
-
-#~ msgid "%s Services"
-#~ msgstr "%s Services"
-
-#~ msgid "Service"
-#~ msgstr "Service"
-
-#~ msgid "Add one or more service"
-#~ msgstr "Ajouter un ou plusieurs services"
-
-#~ msgid "flag for delete"
-#~ msgstr "marquer pour suppression"
-
-#~ msgid "reset"
-#~ msgstr "réinitialiser"
-
-#~ msgid "Download '%(object)s' to the desired format"
-#~ msgstr "Télécharger '%(object)s' au format voulu"
-
-#~ msgid "N°"
-#~ msgstr "N°"
-
-#~ msgid "%s Received billing documents"
-#~ msgstr "%s Documents comptables reçus"
-
-#~ msgid "%s Received quotes"
-#~ msgstr "%s Devis reçus"
-
-#~ msgid "%s Received sales orders"
-#~ msgstr "%s Bons de commande reçus"
-
-#~ msgid "%s Received credit notes"
-#~ msgstr "%s Avoirs reçus"
-
-#~ msgid "Add an invoice"
-#~ msgstr "Ajouter une facture"
-
-#~ msgid "Add a line"
-#~ msgstr "Ajouter une ligne"
-
-#~ msgid "Add a quote"
-#~ msgstr "Ajouter un devis"
-
-#~ msgid "Add a sales order"
-#~ msgstr "Ajouter un bon de commande"
-
-#~ msgid "on the fly [creation]"
-#~ msgstr "Ligne à la volée [création]"
-
-#~ msgid "Specific on the field"
-#~ msgstr "Spécifique au champ"
-
-#~ msgctxt "billing-discount"
-#~ msgid "None"
-#~ msgstr "Aucune"
-
-#~ msgid "%(src)s (converted into template of <%(dest)s>)"
-#~ msgstr "%(src)s (converti en patron de <%(dest)s>)"
-
-#~ msgid "Total number of documents"
-#~ msgstr "Nombre total de document(s)"
-
-#~ msgid "All lines"
-#~ msgstr "Lister les lignes"
-
-#~ msgid "Lines view"
-#~ msgstr "Vue des lignes"
-
-#~ msgid "Line type"
-#~ msgstr "Type de ligne"
-
-#~ msgid "Check to apply on line total"
-#~ msgstr "Cochez pour appliquer sur le total de la ligne"
-
-#~ msgid "List of related products"
-#~ msgstr "Liste des Produits relatifs"
-
-#~ msgid "List of related services"
-#~ msgstr "Liste des Services relatifs"
-
-#~ msgid "Additional features"
-#~ msgstr "Fonctionnalités supplémentaires"
-
-#~ msgid "%s related Product"
-#~ msgstr "%s Produit relatif"
-
-#~ msgid "%s related Products"
-#~ msgstr "%s Produits relatifs"
-
-#~ msgid "%s related Service"
-#~ msgstr "%s Service relatif"
-
-#~ msgid "%s related Services"
-#~ msgstr "%s Services relatifs"
-
-#~ msgid "No line errors for the moment"
-#~ msgstr "Vos lignes ne comportent aucune incohérence pour le moment."
-
-#~ msgid " On product/service"
-#~ msgstr "Sur le produit/service"
-
-#~ msgid "New line in the document <%s>"
-#~ msgstr "Ajout d'une ligne dans le document <%s>"
-
-#~ msgid "billing"
-#~ msgstr "Facturation"
-
-#~ msgid "Discount unit"
-#~ msgstr "Unité de remise"
-
-#~ msgid "You are not allowed to create Products"
-#~ msgstr "Vous n'êtes pas autorisé à créer des Produits"
-
-#~ msgid "You are not allowed to create Services"
-#~ msgstr "Vous n'êtes pas autorisé à créer des Services"
-
-#~ msgid "Save as item ?"
-#~ msgstr "Enregistrer en tant que produit/service ?"
-
-#~ msgid "Credit"
-#~ msgstr "Avoir"
-
-#~ msgid "Paid ?"
-#~ msgstr "Réglé ?"
-
-#~ msgid "Add from an existing Product"
-#~ msgstr "Ajouter depuis un Produit existant"
-
-#~ msgid "Add from an existing Service"
-#~ msgstr "Ajouter depuis un Service existant"
-
-#~ msgid "Edition of a line in the document <%s>"
-#~ msgstr "Modification d'une ligne dans le document <%s>"
-
-#~ msgid "Overall"
-#~ msgstr "Globale"
-
-#~ msgid "Total discount"
-#~ msgstr "Remise globale"
-
-#~ msgid "Overall discount applied on each total line"
-#~ msgstr "Remise globale appliquée sur le total HT de chaque ligne"
-
-#~ msgid "Discount units"
-#~ msgstr "Unités de remise"
-
-#~ msgid "All related products"
-#~ msgstr "Tout les produits relatifs"
-
-#~ msgid "All related services"
-#~ msgstr "Tout les Services relatifs"
-
-#~ msgid "Is paid"
-#~ msgstr "Est payé"
-
-#~ msgid "Portal"
-#~ msgstr "Portail"
-
-#~ msgid "Category"
-#~ msgstr "Catégorie"
-
-#~ msgid "Service category"
-#~ msgstr "Catégorie de service"
-
-#~ msgid "Related to product"
-#~ msgstr "Relatif au produit"
-
-#~ msgid "Related to service"
-#~ msgstr "Relatif au service"
-
-#~ msgid "Organisation and addresses"
-#~ msgstr "Société et adresses"

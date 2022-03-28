@@ -1,6 +1,9 @@
 {% load i18n creme_widgets %}
 {% load format_amount blockjsondata has_perm_to from creme_core_tags %}{% has_perm_to link object as link_perm %}
-<a class="menu_button menu-button-icon{% if not has_perm or not link_perm %} is-disabled{% endif %}" title="{{description}}" data-action="billing-hatmenubar-add-document" href="{% url url_name object.id %}{% if redirect %}?redirection=true{% endif %}">
+<a class="menu_button menu-button-icon{% if not has_perm or not link_perm %} is-disabled{% endif %}"
+   title="{% if not has_perm %}{% blocktranslate with model=model_vname %}You are not allowed to create: «{{model}}»{% endblocktranslate %}{% elif not link_perm %}{% translate 'You are not allowed to link this entity' %}{% else %}{{description}}{% endif %}"
+   data-action="billing-hatmenubar-add-document"
+   href="{% url url_name object.id %}{% if redirect %}?redirection=true{% endif %}">
     {% widget_icon name='invoice' size='instance-button' label=model_vname %}
     {{verbose_name}}
     {% blockjsondata %}{
