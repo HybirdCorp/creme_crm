@@ -120,19 +120,22 @@ td p {
 }
 
 .menu_button.forbidden,
+.menu_button.is-disabled,
 .card-button.forbidden {
     cursor: default;
     cursor: not-allowed;
+
+    opacity: 0.5;
 }
 
-.menu_button:not(.forbidden):hover,
-.card-button:not(.forbidden):hover {
+.menu_button:not(.forbidden):not(.is-disabled):hover,
+.card-button:not(.forbidden):not(.is-disabled):hover {
     background: linear-gradient(#ffffff, #f3f3f3);
     color: #4d4d4d;
 }
 
-.menu_button:not(.forbidden):active,
-.card-button:not(.forbidden):active {
+.menu_button:not(.forbidden):not(.is-disabled):active,
+.card-button:not(.forbidden):not(.is-disabled):active {
     background: linear-gradient(#f9f9f9, #ededed);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
     border-bottom-color: #d7d7d7;
