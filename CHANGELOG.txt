@@ -15,6 +15,8 @@
             - The number of cloned Quote/SalesOrder has been improved.
               With managed source: it was incremented twice.
               With not managed source: it was copied (now set to '0' like newly created Quotes/Order).
+            - The disabling of the buttons to created linked 'billing' entities has been fixed.
+              They were not disabled when the user is not allowed to create the target entity type.
         * Mobile :
             - The JavaScript code to create phone calls was broken.
         * Emails :
