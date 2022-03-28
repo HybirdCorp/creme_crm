@@ -32,6 +32,12 @@
       {% endfor %}
 
       <div class="form-field">
+        <label class="field-label" for="{{form.user.auto_id}}">{% translate 'Owner user' %}<span class="field-modifier"> {% translate '(required)' %}</span></label>
+        {{form.user}}
+        <div class="field-error field-error-client">{% translate 'The owner must be filled.' %}</div>
+        {% for error in form.user.errors %}<div class="field-error field-error-server">{{error}}</div>{% endfor %}
+      </div>
+      <div class="form-field">
         <label class="field-label" for="{{form.name.auto_id}}">{% translate 'Name' %}<span class="field-modifier"> {% translate '(required)' %}</span></label>
         {{form.name}}
         <div class="field-error field-error-client">{% translate 'The name must be filled.' %}</div>

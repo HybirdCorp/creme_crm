@@ -80,6 +80,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             url,
             follow=True,
             data={
+                'user': user.id,
                 'first_name': first_name,
                 'last_name': last_name,
                 'organisation': kof.name,
@@ -91,6 +92,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             Contact,
             first_name=first_name, last_name=last_name,
         )
+        self.assertEqual(user, may.user)
         self.assertRelationCount(1, may, REL_SUB_EMPLOYED_BY, kof)
         self.assertFalse(user.mobile_favorite.all())
 
@@ -114,10 +116,12 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         phone = '111111'
         mobile = '222222'
         email = 'may.shiranui@kof.org'
+        other_user = self.other_user
         response = self.assertPOST200(
             url,
             follow=True,
             data={
+                'user': other_user.id,
                 'first_name': first_name,
                 'last_name': last_name,
                 'organisation': orga_name,
@@ -133,6 +137,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             Contact,
             first_name=first_name, last_name=last_name,
         )
+        self.assertEqual(other_user, may.user)
         self.assertEqual(phone, may.phone)
         self.assertEqual(mobile, may.mobile)
         self.assertEqual(email, may.email)
@@ -148,7 +153,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_create_contact03(self):
-        self.login()
+        user = self.login()
 
         name = 'HP'
         create_cf = partial(CustomField.objects.create, content_type=Contact)
@@ -181,6 +186,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             url,
             follow=True,
             data={
+                'user': user.id,
                 'first_name': first_name,
                 'last_name': last_name,
                 f'custom_field-{cfield2.id}': 150,
@@ -218,7 +224,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_orga01(self):
-        self.login()
+        user = self.login()
 
         url = self.CREATE_ORGA_URL
         response = self.assertGET200(url)
@@ -229,6 +235,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         response = self.assertPOST200(
             url, follow=True,
             data={
+                'user': user.id,
                 'name':  name,
                 'phone': phone,
             },
@@ -236,6 +243,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         self.assertNoFormError(response)
 
         kof = self.get_object_or_fail(Organisation, name=name)
+        self.assertEqual(user,  kof.user)
         self.assertEqual(phone, kof.phone)
         self.assertFalse(self.user.mobile_favorite.all())
 
@@ -245,6 +253,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
     def test_create_orga02(self):
         self.login()
         name = 'Fatal Fury Inc.'
+        other_user = self.other_user
 
         url = self.CREATE_ORGA_URL
         arg = {'name': name}
@@ -254,13 +263,15 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         response = self.assertPOST200(
             url, follow=True,
             data={
-                'name':         name,
+                'user': other_user.id,
+                'name': name,
                 'is_favorite':  True,
             },
         )
         self.assertNoFormError(response)
 
         ff = self.get_object_or_fail(Organisation, name=name)
+        self.assertEqual(other_user, ff.user)
         self.assertListEqual(
             [ff],
             [f.entity.get_real_entity() for f in self.user.mobile_favorite.all()]
@@ -268,7 +279,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_orga03(self):
-        self.login()
+        user = self.login()
 
         cf_name = 'Prize'
         create_cf = partial(CustomField.objects.create, content_type=Organisation)
@@ -300,6 +311,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             url,
             follow=True,
             data={
+                'user': user.id,
                 'name': name,
                 f'custom_field-{cfield2.id}': 150,
             },

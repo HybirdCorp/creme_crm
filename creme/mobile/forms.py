@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -37,8 +37,9 @@ class MobileAuthenticationForm(AuthenticationForm):
 
         for fname, field in self.fields.items():
             attrs = field.widget.attrs
-            attrs['class'] = 'form-input' if fname not in errors else \
-                             'form-input form-input-invalid'
+            attrs['class'] = (
+                'form-input form-input-invalid' if fname in errors else 'form-input'
+            )
 
             if field.required:
                 attrs['required'] = ''
@@ -58,8 +59,9 @@ class MobilePersonCreationFormMixin:
         for fname, field in self.fields.items():
             if fname != 'is_favorite':
                 attrs = field.widget.attrs
-                attrs['class'] = 'form-input' if fname not in errors else \
-                                 'form-input form-input-invalid'
+                attrs['class'] = (
+                    'form-input form-input-invalid'if fname in errors else 'form-input'
+                )
 
                 if field.required:
                     attrs['required'] = ''
@@ -70,6 +72,7 @@ class MobilePersonCreationFormMixin:
         ]
 
 
+# TODO: rename "CreationForm"
 class MobileContactCreateForm(MobilePersonCreationFormMixin,
                               quick.ContactQuickForm):
     is_favorite = BooleanField(
@@ -77,7 +80,7 @@ class MobileContactCreateForm(MobilePersonCreationFormMixin,
     )
 
     class Meta(quick.ContactQuickForm.Meta):
-        fields = ('last_name', 'first_name', 'phone', 'mobile', 'email')
+        fields = ('user', 'last_name', 'first_name', 'phone', 'mobile', 'email')
         widgets = {
             'phone':  PhoneInput,
             'mobile': PhoneInput,
@@ -87,9 +90,9 @@ class MobileContactCreateForm(MobilePersonCreationFormMixin,
         quick.ContactQuickForm.__init__(self, *args, **kwargs)
         MobilePersonCreationFormMixin.__init__(self)
 
-    def clean(self):
-        self.cleaned_data['user'] = self.user  # NB: used in super().clean()
-        return super().clean()
+    # def clean(self):
+    #     self.cleaned_data['user'] = self.user  # NB: used in super().clean()
+    #     return super().clean()
 
     def save(self, *args, **kwargs):
         contact = super().save(*args, **kwargs)
@@ -100,12 +103,13 @@ class MobileContactCreateForm(MobilePersonCreationFormMixin,
         return contact
 
 
+# TODO: rename "CreationForm"
 class MobileOrganisationCreateForm(MobilePersonCreationFormMixin,
                                    quick.OrganisationQuickForm):
     is_favorite = BooleanField(label=pgettext_lazy('mobile-orga', 'Is favorite'), required=False)
 
     class Meta(quick.OrganisationQuickForm.Meta):
-        fields = ('name', 'phone')
+        fields = ('user', 'name', 'phone')
 
     def __init__(self, *args, **kwargs):
         quick.OrganisationQuickForm.__init__(self, *args, **kwargs)
