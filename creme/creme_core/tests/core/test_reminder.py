@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from django.utils.translation import gettext as _
+
 from creme.creme_core.core.reminder import Reminder, ReminderRegistry
+from creme.creme_core.creme_jobs.reminder import _ReminderType
+from creme.creme_core.models import FakeIngredient, FakeTodo, Job
 
 from ..base import CremeTestCase
 
@@ -72,4 +76,37 @@ class ReminderTestCase(CremeTestCase):
         self.assertEqual(
             f"Reminder class with empty id: {TestReminder}",
             str(cm.exception),
+        )
+
+    def test_job01(self):
+        reminder_type = _ReminderType()
+        reminder_type.reminder_registry = ReminderRegistry()
+
+        job = self.get_object_or_fail(Job, type_id=reminder_type.id)
+
+        self.assertListEqual(
+            [_('None of your apps uses reminders')],
+            reminder_type.get_description(job),
+        )
+
+    def test_job02(self):
+        class TestReminder1(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_job02_1')
+            model = FakeTodo
+
+        class TestReminder2(Reminder):
+            id = Reminder.generate_id('creme_core', 'ReminderTestCase_test_job02_2')
+            model = FakeIngredient
+
+        reminder_type = _ReminderType()
+        reminder_type.reminder_registry = registry = ReminderRegistry()
+
+        registry.register(TestReminder1).register(TestReminder2)
+
+        job = self.get_object_or_fail(Job, type_id=reminder_type.id)
+
+        fmt = _('Execute reminders for «{model}»').format
+        self.assertListEqual(
+            [fmt(model='Test Todos'), fmt(model='Test Ingredients')],
+            reminder_type.get_description(job),
         )

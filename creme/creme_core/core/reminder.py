@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from datetime import datetime
@@ -139,7 +141,8 @@ class ReminderRegistry:
     def __init__(self):
         self._reminders: Dict[str, Reminder] = {}
 
-    def register(self, reminder: Type[Reminder]) -> None:  # TODO: rename 'reminder_class'
+    # TODO: rename 'reminder_class'
+    def register(self, reminder: Type[Reminder]) -> ReminderRegistry:
         """Register a class of Reminder.
         @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
         """
@@ -157,6 +160,8 @@ class ReminderRegistry:
             )
 
         reminders[reminder_id] = reminder()
+
+        return self
 
     def unregister(self, reminder: Type[Reminder]) -> None:
         if self._reminders.pop(reminder.id, None) is None:

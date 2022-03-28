@@ -422,7 +422,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             n.text for n in brick_node.findall('.//td[@class="job-type"]')
         )
         self.assertEqual(1, counter[_('Temporary files cleaner')])
-        self.assertEqual(1, counter[_('Reminders')])
+        self.assertEqual(1, counter[_('Reminders (notification emails)')])
         self.assertEqual(2, counter[str(batch_process_type.verbose_name)])
 
     def test_jobs_all02(self):
