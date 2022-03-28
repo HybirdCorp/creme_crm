@@ -8,6 +8,7 @@
       Entities in the trash & entities which are excluded from the given filter can be used as initial value (it was causing error 500).
       Validation error messages are better with deleted & excluded entities.
     # The filter conditions on Property can be applied on base entity (which unleashes some optimizations with credentials filters).
+    # Some style element have been fixed : some disabled buttons seemed not disabled.
     # Apps :
         * Billing :
             - There was a crash when the field "number" was removed in the creation custom-forms.
