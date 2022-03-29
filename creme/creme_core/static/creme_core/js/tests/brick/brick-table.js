@@ -290,6 +290,64 @@ QUnit.test('creme.bricks.Brick.table (toggle selection, controller)', function(a
     deepEqual([], selections.selected());
 });
 
+
+QUnit.test('creme.bricks.Brick.table (toggle selection, row-index > 10 issue)', function(assert) {
+    var widget = this.createBrickTable({
+        columns: [
+            '<th data-selectable-selector-column><input class="row-selector-all" type="checkbox" /></th>',
+            '<th data-table-primary-column>Id</th>',
+            '<th data-type="date">Created on</th>',
+            '<th>Name</th>'
+        ],
+        rows: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13].map(function(day) {
+            return '<tr><td data-selectable-selector-column>%d</td><td data-type="date">2017-05-08</td><td>A</td></tr>'.format(day);
+        })
+    });
+
+    var brick = widget.brick();
+    var element = brick.element();
+    var selections = brick.table().selections();
+
+    equal('', element.find('.brick-selection-title').text());
+
+    deepEqual([], selections.selected().map(this._brickTableItemInfo));
+
+    selections.toggle(1, true);
+    selections.toggle(5, true);
+    selections.toggle(10, true);
+    selections.toggle(12, true);
+
+    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    equal(true, $('tr[data-row-index="1"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
+    equal(true, $('tr[data-row-index="5"]').is('.is-selected'));
+    equal(true, $('tr[data-row-index="10"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
+    equal(true, $('tr[data-row-index="12"]').is('.is-selected'));
+
+    equal('4 entries on 13', element.find('.brick-selection-title').text());
+    deepEqual([
+        {selected: true, ui: $('tr[data-row-index="1"]', element).get()},
+        {selected: true, ui: $('tr[data-row-index="5"]', element).get()},
+        {selected: true, ui: $('tr[data-row-index="10"]', element).get()},
+        {selected: true, ui: $('tr[data-row-index="12"]', element).get()}
+    ], selections.selected().map(this._brickTableItemInfo));
+
+    selections.toggleAll(false);
+
+    equal(false, $('tr[data-row-index="0"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="1"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="4"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="5"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="10"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="11"]').is('.is-selected'));
+    equal(false, $('tr[data-row-index="12"]').is('.is-selected'));
+
+    equal('', element.find('.brick-selection-title').text());
+
+    deepEqual([], selections.selected());
+});
+
 QUnit.test('creme.bricks.Brick.table (not sortable)', function(assert) {
     var widget = this.createBrickTable({
         columns: [
