@@ -1,6 +1,6 @@
 /*******************************************************************************
  Creme is a free/open-source Customer Relationship Management software
- Copyright (C) 2015-2018  Hybird
+ Copyright (C) 2015-2022  Hybird
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU Affero General Public License as published by
@@ -290,7 +290,8 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
         element.delegate('td[data-selectable-selector-column]', 'click', function(e) {
             var row = $(this).parents('tr:first');
-            self.toggleSelection(row.attr('data-row-index'), !row.is('.is-selected'));
+            var index = parseInt(row.attr('data-row-index'));
+            self.toggleSelection(index, !row.is('.is-selected'));
         });
 
         selections.state().on('change', function() {
