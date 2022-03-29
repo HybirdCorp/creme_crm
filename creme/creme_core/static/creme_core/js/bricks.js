@@ -290,7 +290,8 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
         element.delegate('td[data-selectable-selector-column]', 'click', function(e) {
             var row = $(this).parents('tr').first();
-            self.toggleSelection(row.attr('data-row-index'), !row.is('.is-selected'));
+            var index = parseInt(row.attr('data-row-index'));
+            self.toggleSelection(index, !row.is('.is-selected'));
         });
 
         selections.state().on('change', function() {

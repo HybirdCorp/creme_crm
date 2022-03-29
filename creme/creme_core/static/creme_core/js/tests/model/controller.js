@@ -98,6 +98,13 @@ QUnit.test('creme.model.SelectionController._cleanIndices', function(assert) {
     deepEqual([[0, 5]], controller._cleanIndices([[0, 10]], 0, 5));
     deepEqual([[0, 10]], controller._cleanIndices([[0, 10]], 0, 100));
 
+    deepEqual([[0, 0], [5, 5], [10, 10]], controller._cleanIndices([0, 5, 10], 0, 100));
+    deepEqual([[0, 0]], controller._cleanIndices(["NaN"], 0, 100));
+
+    deepEqual([[0, 5]], controller._cleanIndices([[5, "NaN"]], 0, 100));
+    deepEqual([[0, 5]], controller._cleanIndices([["NaN", 5]], 0, 100));
+    deepEqual([[0, 0]], controller._cleanIndices([["NaN", "NaN"]], 0, 100));
+
     deepEqual([[5, 10]], controller._cleanIndices([[0, 10]], 5, 100));
     deepEqual([[50, 50]], controller._cleanIndices([[0, 10]], 50, 100));
     deepEqual([[100, 100]], controller._cleanIndices([[0, 10]], 100, 100));
