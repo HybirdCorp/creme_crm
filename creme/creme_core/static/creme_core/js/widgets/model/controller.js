@@ -180,12 +180,12 @@ creme.model.SelectionController = creme.component.Component.sub({
     _cleanRange: function(range, min, max) {
         var start, end, swp;
 
-        if (range.length > 1) {
-            start = range[0];
-            end = range[1];
+        if (Array.isArray(range)) {
+            start = parseInt(range[0]) || 0;
+            end = parseInt(range[1]) || 0;
         } else {
-            start = range;
-            end = range;
+            start = parseInt(range) || 0;
+            end = start;
         }
 
         if (start > end) {
