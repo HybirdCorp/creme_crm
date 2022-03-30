@@ -1,4 +1,7 @@
-== Version 2.3.2 Work in progress (not released -- this is a draft) ==
+== Version 2.3.2 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
@@ -10,6 +13,7 @@
         - The style of the mouse cursor has been improve on popover enumeration <a> (theme "icecream").
         - Some disabled buttons seemed not disabled.
     # The button to delete internal relationships in the relationships' brick is now disabled.
+    # The item selection in table blocks has been fixed (used by 'crudity' & emails synchronisation).
     # Apps :
         * Creme_config :
             - In the users' configuration, the deletion button is disabled for the current user.
