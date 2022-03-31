@@ -9,13 +9,21 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}
+    {% if relation_type.enabled %}
         {% ctype_for_swappable 'DOCUMENTS_DOCUMENT_MODEL' as ct_doc %}
         {% has_perm_to create ct_doc as creation_perm %}
         {% has_perm_to link object as link_perm %}
         {% has_perm_to link ct_doc.model_class as doc_link_perm %}
         {% brick_header_action id='add' url='documents__create_related_document'|url:object.id label=_('Create a document') enabled=creation_perm|and_op:link_perm|and_op:doc_link_perm %}
-        {% brick_header_action id='add-relationships' label=_('Link to an existing document') icon='link' enabled=link_perm|and_op:doc_link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=ct_doc.id __multiple=True %}
+        {% brick_header_action id='add-relationships' label=_('Link to an existing document') icon='link' enabled=link_perm|and_op:doc_link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=ct_doc.id __multiple=True %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_before_content %}
+    {% if not relation_type.enabled %}
+        <div class="global-error">
+            {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
+        </div>
     {% endif %}
 {% endblock %}
 

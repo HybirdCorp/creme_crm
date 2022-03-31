@@ -164,7 +164,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertIs(mass_import_type, job.type)
         self.assertListEqual(
             [_('Import «{model}» from {doc}').format(model='Test Contact', doc=doc)],
-            job.description
+            job.description,
         )  # TODO: description of columns ????
 
         self.assertRedirects(response, job.get_absolute_url())
@@ -279,13 +279,20 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         create_rtype = RelationType.objects.smart_update_or_create
         employed = create_rtype(
-            ('persons-subject_employed_by', 'is an employee of'),
-            ('persons-object_employed_by',  'employs'),
+            ('test-subject_employed_by', 'is an employee of'),
+            ('test-object_employed_by',  'employs'),
         )[0]
         loves = create_rtype(
             ('test-subject_loving', 'is loving'),
             ('test-object_loving',  'is loved by'),
         )[0]
+
+        disabled_rtype = create_rtype(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'whatever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
 
         nerv = FakeOrganisation.objects.create(user=self.user, name='Nerv')
         shinji = FakeContact.objects.create(user=self.user, first_name='Shinji', last_name='Ikari')
@@ -313,6 +320,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         with self.assertNoException():
             form = response1.context['form']
             properties_choices = form.fields['property_types'].choices
+            allowed_fixed_rtypes_ids = {
+                *form.fields['fixed_relations'].allowed_rtypes.values_list('id', flat=True)
+            }
 
         self.assertIn('value="1"',    str(form['step']))
         self.assertIn('value="True"', str(form['has_header']))
@@ -322,6 +332,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertNotInChoices(value=ptype3.id, choices=properties_choices)
         self.assertNotInChoices(value=ptype4.id, choices=properties_choices)
 
+        self.assertIn(employed.id, allowed_fixed_rtypes_ids)
+        self.assertIn(loves.id,    allowed_fixed_rtypes_ids)
+        self.assertNotIn(disabled_rtype.id, allowed_fixed_rtypes_ids)
+
+        # ----
         default_descr = 'A cute pilot'
         response2 = self.client.post(
             url, follow=True,

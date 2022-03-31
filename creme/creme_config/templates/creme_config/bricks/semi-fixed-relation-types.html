@@ -27,18 +27,24 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_semifixed_rtype' as delete_url %}
     {% for sf_rtype in page.object_list %}
+    {% with rtype=sf_rtype.relation_type %}
     <tr>
-        <td>{{sf_rtype.predicate}}</td>
+        <td><span class="semifixed_rtype-predicate{% if not rtype.enabled %} semifixed_rtype-predicate-disabled{% endif %}">{{sf_rtype.predicate}}</span></td>
 {#        <td>{% widget_entity_hyperlink sf_rtype.object_entity.get_real_entity user %}</td> #}
         <td>{% widget_entity_hyperlink sf_rtype.real_object user %}</td>
-        <td>{{sf_rtype.relation_type}}</td>
+        <td><span class="semifixed_rtype-rtype{% if not rtype.enabled %} semifixed_rtype-rtype-disabled{% endif %}">{{rtype}}</span></td>
         <td {% brick_table_data_status action %}>
+          {% if rtype.enabled %}
             {% brick_table_action id='edit' url='creme_config__edit_semifixed_rtype'|url:sf_rtype.id label=_('Edit this type') enabled=admin_perm %}
+          {% else %}
+            {% brick_table_action id='edit' label=_('Edit this type') help_text=_('You cannot edit because the relationship type is disabled') enabled=False %}
+          {% endif %}
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_url __id=sf_rtype.id label=_('Delete this type') enabled=admin_perm %}
         </td>
     </tr>
+    {% endwith %}
     {% endfor %}
 {% endblock %}
 

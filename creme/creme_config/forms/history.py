@@ -29,7 +29,8 @@ from creme.creme_core.models import HistoryConfigItem, RelationType
 class HistoryConfigForm(CremeForm):
     relation_types = ModelMultipleChoiceField(
         label=_('Relation types'),
-        queryset=RelationType.objects.filter(historyconfigitem=None),
+        # queryset=RelationType.objects.filter(historyconfigitem=None),
+        queryset=RelationType.objects.filter(historyconfigitem=None, enabled=True),
         help_text=_(
             'If an entity is linked to other entities by a Relationship of '
             'this type, the history lines that are about the edition of this '

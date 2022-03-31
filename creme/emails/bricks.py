@@ -26,7 +26,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
-from creme.creme_core.models import Relation  # CremeEntity
+from creme.creme_core.models import Relation, RelationType  # CremeEntity
 from creme.creme_core.utils import split_filter
 
 from . import constants
@@ -292,10 +292,16 @@ class MailsHistoryBrick(QuerysetBrick):
             object_entity=pk,
         ).values_list('subject_entity', flat=True).distinct()
 
+        relation_types = RelationType.objects.filter(id__in=self.relation_type_deps)
+
         return self._render(self.get_template_context(
             context,
             EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
-            rtype_ids=self.relation_type_deps,
+            # rtype_ids=self.relation_type_deps,
+            relation_types=relation_types,
+            relation_types_all_disabled=not any(
+                rtype.enabled for rtype in relation_types
+            ),
             # creation_perm=context['user'].has_perm_to_create(EntityEmail),
         ))
 

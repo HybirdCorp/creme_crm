@@ -25,7 +25,16 @@
     <tr>
 {#        <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink rnode.entity user %}</td> #}
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink rnode.real_entity user %}</td>
-        <td>{% widget_enumerator rnode.get_relation_types threshold=4 summary=_('{count} types of relationship') empty=_('No type of relationship') %}</td>
+{#        <td>{% widget_enumerator rnode.get_relation_types threshold=4 summary=_('{count} types of relationship') empty=_('No type of relationship') %}</td> #}
+        <td>
+            {% widget_enumerator rnode.rtypes_list threshold=4 summary=_('{count} types of relationship') empty=_('No type of relationship') %}
+            {% if rnode.disabled_rtypes_list %}
+            <div class="root_node-rtypes-disabled">
+                <span class="root_node-rtypes-title">{% translate 'Disabled types:' %}</span>
+                {% widget_enumerator rnode.disabled_rtypes_list threshold=4 summary=_('{count} types of relationship') %}
+            </div>
+            {% endif %}
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url=rnode.get_edit_absolute_url label=_('Edit this node') enabled=has_perm %}
         </td>

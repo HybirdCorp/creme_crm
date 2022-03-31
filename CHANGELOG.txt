@@ -11,7 +11,8 @@
       So, by default, the formats for dates & times depend on the user's language.
     # Apps :
         * Creme_config :
-            - An edition view for semi-fixed relation types has been added.
+            - The (non-internal) relationship types can now be disabled.
+            - An edition view for semi-fixed relationship types has been added.
         * Activities :
             - The relationships type "is subject of the activity" is now internal.
         * Emails :
@@ -60,6 +61,8 @@
                     - In the class 'emails.models._Email':
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.
                         - 'SYNCHRONIZATION_STATUSES' is deprecated.
+                * Graphs :
+                    - The method 'models.RootNode.get_relation_types()' is deprecated.
         # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
           so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
         # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
@@ -141,21 +144,32 @@
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
                 - In models, the fields "creme_entity" have been renamed "real_entity" for consistency.
+            * Documents :
+                - In 'bricks.LinkedDocsBrick', the template variable "predicate_id" is not injected anymore.
+            * Persons :
+                - In 'bricks.ManagersBrick' (& so 'EmployeesBrick'), the template variable "rtype_id" is not injected anymore.
+                - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
+            * Opportunities :
+                - In 'bricks._LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
             * Commercial :
                 - In 'bricks' :
                     - The method 'ApproachesBrick._populate_related_real_entities()' has been removed.
                     - The context variable "ct_id" is not injected any more in the following bricks :
                       ActObjectivesBrick, SegmentDescriptionsBrick, PatternComponentsBrick.
+                    - In 'RelatedOpportunitiesBrick', the template variable "predicate_id" is not injected anymore.
+                - In 'buttons.CompleteGoalButton', the template variable "predicate_id" is not injected anymore.
             * Emails :
                 - The constants 'REL_*_MAIL_SENDED' have been renamed 'REL_*_MAIL_SENT'.
                 - In 'bricks', some variable are not injected in the context anymore :
-                    - 'MailsHistoryBrick' & "creation_perm".
-                    - 'MySignaturesBrick' & "has_app_perm".
+                    - 'MailsHistoryBrick': "rtype_ids", "creation_perm".
+                    - 'MySignaturesBrick': "has_app_perm".
                 - A mandatory field "recipient_ctype" has been added to 'models.LightWeightEmail'.
                 - In 'email.js', these actions have been removed :
                   "emailsync-link", "emailsync-action", "emailsync-delete".
+            * Tickets :
+                - In 'buttons.Linked2TicketButton', the template variable "rtype_id" is not injected anymore.
             * Crudity :
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
             * Graphs :

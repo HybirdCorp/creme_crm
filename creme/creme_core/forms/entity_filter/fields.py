@@ -741,6 +741,8 @@ class RelationsConditionsField(_ConditionsField):
         'invalidentity': _('This entity is invalid.'),
     }
 
+    _non_hiddable_rtype_ids = ()
+
     @_ConditionsField.model.setter
     def model(self, model):
         self._model = model
@@ -749,7 +751,11 @@ class RelationsConditionsField(_ConditionsField):
         )
 
     def _get_rtypes(self):
-        return RelationType.objects.compatible(self._model, include_internals=True)
+        return RelationType.objects.compatible(
+            self._model, include_internals=True,
+        ).filter(
+            Q(enabled=True) | Q(id__in=self._non_hiddable_rtype_ids)
+        )
 
     def _condition_to_dict(self, condition):
         value = condition.value
@@ -861,7 +867,8 @@ class RelationsConditionsField(_ConditionsField):
 
     def _set_initial_conditions(self, conditions):
         type_id = condition_handler.RelationConditionHandler.type_id
-        self.initial = [c for c in conditions if c.type == type_id]
+        self.initial = f_conds = [c for c in conditions if c.type == type_id]
+        self._non_hiddable_rtype_ids = {c.name for c in f_conds}
 
 
 class RelationSubfiltersConditionsField(RelationsConditionsField):
@@ -928,9 +935,11 @@ class RelationSubfiltersConditionsField(RelationsConditionsField):
 
         return conditions
 
+    # TODO: factorise with RelationsConditionsField
     def _set_initial_conditions(self, conditions):
         type_id = condition_handler.RelationSubFilterConditionHandler.type_id
-        self.initial = [c for c in conditions if c.type == type_id]
+        self.initial = f_conds = [c for c in conditions if c.type == type_id]
+        self._non_hiddable_rtype_ids = {c.name for c in f_conds}
 
 
 class PropertiesConditionsField(_ConditionsField):

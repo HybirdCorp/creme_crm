@@ -122,7 +122,10 @@ JSON_CONTENT_TYPE_FIELDS = {
 @login_required
 @jsonify
 def json_rtype_ctypes(request, rtype_id):
-    content_types = get_object_or_404(RelationType, pk=rtype_id).object_ctypes.all()
+    rtype = get_object_or_404(RelationType, pk=rtype_id)
+    rtype.is_enabled_or_die()
+
+    content_types = rtype.object_ctypes.all()
     getters, range, sort = _clean_fields_values_args(request.GET, JSON_CONTENT_TYPE_FIELDS)
 
     if not content_types:
@@ -158,6 +161,7 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
         if rtype_id:
             rtype = get_object_or_404(RelationType, pk=rtype_id)
             rtype.is_not_internal_or_die()
+            rtype.is_enabled_or_die()
 
             if not rtype.is_compatible(subject_ctype):
                 raise ConflictError(
@@ -425,6 +429,7 @@ def add_relations_with_same_type(request):
 
     rtype = get_object_or_404(RelationType, pk=rtype_id)
     rtype.is_not_internal_or_die()
+    rtype.is_enabled_or_die()
 
     # entity_ids.append(subject_id)
     entity_ids.add(subject_id)  # NB: so we can do only one query

@@ -229,7 +229,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_generate_new_doc_error01(self):
-        "Invalid target type"
+        "Invalid target type."
         self.login()
 
         contact_count = Contact.objects.count()
@@ -275,6 +275,23 @@ class BillingTestCase(OpportunitiesBaseTestCase):
 
         create_sc(value=EntityCredentials.LINK, ctype=quote_ct)
         self.assertPOST200(url, follow=True)
+
+    @skipIfCustomOrganisation
+    def test_generate_new_doc_error03(self):
+        "Relation type is disabled."
+        self.login()
+
+        opportunity = self._create_opportunity_n_organisations()[0]
+
+        rtype = self.get_object_or_fail(RelationType, id=constants.REL_SUB_LINKED_QUOTE)
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            self.assertPOST409(self._build_gendoc_url(opportunity))
+        finally:
+            rtype.enabled = True
+            rtype.save()
 
     @skipIfCustomOrganisation
     def test_current_quote_01(self):

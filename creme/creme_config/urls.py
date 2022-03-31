@@ -173,6 +173,18 @@ relation_type_patterns = [
     ),
 
     re_path(
+        r'^enable/(?P<rtype_id>[\w-]+)[/]?$',
+        relation_type.RelationTypeEnabling.as_view(),
+        name='creme_config__enable_rtype',
+    ),
+    re_path(
+        r'^disable/(?P<rtype_id>[\w-]+)[/]?$',
+        relation_type.RelationTypeEnabling.as_view(),
+        {'enabled': False},
+        name='creme_config__disable_rtype',
+    ),
+
+    re_path(
         r'^semi_fixed/add[/]?$',
         relation_type.SemiFixedRelationTypeCreation.as_view(),
         name='creme_config__create_semifixed_rtype',

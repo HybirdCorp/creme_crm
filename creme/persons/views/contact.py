@@ -104,6 +104,7 @@ class RelatedContactCreation(_ContactBaseCreation):
                     subject_ctypes=get_ct(Contact),
                     symmetric_type__subject_ctypes=get_ct(Organisation),
                     is_internal=False,
+                    enabled=True,
                 ),
             )
 
@@ -152,11 +153,8 @@ class RelatedContactCreation(_ContactBaseCreation):
 
         if rtype_id:
             rtype = get_object_or_404(RelationType, id=rtype_id)
-
-            if rtype.is_internal:
-                raise ConflictError(
-                    'This RelationType cannot be used because it is internal.'
-                )
+            rtype.is_not_internal_or_die()
+            rtype.is_enabled_or_die()
 
             if not rtype.is_compatible(self.linked_orga):
                 raise ConflictError(

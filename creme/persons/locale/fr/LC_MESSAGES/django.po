@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'PERSONS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Persons 2.3\n"
+"Project-Id-Version: Creme Persons 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-09 10:56+0100\n"
+"POT-Creation-Date: 2022-04-14 17:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -621,9 +621,6 @@ msgstr ""
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
-msgid "+ Creation"
-msgstr ""
-
 msgid "Madam"
 msgstr "Madame"
 
@@ -669,6 +666,9 @@ msgstr "Télécom"
 msgid "Restoration"
 msgstr "Restauration"
 
+msgid "+ Creation"
+msgstr ""
+
 msgid "Organisation information"
 msgstr "Informations sur la société"
 
@@ -713,6 +713,13 @@ msgstr "Aucune adresse pour le moment"
 
 msgid "Link to contacts"
 msgstr "Lier à des contacts"
+
+# Already in creme_core
+#, python-format
+msgid ""
+"Beware: the relationship type «%(predicate)s» is disabled. You should re-"
+"enable it if it's still useful, or remove this block"
+msgstr ""
 
 msgid "Phone"
 msgstr "Téléphone"
@@ -884,6 +891,13 @@ msgstr "Créer un contact lié"
 msgid "forbidden"
 msgstr ""
 
+msgid "You are not allowed to link this entity"
+msgstr "Vous n'êtes pas autorisé à lier cette fiche"
+
+#, python-format
+msgid "The relationship type «%(predicate)s» is disabled"
+msgstr "Le type de relation «%(predicate)s» est désactivé"
+
 # Already in creme_core
 msgid "Relationship"
 msgstr ""
@@ -945,26 +959,57 @@ msgstr "Créer un contact lié à «{organisation}»"
 msgid "Status in «{organisation}»"
 msgstr "Statut dans «{organisation}»"
 
-msgid "Create a suspect / prospect / customer"
-msgstr "Créer un suspect / prospect / client"
+msgid "customer"
+msgstr "client"
 
-msgid "Related managed organisation"
-msgstr "Société gérée liée"
+msgid "customers"
+msgstr "clients"
 
 msgid "Is a customer"
 msgstr "Est un client"
 
+msgid "prospect"
+msgstr "prospect"
+
+msgid "prospects"
+msgstr "prospects"
+
 msgid "Is a prospect"
 msgstr "Est un prospect"
+
+msgid "suspect"
+msgstr "suspect"
+
+msgid "suspects"
+msgstr "suspects"
 
 msgid "Is a suspect"
 msgstr "Est un suspect"
 
-msgid "Suspect / prospect / customer"
-msgstr "Suspect / prospect / client"
+msgid "All the concerned types of relationship are disabled: {}"
+msgstr "Tous les types de relation concernés sont désactivés : {}"
 
-msgid "List of my suspects / prospects / customers"
-msgstr "Liste de mes suspects / prospects / clients"
+#. Translators: the format variable is a comma separated list of items
+#. within : 'suspect', 'prospect', 'customer'.
+msgctxt "persons-related_creation"
+msgid "Create a: {}"
+msgstr "Créer un : {}"
+
+msgid "Related managed organisation"
+msgstr "Société gérée liée"
+
+#. Translators: "related" can be one on these messages:
+#. 'suspects', 'prospects', 'customers'.
+#, python-brace-format
+msgid "List of my {related}"
+msgstr "Liste de mes {related}"
+
+#. Translators: "related_items" is a comma separated list of items.
+#. "last_related" is one item only. Items can be:
+#. 'suspects', 'prospects', 'customers'.
+#, python-brace-format
+msgid "List of my {related_items} & {last_related}"
+msgstr "Liste de mes {related_items} & {last_related}"
 
 msgid "Add some managed organisations"
 msgstr "Ajouter des sociétés gérées"
@@ -975,6 +1020,15 @@ msgstr ""
 
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
+
+#~ msgid "Create a suspect / prospect / customer"
+#~ msgstr "Créer un suspect / prospect / client"
+
+#~ msgid "Suspect / prospect / customer"
+#~ msgstr "Suspect / prospect / client"
+
+#~ msgid "List of my suspects / prospects / customers"
+#~ msgstr "Liste de mes suspects / prospects / clients"
 
 #~ msgid "Concerned organisation"
 #~ msgstr "Société concernée"

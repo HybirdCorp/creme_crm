@@ -1372,6 +1372,31 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual('"Ayanami"',   next(content))
         self.assertEqual('"Katsuragi"', next(content))
 
+    def test_report_csv08(self):
+        "With disabled RelationType."
+        self.login()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', '[disabled]'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        report = self._create_simple_contacts_report()
+
+        create_rfield = partial(Field.objects.create, report=report, type=RFT_RELATION)
+        create_rfield(order=2, name=FAKE_REL_SUB_EMPLOYED_BY)
+        create_rfield(order=3, name=rtype.id)
+
+        response = self.assertGET200(self._build_export_url(report), data={'doc_type': 'csv'})
+
+        content = (s for s in response.content.decode().split('\r\n') if s)
+        self.assertEqual(
+            smart_str('"{}","is an employee of"'.format(_('Last name'))),
+            next(content),
+        )
+
     def test_report_xls(self):
         "With date filter."
         self.login()

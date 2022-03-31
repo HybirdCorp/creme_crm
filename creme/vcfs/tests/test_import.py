@@ -486,6 +486,13 @@ END:VCARD"""
             is_internal=True,
         )[0]
 
+        disabled_rtype = create_rtype(
+            ('test-subject_commands', 'is commanding',   [Contact]),
+            ('test-object_commands',  'is commanded by', [Organisation]),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
 
@@ -506,6 +513,7 @@ END:VCARD"""
         self.assertIn(REL_SUB_MANAGES,     rtype_ids)
         self.assertNotIn(incompatible_rtype.id, rtype_ids)
         self.assertNotIn(internal_rtype.id,     rtype_ids)
+        self.assertNotIn(disabled_rtype.id,     rtype_ids)
 
         # ---
         response = self._post_step1(

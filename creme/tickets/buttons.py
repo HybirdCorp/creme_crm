@@ -21,6 +21,7 @@
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.models import RelationType
 
 from .constants import REL_SUB_LINKED_2_TICKET
 
@@ -38,6 +39,7 @@ class Linked2TicketButton(Button):
     permissions = 'tickets'
 
     def render(self, context):
-        context['rtype_id'] = REL_SUB_LINKED_2_TICKET
+        # context['rtype_id'] = REL_SUB_LINKED_2_TICKET
+        context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
 
         return super().render(context)

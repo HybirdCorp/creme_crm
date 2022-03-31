@@ -5,6 +5,7 @@ from functools import partial
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
@@ -61,6 +62,20 @@ class RelationsTestCase(CremeTestCase):
         self.assertEqual(rtype2.symmetric_type, rtype1)
         self.assertEqual(rtype1.predicate,      subject_pred)
         self.assertEqual(rtype2.predicate,      object_pred)
+        self.assertFalse(rtype1.is_internal)
+        self.assertFalse(rtype2.is_internal)
+        self.assertFalse(rtype1.is_custom)
+        self.assertFalse(rtype2.is_custom)
+        self.assertTrue(rtype1.is_copiable)
+        self.assertTrue(rtype2.is_copiable)
+        self.assertTrue(rtype1.enabled)
+        self.assertTrue(rtype2.enabled)
+
+        with self.assertNoException():
+            rtype1.is_not_internal_or_die()
+
+        with self.assertNoException():
+            rtype1.is_enabled_or_die()
 
         with self.assertNoException():
             entity1 = CremeEntity.objects.create(user=user)
@@ -116,6 +131,27 @@ class RelationsTestCase(CremeTestCase):
                 f'try to update instance pk={relation.id} (should only be created).',
             ],
         )
+
+    def test_is_not_internal_or_die(self):
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_internal', 'is internal'),
+            ('test-object_internal',  'is internal too'),
+            is_internal=True,
+        )[0]
+
+        with self.assertRaises(ConflictError):
+            self.refresh(rtype).is_not_internal_or_die()
+
+    def test_is_enabled_or_die(self):
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'is disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        with self.assertRaises(ConflictError):
+            self.refresh(rtype).is_enabled_or_die()
 
     def test_delete_rtype(self):
         rtype1, rtype2 = RelationType.objects.smart_update_or_create(

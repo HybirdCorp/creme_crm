@@ -187,6 +187,10 @@ td p {
     line-height: normal;
 }
 
+.buttons-list .menu_button.menu-button-error {
+    border: 3px solid #d33b3b;
+}
+
 .buttons-list.instance-buttons .menu_button img {
     padding-right: 3px
 }

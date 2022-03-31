@@ -36,6 +36,7 @@ from typing import (
 )
 
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.db.transaction import atomic
 from django.forms.fields import CallableChoiceIterator, Field
 from django.forms.widgets import Widget
@@ -440,6 +441,7 @@ class EntityCellRelationsField(UniformEntityCellsField):
     widget = EntityCellRelationsWidget
     default_error_messages = {
         'incompatible': _('This type of relationship is not compatible with «%(model)s».'),
+        'disabled':     _('This type of relationship is disabled.'),
     }
     cell_class = EntityCellRelation
 
@@ -447,8 +449,16 @@ class EntityCellRelationsField(UniformEntityCellsField):
         model = self.model
         cell_class = self.cell_class
 
+        _non_hiddable_rtype_ids = {
+            cell.relation_type.id
+            for cell in self._non_hiddable_cells
+            if isinstance(cell, cell_class)
+        }
+
         for rtype in RelationType.objects.compatible(
             model, include_internals=True,
+        ).filter(
+            Q(enabled=True) | Q(id__in=_non_hiddable_rtype_ids)
         ).order_by('predicate'):
             cell = cell_class(model=model, rtype=rtype)
 
@@ -457,14 +467,18 @@ class EntityCellRelationsField(UniformEntityCellsField):
     def validate(self, value, *, check_in_options=False):
         super().validate(value, check_in_options=check_in_options)
 
-        if value and not value.relation_type.is_compatible(self.model):
-            raise ValidationError(
-                self.error_messages['incompatible'],
-                code='incompatible',
-                params={
-                    'model': self.model._meta.verbose_name,
-                },
-            )
+        if value:
+            rtype = value.relation_type
+
+            if not rtype.is_compatible(self.model):
+                raise ValidationError(
+                    self.error_messages['incompatible'],
+                    code='incompatible',
+                    params={'model': self.model._meta.verbose_name},
+                )
+
+            if not rtype.enabled and value not in self._non_hiddable_cells:
+                raise ValidationError(self.error_messages['disabled'], code='disabled')
 
 
 class EntityCellsField(Field):
@@ -657,6 +671,7 @@ class _HeaderFilterForm(CremeModelForm):
         return cdata
 
 
+# TODO: rename "Creation"
 class HeaderFilterCreateForm(_HeaderFilterForm):
     def __init__(self,
                  ctype: 'ContentType',

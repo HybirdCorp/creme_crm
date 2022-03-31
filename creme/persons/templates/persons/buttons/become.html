@@ -1,13 +1,15 @@
 {% load i18n creme_widgets %}{% load blockjsondata has_perm_to jsonify optionize_model_iterable from creme_core_tags %}
 {% has_perm_to link object as link_perm %}
-<a class="menu_button menu-button-icon{% if not link_perm %} forbidden is-disabled{% endif %}" title="{{description}}" data-action="persons-hatmenubar-become">
+<a class="menu_button menu-button-icon{% if not link_perm or not rtype.enabled %} forbidden is-disabled{% endif %}{% if not rtype.enabled %} menu-button-error{% endif %}"
+   title="{% if not link_perm %}{% translate 'You are not allowed to link this entity' %}{% elif not rtype.enabled %}{% blocktranslate with predicate=rtype.predicate %}The relationship type «{{predicate}}» is disabled{% endblocktranslate %}{% else %}{{description}}{% endif %}"
+   data-action="persons-hatmenubar-become">
     {% widget_icon name='relations' size='instance-button' label=_('Relationship') %}
     {{verbose_name}}
     {% blockjsondata %}{
         "data": {
             "organisations": {{managed_orga|optionize_model_iterable:'dict'|jsonify|safe}},
             "subject_id": {{object.id}},
-            "rtype_id": "{{rtype_id}}"
+            "rtype_id": "{{rtype.id}}"
         }
     }{% endblockjsondata %}
 </a>

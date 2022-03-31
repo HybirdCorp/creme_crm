@@ -59,6 +59,9 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
 
+        get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_SENT).is_enabled_or_die()
+        get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_RECEIVED).is_enabled_or_die()
+
 
 class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     model = EntityEmail
@@ -72,6 +75,9 @@ class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
         user.has_perm_to_link_or_die(entity)
+
+        get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_SENT).is_enabled_or_die()
+        get_object_or_404(RelationType, id=constants.REL_SUB_MAIL_RECEIVED).is_enabled_or_die()
 
     def done_save(self, form_list):
         for form in form_list:
@@ -140,11 +146,12 @@ class EntityEmailLinking(RelationsAdding):
     def get_relation_types(self):
         subject = self.get_related_entity()
         subject_ctype = subject.entity_type
-        rtypes = []
+        compatible_rtypes = []
         subjects_prop_ids = None  # TODO: lazy object
 
-        for rtype in RelationType.objects.filter(id__in=bricks.MailsHistoryBrick
-                                                              .relation_type_deps):
+        for rtype in RelationType.objects.filter(
+            id__in=bricks.MailsHistoryBrick.relation_type_deps,
+        ):
             if not rtype.is_compatible(subject_ctype):
                 continue
 
@@ -161,13 +168,21 @@ class EntityEmailLinking(RelationsAdding):
                 ):
                     continue
 
-            rtypes.append(rtype.id)
+            compatible_rtypes.append(rtype)
 
         # TODO: unit test
-        if not rtypes:
+        if not compatible_rtypes:
             raise ConflictError(gettext('No type of relationship is compatible.'))
 
-        return rtypes
+        rtype_ids = [rtype.id for rtype in compatible_rtypes if rtype.enabled]
+        if not rtype_ids:
+            raise ConflictError(
+                gettext('All the compatible types of relationship are disabled: {}').format(
+                    ', '.join(f'«{rtype.predicate}»' for rtype in compatible_rtypes)
+                )
+            )
+
+        return rtype_ids
 
 
 class EntityEmailsResending(generic.CheckedView):

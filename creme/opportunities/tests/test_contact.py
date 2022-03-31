@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import CustomField, SetCredentials
+from creme.creme_core.models import CustomField, RelationType, SetCredentials
 from creme.opportunities.constants import REL_SUB_LINKED_CONTACT
 from creme.persons.constants import REL_SUB_EMPLOYED_BY
 from creme.persons.tests.base import (
@@ -222,3 +222,18 @@ class RelatedContactTestCase(OpportunitiesBaseTestCase):
         cf2_f = fields.get(f'custom_field-{cf2.id}')
         self.assertIsInstance(cf2_f, IntegerField)
         self.assertTrue(cf2_f.required)
+
+    def test_create_related_contact_error(self):
+        "The relation type is disabled."
+        self.login()
+        opp = self._create_opportunity_n_organisations()[0]
+
+        rtype = self.get_object_or_fail(RelationType, id=REL_SUB_LINKED_CONTACT)
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            self.assertGET409(self._build_url(opp))
+        finally:
+            rtype.enabled = True
+            rtype.save()

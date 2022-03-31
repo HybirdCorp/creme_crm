@@ -583,6 +583,9 @@ class RGHRelation(ReportGraphHand):
         else:
             rtype = cell.relation_type
 
+            if not rtype.enabled:
+                self.abscissa_error = _('the relationship type is disabled.')
+
         self._rtype = rtype
 
     def _fetch(self, *, entities, order, user, extra_q):

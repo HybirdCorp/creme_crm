@@ -12,6 +12,7 @@ from django.forms import IntegerField
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 # Should be a test queue
@@ -24,6 +25,7 @@ from creme.creme_core.models import (
     FieldsConfig,
     Job,
     Relation,
+    RelationType,
     SetCredentials,
 )
 from creme.documents.models import FolderCategory
@@ -773,6 +775,29 @@ better &amp; lighter than the previous one.
             response, 'form', 'o_recipients', msg % {'entity': orga01},
         )
 
+    @parameterized.expand([
+        (REL_SUB_MAIL_SENT,),
+        (REL_SUB_MAIL_RECEIVED,),
+    ])
+    @skipIfCustomContact
+    def test_createview_disabled_rtype(self, rtype_id):
+        user = self.login()
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            self.assertGET409(self._build_create_entitymail_url(contact))
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
     @skipIfCustomEmailTemplate
     @skipIfCustomContact
     def test_create_from_template01(self):
@@ -918,6 +943,29 @@ better &amp; lighter than the previous one.
         )
         self.assertGET403(self._build_send_from_template_url(contact))
 
+    @parameterized.expand([
+        (REL_SUB_MAIL_SENT,),
+        (REL_SUB_MAIL_RECEIVED,),
+    ])
+    @skipIfCustomContact
+    def test_create_from_template_disabled_rtype(self, rtype_id):
+        user = self.login()
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            self.assertGET409(self._build_send_from_template_url(contact))
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
     def test_link_to_emails01(self):
         "Contact."
         self.login()
@@ -970,6 +1018,35 @@ better &amp; lighter than the previous one.
             [REL_OBJ_RELATED_TO],
             [rtype.id for rtype in allowed_rtypes],
         )
+
+    def test_link_to_emails03(self):
+        "Disabled relation types."
+        self.login()
+
+        url = self._build_link_emails_url(self.other_user.linked_contact)
+        disabled_rtypes = []
+
+        def disable(rtype_id):
+            rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+            rtype.enabled = False
+            rtype.save()
+            disabled_rtypes.append(rtype)
+
+        try:
+            self.assertGET200(url)
+
+            disable(REL_OBJ_MAIL_SENT)
+            self.assertGET200(url)
+
+            disable(REL_OBJ_MAIL_RECEIVED)
+            self.assertGET200(url)
+
+            disable(REL_OBJ_RELATED_TO)
+            self.assertGET409(url)
+        finally:
+            for rtype in disabled_rtypes:
+                rtype.enabled = True
+                rtype.save()
 
     def test_listview01(self):
         self.login()

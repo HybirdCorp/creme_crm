@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2020  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@
 
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.views.generic import EntityCreationPopup
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.persons import get_contact_model
@@ -39,6 +39,13 @@ class RelatedContactCreation(EntityRelatedMixin, EntityCreationPopup):
     entity_classes = get_opportunity_model()
     entity_form_kwarg = 'opportunity'
 
+    def check_view_permissions(self, user):
+        super().check_view_permissions(user=user)
+
+        # TODO: factorise
+        rtype = RelationType.objects.get(id=REL_SUB_LINKED_CONTACT)
+        rtype.is_enabled_or_die()
+
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
         user.has_perm_to_link_or_die(entity)
@@ -55,6 +62,7 @@ class RelatedContactCreation(EntityRelatedMixin, EntityCreationPopup):
         Relation.objects.create(
             user=self.request.user,
             subject_entity=self.object,
+            # TODO: attribute + LinkedContactsBrick.relation_type_deps[0]
             type_id=REL_SUB_LINKED_CONTACT,
             object_entity=self.get_related_entity(),
         )

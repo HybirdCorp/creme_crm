@@ -29,7 +29,7 @@ from creme.creme_core.models import RelationType
 class AddRelationTypesForm(CremeForm):
     relation_types = ModelMultipleChoiceField(
         label=_('Types of the peripheral relations'),
-        queryset=RelationType.objects.all(),
+        queryset=RelationType.objects.none(),
         widget=UnorderedMultipleChoiceWidget(columntype='wide'),
     )
 
@@ -38,7 +38,7 @@ class AddRelationTypesForm(CremeForm):
         self.graph = entity
         self.fields['relation_types'].queryset = RelationType.objects.exclude(
             pk__in=entity.orbital_relation_types.all(),
-        )
+        ).filter(enabled=True)
 
     def save(self):
         add_rtype = self.graph.orbital_relation_types.add

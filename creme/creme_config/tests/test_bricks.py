@@ -1637,11 +1637,26 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )[0]
         self.assertFalse(RelationBrickItem.objects.filter(relation_type=rt).exists())
 
+        disabled_rt = RelationType.objects.smart_update_or_create(
+            ('test-subbar', 'subject_disabled'),
+            ('test-objcar', 'object_disabled'),
+        )[0]
+        disabled_rt.enabled = False
+        disabled_rt.save()
+
         url = reverse('creme_config__create_rtype_brick')
         context = self.assertGET200(url).context
         self.assertEqual(_('Create a type of block'), context.get('title'))
         self.assertEqual(_('Save the block'),         context.get('submit_label'))
 
+        with self.assertNoException():
+            relation_type_f = context['form'].fields['relation_type']
+
+        rtype_ids = {*relation_type_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rt.id, rtype_ids)
+        self.assertNotIn(disabled_rt.id, rtype_ids)
+
+        # ---
         self.assertNoFormError(self.client.post(url, data={'relation_type': rt.id}))
 
         rb_items = RelationBrickItem.objects.all()
@@ -1652,7 +1667,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
-    def test_add_relationbrick_ctypes_wizard01(self):
+    def test_relationbrick_add_cells01(self):
         self.login()
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'Subject predicate'),
@@ -1749,7 +1764,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(ct_image,   choices)  # Still not compatible
         self.assertNotIn(ct_contact, choices)  # Used
 
-    def test_add_relationbrick_ctypes_wizard02(self):
+    def test_relationbrick_add_cells02(self):
         "ContentType constraint."
         self.login()
         rtype = RelationType.objects.smart_update_or_create(
@@ -1785,7 +1800,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             _('Select a valid choice. That choice is not one of the available choices.')
         )
 
-    def test_add_relationbrick_ctypes_wizard03(self):
+    def test_relationbrick_add_cells03(self):
         "Go back."
         self.login()
         rtype = RelationType.objects.smart_update_or_create(
@@ -1822,7 +1837,20 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIn(ct_contact, choices)
 
-    def test_edit_relationbrick_ctypes01(self):
+    def test_relationbrick_add_cells04(self):
+        "Relation type is disabled => error."
+        self.login()
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'Subject predicate'),
+            ('test-objfoo', 'Object predicate'),
+        )[0]
+        rt.enabled = False
+        rt.save()
+
+        rb_item = RelationBrickItem.objects.create(relation_type=rt)
+        self.assertGET409(self._build_rbrick_addctypes_wizard_url(rb_item))
+
+    def test_relationbrick_edit_cells01(self):
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
         rt = RelationType.objects.smart_update_or_create(
@@ -1877,7 +1905,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIsInstance(cell, EntityCellFunctionField)
         self.assertEqual(funcfield.name, cell.value)
 
-    def test_edit_relationbrick_ctypes02(self):
+    def test_relationbrick_edit_cells02(self):
         "Validation errors with URLField & ForeignKey."
         self.login()
         rb_item = RelationBrickItem(
@@ -1912,7 +1940,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post('civility', error=False)
         post('civility__shortcut', error=False)
 
-    def test_edit_relationbrick_ctypes03(self):
+    def test_relationbrick_edit_cells03(self):
         "Validation errors with M2M"
         self.login()
         rb_item = RelationBrickItem(
@@ -1940,7 +1968,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         post('mailing_lists')
         post('mailing_lists__name')
 
-    def test_edit_relationbrick_ctypes04(self):
+    def test_relationbrick_edit_cells04(self):
         "Validation errors with Relation."
         self.login()
         create_rtype = RelationType.objects.smart_update_or_create
@@ -1969,7 +1997,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             _('This type of field can not be the first column.'),
         )
 
-    def test_edit_relationbrick_ctypes05(self):
+    def test_relationbrick_edit_cells05(self):
         "With FieldsConfig."
         self.login()
         ct = ContentType.objects.get_for_model(FakeContact)
@@ -2022,7 +2050,26 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         rb_item = self.refresh(rb_item)
         self.assertEqual(2, len(rb_item.get_cells(ct)))
 
-    def test_delete_relationbrick_ctypes(self):
+    def test_relationbrick_edit_cells06(self):
+        "Relation type is disabled => errors."
+        self.login()
+
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate1'),
+            ('test-objfoo', 'object_predicate2'),
+        )[0]
+        rt.enabled = False
+        rt.save()
+
+        rb_item = RelationBrickItem(relation_type=rt)
+        rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
+        rb_item.save()
+
+        self.assertGET409(
+            self._build_rbrick_editctype_url(rb_item, FakeOrganisation),
+        )
+
+    def test_relationbrick_delete_cells(self):
         self.login()
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeContact)

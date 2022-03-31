@@ -27,12 +27,13 @@ from django.http import HttpResponse
 from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.forms import validators
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
@@ -48,8 +49,65 @@ class OrganisationCreation(generic.EntityCreation):
         custom_forms.ORGANISATION_CREATION_CFORM
 
 
-class CustomerCreation(OrganisationCreation):
-    title = _('Create a suspect / prospect / customer')
+class ContactRelatedToOrganisationMixin:
+    relation_type_desc = [
+        {
+            'id': constants.REL_SUB_CUSTOMER_SUPPLIER,
+            'singular': _('customer'),
+            'plural': _('customers'),
+            'is_label': _('Is a customer'),
+        }, {
+            'id': constants.REL_SUB_PROSPECT,
+            'singular': _('prospect'),
+            'plural': _('prospects'),
+            'is_label': _('Is a prospect'),
+        }, {
+            'id': constants.REL_SUB_SUSPECT,
+            'singular': _('suspect'),
+            'plural': _('suspects'),
+            'is_label': _('Is a suspect'),
+        },
+    ]
+
+    _contact_rtypes_cache = None
+
+    def get_related_contact_rtypes(self):
+        if self._contact_rtypes_cache is None:
+            self._contact_rtypes_cache = RelationType.objects.in_bulk([
+                desc['id'] for desc in self.relation_type_desc
+            ])
+
+        return self._contact_rtypes_cache
+
+    def get_enabled_descriptions(self):
+        rtypes = self.get_related_contact_rtypes()
+        descriptions = [
+            desc
+            for desc in self.relation_type_desc
+            if rtypes[desc['id']].enabled
+        ]
+
+        if not descriptions:
+            raise ConflictError(
+                gettext(
+                    'All the concerned types of relationship are disabled: {}'
+                ).format(', '.join(f'«{rtype.predicate}»' for rtype in rtypes.values()))
+            )
+
+        return descriptions
+
+    def get_creation_title(self):
+        # Translators: the format variable is a comma separated list of items
+        # within : 'suspect', 'prospect', 'customer'.
+        return pgettext('persons-related_creation', 'Create a: {}').format(
+            ', '.join(str(desc['singular']) for desc in self.get_enabled_descriptions())
+        )
+
+
+# class CustomerCreation(OrganisationCreation):
+class CustomerCreation(ContactRelatedToOrganisationMixin, OrganisationCreation):
+    # title = _('Create a suspect / prospect / customer')
+    title = 'Create a suspect / prospect / customer'   # Overridden in get_title()
 
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
@@ -57,6 +115,7 @@ class CustomerCreation(OrganisationCreation):
 
     def get_form_class(self):
         form_cls = super().get_form_class()
+        rtype_descriptions = self.get_enabled_descriptions()
 
         class CustomerForm(form_cls):
             # TODO: manage not viewable organisations (should not be very useful anyway)
@@ -67,16 +126,17 @@ class CustomerCreation(OrganisationCreation):
             )
             customers_rtypes = forms.MultipleChoiceField(
                 label=_('Relationships'),
-                choices=(
-                    (constants.REL_SUB_CUSTOMER_SUPPLIER, _('Is a customer')),
-                    (constants.REL_SUB_PROSPECT, _('Is a prospect')),
-                    (constants.REL_SUB_SUSPECT, _('Is a suspect')),
-                ),
+                choices=[(desc['id'], desc['is_label']) for desc in rtype_descriptions],
             )
 
             blocks = form_cls.blocks.new({
                 'id': 'customer_relation',
-                'label': _('Suspect / prospect / customer'),
+
+                # 'label': _('Suspect / prospect / customer'),
+                'label': ' / '.join(
+                    str(desc['singular']) for desc in rtype_descriptions
+                ).title(),
+
                 'fields': ('customers_managed_orga', 'customers_rtypes'),
                 'order': 0,
             })
@@ -109,6 +169,9 @@ class CustomerCreation(OrganisationCreation):
 
         return CustomerForm
 
+    def get_title(self):
+        return self.get_creation_title()
+
 
 class OrganisationDetail(generic.EntityDetail):
     model = Organisation
@@ -129,32 +192,53 @@ class OrganisationsList(generic.EntitiesList):
 
 
 # TODO: set the HF in the url ?
-class MyLeadsAndMyCustomersList(OrganisationsList):
-    title = _('List of my suspects / prospects / customers')
+# class MyLeadsAndMyCustomersList(OrganisationsList):
+class MyLeadsAndMyCustomersList(ContactRelatedToOrganisationMixin, OrganisationsList):
+    # title = _('List of my suspects / prospects / customers')
+    title = 'List of my suspects/prospects/customers'  # Overridden in get_title()
     default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA_CUSTOMERS
+
+    creation_url_name = 'persons__create_customer'
 
     def get_buttons(self):
         # TODO: disable if cannot link
         class CustomerCreationButton(CreationButton):
             def get_label(this, request, model):
-                return CustomerCreation.title
+                return self.get_creation_title()
 
             def get_url(this, request, model):
-                return reverse('persons__create_customer')  # TODO: attribute ?
+                return reverse(self.creation_url_name)
 
-        return super().get_buttons()\
-                      .replace(old=CreationButton, new=CustomerCreationButton)
+        return super().get_buttons().replace(
+            old=CreationButton, new=CustomerCreationButton,
+        )
 
     def get_internal_q(self):
         return Q(
-            relations__type__in=(
-                constants.REL_SUB_CUSTOMER_SUPPLIER,
-                constants.REL_SUB_PROSPECT,
-                constants.REL_SUB_SUSPECT,
-            ),
+            relations__type__in=[desc['id'] for desc in self.relation_type_desc],
             relations__object_entity__in=[
                 o.id for o in Organisation.objects.filter_managed_by_creme()
             ],
+        )
+
+    def get_title(self):
+        labels = [
+            desc['plural'] for desc in self.get_enabled_descriptions()
+        ]
+
+        if len(labels) == 1:
+            # Translators: "related" can be one on these messages:
+            # 'suspects', 'prospects', 'customers'.
+            return _('List of my {related}').format(
+                related=labels[0],
+            )
+
+        # Translators: "related_items" is a comma separated list of items.
+        # "last_related" is one item only. Items can be:
+        # 'suspects', 'prospects', 'customers'.
+        return _('List of my {related_items} & {last_related}').format(
+            related_items=', '.join(str(label) for label in labels[:-1]),
+            last_related=labels[-1],
         )
 
 

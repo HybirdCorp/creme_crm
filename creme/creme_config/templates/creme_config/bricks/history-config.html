@@ -22,7 +22,9 @@
 {% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__remove_history_config' as rm_url %}
     {% for history_item in page.object_list %}
     <tr>
-        <td>{{history_item.relation_type}}</td>
+        <td>
+            <span class="history_item-predicate{% if not history_item.relation_type.enabled %} history_item-predicate-disabled{% endif %}">{{history_item.relation_type}}</span>
+        </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=rm_url __id=history_item.id label=_('Remove this relationship type') icon='unlink' enabled=admin_perm %}
         </td>

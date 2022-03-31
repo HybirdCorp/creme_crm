@@ -709,8 +709,11 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
             if self.user.has_perm_to_link(type(instance)):
                 ctype = instance.entity_type
-                fields['relation_types'].allowed_rtypes = \
-                    RelationType.objects.compatible(ctype)
+                fields['relation_types'].allowed_rtypes = (
+                    RelationType.objects
+                                .compatible(ctype)
+                                .filter(enabled=True)
+                )
 
                 # TODO: factorise ?
                 entities = [
@@ -723,6 +726,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
                     | Q(relation_type__subject_ctypes__isnull=True),
                 ).filter(
                     object_entity__in=filter(self.user.has_perm_to_link, entities),
+                    relation_type__enabled=True,
                 )
 
                 if sfrt_qs.exists():

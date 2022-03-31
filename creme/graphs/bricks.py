@@ -24,6 +24,7 @@ from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
+from creme.creme_core.utils import split_filter
 
 from . import get_graph_model
 from .models import RootNode
@@ -61,11 +62,21 @@ class RootNodesBrick(QuerysetBrick):
     def detailview_display(self, context):
         graph = context['object']
         # btc = self.get_template_context(context, graph.roots.select_related('entity'))
-        # CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
-        # return self._render(btc)
-        return self._render(self.get_template_context(
-            context, graph.roots.prefetch_related('real_entity')),
+        btc = self.get_template_context(
+            context,
+            graph.roots.prefetch_related(
+                'real_entity', 'relation_types', 'relation_types__symmetric_type',
+            ),
         )
+        # CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
+
+        for root_node in btc['page'].object_list:
+            root_node.rtypes_list, root_node.disabled_rtypes_list = split_filter(
+                (lambda rtype: rtype.enabled),
+                root_node.relation_types.all()
+            )
+
+        return self._render(btc)
 
 
 class OrbitalRelationTypesBrick(QuerysetBrick):

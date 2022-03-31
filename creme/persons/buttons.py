@@ -23,7 +23,7 @@ from django.utils.translation import gettext_lazy as _
 from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, RelationType
 
 from . import constants
 
@@ -57,7 +57,8 @@ class CrmButton(Button):
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
         context['verbose_name'] = self.verbose_name
-        context['rtype_id'] = self.relation_type_id
+        # context['rtype_id'] = self.relation_type_id
+        context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
 
         return super().render(context)
 

@@ -20,6 +20,7 @@
 
 from functools import partial
 
+from django.db.models import Q
 from django.forms import ModelMultipleChoiceField
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext_lazy as _
@@ -39,7 +40,9 @@ class RelationTypeMultipleChoiceField(ModelMultipleChoiceField):
 class AddRootNodesForm(core_forms.CremeForm):
     entities = MultiGenericEntityField(label=_('Root entities'))
     relation_types = RelationTypeMultipleChoiceField(
-        label=_('Related types of relations'), queryset=RelationType.objects.all(),
+        label=_('Related types of relations'),
+        # queryset=RelationType.objects.all(),
+        queryset=RelationType.objects.filter(enabled=True),
     )
 
     def __init__(self, entity, *args, **kwargs):
@@ -61,7 +64,9 @@ class AddRootNodesForm(core_forms.CremeForm):
 
 class EditRootNodeForm(core_forms.CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(
-        label=_('Related types of relations'), queryset=RelationType.objects.all(),
+        label=_('Related types of relations'),
+        # queryset=RelationType.objects.all(),
+        queryset=RelationType.objects.none(),
     )
 
     class Meta:
@@ -72,3 +77,7 @@ class EditRootNodeForm(core_forms.CremeModelForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = entity
+        self.fields['relation_types'].queryset = RelationType.objects.filter(
+            Q(enabled=True)
+            | Q(id__in=self.instance.relation_types.values_list('id', flat=True))
+        )

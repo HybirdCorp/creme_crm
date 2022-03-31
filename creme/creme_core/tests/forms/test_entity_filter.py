@@ -701,7 +701,7 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_many2many_subfield(self):
-        "M2M field"
+        "M2M field."
         clean = RegularFieldsConditionsField(
             model=FakeContact, efilter_registry=efilter_registry,
         ).clean
@@ -2216,17 +2216,10 @@ class PropertiesConditionsFieldTestCase(FieldTestCase):
 
 
 class RelationsConditionsFieldTestCase(FieldTestCase):
-    def setUp(self):
-        super().setUp()
-
-        create_rtype = RelationType.objects.smart_update_or_create
-        self.rtype01, self.rtype02 = create_rtype(
+    def _create_rtype(self):
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving', [FakeContact]),
             ('test-object_love',  'Is loved by'),
-        )
-        self.rtype03, self.srtype04 = create_rtype(
-            ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
-            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation]),
         )
 
     def test_clean_empty_required(self):
@@ -2253,9 +2246,10 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_invalid_data(self):
+        rtype = self._create_rtype()[0]
         clean = RelationsConditionsField(model=FakeContact).clean
         ct = ContentType.objects.get_for_model(FakeContact)
-        rt_id = self.rtype01.id
+        rt_id = rtype.id
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidformat', clean,
             json_dump([{'rtype': rt_id, 'has': True, 'ctype': 'not an int'}]),
@@ -2268,8 +2262,10 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_incomplete_data_required(self):
+        rtype = self._create_rtype()[0]
+
         clean = RelationsConditionsField(model=FakeContact).clean
-        rt_id = self.rtype01.id
+        rt_id = rtype.id
         self.assertFieldValidationError(
             RelationsConditionsField, 'required', clean,
             json_dump([{'rtype': rt_id}]),
@@ -2284,113 +2280,124 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_unknown_ct(self):
+        rtype = self._create_rtype()[0]
+
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidct', clean,
-            json_dump([{'rtype': self.rtype01.id, 'has': True, 'ctype': 2121545}])
+            json_dump([{'rtype': rtype.id, 'has': True, 'ctype': 2121545}])
         )
 
     def test_unknown_entity(self):
+        rtype = self._create_rtype()[0]
+
         ct = ContentType.objects.get_for_model(FakeContact)
         clean = RelationsConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             RelationsConditionsField, 'invalidentity', clean,
             json_dump([
-                {'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': 2121545},
+                {'rtype': rtype.id, 'has': True, 'ctype': ct.id, 'entity': 2121545},
             ]),
         )
 
     def test_ok01(self):
         "No CT, no object entity."
+        rtype1, rtype2 = self._create_rtype()
+
         with self.assertNumQueries(0):
             field = RelationsConditionsField(model=FakeContact)
 
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True,  'ctype': 0, 'entity': None},
-            {'rtype': self.rtype02.id, 'has': False, 'ctype': 0, 'entity': None},
+            {'rtype': rtype1.id, 'has': True,  'ctype': 0, 'entity': None},
+            {'rtype': rtype2.id, 'has': False, 'ctype': 0, 'entity': None},
         ]))
         self.assertEqual(2, len(conditions))
 
         type_id = RelationConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,         condition1.type)
-        self.assertEqual(self.rtype01.id, condition1.name)
-        self.assertEqual(EF_USER,         condition1.filter_type)
+        self.assertEqual(type_id,   condition1.type)
+        self.assertEqual(rtype1.id, condition1.name)
+        self.assertEqual(EF_USER,   condition1.filter_type)
         self.assertDictEqual({'has': True}, condition1.value)
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,         condition2.type)
-        self.assertEqual(self.rtype02.id, condition2.name)
+        self.assertEqual(type_id,   condition2.type)
+        self.assertEqual(rtype2.id, condition2.name)
         self.assertDictEqual({'has': False},  condition2.value)
 
     def test_ok02(self):
         "Wanted CT + filter_type."
+        rtype1, rtype2 = self._create_rtype()
+
         field = RelationsConditionsField(
             model=FakeContact,
             efilter_type=EF_CREDENTIALS,
         )
         ct = ContentType.objects.get_for_model(FakeContact)
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct.id, 'entity': None},
-            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct.id},
+            {'rtype': rtype1.id, 'has': True,  'ctype': ct.id, 'entity': None},
+            {'rtype': rtype2.id, 'has': False, 'ctype': ct.id},
         ]))
         self.assertEqual(2, len(conditions))
 
         type_id = RelationConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,         condition1.type)
-        self.assertEqual(self.rtype01.id, condition1.name)
-        self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
+        self.assertEqual(type_id,        condition1.type)
+        self.assertEqual(rtype1.id,      condition1.name)
+        self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
         self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.value)
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,         condition2.type)
-        self.assertEqual(self.rtype02.id, condition2.name)
+        self.assertEqual(type_id,   condition2.type)
+        self.assertEqual(rtype2.id, condition2.name)
         self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.value)
 
     def test_ok03(self):
         "Wanted entity."
+        rtype = self._create_rtype()[0]
         user = self.create_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
         ct = ContentType.objects.get_for_model(FakeContact)
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True, 'ctype': ct.id, 'entity': str(naru.id)},
+            {'rtype': rtype.id, 'has': True, 'ctype': ct.id, 'entity': str(naru.id)},
         ]))
         self.assertEqual(1, len(conditions))
 
         condition = conditions[0]
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
-        self.assertEqual(self.rtype01.id,                  condition.name)
+        self.assertEqual(rtype.id,                         condition.name)
         self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.value)
 
     def test_ok04(self):
         "Wanted CT + wanted entity."
+        rtype1, rtype2 = self._create_rtype()
         user = self.create_user()
 
         ct_id = ContentType.objects.get_for_model(FakeContact).id
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
         field = RelationsConditionsField(model=FakeContact)
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct_id, 'entity': None},
-            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct_id, 'entity': str(naru.id)},
+            {'rtype': rtype1.id, 'has': True,  'ctype': ct_id, 'entity': None},
+            {'rtype': rtype2.id, 'has': False, 'ctype': ct_id, 'entity': str(naru.id)},
         ]))
         self.assertEqual(2, len(conditions))
 
         type_id = RelationConditionHandler.type_id
         condition = conditions[0]
-        self.assertEqual(type_id,         condition.type)
-        self.assertEqual(self.rtype01.id, condition.name)
+        self.assertEqual(type_id,   condition.type)
+        self.assertEqual(rtype1.id, condition.name)
         self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition.value)
 
         condition = conditions[1]
-        self.assertEqual(type_id,         condition.type)
-        self.assertEqual(self.rtype02.id, condition.name)
+        self.assertEqual(type_id,   condition.type)
+        self.assertEqual(rtype2.id, condition.name)
         self.assertDictEqual({'has': False, 'entity_id': naru.id}, condition.value)
 
     def test_ok05(self):
         "Wanted entity is deleted."
+        rtype = self._create_rtype()[0]
         user = self.create_user()
 
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
@@ -2399,7 +2406,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             model=FakeContact, is_custom=True,
             conditions=[
                 RelationConditionHandler.build_condition(
-                    model=FakeContact, rtype=self.rtype01, has=True, entity=naru,
+                    model=FakeContact, rtype=rtype, has=True, entity=naru,
                 ),
             ],
         )
@@ -2409,7 +2416,7 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
             'entity': naru.id,
             'has':    'true',
             'ctype':  naru.entity_type_id,
-            'rtype':  self.rtype01.id,
+            'rtype':  rtype.id,
         }
         self.assertListEqual(
             [jsondict],
@@ -2430,11 +2437,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
     def test_ok06(self):
         "'model' property."
+        rtype = self._create_rtype()[0]
+
         with self.assertNumQueries(0):
             field = RelationsConditionsField()
             field.model = FakeContact
 
-        rt_id = self.rtype01.id
+        rt_id = rtype.id
         conditions = field.clean(json_dump([
             {'rtype': rt_id, 'has': True,  'ctype': 0, 'entity': None},
         ]))
@@ -2444,6 +2453,49 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(rt_id,                            condition.name)
         self.assertDictEqual({'has': True}, condition.value)
+
+    def test_disabled_rtype01(self):
+        rtype = self._create_rtype()[0]
+        rtype.enabled = False
+        rtype.save()
+
+        field = RelationsConditionsField(model=FakeContact)
+        err = self.assertFieldRaises(
+            ValidationError, field.clean,
+            json_dump([
+                {'rtype': rtype.id, 'has': True, 'ctype': 0, 'entity': None},
+            ]),
+        )[0]
+        self.assertEqual(
+            _('This type of relationship type is invalid with this model.'),
+            err.messages[0],
+        )
+
+    def test_disabled_rtype02(self):
+        "Disabled RelationType is already used => still proposed."
+        rtype = self._create_rtype()[0]
+        rtype.enabled = False
+        rtype.save()
+
+        field = RelationsConditionsField(model=FakeContact)
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            conditions=[
+                RelationConditionHandler.build_condition(
+                    model=FakeContact, rtype=rtype, has=True,
+                ),
+            ],
+        )
+
+        conditions = field.clean(json_dump([
+            {'rtype': rtype.id, 'has': True,  'ctype': 0, 'entity': None},
+        ]))
+        self.assertEqual(1, len(conditions))
+
+        condition1 = conditions[0]
+        self.assertEqual(RelationConditionHandler.type_id, condition1.type)
+        self.assertEqual(rtype.id,                         condition1.name)
+        self.assertDictEqual({'has': True}, condition1.value)
 
     def test_render_empty(self):
         widget = RelationsConditionsWidget()
@@ -2456,19 +2508,13 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
 
 
 class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
-    def setUp(self):
-        super().setUp()
-
-        create_rtyep = RelationType.objects.smart_update_or_create
-        self.rtype01, self.rtype02 = create_rtyep(
+    def _create_rtype(self):
+        return RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving', [FakeContact]),
             ('test-object_love',  'Is loved by'),
         )
-        self.rtype03, self.srtype04 = create_rtyep(
-            ('test-subject_belong', '(orga) belongs to (orga)', [FakeOrganisation]),
-            ('test-object_belong',  '(orga) has (orga)',        [FakeOrganisation]),
-        )
 
+    def _create_subfilters(self):
         create_efilter = partial(
             EntityFilter.objects.smart_update_or_create,
             is_custom=True,
@@ -2493,10 +2539,12 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_clean_incomplete_data_required(self):
+        rtype = self._create_rtype()[0]
+
         clean = RelationSubfiltersConditionsField(model=FakeContact).clean
         self.assertFieldValidationError(
             RelationSubfiltersConditionsField, 'required', clean,
-            json_dump([{'rtype': self.rtype01.id}]),
+            json_dump([{'rtype': rtype.id}]),
         )
         self.assertFieldValidationError(
             RelationSubfiltersConditionsField, 'required', clean,
@@ -2504,19 +2552,22 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
     def test_unknown_filter(self):
+        rtype = self._create_rtype()[0]
         user = self.create_user()
         field = RelationSubfiltersConditionsField(model=FakeContact)
         field.user = user
         self.assertFieldValidationError(
             RelationSubfiltersConditionsField, 'invalidfilter', field.clean,
             json_dump([{
-                'rtype': self.rtype01.id, 'has': False,
+                'rtype': rtype.id, 'has': False,
                 'ctype': ContentType.objects.get_for_model(FakeContact).id,
                 'filter': '3213213543',  # <==
             }]),
         )
 
     def test_ok(self):
+        rtype1, rtype2 = self._create_rtype()
+        self._create_subfilters()
         user = self.create_user()
 
         with self.assertNumQueries(0):
@@ -2528,12 +2579,12 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         filter_id2 = self.sub_efilter02.id
         conditions = field.clean(json_dump([
             {
-                'rtype': self.rtype01.id,
+                'rtype': rtype1.id,
                 'has': True,
                 'ctype': get_ct(FakeContact).id,
                 'filter': filter_id1,
             }, {
-                'rtype': self.rtype02.id,
+                'rtype': rtype2.id,
                 'has': False,
                 'ctype': get_ct(FakeOrganisation).id,
                 'filter': filter_id2,
@@ -2543,23 +2594,26 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
 
         type_id = RelationSubFilterConditionHandler.type_id
         condition1 = conditions[0]
-        self.assertEqual(type_id,         condition1.type)
-        self.assertEqual(self.rtype01.id, condition1.name)
-        self.assertEqual(EF_USER,         condition1.filter_type)
+        self.assertEqual(type_id,   condition1.type)
+        self.assertEqual(rtype1.id, condition1.name)
+        self.assertEqual(EF_USER,   condition1.filter_type)
         self.assertDictEqual(
             {'has': True, 'filter_id': filter_id1},
             condition1.value,
         )
 
         condition2 = conditions[1]
-        self.assertEqual(type_id,         condition2.type)
-        self.assertEqual(self.rtype02.id, condition2.name)
+        self.assertEqual(type_id,   condition2.type)
+        self.assertEqual(rtype2.id, condition2.name)
         self.assertDictEqual(
             {'has': False, 'filter_id': filter_id2},
             condition2.value,
         )
 
     def test_filter_type(self):
+        self._create_subfilters()
+
+        rtype = self._create_rtype()[0]
         user = self.create_user()
 
         field = RelationSubfiltersConditionsField(
@@ -2569,7 +2623,7 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         )
 
         filter_id = self.sub_efilter01.id
-        rt_id = self.rtype01.id
+        rt_id = rtype.id
         conditions = field.clean(json_dump([
             {
                 'rtype': rt_id, 'has': True,
@@ -2584,6 +2638,80 @@ class RelationSubfiltersConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,        condition1.type)
         self.assertEqual(rt_id,          condition1.name)
         self.assertEqual(EF_CREDENTIALS, condition1.filter_type)
+        self.assertDictEqual(
+            {'has': True, 'filter_id': filter_id},
+            condition1.value,
+        )
+
+    def test_disabled_rtype01(self):
+        self._create_subfilters()
+
+        rtype = self._create_rtype()[0]
+        rtype.enabled = False
+        rtype.save()
+
+        user = self.create_user()
+
+        field = RelationSubfiltersConditionsField(
+            model=FakeContact,
+            user=user,
+            efilter_type=EF_CREDENTIALS,
+        )
+        err = self.assertFieldRaises(
+            ValidationError, field.clean,
+            json_dump([
+                {
+                    'rtype': rtype.id, 'has': True,
+                    'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                    'filter': self.sub_efilter01.id,
+                },
+            ]),
+        )[0]
+        self.assertEqual(
+            _('This type of relationship type is invalid with this model.'),
+            err.messages[0],
+        )
+
+    def test_disabled_rtype02(self):
+        "Disabled RelationType is already used => still proposed."
+        self._create_subfilters()
+
+        rtype = self._create_rtype()[0]
+        rtype.enabled = False
+        rtype.save()
+
+        user = self.create_user()
+
+        field = RelationSubfiltersConditionsField(
+            model=FakeContact,
+            user=user,
+            efilter_type=EF_CREDENTIALS,
+        )
+        field.initialize(
+            ctype=ContentType.objects.get_for_model(FakeContact),
+            conditions=[
+                RelationSubFilterConditionHandler.build_condition(
+                    model=FakeContact,
+                    rtype=rtype,
+                    subfilter=self.sub_efilter01,
+                ),
+            ],
+        )
+        filter_id = self.sub_efilter01.id
+        conditions = field.clean(
+            json_dump([
+                {
+                    'rtype': rtype.id, 'has': True,
+                    'ctype': ContentType.objects.get_for_model(FakeContact).id,
+                    'filter': filter_id,
+                },
+            ]),
+        )
+        self.assertEqual(1, len(conditions))
+
+        condition1 = conditions[0]
+        self.assertEqual(RelationSubFilterConditionHandler.type_id, condition1.type)
+        self.assertEqual(rtype.id, condition1.name)
         self.assertDictEqual(
             {'has': True, 'filter_id': filter_id},
             condition1.value,

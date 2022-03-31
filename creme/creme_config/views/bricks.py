@@ -249,6 +249,10 @@ class RelationCTypeBrickWizard(base.ConfigModelEditionWizard):
     title = _('New customised type for «{object}»')
     submit_label = _('Save the configuration')
 
+    def check_instance_permissions(self, instance, user):
+        # TODO: select_related('relation_type')?
+        instance.relation_type.is_enabled_or_die()
+
     def get_form_kwargs(self, step=None):
         kwargs = super().get_form_kwargs(step=step)
 
@@ -266,6 +270,9 @@ class RelationCTypeBrickEdition(EntityCTypeRelatedMixin, base.ConfigModelEdition
 
     def check_instance_permissions(self, instance, user):
         super().check_instance_permissions(instance=instance, user=user)
+
+        # TODO: select_related('relation_type')?
+        instance.relation_type.is_enabled_or_die()
 
         if instance.get_cells(self.get_ctype()) is None:
             raise Http404('This ContentType is not set in the RelationBrickItem.')

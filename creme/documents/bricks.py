@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,8 @@ from django.utils.translation import gettext_lazy as _
 from creme import documents
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import EntityBrick, QuerysetBrick, SimpleBrick
-from creme.creme_core.models import Relation
+from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.queries import QSerializer
 
 from .constants import REL_SUB_RELATED_2_DOC
@@ -108,18 +109,28 @@ class LinkedDocsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        rtype_id = self.relation_type_deps[0]
+        # rtype_id = self.relation_type_deps[0]
+        rtype = RelationType.objects.get(id=self.relation_type_deps[0])
         btc = self.get_template_context(
             context,
-            Relation.objects.filter(subject_entity=entity.id, type=rtype_id),
-            predicate_id=rtype_id,
+            Relation.objects
+                    .filter(subject_entity=entity.id, type=rtype)
+                    .prefetch_related('real_object'),
+            # predicate_id=rtype_id,
+            relation_type=rtype,
         )
-        relations = btc['page'].object_list
-        docs = Document.objects.filter(
-            pk__in=[r.object_entity_id for r in relations],
-        ).select_related('linked_folder').in_bulk()
-
-        for relation in relations:
-            relation.object_entity = docs[relation.object_entity_id]
+        # relations = btc['page'].object_list
+        # docs = Document.objects.filter(
+        #     pk__in=[r.object_entity_id for r in relations],
+        # ).select_related('linked_folder').in_bulk()
+        #
+        # for relation in relations:
+        #     relation.object_entity = docs[relation.object_entity_id]
+        # TODO: assert only Documents?
+        # TODO: method which prefetch all related needed by __str__()?
+        populate_related(
+            [rel.real_object for rel in btc['page'].object_list],
+            ['linked_folder'],
+        )
 
         return self._render(btc)

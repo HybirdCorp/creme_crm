@@ -569,7 +569,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.is_hidden, False)
         self.assertIs(cell.is_excluded, True)
 
-    def test_relation(self):
+    def test_relation01(self):
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
         loved = RelationType.objects.smart_update_or_create(
@@ -583,6 +583,8 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(loved.predicate, cell.title)
         self.assertEqual(f'relation-{loved.id}', cell.key)
         self.assertIs(cell.is_multiline, True)
+        self.assertFalse(cell.is_hidden)
+        self.assertFalse(cell.is_excluded)
         self.assertEqual(loved, cell.relation_type)
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW,        cell.listview_css_class)
         self.assertEqual(settings.CSS_DEFAULT_HEADER_LISTVIEW, cell.header_listview_css_class)
@@ -614,6 +616,24 @@ class EntityCellTestCase(CremeTestCase):
             f'</ul>',
             cell.render_html(entity=contacts[0], user=user),
         )
+
+    def test_relation02(self):
+        "Disabled type."
+        self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
+
+        hated = RelationType.objects.smart_update_or_create(
+            ('test-object_hated', 'Is hated by'),
+            ('test-subject_hated', 'Is hating'),
+        )[0]
+        hated.enabled = False
+        hated.save()
+
+        cell = EntityCellRelation(model=FakeContact, rtype=hated)
+        self.assertEqual(hated, cell.relation_type)
+        self.assertEqual(FakeContact, cell.model)
+        self.assertEqual(('{} [disabled]').format(hated.predicate), cell.title)
+        self.assertFalse(cell.is_hidden)
+        self.assertTrue(cell.is_excluded)
 
     def test_functionfield01(self):
         self.assertEqual(_('Computed fields'), EntityCellFunctionField.verbose_name)
