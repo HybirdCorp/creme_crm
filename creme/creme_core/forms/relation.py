@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,6 +32,7 @@ from . import fields as core_fields
 from .base import CremeForm, FieldBlockManager
 
 
+# TODO: rename "Creation/Adding/..."
 class _RelationsCreateForm(CremeForm):
     relations = core_fields.MultiRelationEntityField(
         label=_('Relationships'), required=False, autocomplete=True,
@@ -81,11 +82,11 @@ class _RelationsCreateForm(CremeForm):
         )
 
         if not relations_types:
-            relations_types = RelationType.objects.compatible(content_type)
+            relations_types = RelationType.objects.compatible(content_type).filter(enabled=True)
             sfrt_queryset = sfrt_queryset.filter(
                 Q(relation_type__subject_ctypes=content_type)
                 | Q(relation_type__subject_ctypes__isnull=True)
-            )
+            ).filter(relation_type__enabled=True)
         else:
             sfrt_queryset = sfrt_queryset.filter(relation_type__in=relations_types)
 

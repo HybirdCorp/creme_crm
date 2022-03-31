@@ -9,8 +9,18 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to link object as link_perm %}
-    {% brick_header_action id='add-relationships' label=_('Link to a product') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=predicate_id __ctype_id=objects_ctype.id __multiple=True %}
+    {% if relation_type.enabled %}
+        {% has_perm_to link object as link_perm %}
+        {% brick_header_action id='add-relationships' label=_('Link to a product') icon='link' enabled=link_perm __subject_id=object.id __rtype_id=relation_type.id __ctype_id=objects_ctype.id __multiple=True %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_before_content %}
+    {% if not relation_type.enabled %}
+        <div class="global-error">
+            {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
+        </div>
+    {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -24,7 +34,7 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink product user %}</td>
         <td {% brick_table_data_status action %}>{% has_perm_to unlink product as product_unlink_perm %}
-            {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=predicate_id __object_id=product.pk label=_('Unlink this product') icon='unlink' enabled=unlink_perm|and_op:product_unlink_perm %}
+            {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=product.pk label=_('Unlink this product') icon='unlink' enabled=unlink_perm|and_op:product_unlink_perm %}
         </td>
     </tr>
     {% endfor %}

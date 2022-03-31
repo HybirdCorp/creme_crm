@@ -103,18 +103,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         graph = Graph.objects.create(user=user, name='Graph01')
         self.assertEqual(0, graph.orbital_relation_types.count())
 
-        url = reverse('graphs__add_rtypes', args=(graph.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
-
-        context = response.context
-        self.assertEqual(
-            _('Add relation types to «{entity}»').format(entity=graph),
-            context.get('title'),
-        )
-        self.assertEqual(_('Save'), context.get('submit_label'))
-
-        # ---
         rtype_create = RelationType.objects.smart_update_or_create
         rtype01 = rtype_create(
             ('test-subject_love', 'loves'),
@@ -124,13 +112,41 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-subject_hate', 'hates'),
             ('test-object_hate',  'is hated to'),
         )[0]
-        rtypes_ids = [rtype01.id, rtype02.id]
 
-        self.assertNoFormError(self.client.post(url, data={'relation_types': rtypes_ids}))
+        disabled_rtype = rtype_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'whatever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
+        url = reverse('graphs__add_rtypes', args=(graph.id,))
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
+
+        context = response1.context
+        self.assertEqual(
+            _('Add relation types to «{entity}»').format(entity=graph),
+            context.get('title'),
+        )
+        self.assertEqual(_('Save'), context.get('submit_label'))
+
+        with self.assertNoException():
+            rtypes_f = context['form'].fields['relation_types']
+
+        allowed_rtype_ids = {*rtypes_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rtype01.id, allowed_rtype_ids)
+        self.assertIn(rtype02.id, allowed_rtype_ids)
+        self.assertNotIn(disabled_rtype.id, allowed_rtype_ids)
+
+        # ---
+        rtype_ids = [rtype01.id, rtype02.id]
+
+        self.assertNoFormError(self.client.post(url, data={'relation_types': rtype_ids}))
 
         rtypes = graph.orbital_relation_types.all()
         self.assertEqual(2,             len(rtypes))
-        self.assertEqual({*rtypes_ids}, {rt.id for rt in rtypes})
+        self.assertEqual({*rtype_ids}, {rt.id for rt in rtypes})
 
         self.assertPOST200(
             reverse('graphs__remove_rtype', args=(graph.id,)),
@@ -242,6 +258,12 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-subject_hate', 'hates'),
             ('test-object_hate',  'is hated to'),
         )[0]
+        disabled_rtype = rtype_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
 
         graph = Graph.objects.create(user=user, name='Graph01')
         url = reverse('graphs__add_roots', args=(graph.id,))
@@ -255,6 +277,14 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             context.get('title'),
         )
         self.assertEqual(_('Save'), context.get('submit_label'))
+
+        with self.assertNoException():
+            rtypes_f = context['form'].fields['relation_types']
+
+        rtype_ids = {*rtypes_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rtype01.id, rtype_ids)
+        self.assertIn(rtype02.id, rtype_ids)
+        self.assertNotIn(disabled_rtype.id, rtype_ids)
 
         # ----
         response = self.client.post(
@@ -295,7 +325,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST200(url, data=data, follow=True)
         self.assertDoesNotExist(rnode)
 
-    def test_edit_rootnode(self):
+    def test_edit_rootnode01(self):
         user = self.login()
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
 
@@ -309,6 +339,12 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-subject_hate', 'hates'),
             ('test-object_hate',  'is hated to'),
         )[0]
+        disabled_rtype = rtype_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
 
         graph = Graph.objects.create(user=user, name='Graph01')
         # rnode = RootNode.objects.create(graph=graph, entity=orga)
@@ -323,10 +359,49 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             response.context.get('title'),
         )
 
+        with self.assertNoException():
+            rtypes_f = response.context['form'].fields['relation_types']
+
+        rtype_ids = {*rtypes_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rtype01.id, rtype_ids)
+        self.assertIn(rtype02.id, rtype_ids)
+        self.assertNotIn(disabled_rtype.id, rtype_ids)
+
+        # ---
         self.assertNoFormError(
             self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]})
         )
         self.assertSetEqual({rtype01, rtype02}, {*rnode.relation_types.all()})
+
+    def test_edit_rootnode02(self):
+        "Disabled relation types are already selected => still proposed."
+        user = self.login()
+        orga = FakeOrganisation.objects.create(user=user, name='NERV')
+
+        rtype_create = RelationType.objects.smart_update_or_create
+        rtype01 = rtype_create(
+            ('test-subject_love', 'loves'),
+            ('test-object_love',  'is loved to'),
+        )[0]
+        disabled_rtype = rtype_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
+        graph = Graph.objects.create(user=user, name='Graph01')
+        rnode = RootNode.objects.create(graph=graph, real_entity=orga)
+        rnode.relation_types.set([disabled_rtype])
+
+        response = self.assertGET200(rnode.get_edit_absolute_url())
+
+        with self.assertNoException():
+            rtypes_f = response.context['form'].fields['relation_types']
+
+        rtype_ids = {*rtypes_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rtype01.id, rtype_ids)
+        self.assertIn(disabled_rtype.id, rtype_ids)
 
     def test_delete_rootnode01(self):
         "Not super user."

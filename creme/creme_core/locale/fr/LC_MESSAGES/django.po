@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-08 15:37+0200\n"
+"POT-Creation-Date: 2022-04-14 17:32+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -293,6 +293,9 @@ msgstr "{} [supprimé]"
 
 msgid "Computed fields"
 msgstr "Champs calculés"
+
+msgid "{} [disabled]"
+msgstr "{} [désactivé]"
 
 msgid "Entities are accepted by the filter «{}»"
 msgstr "Les fiches sont acceptées par le filtre «{}»"
@@ -1003,6 +1006,9 @@ msgstr "Ce champ a des sous-champs & ne peut pas être sélectionné: %(value)s"
 #, python-format
 msgid "This type of relationship is not compatible with «%(model)s»."
 msgstr "Ce type de relation n'est pas compatible avec «%(model)s»."
+
+msgid "This type of relationship is disabled."
+msgstr "Ce type de relation est désactivé."
 
 msgid "A private view of list must be assigned to a user/team."
 msgstr "Une vue de liste privée doit être attribuée à un utilisateur/équipe."
@@ -2398,9 +2404,21 @@ msgstr "Types de relation"
 msgid "No relationship"
 msgstr "Aucune relation"
 
-msgid "You can't add/delete the relationships with this type (internal type)"
+#, python-brace-format
+msgid ""
+"You cannot add (or delete) relationships with the type «{predicate}» because "
+"it is an internal type."
 msgstr ""
-"Vous ne pouvez pas ajouter/supprimer les relations de ce type (type interne)"
+"Vous ne pouvez pas ajouter (ou supprimer) de relations avec le type "
+"«{predicate}» car c'est un type interne."
+
+#, python-brace-format
+msgid ""
+"You cannot add relationship with the type «{predicate}» because it is "
+"disabled."
+msgstr ""
+"Vous ne pouvez pas ajouter de relation avec le type «{predicate}» car il est "
+"désactivé."
 
 msgid "Create a semi-fixed type of relationship"
 msgstr "Créer un type de relation semi-fixé"
@@ -2796,6 +2814,14 @@ msgstr "{count} Fiches"
 #, python-brace-format
 msgid "{count} Entity"
 msgstr "{count} Fiche"
+
+#, python-format
+msgid ""
+"Beware: the relationship type «%(predicate)s» is disabled. You should re-"
+"enable it if it's still useful, or remove this block"
+msgstr ""
+"Attention : le type de relation «%(predicate)s» est désactivé. Vous devriez "
+"le ré-activer s'il est encore utile, ou enlever ce bloc"
 
 #, python-format
 msgid "%(count)s Entity"

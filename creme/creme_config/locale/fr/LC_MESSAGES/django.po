@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-18 14:15+0100\n"
+"POT-Creation-Date: 2022-04-14 17:35+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1415,8 +1415,14 @@ msgstr ""
 "Les relations ne sont pas affichées dans le bloc «Relations» (vue détaillée "
 "de l'objet) quand quand elles sont déjà affichées par un autre bloc."
 
+msgid "You cannot disable an internal type"
+msgstr "Vous ne pouvez pas désactiver un type interne"
+
 msgid "Edit this relation type"
 msgstr "Modifier ce type de relation"
+
+msgid "You cannot edit a disabled relation type"
+msgstr "Vous en pouvez pas modifier un type de relation désactivé"
 
 msgid "Delete this relation type"
 msgstr "Supprimer ce type de relation"
@@ -1499,6 +1505,9 @@ msgstr "Type de relation"
 
 msgid "Edit this type"
 msgstr "Modifier ce type"
+
+msgid "You cannot edit because the relationship type is disabled"
+msgstr "Vous ne pouvez pas modifier car le type de relation est désactivé"
 
 msgid "Delete this type"
 msgstr "Supprimer ce type"
@@ -1703,6 +1712,9 @@ msgstr "Changer le mot de passe"
 
 msgid "Edit this user"
 msgstr "Modifier cette utilisateur"
+
+msgid "You can't delete the current user."
+msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
 msgid "Delete this user"
 msgstr "Supprimer cet utilisateur"
@@ -2265,9 +2277,6 @@ msgstr "Supprimer «{object}» et réassigner ses fiches"
 
 msgid "Delete the user"
 msgstr "Supprimer l'utilisateur"
-
-msgid "You can't delete the current user."
-msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 
 msgid "You cannot delete this user. [original error: {}]"
 msgstr "Vous ne pouvez pas supprimer cet utilisateur. [erreur d'origine : {}]"

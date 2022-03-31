@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-29 18:46+0200\n"
+"POT-Creation-Date: 2022-04-14 17:49+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -941,6 +941,16 @@ msgstr "Envoyer un e-mail (avec un patron)"
 msgid "Link to emails"
 msgstr "Lier à des e-mails"
 
+msgid ""
+"Beware: the relationship types for emails are disabled. You should re-enable "
+"them if they are still useful, or remove this block"
+msgstr ""
+"Attention : les types de  relations pour les e-mails sont désactivés. Vous "
+"devriez les re-activer s'ils sont encore utiles, ou enlever ce bloc"
+
+msgid "This mail was synchronized. Are you sure you want to send it?"
+msgstr "Cet e-mail a été synchronisé. Êtes-vous sûr de vouloir l'envoyer ?"
+
 msgid "No email in the history for the moment"
 msgstr "Aucun e-mail dans l'historique pour le moment"
 
@@ -1149,6 +1159,9 @@ msgstr "Lier «{entity}» à des e-mails"
 
 msgid "No type of relationship is compatible."
 msgstr "Aucun type de relation n'est compatible"
+
+msgid "All the compatible types of relationship are disabled: {}"
+msgstr "Tous les types de relation compatibles sont désactivés : {}"
 
 #, python-brace-format
 msgid "New contacts for «{entity}»"

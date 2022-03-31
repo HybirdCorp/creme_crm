@@ -88,7 +88,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         cells = hfilter.cells
         self.assertListEqual(
             [EntityCellRegularField.build(FakeMailingList, 'created')],
-            cells
+            cells,
         )
         self.assertIs(cells[0].is_hidden, False)
 
@@ -244,15 +244,15 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                 },
             )
 
-        response = post(self.other_user)
+        response1 = post(self.other_user)
         msg = _('A private view of list must belong to you (or one of your teams).')
-        self.assertFormError(response, 'form', 'user', msg)
+        self.assertFormError(response1, 'form', 'user', msg)
 
-        response = post(a_team)
-        self.assertFormError(response, 'form', 'user', msg)
+        response2 = post(a_team)
+        self.assertFormError(response2, 'form', 'user', msg)
 
-        response = post(my_team)
-        self.assertNoFormError(response)
+        response3 = post(my_team)
+        self.assertNoFormError(response3)
         self.get_object_or_fail(HeaderFilter, name=name)
 
     def test_create05(self):
@@ -269,7 +269,6 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                 'cancel_url': callback,
             },
         )
-
         self.assertNoFormError(response)
         self.assertRedirects(response, callback)
 
@@ -288,17 +287,16 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                 'cells': 'regular_field-first_name',
             },
         )
-
         self.assertNoFormError(response)
         self.get_object_or_fail(HeaderFilter, name=name)
 
-    def test_create07(self):
+    def test_create_error01(self):
         "Not an Entity type."
         self.login()
         self.assertGET409(self._build_add_url(ContentType.objects.get_for_model(RelationType)))
 
-    def test_create08(self):
-        "FieldsConfig."
+    def test_create_error02(self):
+        "FieldsConfig: hidden field."
         self.login()
 
         hidden_fname = 'phone'
@@ -316,8 +314,28 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             _('This value is invalid: %(value)s') % {'value': hidden_fname},
         )
 
+    def test_create_error03(self):
+        "Disabled RelationType."
+        self.login()
+
+        disabled_rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'whatever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
+        response = self.assertPOST200(
+            self._build_add_url(self.contact_ct),
+            data={'cells': f'relation-{disabled_rtype.id}'},
+        )
+        self.assertFormError(
+            response, 'form', 'cells',
+            _('This type of relationship is disabled.'),
+        )
+
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
-    def test_create09(self):
+    def test_create_settings(self):
         "Use FILTERS_INITIAL_PRIVATE."
         self.login()
 
@@ -337,15 +355,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         url = self._build_add_url(ct)
         self.assertGET200(url)
 
-        name = 'DefaultHeaderFilter'
         response = self.client.post(
             url,
             data={
-                'name':  name,
+                'name':  'DefaultHeaderFilter',
                 'cells': 'regular_field-name',
             },
         )
-
         self.assertNoFormError(response, status=302)
         self.assertRedirects(response, '/')
 
@@ -418,12 +434,13 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         field2 = 'last_name'
         response = self.client.post(
             url,
+            follow=True,
             data={
                 'name':  name,
                 'cells': f'regular_field-{field2},regular_field-{field1}',
             },
         )
-        self.assertNoFormError(response, status=302)
+        self.assertNoFormError(response)
 
         hf = self.refresh(hf)
         self.assertEqual(name, hf.name)
@@ -433,7 +450,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
                 EntityCellRegularField.build(FakeContact, field2),
                 EntityCellRegularField.build(FakeContact, field1),
             ],
-            hf.cells
+            hf.cells,
         )
 
     def test_edit03(self):
@@ -521,7 +538,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'user',
-            _('A private view of list must be assigned to a user/team.')
+            _('A private view of list must be assigned to a user/team.'),
         )
 
     def test_edit09(self):
@@ -551,8 +568,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         self.assertRedirects(response, callback)
 
-    def test_edit10(self):
-        "FieldsConfig."
+    def test_edit_hidden_fields(self):
         self.login()
 
         valid_fname = 'last_name'
@@ -592,6 +608,58 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             data={
                 'name': hf.name,
                 'cells': f'regular_field-{hidden_fname1}'
+            },
+        )
+        self.assertNoFormError(response2)
+
+    def test_edit_disabled_rtypes(self):
+        self.login()
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_loves', 'is loving'),
+            ('test-object_loves',  'is loved by'),
+        )[0]
+        disabled_rtype1 = create_rtype(
+            ('test-subject_disabled1', 'disabled #1'),
+            ('test-object_disabled1',  'whatever #1'),
+        )[0]
+        disabled_rtype2 = create_rtype(
+            ('test-subject_disabled2', 'disabled #2'),
+            ('test-object_disabled2', 'whatever #2'),
+        )[0]
+
+        build_cell = partial(EntityCellRelation, model=FakeContact)
+        hf = HeaderFilter.objects.create_if_needed(
+            pk='tests-hf_contact', name='Contact view',
+            model=FakeContact, is_custom=True,
+            cells_desc=[
+                build_cell(rtype=rtype1),
+                build_cell(rtype=disabled_rtype1),
+            ],
+        )
+
+        for disabled in (disabled_rtype1, disabled_rtype2):
+            disabled.enabled = False
+            disabled.save()
+
+        url = hf.get_edit_absolute_url()
+        response1 = self.assertPOST200(
+            url,
+            data={'cells': f'relation-{disabled_rtype2.id}'},
+        )
+        self.assertFormError(
+            response1, 'form', 'cells',
+            _('This type of relationship is disabled.'),
+        )
+
+        # Was already in the HeaderFilter => still proposed
+        response2 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'name': hf.name,
+                'cells': f'relation-{disabled_rtype1.id}',
             },
         )
         self.assertNoFormError(response2)

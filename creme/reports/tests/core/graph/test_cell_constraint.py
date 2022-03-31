@@ -222,6 +222,22 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         )[0]
         self.assertFalse(constraint.check_cell(EntityCellRelation(FakeContact, rtype3)))
 
+        disabled_rtype = create_rtype(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+        self.assertFalse(
+            constraint.check_cell(EntityCellRelation(FakeContact, disabled_rtype)),
+        )
+        self.assertTrue(
+            constraint.check_cell(
+                cell=EntityCellRelation(FakeContact, disabled_rtype),
+                not_hiddable_cell_keys=[f'relation-{disabled_rtype.id}'],
+            ),
+        )
+
         # ---
         cell1 = constraint.get_cell(cell_key=f'relation-{rtype2.id}')
         self.assertIsInstance(cell1, EntityCellRelation)
@@ -230,23 +246,35 @@ class GraphHandConstraintsTestCase(CremeTestCase):
         self.assertIsNone(constraint.get_cell(cell_key=f'relation-{rtype3.id}'))
 
         # ---
-        cells = [*constraint.cells()]
-        self.assertGreaterEqual(len(cells), 2)
-        self.assertIsInstance(cells[0], EntityCellRelation)
-
-        def find_cell(rtype):
+        def find_cell(rtype, cells):
             for cell in cells:
                 if cell.relation_type == rtype:
                     return
 
             self.fail(f'{rtype} not found in cells.')
 
-        find_cell(rtype1)
-        find_cell(rtype2)
+        def dont_find_cell(rtype, cells):
+            for cell in cells:
+                if cell.relation_type == rtype:
+                    self.fail(f'{rtype} should not be found in cells.')
 
-        for cell in cells:
-            if cell.relation_type == rtype3:
-                self.fail(f'{rtype3} should not be found in cells.')
+        creation_cells = [*constraint.cells()]
+        self.assertGreaterEqual(len(creation_cells), 2)
+        self.assertIsInstance(creation_cells[0], EntityCellRelation)
+
+        find_cell(rtype1, creation_cells)
+        find_cell(rtype2, creation_cells)
+        dont_find_cell(rtype3,         creation_cells)
+        dont_find_cell(disabled_rtype, creation_cells)
+
+        # ---
+        edition_cells = [
+            *constraint.cells(not_hiddable_cell_keys=[f'relation-{disabled_rtype.id}']),
+        ]
+        find_cell(rtype1, edition_cells)
+        find_cell(rtype2, edition_cells)
+        dont_find_cell(rtype3, edition_cells)
+        find_cell(disabled_rtype, edition_cells)  # <== not ignored
 
     def test_custom_enum(self):
         constraint = GHCCCustomEnum(model=FakeContact)

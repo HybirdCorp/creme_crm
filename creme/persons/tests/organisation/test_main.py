@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
+
 from datetime import date
 from functools import partial
 
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import FieldsConfig, Relation, SetCredentials
+from creme.creme_core.models import (
+    FieldsConfig,
+    Relation,
+    RelationType,
+    SetCredentials,
+)
 from creme.persons import constants
 from creme.persons.models import LegalForm, Sector, StaffSize
 
@@ -417,11 +424,21 @@ class OrganisationTestCase(_BaseTestCase):
         Organisation.objects.create(user=user, name='Nerv')
 
         response = self.assertGET200(reverse('persons__leads_customers'))
+        ctxt = response.context
 
         with self.assertNoException():
-            orgas_page = response.context['page_obj']
+            orgas_page = ctxt['page_obj']
+            title = ctxt['list_title']
 
         self.assertEqual(0, orgas_page.paginator.count)
+        self.assertEqual(
+            # _('List of my suspects / prospects / customers'),
+            _('List of my {related_items} & {last_related}').format(
+                related_items='{}, {}'.format(_('customers'), _('prospects')),
+                last_related=_('suspects'),
+            ),
+            title,
+        )
 
     def test_leads_customers02(self):
         user = self.login()
@@ -474,6 +491,109 @@ class OrganisationTestCase(_BaseTestCase):
         response = self.client.get(reverse('persons__leads_customers'))
         self.assertEqual(0, response.context['page_obj'].paginator.count)
 
+    def test_leads_customers_disabled_rtypes01(self):
+        self.login()
+
+        rtype = self.get_object_or_fail(
+            RelationType, id=constants.REL_SUB_SUSPECT,
+        )
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            response = self.assertGET200(reverse('persons__leads_customers'))
+            ctxt = response.context
+
+            with self.assertNoException():
+                title = ctxt['list_title']
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
+        self.assertEqual(
+            _('List of my {related1} & {related2}').format(
+                related1=_('customers'),
+                related2=_('prospects'),
+            ),
+            title,
+        )
+
+    def test_leads_customers_disabled_rtypes02(self):
+        self.login()
+
+        rtype = self.get_object_or_fail(
+            RelationType, id=constants.REL_SUB_PROSPECT,
+        )
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            response = self.assertGET200(reverse('persons__leads_customers'))
+            ctxt = response.context
+
+            with self.assertNoException():
+                title = ctxt['list_title']
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
+        self.assertEqual(
+            _('List of my {related1} & {related2}').format(
+                related1=_('customers'),
+                related2=_('suspects'),
+            ),
+            title,
+        )
+
+    def test_leads_customers_disabled_rtypes03(self):
+        self.login()
+
+        rtypes = [
+            *RelationType.objects.filter(
+                id__in=[constants.REL_SUB_PROSPECT, constants.REL_SUB_SUSPECT],
+            ),
+        ]
+        for rtype in rtypes:
+            rtype.enabled = False
+            rtype.save()
+
+        try:
+            response = self.assertGET200(reverse('persons__leads_customers'))
+            ctxt = response.context
+
+            with self.assertNoException():
+                title = ctxt['list_title']
+        finally:
+            for rtype in rtypes:
+                rtype.enabled = True
+                rtype.save()
+
+        self.assertEqual(
+            _('List of my {related}').format(related=_('customers')),
+            title,
+        )
+
+    def test_leads_customers_disabled_rtypes04(self):
+        self.login()
+
+        rtypes = [
+            *RelationType.objects.filter(id__in=[
+                constants.REL_SUB_PROSPECT,
+                constants.REL_SUB_SUSPECT,
+                constants.REL_SUB_CUSTOMER_SUPPLIER,
+            ]),
+        ]
+        for rtype in rtypes:
+            rtype.enabled = False
+            rtype.save()
+
+        try:
+            self.assertGET409(reverse('persons__leads_customers'))
+        finally:
+            for rtype in rtypes:
+                rtype.enabled = True
+                rtype.save()
+
     def test_create_customer01(self):
         user = self.login()
 
@@ -481,17 +601,41 @@ class OrganisationTestCase(_BaseTestCase):
         managed2 = Organisation.objects.create(user=user, name='Nerv', is_managed=True)
 
         url = reverse('persons__create_customer')
-        response = self.assertGET200(url)
+        context1 = self.assertGET200(url).context
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = context1['form'].fields
             rtypes_f = fields['customers_rtypes']
+            title = context1['title']
 
         self.assertEqual(_('Relationships'), rtypes_f.label)
+        self.assertInChoices(
+            value=constants.REL_SUB_CUSTOMER_SUPPLIER,
+            label=_('Is a customer'),
+            choices=rtypes_f.choices,
+        )
+        self.assertInChoices(
+            value=constants.REL_SUB_PROSPECT,
+            label=_('Is a prospect'),
+            choices=rtypes_f.choices,
+        )
+        self.assertInChoices(
+            value=constants.REL_SUB_SUSPECT,
+            label=_('Is a suspect'),
+            choices=rtypes_f.choices,
+        )
+
         self.assertIn('customers_managed_orga', fields)
+        # self.assertEqual(_('Create a suspect / prospect / customer'), title)
+        self.assertEqual(
+            pgettext('persons-related_creation', 'Create a: {}').format(
+                f"{_('customer')}, {_('prospect')}, {_('suspect')}"
+            ),
+            title,
+        )
 
         def post(managed, name):
-            response = self.client.post(
+            post_response = self.client.post(
                 url, follow=True,
                 data={
                     'user':  user.id,
@@ -501,7 +645,7 @@ class OrganisationTestCase(_BaseTestCase):
                     'customers_rtypes': [constants.REL_SUB_SUSPECT],
                 },
             )
-            self.assertNoFormError(response)
+            self.assertNoFormError(post_response)
 
             return self.get_object_or_fail(Organisation, name=name)
 
@@ -607,6 +751,67 @@ class OrganisationTestCase(_BaseTestCase):
             set_type=SetCredentials.ESET_ALL,
         )
         self.assertPOST403(reverse('persons__create_customer'))
+
+    def test_create_customer_disabled_rtype01(self):
+        self.login()
+
+        rtype = self.get_object_or_fail(
+            RelationType, id=constants.REL_SUB_SUSPECT,
+        )
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            context = self.assertGET200(reverse('persons__create_customer')).context
+
+            with self.assertNoException():
+                rtypes_f = context['form'].fields['customers_rtypes']
+                title = context['title']
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
+        self.assertEqual(
+            pgettext('persons-related_creation', 'Create a: {}').format(
+                f"{_('customer')}, {_('prospect')}"
+            ),
+            title,
+        )
+
+        self.assertInChoices(
+            value=constants.REL_SUB_CUSTOMER_SUPPLIER,
+            label=_('Is a customer'),
+            choices=rtypes_f.choices,
+        )
+        self.assertInChoices(
+            value=constants.REL_SUB_PROSPECT,
+            label=_('Is a prospect'),
+            choices=rtypes_f.choices,
+        )
+        self.assertNotInChoices(
+            value=constants.REL_SUB_SUSPECT, choices=rtypes_f.choices,
+        )
+
+    def test_create_customer_disabled_rtype02(self):
+        self.login()
+
+        rtypes = [
+            *RelationType.objects.filter(id__in=[
+                constants.REL_SUB_PROSPECT,
+                constants.REL_SUB_SUSPECT,
+                constants.REL_SUB_CUSTOMER_SUPPLIER,
+            ]),
+        ]
+        for rtype in rtypes:
+            rtype.enabled = False
+            rtype.save()
+
+        try:
+            self.assertGET409(reverse('persons__create_customer'))
+        finally:
+            for rtype in rtypes:
+                rtype.enabled = True
+                rtype.save()
 
     def test_delete01(self):
         user = self.login()

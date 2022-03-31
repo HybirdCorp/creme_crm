@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,7 @@ class OrganisationsEntry(menu.ListviewEntry):
 
 class CustomersEntry(menu.FixedURLEntry):
     id = 'persons-lead_customers'
+    # TODO: ignore disabled relation types (wait for relation-types cache?)
     label = _('My customers / prospects / suspects')
     url_name = 'persons__leads_customers'
     permissions = 'persons'

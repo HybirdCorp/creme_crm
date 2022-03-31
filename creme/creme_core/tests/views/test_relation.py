@@ -3,12 +3,13 @@
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
-from django.http import Http404
+# from django.http import Http404
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -29,9 +30,44 @@ class RelationViewsTestCase(ViewsTestCase):
     ADD_FROM_PRED_URL = reverse('creme_core__save_relations')
     SELECTION_URL     = reverse('creme_core__select_entities_to_link')
 
+    # TODO: use assertRelationCount instead ?
+    def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
+        self.assertTrue(
+            subject_entity.relations
+                          .filter(type=rtype, object_entity=object_entity.id)
+                          .exists()
+        )
+
+    @staticmethod
+    def _build_add_url(subject):
+        return reverse('creme_core__create_relations', args=(subject.id,))
+
+    @staticmethod
+    def _build_bulk_add_url(ct_id, *subjects, **kwargs):
+        url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
+
+        if kwargs.get('GET', False):
+            url += '?' + '&'.join(f'ids={e.id}' for e in subjects)
+
+        return url
+
     @staticmethod
     def _build_get_ctypes_url(rtype_id):
         return reverse('creme_core__ctypes_compatible_with_rtype', args=(rtype_id,))
+
+    @staticmethod
+    def _build_narrowed_add_url(subject, rtype):
+        return reverse('creme_core__create_relations', args=(subject.id, rtype.id))
+
+    @staticmethod
+    def count_relations(rtype):
+        return Relation.objects.filter(type=rtype).count()
+
+    def assertRelationCounts(self, counts):
+        assertEqual = self.assertEqual
+        rcount = self.count_relations
+        for rtype, count in counts:
+            assertEqual(count, rcount(rtype))
 
     def test_get_ctypes_of_relation01(self):
         "No sort."
@@ -107,6 +143,22 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertEqual(response.json(), expected)
 
+    def test_get_ctypes_of_relation04(self):
+        "Type is disabled => error."
+        self.login()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_customer', 'is a customer of', [FakeContact]),
+            ('test-object_customer',  'is a supplier of', [FakeContact, FakeOrganisation]),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        self.assertGET409(
+            self._build_get_ctypes_url(rtype.id),
+            data={'fields': ['id', 'unicode']},
+        )
+
     def _aux_test_add_relations(self, is_superuser=True):
         user = self.login(is_superuser)
 
@@ -130,59 +182,54 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-object_foobar2',  'is hated by'),
         )[0]
 
-    # TODO: use assertRelationCount instead ?
-    def assertEntiTyHasRelation(self, subject_entity, rtype, object_entity):
-        self.assertTrue(
-            subject_entity.relations
-                          .filter(type=rtype, object_entity=object_entity.id)
-                          .exists()
-        )
-
-    @staticmethod
-    def _build_add_url(subject):
-        return reverse('creme_core__create_relations', args=(subject.id,))
-
-    @staticmethod
-    def count_relations(rtype):
-        return Relation.objects.filter(type=rtype).count()
-
-    def assert_relation_count(self, counts):
-        assertEqual = self.assertEqual
-        rcount = self.count_relations
-        for rtype, count in counts:
-            assertEqual(count, rcount(rtype))
-
     def test_add_relations01(self):
         self._aux_test_add_relations()
+
+        rtype03 = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar3', 'is disabled'),
+            ('test-object_foobar3',  'whatever'),
+        )[0]
+        rtype03.enabled = False
+        rtype03.save()
 
         subject = self.subject01
         self.assertFalse(subject.relations.all())
 
         url = self._build_add_url(subject)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Relationships for «{entity}»').format(entity=subject),
             context.get('title'),
         )
         self.assertEqual(_('Save the relationships'), context.get('submit_label'))
 
+        with self.assertNoException():
+            relations_f = context['form'].fields['relations']
+
+        rtype_ids = {*relations_f.allowed_rtypes.values_list('id', flat=True)}
+        rtype01 = self.rtype01
+        rtype02 = self.rtype02
+        self.assertIn(rtype01.id, rtype_ids)
+        self.assertIn(rtype02.id, rtype_ids)
+        self.assertNotIn(rtype03.id, rtype_ids)
+
         # ---
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, self.object01),
-                    (self.rtype02.id, self.object02),
+                    (rtype01.id, self.object01),
+                    (rtype02.id, self.object02),
                 ),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, self.rtype01, self.object01)
-        self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
+        self.assertEntiTyHasRelation(subject, rtype01, self.object01)
+        self.assertEntiTyHasRelation(subject, rtype02, self.object02)
 
     def test_add_relations_not_superuser01(self):
         user = self.login(is_superuser=False)
@@ -367,10 +414,14 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-subject_foobar3', 'is hating orga',     [FakeContact]),
             ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
         )[0]
-        rtype04 = create_rtype(
+        incompatible_rtype = create_rtype(
             # The subject cannot be a Contact
             ('test-subject_foobar4', 'has fired', [FakeOrganisation]),
             ('test-object_foobar4',  'has been fired by'),
+        )[0]
+        disabled_rtype = create_rtype(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what  ever'),
         )[0]
 
         create_sfrt = SemiFixedRelationType.objects.create
@@ -391,9 +442,16 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         create_sfrt(
             predicate='Linked to "object01"',
-            # relation_type=rtype04, object_entity=self.object01,
-            relation_type=rtype04, real_object=self.object01,
+            # relation_type=incompatible_rtype, object_entity=self.object01,
+            relation_type=incompatible_rtype, real_object=self.object01,
         )  # Should not be proposed
+        create_sfrt(
+            predicate='Related to "object01" but disabled',
+            relation_type=disabled_rtype, real_object=self.object01,
+        )  # Should not be proposed
+
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
 
         url = self._build_add_url(subject)
 
@@ -588,10 +646,6 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(1, subject.relations.count())
 
-    @staticmethod
-    def _build_narrowed_add_url(subject, rtype):
-        return reverse('creme_core__create_relations', args=(subject.id, rtype.id))
-
     def test_add_relations_narrowedtype01(self):
         self._aux_test_add_relations()
 
@@ -686,7 +740,8 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-object_foobar1',  'is loved by'),
             is_internal=True,
         )[0]
-        self.assertGET404(self._build_narrowed_add_url(subject, rtype))
+        # self.assertGET404(self._build_narrowed_add_url(subject, rtype))
+        self.assertGET409(self._build_narrowed_add_url(subject, rtype))
 
     def test_add_relations_narrowedtype05(self):
         "ContentType & CremeProperty constraints on subject."
@@ -756,17 +811,29 @@ class RelationViewsTestCase(ViewsTestCase):
             status_code=409,
         )
 
-    @staticmethod
-    def _build_bulk_add_url(ct_id, *subjects, **kwargs):
-        url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
+    def test_add_relations_narrowedtype08(self):
+        "Disabled type => error."
+        user = self.login()
+        subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
 
-        if kwargs.get('GET', False):
-            url += '?' + '&'.join(f'ids={e.id}' for e in subjects)
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar1', 'is loving'),
+            ('test-object_foobar1',  'is loved by'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
 
-        return url
+        self.assertGET409(self._build_narrowed_add_url(subject, rtype))
 
     def test_add_relations_bulk01(self):
         self._aux_test_add_relations()
+
+        rtype3 = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        rtype3.enabled = False
+        rtype3.save()
 
         # This relation should not be recreated by the view
         Relation.objects.create(
@@ -776,17 +843,25 @@ class RelationViewsTestCase(ViewsTestCase):
             object_entity=self.object02,
         )
         ct_id = self.ct_id
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
         )
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(_('Multiple adding of relationships'), context.get('title'))
         self.assertEqual(_('Save the relationships'),           context.get('submit_label'))
 
+        with self.assertNoException():
+            relations_f = response1.context['form'].fields['relations']
+
+        rtype_ids = {*relations_f.allowed_rtypes.values_list('id', flat=True)}
+        self.assertIn(self.rtype01.id, rtype_ids)
+        self.assertIn(self.rtype02.id, rtype_ids)
+        self.assertNotIn(rtype3.id, rtype_ids)
+
         # ---
-        response = self.client.post(
+        response2 = self.client.post(
             self._build_bulk_add_url(ct_id),
             data={
                 'entities_lbl': 'wtf',
@@ -797,7 +872,7 @@ class RelationViewsTestCase(ViewsTestCase):
                 'ids': [self.subject01.id, self.subject02.id],
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         self.assertEqual(2, self.subject01.relations.count())
         self.assertEntiTyHasRelation(self.subject01, self.rtype01, self.object01)
@@ -1092,6 +1167,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertSetEqual({self.contact01, self.contact03, contact04}, {*contacts})
 
     def test_select_relations_objects04(self):
+        "Is internal => error."
         self.login()
 
         subject = CremeEntity.objects.create(user=self.user)
@@ -1102,7 +1178,8 @@ class RelationViewsTestCase(ViewsTestCase):
             is_internal=True,
         )[0]
 
-        self.assertGET404(
+        # self.assertGET404(
+        self.assertGET409(
             self.SELECTION_URL,
             data={
                 'subject_id':    subject.id,
@@ -1343,7 +1420,8 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-object_foobar',  'is loved by'),
             is_internal=True,
         )[0]
-        self.assertPOST404(
+        # self.assertPOST404(
+        self.assertPOST409(
             self.ADD_FROM_PRED_URL,
             data={
                 'subject_id':   subject.id,
@@ -1393,6 +1471,32 @@ class RelationViewsTestCase(ViewsTestCase):
             status_code=404,
             html=True,
         )
+
+    def test_add_relations_with_same_type10(self):
+        "Is disabled."
+        user = self.login()
+
+        create_entity = partial(CremeEntity.objects.create, user=user)
+        subject  = create_entity()
+        object01 = create_entity()
+        object02 = create_entity()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        self.assertPOST409(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id':   subject.id,
+                'predicate_id': rtype.id,
+                'entities':     [object01.id, object02.id],
+            },
+        )
+        self.assertFalse(Relation.objects.filter(type=rtype))
 
     def _delete(self, relation):
         return self.client.post(
@@ -1457,14 +1561,16 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertTrue(rtype.is_internal)
         self.assertTrue(sym_rtype.is_internal)
-        self.assertRaises(Http404, rtype.is_not_internal_or_die)
+        # self.assertRaises(Http404, rtype.is_not_internal_or_die)
+        self.assertRaises(ConflictError, rtype.is_not_internal_or_die)
 
         relation = Relation.objects.create(
             user=user, type=rtype,
             subject_entity=subject_entity,
             object_entity=object_entity,
         )
-        self.assertEqual(404, self._delete(relation).status_code)
+        # self.assertEqual(404, self._delete(relation).status_code)
+        self.assertEqual(409, self._delete(relation).status_code)
         self.get_object_or_fail(Relation, pk=relation.pk)
 
     def assertDeleteSimilar(self, *, status, subject, rtype, object):
@@ -1575,7 +1681,8 @@ class RelationViewsTestCase(ViewsTestCase):
         )
 
         self.assertDeleteSimilar(
-            status=404, subject=subject_entity, rtype=rtype, object=object_entity,
+            # status=404, subject=subject_entity, rtype=rtype, object=object_entity,
+            status=409, subject=subject_entity, rtype=rtype, object=object_entity,
         )
         self.assertStillExists(relation)
 
@@ -1601,16 +1708,16 @@ class RelationViewsTestCase(ViewsTestCase):
             user=user, type=rtype1,
             subject_entity=entity1, object_entity=entity2,
         )
-        self.assert_relation_count(((rtype1, 1), (rtype2, 1)))
+        self.assertRelationCounts(((rtype1, 1), (rtype2, 1)))
 
         Relation.objects.create(
             user=user, type=rtype3,
             subject_entity=entity1, object_entity=entity2,
         )
-        self.assert_relation_count(((rtype3, 1), (rtype4, 1)))
+        self.assertRelationCounts(((rtype3, 1), (rtype4, 1)))
 
         entity1.clone()
-        self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
+        self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 2), (rtype4, 2)))
 
     def test_not_copiable_relations02(self):
         user = self.login()
@@ -1644,11 +1751,11 @@ class RelationViewsTestCase(ViewsTestCase):
             object_entity=orga,
         )
 
-        self.assert_relation_count(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
+        self.assertRelationCounts(((rtype1, 1), (rtype2, 1), (rtype3, 1), (rtype4, 1)))
 
         # Contact2 < ---- > Orga
         contact2._copy_relations(contact1)
-        self.assert_relation_count(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
+        self.assertRelationCounts(((rtype1, 2), (rtype2, 2), (rtype3, 2), (rtype4, 2)))
 
         orga._copy_relations(contact1)
-        self.assert_relation_count(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))
+        self.assertRelationCounts(((rtype1, 3), (rtype2, 3), (rtype3, 2), (rtype4, 2)))

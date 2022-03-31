@@ -678,6 +678,7 @@ class EntityCellRelation(EntityCell):
             model=model,
             value=str(rtype.id),
             is_hidden=is_hidden,
+            is_excluded=(not rtype.enabled),
         )
 
     @classmethod
@@ -747,7 +748,11 @@ class EntityCellRelation(EntityCell):
 
     @property
     def title(self):
-        return self._rtype.predicate
+        return (
+            gettext('{} [disabled]').format(self._rtype.predicate)
+            if self.is_excluded else
+            self._rtype.predicate
+        )
 
 
 class EntityCellVolatile(EntityCell):

@@ -353,7 +353,7 @@ class RTypeBrickAddForm(base.CremeModelForm):
         super().__init__(*args, **kwargs)
         self.fields['relation_type'].queryset = RelationType.objects.exclude(
             pk__in=RelationBrickItem.objects.values_list('relation_type_id', flat=True),
-        )
+        ).filter(enabled=True)
 
     # def save(self, *args, **kwargs):
     #     self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(

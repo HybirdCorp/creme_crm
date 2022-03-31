@@ -22,6 +22,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.models import RelationType
 
 from . import get_act_model
 from .constants import REL_SUB_COMPLETE_GOAL
@@ -40,7 +41,9 @@ class CompleteGoalButton(Button):
     permissions = 'commercial'
 
     def render(self, context):
-        context['predicate_id'] = REL_SUB_COMPLETE_GOAL
+        # context['predicate_id'] = REL_SUB_COMPLETE_GOAL
+        context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
+        # TODO: templatetag instead?
         context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
 
         return super().render(context)

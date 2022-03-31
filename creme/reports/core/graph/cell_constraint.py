@@ -166,10 +166,18 @@ class GHCCRelation(GraphHandCellConstraint):
         model = self.model
 
         for rtype in RelationType.objects.compatible(model, include_internals=True):
-            yield EntityCellRelation(model=model, rtype=rtype)
+            cell = EntityCellRelation(model=model, rtype=rtype)
+
+            if self.check_cell(cell=cell, not_hiddable_cell_keys=not_hiddable_cell_keys):
+                yield cell
 
     def check_cell(self, cell, not_hiddable_cell_keys=()):
-        return cell.relation_type.is_compatible(cell.model)
+        rtype = cell.relation_type
+
+        return (
+            (rtype.enabled or cell.key in not_hiddable_cell_keys)
+            and rtype.is_compatible(cell.model)
+        )
 
 
 class GHCCCustomField(GraphHandCellConstraint):

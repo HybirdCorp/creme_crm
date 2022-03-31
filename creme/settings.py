@@ -745,17 +745,17 @@ CREME_OPT_CSS = [  # APPS
     ('creme.opportunities',    'opportunities/css/opportunities.css'),
     ('creme.commercial',       'commercial/css/commercial.css'),
     ('creme.emails',           'emails/css/emails.css'),
-
-    ('creme.geolocation',      'geolocation/css/leaflet-1.6.0.css'),
-    ('creme.geolocation',      'geolocation/css/geolocation.css'),
-
     ('creme.polls',            'polls/css/polls.css'),
     ('creme.products',         'products/css/products.css'),
     ('creme.projects',         'projects/css/projects.css'),
+    ('creme.graphs',           'graphs/css/graphs.css'),
     ('creme.reports',          'reports/css/reports.css'),
     ('creme.tickets',          'tickets/css/tickets.css'),
     ('creme.mobile',           'mobile/css/mobile.css'),
     ('creme.cti',              'cti/css/cti.css'),
+
+    ('creme.geolocation', 'geolocation/css/leaflet-1.6.0.css'),
+    ('creme.geolocation', 'geolocation/css/geolocation.css'),
 ]
 
 CREME_I18N_JS = [

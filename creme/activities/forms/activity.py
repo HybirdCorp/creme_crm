@@ -232,11 +232,25 @@ class LinkedEntitiesSubCell(CustomFormExtraSubCell):
     verbose_name = _('Entities linked to this activity')
     is_required = False
 
+    relation_type_id = constants.REL_SUB_LINKED_2_ACTIVITY
+
     def formfield(self, instance, user, **kwargs):
-        return core_forms.MultiGenericEntityField(
-            label=self.verbose_name, user=user, autocomplete=True,
-            **kwargs
-        )
+        rtype = RelationType.objects.get(id=self.relation_type_id)
+
+        if rtype.enabled:
+            return core_forms.MultiGenericEntityField(
+                label=self.verbose_name, user=user, autocomplete=True,
+                **kwargs
+            )
+        else:
+            return core_forms.ReadonlyMessageField(
+                label=self.verbose_name, return_value=(),
+                initial=gettext(
+                    "The relationship type «{predicate}» is disabled; "
+                    "re-enable it if it's still useful, "
+                    "or remove this form-field in the forms configuration."
+                ).format(predicate=rtype.predicate),
+            )
 
 
 # -------------------------------------
@@ -537,7 +551,8 @@ class BaseCreationCustomForm(BaseCustomForm):
                 ),
                 (
                     cdata.get(get_key(LinkedEntitiesSubCell), ()),
-                    constants.REL_SUB_LINKED_2_ACTIVITY,
+                    # constants.REL_SUB_LINKED_2_ACTIVITY,
+                    LinkedEntitiesSubCell.relation_type_id,
                 ),
             )
             for entity in entities

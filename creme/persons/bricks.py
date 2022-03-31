@@ -36,7 +36,7 @@ from creme.creme_core.gui.bricks import (
     QuerysetBrick,
     SimpleBrick,
 )
-from creme.creme_core.models import CremeEntity, Relation
+from creme.creme_core.models import CremeEntity, Relation, RelationType
 from creme.creme_core.utils.db import populate_related
 
 from . import constants
@@ -57,6 +57,7 @@ if apps.is_installed('creme.activities'):
 
     class Activities4Card:
         dependencies = [Activity]
+        # TODO: what if one RelationType.enable == False?
         relation_type_deps = [
             activities_constants.REL_SUB_PART_2_ACTIVITY,
             activities_constants.REL_SUB_ACTIVITY_SUBJECT,
@@ -162,6 +163,7 @@ if apps.is_installed('creme.commercial'):
 
     class CommercialActs4Card:
         dependencies = [Act]
+        # TODO: what if RelationType.enable == False?
         relation_type_deps = [commercial_constants.REL_SUB_COMPLETE_GOAL]
 
         @staticmethod
@@ -243,6 +245,7 @@ class OrganisationCardHatBrick(Brick):
         *Opportunities4Card.dependencies,
         *CommercialActs4Card.dependencies,
     ]
+    # TODO: what if RelationType.enable == False?
     relation_type_deps = [
         constants.REL_OBJ_CUSTOMER_SUPPLIER,
         constants.REL_SUB_CUSTOMER_SUPPLIER,
@@ -316,7 +319,8 @@ class ManagersBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             self._get_people_qs(orga).select_related('civility'),
-            rtype_id=self.relation_type_deps[0],
+            # rtype_id=self.relation_type_deps[0],
+            relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
             add_title=self._get_add_title(),
             hidden_fields={
                 fname

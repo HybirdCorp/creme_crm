@@ -193,7 +193,9 @@ class RelatedActivityCreation(ActivityCreation):
         elif rtype_id == constants.REL_SUB_ACTIVITY_SUBJECT:
             initial[get_key(act_forms.ActivitySubjectsSubCell)] = [related_entity]
         else:
-            initial[get_key(act_forms.LinkedEntitiesSubCell)] = [related_entity]
+            sub_cell_cls = act_forms.LinkedEntitiesSubCell
+            if RelationType.objects.get(id=sub_cell_cls.relation_type_id).enabled:
+                initial[get_key(sub_cell_cls)] = [related_entity]
 
         return initial
 

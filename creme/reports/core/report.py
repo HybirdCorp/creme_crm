@@ -513,6 +513,10 @@ class RHRelation(ReportHand):
         return self._rtype.object_ctypes.all()
 
     @property
+    def hidden(self):
+        return not self._rtype.enabled
+
+    @property
     def relation_type(self) -> RelationType:
         return self._rtype
 

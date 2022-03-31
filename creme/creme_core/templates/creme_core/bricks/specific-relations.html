@@ -5,14 +5,15 @@
 
 {% block brick_menu_actions %}
     {{block.super}}
-
-    <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
-    {% for ctype, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ctype.id as edit_cells_url %}{% blocktranslate asvar edit_label %}Configure the fields for «{{ctype}}»'{% endblocktranslate %}
+    {% if relation_type.enabled %}
+      <hr/>{% has_perm_to admin 'creme_core' as config_perm %}
+      {% for ctype, cells in config_item.iter_cells %}{% url 'creme_config__edit_cells_of_rtype_brick' config_item.id ctype.id as edit_cells_url %}{% blocktranslate asvar edit_label %}Configure the fields for «{{ctype}}»'{% endblocktranslate %}
         {% brick_menu_action id='edit' url=edit_cells_url icon='config' label=edit_label enabled=config_perm %}
-    {% endfor %}
+      {% endfor %}
 
-    {% if not config_item.all_ctypes_configured %}
+      {% if not config_item.all_ctypes_configured %}
         {% brick_menu_action id='edit' url='creme_config__add_cells_to_rtype_brick'|url:config_item.id label=_('Configure the fields of a new type') enabled=config_perm %}
+      {% endif %}
     {% endif %}
 {% endblock %}
 
@@ -25,8 +26,18 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to link object as subject_link_perm %}{% url 'creme_core__create_relations' object.id relation_type.id as create_url %}
-    {% brick_header_action id='link' url=create_url label=_('New relationships') enabled=subject_link_perm %}
+    {% if relation_type.enabled %}
+      {% has_perm_to link object as subject_link_perm %}{% url 'creme_core__create_relations' object.id relation_type.id as create_url %}
+      {% brick_header_action id='link' url=create_url label=_('New relationships') enabled=subject_link_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_before_content %}
+    {% if not relation_type.enabled %}
+      <div class="global-error">
+        {% blocktranslate with predicate=relation_type.predicate %}Beware: the relationship type «{{predicate}}» is disabled. You should re-enable it if it's still useful, or remove this block{% endblocktranslate %}
+      </div>
+    {% endif %}
 {% endblock %}
 
 {% block brick_list_content %}

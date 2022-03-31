@@ -369,6 +369,13 @@ class CreationTestCase(ViewsTestCase):
             ('test-object_pilots',  'is piloted', [FakeOrganisation]),
         )[0]
 
+        disabled_rtype = create_rtype(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
             predicate='Pilots the Swordfish',
@@ -382,6 +389,11 @@ class CreationTestCase(ViewsTestCase):
             # object_entity=contact2,
             real_object=contact2,
         )
+        disabled_sfrt = create_strt(
+            predicate='?? Faye (disabled)',
+            relation_type=disabled_rtype,
+            real_object=contact2,
+        )
 
         url = reverse('creme_core__create_fake_contact')
 
@@ -391,12 +403,18 @@ class CreationTestCase(ViewsTestCase):
         with self.assertNoException():
             fields = response1.context['form'].fields
             sf_choices = fields['semifixed_rtypes'].choices
+            relations_f = fields['relation_types']
 
         self.assertNotIn('rtypes_info', fields)
-        self.assertIn('relation_types', fields)
+
+        rtype_ids = {*relations_f.allowed_rtypes.values_list('id', flat=True)}
+        self.assertIn(rtype1.id, rtype_ids)
+        self.assertIn(rtype2.id, rtype_ids)
+        self.assertNotIn(disabled_rtype.id, rtype_ids)
 
         self.assertInChoices(value=sfrt1.id, label=sfrt1.predicate, choices=sf_choices)
         self.assertInChoices(value=sfrt2.id, label=sfrt2.predicate, choices=sf_choices)
+        self.assertNotInChoices(value=disabled_sfrt.id, choices=sf_choices)
 
         # POST ---
         first_name = 'Spike'

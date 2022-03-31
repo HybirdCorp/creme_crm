@@ -16,7 +16,8 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.creme_jobs import trash_cleaner_type
-from creme.creme_core.forms import LAYOUT_REGULAR
+from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
+from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.models import (
@@ -690,6 +691,73 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertIsNone(act.end)
         self.assertEqual(constants.FLOATING, act.floating_type)
 
+    @skipIfCustomOrganisation
+    def test_createview_disable_rtype(self):
+        user = self.login()
+        dojo = Organisation.objects.create(user=user, name='Dojo')
+        def_calendar = Calendar.objects.get_default_calendar(user)
+
+        rtype = self.get_object_or_fail(RelationType, id=constants.REL_SUB_LINKED_2_ACTIVITY)
+        rtype.enabled = False
+        rtype.save()
+
+        url = self.ACTIVITY_CREATION_URL
+
+        try:
+            # GET ---
+            response1 = self.assertGET200(url)
+
+            with self.assertNoException():
+                linked_f = response1.context['form'].fields[self.EXTRA_LINKED_KEY]
+
+            self.assertIsInstance(linked_f, ReadonlyMessageField)
+            self.assertIsInstance(linked_f.widget, Label)
+            self.assertEqual(
+                _(
+                    "The relationship type «{predicate}» is disabled; "
+                    "re-enable it if it's still useful, "
+                    "or remove this form-field in the forms configuration."
+                ).format(predicate=_('related to the activity')),
+                linked_f.initial,
+            )
+
+            # POST ---
+            title = 'My task'
+            atype = constants.ACTIVITYTYPE_TASK
+            other_contact = self.other_user.linked_contact
+            response2 = self.client.post(
+                url,
+                follow=True,
+                data={
+                    'user':  user.pk,
+                    'title': title,
+                    'status': Status.objects.all()[0].pk,
+
+                    self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype),
+
+                    f'{self.EXTRA_MYPART_KEY}_0': True,
+                    f'{self.EXTRA_MYPART_KEY}_1': def_calendar.pk,
+
+                    self.EXTRA_SUBJECTS_KEY:  self.formfield_value_multi_generic_entity(dojo),
+
+                    # Should not be used
+                    self.EXTRA_LINKED_KEY: self.formfield_value_multi_generic_entity(
+                        other_contact,
+                    ),
+                },
+            )
+            self.assertNoFormError(response2)
+
+            act = self.get_object_or_fail(Activity, type=atype, title=title)
+            self.assertRelationCount(
+                1, user.linked_contact, constants.REL_SUB_PART_2_ACTIVITY, act,
+            )
+            self.assertRelationCount(1, dojo, constants.REL_SUB_ACTIVITY_SUBJECT,  act)
+            self.assertRelationCount(0, other_contact, constants.REL_SUB_LINKED_2_ACTIVITY, act)
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
     def test_createview_errors01(self):
         user = self.login()
 
@@ -1287,17 +1355,29 @@ class ActivityTestCase(_ActivitiesTestCase):
         linked = Activity.objects.create(
             user=user, title='Meet01', type_id=constants.ACTIVITYTYPE_MEETING,
         )
-        response = self.assertGET200(
-            self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL)
-        )
+        url = self._build_add_related_uri(linked, constants.ACTIVITYTYPE_PHONECALL)
+        response1 = self.assertGET200(url)
 
         self.assertListEqual(
             [linked.id],
-            [e.id for e in response.context['form'].initial.get(self.EXTRA_LINKED_KEY, ())],
+            [e.id for e in response1.context['form'].initial.get(self.EXTRA_LINKED_KEY, ())],
         )
 
+        rtype = self.get_object_or_fail(
+            RelationType, id=constants.REL_SUB_LINKED_2_ACTIVITY,
+        )
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            response2 = self.assertGET200(url)
+            self.assertNotIn(self.EXTRA_LINKED_KEY, response2.context['form'].initial)
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
     def test_createview_related05(self):
-        "Not allowed to LINK."
+        "Not allowed LINKing."
         user = self.login(is_superuser=False, creatable_models=[Activity])
         SetCredentials.objects.create(
             role=self.role,

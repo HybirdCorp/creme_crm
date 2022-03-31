@@ -31,10 +31,11 @@ from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
-from django.http import Http404
+# from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..core.exceptions import ConflictError
 from ..signals import pre_merge_related
 from ..utils.content_type import as_ctype
 from . import fields as creme_fields
@@ -328,6 +329,10 @@ class RelationType(CremeModel):
     #  (ie when cloning or converting an entity)
     is_copiable = models.BooleanField(default=True)
 
+    # A disabled type should not be proposed for adding (and a relationship with
+    # this type should be visually marked as disabled in the UI).
+    enabled = models.BooleanField(_('Enabled?'), default=True, editable=False)
+
     # Try to display the relationships of this type only once in the detail-views ?
     # ie: does not display them in the general relationships bricks when another
     #     brick manages this type.
@@ -429,10 +434,24 @@ class RelationType(CremeModel):
 
     def is_not_internal_or_die(self) -> None:
         if self.is_internal:
-            # TODO: 409 ?
-            raise Http404(gettext(
-                "You can't add/delete the relationships with this type (internal type)"
-            ))
+            # raise Http404(gettext(
+            #     "You can't add/delete the relationships with this type (internal type)"
+            # ))
+            raise ConflictError(
+                gettext(
+                    "You cannot add (or delete) relationships with the type "
+                    "«{predicate}» because it is an internal type."
+                ).format(predicate=self.predicate)
+            )
+
+    def is_enabled_or_die(self):
+        if not self.enabled:
+            raise ConflictError(
+                gettext(
+                    "You cannot add relationship with the type «{predicate}» "
+                    "because it is disabled."
+                ).format(predicate=self.predicate)
+            )
 
     @property
     def object_ctypes(self):

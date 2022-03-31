@@ -244,7 +244,10 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
         # )
         # return self._render(btc)
         return self._render(self.get_template_context(
-            context, SemiFixedRelationType.objects.prefetch_related('real_object'),
+            context,
+            SemiFixedRelationType.objects
+                                 .select_related('relation_type')
+                                 .prefetch_related('real_object'),
         ))
 
 
@@ -911,7 +914,13 @@ class HistoryConfigBrick(_ConfigAdminBrick):
     order_by = 'relation_type__predicate'
 
     def detailview_display(self, context):
-        return self._render(self.get_template_context(context, HistoryConfigItem.objects.all()))
+        return self._render(self.get_template_context(
+            context,
+            HistoryConfigItem.objects.select_related(
+                'relation_type',
+                'relation_type__symmetric_type',  # NB: symmetric predicate is printed too
+            ),
+        ))
 
 
 class UserRolesBrick(_ConfigAdminBrick):

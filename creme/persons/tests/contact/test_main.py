@@ -440,6 +440,7 @@ class ContactTestCase(_BaseTestCase):
 
     @skipIfCustomOrganisation
     def test_create_linked_contact01(self):
+        "RelationType fixed."
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -480,6 +481,28 @@ class ContactTestCase(_BaseTestCase):
         "RelationType not fixed."
         user = self.login()
 
+        rtype1 = self.get_object_or_fail(RelationType, id=REL_SUB_EMPLOYED_BY)
+        rtype2 = self.get_object_or_fail(RelationType, id=REL_SUB_MANAGES)
+        rtype3 = RelationType.objects.smart_update_or_create(
+            ('test-subject_employee_month', 'is the employee of the month for', [Contact]),
+            ('test-object_employee_month',  'has the employee of the month',    [Organisation]),
+        )[0]
+        rtype4 = RelationType.objects.smart_update_or_create(
+            ('test-subject_generic', 'generic as ***'),
+            ('test-object_generic',  'other side'),
+        )[0]
+        internal_rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_employee_year', 'is the employee of the year for', [Contact]),
+            ('test-object_employee_year',   'has the employee of the year', [Organisation]),
+            is_internal=True,
+        )[0]
+        disabled_rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_employee_week', 'is the employee of the week for', [Contact]),
+            ('test-object_employee_week',   'has the employee of week year',  [Organisation]),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
         orga = Organisation.objects.create(user=user, name='Acme')
         url = self._build_addrelated_url(orga.id)
         response = self.assertGET200(url)
@@ -491,6 +514,13 @@ class ContactTestCase(_BaseTestCase):
             _('Status in «{organisation}»').format(organisation=orga),
             rtype_f.label,
         )
+        rtype_choices = rtype_f.choices
+        self.assertInChoices(value=rtype1.id, label=str(rtype1), choices=rtype_choices)
+        self.assertInChoices(value=rtype2.id, label=str(rtype2), choices=rtype_choices)
+        self.assertInChoices(value=rtype3.id, label=str(rtype3), choices=rtype_choices)
+        self.assertNotInChoices(value=rtype4.id,         choices=rtype_choices)
+        self.assertNotInChoices(value=internal_rtype.id, choices=rtype_choices)
+        self.assertNotInChoices(value=disabled_rtype.id, choices=rtype_choices)
 
         # ---
         first_name = 'Bugs'
@@ -502,7 +532,7 @@ class ContactTestCase(_BaseTestCase):
                 'first_name': first_name,
                 'last_name':  last_name,
 
-                'rtype_for_organisation': REL_SUB_EMPLOYED_BY,
+                'rtype_for_organisation': rtype1.id,
             },
         )
         self.assertNoFormError(response)
@@ -511,7 +541,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact03(self):
+    def test_create_linked_contact_error01(self):
         "No LINK credentials."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
@@ -570,8 +600,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertFormError(response2, 'form', 'user', msg)
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact04(self):
-        "Cannot VIEW the organisation => error."
+    def test_create_linked_contact_error02(self):
+        "Cannot VIEW the organisation."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
         SetCredentials.objects.create(
@@ -601,8 +631,8 @@ class ContactTestCase(_BaseTestCase):
         )
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact05(self):
-        "Cannot LINK the organisation => error."
+    def test_create_linked_contact_error03(self):
+        "Cannot LINK the organisation."
         user = self.login(is_superuser=False, creatable_models=[Contact])
 
         create_sc = partial(
@@ -636,7 +666,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertGET403(self._build_addrelated_url(orga.id, REL_OBJ_EMPLOYED_BY))
 
     @skipIfCustomOrganisation
-    def test_create_linked_contact06(self):
+    def test_create_linked_contact_error04(self):
         "Misc errors."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Acme')
@@ -671,34 +701,13 @@ class ContactTestCase(_BaseTestCase):
         )[0]
         self.assertGET409(build_url(orga.id, rtype4.id))
 
-    @skipIfCustomOrganisation
-    def test_create_linked_contact07(self):
-        "Avoid internal RelationType."
-        user = self.login()
-
-        orga = Organisation.objects.create(user=user, name='Acme')
-        rtype = RelationType.objects.smart_update_or_create(
-            ('persons-subject_test_linked', 'is the employee of the month at', [Contact]),
-            ('persons-object_test_linked',  'has the employee of the month',   [Organisation]),
-            is_internal=True,
+        rtype5 = create_rtype(
+            ('persons-subject_test_badrtype4', 'Bad RType #4',     [Organisation]),
+            ('persons-object_test_badrtype4',  'Bad RType sym #4', [Contact]),
         )[0]
-
-        response = self.assertPOST200(
-            self._build_addrelated_url(orga.id),
-            follow=True,
-            data={
-                'user': user.pk,
-
-                'first_name': 'Bugs',
-                'last_name':  'Bunny',
-
-                'rtype_for_organisation': rtype.id,
-            },
-        )
-        self.assertFormError(
-            response, 'form', 'rtype_for_organisation',
-            _('Select a valid choice. That choice is not one of the available choices.'),
-        )
+        rtype5.enabled = False
+        rtype5.save()
+        self.assertGET409(build_url(orga.id, rtype5.id))
 
     @skipIfCustomAddress
     def test_clone(self):

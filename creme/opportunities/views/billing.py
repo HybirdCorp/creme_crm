@@ -30,7 +30,7 @@ from django.utils.translation import gettext as _
 from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from creme.creme_core.http import is_ajax
-from creme.creme_core.models import Relation, SettingValue, Vat
+from creme.creme_core.models import Relation, RelationType, SettingValue, Vat
 from creme.creme_core.views.generic import base
 from creme.creme_core.views.relation import RelationsObjectsSelectionPopup
 from creme.persons import workflow
@@ -47,6 +47,7 @@ ServiceLine = billing.get_service_line_model()
 Opportunity = get_opportunity_model()
 
 
+# TODO: manage RelationType disabling
 class CurrentQuoteSetting(base.CheckedView):
     permissions = 'opportunities'
 
@@ -138,6 +139,9 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         # TODO: check in template too (must upgrade 'has_perm' to use owner!=None)
         user.has_perm_to_link_or_die(klass, owner=user)
 
+        rtype = get_object_or_404(RelationType, id=rtype_id)
+        rtype.is_enabled_or_die()
+
         opp = self.get_related_entity()
 
         b_document = klass.objects.create(
@@ -152,7 +156,7 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         create_relation = partial(
             Relation.objects.create, subject_entity=b_document, user=user,
         )
-        create_relation(type_id=rtype_id, object_entity=opp)
+        create_relation(type=rtype, object_entity=opp)
 
         b_document.generate_number()  # Need the relationship with emitter organisation
         b_document.name = self.generated_name.format(document=b_document, opportunity=opp)
@@ -191,6 +195,7 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
                 )
 
         if set_as_current:
+            # TODO: what if RelationType disabled?
             create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
 
         if workflow_action:

@@ -28,11 +28,23 @@ class HistoryConfigTestCase(CremeTestCase):
         create_rt = RelationType.objects.smart_update_or_create
         rtype01 = create_rt(('test-subject_foo', 'fooes'), ('test-object_foo', 'fooed'))[0]
         rtype02 = create_rt(('test-subject_bar', 'bars'),  ('test-object_bar', 'bared'))[0]
+        rtype03 = create_rt(('test-subject_baz', 'bazs'),  ('test-object_baz', 'bazed'))[0]
+        rtype03.enabled = False
+        rtype03.save()
 
         url = self.ADD_URL
         response = self.assertGET200(url)
         self.assertEqual(_('New relation types'), response.context.get('title'))
 
+        with self.assertNoException():
+            rtypes_f = response.context['form'].fields['relation_types']
+
+        rtype_ids = {*rtypes_f.queryset.values_list('id', flat=True)}
+        self.assertIn(rtype01.id, rtype_ids)
+        self.assertIn(rtype02.id, rtype_ids)
+        self.assertNotIn(rtype03.id, rtype_ids)
+
+        # ---
         rtype_ids = [rtype01.id, rtype02.id]
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtype_ids}))
 

@@ -169,16 +169,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertTrue(sym_type.minimal_display)
 
-    def test_edit01(self):
-        "Edit a not custom type => error."
-        rt = RelationType.objects.smart_update_or_create(
-            ('test-subfoo', 'subject_predicate'),
-            ('test-objfoo', 'object_predicate'),
-            is_custom=False,
-        )[0]
-        self.assertGET404(self._build_edit_url(rt))
-
-    def test_edit02(self):
+    def test_edit(self):
         "Edit a custom type."
         rt = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
@@ -213,6 +204,73 @@ class RelationTypeTestCase(CremeTestCase):
         rel_type = RelationType.objects.get(pk=rt.id)
         self.assertEqual(subject_pred, rel_type.predicate)
         self.assertEqual(object_pred,  rel_type.symmetric_type.predicate)
+
+    def test_edit_error01(self):
+        "Edit a not custom type."
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=False,
+        )[0]
+        self.assertGET404(self._build_edit_url(rt))
+
+    def test_edit_error02(self):
+        "Edit a disabled type."
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+            is_custom=True,
+        )[0]
+        rt.enabled = False
+        rt.save()
+
+        self.assertGET404(self._build_edit_url(rt))
+
+    def test_disable01(self):
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+        )[0]
+
+        url = reverse('creme_config__disable_rtype', args=(rt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertFalse(rt.enabled)
+        self.assertFalse(rt.symmetric_type.enabled)
+
+        self.assertPOST404(reverse('creme_config__disable_rtype', args=('test-subject_bar',)))
+
+    def test_disable02(self):
+        "Disable internal type => error."
+        rt = RelationType.objects.smart_update_or_create(
+            ('test-subject_foo', 'subject_predicate'),
+            ('test-object_foo', 'object_predicate'),
+            is_internal=True,
+        )[0]
+
+        self.assertPOST409(reverse('creme_config__disable_rtype', args=(rt.id,)))
+
+    def test_enable(self):
+        rt, srt = RelationType.objects.smart_update_or_create(
+            ('test-subfoo', 'subject_predicate'),
+            ('test-objfoo', 'object_predicate'),
+        )
+        rt.enabled = False
+        rt.save()
+        srt.enabled = False
+        srt.save()
+
+        url = reverse('creme_config__enable_rtype', args=(rt.id,))
+        self.assertGET405(url)
+
+        self.assertPOST200(url)
+
+        rt = self.refresh(rt)
+        self.assertTrue(rt.enabled)
+        self.assertTrue(rt.symmetric_type.enabled)
 
     def test_delete01(self):
         rt = RelationType.objects.smart_update_or_create(
@@ -329,7 +387,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             _('A semi-fixed type of relationship with this type and this object already exists.'),
         )
 
-    def test_edit(self):
+    def test_edit01(self):
         predicate = 'Is loving Iori'
         sfrt = SemiFixedRelationType.objects.create(
             predicate=predicate,
@@ -351,6 +409,21 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         predicate += ' very much'
         self.assertNoFormError(self.client.post(url, data={'predicate': predicate}))
         self.assertEqual(predicate, self.refresh(sfrt).predicate)
+
+    def test_edit02(self):
+        "The relation type is disabled => error."
+        rtype = self.loves
+        rtype.enabled = False
+        rtype.save()
+
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Is loving Iori',
+            relation_type=rtype,
+            real_object=self.iori,
+        )
+        self.assertGET404(
+            reverse('creme_config__edit_semifixed_rtype', args=(sfrt.id,))
+        )
 
     def test_delete(self):
         sfrt = SemiFixedRelationType.objects.create(

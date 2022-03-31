@@ -516,12 +516,20 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
             id=fake_constants.FAKE_REL_SUB_BILL_ISSUED,
         )
 
+        disabled_rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'disabled'),
+            ('test-object_disabled',  'whatever'),
+        )[0]
+        disabled_rtype.enabled = False
+        disabled_rtype.save()
+
         field1 = EntityCellsField(model=FakeContact)
 
         choices1 = self._find_sub_widget(field1, 'relation').choices
         self.assertCellInChoices(f'relation-{rtype1.id}', choices=choices1)
         self.assertCellNotInChoices(f'relation-{rtype2.id}', choices=choices1)
         self.assertCellNotInChoices(f'relation-{rtype3.id}', choices=choices1)
+        self.assertCellNotInChoices(f'relation-{disabled_rtype.id}', choices=choices1)
 
         # ---
         field2 = EntityCellsField()
@@ -538,6 +546,31 @@ class EntityCellsFieldTestCase(EntityCellsFieldTestCaseMixin, FieldTestCase):
         self.assertFieldValidationError(
             EntityCellRelationsField, 'incompatible', field2.clean, f'relation-{rtype2.id}',
             message_args={'model': 'Test Contact'},
+        )
+        self.assertFieldValidationError(
+            EntityCellRelationsField, 'disabled', field2.clean, f'relation-{disabled_rtype.id}',
+        )
+
+        # Non hiddable cells ---
+        field3 = EntityCellsField()
+        initial_cells = [
+            EntityCellRelation(model=FakeContact, rtype=rtype1),
+            EntityCellRelation(model=FakeContact, rtype=disabled_rtype),
+        ]
+        field3.non_hiddable_cells = initial_cells
+        field3.model = FakeContact
+        self.assertListEqual(initial_cells, field3.non_hiddable_cells)
+
+        choices3 = self._find_sub_widget(field3, 'relation').choices
+        self.assertCellInChoices(f'relation-{rtype1.id}',         choices=choices3)
+        self.assertCellInChoices(f'relation-{disabled_rtype.id}', choices=choices3)
+        self.assertCellNotInChoices(f'relation-{rtype2.id}', choices=choices3)
+
+        with self.assertNoException():
+            cleaned_cells = field3.clean(f'relation-{disabled_rtype.id}')
+        self.assertListEqual(
+            [EntityCellRelation(model=FakeContact, rtype=disabled_rtype)],
+            cleaned_cells,
         )
 
     def test_ok01(self):

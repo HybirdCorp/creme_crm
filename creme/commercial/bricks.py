@@ -26,7 +26,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
 from creme.creme_core.gui.bricks import Brick, PaginatedBrick, QuerysetBrick
-from creme.creme_core.models import Relation, SettingValue
+from creme.creme_core.models import Relation, RelationType, SettingValue
 from creme.opportunities import get_opportunity_model
 from creme.opportunities.constants import REL_SUB_TARGETS
 from creme.persons import get_organisation_model
@@ -277,7 +277,8 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 
         return self._render(self.get_template_context(
             context, act.get_related_opportunities(),
-            predicate_id=REL_OBJ_COMPLETE_GOAL,
+            # predicate_id=REL_OBJ_COMPLETE_GOAL,
+            relation_type=RelationType.objects.get(id=REL_OBJ_COMPLETE_GOAL),
         ))
 
 

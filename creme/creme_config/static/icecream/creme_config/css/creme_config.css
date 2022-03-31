@@ -45,7 +45,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-align: center;
 }
 
-/* PropertyType brick */
+/* PropertyTypes brick */
+
 .creme_config-property-types-brick .property-label,
 .creme_config-property-types-brick .property-count {
     width: 15%;
@@ -54,6 +55,14 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-property-types-brick .property-subjects {
     width: 100%;
+}
+
+/* RelationTypes bricks */
+
+.creme_config-relation-types-brick .relation-type-disabled,
+.creme_config-relation-types-brick .relation-type-disabled span.enumerator-empty {
+    background: #ebebeb !important;
+    color: grey;
 }
 
 /* Users brick */
@@ -682,6 +691,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     align-self: center;
 }
 
+.creme_config-rtypebricks-brick .rtypebrick-config-group-title-disabled,
+.creme_config-semifixed-rtypes-brick .semifixed_rtype-predicate-disabled,
+.creme_config-semifixed-rtypes-brick .semifixed_rtype-rtype-disabled {
+    text-decoration: line-through;
+    color: gray;
+}
+
 .creme_config-rtypebricks-brick .rtypebrick-config-group-action {
     align-self: center;
     height: 16px;
@@ -937,6 +953,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     font-size: 12px;
     font-style: italic;
     color: #666666;
+}
+
+/* HistoryConfig brick */
+
+.creme_config-history-brick .history_item-predicate-disabled {
+    text-decoration: line-through;
+    color: gray;
 }
 
 /* UserSettingValues brick */

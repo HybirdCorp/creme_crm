@@ -9,6 +9,7 @@ from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
     FieldsConfig,
+    RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
@@ -213,7 +214,7 @@ class ReportGraphHandTestCase(CremeTestCase):
         self.assertIsNone(hand.abscissa_error)
         self.assertEqual('employs', hand.verbose_abscissa)
 
-    def test_relation_error(self):
+    def test_relation_error01(self):
         user = self.create_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
         graph = ReportGraph.objects.create(
@@ -229,6 +230,32 @@ class ReportGraphHandTestCase(CremeTestCase):
             hand.abscissa_error,
         )
         self.assertEqual('??', hand.verbose_abscissa)
+
+    def test_relation_error02(self):
+        "The RelationType is disabled."
+        user = self.create_user()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', '[disabled]'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)
+        graph = ReportGraph.objects.create(
+            user=user, name='Field Test', linked_report=report,
+            abscissa_cell_value=rtype.id,
+            abscissa_type=ReportGraph.Group.RELATION,
+            ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+        hand = RGHRelation(graph)
+        self.assertEqual(
+            _('the relationship type is disabled.'),
+            hand.abscissa_error,
+        )
+        self.assertEqual(rtype.predicate, hand.verbose_abscissa)
 
     def test_custom_field_day(self):
         cfield = CustomField.objects.create(

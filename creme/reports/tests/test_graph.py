@@ -138,7 +138,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         return reverse('reports__edit_graph', args=(rgraph.id,))
 
     @staticmethod
-    def _builf_fetch_url(rgraph, order='ASC', chart=None, save_settings=None):
+    def _build_fetch_url(rgraph, order='ASC', chart=None, save_settings=None):
         uri = '{}?order={}'.format(reverse('reports__fetch_graph', args=(rgraph.id,)), order)
 
         if chart is not None:
@@ -164,9 +164,11 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         return uri
 
-    def _create_invoice_report_n_graph(self, abscissa='issuing_date',
+    def _create_invoice_report_n_graph(self,
+                                       abscissa='issuing_date',
                                        ordinate_type=ReportGraph.Aggregator.SUM,
-                                       ordinate_field='total_no_vat'):
+                                       ordinate_field='total_no_vat',
+                                       ):
         self.report = report = Report.objects.create(
             user=self.user,
             name='All invoices of the current year',
@@ -179,7 +181,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             linked_report=report,
             name='Sum of current year invoices total without taxes / month',
             abscissa_cell_value=abscissa,
-            # abscissa_type=RGT_MONTH,
             abscissa_type=ReportGraph.Group.MONTH,
             ordinate_type=ordinate_type,
             ordinate_cell_key=f'regular_field-{ordinate_field}',
@@ -206,7 +207,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertURL(builder({'id': 1}), FakeContact, expected_q=Q(id=1))
 
         efilter = EntityFilter.objects.smart_update_or_create(
-            'test-filter', 'Names', FakeContact, is_custom=True,
+            'test-filter', 'Names', FakeContact,
+            is_custom=True,
             conditions=[
                 condition_handler.RegularFieldConditionHandler.build_condition(
                     model=FakeContact,
@@ -279,14 +281,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
-        self.assertEqual(user,      rgraph.user)
-        self.assertEqual(abscissa,  rgraph.abscissa_cell_value)
+        self.assertEqual(user,                         rgraph.user)
+        self.assertEqual(abscissa,                     rgraph.abscissa_cell_value)
         self.assertEqual(ReportGraph.Aggregator.COUNT, rgraph.ordinate_type)
-        self.assertEqual('',        rgraph.ordinate_cell_key)
-        self.assertEqual(gtype,     rgraph.abscissa_type)
-        self.assertEqual(chart,     rgraph.chart)
+        self.assertEqual('',                           rgraph.ordinate_cell_key)
+        self.assertEqual(gtype,                        rgraph.abscissa_type)
+        self.assertEqual(chart,                        rgraph.chart)
         self.assertIsNone(rgraph.abscissa_parameter)
-        self.assertIs(rgraph.asc,      True)
+        self.assertIs(rgraph.asc, True)
 
         hand = rgraph.hand
         self.assertEqual(_('Sector'), hand.verbose_abscissa)
@@ -311,7 +313,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertIs(chart_registry, report_chart_registry)
 
         # ------------------------------------------------------------
-        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        response = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
         data = response.json()
 
         self.assertIsInstance(data, dict)
@@ -334,8 +336,8 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         # ------------------------------------------------------------
-        self.assertGET200(self._builf_fetch_url(rgraph, 'DESC'))
-        self.assertGET404(self._builf_fetch_url(rgraph, 'STUFF'))
+        self.assertGET200(self._build_fetch_url(rgraph, 'DESC'))
+        self.assertGET404(self._build_fetch_url(rgraph, 'STUFF'))
 
     def test_createview02(self):
         "Ordinate with aggregate + Group.DAY."
@@ -740,6 +742,38 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         self.assertFormError(
             response, 'form', 'ordinate',
+            'This entity cell is not allowed.'
+        )
+
+    def test_createview_disabled_rtype(self):
+        user = self.login()
+        report = self._create_simple_organisations_report()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', '[disabled]'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        response = self.assertPOST200(
+            self._build_add_graph_url(report),
+            data={
+                'user': user.pk,
+                'name': 'My Graph #1',
+                'chart': 'barchart',
+
+                'abscissa': self.formfield_value_abscissa(
+                    abscissa=rtype,
+                    graph_type=ReportGraph.Group.RELATION,
+                ),
+                'ordinate': self.formfield_value_ordinate(
+                    aggr_id=ReportGraph.Aggregator.COUNT,
+                ),
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'abscissa',
             'This entity cell is not allowed.'
         )
 
@@ -2992,14 +3026,14 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             orga1, orga2, issuing_date=date(2015, 10,  3), total_vat=Decimal('33.24'),
         )
 
-        self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
 
     def test_fetchgraphview_save_settings01(self):
         self.login()
         rgraph = self._create_documents_rgraph()
 
         chart1 = 'piechart'
-        url = self._builf_fetch_url
+        url = self._build_fetch_url
         self.assertGET200(url(rgraph, 'ASC', chart=chart1))
         rgraph = self.refresh(rgraph)
         self.assertIsNone(rgraph.chart)
@@ -3043,7 +3077,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         self.assertFalse(user.has_perm_to_view(rgraph1))
 
         chart = 'piechart'
-        url = self._builf_fetch_url
+        url = self._build_fetch_url
         self.assertGET200(url(rgraph1, 'ASC', chart=chart, save_settings='true'))
         self.assertIsNone(self.refresh(rgraph1).chart)
 
@@ -3742,7 +3776,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         rgraph = self.get_object_or_fail(ReportGraph, linked_report=report, name=name)
 
-        response = self.assertGET200(self._builf_fetch_url(rgraph, 'ASC'))
+        response = self.assertGET200(self._build_fetch_url(rgraph, 'ASC'))
         data = response.json()
         users = sorted(get_user_model().objects.all(), key=str)
         self.assertListEqual([str(u) for u in users], data.get('x'))

@@ -1449,7 +1449,7 @@ class ImportForm4CremeEntity(ImportForm):
             ct
         ).exclude(enabled=False)
 
-        rtypes = RelationType.objects.compatible(ct)
+        rtypes = RelationType.objects.compatible(ct).exclude(enabled=False)
         fields['fixed_relations'].allowed_rtypes = rtypes
 
         fdyn_relations = fields['dyn_relations']

@@ -24,12 +24,16 @@
     {% for brick_type in page.object_list %}
     <div class="brick-list-item rtypebrick-config-item">
         <div class="rtypebrick-config-group rtypebrick-config-summary-group">
-            <div class="rtypebrick-config-group-title">{{brick_type.relation_type}}</div>
+            <div class="rtypebrick-config-group-title{% if not brick_type.relation_type.enabled %} rtypebrick-config-group-title-disabled{% endif %}">
+                {{brick_type.relation_type}}
+            </div>
             <div class="rtypebrick-config-group-action">
-            {% if brick_type.all_ctypes_configured %}
+            {% if brick_type.relation_type.enabled %}
+              {% if brick_type.all_ctypes_configured %}
                 {% translate 'All types are configured' %}
-            {% else %}
+              {% else %}
                 {% brick_action id='add' url='creme_config__add_cells_to_rtype_brick'|url:brick_type.id label=_('New customised type') enabled=admin_perm display='text' %}
+              {% endif %}
             {% endif %}
             </div>
             <div class="rtypebrick-config-group-action">
@@ -37,9 +41,10 @@
             </div>
         </div>
         <div class="rtypebrick-config-group brick-table">
+          {% if brick_type.relation_type.enabled %}
             <table class="brick-table-content">
                 <tbody>
-                    {% for ctype, cells in brick_type.iter_cells %}
+                  {% for ctype, cells in brick_type.iter_cells %}
                     <tr>
                         <td {% brick_table_data_status primary %} class="rtypebrick-config-relation-label">
                             {% widget_icon ctype=ctype size='brick-table' class='rtypebrick-config-type-icon' %} {{ctype}}
@@ -54,9 +59,10 @@
                             {% brick_table_action id='delete' url='creme_config__delete_cells_of_rtype_brick'|url:brick_type.id __id=ctype.id label=delete_label enabled=admin_perm %}
                         </td>
                     </tr>
-                    {% endfor %}
+                  {% endfor %}
                 </tbody>
             </table>
+          {% endif %}
         </div>
     </div>
     {% endfor %}
