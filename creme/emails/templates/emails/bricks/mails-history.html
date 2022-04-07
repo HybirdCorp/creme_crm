@@ -9,7 +9,7 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% has_perm_to link object as link_perm %}
+    {% has_perm_to create objects_ctype as creation_perm %}{% has_perm_to link object as link_perm %}
     {% with create_linked_perm=creation_perm|and_op:link_perm %}
         {% brick_header_action id='add'  url='emails__create_email'|url:object.id               label=_('Send a new related email')       enabled=create_linked_perm %}
         {% brick_header_action id='add'  url='emails__create_email_from_template'|url:object.id label=_('Send a email (with a template)') enabled=create_linked_perm %}
