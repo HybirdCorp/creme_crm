@@ -1,5 +1,11 @@
 == Version 2.2.12 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * VCFs :
+            - The relationship type between the contact & the organisation could be internal.
+
 
 == Version 2.2.11 ==
 
