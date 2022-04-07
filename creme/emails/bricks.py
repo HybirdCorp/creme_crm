@@ -280,7 +280,7 @@ class MailsHistoryBrick(QuerysetBrick):
     order_by = '-sending_date'
     template_name = 'emails/bricks/mails-history.html'
     relation_type_deps = (
-        constants.REL_OBJ_MAIL_SENDED,
+        constants.REL_OBJ_MAIL_SENT,
         constants.REL_OBJ_MAIL_RECEIVED,
         constants.REL_OBJ_RELATED_TO,
     )

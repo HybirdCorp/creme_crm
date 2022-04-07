@@ -16,7 +16,7 @@ from creme.documents import get_document_model
 from creme.documents.constants import DOCUMENTS_FROM_EMAILS
 from creme.documents.models import FolderCategory
 from creme.emails import bricks
-from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
+from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENT
 from creme.emails.models import (
     EmailSyncConfigItem,
     EmailToSync,
@@ -1003,11 +1003,11 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNone(email1.sending_date)
         self.assertIsNone(email1.reception_date)
 
-        self.assertRelationCount(1, email1, REL_SUB_MAIL_SENDED,   sender_contact)
+        self.assertRelationCount(1, email1, REL_SUB_MAIL_SENT,     sender_contact)
         self.assertRelationCount(0, email1, REL_SUB_MAIL_RECEIVED, sender_contact)
 
         self.assertRelationCount(1, email1, REL_SUB_MAIL_RECEIVED, contact1)
-        self.assertRelationCount(0, email1, REL_SUB_MAIL_SENDED,   contact1)
+        self.assertRelationCount(0, email1, REL_SUB_MAIL_SENT,     contact1)
         self.assertRelationCount(1, email1, REL_SUB_MAIL_RECEIVED, contact2)
 
         attachments = [*email1.attachments.all()]
