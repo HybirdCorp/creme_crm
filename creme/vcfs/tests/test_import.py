@@ -9,9 +9,14 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import CustomField, CustomFieldValue, FieldsConfig
+from creme.creme_core.models import (
+    CustomField,
+    CustomFieldValue,
+    FieldsConfig,
+    RelationType,
+)
 from creme.creme_core.tests.base import CremeTestCase
-from creme.persons.constants import REL_SUB_EMPLOYED_BY
+from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 
 from ..forms import vcf as vcf_forms
 from ..vcf_lib import readOne as read_vcf
@@ -394,7 +399,18 @@ END:VCARD"""
     @skipIfCustomContact
     @skipIfCustomOrganisation
     def test_add_contact_vcf01(self):
-        self.login()
+        user = self.login()
+
+        create_rtype = RelationType.create
+        incompatible_rtype = create_rtype(
+            ('test-subject_loves', 'is loving',   [Contact]),
+            ('test-object_loves',  'is loved by', [Contact]),
+        )[0]
+        internal_rtype = create_rtype(
+            ('test-subject_leads', 'is leading', [Contact]),
+            ('test-object_leads',  'is lead by', [Organisation]),
+            is_internal=True,
+        )[0]
 
         contact_count = Contact.objects.count()
         orga_count    = Organisation.objects.count()
@@ -408,18 +424,33 @@ EMAIL;TYPE=HOME:email@email.com
 URL;TYPE=HOME:www.url.com
 END:VCARD"""
         fields = self._post_step0(content).context['form'].fields
-        response = self._post_step1(errors=True,
-                                    data={'user':       fields['user'].initial,
-                                          'first_name': fields['first_name'].initial,
-                                          'last_name':  fields['last_name'].initial,
-                                          'phone':      fields['phone'].initial,
-                                          'mobile':     fields['mobile'].initial,
-                                          'fax':        fields['fax'].initial,
-                                          'email':      fields['email'].initial,
-                                          'url_site':   fields['url_site'].initial,
-                                          'create_or_attach_orga': True,
-                                         }
-                                    )
+
+        with self.assertNoException():
+            rtype_ids = {*fields['relation'].queryset.values_list('id', flat=True)}
+
+        self.assertIn(REL_SUB_EMPLOYED_BY, rtype_ids)
+        self.assertIn(REL_SUB_MANAGES,     rtype_ids)
+        self.assertNotIn(incompatible_rtype.id, rtype_ids)
+        self.assertNotIn(internal_rtype.id,     rtype_ids)
+
+        # ---
+        response = self._post_step1(
+            errors=True,
+            data={
+                'user':       user.id,
+
+                'first_name': fields['first_name'].initial,
+                'last_name':  fields['last_name'].initial,
+                'phone':      fields['phone'].initial,
+                'mobile':     fields['mobile'].initial,
+                'fax':        fields['fax'].initial,
+                'email':      fields['email'].initial,
+                'url_site':   fields['url_site'].initial,
+
+                'create_or_attach_orga': True,
+            },
+        )
+
         validation_text = _('Required, if you want to create organisation')
         self.assertFormError(response, 'form', 'work_name', validation_text)
         self.assertFormError(response, 'form', 'relation',  validation_text)

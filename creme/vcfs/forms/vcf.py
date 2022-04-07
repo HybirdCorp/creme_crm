@@ -264,6 +264,7 @@ class VcfImportForm(CremeModelForm):
             subject_ctypes=_get_ct(Contact),
             # object_ctypes=_get_ct(Organisation),
             symmetric_type__subject_ctypes=_get_ct(Organisation),
+            is_internal=False,
         )
 
         self._hide_fields()
