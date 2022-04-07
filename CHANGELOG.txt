@@ -136,6 +136,9 @@
                       ActObjectivesBrick, SegmentDescriptionsBrick, PatternComponentsBrick.
             * Emails :
                 - The constants 'REL_*_MAIL_SENDED' have been renamed 'REL_*_MAIL_SENT'.
+                - In 'bricks', some variable are not injected in the context anymore :
+                    - 'MailsHistoryBrick' & "creation_perm".
+                    - 'MySignaturesBrick' & "has_app_perm".
                 - A mandatory field "recipient_ctype" has been added to 'models.LightWeightEmail'.
                 - In 'email.js', these actions have been removed :
                   "emailsync-link", "emailsync-action", "emailsync-delete".
