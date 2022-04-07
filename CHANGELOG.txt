@@ -2,6 +2,12 @@
 
 TODO: compilemessages (creme_core, documents)
 
+  Users side :
+  ------------
+    # Apps :
+        * VCFs :
+            - The relationship type between the contact & the organisation could be internal.
+
 
 == Version 2.3.2 ==
 
