@@ -283,6 +283,7 @@ class VcfImportForm(CremeModelForm):
         fields['relation'].queryset = RelationType.objects.filter(
             subject_ctypes=_get_ct(Contact),
             symmetric_type__subject_ctypes=_get_ct(Organisation),
+            is_internal=False,
         )
 
         self._hide_fields()
