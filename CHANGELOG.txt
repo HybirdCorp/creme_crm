@@ -135,6 +135,7 @@
                     - The context variable "ct_id" is not injected any more in the following bricks :
                       ActObjectivesBrick, SegmentDescriptionsBrick, PatternComponentsBrick.
             * Emails :
+                - The constants 'REL_*_MAIL_SENDED' have been renamed 'REL_*_MAIL_SENT'.
                 - A mandatory field "recipient_ctype" has been added to 'models.LightWeightEmail'.
                 - In 'email.js', these actions have been removed :
                   "emailsync-link", "emailsync-action", "emailsync-delete".

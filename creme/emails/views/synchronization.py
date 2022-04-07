@@ -219,7 +219,7 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
 
         create_relation = partial(Relation.objects.create, user=user, subject_entity=email)
         create_relation(
-            type_id=constants.REL_SUB_MAIL_SENDED, object_entity=senders[0].person,
+            type_id=constants.REL_SUB_MAIL_SENT, object_entity=senders[0].person,
         )
         for recipient in recipients:
             create_relation(

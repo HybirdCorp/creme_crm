@@ -79,8 +79,8 @@ class Populator(BasePopulator):
             (constants.REL_OBJ_MAIL_RECEIVED, _('received the email'),   [Organisation, Contact]),
         )
         create_rtype(
-            (constants.REL_SUB_MAIL_SENDED,   _('(email) sent by'),      [EntityEmail]),
-            (constants.REL_OBJ_MAIL_SENDED,   _('sent the email'),       [Organisation, Contact]),
+            (constants.REL_SUB_MAIL_SENT,     _('(email) sent by'),      [EntityEmail]),
+            (constants.REL_OBJ_MAIL_SENT,     _('sent the email'),       [Organisation, Contact]),
         )
         create_rtype(
             (constants.REL_SUB_RELATED_TO,    _('(email) related to'),   [EntityEmail]),

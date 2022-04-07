@@ -44,7 +44,7 @@ class EntityEmailLinkButton(Button):
     permissions = build_link_perm(EntityEmail)
 
     rtype_ids = [
-        constants.REL_SUB_MAIL_SENDED,
+        constants.REL_SUB_MAIL_SENT,
         constants.REL_SUB_MAIL_RECEIVED,
         constants.REL_SUB_RELATED_TO,
     ]

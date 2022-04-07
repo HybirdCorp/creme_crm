@@ -7,7 +7,7 @@ from creme.persons.tests.base import skipIfCustomContact
 
 from ..constants import (
     REL_SUB_MAIL_RECEIVED,
-    REL_SUB_MAIL_SENDED,
+    REL_SUB_MAIL_SENT,
     REL_SUB_RELATED_TO,
     SETTING_EMAILCAMPAIGN_SENDER,
 )
@@ -20,7 +20,7 @@ class EmailsTestCase(_EmailsTestCase):
             REL_SUB_MAIL_RECEIVED, [EntityEmail], [Organisation, Contact],
         )
         self.get_relationtype_or_fail(
-            REL_SUB_MAIL_SENDED, [EntityEmail], [Organisation, Contact],
+            REL_SUB_MAIL_SENT, [EntityEmail], [Organisation, Contact],
         )
         self.get_relationtype_or_fail(REL_SUB_RELATED_TO, [EntityEmail])
 

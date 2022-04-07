@@ -40,7 +40,7 @@ from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.utils.html import strip_html
 from creme.documents import get_document_model
 
-from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENDED
+from ..constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENT
 from ..creme_jobs import entity_emails_send_type
 
 logger = logging.getLogger(__name__)
@@ -232,7 +232,7 @@ class EntityEmailForm(core_forms.CremeEntityQuickForm):
                 email = create_n_send_mail(recipient.email)
 
                 create_relation(
-                    subject_entity=email, type_id=REL_SUB_MAIL_SENDED, object_entity=user_contact,
+                    subject_entity=email, type_id=REL_SUB_MAIL_SENT, object_entity=user_contact,
                 )
                 create_relation(
                     subject_entity=email, type_id=REL_SUB_MAIL_RECEIVED, object_entity=recipient,

@@ -35,10 +35,10 @@ from creme.persons.tests.base import (
 from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
 from ..constants import (  # MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
     REL_OBJ_MAIL_RECEIVED,
-    REL_OBJ_MAIL_SENDED,
+    REL_OBJ_MAIL_SENT,
     REL_OBJ_RELATED_TO,
     REL_SUB_MAIL_RECEIVED,
-    REL_SUB_MAIL_SENDED,
+    REL_SUB_MAIL_SENT,
 )
 from ..creme_jobs import entity_emails_send_type
 from ..models import EmailSignature
@@ -144,7 +144,7 @@ class EntityEmailTestCase(_EmailsTestCase):
 
         self.get_object_or_fail(
             Relation,
-            subject_entity=email, type=REL_SUB_MAIL_SENDED, object_entity=user.linked_contact,
+            subject_entity=email, type=REL_SUB_MAIL_SENT, object_entity=user.linked_contact,
         )
         self.get_object_or_fail(
             Relation,
@@ -939,7 +939,7 @@ better &amp; lighter than the previous one.
             allowed_rtypes = context['form'].fields['relations'].allowed_rtypes
 
         self.assertSetEqual(
-            {REL_OBJ_MAIL_SENDED, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO},
+            {REL_OBJ_MAIL_SENT, REL_OBJ_MAIL_RECEIVED, REL_OBJ_RELATED_TO},
             {rtype.id for rtype in allowed_rtypes},
         )
 
