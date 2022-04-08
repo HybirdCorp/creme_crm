@@ -1318,9 +1318,16 @@ class DurationWidget(widgets.MultiWidget):
 
 
 class ChoiceOrCharWidget(widgets.MultiWidget):
+    template_name = 'creme_core/forms/widgets/select-or-input.html'
+
     def __init__(self, attrs=None, choices=()):
         super().__init__(
-            widgets=(widgets.Select(choices=choices), widgets.TextInput()),
+            widgets=(
+                widgets.Select(choices=choices),
+                widgets.TextInput(attrs={
+                    'placeholder': _('Value not in the choices? Fill it here!'),
+                }),
+            ),
             attrs=attrs,
         )
 

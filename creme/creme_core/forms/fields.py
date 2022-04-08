@@ -1611,7 +1611,7 @@ class ChoiceOrCharField(fields.MultiValueField):
 
     def __init__(self, *, choices=(), **kwargs):
         """@param choices Sequence of tuples (id, value).
-                          BEWARE: id should not be a null value (like '', 0, etc..).
+                  BEWARE: "id" should not be a null value (like '', 0, etc...).
         """
         self.choice_field = choice_field = fields.ChoiceField()
         super().__init__(
