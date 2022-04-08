@@ -1,0 +1,6 @@
+{% with widgets=widget.subwidgets %}
+<ul class="select_or_input-widget ui-creme-widget widget-auto ui-creme-selectorinput" widget="ui-creme-selectorinput" >
+    <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
+    <li>{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
+</ul>
+{% endwith %}

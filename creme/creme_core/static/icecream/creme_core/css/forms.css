@@ -410,13 +410,23 @@ input.dperiod-value {
     width: 40px;
 }
 
-ul.optional-widget {
+ul.optional-widget,
+ul.select_or_input-widget {
     display: inline-flex;
     flex-direction: row;
     list-style: outside none none;
     margin: 0;
     padding: 0;
 }
+
+ul.select_or_input-widget li {
+    margin-right: 3px;
+}
+
+ul.select_or_input-widget input[type="text"] {
+    min-width: 250px;
+}
+
 
 /* MERGE TOOL */
 .li_merge_entity_header1 {
