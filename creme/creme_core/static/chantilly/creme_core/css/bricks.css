@@ -394,6 +394,8 @@
     padding-left: 10px;
     padding-top: 5px;
     padding-bottom: 5px;
+
+    vertical-align: middle;
 }
 
 .brick-table .brick-table-content > thead .brick-table-sortable {
@@ -480,7 +482,8 @@
 .brick-table .brick-table-content .brick-table-action {
     display: inline-block;
     width: 100%;
-    padding: 6px 10px 3px 10px;
+/*    padding: 6px 10px 3px 10px; */
+    padding: 3px 10px 2px 10px;
 }
 
 /* .brick-table .brick-table-content .brick-table-action:hover, */
