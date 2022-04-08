@@ -123,7 +123,8 @@ def brick_header_title(context, title,
         icon = get_icon_by_name(
             icon, theme,
             size_px=get_icon_size_px(theme, size='brick-header'),
-            label=_('Information') if icon == 'info' else rendered_title,
+            # label=_('Information') if icon == 'info' else rendered_title,
+            label=_("Click to display the block's menu"),
         )
 
     return {
