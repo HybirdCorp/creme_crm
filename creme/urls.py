@@ -9,6 +9,7 @@ from django.contrib.auth import views as auth_views
 from django.core.exceptions import ImproperlyConfigured
 from django.shortcuts import render
 from django.urls import include, re_path
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.static import serve
 
 from creme.creme_core.apps import creme_app_configs
@@ -58,8 +59,9 @@ urlpatterns = [
 
     # TODO: remove this line when the Rich Text Editor is generated like other static media
     re_path(
-        r'^tiny_mce/(?P<path>.*)$', serve,
+        # r'^tiny_mce/(?P<path>.*)$', serve,
         # {'document_root': join(settings.MEDIA_ROOT, 'tiny_mce')}
+        r'^tiny_mce/(?P<path>.*)$', xframe_options_sameorigin(serve),
         {'document_root': Path(__file__).resolve().parent / 'media' / 'tiny_mce'},
     ),
 

@@ -5,6 +5,9 @@ TODO: compilemessages (creme_core, documents)
   Users side :
   ------------
     # Apps :
+        * Emails :
+            - Some features of the Rich-text editor were broken
+              (issue with "X-Frame-Options" when serving the tinyMCE's static files).
         * VCFs :
             - The relationship type between the contact & the organisation could be internal.
 
