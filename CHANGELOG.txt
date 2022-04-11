@@ -8,6 +8,14 @@ TODO: compilemessages (creme_core, documents)
         * VCFs :
             - The relationship type between the contact & the organisation could be internal.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # A settings variable 'JQUERY_MIGRATE_MUTE' and a related context processor 'get_jqmigrate_mute'
+          have been added to disable almost all the annoying warnings in the JavaScript console.
+
 
 == Version 2.3.2 ==
 
