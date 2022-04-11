@@ -275,6 +275,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
                 'creme.creme_core.context_processors.get_shared_data',
+                'creme.creme_core.context_processors.get_jqmigrate_mute',
             ],
             'loaders': [
                 # Don't use cached loader when developing (in your local_settings.py)
@@ -703,6 +704,8 @@ CSS_NUMBER_LISTVIEW = 'right_align'
 CSS_TEXTAREA_LISTVIEW = 'text_area'
 CSS_DEFAULT_HEADER_LISTVIEW = 'hd_cl_lv'
 CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
+
+JQUERY_MIGRATE_MUTE = True
 
 # TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = [
