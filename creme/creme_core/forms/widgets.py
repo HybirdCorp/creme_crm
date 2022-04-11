@@ -989,7 +989,7 @@ class TinyMCEEditor(widgets.Textarea):
         )
         final_attrs['class'] = css_class + widget_type
         final_attrs['widget'] = widget_type
-        final_attrs['basepath'] = 'tiny_mce/'  # See root urls.py
+        final_attrs['basepath'] = 'tiny_mce'  # See root urls.py
 
         return context
 
