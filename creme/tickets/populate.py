@@ -247,19 +247,6 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='tickets-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Tools')},
-                defaults={'order': 100},
-            )[0]
-
-            MenuConfigItem.objects.create(
-                entry_id=TicketsEntry.id, parent=container, order=100,
-            )
-
-        # ---------------------------
         if not already_populated:
             for model in (Ticket, TicketTemplate):
                 FieldsConfig.objects.create(
@@ -282,6 +269,17 @@ class Populator(BasePopulator):
                 start=1,
             ):
                 create_if_needed(Criticity, {'pk': i}, name=name, order=i)
+
+            # ---------------------------
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=TicketsEntry.id, parent=menu_container, order=100,
+            )
 
             # ---------------------------
             # rbi = RelationBrickItem.objects.create_if_needed(constants.REL_OBJ_LINKED_2_TICKET)

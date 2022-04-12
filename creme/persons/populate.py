@@ -337,33 +337,6 @@ class Populator(BasePopulator):
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='persons-').exists():
-            directory = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Directory')},
-                defaults={'order': 20},
-            )[0]
-
-            create_mitem = MenuConfigItem.objects.create
-            create_mitem(entry_id=menu.OrganisationsEntry.id, order=10, parent=directory)
-            create_mitem(entry_id=menu.ContactsEntry.id,      order=20, parent=directory)
-            create_mitem(entry_id=menu.CustomersEntry.id,     order=30, parent=directory)
-
-            creations = MenuConfigItem.objects.filter(
-                entry_id=ContainerEntry.id, entry_data={'label': _('+ Creation')},
-            ).first()
-            if creations is not None:
-                create_mitem(
-                    entry_id=menu.OrganisationCreationEntry.id,
-                    order=10, parent=creations,
-                )
-                create_mitem(
-                    entry_id=menu.ContactCreationEntry.id,
-                    order=20, parent=creations,
-                )
-
-        # ---------------------------
         if not already_populated:
             create_if_needed(Civility, {'pk': 1}, title=_('Madam'),  shortcut=_('Mrs.'))
             create_if_needed(Civility, {'pk': 2}, title=_('Miss'),   shortcut=_('Ms.'))
@@ -405,6 +378,31 @@ class Populator(BasePopulator):
             create_if_needed(StaffSize, {'pk': 4}, size='51 - 100',  order=4)
             create_if_needed(StaffSize, {'pk': 5}, size='100 - 500', order=5)
             create_if_needed(StaffSize, {'pk': 6}, size='> 500',     order=6)
+
+            # ---------------------------
+            directory_entry = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Directory')},
+                defaults={'order': 20},
+            )[0]
+
+            create_mitem = MenuConfigItem.objects.create
+            create_mitem(entry_id=menu.OrganisationsEntry.id, order=10, parent=directory_entry)
+            create_mitem(entry_id=menu.ContactsEntry.id,      order=20, parent=directory_entry)
+            create_mitem(entry_id=menu.CustomersEntry.id,     order=30, parent=directory_entry)
+
+            creations_entry = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id, entry_data={'label': _('+ Creation')},
+            ).first()
+            if creations_entry is not None:
+                create_mitem(
+                    entry_id=menu.OrganisationCreationEntry.id,
+                    order=10, parent=creations_entry,
+                )
+                create_mitem(
+                    entry_id=menu.ContactCreationEntry.id,
+                    order=20, parent=creations_entry,
+                )
 
             # ---------------------------
             create_bmi = ButtonMenuItem.objects.create_if_needed

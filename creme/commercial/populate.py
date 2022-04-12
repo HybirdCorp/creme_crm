@@ -267,36 +267,34 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='commercial-').exists():
-            container = MenuConfigItem.objects.get_or_create(
+        if not already_populated:
+            menu_container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Commercial')},
                 defaults={'order': 30},
             )[0]
 
             create_mitem = MenuConfigItem.objects.create
-            create_mitem(entry_id=menu.ActsEntry.id,       order=50, parent=container)
-            create_mitem(entry_id=menu.StrategiesEntry.id, order=55, parent=container)
-            create_mitem(entry_id=menu.SegmentsEntry.id,   order=60, parent=container)
-            create_mitem(entry_id=menu.PatternsEntry.id,   order=70, parent=container)
+            create_mitem(entry_id=menu.ActsEntry.id,       order=50, parent=menu_container)
+            create_mitem(entry_id=menu.StrategiesEntry.id, order=55, parent=menu_container)
+            create_mitem(entry_id=menu.SegmentsEntry.id,   order=60, parent=menu_container)
+            create_mitem(entry_id=menu.PatternsEntry.id,   order=70, parent=menu_container)
 
-            directory = MenuConfigItem.objects.filter(
+            directory_entry = MenuConfigItem.objects.filter(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Directory')},
             ).first()
-            if directory is not None:
-                create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory)
+            if directory_entry is not None:
+                create_mitem(entry_id=menu.SalesmenEntry.id, order=100, parent=directory_entry)
 
-            creations = MenuConfigItem.objects.filter(
+            creations_entry = MenuConfigItem.objects.filter(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('+ Creation')},
             ).first()
-            if creations is not None:
-                create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations)
+            if creations_entry is not None:
+                create_mitem(entry_id=menu.ActCreationEntry.id, order=40, parent=creations_entry)
 
-        # ---------------------------
-        if not already_populated:
+            # ---------------------------
             ButtonMenuItem.objects.create_if_needed(
                 button=buttons.CompleteGoalButton, order=60,
             )

@@ -195,19 +195,6 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='events-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Tools')},
-                defaults={'order': 100},
-            )[0]
-
-            MenuConfigItem.objects.create(
-                entry_id=EventsEntry.id, parent=container, order=200,
-            )
-
-        # ---------------------------
         if not already_populated:
             for i, name in enumerate(
                 [_('Show'), _('Conference'), _('Breakfast'), _('Brunch')],
@@ -215,6 +202,18 @@ class Populator(BasePopulator):
             ):
                 create_if_needed(EventType, {'pk': i}, name=name)
 
+            # ---------------------------
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=EventsEntry.id, parent=menu_container, order=200,
+            )
+
+            # ---------------------------
             RIGHT = BrickDetailviewLocation.RIGHT
 
             BrickDetailviewLocation.objects.multi_create(

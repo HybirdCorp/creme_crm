@@ -114,21 +114,19 @@ class Populator(BasePopulator):
         SearchConfigItem.objects.create_if_needed(Graph, ['name'])
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='graphs-').exists():
-            container = MenuConfigItem.objects.get_or_create(
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not BrickDetailviewLocation.objects.filter_for_model(Graph).exists():
+            menu_container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Analysis')},
                 defaults={'order': 500},
             )[0]
 
             MenuConfigItem.objects.create(
-                entry_id=GraphsEntry.id, parent=container, order=50,
+                entry_id=GraphsEntry.id, parent=menu_container, order=50,
             )
 
-        # ---------------------------
-        # NB: no straightforward way to test that this populate script has not been already run
-        if not BrickDetailviewLocation.objects.filter_for_model(Graph).exists():
+            # ---------------------------
             RIGHT = BrickDetailviewLocation.RIGHT
 
             BrickDetailviewLocation.objects.multi_create(

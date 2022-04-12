@@ -21,8 +21,6 @@
 import logging
 
 from django.apps import apps
-# from django.conf import settings
-# from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
 
@@ -61,7 +59,6 @@ from . import (
     menu,
     setting_keys,
 )
-# from .models import Calendar
 from .forms import activity as act_forms
 from .models import ActivitySubType, ActivityType, Status
 
@@ -428,21 +425,19 @@ class Populator(BasePopulator):
         # create_svalue(key_id=setting_keys.form_user_messages_key.id, defaults={'value': False})
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='activities-').exists():
+        if not already_populated:
             create_mitem = MenuConfigItem.objects.create
-            container = create_mitem(
+            menu_container = create_mitem(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Activities')},
                 order=10,
             )
-            create_mitem(entry_id=menu.CalendarEntry.id,   order=10, parent=container)
-            create_mitem(entry_id=menu.ActivitiesEntry.id, order=20, parent=container)
-            create_mitem(entry_id=menu.PhoneCallsEntry.id, order=30, parent=container)
-            create_mitem(entry_id=menu.MeetingsEntry.id,   order=40, parent=container)
+            create_mitem(entry_id=menu.CalendarEntry.id,   order=10, parent=menu_container)
+            create_mitem(entry_id=menu.ActivitiesEntry.id, order=20, parent=menu_container)
+            create_mitem(entry_id=menu.PhoneCallsEntry.id, order=30, parent=menu_container)
+            create_mitem(entry_id=menu.MeetingsEntry.id,   order=40, parent=menu_container)
 
-        # ---------------------------
-        if not already_populated:
+            # ---------------------------
             LEFT = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
 

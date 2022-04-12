@@ -290,15 +290,14 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='emails-').exists():
-            container = MenuConfigItem.objects.get_or_create(
+        if not already_populated:
+            menu_container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Marketing')},
                 defaults={'order': 200},
             )[0]
 
-            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
             create_mitem(entry_id=menu.EmailCampaignsEntry.id, order=10)
             create_mitem(entry_id=menu.MailingListsEntry.id,   order=15)
             create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
@@ -309,8 +308,7 @@ class Populator(BasePopulator):
             #     create_mitem(entry_id=sync_entry_id, order=30)
             create_mitem(entry_id=menu.EmailSyncEntry.id, order=30)
 
-        # ---------------------------
-        if not already_populated:
+            # ---------------------------
             create_cbci = CustomBrickConfigItem.objects.create
             build_cell = EntityCellRegularField.build
 
