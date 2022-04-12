@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -143,6 +143,31 @@ creme.utils.confirmAjaxQuery = function(url, options, data) {
 };
 
 creme.utils.ajaxQuery = function(url, options, data) {
+    /*
+     * Build action that executes an AJAX query with some side effects.
+     *
+     * @param {String} url
+     *     URL of the ajax query
+     *
+     * @param {Object} data
+     *     Data sent to the ajax query. Can be either post data or url parameters.
+     *
+     * @param {String|Boolean} options.confirm
+     *     If true, shows default confirmation message "Are you sure?"
+     *     If a string, shows the given confirmation message
+     *
+     * @param {Boolean} options.reloadOnFail
+     *     If true, reload the entire page on failure
+     * @param {Boolean} options.warnOnFail
+     *     If true, Shows warning message on failure.
+     * @param {String} options.warnOnFailTitle
+     *     Warning message shown when options.warnOnFail is true.
+     *
+     * @param {Boolean} options.reloadOnSuccess
+     *     If true, reload the entire page on success.
+     * @param {String} options.messageOnSuccess
+     *     Display the given message on success.
+     */
     options = $.extend({
         action: 'get',
         warnOnFail: true

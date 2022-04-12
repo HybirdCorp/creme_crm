@@ -44,7 +44,7 @@ creme.bricks.FormDialogAction = creme.dialog.FormDialogAction.sub({
     _buildPopup: function(options) {
         options = $.extend({
             redirectOnSuccess: true
-        }, options || {});
+        }, this.options(), options || {});
 
         var popup = this._super_(creme.dialog.FormDialogAction, '_buildPopup', options);
 
