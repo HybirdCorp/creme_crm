@@ -361,29 +361,6 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='opportunities-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Commercial')},
-                defaults={'order': 30},
-            )[0]
-
-            MenuConfigItem.objects.create(
-                entry_id=menu.OpportunitiesEntry.id, order=10, parent=container,
-            )
-
-            creations = MenuConfigItem.objects.filter(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('+ Creation')},
-            ).first()
-            if creations is not None:
-                MenuConfigItem.objects.create(
-                    entry_id=menu.OpportunityCreationEntry.id,
-                    order=30, parent=creations,
-                )
-
-        # ---------------------------
         if not already_populated:
             create_sphase = SalesPhase.objects.create
             create_sphase(order=1, name=_('Forthcoming'))
@@ -404,6 +381,27 @@ class Populator(BasePopulator):
             create_origin(name=_('Employee'))
             create_origin(name=_('Partner'))
             create_origin(name=pgettext('opportunities-origin', 'Other'))
+
+            # ---------------------------
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Commercial')},
+                defaults={'order': 30},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=menu.OpportunitiesEntry.id, order=10, parent=menu_container,
+            )
+
+            creations_entry = MenuConfigItem.objects.filter(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('+ Creation')},
+            ).first()
+            if creations_entry is not None:
+                MenuConfigItem.objects.create(
+                    entry_id=menu.OpportunityCreationEntry.id,
+                    order=30, parent=creations_entry,
+                )
 
             # ---------------------------
             create_button = ButtonMenuItem.objects.create_if_needed

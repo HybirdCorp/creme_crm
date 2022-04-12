@@ -516,23 +516,6 @@ class Populator(BasePopulator):
         create_svalue(key_id=setting_keys.button_redirection_key.id, defaults={'value': True})
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='billing-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Management')},
-                defaults={'order': 50},
-            )[0]
-
-            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
-            create_mitem(entry_id=menu.QuotesEntry.id,       order=10)
-            create_mitem(entry_id=menu.InvoicesEntry.id,     order=15)
-            create_mitem(entry_id=menu.CreditNotesEntry.id,  order=50)
-            create_mitem(entry_id=menu.SalesOrdersEntry.id,  order=55)
-            create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
-            create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
-
-        # ---------------------------
         if not already_populated:
             def create_quote_status(pk, name, **kwargs):
                 create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
@@ -557,6 +540,21 @@ class Populator(BasePopulator):
                 {'pk': 1}, name=_('Trainer accreditation'),
                 description=_('being certified trainer courses could be supported by your OPCA')
             )
+
+            # ---------------------------
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Management')},
+                defaults={'order': 50},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+            create_mitem(entry_id=menu.QuotesEntry.id,      order=10)
+            create_mitem(entry_id=menu.InvoicesEntry.id,     order=15)
+            create_mitem(entry_id=menu.CreditNotesEntry.id,  order=50)
+            create_mitem(entry_id=menu.SalesOrdersEntry.id,  order=55)
+            create_mitem(entry_id=menu.ProductLinesEntry.id, order=200)
+            create_mitem(entry_id=menu.ServiceLinesEntry.id, order=210)
 
             # ---------------------------
             create_bmi = ButtonMenuItem.objects.create_if_needed

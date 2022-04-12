@@ -272,19 +272,6 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='projects-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Tools')},
-                defaults={'order': 100},
-            )[0]
-
-            MenuConfigItem.objects.create(
-                entry_id=ProjectsEntry.id, parent=container, order=50,
-            )
-
-        # ---------------------------
         if not already_populated:
             for pk, (name, description) in enumerate([
                 (
@@ -314,6 +301,17 @@ class Populator(BasePopulator):
                     ProjectStatus, {'pk': pk},
                     name=name, order=pk, description=description,
                 )
+
+            # ---------------------------
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Tools')},
+                defaults={'order': 100},
+            )[0]
+
+            MenuConfigItem.objects.create(
+                entry_id=ProjectsEntry.id, parent=menu_container, order=50,
+            )
 
             # ---------------------------
             TOP   = BrickDetailviewLocation.TOP

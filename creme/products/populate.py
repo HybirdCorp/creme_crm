@@ -217,19 +217,6 @@ class Populator(BasePopulator):
         create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='products-').exists():
-            container = MenuConfigItem.objects.get_or_create(
-                entry_id=ContainerEntry.id,
-                entry_data={'label': _('Management')},
-                defaults={'order': 50},
-            )[0]
-
-            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
-            create_mitem(entry_id=menu.ProductsEntry.id, order=20)
-            create_mitem(entry_id=menu.ServicesEntry.id, order=25)
-
-        # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run
         if not Category.objects.exists():
             create_cat = Category.objects.create
@@ -280,6 +267,17 @@ class Populator(BasePopulator):
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run
         if not BrickDetailviewLocation.objects.filter_for_model(Product).exists():
+            menu_container = MenuConfigItem.objects.get_or_create(
+                entry_id=ContainerEntry.id,
+                entry_data={'label': _('Management')},
+                defaults={'order': 50},
+            )[0]
+
+            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
+            create_mitem(entry_id=menu.ProductsEntry.id, order=20)
+            create_mitem(entry_id=menu.ServicesEntry.id, order=25)
+
+            # ---------------------------
             RIGHT = BrickDetailviewLocation.RIGHT
 
             for model in (Product, Service):

@@ -173,15 +173,15 @@ class Populator(BasePopulator):
             create_if_needed(PollType, {'pk': 3}, name=_('Assessment'))
 
         # ---------------------------
-        # TODO: move to "not already_populated" section in creme2.4
-        if not MenuConfigItem.objects.filter(entry_id__startswith='polls-').exists():
-            container = MenuConfigItem.objects.get_or_create(
+        # NB: no straightforward way to test that this populate script has not been already run
+        if not BrickDetailviewLocation.objects.filter_for_model(PollForm).exists():
+            menu_container = MenuConfigItem.objects.get_or_create(
                 entry_id=ContainerEntry.id,
                 entry_data={'label': _('Tools')},
                 defaults={'order': 100},
             )[0]
 
-            create_mitem = partial(MenuConfigItem.objects.create, parent=container)
+            create_mitem = partial(MenuConfigItem.objects.create, parent=menu_container)
             create_mitem(
                 entry_id=Separator1Entry.id,
                 entry_data={'label': _('Polls')},
@@ -191,9 +191,7 @@ class Populator(BasePopulator):
             create_mitem(entry_id=menu.PollRepliesEntry.id,   order=310)
             create_mitem(entry_id=menu.PollCampaignsEntry.id, order=315)
 
-        # ---------------------------
-        # NB: no straightforward way to test that this populate script has not been already run
-        if not BrickDetailviewLocation.objects.filter_for_model(PollForm).exists():
+            # ---------------------------
             TOP   = BrickDetailviewLocation.TOP
             LEFT  = BrickDetailviewLocation.LEFT
             RIGHT = BrickDetailviewLocation.RIGHT
