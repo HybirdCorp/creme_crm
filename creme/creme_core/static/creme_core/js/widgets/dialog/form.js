@@ -307,7 +307,7 @@ creme.dialog.FormDialogAction = creme.component.Action.sub({
 
     _buildPopup: function(options) {
         var self = this;
-        options = $.extend(this.options(), options || {});
+        options = $.extend({}, this.options(), options || {});
 
         var form = new creme.dialog.FormDialog(options).onFormSuccess(this._onSubmit.bind(this))
                                                        .onClose(function() {

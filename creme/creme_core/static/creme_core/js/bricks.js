@@ -65,6 +65,22 @@ creme.bricks.dialogActionButtons = function(dialog) {
     }
 };
 
+
+creme.bricks.defaultDialogOptions = function(url, title) {
+    var width = $(window).innerWidth();
+
+    return {
+        resizable: true,
+        draggable: true,
+        width: width * 0.8,
+        maxWidth: width,
+        url: url,
+        title: title,
+        validator: 'innerpopup'
+    };
+};
+
+
 creme.bricks.BrickMenu = creme.component.Component.sub({
     _init_: function(brick, options) {
         this._options = $.extend({
@@ -791,17 +807,7 @@ creme.bricks.Brick = creme.component.Component.sub({
     },
 
     _defaultDialogOptions: function(url, title) {
-        var width = $(window).innerWidth();
-
-        return {
-            resizable: true,
-            draggable: true,
-            width: width * 0.8,
-            maxWidth: width,
-            url: url,
-            title: title,
-            validator: 'innerpopup'
-        };
+        return creme.bricks.defaultDialogOptions(url, title);
     },
 
     dependencies: function() {
