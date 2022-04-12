@@ -7,7 +7,6 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.test.utils import override_settings
 from django.utils.formats import date_format, number_format
 from django.utils.timezone import localtime
 from django.utils.translation import gettext as _
@@ -187,7 +186,7 @@ class EntityCellTestCase(CremeTestCase):
         )
         date_input_format = '%d-%m-%Y'
 
-        with override_settings(
+        with self.settings(
             USE_L10N=False,
             DATE_FORMAT='j F Y',
             DATE_INPUT_FORMATS=[date_input_format],
@@ -337,7 +336,7 @@ class EntityCellTestCase(CremeTestCase):
         dt_input_format = '%Y/%m/%d %H:%M:%S'
         local_dt = localtime(dt)
 
-        with override_settings(
+        with self.settings(
             USE_L10N=False,
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=[dt_input_format],
@@ -375,7 +374,7 @@ class EntityCellTestCase(CremeTestCase):
 
         date_input_format = '%d-%m-%Y'
 
-        with override_settings(
+        with self.settings(
             USE_L10N=False,
             DATE_FORMAT='j F Y',
             DATE_INPUT_FORMATS=[date_input_format],
