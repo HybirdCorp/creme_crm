@@ -9,10 +9,6 @@ MAKE_NPROCS ?= $(shell nproc)
 CREME_LANGUAGE ?= fr
 PORT ?= 8000
 
-CREME_SETTINGS ?= ${DJANGO_SETTINGS_MODULE}
-
-## The package django-extensions is needed here and can be installed with "make install-dev"
-CREME_MEDIA ?= $(shell creme print_settings --settings=${CREME_SETTINGS} --skip-checks --no-color STATIC_ROOT --format value)
 
 ## clean - Basic cleanup, mostly temporary files.
 .PHONY: clean
@@ -34,17 +30,17 @@ clean:
 
 
 ## Upgrade the Python development requirements
-.PHONY: install-dev
-install-dev:
-	pip install --upgrade -e .[dev,mysql,pgsql,graphs]
+## .PHONY: install-dev
+## install-dev:
+## 	pip install --upgrade -e .[dev,mysql,pgsql,graphs]
 
 
 ## Upgrade the Python requirements, run the migrations, the creme_populate and generatemedia commands
 ## .PHONY: update
 ## update: install-dev
-## 	creme migrate --settings=${CREME_SETTINGS}
-## 	creme creme_populate --settings=${CREME_SETTINGS}
-## 	creme generatemedia --settings=${CREME_SETTINGS}
+## 	creme migrate
+## 	creme creme_populate
+## 	creme generatemedia
 
 
 ## Install or upgrade nodejs requirements
@@ -55,16 +51,20 @@ node-update:
 
 
 ## Generate the media files
-.PHONY: media
-media:
-	creme generatemedia --settings=${CREME_SETTINGS}
+## The package django-extensions is required and can be installed with "make install-dev")
+__media:
+ifeq (${DJANGO_SETTINGS_MODULE},)
+	$(error DJANGO_SETTINGS_MODULE is not defined. Hint: Set it with the settings module path (eg: 'my_project.settings') in the shell or '.env' file)
+endif
+	$(eval CREME_MEDIA ?= $(shell creme print_settings --settings=${DJANGO_SETTINGS_MODULE} --skip-checks --no-color STATIC_ROOT --format value))
+	creme generatemedia --settings=${DJANGO_SETTINGS_MODULE}
 
 
 ## Run the Django test suite
 ## .PHONY: test
 ## test:
 ## 	creme test --keepdb --noinput \
-## 	    --settings=${CREME_SETTINGS} \
+## 	    \
 ## 	    --parallel=${MAKE_NPROCS} \
 ## 	    $(filter-out $@,$(MAKECMDGOALS))
 
@@ -76,7 +76,7 @@ media:
 ##
 ## 	COVERAGE_PROCESS_START=setup.cfg \
 ## 	    coverage run --source creme/ creme/manage.py test --noinput --keepdb \
-## 	        --settings=${CREME_SETTINGS} \
+## 	        \
 ## 	        --parallel=${MAKE_NPROCS} \
 ## 	        ${targets}
 ##
@@ -100,7 +100,7 @@ karma-clean:
 
 ## Run the Javascript test suite
 .PHONY: karma
-karma: media karma-clean
+karma: __media karma-clean
 	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
 	    node_modules/.bin/karma start .karma.conf.js \
 	        --browsers=FirefoxHeadless \
@@ -127,20 +127,20 @@ karma-browsers: media karma-clean
 
 ## Run the application
 .PHONY: serve
-serve: media
-	creme runserver ${PORT} --settings=${CREME_SETTINGS}
+serve: __media
+	creme runserver ${PORT}
 
 
 ## Run the jobs
 ## .PHONY: serve-jobs
 ## serve-jobs:
-## 	creme creme_job_manager --settings=${CREME_SETTINGS}
+## 	creme creme_job_manager
 
 
 ## Run shell
 ## .PHONY: shell
 ## shell:
-## 	creme shell_plus  --settings=${CREME_SETTINGS}
+## 	creme shell_plus
 
 
 ## Run the Javascript linters
