@@ -387,12 +387,12 @@ INSTALLED_CREME_APPS = [
     #   - tickets
     'creme.recurrents',
 
-    # Manages Invoices, Quotes, SalesOrders & CreditNote entities.
+    # Manages Invoices, Quotes, SalesOrders & CreditNotes entities.
     # BEWARE: needs the app "products".
     'creme.billing',
 
     # Manages Opportunities entities, which represent business opportunities
-    # (typically an Organisation trying to sell Products/Service to another
+    # (typically an Organisation trying to sell Products/Services to another
     # Organisation).
     # BEWARE: needs the app "products".
     # There are extra features if the app "billing" is installed, like new

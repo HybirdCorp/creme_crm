@@ -304,7 +304,7 @@ def widget_help_sign(message, icon='info'):
 
 @register.tag(name='widget_join')
 def do_join(parser, token):
-    """ Joins the items items of a enumeration (ie: for loop) in a pretty way.
+    """ Joins the items of an enumeration (ie: for loop) in a pretty way.
     Must be used inside a for loop.
 
     Example:
