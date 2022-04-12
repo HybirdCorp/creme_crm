@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -241,7 +240,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         cright_url = '{s}othermap.com/copyright'
         cright_title = 'OpenStreetMap contributors'
 
-        with override_settings(
+        with self.settings(
             GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
             GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
             GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,
@@ -297,7 +296,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         cright_url = '{s}othermap.com/copyright'
         cright_title = 'OpenStreetMap contributors'
 
-        with override_settings(
+        with self.settings(
             GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
             GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
             GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,
@@ -365,7 +364,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         cright_url = '{s}othermap.com/copyright'
         cright_title = 'OpenStreetMap contributors'
 
-        with override_settings(
+        with self.settings(
             GEOLOCATION_OSM_NOMINATIM_URL=nominatim_url,
             GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
             GEOLOCATION_OSM_COPYRIGHT_URL=cright_url,

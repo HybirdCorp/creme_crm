@@ -3,7 +3,6 @@
 from datetime import date, datetime, timedelta
 
 from django import forms
-from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
@@ -441,22 +440,19 @@ class BaseTestCaseTestCase(CremeTestCase):
     def test_formfield_value_date(self):
         date_obj = date(year=2022, month=2, day=24)
 
-        with override_settings(
-            USE_L10N=False,
-            DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
-        ):
+        with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y']):
             date_str1 = self.formfield_value_date(date_obj)
             date_str2 = self.formfield_value_date(2023, 6, 12)
         self.assertEqual('2022-02-24', date_str1)
         self.assertEqual('2023-06-12', date_str2)
 
-        with override_settings(USE_L10N=True):
+        with self.settings(USE_L10N=True):
             with override_language('en'):
                 date_str_en = self.formfield_value_date(date_obj)
             self.assertEqual('2022-02-24', date_str_en)
 
             with override_language('fr'):
-                with override_settings(USE_L10N=True):
+                with self.settings(USE_L10N=True):
                     date_str_fr = self.formfield_value_date(date_obj)
             self.assertEqual('24/02/2022', date_str_fr)
 
@@ -464,7 +460,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         date_obj = date(year=2022, month=2, day=24)
         dt_obj = datetime(year=2023, month=3, day=21, hour=18, minute=53)
 
-        with override_settings(
+        with self.settings(
             USE_L10N=False,
             DATE_INPUT_FORMATS=['%Y-%m-%d', '%d/%m/%Y'],
             DATETIME_INPUT_FORMATS=['%Y-%m-%d %H:%M:%S', '%m/%d/%Y %H:%M'],
@@ -479,7 +475,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         self.assertEqual('2023-03-21 18:53:00', dt_str1)
         self.assertEqual('2024-08-25 19:48:00', dt_str2)
 
-        with override_settings(USE_L10N=True):
+        with self.settings(USE_L10N=True):
             with override_language('en'):
                 date_str_en = self.formfield_value_datetime(date_obj)
                 dt_str_en = self.formfield_value_datetime(dt_obj)
@@ -487,7 +483,7 @@ class BaseTestCaseTestCase(CremeTestCase):
             self.assertEqual('2023-03-21 18:53:00', dt_str_en)
 
             with override_language('fr'):
-                with override_settings(USE_L10N=True):
+                with self.settings(USE_L10N=True):
                     date_str_fr = self.formfield_value_datetime(date_obj)
                     dt_str_fr = self.formfield_value_datetime(dt_obj)
             self.assertEqual('24/02/2022', date_str_fr)

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from django.conf import settings
-from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.tests.base import OverrideSettingValueContext
@@ -267,10 +266,11 @@ class GeoLocationUtilsTestCase(GeoLocationBaseTestCase):
         tilemap_url = '{s}othermap.com/{x}/{y}/{z}.jpeg'
         copyright_url = '{s}othermap.com/copyright'
 
-        with override_settings(
-                GEOLOCATION_OSM_NOMINATIM_URL='',
-                GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
-                GEOLOCATION_OSM_COPYRIGHT_URL=copyright_url):
+        with self.settings(
+            GEOLOCATION_OSM_NOMINATIM_URL='',
+            GEOLOCATION_OSM_TILEMAP_URL=tilemap_url,
+            GEOLOCATION_OSM_COPYRIGHT_URL=copyright_url,
+        ):
             self.assertDictEqual(
                 {
                     'nominatim_url': '',
