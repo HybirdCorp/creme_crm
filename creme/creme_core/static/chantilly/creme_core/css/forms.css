@@ -184,7 +184,8 @@ div.submit_buttons a {
 }
 
 /* TODO: factorise with jQuery ui theme */
-div.submit_buttons input {
+div.submit_buttons input,
+div.submit_buttons button {
     padding: 0.4em 1em;
 
     border: 1px solid #6eaac4;
@@ -203,7 +204,8 @@ div.submit_buttons input {
     cursor: pointer;
 }
 
-div.submit_buttons input:hover {
+div.submit_buttons input:hover,
+div.submit_buttons button:hover {
     border: 1px solid #ff968d;
 
     /* Permalink - use to edit and share this gradient: https://colorzilla.com/gradient-editor/#f9e2df+0,f9e2df+50,f7d6d2+51,fae8e6+100 */
