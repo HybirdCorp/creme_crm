@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps :
+        * Reports :
+            - The initial value of the 'user' field in the creation form of Reports has been fixed.
         * VCFs :
             - The relationship type between the contact & the organisation could be internal.
 
