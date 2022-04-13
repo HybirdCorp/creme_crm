@@ -16,13 +16,16 @@
 {% block brick_table_head %}{% endblock %}
 
 {% block brick_table_rows %}
+{# {% has_perm_to unlink object as activity_unlink_perm %}{% url 'creme_core__delete_relation' as del_rel_url %} #}
+{% has_perm_to unlink object as activity_unlink_perm %}{% url 'activities__remove_subject' as rm_subject_url %}
 {% has_perm_to unlink object as activity_unlink_perm %}{% url 'creme_core__delete_relation' as del_rel_url %}
 {#    {% for relation in page.object_list %}{% with relation.object_entity.get_real_entity as subject %} #}
     {% for relation in page.object_list %}{% with subject=relation.real_object %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink subject user %}</td>
         <td {% brick_table_data_status action %}>{% has_perm_to unlink subject as subject_unlink_perm %}
-            {% brick_table_action id='delete' url=del_rel_url __id=relation.pk label=_('Unlink this subject') icon='unlink' enabled=activity_unlink_perm|and_op:subject_unlink_perm %}
+{#            {% brick_table_action id='delete' url=del_rel_url __id=relation.pk label=_('Unlink this subject') icon='unlink' enabled=activity_unlink_perm|and_op:subject_unlink_perm %} #}
+            {% brick_table_action id='delete' url=rm_subject_url __id=relation.pk label=_('Unlink this subject') icon='unlink' enabled=activity_unlink_perm|and_op:subject_unlink_perm %}
         </td>
     </tr>
     {% endwith %}{% endfor %}
