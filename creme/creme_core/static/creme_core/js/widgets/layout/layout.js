@@ -170,7 +170,7 @@ creme.layout.Layout = creme.component.Component.sub({
         this._remove_cb = function(e) { self.fireRemoved(e.target); };
         this._layout_cb = function() { self.layout(); };
         this._locked = false;
-        this._uuid = $.uidGen();
+        this._uuid = _.uniqueId('creme_layout_');
 
         this._events = new creme.component.EventHandler();
 
