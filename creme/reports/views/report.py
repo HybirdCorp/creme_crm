@@ -225,7 +225,11 @@ class ReportCreationWizard(generic.EntityCreationWizard):
         except AttributeError:
             kwargs['report'] = self.report
         else:
-            kwargs['instance'] = self.report
+            report = self.report
+            # TODO: improve the default value for 'user' field
+            report.user = self.request.user
+
+            kwargs['instance'] = report
 
         if step == '2':
             hfilter = self.get_cleaned_data_for_step('1')['header_filter']
