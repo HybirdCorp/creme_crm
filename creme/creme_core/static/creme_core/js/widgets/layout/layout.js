@@ -313,8 +313,8 @@ creme.layout.Layout = creme.component.Component.sub({
         }
 
         this._target.on('resize', this._resize_cb);
-        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
-        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
+        this._target.on(BrowserVersion.isIE('<=9') ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.on(BrowserVersion.isIE('<=9') ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
     _unbindEvents: function() {
@@ -324,8 +324,8 @@ creme.layout.Layout = creme.component.Component.sub({
         }
 
         this._target.on('resize', this._resize_cb);
-        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
-        this._target.on($.matchIEVersion(8, 9) ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
+        this._target.on(BrowserVersion.isIE('<=9') ? 'DOMNodeRemoved DOMNodeRemovedFromDocument' : 'DOMNodeRemoved', this._remove_cb);
+        this._target.on(BrowserVersion.isIE('<=9') ? 'DOMNodeInserted DOMNodeInsertedIntoDocument' : 'DOMNodeInserted', this._add_cb);
     },
 
     bind: function(element) {

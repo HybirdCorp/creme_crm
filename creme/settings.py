@@ -775,7 +775,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/3.x/jquery-migrate-3.3.2.js',
     'creme_core/js/jquery/ui/jquery-ui-1.11.4.custom.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
-    'creme_core/js/jquery/extensions/jquery.browser.js',
     'creme_core/js/jquery/extensions/jquery.uuid-2.0.js',
     'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
     'creme_core/js/jquery/extensions/jqplot-1.0.8/jquery.jqplot.js',
