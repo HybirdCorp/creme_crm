@@ -162,13 +162,9 @@
         findDialogButtonsByLabel: function(label, dialog) {
             dialog = dialog || $('.ui-dialog');
 
-            return dialog.find('.ui-dialog-buttonset .ui-button-text')
+            return dialog.find('.ui-dialog-buttonset .ui-button')
                          .filter(function() {
                              return $(this).text().indexOf(label) !== -1;
-                         })
-                         .map(function() {
-//                             return $(this).parents('button:first').get(0);
-                             return $(this).parents('button').first().get(0);
                          });
         },
 

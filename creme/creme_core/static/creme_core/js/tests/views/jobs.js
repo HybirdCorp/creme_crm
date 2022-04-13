@@ -404,7 +404,6 @@ QUnit.test('creme.BrickJobsMonitor (setup)', function(assert) {
     ], this.mockBackendUrlCalls());
 });
 
-
 QUnit.test('creme.PopupJobsWaitingController (setup)', function(assert) {
     var dialog = new creme.dialog.FormDialog();
     var content = this.createJobsPopupHtml({

@@ -240,13 +240,11 @@ creme.jobs.PopupJobWaitingController = creme.widget.declare('job-waiting-ctrl', 
     _create: function(element, options, cb, sync, args) {
         var dialog = element.parents('.ui-dialog').first();
         var buttons = dialog.find('.ui-dialog-buttonset');
+        var cancel = buttons.find('.ui-button[name="cancel"]');
+        var terminate = buttons.find('.ui-button[name="send"]');
 
-        var close_button = buttons.find('[name="cancel"]');
-        // TODO: improve buttons API to set it from HTML ??
-        close_button.find('.ui-button-text').text(gettext('Close (process in background)'));
-
-        var terminate_button = buttons.find('[name="send"]');
-        terminate_button.hide();
+        cancel.text(gettext('Close (process in background)'));
+        terminate.hide();
 
         element.addClass('widget-ready');
 
@@ -255,8 +253,8 @@ creme.jobs.PopupJobWaitingController = creme.widget.declare('job-waiting-ctrl', 
         });
 
         jobs.on('finished', function() {
-            close_button.hide();
-            terminate_button.show();
+            cancel.hide();
+            terminate.show();
         }).fetch();
     },
 
