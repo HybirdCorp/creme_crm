@@ -221,8 +221,14 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertFalse(Report.objects.filter(name=name).exists())
 
         url = self.ADD_URL
-        self.assertGET200(url)
+        response0 = self.assertGET200(url)
 
+        with self.assertNoException():
+            initial_user_id = response0.context['form']['user'].value()
+
+        self.assertEqual(user.id, initial_user_id)
+
+        # ---
         step_key = 'report_creation_wizard-current_step'
         response1 = self.client.post(
             url,
@@ -248,6 +254,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertEqual(3, count)
         self.assertEqual('1', current)
 
+        # ---
         response2 = self.client.post(
             url,
             follow=True,
@@ -264,6 +271,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         self.assertEqual((), columns_f.initial)
 
+        # ---
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'loves'),
             ('test-object_loves',  'is loved'),
