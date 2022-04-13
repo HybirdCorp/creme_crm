@@ -179,7 +179,7 @@ QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
     equal(0, element.find('.inline-search-results.showing').length);
     equal(0, $('.glasspane').length);
 
-    element.find('input[type="text"]').focus();
+    element.find('input[type="text"]').trigger('focus');
 
     equal(true, search.isOpened());
     equal(1, element.find('.inline-search-results.showing').length);
@@ -195,7 +195,7 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
 
     equal(true, search.isBound());
 
-    element.find('input[type="text"]').focus();
+    element.find('input[type="text"]').trigger('focus');
 
     equal(true, search.isOpened());
     equal(1, element.find('.inline-search-results.showing').length);
@@ -553,7 +553,7 @@ QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
 
     equal(true, search.isBound());
 
-    element.find('input[type="text"]').focus();
+    element.find('input[type="text"]').trigger('focus');
 
     equal(true, search.isOpened());
     equal(1, element.find('.inline-search-results.showing').length);
