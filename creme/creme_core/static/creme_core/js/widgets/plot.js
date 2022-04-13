@@ -26,7 +26,7 @@ creme.widget.PlotEventHandlerRegistry = function() {
 
 creme.widget.PlotEventHandlerRegistry.prototype = {
     register: function(name, handler) {
-        if ($.isFunction(this.get(name, null))) { throw new Error('handler "' + name + '" is already registered'); }
+        if (Object.isFunc(this.get(name, null))) { throw new Error('handler "' + name + '" is already registered'); }
 
         this._handlers[name] = handler;
     },
@@ -40,7 +40,7 @@ creme.widget.PlotEventHandlerRegistry.prototype = {
     get: function(name, defaults) {
         var handler = this._handlers[name];
 
-        if ($.isFunction(handler) === false) {
+        if (Object.isFunc(handler) === false) {
             if (defaults === undefined) { throw new Error('no such plot event handler "' + name + '"'); }
 
             return defaults;
