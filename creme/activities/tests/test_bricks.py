@@ -57,6 +57,8 @@ from .base import (
 @skipIfCustomActivity
 class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
     RM_PARTICIPANT_URL = reverse('activities__remove_participant')
+    RM_SUBJECT_URL = reverse('activities__remove_subject')
+    RM_RELATED_URL = reverse('activities__unlink_activity')
 
     @staticmethod
     def _build_add_participants_url(activity):
@@ -139,7 +141,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         create_activity = partial(
             Activity.objects.create,
-            user=user, type_id=ACTIVITYTYPE_MEETING, sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+            user=user,
+            type_id=ACTIVITYTYPE_MEETING,
+            sub_type_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
         )
 
         future = [
@@ -412,12 +416,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             url,
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
-
-        relations = Relation.objects.filter(
-            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
+        self.assertCountEqual(
+            [c1.id, c2.id],
+            [
+                *Relation.objects.filter(
+                    object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
+                ).values_list('subject_entity_id', flat=True),
+            ],
         )
-        self.assertEqual(2, len(relations))
-        self.assertSetEqual({c1.id, c2.id}, {r.subject_entity_id for r in relations})
 
     def test_add_participants02(self):
         "Credentials error with the activity."
@@ -491,14 +497,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             uri,
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
-
-        relations = Relation.objects.filter(
-            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
-        )
-        self.assertEqual(3, len(relations))
-        self.assertSetEqual(
-            {c1.id, c2.id, self.user.linked_contact.id},
-            {r.subject_entity_id for r in relations},
+        self.assertCountEqual(
+            [c1.id, c2.id, self.user.linked_contact.id],
+            [
+                *Relation.objects
+                         .filter(object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY)
+                         .values_list('subject_entity_id', flat=True),
+            ],
         )
 
     @skipIfCustomContact
@@ -519,14 +524,13 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             uri,
             data={'participants': self.formfield_value_multi_creator_entity(c1, c2)},
         ))
-
-        relations = Relation.objects.filter(
-            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
-        )
-        self.assertEqual(3, len(relations))
-        self.assertSetEqual(
-            {c1.id, c2.id, self.user.linked_contact.id},
-            {r.subject_entity_id for r in relations},
+        self.assertCountEqual(
+            [c1.id, c2.id, self.user.linked_contact.id],
+            [
+                *Relation.objects
+                         .filter(object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY)
+                         .values_list('subject_entity_id', flat=True),
+            ],
         )
 
     def test_add_participants06(self):
@@ -556,14 +560,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
         self.assertNoFormError(response)
-
-        relations = Relation.objects.filter(
-            object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
-        )
-        self.assertEqual(3, len(relations))
-        self.assertSetEqual(
-            {musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
-            {r.subject_entity.get_real_entity() for r in relations},
+        self.assertCountEqual(
+            [musashi.linked_contact, kojiro.linked_contact, user.linked_contact],
+            [
+                r.subject_entity.get_real_entity()
+                for r in Relation.objects.filter(
+                    object_entity=activity.id, type=REL_SUB_PART_2_ACTIVITY,
+                )
+            ]
         )
 
     @skipIfCustomContact
@@ -585,7 +589,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             self._build_add_participants_url(activity),
             data={'participants': self.formfield_value_multi_creator_entity(akane)},
         ))
-
         self.assertRelationCount(1, dojo, REL_SUB_ACTIVITY_SUBJECT, activity)
 
     @skipIfCustomContact
@@ -641,7 +644,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         del_url = self.RM_PARTICIPANT_URL
         self.assertGET405(del_url)
         self.assertPOST404(del_url, data={'id': sym_rel.pk})
-        self.get_object_or_fail(Relation, pk=sym_rel.pk)
+        self.assertStillExists(sym_rel)
 
         qs = Relation.objects.filter(
             type=REL_SUB_PART_2_ACTIVITY, object_entity=phone_call,
@@ -660,7 +663,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
     @skipIfCustomContact
     def test_remove_participants02(self):
-        "Cannot unlink the contact"
+        "Cannot unlink the contact."
         user = self.login(is_superuser=False)
         create_creds = partial(SetCredentials.objects.create, role=self.role)
         create_creds(
@@ -692,7 +695,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=phone_call,
         )
-
         self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.symmetric_relation_id})
 
     @skipIfCustomContact
@@ -729,7 +731,6 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=phone_call,
         )
-
         self.assertPOST403(self.RM_PARTICIPANT_URL, data={'id': rel.symmetric_relation_id})
 
     @skipIfCustomOrganisation
@@ -740,10 +741,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         orga = Organisation.objects.create(user=user, name='Ghibli')
 
         url = self._build_add_subjects_url(activity)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Adding subjects to activity «{entity}»').format(entity=activity),
             context.get('title'),
@@ -753,17 +754,19 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         # ---
         data = {'subjects': self.formfield_value_multi_generic_entity(orga)}
         self.assertNoFormError(self.client.post(url, data=data))
-
-        relations = Relation.objects.filter(
-            object_entity=activity.id, type=REL_SUB_ACTIVITY_SUBJECT,
+        self.assertCountEqual(
+            [orga.id],
+            [
+                *Relation.objects
+                         .filter(object_entity=activity.id, type=REL_SUB_ACTIVITY_SUBJECT)
+                         .values_list('subject_entity_id', flat=True)
+            ],
         )
-        self.assertEqual(1, len(relations))
-        self.assertEqual(orga.id, relations[0].subject_entity_id)
 
         # Avoid duplicates
-        response = self.assertPOST200(url, data=data)
+        response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response, 'form', 'subjects',
+            response2, 'form', 'subjects',
             ngettext(
                 'This entity is already a subject: %(duplicates)s',
                 'These entities are already subjects: %(duplicates)s',
@@ -812,7 +815,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
         self.assertFormError(
             response, 'form', 'subjects',
-            _('Some entities are not linkable: {}').format(orga)
+            _('Some entities are not linkable: {}').format(orga),
         )
         self.assertFalse(Relation.objects.filter(
             object_entity=activity.id,
@@ -832,8 +835,120 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)},
         )
         self.assertFormError(
-            response, 'form', 'subjects', _('This content type is not allowed.')
+            response, 'form', 'subjects', _('This content type is not allowed.'),
         )
+
+    @skipIfCustomContact
+    def test_remove_subject01(self):
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
+
+        create_rel = partial(
+            Relation.objects.create,
+            subject_entity=contact, object_entity=activity, user=user,
+        )
+        r1 = create_rel(type_id=REL_SUB_PART_2_ACTIVITY)
+        r2 = create_rel(type_id=REL_SUB_ACTIVITY_SUBJECT)
+        r3 = create_rel(type_id=REL_SUB_LINKED_2_ACTIVITY)
+        r4 = create_rel(type_id=REL_SUB_HAS)
+
+        url = self.RM_SUBJECT_URL
+        self.assertGET405(url)
+
+        response = self.assertPOST200(url, data={'id': r2.symmetric_relation_id}, follow=True)
+        self.assertDoesNotExist(r2)
+        self.assertRedirects(response, activity.get_absolute_url())
+
+        # Errors
+        self.assertPOST404(url, data={'id': r1.symmetric_relation_id})
+        self.assertPOST404(url, data={'id': r3.symmetric_relation_id})
+        self.assertPOST404(url, data={'id': r4.symmetric_relation_id})
+        self.assertPOST404(url)
+
+    @skipIfCustomContact
+    def test_remove_subject02(self):
+        "Can not unlink the activity."
+        user = self.login(is_superuser=False)
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(user=user, first_name='Musashi', last_name='Miyamoto')
+        relation = Relation.objects.create(
+            subject_entity=contact,
+            type_id=REL_SUB_ACTIVITY_SUBJECT,
+            object_entity=activity,
+            user=user,
+        )
+
+        self.assertPOST403(
+            self.RM_SUBJECT_URL,
+            data={'id': relation.symmetric_relation_id},
+        )
+        self.assertStillExists(relation)
+
+    @skipIfCustomContact
+    def test_remove_subject03(self):
+        "Can not unlink the contact."
+        user = self.login(is_superuser=False)
+
+        create_creds = partial(SetCredentials.objects.create, role=self.role)
+        create_creds(
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+        create_creds(
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+            ),
+            set_type=SetCredentials.ESET_ALL,
+        )
+
+        activity = self._create_meeting()
+        contact = Contact.objects.create(
+            user=self.other_user, first_name='Musashi', last_name='Miyamoto',
+        )
+        relation = Relation.objects.create(
+            subject_entity=contact,
+            type_id=REL_SUB_ACTIVITY_SUBJECT,
+            object_entity=activity,
+            user=user,
+        )
+        self.assertPOST403(
+            self.RM_SUBJECT_URL,
+            data={'id': relation.symmetric_relation_id},
+        )
+        self.assertStillExists(relation)
 
     @skipIfCustomContact
     def test_unlink01(self):
@@ -863,7 +978,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         r4 = create_rel(type_id=REL_SUB_HAS)
         self.assertEqual(3, contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]).count())
 
-        url = reverse('activities__unlink_activity')
+        url = self.RM_RELATED_URL
         self.assertPOST200(url, data={'id': activity.id, 'object_id': contact.id}, follow=True)
         self.assertFalse(contact.relations.filter(pk__in=[r1.id, r2.id, r3.id]))
         self.assertEqual(1, contact.relations.filter(pk=r4.id).count())
@@ -896,12 +1011,11 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             subject_entity=contact, type_id=REL_SUB_PART_2_ACTIVITY,
             object_entity=activity, user=user,
         )
-
         self.assertPOST403(
-            reverse('activities__unlink_activity'),
+            self.RM_RELATED_URL,
             data={'id': activity.id, 'object_id': contact.id},
         )
-        self.assertEqual(1, contact.relations.filter(pk=relation.id).count())
+        self.assertStillExists(relation)
 
     @skipIfCustomContact
     def test_unlink03(self):
@@ -940,10 +1054,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         )
 
         self.assertPOST403(
-            reverse('activities__unlink_activity'),
+            self.RM_RELATED_URL,
             data={'id': activity.id, 'object_id': contact.id},
         )
-        self.get_object_or_fail(Relation, pk=relation.id)
+        self.assertStillExists(relation)
 
     def test_user_calendars(self):
         user = self.login()

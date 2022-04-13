@@ -56,7 +56,7 @@ class RelationTypeManager(models.Manager):
         )
 
         if not include_internals:
-            types = types.filter(Q(is_internal=False))
+            types = types.filter(is_internal=False)
 
         return types
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,26 +44,6 @@ class ParticipantsAdding(generic.RelatedToEntityFormPopup):
         user.has_perm_to_link_or_die(entity)
 
 
-class ParticipantRemoving(generic.CremeModelDeletion):
-    model = Relation
-    permissions = 'activities'
-
-    def check_instance_permissions(self, instance, user):
-        has_perm = user.has_perm_to_unlink_or_die
-        has_perm(instance.subject_entity)
-        has_perm(instance.object_entity)
-
-    def get_query_kwargs(self):
-        kwargs = super().get_query_kwargs()
-        kwargs['type'] = constants.REL_OBJ_PART_2_ACTIVITY
-
-        return kwargs
-
-    def get_success_url(self):
-        # TODO: callback_url?
-        return self.object.subject_entity.get_absolute_url()
-
-
 class SubjectsAdding(generic.RelatedToEntityFormPopup):
     form_class = bricks_forms.SubjectCreateForm
     template_name = 'creme_core/generics/blockform/link-popup.html'
@@ -74,6 +54,35 @@ class SubjectsAdding(generic.RelatedToEntityFormPopup):
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_link_or_die(entity)
+
+
+class _ActivityRelationRemoving(generic.CremeModelDeletion):
+    model = Relation
+    permissions = 'activities'
+    relation_type_id = constants.REL_OBJ_PART_2_ACTIVITY
+
+    def check_instance_permissions(self, instance, user):
+        has_perm = user.has_perm_to_unlink_or_die
+        has_perm(instance.subject_entity)
+        has_perm(instance.object_entity)
+
+    def get_query_kwargs(self):
+        kwargs = super().get_query_kwargs()
+        kwargs['type'] = self.relation_type_id
+
+        return kwargs
+
+    def get_success_url(self):
+        # TODO: callback_url?
+        return self.object.subject_entity.get_absolute_url()
+
+
+class ParticipantRemoving(_ActivityRelationRemoving):
+    relation_type_id = constants.REL_OBJ_PART_2_ACTIVITY
+
+
+class SubjectRemoving(_ActivityRelationRemoving):
+    relation_type_id = constants.REL_OBJ_ACTIVITY_SUBJECT
 
 
 class ActivityUnlinking(generic.CremeDeletion):

@@ -1023,49 +1023,50 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         # Not 2
         self.assertRelationCount(1, act2, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
-    @skipIfCustomContact
-    @skipIfCustomOrganisation
-    def test_import_duplicated_subjects01(self):
-        "Dynamic & fixed subjects are duplicated in creation."
-        user = self.login()
-
-        participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
-        subject = Organisation.objects.create(user=user, name='Ishiyama')
-
-        title = 'My Meeting'
-        doc = self._build_csv_doc([
-            (title, participant.first_name, participant.last_name, subject.name),
-        ])
-        response = self.client.post(
-            self._build_import_url(Activity), follow=True,
-            data={
-                **self.lv_import_data,
-                'document': doc.id,
-                'user': user.id,
-
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [constants.REL_OBJ_ACTIVITY_SUBJECT, subject],
-                ),
-
-                'type_selector': self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
-
-                'participants_mode': 1,  # Search with 1 or 2 columns
-                'participants_first_name_colselect': 2,
-                'participants_last_name_colselect': 3,
-
-                'subjects_colselect': 4,
-            },
-        )
-        self.assertNoFormError(response)
-
-        self._execute_job(response)
-        activity = self.get_object_or_fail(Activity, title=title)
-
-        # Not 2
-        self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
+    # TODO: uncomment if REL_OBJ_ACTIVITY_SUBJECT is not internal anymore
+    # @skipIfCustomContact
+    # @skipIfCustomOrganisation
+    # def test_import_duplicated_subjects(self):
+    #     "Dynamic & fixed subjects are duplicated in creation."
+    #     user = self.login()
+    #
+    #     participant = Contact.objects.create(user=user, first_name='Tatsumi', last_name='Oga')
+    #     subject = Organisation.objects.create(user=user, name='Ishiyama')
+    #
+    #     title = 'My Meeting'
+    #     doc = self._build_csv_doc([
+    #         (title, participant.first_name, participant.last_name, subject.name),
+    #     ])
+    #     response = self.client.post(
+    #         self._build_import_url(Activity), follow=True,
+    #         data={
+    #             **self.lv_import_data,
+    #             'document': doc.id,
+    #             'user': user.id,
+    #
+    #             'fixed_relations': self.formfield_value_multi_relation_entity(
+    #                 [constants.REL_OBJ_ACTIVITY_SUBJECT, subject],
+    #             ),
+    #
+    #             'type_selector': self._acttype_field_value(
+    #                 constants.ACTIVITYTYPE_MEETING,
+    #                 constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+    #             ),
+    #
+    #             'participants_mode': 1,  # Search with 1 or 2 columns
+    #             'participants_first_name_colselect': 2,
+    #             'participants_last_name_colselect': 3,
+    #
+    #             'subjects_colselect': 4,
+    #         },
+    #     )
+    #     self.assertNoFormError(response)
+    #
+    #     self._execute_job(response)
+    #     activity = self.get_object_or_fail(Activity, title=title)
+    #
+    #     # Not 2
+    #     self.assertRelationCount(1, activity, constants.REL_OBJ_ACTIVITY_SUBJECT, subject)
 
     def test_pattern1(self):
         "Pattern #1: 'Civility FirstName LastName'"

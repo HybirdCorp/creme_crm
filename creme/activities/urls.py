@@ -78,6 +78,11 @@ urlpatterns = [
         name='activities__add_subjects',
     ),
     re_path(
+        r'^activity/subject/delete[/]?$',
+        bricks.SubjectRemoving.as_view(),
+        name='activities__remove_subject',
+    ),
+    re_path(
         r'^linked_activity/unlink[/]?$',
         bricks.ActivityUnlinking.as_view(),
         name='activities__unlink_activity',

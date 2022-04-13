@@ -95,6 +95,7 @@ class Populator(BasePopulator):
                 _('(activity) has for subject'),
                 [Activity],
             ),
+            is_internal=True,  # NB: avoid the disabling of this RelationType
             minimal_display=(True, False),
         )[1]
         rt_obj_part_2_activity = create_rtype(

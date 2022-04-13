@@ -12,6 +12,8 @@
     # Apps :
         * Creme_config :
             - An edition view for semi-fixed relation types has been added.
+        * Activities :
+            - The relationships type "is subject of the activity" is now internal.
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch e-mails from some mailboxes to potentially create true Email entities
