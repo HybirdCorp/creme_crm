@@ -86,7 +86,7 @@ creme.layout.LayoutResizeSensor = creme.component.Component.sub({
             prev_height = height;
         };
 
-        var flow_cb = $.debounce(matchFlow, this._threshold);
+        var flow_cb = _.debounce(matchFlow, this._threshold);
 
         if (!BrowserVersion.isIE()) {
             this._onOverflow(sensor, flow_cb);

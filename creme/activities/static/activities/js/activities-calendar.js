@@ -343,7 +343,7 @@ creme.activities.CalendarController = creme.component.Component.sub({
         var delay = this.debounceDelay();
 
         if (delay > 0) {
-            return creme.utils.debounce(handler, delay);
+            return _.debounce(handler, delay);
         } else {
             return handler;
         }

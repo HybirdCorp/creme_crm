@@ -501,8 +501,8 @@ creme.bricks.Brick = creme.component.Component.sub({
         this._actionBuilders = new creme.bricks.BrickActionBuilders(this);
 
         if (options.deferredStateSaveDelay > 0) {
-            this._deferredStateSave = creme.utils.debounce(this.saveState.bind(this),
-                                                           options.deferredStateSaveDelay);
+            this._deferredStateSave = _.debounce(this.saveState.bind(this),
+                                                 options.deferredStateSaveDelay);
         } else {
             this._deferredStateSave = this.saveState.bind(this);
         }

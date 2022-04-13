@@ -771,6 +771,7 @@ CREME_LIB_JS = [
     {'filter': 'mediagenerator.filters.media_url.MediaURL'},
 
     'creme_core/js/media.js',
+    'creme_core/js/lib/underscore/underscore-1.13.2.js',
     'creme_core/js/jquery/3.x/jquery-3.6.0.js',
     'creme_core/js/jquery/3.x/jquery-migrate-3.3.2.js',
     'creme_core/js/jquery/ui/jquery-ui-1.11.4.custom.js',
@@ -793,7 +794,6 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
-    'creme_core/js/jquery/extensions/jquery.debounce.js',
     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.1.js',
     'creme_core/js/lib/momentjs/moment-2.24.0.js',
