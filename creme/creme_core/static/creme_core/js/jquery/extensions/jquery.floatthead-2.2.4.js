@@ -1,4 +1,4 @@
-/** @preserve jQuery.floatThead 2.2.1 - https://mkoryak.github.io/floatThead/ - Copyright (c) 2012 - 2020 Misha Koryak **/
+/** @preserve jQuery.floatThead 2.2.2 - https://mkoryak.github.io/floatThead/ - Copyright (c) 2012 - 2021 Misha Koryak **/
 // @license MIT
 
 /* @author Misha Koryak
@@ -120,11 +120,11 @@
   //safari 7 (and perhaps others) reports table width to be parent container's width if max-width is set on table. see: https://github.com/mkoryak/floatThead/issues/108
   var isTableWidthBug = function(){
     if(isWebkit) {
-      var $test = $('<div>').css('width', 0).append(
+      var $test = $('<div>').css('width', '0').append(
           $('<table>').css('max-width', '100%').append(
               $('<tr>').append(
                   $('<th>').append(
-                      $('<div>').css('min-width', 100).text('X')
+                      $('<div>').css('min-width', '100px').text('X')
                   )
               )
           )
@@ -373,8 +373,8 @@
 
       var $fthGrp = $('<fthfoot>').css({
         'display': 'table-footer-group',
-        'border-spacing': 0,
-        'height': 0,
+        'border-spacing': '0',
+        'height': '0',
         'border-collapse': 'collapse',
         'visibility': 'hidden'
       });
@@ -393,8 +393,8 @@
       var colSelector = existingColGroup ? "col:visible" : "col";
       var $fthRow = $('<fthtr>').css({ //created unstyled elements (used for sizing the table because chrome can't read <col> width)
         'display': 'table-row',
-        'border-spacing': 0,
-        'height': 0,
+        'border-spacing': '0',
+        'height': '0',
         'border-collapse': 'collapse'
       });
       var $floatContainer = $('<div>').css(opts.floatContainerCss).attr('aria-hidden', 'true');
@@ -436,7 +436,7 @@
         floatTableHidden = true;
       }
 
-      $floatTable.addClass(opts.floatTableClass).css({'margin': 0, 'border-bottom-width': 0}); //must have no margins or you won't be able to click on things under floating table
+      $floatTable.addClass(opts.floatTableClass).css({'margin': '0', 'border-bottom-width': '0'}); //must have no margins or you won't be able to click on things under floating table
 
       if(useAbsolutePositioning){
         var makeRelative = function($container, alwaysWrap){
@@ -471,8 +471,8 @@
 
       $floatContainer.css({
         position: useAbsolutePositioning ? 'absolute' : 'fixed',
-        marginTop: 0,
-        top:  useAbsolutePositioning ? 0 : 'auto',
+        marginTop: '0',
+        top:  useAbsolutePositioning ? '0' : 'auto',
         zIndex: opts.zIndex,
         willChange: 'transform'
       });
@@ -544,14 +544,16 @@
           $sizerRow.empty();
           for(var x = 0; x < count; x++){
             var cell = document.createElement('th');
-            cell.setAttribute('aria-label', opts.ariaLabel($table, $headerColumns.eq(x), x));
+            var span = document.createElement('span');
+            span.setAttribute('aria-label', opts.ariaLabel($table, $headerColumns.eq(x), x));
+            cell.appendChild(span);
             cell.className = 'floatThead-col';
             $sizerRow[0].appendChild(cell);
             cols.push('<col/>');
             psuedo.push(
                 $('<fthtd>').css({
                   'display': 'table-cell',
-                  'height': 0,
+                  'height': '0',
                   'width': 'auto'
                 })
             );
@@ -869,8 +871,8 @@
                 '-ms-transform'     : transform,
                 '-o-transform'      : transform,
                 'transform'         : transform,
-                'top': 0,
-                'left': 0,
+                'top': '0',
+                'left': '0',
               };
               $floatContainer.css(cssObj);
             }

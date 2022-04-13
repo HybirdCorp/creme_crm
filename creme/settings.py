@@ -794,7 +794,7 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
-    'creme_core/js/jquery/extensions/jquery.floatthead-2.2.1.js',
+    'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.24.0.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
