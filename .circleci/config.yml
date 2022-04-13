@@ -36,8 +36,8 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - << parameters.python >>-creme_crm-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
-            - << parameters.python >>-creme_crm
+            - << parameters.python >>-creme_crm-CIV2-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+            - << parameters.python >>-creme_crm-CIV2
 
       - run: <<parameters.python>> -m venv ~/venv
       # Require setuptools v46.4.0 at least
@@ -49,7 +49,7 @@ commands:
       - run: pip list --outdated
 
       - save_cache:
-          key: << parameters.python >>-creme_crm-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+          key: << parameters.python >>-creme_crm-CIV2-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -133,54 +133,36 @@ commands:
             echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
+orbs:
+  browser-tools: circleci/browser-tools@1.2.5
 
 jobs:
-#  python36-lint-isort:
   python37-lint-isort:
     docker:
-#      - image: circleci/python:3.6
-      - image: circleci/python:3.7
-    steps:
-      - checkout-creme
-      - install-py-dev-env:
-#          python: "python3.6"
-          python: "python3.7"
-      - run: make -C << pipeline.parameters.source_path >> isort-check
-
-
-#  python36-lint-flake8:
-  python37-lint-flake8:
-    docker:
-#      - image: circleci/python:3.6
-      - image: circleci/python:3.7
+      - image: cimg/python:3.7
     steps:
       - checkout-creme
       - install-creme-system-packages
       - install-py-dev-env:
-#          python: "python3.6"
+          python: "python3.7"
+      - run: make -C << pipeline.parameters.source_path >> isort-check
+
+
+  python37-lint-flake8:
+    docker:
+      - image: cimg/python:3.7
+    steps:
+      - checkout-creme
+      - install-creme-system-packages
+      - install-py-dev-env:
           python: "python3.7"
       - run: flake8 << pipeline.parameters.source_path >>/creme/ --config << pipeline.parameters.source_path >>/setup.cfg
 
 
-#  python37-creme-checks:
-#    docker:
-#      - image: circleci/python:3.7
-#    steps:
-#      - checkout-creme
-#      - install-creme-system-packages
-#      - run: sudo apt install enchant-2 hunspell hunspell-fr -y
-#      - install-py-dev-env:
-#          python: "python3.7"
-#      - create-creme-project
-#      - run: creme i18n_spellcheck --allow-failure --settings=<< pipeline.parameters.instance_directory >>.settings
-
-
-#  python36-tests-mysql:
   python37-tests-mysql:
     docker:
-#      - image: circleci/python:3.6-browsers
-      - image: circleci/python:3.7-browsers
-      - image: circleci/mysql:5.7-ram
+      - image: cimg/python:3.7
+      - image: cimg/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: creme
           MYSQL_DATABASE: cremecrm
@@ -195,7 +177,6 @@ jobs:
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
       - install-py-dev-env:
-#          python: "python3.6"
           python: "python3.7"
       - create-creme-project
       - setup-creme-unit-tests:
@@ -203,12 +184,10 @@ jobs:
       - run-creme-unit-tests
 
 
-#  python36-tests-pgsql:
   python37-tests-pgsql:
     docker:
-#      - image: circleci/python:3.6-browsers
-      - image: circleci/python:3.7-browsers
-      - image: circleci/postgres:12-ram
+      - image: cimg/python:3.7
+      - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme
@@ -223,7 +202,6 @@ jobs:
           port: 5432
       - install-creme-system-packages
       - install-py-dev-env:
-#          python: "python3.6"
           python: "python3.7"
       - create-creme-project
       - setup-creme-unit-tests:
@@ -231,26 +209,9 @@ jobs:
       - run-creme-unit-tests
 
 
-#  python36-tests-sqlite3:
-#    docker:
-#      - image: circleci/python:3.6-browsers
-#    resource_class: large
-#    steps:
-#      - checkout-creme
-#      - setup-locale:
-#          language: fr_FR
-#          encoding: UTF-8
-#      - install-creme-system-packages
-#      - install-py-dev-env:
-#          python: "python3.6"
-#      - create-creme-project
-#      - setup-creme-unit-tests
-#      - run-creme-unit-tests
-
-
   python37-tests-sqlite3:
     docker:
-      - image: circleci/python:3.7-browsers
+      - image: cimg/python:3.7
     resource_class: large
     steps:
       - checkout-creme
@@ -267,7 +228,7 @@ jobs:
 
   python38-tests-sqlite3:
     docker:
-      - image: circleci/python:3.8-browsers
+      - image: cimg/python:3.8
     resource_class: large
     steps:
       - checkout-creme
@@ -284,7 +245,7 @@ jobs:
 
   python39-tests-sqlite3:
     docker:
-      - image: circleci/python:3.9-browsers
+      - image: cimg/python:3.9
     resource_class: large
     steps:
       - checkout-creme
@@ -300,7 +261,7 @@ jobs:
 
   python310-tests-sqlite3:
     docker:
-      - image: circleci/python:3.10-browsers
+      - image: cimg/python:3.10
     resource_class: large
     steps:
       - checkout-creme
@@ -316,12 +277,11 @@ jobs:
 
   javascript-lint:
     docker:
-#     - image: circleci/python:3.6-node-browsers
-     - image: circleci/python:3.7-node-browsers
+     - image: cimg/python:3.7-node
     steps:
       - checkout-creme
+      - install-creme-system-packages
       - install-py-dev-env:
-#          python: "python3.6"
           python: "python3.7"
       - create-creme-project
       - setup-creme-statics
@@ -353,9 +313,9 @@ jobs:
 
   javascript-tests:
     docker:
-#     - image: circleci/python:3.6-node-browsers
-     - image: circleci/python:3.7-node-browsers
+     - image: cimg/python:3.7-browsers
     steps:
+      - browser-tools/install-browser-tools
       - checkout-creme
       - install-creme-system-packages
       - install-py-dev-env:
@@ -416,8 +376,8 @@ jobs:
 
   creme-package:
     docker:
-#      - image: circleci/python:3.6-browsers
-      - image: circleci/python:3.7-browsers
+#      - image: cimg/python:3.7-browsers
+      - image: cimg/python:3.7
     steps:
       - checkout-creme
       - run: pip install -U pip setuptools twine wheel
@@ -446,61 +406,42 @@ workflows:
               only: /.*/
           requires:
             - javascript-lint
-#      - python37-creme-checks
-#      - python36-lint-isort:
       - python37-lint-isort:
           filters:
             tags:
               only: /.*/
-#      - python36-lint-flake8:
       - python37-lint-flake8:
           filters:
             tags:
               only: /.*/
-#      - python36-tests-sqlite3:
-#          filters:
-#            tags:
-#              only: /.*/
-#          requires:
-#            - python36-lint-isort
-#            - python36-lint-flake8
-#      - python36-tests-mysql:
       - python37-tests-mysql:
           filters:
             tags:
               only: /.*/
           requires:
-#            - python36-lint-isort
             - python37-lint-isort
-#            - python36-lint-flake8
             - python37-lint-flake8
-#      - python36-tests-pgsql:
       - python37-tests-pgsql:
           filters:
             tags:
               only: /.*/
           requires:
-#            - python36-lint-isort
             - python37-lint-isort
-#            - python36-lint-flake8
             - python37-lint-flake8
       - python37-tests-sqlite3:
+          filters:
+            tags:
+              only: /.*/
           requires:
-#            - python36-lint-isort
             - python37-lint-isort
-#            - python36-lint-flake8
             - python37-lint-flake8
       - python38-tests-sqlite3:
           requires:
-#            - python36-lint-isort
             - python37-lint-isort
-#            - python36-lint-flake8
             - python37-lint-flake8
       - python39-tests-sqlite3:
           requires:
-#            - python36-lint-isort
             - python37-lint-isort
-#            - python36-lint-flake8
             - python37-lint-flake8
       - python310-tests-sqlite3:
           requires:
@@ -519,11 +460,8 @@ workflows:
           requires:
             - docker-build-creme-demo
             - javascript-tests
-#            - python36-tests-sqlite3
             - python37-tests-sqlite3
-#            - python36-tests-mysql
             - python37-tests-mysql
-#            - python36-tests-pgsql
             - python37-tests-pgsql
       - creme-package:
           filters:
@@ -533,9 +471,6 @@ workflows:
               ignore: /.*/
           requires:
             - javascript-tests
-#            - python36-tests-sqlite3
             - python37-tests-sqlite3
-#            - python36-tests-mysql
             - python37-tests-mysql
-#            - python36-tests-pgsql
             - python37-tests-pgsql
