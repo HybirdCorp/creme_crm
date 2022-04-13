@@ -187,7 +187,8 @@ div.submit_buttons a {
 }
 
 /* Factorise with .ui-dialog .ui-dialog-buttonset button */
-div.submit_buttons input {
+div.submit_buttons input,
+div.submit_buttons button {
     padding: 10px 30px;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);
@@ -210,12 +211,14 @@ div.submit_buttons input {
     cursor: pointer;
 }
 
-div.submit_buttons input:hover {
+div.submit_buttons input:hover,
+div.submit_buttons button:hover {
     background: linear-gradient(#ffffff, #f3f3f3);
     color: #4d4d4d;
 }
 
-div.submit_buttons input:active {
+div.submit_buttons input:active,
+div.submit_buttons button:active {
     background: linear-gradient(#f9f9f9, #ededed);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
 
