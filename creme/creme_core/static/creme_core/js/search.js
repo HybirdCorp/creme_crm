@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2015-2021  Hybird
+    Copyright (C) 2015-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -79,7 +79,7 @@ creme.search.SearchBox = creme.component.Component.sub({
 
         this._input = element.find('input');
         this._input.on('focus', this._onShow.bind(this))
-                   .on('input paste', this.debounceDelay ? creme.utils.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
+                   .on('input paste', this.debounceDelay ? _.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
                    .on('keydown', this._onKeyDown.bind(this));
 
         this._resultsRoot = element.find('.inline-search-results');

@@ -86,7 +86,7 @@ creme.list.Pager = creme.component.Component.sub({
 
         var debounce = function(cb) {
             if (self._options.debounceDelay > 0) {
-                return $.debounce(cb, self._options.debounceDelay);
+                return _.debounce(cb, self._options.debounceDelay);
             } else {
                 return cb;
             }

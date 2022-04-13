@@ -27,11 +27,13 @@
 
     /* External libraries */
     "jQuery": true,
+    "$": true,
     "moment": true,
     "tinymce": true,
     "FullCalendar": true,
     "google": true,
     "Sortable": true,
+    "_": true,
 
     /* Django i18n */
     "gettext": true,
@@ -47,7 +49,6 @@
     "creme": true,
 
     /* QUNIT TESTS */
-    "$": true,
     "QUnit": true,
     "equal": true,
     "deepEqual": true,
