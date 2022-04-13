@@ -259,7 +259,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         button.toggleAttr('disabled', !enabled);
 
         if ((!this.options.autoFocus && focus === 'auto') || focus === true) {
-            button.focus();
+            button.trigger('focus');
         }
     },
 
@@ -487,7 +487,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     focus: function() {
-        this._dialogContainer().focus();
+        this._dialogContainer().trigger('focus');
         return this;
     },
 

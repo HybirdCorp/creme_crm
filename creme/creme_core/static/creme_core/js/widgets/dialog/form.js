@@ -154,9 +154,9 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             var autofocus = $('[autofocus]:tabbable:first', content);
 
             if (autofocus.length > 0) {
-                autofocus.focus();
+                autofocus.trigger('focus');
             } else {
-                $(':tabbable:first', content).focus();
+                $(':tabbable:first', content).trigger('focus');
             }
         } else {
             $(':tabbable', content).blur();

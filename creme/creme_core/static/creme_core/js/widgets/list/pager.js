@@ -101,7 +101,7 @@ creme.list.Pager = creme.component.Component.sub({
                    self._cleanPageInput(input);
                    self._resizeChooseInput(input);
 
-                   input.select().focus();
+                   input.select().trigger('focus');
                });
 
         input.on('propertychange input change paste', debounce(function() {
