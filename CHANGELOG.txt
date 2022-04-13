@@ -8,6 +8,8 @@ TODO: compilemessages (creme_core, documents)
         * Emails :
             - Some features of the Rich-text editor were broken
               (issue with "X-Frame-Options" when serving the tinyMCE's static files).
+        * Reports :
+            - The initial value of the 'user' field in the creation form of Reports has been fixed.
         * VCFs :
             - The relationship type between the contact & the organisation could be internal.
 
