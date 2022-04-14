@@ -28,11 +28,7 @@
 
 from collections import defaultdict
 from functools import wraps
-# try:
-#     from threading import currentThread
-# except ImportError:
-#     from dummy_threading import currentThread  # type: ignore
-from threading import currentThread
+from threading import current_thread
 from typing import DefaultDict, Hashable
 
 _globals: DefaultDict = defaultdict(dict)
@@ -45,7 +41,7 @@ def get_global_info(key: Hashable):
     @return The value corresponding to the key.
             <None> is returned if the key is not found.
     """
-    thread_globals = _globals.get(currentThread())
+    thread_globals = _globals.get(current_thread())
     return thread_globals and thread_globals.get(key)
 
 
@@ -54,12 +50,12 @@ def set_global_info(**kwargs) -> None:
 
     @param kwargs: Each key-value are sored as global data.
     """
-    _globals[currentThread()].update(kwargs)
+    _globals[current_thread()].update(kwargs)
 
 
 def clear_global_info() -> None:
-    # Don't use del _globals[currentThread()], it causes problems with dev server.
-    _globals.pop(currentThread(), None)
+    # Don't use del _globals[current_thread()], it causes problems with dev server.
+    _globals.pop(current_thread(), None)
 
 
 def get_per_request_cache() -> dict:
