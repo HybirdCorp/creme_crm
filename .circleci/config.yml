@@ -34,22 +34,25 @@ commands:
       python:
         type: string
     steps:
+      - run: which <<parameters.python>>
+
       - restore_cache:
           keys:
-            - << parameters.python >>-creme_crm-CIV2-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
-            - << parameters.python >>-creme_crm-CIV2
+            - << parameters.python >>-creme_crm-v2.4-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+            - << parameters.python >>-creme_crm-v2.4
 
       - run: <<parameters.python>> -m venv ~/venv
       # Require setuptools v46.4.0 at least
       - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
+      - run: which python
       - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,graphs]
       - run: python --version
       - run: pip freeze
       - run: pip list --outdated
 
       - save_cache:
-          key: << parameters.python >>-creme_crm-CIV2-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+          key: << parameters.python >>-creme_crm-v2.4-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -319,7 +322,6 @@ jobs:
       - checkout-creme
       - install-creme-system-packages
       - install-py-dev-env:
-#          python: "python3.6"
           python: "python3.7"
       - create-creme-project
       - setup-creme-statics
@@ -376,7 +378,6 @@ jobs:
 
   creme-package:
     docker:
-#      - image: cimg/python:3.7-browsers
       - image: cimg/python:3.7
     steps:
       - checkout-creme
