@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:35+0200\n"
+"POT-Creation-Date: 2022-04-14 18:52+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1458,6 +1458,9 @@ msgstr "Tous les types sont configurés"
 
 msgid "New customised type"
 msgstr "Nouveau type personnalisé"
+
+msgid "Configure the fields displayed for a given type of entity"
+msgstr "Configurer les champs affichés pour un type de fiche donné"
 
 msgid "not configured yet"
 msgstr "pas encore configuré"

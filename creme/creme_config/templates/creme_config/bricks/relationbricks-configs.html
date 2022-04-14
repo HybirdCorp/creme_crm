@@ -32,7 +32,7 @@
               {% if brick_type.all_ctypes_configured %}
                 {% translate 'All types are configured' %}
               {% else %}
-                {% brick_action id='add' url='creme_config__add_cells_to_rtype_brick'|url:brick_type.id label=_('New customised type') enabled=admin_perm display='text' %}
+                {% brick_action id='add' url='creme_config__add_cells_to_rtype_brick'|url:brick_type.id label=_('New customised type') help_text=_('Configure the fields displayed for a given type of entity') enabled=admin_perm display='text' %}
               {% endif %}
             {% endif %}
             </div>
