@@ -1,0 +1,13 @@
+{% extends 'sketch/bricks/chart.html' %}
+
+{% block brick_extra_class %}{{block.super}} graphs-sketch-brick{% endblock %}
+
+{% block brick_script %}
+    <script type="text/javascript">
+    (function($) {
+        creme.setupD3ChartBrick('.brick[id="{{brick_id}}"]', {
+            chart: new creme.D3GraphRelationChart()
+        });
+    }(jQuery));
+    </script>
+{% endblock %}

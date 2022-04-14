@@ -19,3 +19,8 @@
     text-decoration: line-through;
     color: gray;
 }
+
+.east .sketch-chart-brick.graphs-sketch-brick .d3-sketch,
+.west .sketch-chart-brick.graphs-sketch-brick .d3-sketch {
+    min-height: 500px;
+}

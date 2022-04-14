@@ -28,7 +28,7 @@ class GraphsConfig(CremeAppConfig):
     default = True
     name = 'creme.graphs'
     verbose_name = pgettext_lazy('graphs', 'Graphs')
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme.creme_core', 'creme.sketch']
 
     def all_apps_ready(self):
         from . import get_graph_model
@@ -44,6 +44,7 @@ class GraphsConfig(CremeAppConfig):
 
         brick_registry.register(
             bricks.RootNodesBrick,
+            bricks.RelationChartBrick,
             bricks.OrbitalRelationTypesBrick,
         ).register_hat(
             self.Graph,

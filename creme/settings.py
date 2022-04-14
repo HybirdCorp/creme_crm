@@ -982,6 +982,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.reports',       'reports/js/reports.js'),
     ('creme.reports',       'reports/js/reports-actions.js'),
 
+    ('creme.graphs',        'graphs/js/chart/relation-chart.js'),
+
     ('creme.crudity',       'crudity/js/crudity.js'),
 
     ('creme.emails',        'emails/js/emails.js'),
@@ -1124,6 +1126,7 @@ TEST_CREME_OPT_JS = [
     ('creme.geolocation',   'geolocation/js/tests/persons-brick.js'),
     ('creme.geolocation',   'geolocation/js/tests/addresses-brick.js'),
     ('creme.geolocation',   'geolocation/js/tests/persons-neighborhood-brick.js'),
+    ('creme.graphs',        'graphs/js/tests/relation-chart.js'),
     ('creme.opportunities', 'opportunities/js/tests/opportunities.js'),
     ('creme.persons',       'persons/js/tests/persons.js'),
     ('creme.persons',       'persons/js/tests/persons-actions.js'),
