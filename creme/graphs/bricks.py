@@ -25,6 +25,7 @@ from django.utils.translation import gettext_lazy as _
 # from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
 from creme.creme_core.utils import split_filter
+from creme.sketch.bricks import ChartBrick
 
 from . import get_graph_model
 from .models import RootNode
@@ -49,6 +50,73 @@ class GraphBarHatBrick(Brick):
             dl_button = True
 
         return self._render(self.get_template_context(context, dl_button=dl_button))
+
+
+class RelationChartBrick(ChartBrick):
+    id_ = ChartBrick.generate_id('graphs', 'relation_chart')
+    verbose_name = _('Relationship graph')
+    dependencies = (RootNode,)
+    template_name = 'graphs/bricks/relation-chart.html'
+    target_ctypes = (get_graph_model(),)
+
+    enable_transition = False
+    enable_legend = True
+
+    node_fill_color = "white"
+    node_stroke_color = "#ccc"
+    node_stroke_size = 2
+    node_edgecount_step = 4
+    node_size = 5
+    node_text_color = "black"
+    edge_color_range = None
+
+    def get_chart_props(self, context):
+        return {
+            "transition": self.enable_transition,
+            "showLegend": self.enable_legend,
+            "nodeFillColor": self.node_fill_color,
+            "nodeStrokeColor": self.node_stroke_color,
+            "nodeTextColor": self.node_text_color,
+            "nodeStrokeSize": self.node_stroke_size,
+            "nodeEdgeCountStep": self.node_edgecount_step,
+            "nodeSize": self.node_size,
+            "edgeColors": self.edge_color_range,
+        }
+
+    def get_graph_chart_data(self, graph, user):
+        root_nodes = graph.get_root_nodes(user)
+
+        for node in root_nodes:
+            root_entity = node.real_entity
+            relations = sorted(
+                graph.get_root_node_relations(node, user),
+                key=lambda r: r.type.id
+            )
+
+            yield {
+                'id': root_entity.pk,
+                'label': str(root_entity),
+                'url': root_entity.get_absolute_url()
+            }
+
+            for relation in relations:
+                orbital_entity = relation.real_object
+
+                yield {
+                    'id': orbital_entity.pk,
+                    'parent': root_entity.pk,
+                    'label': str(orbital_entity),
+                    'relation': {
+                        'label': str(relation.type.predicate),
+                        'id': relation.type.id,
+                    },
+                    'url': orbital_entity.get_absolute_url(),
+                }
+
+    def get_chart_data(self, context):
+        return list(
+            self.get_graph_chart_data(context['object'], context['user'])
+        )
 
 
 class RootNodesBrick(QuerysetBrick):

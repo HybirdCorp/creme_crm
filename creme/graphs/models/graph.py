@@ -79,6 +79,29 @@ class AbstractGraph(CremeEntity):
     def get_lv_absolute_url():
         return reverse('graphs__list_graphs')
 
+    def get_root_nodes(self, user):
+        # NB: "self.roots.all()" causes a strange additional query
+        #     (retrieving of the base CremeEntity !)....
+        has_perm_to_view = user.has_perm_to_view
+        return [
+            root
+            # for root in RootNode.objects.filter(graph=self.id).select_related('entity')
+            for root in RootNode.objects.filter(graph=self.id).prefetch_related('real_entity')
+            if not root.entity.is_deleted and has_perm_to_view(root.entity)
+        ]
+
+    def get_root_node_relations(self, root, user):
+        subject = root.real_entity
+
+        relations = subject.relations.filter(
+            type__in=root.relation_types.all(),
+        ).select_related('type').prefetch_related('real_object')
+
+        return [
+            relation for relation in relations
+            if user.has_perm_to_view(relation.real_object)
+        ]
+
     def generate_png(self, user):
         from os.path import join
 
@@ -89,16 +112,7 @@ class AbstractGraph(CremeEntity):
         #     labels encoded as string
 
         graph = pgv.AGraph(directed=True)
-
-        # NB: "self.roots.all()" causes a strange additional query
-        #     (retrieving of the base CremeEntity !)....
-        has_perm_to_view = user.has_perm_to_view
-        roots = [
-            root
-            # for root in RootNode.objects.filter(graph=self.id).select_related('entity')
-            for root in RootNode.objects.filter(graph=self.id).prefetch_related('real_entity')
-            if not root.entity.is_deleted and has_perm_to_view(root.entity)
-        ]
+        roots = self.get_root_nodes(user)
 
         add_node = graph.add_node
         add_edge = graph.add_edge

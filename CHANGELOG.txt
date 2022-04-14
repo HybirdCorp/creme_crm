@@ -40,6 +40,8 @@
             - A "owner" field is now present in forms for of Contacts & Organisations.
         * Crudity :
             - The support of InfoPath files has been removed.
+        * Graphs :
+            - New 'Relationship graph' brick is available
 
   Developers side :
   -----------------
@@ -85,6 +87,7 @@
                 - 'creme_core-hatmenubar-view'
                 - 'creme_core-hatmenubar-update'
                 - 'creme_core-hatmenubar-form'
+            - Added 'creme.D3GraphRelationChart' that displays the relations between nodes of a graph.
         # Apps
             - Sketch : New application that integrates D3js tools for creme
                 * Added base bricks for the most common usecases.
@@ -95,6 +98,9 @@
                 * Added actions for sketch bricks
                    - 'sketch-download'
                    - 'sketch-popover'
+           - Graphs :
+                * Add "creme.sketch" as dependency
+                * New GraphRelationChartBrick that renders the relation graphs
 
     Breaking changes :
     ------------------
