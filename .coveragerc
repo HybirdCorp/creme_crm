@@ -1,8 +1,7 @@
 [run]
 branch = True
-# source = ~/creme_crm/creme/
-parallel = true
-concurrency=multiprocessing,threading
+parallel = True
+concurrency=multiprocessing
 data_file=artifacts/coverage
 
 [report]
