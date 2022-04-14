@@ -107,13 +107,16 @@ commands:
   run-creme-unit-tests:
     description: Run Creme unit tests
     steps:
-      # File .coveragerc is implicitly used by coverage.py (use argument "--rcfile" instead?)
-      - run: cp << pipeline.parameters.source_path >>/.circleci/circleci_coverage.ini .coveragerc
-      - run: COVERAGE_PROCESS_START=.coveragerc coverage run --source << pipeline.parameters.source_path >>/creme/ << pipeline.parameters.source_path >>/creme/manage.py test --settings=<< pipeline.parameters.instance_directory >>.settings --noinput --parallel=8 creme
-      - run: coverage combine
-      - run: coverage html
+      - run:
+          name: "Run tests with coverage"
+          command: |
+            COVERAGE_PROCESS_START=<< pipeline.parameters.source_path >>/.coveragerc;
+            coverage run --source << pipeline.parameters.source_path >>/creme/ --rcfile << pipeline.parameters.source_path >>/.coveragerc \
+            << pipeline.parameters.source_path >>/creme/manage.py test --settings=<< pipeline.parameters.instance_directory >>.settings --noinput --parallel=8 creme
+      - run: coverage combine --rcfile << pipeline.parameters.source_path >>/.coveragerc
+      - run: coverage html --rcfile << pipeline.parameters.source_path >>/.coveragerc
       - store_artifacts:
-          # NB: see .circleci/circleci_coverage.ini
+          # NB: see .coveragerc file
           path: artifacts/coverage_html
 
   setup-locale:
