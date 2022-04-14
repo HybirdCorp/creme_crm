@@ -46,7 +46,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-align: center;
 }
 
-/* PropertyTypes brick */
+/* PropertyTypes & RelationTypes brick */
 .creme_config-property-types-brick .property-label,
 .creme_config-property-types-brick .property-count {
     width: 15%;
@@ -57,8 +57,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     width: 100%;
 }
 
-/* RelationTypes bricks */
-
+.creme_config-property-types-brick .property-type-disabled,
+.creme_config-property-types-brick .property-type-disabled span.enumerator-empty,
 .creme_config-relation-types-brick .relation-type-disabled,
 .creme_config-relation-types-brick .relation-type-disabled span.enumerator-empty {
     background: #e5ecef !important;

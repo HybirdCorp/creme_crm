@@ -24,7 +24,7 @@
 {% block brick_table_rows %}
 {% has_perm_to admin 'creme_core' as admin_perm %}
     {% for prop_type in page.object_list %}
-    <tr>
+    <tr {% if not prop_type.enabled %}class="property-type-disabled"{% endif %} >
         <td {% brick_table_data_status primary %} class="property-label">{% widget_hyperlink prop_type %}</td>
         <td class="property-subjects">
             {% widget_enumerator prop_type.subject_ctypes.all|uca_sort threshold=8 empty=_('No related type of resource') summary=_('{count} types of resource') %}
