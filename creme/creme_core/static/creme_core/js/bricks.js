@@ -284,11 +284,11 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 
         this._element = element;
 
-        element.delegate('.row-selector-all', 'change', function(e) {
+        element.on('change', '.row-selector-all', function(e) {
             self.toggleSelectionAll($(this).prop('checked'));
         });
 
-        element.delegate('td[data-selectable-selector-column]', 'click', function(e) {
+        element.on('click', 'td[data-selectable-selector-column]', function(e) {
             var row = $(this).parents('tr').first();
             var index = parseInt(row.attr('data-row-index'));
             self.toggleSelection(index, !row.is('.is-selected'));
@@ -298,7 +298,7 @@ creme.bricks.BrickTable = creme.component.Component.sub({
             self._updateSelectionState();
         });
 
-        element.delegate('.brick-table-sortable', 'click', function(e) {
+        element.on('click', '.brick-table-sortable', function(e) {
             var link = $(this);
 
             self.toggleSort(link.attr('data-sort-field'),
