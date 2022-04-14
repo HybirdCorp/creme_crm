@@ -23,8 +23,8 @@ commands:
     steps:
       - restore_cache:
           keys:
-            - <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
-            - <<parameters.python>>-creme_crm
+            - <<parameters.python>>-creme_crm-v2.2-{{ checksum "setup.cfg" }}
+            - <<parameters.python>>-creme_crm-v2.2
 
       - run: <<parameters.python>> -m venv ~/venv
       # Require setuptools v46.4.0 at least
@@ -36,7 +36,7 @@ commands:
       - run: pip list --outdated
 
       - save_cache:
-          key: <<parameters.python>>-creme_crm-{{ checksum "setup.cfg" }}
+          key: <<parameters.python>>-creme_crm-v2.2-{{ checksum "setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -71,10 +71,15 @@ commands:
             echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
+
+orbs:
+  browser-tools: circleci/browser-tools@1.2.5
+
+
 jobs:
   python36-lint-isort:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.6-browsers
     steps:
       - checkout
       - install-creme-system-packages
@@ -85,7 +90,7 @@ jobs:
 
   python36-lint-flake8:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.6-browsers
     steps:
       - checkout
       - install-creme-system-packages
@@ -96,8 +101,8 @@ jobs:
 
   python36-tests-mysql:
     docker:
-      - image: circleci/python:3.6-browsers
-      - image: circleci/mysql:5.7-ram
+      - image: cimg/python:3.6-browsers
+      - image: cimg/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: creme
           MYSQL_DATABASE: cremecrm
@@ -130,8 +135,8 @@ jobs:
 
   python36-tests-pgsql:
     docker:
-      - image: circleci/python:3.6-browsers
-      - image: circleci/postgres:12-ram
+      - image: cimg/python:3.6-browsers
+      - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
           POSTGRES_PASSWORD: creme
@@ -163,7 +168,7 @@ jobs:
 
   python36-tests-sqlite3:
     docker:
-      - image: circleci/python:3.6-browsers
+      - image: cimg/python:3.6-browsers
     resource_class: large
     steps:
       - checkout
@@ -189,7 +194,7 @@ jobs:
 
   python37-tests-sqlite3:
     docker:
-      - image: circleci/python:3.7-browsers
+      - image: cimg/python:3.7-browsers
     resource_class: large
     steps:
       - checkout
@@ -215,7 +220,7 @@ jobs:
 
   python38-tests-sqlite3:
     docker:
-      - image: circleci/python:3.8-browsers
+      - image: cimg/python:3.8-browsers
     resource_class: large
     steps:
       - checkout
@@ -241,7 +246,7 @@ jobs:
 
   python39-tests-sqlite3:
     docker:
-      - image: circleci/python:3.9-browsers
+      - image: cimg/python:3.9-browsers
     resource_class: large
     steps:
       - checkout
@@ -267,7 +272,7 @@ jobs:
 
   javascript-lint:
     docker:
-     - image: circleci/python:3.6-node-browsers
+     - image: cimg/python:3.6-node
     steps:
       - checkout
       - install-node-env
@@ -276,8 +281,9 @@ jobs:
 
   javascript-tests:
     docker:
-     - image: circleci/python:3.6-node-browsers
+     - image: cimg/python:3.6-browsers
     steps:
+      - browser-tools/install-browser-tools
       - checkout
       - install-creme-system-packages
       - install-py-dev-env:
