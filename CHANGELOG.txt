@@ -30,6 +30,11 @@
 
   Developers side :
   -----------------
+    - jQuery 3.6.0 migration :
+        - Remove 'jquery.uuid' & 'jquery.debounce' (replaced by underscore)
+        - New dependency 'underscorejs 1.13.2'
+        - The version of 'floathead' is now "2.2.4".
+        - The version of 'jquery-ui' is now "1.13.1".
 
     Non breaking changes :
     ----------------------
@@ -86,6 +91,8 @@
                 - 'creme.form.Select' has been removed.
                 - All 'creme.layout.Layout' classes have been removed :
                   Layout, ColumnSortLayout, CSSColumnLayout, SortLayout
+                - '$.uidGen' has been removed; use '_.uniqueId' instead.
+                - 'creme.utils.debounce' has been removed; use '_.debounce' instead.
             - Apps :
                 * Persons :
                     - The function 'forms.base._get_address_field_names()' has been removed.
