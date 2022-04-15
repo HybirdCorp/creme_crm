@@ -42,6 +42,23 @@
     {% brick_header_action id='refresh' label=_('Reload') icon='reload' %}
 {% endblock %}
 
+{% block brick_before_content %}
+  {% with hand=graph.hand %}
+    {% if hand.abscissa_error is not None %}
+      <div class="global-error">
+          {% blocktranslate with error=hand.abscissa_error %}Beware: there is an error with the X axis: {{error}}{% endblocktranslate %}
+      </div>
+    {% endif %}
+    {% with ordinate=hand.ordinate %}
+      {% if ordinate.error is not None %}
+      <div class="global-error">
+          {% blocktranslate with error=ordinate.error %}Beware: there is an error with the Y axis: {{error}}{% endblocktranslate %}
+      </div>
+      {% endif %}
+    {% endwith %}
+  {% endwith %}
+{% endblock %}
+
 {% block brick_content %}
     {% if x %}
     <div class="brick-graph-header clearfix">
