@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-08 17:00+0200\n"
+"POT-Creation-Date: 2025-06-04 18:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -58,6 +58,9 @@ msgstr "Formulaire pour le rôle «{role}»"
 
 msgid "Default form"
 msgstr "Formulaire par défaut"
+
+msgid "Workflows"
+msgstr "Workflows"
 
 msgid "Users"
 msgstr "Utilisateurs"
@@ -957,6 +960,19 @@ msgstr "Créer"
 
 msgid "Cannot create"
 msgstr "Création interdite"
+
+msgid "Trigger"
+msgstr "Déclenchment"
+
+msgid "Which kind of event will trigger the Workflow?"
+msgstr "Quel type d'évènement va déclencher le Workflow ?"
+
+#, python-brace-format
+msgid "Conditions on «{source}»"
+msgstr "Conditions de «%(source)s»"
+
+msgid "Type of action"
+msgstr "Type d'action"
 
 msgid "The file is too large (maximum size: {} bytes)"
 msgstr "Le fichier est trop gros (taille maximum : {} octets)"
@@ -2054,6 +2070,47 @@ msgstr "Supprimer cet utilisateur"
 msgid "No user found"
 msgstr "Aucun utilisateur trouvé"
 
+#, python-brace-format
+msgid "{count} Configurables types of resource"
+msgstr "{count} Types de ressource configurables"
+
+msgid "Configurable types of resource"
+msgstr "Types de ressource configurés"
+
+#, python-format
+msgid "Create a Workflow for «%(ctype)s»"
+msgstr "Créer un Workflow pour «%(ctype)s»"
+
+msgid "Rename"
+msgstr "Renommer"
+
+msgid "Edit the conditions"
+msgstr "Modifier les conditions"
+
+msgid "No condition"
+msgstr "Pas de condition"
+
+#, python-format
+msgid "%(counter)s Action"
+msgid_plural "%(counter)s Actions"
+msgstr[0] "%(count)s Action"
+msgstr[1] "%(count)s Actions"
+
+msgid "Add an action"
+msgstr "Ajouter une action"
+
+msgid "Edit this action"
+msgstr "Modifier cette action"
+
+msgid "Delete this action"
+msgstr "Supprimer cette action"
+
+msgid "No Workflow for this type of resource"
+msgstr "Pas de Workflow pour ce type de ressource"
+
+msgid "No Workflow for the moment"
+msgstr "Aucun Workflow pour le moment"
+
 msgid "Key"
 msgstr "Clé"
 
@@ -2199,6 +2256,13 @@ msgstr "Gestion des formulaires personnalisés"
 
 msgid "Customise the forms (which fields, their order…) of entities"
 msgstr "Personnaliser les formulaires (quels champs, leur ordre…) des fiches"
+
+msgid "Workflow rules settings"
+msgstr "Gestion des règles de Workflow"
+
+msgid "Define automatic actions (adding properties, sending emails…)"
+msgstr ""
+"Définir des actions automatiques (ajout de propriété, envoi d'e-mails…)"
 
 msgid "Blocks settings"
 msgstr "Gestion des blocs"
@@ -2444,6 +2508,25 @@ msgstr ""
 
 msgid "Configuration of users"
 msgstr "Configuration des utilisateurs"
+
+msgid "Configuration of the Workflow engine"
+msgstr "Configuration du moteur de Workflow"
+
+msgid "Workflow rules"
+msgstr "Règles de Workflow"
+
+msgid ""
+"You can define how and when some automatic actions (like relationship adding "
+"or email sending) are performed, in order to avoid some manual work.\n"
+"Notice than Workflows which <strong>have just been created are disabled</"
+"strong>; so you can add as much as actions you want before you enable them."
+msgstr ""
+"Vous pouvez définir comment et quand des actions automatiques (comme l'ajout "
+"de relation ou l'envoi d'e-mail) sont effectuées, afin d'éviter du travail "
+"manuel.\n"
+"Notez que les Workflows qui <strong>viennent d'être créés sont désactivés</"
+"strong> ; vous pouvez donc ajouter autant d'actions que vous voulez avant de "
+"les activer."
 
 msgid "Configuration of the instance"
 msgstr "Configuration de l'instance"
@@ -2825,6 +2908,40 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 msgid "Your are not allowed to change your displayed name"
 msgstr "Vous n'avez pas la permission de modifier votre nom affiché"
 
+#, python-brace-format
+msgid "Create a Workflow for «{model}»"
+msgstr "Créer un Workflow pour «{model}»"
+
+#, python-brace-format
+msgid "Rename «{object}»"
+msgstr "Renommer «{object}»"
+
+msgid "This Workflow cannot be deleted"
+msgstr "Ce Workflow ne peut pas être supprimé"
+
+#. Translators: 'object' is a Workflow
+#, python-brace-format
+msgid "Add an action to «{object}»"
+msgstr "Ajouter une action à «{object}»"
+
+msgid "This Workflow cannot be edited"
+msgstr "Ce Workflow ne peut pas être modifié"
+
+#. Translators: 'object' is a Workflow
+#, python-brace-format
+msgid "Edit the conditions of «{object}»"
+msgstr "Modifier les conditions de «{object}»"
+
+#, python-brace-format
+msgid "Edit the action «{action}»"
+msgstr "Modifier l'action «{action}»"
+
+msgid "This action does not exist anymore"
+msgstr "Cette action n'existe plus"
+
+msgid "This action is invalid (refresh your page)"
+msgstr "Cette action est invalide (rafraichissez vitre page)"
+
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
 
@@ -3052,9 +3169,6 @@ msgstr "Modifier la configuration de l'instance"
 
 #~ msgid "Applications credentials settings"
 #~ msgstr "Gestion des droits des applications"
-
-#~ msgid "Roles settings"
-#~ msgstr "Gestion des rôles"
 
 #~ msgid "Creme applications credentials"
 #~ msgstr "Droits des applications Creme"

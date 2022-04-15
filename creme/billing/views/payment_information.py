@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,13 @@
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 from creme.persons import get_organisation_model
 
 from ... import billing
@@ -109,6 +111,7 @@ class PaymentInformationAsDefault(generic.base.EntityRelatedMixin, generic.Check
         )
 
     @atomic
+    @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
         pi = self.get_payment_information()
         billing_doc = self.get_related_entity()

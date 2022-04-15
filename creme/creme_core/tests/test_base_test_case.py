@@ -215,7 +215,7 @@ class BaseTestCaseTestCase(CremeTestCase):
         with self.assertRaises(self.failureException) as cm1:
             self.assertFormInstanceErrors(form2, ('extra', 'What ever'))
         self.assertEqual(
-            'The error "extra" has not been found in the form (fields: [])',
+            'The error "extra" has not been found in the form (fields with errors: [])',
             str(cm1.exception),
         )
 

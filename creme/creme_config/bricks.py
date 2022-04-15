@@ -543,6 +543,53 @@ class CustomFormsBrick(PaginatedBrick):
         ))
 
 
+class WorkflowsBrick(PaginatedBrick):
+    id = _ConfigAdminBrick.generate_id('creme_config', 'workflows')
+    verbose_name = _('Workflows')
+    dependencies = (core_models.Workflow,)
+    template_name = 'creme_config/bricks/workflows.html'
+    page_size = _PAGE_SIZE
+    configurable = False
+
+    def detailview_display(self, context):
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because teh instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'workflows')
+
+            def __init__(this, ctype):
+                this.ctype = ctype
+                this.workflows = ()
+
+        ctypes = [_ContentTypeWrapper(ctype) for ctype in entity_ctypes()]
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+
+        btc = self.get_template_context(context, ctypes)
+
+        ctypes_wrappers = btc['page'].object_list
+        user = btc['user']
+
+        workflow_map = defaultdict(list)
+        for workflow in core_models.Workflow.objects.filter(
+            content_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ).order_by('id'):
+            workflow.rendered_actions = [
+                action.render(user=user) for action in workflow.actions
+            ]
+            workflow.rendered_conditions = [
+                *workflow.conditions.descriptions(user=user),
+            ]
+
+            workflow_map[workflow.content_type_id].append(workflow)
+
+        for ctw in ctypes_wrappers:
+            ctw.workflows = workflow_map[ctw.ctype.id]
+
+        return self._render(btc)
+
+
 class UsersBrick(_ConfigAdminBrick):
     id = _ConfigAdminBrick.generate_id('creme_config', 'users')
     verbose_name = _('Users')
@@ -558,7 +605,6 @@ class UsersBrick(_ConfigAdminBrick):
             users = users.exclude(is_staff=True)
 
         hide_inactive = BrickManager.get(context).get_state(
-            # brick_id=self.id_,
             brick_id=self.id,
             user=context['user'],
         ).get_extra_data(constants.BRICK_STATE_HIDE_INACTIVE_USERS)

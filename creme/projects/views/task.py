@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from creme import projects
 from creme.activities import get_activity_model
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
@@ -90,7 +91,9 @@ class ParentRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
 
     def perform_deletion(self, request):
         parent_id = get_from_POST_or_404(request.POST, self.parent_id_arg)
-        self.get_related_entity().parent_tasks.remove(parent_id)
+
+        with atomic(), run_workflow_engine(user=request.user):
+            self.get_related_entity().parent_tasks.remove(parent_id)
 
 
 class ActivityEditionPopup(generic.EntityEditionPopup):

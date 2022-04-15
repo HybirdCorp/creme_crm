@@ -99,6 +99,21 @@
     color: #f06060;
 }
 
+.brick .brick-content p.errorlist,
+.brick .brick-content span.errorlist {
+    padding: 2px;
+    margin: 2px;
+}
+
+.brick .brick-content p.warninglist,
+.brick .brick-content span.warninglist {
+    border: 1px solid #f3b292;
+    background: #fffdad;
+    margin: 3px;
+    padding: 2px;
+    color: #d34905;
+}
+
 /* blocks end */
 
 /* block menu */
@@ -1426,6 +1441,13 @@ svg.icon {
 .creme_core-history-brick .history-line.history-line-auxiliary_edition .field-change-old_value,
 .creme_core-history-brick .history-line.history-line-auxiliary_edition .field-change-new_value {
     font-weight: 600;
+}
+
+.creme_core-history-brick .history-line-workflow {
+    cursor: help;
+
+    font-style: italic;
+    color: #777;
 }
 
 .popover-content .history-line-field-change-text-old_value {

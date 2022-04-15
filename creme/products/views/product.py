@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,13 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+from django.db.transaction import atomic
 
 # import warnings
 # from django.shortcuts import get_object_or_404
 from creme import products
 # from creme.creme_core.auth.decorators import login_required
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.utils import get_from_POST_or_404
 # from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import generic
@@ -58,7 +60,9 @@ class ImageRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
 
     def perform_deletion(self, request):
         img_id = get_from_POST_or_404(request.POST, self.image_id_arg, cast=int)
-        self.get_related_entity().images.remove(img_id)
+
+        with atomic(), run_workflow_engine(user=request.user):
+            self.get_related_entity().images.remove(img_id)
 
 
 class ProductCreation(generic.EntityCreation):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,7 @@ def _set_null_calendar_on_delete_participant(sender, instance, **kwargs):
             activity.calendars.remove(calendar_id)
 
 
+# TODO: convert as Workflow? it would need a "multi-sources" action
 @receiver(
     signals.post_save,
     sender=Relation, dispatch_uid='activities-manage_auto_subject_organisation',

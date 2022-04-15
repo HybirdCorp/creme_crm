@@ -8,6 +8,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.timezone import now
 
+from creme.creme_core import workflows
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -31,6 +33,7 @@ from creme.creme_core.models import (
     HistoryLine,
     Relation,
     RelationType,
+    Workflow,
 )
 from creme.creme_core.models.history import (
     TYPE_AUX_CREATION,
@@ -125,7 +128,7 @@ class HistoryTestCase(CremeTestCase):
     def _get_hlines():
         return [*HistoryLine.objects.order_by('id')]
 
-    def test_creation01(self):
+    def test_creation(self):
         other_user = self.create_user(1)
         user = self._simple_login()
 
@@ -1092,7 +1095,7 @@ about this fantastic animation studio."""
         self.assertEqual(edition_hline.id,   hline.related_line.id)
         self.assertListEqual([], hline.modifications)
 
-    def test_add_property01(self):
+    def test_add_property(self):
         user = self.user
 
         gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
@@ -1111,8 +1114,9 @@ about this fantastic animation studio."""
         self.assertListEqual([ptype.id], hline.modifications)
         self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
+        self.assertIs(hline.by_wf_engine, False)
 
-    def test_delete_property01(self):
+    def test_delete_property(self):
         user = self.user
         gainax = self.create_old(FakeOrganisation, user=user, name='Gainax')
         old_count = HistoryLine.objects.count()
@@ -1937,3 +1941,36 @@ about this fantastic animation studio."""
         self.assertIsNone(rline1)
         self.assertEqual(hlines[2], rline2)
         self.assertEqual(hlines[1], rline3)
+
+    def test_workflow(self):
+        user = self.user
+        ptype = CremePropertyType.objects.create(text='Is cool')
+
+        model = FakeOrganisation
+        source = workflows.CreatedEntitySource(model=model)
+        Workflow.objects.create(
+            title='Edited Corporations are cool',
+            content_type=model,
+            trigger=workflows.EntityCreationTrigger(model=model),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        old_count = HistoryLine.objects.count()
+
+        with run_workflow_engine(user=user):
+            gainax = FakeOrganisation.objects.create(user=user, name='Gainax')
+
+        self.assertHasProperty(entity=gainax, ptype=ptype)
+
+        hlines = self._get_hlines()
+        self.assertEqual(old_count + 2, len(hlines))
+
+        creation_line = hlines[-2]
+        self.assertEqual(TYPE_CREATION, creation_line.type)
+        self.assertIs(creation_line.by_wf_engine, False)
+
+        prop_hline = hlines[-1]
+        self.assertEqual(gainax.id,     prop_hline.entity.id)
+        self.assertEqual(TYPE_PROP_ADD, prop_hline.type)
+        self.assertListEqual([ptype.id], prop_hline.modifications)
+        self.assertIs(prop_hline.by_wf_engine, True)

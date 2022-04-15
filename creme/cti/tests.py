@@ -26,14 +26,9 @@ Organisation = get_organisation_model()
 Activity = get_activity_model()
 
 
-class CTITestCase(CremeTestCase, BrickTestCaseMixin):
+class CTITestCase(BrickTestCaseMixin, CremeTestCase):
     RESPOND_URL = reverse('cti__respond_to_a_call')
-
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-
-        cls.ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
+    ADD_PCALL_URL = reverse('cti__create_phonecall_as_caller')
 
     @staticmethod
     def _build_add_pcall_url(contact):

@@ -851,6 +851,8 @@ class HistoryLine(Model):
     type  = models.PositiveSmallIntegerField(_('Type'))  # See TYPE_*
     value = models.TextField(null=True)  # TODO: use a JSONField ? (see EntityFilter)
 
+    by_wf_engine = models.BooleanField(_('Action of Workflow engine'), default=False)
+
     _line_type: _HistoryLineType | None = None
     _entity_repr: str | None = None
     _modifications: list | None = None
@@ -1068,13 +1070,13 @@ class HistoryLine(Model):
         return self._related_line
 
     @classmethod
-    def _create_line_4_instance(
-            cls,
-            instance,
-            ltype: int,
-            date=None,
-            modifs=(),
-            related_line_id=None):
+    def _create_line_4_instance(cls,
+                                instance,
+                                ltype: int,
+                                date=None,
+                                modifs=(),
+                                related_line_id=None,
+                                ):
         """Builder.
         @param ltype: See TYPE_*
         @param date: If not given, will be 'now'.
@@ -1103,9 +1105,13 @@ class HistoryLine(Model):
             raise ValueError('Argument "update_fields" not managed.')
 
         if is_history_enabled():
+            from ..core.workflow import WorkflowEngine
+
             # if self.pk is None: TODO ?
             user = get_global_info('user')
             self.username = user.username if user else ''
+
+            self.by_wf_engine = WorkflowEngine.get_current().is_executing_actions
 
             super().save(
                 force_insert=force_insert,

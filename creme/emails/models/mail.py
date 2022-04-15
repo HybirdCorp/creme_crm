@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,10 +43,10 @@ ID_LENGTH = 32
 
 class _Email(CremeModel):
     class Status(models.IntegerChoices):
-        SENT                 = 1, pgettext_lazy('emails', 'Sent'),
-        NOT_SENT             = 2, pgettext_lazy('emails', 'Not sent'),
-        SENDING_ERROR        = 3, _('Sending error'),
-        SYNCHRONIZED         = 4, pgettext_lazy('emails', 'Synchronized'),
+        SENT          = 1, pgettext_lazy('emails', 'Sent'),
+        NOT_SENT      = 2, pgettext_lazy('emails', 'Not sent'),
+        SENDING_ERROR = 3, _('Sending error'),
+        SYNCHRONIZED  = 4, pgettext_lazy('emails', 'Synchronized'),
 
     reads = models.PositiveIntegerField(
         _('Number of reads'), null=True, default=0, editable=False,
@@ -70,7 +70,7 @@ class _Email(CremeModel):
 
     def __str__(self):
         return (
-            f'Mail<from: {self.sender}> '
+            f'{type(self).__name__}<from: {self.sender}> '
             f'<to: {self.recipient}> '
             f'<sent: {self.sending_date}> '
             f'<id: {self.id}>'

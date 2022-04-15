@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,12 @@
 
 from django.db.transaction import atomic
 from django.shortcuts import redirect
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 
 from .. import custom_forms, get_project_model
 from ..constants import DEFAULT_HFILTER_PROJECT
@@ -37,6 +39,7 @@ class ProjectClosure(generic.base.EntityRelatedMixin, generic.CheckedView):
     entity_select_for_update = True
 
     @atomic
+    @method_decorator(workflow_engine)
     def post(self, *args, **kwargs):
         project = self.get_related_entity()
 

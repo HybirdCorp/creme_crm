@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021-2024  Hybird
+#    Copyright (C) 2021-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -117,6 +117,12 @@ class WorldConfigEntry(_ConfigURLEntry):
     id = 'creme_config-world'
     label = _('Instance')
     url_name = 'creme_config__world_settings'
+
+
+class WorkflowsConfigEntry(_ConfigURLEntry):
+    id = 'creme_config-workflows'
+    label = _('Workflows')
+    url_name = 'creme_config__workflows'
 
 
 class BricksConfigEntry(_ConfigURLEntry):
@@ -277,6 +283,7 @@ class CremeConfigEntry(menu.ContainerEntry):
         CustomEntityTypesConfigEntry,
         FieldsConfigEntry,
         CustomFormsConfigEntry,
+        WorkflowsConfigEntry,
         HistoryConfigEntry,
         MenuConfigEntry,
         NotificationConfigEntry,

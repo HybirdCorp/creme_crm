@@ -1059,8 +1059,9 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     text-decoration: line-through;
 }
 
-/* EntityFilters & HeaderFilters bricks */
+/* EntityFilters, HeaderFilters, Workflows bricks */
 
+.creme_config-workflows-brick .workflow-config-item,
 .creme_config-entityfilters-brick .entityfilter-config-item,
 .creme_config-headerfilters-brick .headerfilter-config-item {
     padding: 5px;
@@ -1069,17 +1070,20 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     font-size: 11px;
 }
 
+.creme_config-workflows-brick .workflow-config-item + .workflow-config-item,
 .creme_config-entityfilters-brick .entityfilter-config-item + .entityfilter-config-item,
 .creme_config-headerfilters-brick .headerfilter-config-item + .headerfilter-config-item {
     margin-top: 0;
     border-top: 1px solid #bdd3dc;
 }
 
+.creme_config-workflows-brick .workflow-config-summary-group,
 .creme_config-entityfilters-brick .entityfilter-config-summary-group,
 .creme_config-headerfilters-brick .headerfilter-config-summary-group {
     display: flex;
 }
 
+.creme_config-workflows-brick .workflow-config-group-title,
 .creme_config-entityfilters-brick .entityfilter-config-group-title,
 .creme_config-headerfilters-brick .headerfilter-config-group-title {
     flex-grow: 1;
@@ -1089,6 +1093,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     align-self: center;
 }
 
+.creme_config-workflows-brick .workflow-config-content-group,
 .creme_config-entityfilters-brick .entityfilter-config-content-group,
 .creme_config-headerfilters-brick .headerfilter-config-content-group {
     display: flex;
@@ -1131,16 +1136,19 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     opacity: 0.55;
 }
 
+.creme_config-workflows-brick .workflow-config .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li .brick-action,
 .creme_config-headerfilters-brick .headerfilter-config-group li .brick-action {
     visibility: hidden;
 }
 
+.creme_config-workflows-brick .workflow-config:hover .brick-action,
 .creme_config-entityfilters-brick .entityfilter-config-group li:hover .brick-action,
 .creme_config-headerfilters-brick .headerfilter-config-group li:hover .brick-action {
     visibility: visible;
 }
 
+.creme_config-workflows-brick .empty-message,
 .creme_config-entityfilters-brick .empty-message,
 .creme_config-headerfilters-brick .empty-message {
     padding-top: 3px;
@@ -1149,6 +1157,72 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     font-size: 12px;
     font-style: italic;
     color: #777;
+}
+
+/* Workflow brick */
+
+.creme_config-workflows-brick .workflow-config {
+    width: 400px;
+
+    margin: 3px;
+    padding: 5px;
+
+    border-radius: 6px;
+    background: #f3fafd;
+
+    color: #2b4058;
+}
+
+.creme_config-workflows-brick .workflow-config.workflow-disabled {
+    color: grey;
+}
+
+.creme_config-workflows-brick .workflow-config-global_buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+.creme_config-workflows-brick .workflow-config-title {
+    margin-top: 5px;
+
+    text-transform: uppercase;
+    font-weight: normal;
+    font-size: 11px;
+}
+
+.creme_config-workflows-brick .workflow-config-title .brick-action {
+    padding-left: 10px;
+}
+
+.creme_config-workflows-brick .workflow-config-content {
+    padding-left: 5px;
+}
+
+.creme_config-workflows-brick .workflow-config-content h4 {
+    margin-bottom: 5px;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions-contents,
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents {
+    margin: 0px;
+    padding: 0px;
+
+    list-style: none;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-conditions-content-empty {
+    font-style: italic;
+    color: #909ca1;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-contents ul {
+    padding-left: 25px;
+}
+
+.creme_config-workflows-brick .workflow-config-content .workflow-config-wf_actions-content {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
 }
 
 /* HistoryConfig brick */

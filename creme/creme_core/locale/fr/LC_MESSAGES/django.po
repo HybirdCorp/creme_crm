@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-04-08 19:10+0200\n"
+"POT-Creation-Date: 2025-06-17 12:21+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -679,6 +679,42 @@ msgstr "Valeur"
 
 msgid "Enter a valid HTML color."
 msgstr "Saisissez une couleur HTML valide."
+
+#, python-brace-format
+msgid "Error ({message})"
+msgstr "Erreur ({message})"
+
+#, python-brace-format
+msgid "Conditions on «{source}»:"
+msgstr "Conditions sur «{source}» :"
+
+#, python-brace-format
+msgid "No condition on «{source}»"
+msgstr "Pas de condition sur «{source}»"
+
+#, python-brace-format
+msgid "The type of action «{type}» is invalid (uninstalled app?)"
+msgstr "Le type d'action «{type}» est invalide (app désinstallée ?)"
+
+#, python-brace-format
+msgid "The action «{name}» is broken (original error: {error})"
+msgstr "L'action «{name}» est cassée (erreur originale : {error})"
+
+#, python-brace-format
+msgid "The type of source «{type}» is invalid (uninstalled app?)"
+msgstr "Le type de source «{type}» est invalide (app désinstallée ?)"
+
+#, python-brace-format
+msgid "The source «{name}» is broken (original error: {error})"
+msgstr "La source «{name}» est cassée (erreur originale : {error})"
+
+#, python-brace-format
+msgid "The type of trigger «{type}» is invalid (uninstalled app?)"
+msgstr "Le type de déclenchement «{type}» est invalide (app désinstallée ?)"
+
+#, python-brace-format
+msgid "The trigger «{name}» is broken (original error: {error})"
+msgstr "Le déclenchement «{name}» est cassé (erreur originale : {error})"
 
 msgid "Batch process"
 msgstr "Traitement par lots"
@@ -1508,6 +1544,48 @@ msgstr "Valeur indisponible ? Remplissez ici !"
 
 msgid "Clear the current file"
 msgstr "Effacer le fichier courant"
+
+msgid "This type of relationship does not exist or causes a constraint error"
+msgstr "Ce type de relation n'existe pas ou provoque une erreur de contrainte"
+
+msgid "This type of entity causes a constraint error"
+msgstr "Ce type de relation provoque une erreur de contrainte"
+
+msgid "Entity which receives the property"
+msgstr "Fiche qui reçoit la propriété"
+
+msgid "Property type"
+msgstr "Type de propriété"
+
+msgid "Adding a property"
+msgstr "Ajouter une propriété"
+
+msgid "This property type is not compatible with the chosen type of entity."
+msgstr ""
+"Ce type de propriété n'est pas compatible avec le type de fiche choisi."
+
+msgid "Entity which becomes the subject"
+msgstr "Fiche qui devient le sujet"
+
+msgid "Relationship type"
+msgstr "Type de relation"
+
+msgid "Entity which becomes the object"
+msgstr "Fiche qui devient l'objet'"
+
+msgid "Adding a relationship"
+msgstr "Ajouter une relation"
+
+msgid "You cannot use the same subject & object."
+msgstr "Vous ne pouvez pas utiliser les mêmes sujet & objet."
+
+msgid ""
+"This relationship type is not compatible with the chosen type of subject."
+msgstr "Ce type de relation n'est pas compatible avec le type de sujet choisi."
+
+msgid ""
+"This relationship type is not compatible with the chosen type of object."
+msgstr "Ce type de relation n'est pas compatible avec le type d'objet choisi."
 
 msgid "* no property *"
 msgstr "* pas de propriété *"
@@ -2601,6 +2679,9 @@ msgstr "Auxiliaire (suppression)"
 msgid "Type"
 msgstr "Type"
 
+msgid "Action of Workflow engine"
+msgstr "Action du moteur de Workflow"
+
 msgid "Line of history"
 msgstr "Ligne d'historique"
 
@@ -2781,6 +2862,18 @@ msgstr "Par défaut ?"
 
 msgid "Create a VAT value"
 msgstr "Créer une valeur de TVA"
+
+msgid "Title"
+msgstr "Titre"
+
+msgid "Create a Workflow"
+msgstr "Créer un Workflow"
+
+msgid "Save the Workflow"
+msgstr "Enregistrer le Workflow"
+
+msgid "Workflows"
+msgstr "Workflows"
 
 msgid "Menu icon"
 msgstr "Icône du menu"
@@ -3099,6 +3192,17 @@ msgstr "Modifications"
 
 msgid "By"
 msgstr "Par"
+
+#, python-format
+msgid ""
+"This action has been performed by the Workflow engine, which has been "
+"triggered by another action of the user «%(user)s»"
+msgstr ""
+"Cette action a été effectuée par le moteur de Workflow, qui a été "
+"déclenché par une autre action de l'utilisateur «%(user)s»"
+
+msgid "Workflow"
+msgstr "Workflow"
 
 msgid "No history for the moment"
 msgstr "Aucun historique pour le moment"
@@ -3435,9 +3539,6 @@ msgstr "Voulez-vous vraiment supprimer ce filtre ?"
 
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
-
-msgid "Property type"
-msgstr "Type de propriété"
 
 msgid "Disabled"
 msgstr "Désactivé"
@@ -4345,8 +4446,156 @@ msgstr "Veuillez entrer au moins {count} caractères"
 msgid "Empty search…"
 msgstr "Recherche vide…"
 
-#~ msgid "Conditions of «%(efilter)s»"
-#~ msgstr "Conditions du filtre «%(efilter)s»"
+#, python-brace-format
+msgid "The model «{key}» is invalid"
+msgstr "Le model «{key}» est valide"
+
+msgid "An entity has been created"
+msgstr "Une fiche a été créée"
+
+#, python-brace-format
+msgid "A «{model}» has been created"
+msgstr "Un(e) «{model}» a été créé(e)"
+
+msgid "An entity has been modified"
+msgstr "Une fiche a été modifiée"
+
+#, python-brace-format
+msgid "A «{model}» has been modified"
+msgstr "Un(e) «{model}» a été mis(e) à jour"
+
+msgid "A property has been added"
+msgstr "Une propriété a été ajoutée"
+
+#, python-brace-format
+msgid "A property «{label}» has been added"
+msgstr "Une propriété «{label}» a été ajoutée"
+
+msgid "The property type does not exist anymore"
+msgstr "Le type de propriété n'existe plus"
+
+msgid "A relationship has been added"
+msgstr "Une relation a été ajoutée"
+
+#, python-brace-format
+msgid "A relationship «{predicate}» has been added to a «{model}»"
+msgstr "Une relation «{predicate}» a été ajoutée à une fiche «{model}»"
+
+msgid "The relationship type does not exist anymore"
+msgstr "Le type de relation n'existe plus"
+
+msgid "Created entity"
+msgstr "Fiche créée"
+
+#, python-brace-format
+msgid "Created entity ({type})"
+msgstr "Fiche créée ({type})"
+
+msgid "Modified entity"
+msgstr "Fiche modifiée"
+
+#, python-brace-format
+msgid "Modified entity ({type})"
+msgstr "Fiche modifiée ({type})"
+
+msgid "Received a new property"
+msgstr "A reçu une nouvelle propriété"
+
+#, python-brace-format
+msgid "Received a new property ({type})"
+msgstr "A reçu une nouvelle propriété ({type})"
+
+msgid "Subject of the created relationship"
+msgstr "Sujet de la relation créée"
+
+#, python-brace-format
+msgid "Subject of the created relationship ({type})"
+msgstr "Sujet de la relation créée ({type})"
+
+msgid "Object of the created relationship"
+msgstr "Objet de la relation créée"
+
+#, python-brace-format
+msgid "Object of the created relationship ({type})"
+msgstr "Objet de la relation créée ({type})"
+
+msgid "Fixed entity"
+msgstr "Fiche fixe"
+
+#, python-brace-format
+msgid "The «{model}» does not exist anymore"
+msgstr "La fiche «{model}» n'existe plus"
+
+#, python-brace-format
+msgid "A fixed «{model}»"
+msgstr "Une fiche «{model}» fixe"
+
+#. Translators: "it" means "model"
+msgid "It does not exist anymore"
+msgstr "La fiche n'existe plus"
+
+#, python-brace-format
+msgid "The fixed «{model}» does not exist anymore"
+msgstr "La fiche «{model}» n'existe plus"
+
+msgid "(fixed entity)"
+msgstr "(fiche fixe)"
+
+#, python-brace-format
+msgid "Fixed entity «{entity}» [deleted]"
+msgstr "Fiche fixe «{entity}» [supprimée]"
+
+#, python-brace-format
+msgid "Fixed entity «{entity}»"
+msgstr "Fiche fixe «{entity}»"
+
+msgid "Field to another entity"
+msgstr "Champ vers une autre fiche"
+
+#, python-brace-format
+msgid "The field «{field}» is invalid in model «{model}»"
+msgstr "Le champ «{field}» est invalide dans le modèle «{model}»"
+
+#, python-brace-format
+msgid "The field «{field}» does not reference an entity"
+msgstr "Le champ «{field}» ne référence pas une fiche"
+
+#, python-brace-format
+msgid "Field of: {source}"
+msgstr "Champ de : {source}"
+
+#, python-brace-format
+msgid "Field «{field}» of: {source}"
+msgstr "Champ «{field}» de : {source}"
+
+msgid "First related entity"
+msgstr "Première fiche reliée"
+
+#, python-brace-format
+msgid "First related entity to: {source}"
+msgstr "Première fiche reliée à : {source}"
+
+#, python-brace-format
+msgid "{error} (first related entity)"
+msgstr "{error} (première fiche reliée)"
+
+#, python-brace-format
+msgid "First related «{type}» by «{predicate}» to: {source}"
+msgstr "Première fiche «{type}» reliée par «{predicate}» à : {source}"
+
+#, python-brace-format
+msgid "Adding the property «{property}» to: {source}"
+msgstr "Ajouter la propriété «{property}» à : {source}"
+
+msgid "The source type is not compatible with this property type"
+msgstr "Le type de source n'est pas compatible avec ce type de propriété"
+
+#, python-brace-format
+msgid "Adding the relationship «{predicate}» between:"
+msgstr "Ajouter la relation «{predicate}» entre :"
+
+msgid "The source type is not compatible with this relationship type"
+msgstr "Le type de source n'est pas compatible avec ce type de relation"
 
 #~ msgid "All users"
 #~ msgstr "Tous les utilisateurs"
@@ -4394,9 +4643,6 @@ msgstr "Recherche vide…"
 
 #~ msgid "The field «{}» is empty"
 #~ msgstr "Le champ «{}» est vide"
-
-#~ msgid "This type of relationship is not compatible with «{model}»."
-#~ msgstr "Ce type de relation n'est pas compatible avec «{model}»."
 
 #~ msgid "Execute all reminders"
 #~ msgstr "Exécuter tous les mémentos"

@@ -304,6 +304,7 @@ MIDDLEWARE = [
     'creme.creme_core.middleware.locale.LocaleMiddleware',
     'creme.creme_core.middleware.global_info.GlobalInfoMiddleware',
     'creme.creme_core.middleware.timezone.TimezoneMiddleware',
+    'creme.creme_core.middleware.workflow.WorkflowMiddleware',
 ]
 
 INSTALLED_DJANGO_APPS = [

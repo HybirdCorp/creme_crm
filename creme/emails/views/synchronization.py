@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from django.utils.translation import gettext, ngettext, pgettext_lazy
 from django.views.generic.detail import SingleObjectMixin
 
 from creme.creme_core.core.exceptions import BadRequestError, ConflictError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import Job, Relation
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.serializers import json_encode
@@ -137,7 +138,8 @@ class _BaseEmailToSyncMultiOperation(EmailToSyncPermissionsMixin, generic.Checke
         user = request.user
         errors = defaultdict(list)
 
-        with atomic():
+        # TODO: test workflow
+        with atomic(), run_workflow_engine(user=user):
             emails_to_sync = [*EmailToSync.objects.select_for_update().filter(pk__in=ids)]
 
             len_diff = len(ids) - len(emails_to_sync)

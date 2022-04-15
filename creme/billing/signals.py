@@ -26,9 +26,9 @@ from django.dispatch import receiver
 
 import creme.creme_core.signals as core_signals
 from creme import billing, persons
+# from creme.persons import workflow
 from creme.creme_core.models import Relation
 from creme.creme_core.models.utils import assign_2_charfield
-from creme.persons import workflow
 
 from . import constants
 from .core.number_generation import number_generator_registry
@@ -190,23 +190,23 @@ def manage_line_deletion(sender, instance, **kwargs):
         instance.subject_entity.get_real_entity().save()
 
 
-_WORKFLOWS = {
-    Invoice: workflow.transform_target_into_customer,
-    Quote:   workflow.transform_target_into_prospect,
-}
-
-
-# NB: in Base.save(), target relationship is created after source relationships,
-#     so we trigger this code target relationship creation, as the source should be OK too.
-@receiver(signals.post_save, sender=Relation, dispatch_uid='billing-manage_workflows')
-def manage_creation_workflows(sender, instance, **kwargs):
-    if instance.type_id == constants.REL_SUB_BILL_RECEIVED:
-        billing_doc = instance.subject_entity
-        workflow_func = _WORKFLOWS.get(type(billing_doc))
-
-        if workflow_func:
-            workflow_func(
-                source=billing_doc.source,
-                target=instance.object_entity,
-                user=instance.user,
-            )
+# _WORKFLOWS = {
+#     Invoice: workflow.transform_target_into_customer,
+#     Quote:   workflow.transform_target_into_prospect,
+# }
+#
+#
+# # NB: in Base.save(), target relationship is created after source relationships,
+# #     so we trigger this code target relationship creation, as the source should be OK too.
+# @receiver(signals.post_save, sender=Relation, dispatch_uid='billing-manage_workflows')
+# def manage_creation_workflows(sender, instance, **kwargs):
+#     if instance.type_id == constants.REL_SUB_BILL_RECEIVED:
+#         billing_doc = instance.subject_entity
+#         workflow_func = _WORKFLOWS.get(type(billing_doc))
+#
+#         if workflow_func:
+#             workflow_func(
+#                 source=billing_doc.source,
+#                 target=instance.object_entity,
+#                 user=instance.user,
+#             )

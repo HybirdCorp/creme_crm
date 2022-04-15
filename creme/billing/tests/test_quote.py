@@ -37,6 +37,7 @@ from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
 from ..models import Line, NumberGeneratorItem, QuoteStatus, SettlementTerms
 from .base import (
     Address,
+    Contact,
     Invoice,
     Organisation,
     ProductLine,
@@ -97,7 +98,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
         )
 
-    def test_detailview01(self):
+    def test_detailview__salesorder_creation_forbidden(self):
         "Cannot create Sales Orders => convert button disabled."
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
@@ -116,7 +117,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             ],
         )
 
-    def test_detailview02(self):
+    def test_detailview__invoice_creation_forbidden(self):
         "Cannot create Invoice => convert button disabled."
         user = self.login_as_standard(
             allowed_apps=['billing', 'persons'],
@@ -136,7 +137,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
     @override_settings(SOFTWARE_LABEL='My CRM')
-    def test_createview01(self):
+    def test_createview__source_not_managed(self):
         "Source is not managed + no number given."
         user = self.login_as_root_and_get()
 
@@ -177,13 +178,14 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_ISSUED,   object=source)
         self.assertHaveRelation(subject=quote,  type=REL_SUB_BILL_RECEIVED, object=target)
+        # NB: workflow
         self.assertHaveRelation(subject=target, type=REL_SUB_PROSPECT,      object=source)
 
         # ---
         quote2, source2, target2 = self.create_quote_n_orgas(user=user, name='My Quote Two')
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source2)
 
-    def test_createview02(self):
+    def test_createview__source_managed(self):
         "Source is managed + no number given + other default status."
         user = self.login_as_root_and_get()
         status = QuoteStatus.objects.create(name='OK', is_default=True)
@@ -232,6 +234,21 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=source)
         # self.assertEqual('DE2', quote2.number)
         self.assertEqual('QUO-0002', quote2.number)
+
+    def test_createview__contact_target(self):
+        "Workflow for Contact too."
+        user = self.login_as_root_and_get()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        contact = Contact.objects.create(user=user, first_name='John', last_name='Doe')
+        quote = self.create_quote(
+            user=user, name='My Quote', source=orga, target=contact,
+        )
+
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_ISSUED,   object=orga)
+        self.assertHaveRelation(subject=quote, type=REL_SUB_BILL_RECEIVED, object=contact)
+        # NB: workflow
+        self.assertHaveRelation(subject=contact, type=REL_SUB_PROSPECT, object=orga)
 
     def test_createview__no_number_field(self):
         "The field 'number' is not in the form."

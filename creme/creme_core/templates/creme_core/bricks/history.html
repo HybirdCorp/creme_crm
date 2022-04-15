@@ -60,7 +60,16 @@
             {{line.explainer.render}}{# TODO: improve credentials here !! #}
           {% endif %}
         </td>
-        <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
+        <td>
+          {% if line.by_wf_engine %}
+            <span class="history-line-workflow"
+                  title="{% blocktranslate with user=line.user|default:line.username|default:'?' %}This action has been performed by the Workflow engine, which has been triggered by another action of the user «{{user}}»{% endblocktranslate %}">
+                {% translate 'Workflow' %}
+            </span>
+          {% else %}
+            {% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}
+          {% endif %}
+        </td>
     </tr>
   {% endwith %}{% endfor %}
 {% endblock %}

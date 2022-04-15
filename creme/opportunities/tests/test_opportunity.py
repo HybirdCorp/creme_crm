@@ -7,6 +7,7 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme import products
 from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
@@ -21,11 +22,12 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SettingValue,
+    Workflow,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.opportunities import constants, setting_keys
 from creme.opportunities.models import Origin, SalesPhase
-from creme.persons.constants import REL_SUB_PROSPECT
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
@@ -115,6 +117,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         assertSVEqual(setting_keys.quote_key, False)
         assertSVEqual(setting_keys.target_constraint_key, True)
         assertSVEqual(setting_keys.emitter_constraint_key, True)
+
+        wf1 = self.get_object_or_fail(Workflow, uuid='b8d03709-4abd-490c-aa9f-8a2414f92b97')
+        self.assertEqual(_('The target Organisation becomes a prospect'), wf1.title)
+        self.assertEqual(wf1.content_type.model_class(), Opportunity)
+        self.assertFalse(wf1.is_custom)
+
+        wf2 = self.get_object_or_fail(Workflow, uuid='04ae1335-6e5d-4856-9be6-9f59846b06d1')
+        self.assertEqual(_('The target Contact becomes a prospect'), wf2.title)
+        self.assertEqual(wf2.content_type.model_class(), Opportunity)
+        self.assertFalse(wf2.is_custom)
 
     @skipIfNotInstalled('creme.activities')
     def test_populate_activities(self):
@@ -589,13 +601,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         name = 'opportunity01'
         opp, target, emitter = self._create_opportunity_n_organisations(user=user, name=name)
         url = opp.get_edit_absolute_url()
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            target_f = response.context['form'].fields[self.TARGET_KEY]
+            target_f = response1.context['form'].fields[self.TARGET_KEY]
 
         self.assertEqual(target, target_f.initial)
 
+        # ---
         name = name.title()
         reference = '1256'
         phase = SalesPhase.objects.all()[1]
@@ -605,8 +618,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target_rel = self.get_object_or_fail(
             Relation, subject_entity=opp.id, object_entity=target.id,
         )
-        response = self.client.post(
-            url, follow=True,
+        self.assertNoFormError(self.client.post(
+            url,
+            follow=True,
             data={
                 'user':                  user.pk,
                 'name':                  name,
@@ -619,8 +633,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         opp = self.refresh(opp)
         self.assertEqual(name,                             opp.name)
@@ -647,8 +660,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         target_rel = self.get_object_or_fail(
             Relation, subject_entity=opp.id, object_entity=target1.id,
         )
-        response = self.client.post(
-            opp.get_edit_absolute_url(), follow=True,
+        self.assertNoFormError(self.client.post(
+            opp.get_edit_absolute_url(),
+            follow=True,
             data={
                 'user':                  user.pk,
                 'name':                  name,
@@ -661,11 +675,43 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
                 self.TARGET_KEY: self.formfield_value_generic_entity(target2),
             },
-        )
-        self.assertNoFormError(response)
+        ))
         self.assertEqual(target2, self.refresh(opp).target)
         self.assertDoesNotExist(target_rel)
         self.assertHaveRelation(subject=target2, type=REL_SUB_PROSPECT, object=emitter)
+
+    @parameterized.expand([False, True])
+    @skipIfCustomOrganisation
+    def test_editview__won_workflow(self, target_is_contact):
+        user = self.login_as_root_and_get()
+
+        name = 'Opportunity #01'
+        opp, target, emitter = self._create_opportunity_n_organisations(
+            user=user, name=name, contact=target_is_contact,
+        )
+        self.assertFalse(opp.sales_phase.won)
+
+        phase = SalesPhase.objects.filter(won=True)[0]
+        self.assertNoFormError(self.client.post(
+            opp.get_edit_absolute_url(),
+            follow=True,
+            data={
+                'user':                  user.pk,
+                'name':                  name,
+                'reference':             '1256',
+                'sales_phase':           phase.id,
+                'expected_closing_date': self.formfield_value_date(2011, 4, 26),
+                'closing_date':          self.formfield_value_date(2011, 5, 15),
+                'first_action_date':     self.formfield_value_date(2011, 5, 1),
+                'currency':              opp.currency_id,
+
+                self.TARGET_KEY: self.formfield_value_generic_entity(target),
+            },
+        ))
+
+        opp = self.refresh(opp)
+        self.assertEqual(phase, opp.sales_phase)
+        self.assertHaveRelation(target, type=REL_SUB_CUSTOMER_SUPPLIER, object=emitter)
 
     @skipIfCustomOrganisation
     def test_listview(self):

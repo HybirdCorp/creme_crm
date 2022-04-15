@@ -49,7 +49,7 @@ from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
 from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.dates import dt_from_ISO8601
-from creme.creme_core.views.decorators import jsonify
+from creme.creme_core.views.decorators import jsonify, workflow_engine
 from creme.creme_core.views.utils import build_cancel_path
 from creme.persons.views.contact import ContactCreation
 from creme.persons.views.organisation import OrganisationCreation
@@ -327,6 +327,7 @@ def _get_page_url(request):
 @mobile_login_required
 @require_POST
 @atomic
+@workflow_engine  # TODO: test workflow
 def start_activity(request, activity_id):
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
@@ -348,6 +349,7 @@ def start_activity(request, activity_id):
 @mobile_login_required
 @require_POST
 @atomic
+@workflow_engine  # TODO: test workflow
 def stop_activity(request, activity_id):
     activity = get_object_or_404(Activity.objects.select_for_update(), id=activity_id)
 
@@ -501,6 +503,8 @@ def _get_pcall(request):
 
 @mobile_login_required
 @require_POST
+@atomic
+@workflow_engine  # TODO: test workflow
 def phonecall_workflow_done(request, pcall_id):
     pcall = get_object_or_404(
         Activity, type__uuid=act_constants.UUID_TYPE_PHONECALL, id=pcall_id,
@@ -579,6 +583,7 @@ def _improve_minutes(pcall, minutes):
 @require_POST
 @jsonify
 @atomic
+@workflow_engine  # TODO: test workflow
 def _phonecall_workflow_set_end(request, end_function):
     POST = request.POST
     # TODO: assert in the past
@@ -684,6 +689,7 @@ def _set_pcall_as_failed(pcall, request):
 @require_POST
 @jsonify
 @atomic
+@workflow_engine  # TODO: test workflow
 def phonecall_workflow_failed(request):
     pcall = _get_pcall(request)
 
@@ -699,6 +705,7 @@ def phonecall_workflow_failed(request):
 @require_POST
 @jsonify
 @atomic
+@workflow_engine  # TODO: test workflow
 def phonecall_workflow_postponed(request):
     pcall = _get_pcall(request)
 

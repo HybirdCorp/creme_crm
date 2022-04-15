@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import get_current_timezone, make_naive, now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -45,6 +46,7 @@ from creme.creme_core.models import DeletionCommand, EntityCredentials, Job
 from creme.creme_core.utils import bool_from_str_extended, get_from_POST_or_404
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 
 from .. import constants, get_activity_model
 from ..forms import calendar as calendar_forms
@@ -394,6 +396,7 @@ class ActivityDatesSetting(generic.base.EntityRelatedMixin, generic.CheckedView)
         return get_from_POST_or_404(self.request.POST, key=self.activity_id_arg, cast=int)
 
     @atomic
+    @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
         POST = request.POST
         start = get_from_POST_or_404(

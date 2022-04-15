@@ -72,6 +72,11 @@ urlpatterns = [
         fake_views.FakeOrganisationDetail.as_view(),
         name='creme_core__view_fake_organisation',
     ),
+    re_path(
+        r'^tests/organisation/workflow_badly_used/(?P<orga_id>\d+)[/]?$',
+        fake_views.workflow_not_called,
+        name='creme_core__workflow_not_called',
+    ),
 
     re_path(
         r'^tests/address/add/(?P<entity_id>\d+)[/]?$',
