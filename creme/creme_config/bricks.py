@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -541,6 +541,70 @@ class CustomFormsBrick(PaginatedBrick):
             # NB: '+ 2' is for default config + super-users config.
             max_conf_count=core_models.UserRole.objects.count() + 2,
         ))
+
+
+class WorkflowsBrick(PaginatedBrick):
+    id = _ConfigAdminBrick.generate_id('creme_config', 'workflows')
+    verbose_name = _('Workflows')
+    dependencies = (core_models.Workflow,)
+    template_name = 'creme_config/bricks/workflows.html'
+    page_size = _PAGE_SIZE
+    configurable = False
+
+    def detailview_display(self, context):
+        # return self._render(self.get_template_context(
+        #     context,
+        #     core_models.Workflow.objects.order_by('id'),
+        # ))
+
+        # NB: we wrap the ContentType instances instead of store extra data in
+        #     them because teh instances are stored in a global cache, so we do
+        #     not want to mutate them.
+        class _ContentTypeWrapper:
+            __slots__ = ('ctype', 'workflows')
+
+            def __init__(this, ctype):
+                this.ctype = ctype
+                this.workflows = ()
+
+        ctypes = [_ContentTypeWrapper(ctype) for ctype in entity_ctypes()]
+        sort_key = collator.sort_key
+        ctypes.sort(key=lambda ctw: sort_key(str(ctw.ctype)))
+
+        btc = self.get_template_context(context, ctypes)
+
+        ctypes_wrappers = btc['page'].object_list
+
+        workflow_map = defaultdict(list)
+        for workflow in core_models.Workflow.objects.filter(
+            content_type__in=[ctw.ctype for ctw in ctypes_wrappers],
+        ).order_by('id'):
+            workflow_map[workflow.content_type_id].append(workflow)
+
+        for ctw in ctypes_wrappers:
+            ctype = ctw.ctype
+            # ctw.sc_items = sc_items = sci_map.get(ctype.id) or []
+            # sc_items.sort(
+            #     key=lambda sci: sort_key(
+            #         str(sci.role) if sci.role
+            #         else superusers_label if sci.superuser
+            #         else ''
+            #     ),
+            # )
+            ctw.workflows = workflow_map[ctype.id]
+
+            # if not sc_items or not sc_items[0].is_default:  # No default config -> we build it
+            #     logger.warning(
+            #         'No search config for model <%s>; we create a disabled one.',
+            #         ctype,
+            #     )
+            #     ctw.sc_items = [
+            #         core_models.SearchConfigItem.objects.create(
+            #             content_type=ctype, disabled=True,
+            #         ),
+            #     ]
+
+        return self._render(btc)
 
 
 class UsersBrick(_ConfigAdminBrick):

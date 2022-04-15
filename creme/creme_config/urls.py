@@ -23,6 +23,7 @@ from .views import (
     user,
     user_role,
     user_settings,
+    workflow,
     world_settings,
 )
 
@@ -387,6 +388,24 @@ custom_fields_patterns = [
         r'^enum/reload/(?P<field_id>\d+)[/]?$',
         custom_field.CustomEnumBrickReloading.as_view(),
         name='creme_config__reload_custom_enum_brick',
+    ),
+]
+
+workflow_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        workflow.Portal.as_view(),
+        name='creme_config__workflows',
+    ),
+    re_path(
+        r'^add/(?P<ct_id>[\w-]+)[/]?$',
+        workflow.WorkflowCreationWizard.as_view(),
+        name='creme_config__create_workflow',
+    ),
+    re_path(
+        r'^delete[/]?$',
+        workflow.WorkflowDeletion.as_view(),
+        name='creme_config__delete_workflow',
     ),
 ]
 
@@ -848,6 +867,7 @@ urlpatterns = [
     re_path(r'^relation_type/', include(relation_type_patterns)),
     re_path(r'^search/',        include(search_patterns)),
     re_path(r'^settings/',      include(setting_patterns)),
+    re_path(r'^workflow/',      include(workflow_patterns)),
 
     # Credentials
     re_path(r'^role/', include(role_patterns)),

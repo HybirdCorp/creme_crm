@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,6 +44,7 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
     SettingValue,
+    Workflow,
 )
 
 from . import (
@@ -152,6 +153,8 @@ class Populator(BasePopulator):
         self._populate_phases()
         self._populate_origins()
 
+        self._populate_workflows()
+
     def _first_populate(self):
         super()._first_populate()
 
@@ -161,6 +164,43 @@ class Populator(BasePopulator):
                 ' => we create an Opportunity report, with 2 graphs, and related blocks'
             )
             self._populate_report_n_graphes()
+
+    # TODO: _populate_workflows() in BasePopulator? (remove explicit call)
+    #   - only in first populate? (yes => data migration for existing installations)
+    #   - UUID? is_custom? "disabled" field?
+    # TODO: complete
+    def _populate_workflows(self):
+        from creme.creme_core.workflows import (
+            FirstRelatedEntitySource,
+            FromContextSource,
+            RelationAddingAction,
+            RelationAddingTrigger,
+        )
+        from creme.persons.constants import REL_SUB_PROSPECT
+
+        # NB: The target of an Opportunity becomes a prospect of the emitter
+        for target_model in (self.Organisation, self.Contact):
+            Workflow.objects.smart_create(
+                model=self.Opportunity,
+                trigger=RelationAddingTrigger(
+                    subject_model=self.Opportunity,
+                    rtype=constants.REL_SUB_TARGETS,
+                    object_model=target_model,
+                ),
+                actions=[
+                    RelationAddingAction(
+                        # NB: the target of the Opportunity
+                        subject_source=FromContextSource(RelationAddingTrigger.OBJECT),
+                        rtype=REL_SUB_PROSPECT,
+                        # NB: the emitter of the Opportunity
+                        object_source=FirstRelatedEntitySource(
+                            subject_source=FromContextSource(RelationAddingTrigger.SUBJECT),
+                            rtype=constants.REL_OBJ_EMIT_ORGA,
+                            object_model=self.Organisation,
+                        ),
+                    )
+                ],
+            )
 
     def _populate_phases(self):
         self._save_minions(self.SALES_PHASES)
