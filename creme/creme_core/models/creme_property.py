@@ -439,6 +439,9 @@ class CremeProperty(CremeModel):
     def __str__(self):
         return str(self.type)
 
+    def __repr__(self):
+        return f'CremeProperty(type=<{self.type}>, creme_entity=<{self.creme_entity}>)'
+
     def get_related_entity(self):  # For generic views
         return self.creme_entity
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.7\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-10 17:20+0200\n"
+"POT-Creation-Date: 2025-06-11 08:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -191,6 +191,9 @@ msgid "There was {count} ignored message (no known address found)"
 msgid_plural "There were {count} ignored messages (no known address found)"
 msgstr[0] "Il y avait {count} message ignoré (pas d'adresse connue trouvée)"
 msgstr[1] "Il y avait {count} messages ignorés (pas d'adresse connue trouvée)"
+
+msgid "Send workflow emails"
+msgstr "Envoyer les e-mail de workflow"
 
 msgctxt "emails"
 msgid "Creation form for campaign"
@@ -386,6 +389,36 @@ msgstr "Destinataire"
 msgid "This entity has no email address."
 msgstr "Cette fiche n'a pas d'adresse e-mail."
 
+msgid "Subject"
+msgstr "Sujet"
+
+msgid "Entity which is used as template variable"
+msgstr "Fiche utilisée comme variable dans le patron"
+
+msgid "Body"
+msgstr "Corps"
+
+#. Translators: do not translate "{{entity}}"
+msgid "You can use the variable {{entity}} to display the entity chosen above"
+msgstr ""
+"Vous pouvez utiliser la variable {{entity}} pour afficher la fiche choisie "
+"au dessus"
+
+msgid "Sending an email"
+msgstr "Envoyer un e-mail"
+
+msgid "Email body"
+msgstr "Corps d'e-mail"
+
+msgid "The tags like {% … %} are forbidden"
+msgstr "Les balises comme {% … %} sont interdites"
+
+msgid "Entity which is used to fill the template"
+msgstr "Fiche utilisée pour remplir le patron"
+
+msgid "The entity must be a Contact or an Organisation."
+msgstr "La fiche doit être un Contact ou une Société."
+
 msgid "Synchronization of incoming emails"
 msgstr "Synchronisation des e-mails externes"
 
@@ -427,12 +460,6 @@ msgstr "Nombre de lecture"
 
 msgid "Status"
 msgstr "Statut"
-
-msgid "Subject"
-msgstr "Sujet"
-
-msgid "Body"
-msgstr "Corps"
 
 msgid "Reception date"
 msgstr "Date de réception"
@@ -1367,3 +1394,86 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
+
+msgid "Fixed email address"
+msgstr "Adresse e-mail fixe"
+
+#, python-brace-format
+msgid "To: {recipient}"
+msgstr "À : {recipient}"
+
+msgid "Fixed user"
+msgstr "Utilisateur fixe"
+
+msgid "The user does not exist anymore"
+msgstr "L'utilisateur n'existe plus"
+
+msgid "To: a fixed user"
+msgstr "À : un utilisateur fixe"
+
+msgid "To:"
+msgstr "À :"
+
+#, python-brace-format
+msgid "The user «{username}» is disabled (no email will be sent)"
+msgstr "L'utilisateur «{username}» est désactivé (aucun e-mail se sera envoyé)"
+
+#, python-brace-format
+msgid "To: {user} <{email}>"
+msgstr "À : {user} <{email}>"
+
+#, python-brace-format
+msgid "The field «{field}» is invalid in model «{model}»"
+msgstr "Le champ «{field}» est invalide dans le modèle «{model}»"
+
+msgid "User field"
+msgstr "Champ utilisateur"
+
+#, python-brace-format
+msgid "Field to a user of: {source}"
+msgstr "Champ vers un utilisateur de : {source}"
+
+#, python-brace-format
+msgid "To: user «{field}» of: {source}"
+msgstr "À : utilisateur «{field}» de : {source}"
+
+msgid "Email field"
+msgstr "Champ e-mail"
+
+#, python-brace-format
+msgid "Email field of: {source}"
+msgstr "Champ e-mail de : {source}"
+
+#, python-brace-format
+msgid "To: field «{field}» of: {source}"
+msgstr "À : champ «{field}» de : {source}"
+
+#, python-brace-format
+msgid "The type of recipient «{type}» is invalid (uninstalled app?)"
+msgstr "Le type de destinataire «{type}» est invalide (app désinstallée ?)"
+
+#, python-brace-format
+msgid "The recipient «{name}» is broken (original error: {error})"
+msgstr "Le destinataire «{name}» est cassé (erreur originale : {error})"
+
+msgid "Created by a workflow"
+msgstr "Crée par un workflow"
+
+msgid "Sending an email:"
+msgstr "Envoyer un e-mail :"
+
+#, python-brace-format
+msgid "Subject: {subject}"
+msgstr "Sujet : {subject}"
+
+msgid "Body:"
+msgstr "Corps :"
+
+msgid "Sending an email (from a template)"
+msgstr "Envoyer un e-mail (avec un patron)"
+
+msgid "The template does not exist anymore"
+msgstr "Le patron n'existe plus"
+
+msgid "Use template:"
+msgstr "Utilise le patron :"

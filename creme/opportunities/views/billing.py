@@ -31,7 +31,7 @@ from creme.creme_core.http import is_ajax
 from creme.creme_core.models import Relation, RelationType, SettingValue, Vat
 from creme.creme_core.views.generic import base
 from creme.creme_core.views.relation import RelationsObjectsSelectionPopup
-from creme.persons import workflow
+# from creme.persons import workflow
 from creme.products import get_product_model
 
 from .. import constants, get_opportunity_model
@@ -102,19 +102,20 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
     behaviours = {
         # Value is (Relation type ID between the new doc & the opportunity,
         #           Set the Relationship 'Current doc' ?,
-        #           Workflow function,
+        #           # Workflow function,
         #         )
         Quote: (
             constants.REL_SUB_LINKED_QUOTE,
             True,
-            workflow.transform_target_into_prospect,
+            # workflow.transform_target_into_prospect,
         ),
         Invoice: (
             constants.REL_SUB_LINKED_INVOICE,
             False,
-            workflow.transform_target_into_customer,
+            # workflow.transform_target_into_customer,
         ),
-        SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
+        # SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
+        SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False),
     }
     generated_name = '{document.number} — {opportunity}'
 
@@ -126,7 +127,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         klass = self.get_ctype().model_class()
 
         try:
-            rtype_id, set_as_current, workflow_action = self.behaviours[klass]
+            # rtype_id, set_as_current, workflow_action = self.behaviours[klass]
+            rtype_id, set_as_current = self.behaviours[klass]
         except KeyError as e:
             raise Http404('Bad billing document type') from e
 
@@ -186,8 +188,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
             # TODO: what if RelationType disabled?
             create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
 
-        if workflow_action:
-            workflow_action(opp.emitter, opp.target, user)
+        # if workflow_action:
+        #     workflow_action(opp.emitter, opp.target, user)
 
         if is_ajax(request):
             return HttpResponse()

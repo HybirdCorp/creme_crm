@@ -13,8 +13,11 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import condition_handler
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
@@ -25,6 +28,7 @@ from creme.creme_core.models import (
     Job,
     Relation,
     RelationType,
+    Workflow,
 )
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.models import FolderCategory
@@ -1173,7 +1177,7 @@ better &amp; lighter than the previous one.
     def test_get_sanitized_html_field01(self):
         "Empty body."
         user = self.login_as_root_and_get()
-        email = self._create_email(user=user)
+        email = self._create_email(user=user, body_html='')
         # Not an UnsafeHTMLField
         self.assertGET409(reverse('creme_core__sanitized_html_field', args=(email.id, 'sender')))
 
@@ -1246,25 +1250,50 @@ better &amp; lighter than the previous one.
         self.assertPOST409(url, data={'ids': 'notanint'})
         self.assertPOST404(url, data={'ids': str(self.UNUSED_PK)})
 
-    def test_job01(self):
+    def test_job(self):
         user = self.login_as_root_and_get()
         now_value = now()
+
+        ptype = CremePropertyType.objects.create(text='Sent this year')
+        source = workflows.EditedEntitySource(model=EntityEmail)
+        Workflow.objects.create(
+            title='WF for EntityEmail',
+            content_type=EntityEmail,
+            trigger=workflows.EntityEditionTrigger(model=EntityEmail),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    condition_handler.DateRegularFieldConditionHandler.build_condition(
+                        model=EntityEmail,
+                        field_name='sending_date',
+                        date_range='current_year',
+                    ),
+                ],
+            ),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
 
         job = self._get_job()
         self.assertIsNone(job.user)
         self.assertIsNone(job.type.next_wakeup(job, now_value))
 
         email = self._create_email(user=user, status=EntityEmail.Status.NOT_SENT)
+        self.clear_global_info()  # Clear the event queue to allow edition event
+
         self.assertIs(job.type.next_wakeup(job, now_value), now_value)
+        self.assertIsNone(email.sending_date)
 
         self._send_mails(job)
 
         message = self.get_alone_element(mail.outbox)
         self.assertEqual(email.subject, message.subject)
-        # self.assertEqual(email.body,    message.body)
         self.assertBodiesEqual(message, body=email.body, body_html=email.body_html)
 
-    def test_job02(self):
+        email = self.refresh(email)
+        self.assertDatetimesAlmostEqual(now(), email.sending_date)
+        self.assertHasProperty(entity=email, ptype=ptype)
+
+    def test_job__error_n_retry(self):
         from ..creme_jobs.entity_emails_send import ENTITY_EMAILS_RETRY
 
         user = self.login_as_root_and_get()
@@ -1286,14 +1315,14 @@ better &amp; lighter than the previous one.
         # self.assertEqual(email.body,    message.body)
         self.assertBodiesEqual(message, body=email.body, body_html=email.body_html)
 
-    def test_job03(self):
+    def test_job__already_sent(self):
         user = self.login_as_root_and_get()
         self._create_email(user=user, status=EntityEmail.Status.SENT)
         self._send_mails()
 
         self.assertFalse(mail.outbox)
 
-    def test_job04(self):
+    def test_job__deleted_email(self):
         "Email is in the trash."
         user = self.login_as_root_and_get()
         email = self._create_email(user=user, status=EntityEmail.Status.SENDING_ERROR)

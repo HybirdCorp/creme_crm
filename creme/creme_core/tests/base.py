@@ -557,7 +557,7 @@ class _CremeTestCase:
             if field_name not in form_errors:
                 self.fail(
                     'The error "{field}" has not been found in the form '
-                    '(fields: {fields})'.format(
+                    '(fields with errors: {fields})'.format(
                         field=field_name,
                         fields=[*form_errors.keys()],
                     )
@@ -755,17 +755,20 @@ class _CremeTestCase:
                            subject: CremeEntity | int,
                            type: RelationType | str,
                            object: CremeEntity | int,
-                           ):
-        if not Relation.objects.filter(
+                           ) -> Relation:
+        relation = Relation.objects.filter(
             subject_entity=subject, type=type, object_entity=object,
-        ).exists():
+        ).first()
+        if relation is None:
             self.fail(f'<{subject}> is not related to <{object}> with type <{type}>')
+
+        return relation
 
     def assertHaveNoRelation(self,
                              subject: CremeEntity | int,
                              type: RelationType | str,
                              object: CremeEntity | int,
-                             ):
+                             ) -> None:
         if Relation.objects.filter(
             subject_entity=subject, type=type, object_entity=object,
         ).exists():

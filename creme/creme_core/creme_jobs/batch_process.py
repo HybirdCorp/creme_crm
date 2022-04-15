@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,6 +29,7 @@ from django.utils.translation import ngettext
 
 from ..core.batch_process import BatchAction
 from ..core.paginator import FlowPaginator
+from ..core.workflow import WorkflowEngine
 from ..models import EntityCredentials, EntityFilter, EntityJobResult
 from ..models.utils import model_verbose_name
 from .base import JobProgress, JobType
@@ -100,6 +101,7 @@ class _BatchProcessType(JobType):
         )
         actions = [*self._get_actions(model, job_data)]
         create_result = partial(EntityJobResult.objects.create, job=job)
+        wf_engine = WorkflowEngine()
 
         for entities_page in paginator.pages():
             for entity in entities_page.object_list:
@@ -129,6 +131,7 @@ class _BatchProcessType(JobType):
                         else:
                             final_entity.save()
                             create_result(real_entity=final_entity)
+                            wf_engine.run(user=None)
 
     def progress(self, job):
         count = EntityJobResult.objects.filter(job=job).count()

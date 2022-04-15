@@ -1,0 +1,102 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load uca_sort url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-workflows-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurables types of resource') empty=_('Configurable types of resource') %}
+{% endblock %}
+
+{% block brick_content %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' delete_url='creme_config__delete_workflow'|url %}
+  {% for workflow_group in page.object_list %}
+   {% with ctype=workflow_group.ctype %}
+    <div class="brick-list-item workflow-config-item workflow-config-item-{{ctype.app_label}}-{{ctype.model}}">
+        <div class="workflow-config-group workflow-config-summary-group">
+            <div class="workflow-config-group-title">
+                {% widget_icon ctype=ctype size='brick-list' class='workflow-config-type-icon' %} {{ctype}}
+            </div>
+            <div class="workflow-config-group-action">
+                {% blocktrans asvar creation_label %}Create a Workflow for «{{ctype}}»{% endblocktrans %}
+                {% brick_action id='add' url='creme_config__create_workflow'|url:ctype.id label=creation_label enabled=admin_perm %}
+            </div>
+        </div>
+        <div class="workflow-config-group workflow-config-content-group">
+          {% for workflow in workflow_group.workflows %}
+            <div class="workflow-config {% if workflow.enabled %}workflow-enabled{% else %}workflow-disabled{% endif %}" data-workflow-id="{{workflow.id}}">
+                <div class="workflow-config-global_buttons">
+                  {% if workflow.enabled %}
+                    {% brick_action id='update' url='creme_config__disable_workflow'|url:workflow.id label=_('Disable') display='text' enabled=admin_perm %}
+                  {% else %}
+                    {% brick_action id='update' url='creme_config__enable_workflow'|url:workflow.id label=_('Enable') display='text' enabled=admin_perm %}
+                  {% endif  %}
+                  {% if workflow.is_custom %}
+                    {% brick_action id='delete' url=delete_url __id=workflow.id enabled=admin_perm %}
+                  {% endif  %}
+                </div>
+                <h3 class="workflow-config-title">
+                    {{workflow.title}}
+                    {% brick_action id='edit' url='creme_config__rename_workflow'|url:workflow.id label=_('Rename') enabled=admin_perm %}
+                </h3>
+                <div class="workflow-config-content">
+                    <div class="workflow-config-trigger">
+                        <h4 class="workflow-config-trigger-label">{% translate "Trigger" %}</h4>
+                        <span class="workflow-config-trigger-content">{{workflow.trigger.description}}</span>
+                    </div>
+                    <div class="workflow-config-conditions">
+                        <h4 class="workflow-config-trigger-label">
+                            {% translate "Conditions" %}
+                            {% if workflow.is_custom %}
+                            {% brick_action id='edit' url='creme_config__edit_workflow_conditions'|url:workflow.id label=_('Edit the conditions') enabled=admin_perm %}
+                            {% endif  %}
+                        </h4>
+                        {% with rendered_conditions=workflow.rendered_conditions %}
+                         {% if rendered_conditions %}
+                          <ul class="workflow-config-conditions-contents">
+                            {% for source_conditions in rendered_conditions %}<li>{{source_conditions}}</li>{% endfor %}
+                          </ul>
+                         {% else %}
+                          <span class="workflow-config-conditions-content-empty">{% translate 'No condition' %}</span>
+                         {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="workflow-config-wf_actions">
+                        <h4 class="workflow-config-wf_actions-label">
+                            {% blocktranslate count counter=workflow.rendered_actions|length %}{{counter}} Action{% plural %}{{counter}} Actions{% endblocktranslate %}
+                            {% if workflow.is_custom %}
+                            {% brick_action id='add' url='creme_config__add_workflow_action'|url:workflow.id label=_('Add an action') enabled=admin_perm %}
+                            {% endif  %}
+                        </h4>
+                        <ul class="workflow-config-wf_actions-contents">
+                         {% with delete_action_url='creme_config__delete_workflow_action'|url:workflow.id %}
+                          {% for rendered_action in workflow.rendered_actions %}
+                            <li class="workflow-config-wf_actions-content">
+                                <div class="workflow-config-wf_actions-description">{{rendered_action}}</div>
+                                {% if workflow.is_custom %}
+                                <div class="workflow-config-wf_actions-buttons">
+                                    {% url 'creme_config__edit_workflow_action' workflow.id forloop.counter0 as edit_action_url %}
+                                    {% brick_action id='edit'   url=edit_action_url                            label=_('Edit this action')   enabled=admin_perm %}
+                                    {% brick_action id='delete' url=delete_action_url __index=forloop.counter0 label=_('Delete this action') enabled=admin_perm %}
+                                </div>
+                                {% endif  %}
+                            </li>
+                          {% endfor %}
+                         {% endwith %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          {% empty %}
+            <span class="empty-message">{% translate 'No Workflow for this type of resource' %}</span>
+          {% endfor %}
+        </div>
+    </div>
+   {% endwith %}
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No Workflow for the moment' %}
+{% endblock %}

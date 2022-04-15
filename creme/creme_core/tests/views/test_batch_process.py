@@ -9,19 +9,23 @@ from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
+from creme.creme_core import workflows
 from creme.creme_core.core.entity_filter import operands, operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
 # Should be a test queue
 from creme.creme_core.core.job import get_queue, job_type_registry
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.creme_jobs.batch_process import batch_process_type
 from creme.creme_core.models import (
+    CremePropertyType,
     EntityFilter,
     EntityJobResult,
     FakeContact,
     FakeOrganisation,
     Job,
+    Workflow,
 )
 
 from ..base import CremeTestCase
@@ -444,9 +448,9 @@ class BatchProcessViewsTestCase(CremeTestCase):
 
     def test_with_filter03(self):
         "__currentuser__ condition (need global_info)."
-        self.login_as_root()
+        user = self.login_as_root_and_get()
 
-        create_orga = partial(FakeOrganisation.objects.create, user=self.get_root_user())
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
         orga01 = create_orga(name='Genshiken')
         orga02 = create_orga(name='Manga club')
         orga03 = create_orga(name='Anime club', user=self.create_user())
@@ -482,6 +486,65 @@ class BatchProcessViewsTestCase(CremeTestCase):
         self.assertEqual('GENSHIKEN',  self.refresh(orga01).name)
         self.assertEqual('MANGA CLUB', self.refresh(orga02).name)
         self.assertEqual('Anime club', self.refresh(orga03).name)  # <== not changed
+
+    def test_workflow(self):
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='Is rich')
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        orga1 = create_orga(name='Anime club', capital=1_000)
+        orga2 = create_orga(name='Manga club', capital=9_500)
+
+        efilter = EntityFilter.objects.smart_update_or_create(
+            pk='test-filter01', name='Contains "club"', model=FakeOrganisation,
+            is_custom=True,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation, field_name='name',
+                    operator=operators.CONTAINS, values=['club'],
+                ),
+            ],
+        )
+
+        source = workflows.EditedEntitySource(model=FakeOrganisation)
+        Workflow.objects.create(
+            title='WF for Organisation',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityEditionTrigger(model=FakeOrganisation),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    RegularFieldConditionHandler.build_condition(
+                        model=FakeOrganisation,
+                        operator=operators.GTEOperator, field_name='capital', values=[10_000],
+                    ),
+                ],
+            ),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        response = self.client.post(
+            self._build_add_url(FakeOrganisation), follow=True,
+            data={
+                'filter':  efilter.id,
+                'actions': self.build_formfield_value(
+                    name='capital',
+                    operator='add_int',
+                    value='1000',
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        batch_process_type.execute(self._get_job(response))
+        orga1 = self.refresh(orga1)
+        self.assertEqual(2_000, orga1.capital)
+        self.assertHasNoProperty(entity=orga1, ptype=ptype)
+
+        orga2 = self.refresh(orga2)
+        self.assertEqual(10_500, orga2.capital)
+        self.assertHasProperty(entity=orga2, ptype=ptype)
 
     def test_use_edit_perm(self):
         user = self.login_as_standard()

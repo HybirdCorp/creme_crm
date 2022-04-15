@@ -7,8 +7,12 @@ from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import now
 
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import condition_handler, operators
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
+from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.models import CremePropertyType, Workflow
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.utils.date_period import DatePeriod, date_period_registry
 
@@ -47,11 +51,11 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
         super().setUp()
         self.user = self.login_as_root_and_get()
 
-    def _create_ticket_template(self, title='Support ticket'):
+    def _create_ticket_template(self, title='Support ticket', status=None):
         return TicketTemplate.objects.create(
             user=self.user,
             title=title,
-            status=Status.objects.all()[0],
+            status=status or Status.objects.all()[0],
             priority=Priority.objects.all()[0],
             criticity=Criticity.objects.all()[0],
         )
@@ -256,7 +260,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate
     def test_job01(self):
-        "first_generation in the past + (no generation yet (ie last_generation is None)."
+        "first_generation in the past + (no generation yet -- i.e. last_generation is None)."
         self.assertFalse(Ticket.objects.all())
         now_value = now()
 
@@ -340,6 +344,45 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
 
         gen = self.refresh(gen)
         self.assertEqual(now_value, gen.last_generation)
+
+    @skipIfCustomTicket
+    @skipIfCustomTicketTemplate
+    def test_job__workflow(self):
+        ptype = CremePropertyType.objects.create(text='Created as closed')
+        status = Status.objects.filter(is_closed=True)[0]
+        source = workflows.CreatedEntitySource(model=Ticket)
+        Workflow.objects.create(
+            title='WF for Ticket',
+            content_type=Ticket,
+            trigger=workflows.EntityCreationTrigger(model=Ticket),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=Ticket,
+                        operator=operators.EqualsOperator,
+                        field_name='status',
+                        values=[status.id],
+                    ),
+                ],
+            ),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        tpl = self._create_ticket_template(status=status)
+        RecurrentGenerator.objects.create(
+            name='Gen1',
+            user=self.user,
+            periodicity=self._get_weekly(),
+            ct=self.ct, template=tpl,
+            first_generation=now() - timedelta(days=5),
+            last_generation=None,
+        )
+        self._generate_docs(self._get_job())
+
+        ticket = self.get_alone_element(Ticket.objects.all())
+        self.assertEqual(status, ticket.status)
+        self.assertHasProperty(entity=ticket, ptype=ptype)
 
     @skipIfCustomTicketTemplate
     def test_next_wakeup(self):
