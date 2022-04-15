@@ -52,6 +52,7 @@ from ..models import (
 from ..setting_keys import emitter_edition_key
 from .base import (
     Address,
+    Contact,
     Invoice,
     Organisation,
     ProductLine,
@@ -303,9 +304,10 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertIsNone(invoice.payment_info)
         self.assertEqual('', invoice.buyers_order_number)
 
-        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,       object=source)
-        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED,     object=target)
-        self.assertHaveRelation(subject=target,  type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=source)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=target)
+        # NB: workflow
+        self.assertHaveRelation(subject=target, type=REL_SUB_CUSTOMER_SUPPLIER, object=source)
 
         self.assertEqual(source, invoice.source)
         self.assertEqual(target, invoice.target)
@@ -419,6 +421,24 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             url=f'{invoice.shipping_address.get_edit_absolute_url()}?type=shipping',
             action_type='edit',
         )
+
+    def test_creationview__contact_target(self):
+        "Workflow for Contact too."
+        user = self.login_as_root_and_get()
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        contact = Contact.objects.create(user=user, first_name='John', last_name='Doe')
+
+        invoice = self.create_invoice(
+            user=user, name='Invoice-001', source=orga, target=contact,
+        )
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_ISSUED,   object=orga)
+        self.assertHaveRelation(subject=invoice, type=REL_SUB_BILL_RECEIVED, object=contact)
+        # NB: workflow
+        self.assertHaveRelation(subject=contact, type=REL_SUB_CUSTOMER_SUPPLIER, object=orga)
+
+        self.assertEqual(orga, invoice.source)
+        self.assertEqual(contact, invoice.target)
 
     def test_creationview__error(self):
         "Credentials errors with Organisation."
