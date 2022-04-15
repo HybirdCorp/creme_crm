@@ -116,6 +116,7 @@ class BasePopulator:
     def _populate(self) -> None:
         self._populate_property_types()
         self._populate_relation_types()
+        self._populate_workflows()
         self._populate_entity_filters()
         self._populate_header_filters()
         self._populate_jobs()
@@ -147,6 +148,9 @@ class BasePopulator:
                 ptype.update_or_create()
 
     def _populate_relation_types(self) -> None:
+        pass
+
+    def _populate_workflows(self) -> None:
         pass
 
     def _populate_entity_filters(self) -> None:
