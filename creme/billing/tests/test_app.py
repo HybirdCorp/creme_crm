@@ -1,11 +1,13 @@
 # from functools import partial
 from django.contrib.contenttypes.models import ContentType
+from django.utils.translation import gettext as _
 
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     RelationType,
     SettingValue,
     Vat,
+    Workflow,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -39,6 +41,7 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
         ]
         lines_classes = [ProductLine, ServiceLine]
 
+        # ---
         self.get_relationtype_or_fail(
             constants.REL_SUB_BILL_ISSUED, billing_classes, [Organisation],
         )
@@ -52,12 +55,14 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
             constants.REL_SUB_LINE_RELATED_ITEM, lines_classes, [Product, Service],
         )
 
+        # ---
         self.assertEqual(1, SalesOrderStatus.objects.filter(pk=1).count())
         self.assertEqual(2, InvoiceStatus.objects.filter(pk__in=(1, 2)).count())
         self.assertEqual(1, CreditNoteStatus.objects.filter(pk=1).count())
 
         self.assertTrue(Vat.objects.exists())  # In creme_core populate...
 
+        # ---
         sv = self.get_object_or_fail(
             SettingValue, key_id=setting_keys.button_redirection_key.id,
         )
@@ -67,6 +72,43 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
             SettingValue, key_id=setting_keys.emitter_edition_key.id,
         )
         self.assertIs(False, sv.value)
+
+        # ---
+        wf_quote_orga = self.get_object_or_fail(
+            Workflow, uuid='a6a8f398-4967-49f8-8d8f-4aece55329fa',
+        )
+        self.assertEqual(
+            _('The target Organisation becomes a prospect'), wf_quote_orga.title,
+        )
+        self.assertEqual(wf_quote_orga.content_type.model_class(), Quote)
+        self.assertFalse(wf_quote_orga.is_custom)
+
+        wf_quote_contact = self.get_object_or_fail(
+            Workflow, uuid='81a52347-4988-4a11-81dc-55eca701447e',
+        )
+        self.assertEqual(
+            _('The target Contact becomes a prospect'), wf_quote_contact.title,
+        )
+        self.assertEqual(wf_quote_contact.content_type.model_class(), Quote)
+        self.assertFalse(wf_quote_contact.is_custom)
+
+        wf_invoice_orga = self.get_object_or_fail(
+            Workflow, uuid='3cc968ec-23c2-4f70-9609-1894d91ff300',
+        )
+        self.assertEqual(
+            _('The target Organisation becomes a customer'), wf_invoice_orga.title,
+        )
+        self.assertEqual(wf_invoice_orga.content_type.model_class(), Invoice)
+        self.assertFalse(wf_invoice_orga.is_custom)
+
+        wf_invoice_contact = self.get_object_or_fail(
+            Workflow, uuid='457f762d-0bd7-41de-8215-14585e3002ba',
+        )
+        self.assertEqual(
+            _('The target Contact becomes a customer'), wf_invoice_contact.title,
+        )
+        self.assertEqual(wf_invoice_contact.content_type.model_class(), Invoice)
+        self.assertFalse(wf_invoice_contact.is_custom)
 
     @skipIfNotInstalled('creme.activities')
     def test_populate_activities(self):

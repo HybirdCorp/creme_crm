@@ -86,7 +86,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
             brick=bricks.ManagedOrganisationsBrick,
         )
 
-    def test_transform_target_into_prospect01(self):
+    def test_transform_target_into_prospect(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -102,7 +102,7 @@ class PersonsAppTestCase(BrickTestCaseMixin, _BaseTestCase):
         # self.assertRelationCount(1, target, constants.REL_SUB_PROSPECT, source)
         self.assertHaveRelation(subject=target, type=constants.REL_SUB_PROSPECT, object=source)
 
-    def test_transform_target_into_customer01(self):
+    def test_transform_target_into_customer(self):  # DEPRECATED
         user = self.login_as_root_and_get()
 
         create_orga = partial(Organisation.objects.create, user=user)
