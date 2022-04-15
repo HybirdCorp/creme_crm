@@ -1,0 +1,17 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_bricks creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of the workflow engine' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Workflow rules' %}
+{% endblock %}
+
+{% block portal_bricks %}
+    {% widget_help_sign message=_('You can define actions (TODO COMPLETE) & their triggers, in order to avoid some manual work.') %}
+
+{% comment %}
+    {% brick_import app='creme_config' name='workflow_rules' as workflow_rules_brick %}
+    {% brick_display workflow_rules_brick %}
+{% endcomment %}
+{% endblock %}

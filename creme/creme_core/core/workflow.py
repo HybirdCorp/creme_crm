@@ -1,0 +1,288 @@
+################################################################################
+#    Creme is a free/open-source Customer Relationship Management software
+#    Copyright (C) 2025  Hybird
+#
+#    This program is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU Affero General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    This program is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU Affero General Public License for more details.
+#
+#    You should have received a copy of the GNU Affero General Public License
+#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+################################################################################
+
+from __future__ import annotations
+
+from django.db.models import signals
+from django.dispatch import receiver
+
+from creme.creme_core.global_info import get_per_request_cache
+from creme.creme_core.models import CremeEntity, Relation
+
+
+# Events -----------------------------------------------------------------------
+class WorkflowEvent:
+    pass
+
+
+# TODO: move to 'creme_core.workflows' ???
+class EntityCreated(WorkflowEvent):
+    def __init__(self, entity):
+        self._entity = entity
+
+    def __repr__(self):
+        return f'EntityCreated(entity={self._entity})'
+
+    @property
+    def entity(self):
+        return self._entity
+
+
+# TODO: factorise
+class EntityEdited(WorkflowEvent):
+    def __init__(self, entity):
+        self._entity = entity
+
+    def __repr__(self):
+        return f'EntityEdited(entity={self._entity})'
+
+    @property
+    def entity(self):
+        return self._entity
+
+
+class RelationAdded(WorkflowEvent):
+    def __init__(self, relation):
+        self._relation = relation
+
+    def __repr__(self):
+        return f'RelationAdded(relation={self._relation})'
+
+    @property
+    def relation(self):
+        return self._relation
+
+
+# TODO: doc-strings
+class WorkflowEventQueue:
+    cache_key = 'creme_core-workflows'
+
+    def __init__(self):
+        self._events = []
+
+    def append(self, event: WorkflowEvent) -> WorkflowEventQueue:
+        self._events.append(event)
+        return self
+
+    @classmethod
+    def get_current(cls):
+        cache = get_per_request_cache()
+        cache_key = cls.cache_key
+        queue = cache.get(cache_key)
+        if queue is None:
+            queue = cache[cache_key] = cls()
+
+        return queue
+
+    def pickup(self) -> list[WorkflowEvent]:
+        events = self._events
+        self._events = []
+
+        return events
+
+
+# Signal handlers ---
+@receiver(signals.pre_save, dispatch_uid='creme_core-push_workflow_event')
+def _push_event(sender, instance, **kwargs):
+    # TODO: other cases
+    if isinstance(instance, CremeEntity):
+        WorkflowEventQueue.get_current().append(
+            EntityEdited(entity=instance)
+            if instance.pk else
+            EntityCreated(entity=instance)
+        )
+    elif isinstance(instance, Relation):
+        # TODO: should we only record the main side of the relationship as optimization?
+        # NB: we check the pk to avoid duplicated event caused by double save()
+        #     (reciprocal FKs)
+        if not instance.pk:
+            WorkflowEventQueue.get_current().append(RelationAdded(relation=instance))
+
+
+# Trigger ----------------------------------------------------------------------
+# TODO: doc-strings
+class WorkflowTrigger:
+    type_id = ''
+    verbose_name = '??'
+
+    def __init__(self, **kwargs):
+        pass
+
+    # def activate(self, event: WorkflowEvent) -> bool:
+    def activate(self, event: WorkflowEvent) -> dict | None:
+        raise NotImplementedError
+
+    @property
+    def description(self) -> str:
+        raise NotImplementedError
+
+    def to_dict(self) -> dict:
+        return {'type': self.type_id}
+
+
+# Sources ----------------------------------------------------------------------
+# class SingleEntitySource:
+#     def __init__(self, *, id, model):
+#         self._id = id
+#         self._model = model
+#
+#     @property
+#     def id(self):
+#         return self._id
+#
+#     @property
+#     def model(self):
+#         return self._model
+#
+#     @property
+#     def label(self):
+#         return self._model._meta.verbose_name
+#
+#     # todo: errors
+#     #  - key error
+#     #  - type error (assert type of extracted value)
+#     def extract(self, workflow_context: dict):
+#         return workflow_context[self._id]
+class WorkflowActionSource:
+    type_id = ''
+
+    def extract(self, context: dict):
+        raise NotImplementedError
+
+    def to_dict(self):
+        return {'type': self.type_id}
+
+    @classmethod
+    # def from_dict(cls, d) -> WorkflowActionSource:
+    def from_dict(cls, data: dict, registry: WorkflowRegistry) -> WorkflowActionSource:
+        raise NotImplementedError
+
+
+# Action -----------------------------------------------------------------------
+# TODO: doc-strings
+class WorkflowAction:
+    type_id = ''
+    verbose_name = '??'
+
+    # def __init__(self, *, source: str, **kwargs):
+    def __init__(self, *, source: WorkflowActionSource, **kwargs):
+        self._source = source
+
+    @property
+    def description(self) -> str:
+        raise NotImplementedError
+
+    @property
+    # def source(self) -> str:
+    #     return self._source
+    def source(self) -> WorkflowActionSource:
+        return self._source
+
+    def execute(self, context):
+        raise NotImplementedError
+
+    def to_dict(self) -> dict:
+        # return {'type': self.type_id, 'source': self._source}
+        return {'type': self.type_id, 'source': self._source.to_dict()}
+
+
+# Registry ---------------------------------------------------------------------
+# TODO: static typing
+# TODO: errors (empty id, duplicate, unknown id etc...)
+# TODO: register filter (condition handler etc...) ?
+class WorkflowRegistry:
+    """TODO"""
+    # TODO
+    # class RegistrationError(Exception):
+    #     pass
+
+    def __init__(self):
+        self._action_source_classes = {}
+        self._action_classes = {}
+        self._trigger_classes = {}
+
+    # Actions ---
+    @property
+    def action_classes(self):
+        yield from self._action_classes.values()
+
+    @property
+    def action_source_classes(self):
+        yield from self._action_source_classes.values()
+
+    # TODO: errors
+    def build_action(self, data):
+        return self._action_classes[data['type']](**data)
+
+    # TODO: errors
+    def build_action_source(self, data: dict):
+        return self._action_source_classes[data['type']].from_dict(data=data, registry=self)
+
+    # TODO: errors
+    def register_actions(self, *action_classes):
+        for action_class in action_classes:
+            self._action_classes[action_class.type_id] = action_class
+
+        return self
+
+    # TODO: errors
+    def register_action_sources(self, *source_classes):
+        for src_class in source_classes:
+            self._action_source_classes[src_class.type_id] = src_class
+
+        return self
+
+    # TODO: errors
+    def unregister_actions(self, *action_classes):
+        for action_class in action_classes:
+            del self._action_classes[action_class.type_id]
+
+        return self
+
+    def unregister_action_sources(self, *source_classes):
+        for src_class in source_classes:
+            del self._action_source_classes[src_class.type_id]
+
+        return self
+
+    # Triggers ---
+    @property
+    def trigger_classes(self):
+        yield from self._trigger_classes.values()
+
+    def build_trigger(self, data):
+        type_id = data['type']
+
+        return self._trigger_classes[type_id](**data)
+
+    # TODO: errors
+    def register_triggers(self, *trigger_classes):
+        for trigger_class in trigger_classes:
+            self._trigger_classes[trigger_class.type_id] = trigger_class
+
+        return self
+
+    # TODO: errors
+    def unregister_triggers(self, *trigger_classes):
+        for trigger_class in trigger_classes:
+            del self._trigger_classes[trigger_class.type_id]
+
+        return self
+
+
+workflow_registry = WorkflowRegistry()
