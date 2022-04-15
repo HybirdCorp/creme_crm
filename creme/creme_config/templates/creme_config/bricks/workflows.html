@@ -1,0 +1,67 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_perms creme_widgets %}
+{% load uca_sort url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-workflows-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configurable type of resource') plural=_('{count} Configurables types of resource') empty=_('Configurable types of resource') %}
+{% endblock %}
+
+{% comment %}
+{% block brick_header_actions %}
+  {% if display_add_button %}
+    {% brick_header_action id='add' url='creme_config__create_fields_config'|url label=_('New fields configuration') enabled=user|has_perm_to_admin:'creme_core' %}
+  {% endif %}
+{% endblock %}
+{% endcomment %}
+
+{% block brick_table_columns %}
+    {% brick_table_column title=_('Type')    status='primary' class='workflow_group-label' %}
+    {% brick_table_column title=_('Rules')                    class='workflow_group-rules' %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+{% endblock %}
+
+{% block brick_table_rows %}
+ {% with admin_perm=user|has_perm_to_admin:'creme_core' %}{# delete_url='creme_config__delete_fields_config'|url #}
+  {% for workflow_group in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %} class="workflow_group-label">{{workflow_group.ctype}}</td>
+        <td class="workflow_group-rules">
+            <ul>
+              {% for workflow in workflow_group.workflows %}
+                <li>
+                    <span>{{workflow.title}}</span>
+                    <ul>
+                        <li>{{workflow.trigger.description}}</li>
+                        <li>CONDITIONS...</li>
+                        <li> {% translate 'Actions:' %}
+                            <ul>
+                                {% for rendered_action in workflow.rendered_actions %}<li>{{rendered_action}}</li>{% endfor %}
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+{% comment %}
+            {% with errors=field_conf.errors %}
+                {% if errors %}<ul class="warninglist">{% for error in errors %}<li>{{error}}</li>{% endfor %}</ul>{% endif %}
+            {% endwith %}
+{% endcomment %}
+              {% endfor %}
+            </ul>
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='add' url='creme_config__create_workflow'|url:workflow_group.ctype.id enabled=admin_perm %}
+{# TODO           {% brick_table_action id='edit' url='creme_config__edit_fields_config'|url:field_conf.pk enabled=admin_perm %} #}
+        </td>
+        <td {% brick_table_data_status action %}>
+{# TODO            {% brick_table_action id='delete' url=delete_url __id=field_conf.pk enabled=admin_perm %} #}
+        </td>
+    </tr>
+  {% endfor %}
+ {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No workflow for the moment' %}
+{% endblock %}

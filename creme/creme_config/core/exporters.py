@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2024  Hybird
+#    Copyright (C) 2017-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -61,6 +61,9 @@ logger = logging.getLogger(__name__)
 #         return cell.to_dict() if exporter is None else exporter(cell)
 
 
+# TODO: should we export Workflows?
+#  - probably hard to predict te behaviour, so we wait some feedback on Workflows before
+#  - currently conditions are not very portable; improve filter/conditions before
 class Exporter:
     model: type[Model] = models.CremeModel
 
