@@ -152,7 +152,9 @@
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
             * Opportunities :
-                - In 'bricks._LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
+                - In 'bricks' :
+                    - In the base class '_LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
+                    - In the mixin class '_RelatedToOpportunity', the method 'get_related_contacts()' has been removed.
             * Commercial :
                 - In 'bricks' :
                     - The method 'ApproachesBrick._populate_related_real_entities()' has been removed.
