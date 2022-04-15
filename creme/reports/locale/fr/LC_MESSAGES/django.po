@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-17 10:14+0100\n"
+"POT-Creation-Date: 2022-04-25 19:10+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -480,6 +480,14 @@ msgstr "Voir"
 
 msgid "Reload"
 msgstr "Recharger"
+
+#, python-format
+msgid "Beware: there is an error with the X axis: %(error)s"
+msgstr "Attention : il y a une erreur avec l'axe X : %(error)s"
+
+#, python-format
+msgid "Beware: there is an error with the Y axis: %(error)s"
+msgstr "Attention : il y a une erreur avec l'axe Y : %(error)s"
 
 msgid "Select the type of visualisation for this graph"
 msgstr "Sélectionner le type de visualisation du graphique"
