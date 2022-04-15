@@ -21,6 +21,7 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SettingValue,
+    Workflow,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
 from creme.opportunities import constants, setting_keys
@@ -115,6 +116,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         assertSVEqual(setting_keys.quote_key, False)
         assertSVEqual(setting_keys.target_constraint_key, True)
         assertSVEqual(setting_keys.emitter_constraint_key, True)
+
+        wf1 = self.get_object_or_fail(Workflow, uuid='b8d03709-4abd-490c-aa9f-8a2414f92b97')
+        self.assertEqual(_('The target Organisation becomes a prospect'), wf1.title)
+        self.assertEqual(wf1.content_type.model_class(), Opportunity)
+        self.assertFalse(wf1.is_custom)
+
+        wf2 = self.get_object_or_fail(Workflow, uuid='04ae1335-6e5d-4856-9be6-9f59846b06d1')
+        self.assertEqual(_('The target Contact becomes a prospect'), wf2.title)
+        self.assertEqual(wf2.content_type.model_class(), Opportunity)
+        self.assertFalse(wf2.is_custom)
 
     @skipIfNotInstalled('creme.activities')
     def test_populate_activities(self):
