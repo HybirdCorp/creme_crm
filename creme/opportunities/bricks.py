@@ -48,21 +48,30 @@ Opportunity = get_opportunity_model()
 
 
 class _RelatedToOpportunity:
-    def get_related_queryset(self, *, opportunity, model, rtype_id):
-        return model.objects.annotate(
+    def get_related_queryset(self, *, opportunity, model, rtype_id, exclude_deleted=True):
+        qs = model.objects.annotate(
             relations_w_opp=FilteredRelation(
                 'relations',
                 condition=Q(relations__object_entity=opportunity.id),
             ),
         ).filter(
-            is_deleted=False,
+            # is_deleted=False,
             relations_w_opp__type=rtype_id,
         )
 
-    def get_related_contacts(self, *, opportunity, rtype_id):
-        return self.get_related_queryset(
-            opportunity=opportunity, model=Contact, rtype_id=rtype_id,
-        ).select_related('civility')
+        if exclude_deleted:
+            qs = qs.exclude(is_deleted=True)
+
+        # TODO: system that select_related() fields used by __str__()
+        if model is Contact:
+            qs = qs.select_related('civility')
+
+        return qs
+
+    # def get_related_contacts(self, *, opportunity, rtype_id):
+    #     return self.get_related_queryset(
+    #         opportunity=opportunity, model=Contact, rtype_id=rtype_id,
+    #     ).select_related('civility')
 
 
 class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
@@ -112,8 +121,15 @@ class OpportunityCardHatBrick(_RelatedToOpportunity, Brick):
             target=target,
             target_is_organisation=isinstance(target, Organisation),
             contacts=Paginator(
-                self.get_related_contacts(
+                # self.get_related_contacts(
+                #     opportunity=opportunity,
+                #     rtype_id=constants.REL_SUB_LINKED_CONTACT,
+                # ),
+                self.get_related_queryset(
                     opportunity=opportunity,
+                    model=Contact,
+                    # TODO: get the relation type id from the dependencies
+                    #       (wait for RelationTypes cache)
                     rtype_id=constants.REL_SUB_LINKED_CONTACT,
                 ),
                 per_page=self.displayed_contacts_number,
@@ -132,29 +148,43 @@ class OpportunityBrick(EntityBrick):
         return self.verbose_name
 
 
-class _LinkedStuffBrick(QuerysetBrick):
+# class _LinkedStuffBrick(QuerysetBrick):
+class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
     # id_ = SET ME
     # verbose_name = SET ME
-    dependencies: BrickDependencies = (Relation,)
+    dependencies: BrickDependencies = (Relation,)  # NB: needs a second model
     # relation_type_deps = SET ME
     # template_name = SET ME
     target_ctypes = (Opportunity,)
 
-    def _get_queryset(self, entity):  # Override
-        pass
+    # If True, entity marked as deleted are excluded from the query.
+    exclude_deleted = True
+
+    # def _get_queryset(self, entity):
+    #     pass
+    def _get_queryset(self, opportunity, rtype):
+        return self.get_related_queryset(
+            opportunity=opportunity,
+            model=self.dependencies[1],
+            rtype_id=rtype.symmetric_type_id,
+            exclude_deleted=self.exclude_deleted,
+        )
 
     def detailview_display(self, context):
         entity = context['object']
+        relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
 
         return self._render(self.get_template_context(
             context,
-            self._get_queryset(entity),
+            self._get_queryset(opportunity=entity, rtype=relation_type),
             # predicate_id=self.relation_type_deps[0],
-            relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
+            # relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
+            relation_type=relation_type,
         ))
 
 
-class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+# class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+class LinkedContactsBrick(_LinkedStuffBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'linked_contacts')
     verbose_name = _('Linked Contacts')
     description = _(
@@ -166,14 +196,15 @@ class LinkedContactsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
     template_name = 'opportunities/bricks/contacts.html'
 
-    def _get_queryset(self, entity):
-        return self.get_related_contacts(
-            opportunity=entity,
-            rtype_id=constants.REL_SUB_LINKED_CONTACT,
-        )
+    # def _get_queryset(self, entity):
+    #     return self.get_related_contacts(
+    #         opportunity=entity,
+    #         rtype_id=constants.REL_SUB_LINKED_CONTACT,
+    #     )
 
 
-class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+# class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+class LinkedProductsBrick(_LinkedStuffBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'linked_products')
     verbose_name = _('Related products')
     description = _(
@@ -186,15 +217,16 @@ class LinkedProductsBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     template_name = 'opportunities/bricks/products.html'
     order_by = 'name'
 
-    def _get_queryset(self, entity):
-        return self.get_related_queryset(
-            opportunity=entity,
-            model=Product,
-            rtype_id=constants.REL_SUB_LINKED_PRODUCT,
-        )
+    # def _get_queryset(self, entity):
+    #     return self.get_related_queryset(
+    #         opportunity=entity,
+    #         model=Product,
+    #         rtype_id=constants.REL_SUB_LINKED_PRODUCT,
+    #     )
 
 
-class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+# class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+class LinkedServicesBrick(_LinkedStuffBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'linked_services')
     verbose_name = _('Related services')
     description = _(
@@ -207,15 +239,16 @@ class LinkedServicesBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     template_name = 'opportunities/bricks/services.html'
     order_by = 'name'
 
-    def _get_queryset(self, entity):
-        return self.get_related_queryset(
-            opportunity=entity,
-            model=Service,
-            rtype_id=constants.REL_SUB_LINKED_SERVICE,
-        )
+    # def _get_queryset(self, entity):
+    #     return self.get_related_queryset(
+    #         opportunity=entity,
+    #         model=Service,
+    #         rtype_id=constants.REL_SUB_LINKED_SERVICE,
+    #     )
 
 
-class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+# class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
+class BusinessManagersBrick(_LinkedStuffBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'responsibles')
     verbose_name = _('Business managers')
     description = _(
@@ -227,11 +260,11 @@ class BusinessManagersBrick(_RelatedToOpportunity, _LinkedStuffBrick):
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
     template_name = 'opportunities/bricks/managers.html'
 
-    def _get_queryset(self, entity):
-        return self.get_related_contacts(
-            opportunity=entity,
-            rtype_id=constants.REL_SUB_RESPONSIBLE,
-        )
+    # def _get_queryset(self, entity):
+    #     return self.get_related_contacts(
+    #         opportunity=entity,
+    #         rtype_id=constants.REL_SUB_RESPONSIBLE,
+    #     )
 
 
 class TargettingOpportunitiesBrick(QuerysetBrick):
@@ -257,6 +290,8 @@ class TargettingOpportunitiesBrick(QuerysetBrick):
             # TODO: filter deleted ??
             Opportunity.objects.filter(
                 relations__object_entity=entity.id,
+                # TODO: get the relation type id from the dependencies
+                #       (wait for RelationTypes cache)
                 relations__type=constants.REL_SUB_TARGETS,
             ),
             predicate_id=self.relation_type_deps[0],
@@ -348,13 +383,14 @@ if apps.is_installed('creme.billing'):
         template_name = 'opportunities/bricks/quotes.html'
         order_by = 'name'
 
-        def _get_queryset(self, entity):
-            # TODO: test
-            # TODO: filter deleted ?? what about current quote behaviour ??
-            return Quote.objects.filter(
-                relations__object_entity=entity.id,
-                relations__type=constants.REL_SUB_LINKED_QUOTE,
-            )
+        # TODO: filter deleted ?? what about current quote behaviour ??
+        exclude_deleted = False
+
+        # def _get_queryset(self, entity):
+        #     return Quote.objects.filter(
+        #         relations__object_entity=entity.id,
+        #         relations__type=constants.REL_SUB_LINKED_QUOTE,
+        #     )
 
     class SalesOrdersBrick(_LinkedStuffBrick):
         id_ = QuerysetBrick.generate_id('opportunities', 'sales_orders')
@@ -369,13 +405,12 @@ if apps.is_installed('creme.billing'):
         template_name = 'opportunities/bricks/sales-orders.html'
         order_by = 'name'
 
-        def _get_queryset(self, entity):
-            # TODO: test
-            return SalesOrder.objects.filter(
-                is_deleted=False,
-                relations__object_entity=entity.id,
-                relations__type=constants.REL_SUB_LINKED_SALESORDER,
-            )
+        # def _get_queryset(self, entity):
+        #     return SalesOrder.objects.filter(
+        #         is_deleted=False,
+        #         relations__object_entity=entity.id,
+        #         relations__type=constants.REL_SUB_LINKED_SALESORDER,
+        #     )
 
     class InvoicesBrick(_LinkedStuffBrick):
         id_ = QuerysetBrick.generate_id('opportunities', 'invoices')
@@ -390,13 +425,12 @@ if apps.is_installed('creme.billing'):
         template_name = 'opportunities//bricks/invoices.html'
         order_by = 'name'
 
-        def _get_queryset(self, entity):
-            # TODO: test
-            return Invoice.objects.filter(
-                is_deleted=False,
-                relations__object_entity=entity.id,
-                relations__type=constants.REL_SUB_LINKED_INVOICE,
-            )
+        # def _get_queryset(self, entity):
+        #     return Invoice.objects.filter(
+        #         is_deleted=False,
+        #         relations__object_entity=entity.id,
+        #         relations__type=constants.REL_SUB_LINKED_INVOICE,
+        #     )
 
     bricks_list += (
         QuotesBrick,

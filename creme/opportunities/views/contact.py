@@ -39,12 +39,13 @@ class RelatedContactCreation(EntityRelatedMixin, EntityCreationPopup):
     entity_classes = get_opportunity_model()
     entity_form_kwarg = 'opportunity'
 
+    # NB: see LinkedContactsBrick
+    relation_type_id = REL_SUB_LINKED_CONTACT
+
     def check_view_permissions(self, user):
         super().check_view_permissions(user=user)
 
-        # TODO: factorise
-        rtype = RelationType.objects.get(id=REL_SUB_LINKED_CONTACT)
-        rtype.is_enabled_or_die()
+        RelationType.objects.get(id=self.relation_type_id).is_enabled_or_die()
 
     def check_related_entity_permissions(self, entity, user):
         user.has_perm_to_view_or_die(entity)
@@ -61,9 +62,9 @@ class RelatedContactCreation(EntityRelatedMixin, EntityCreationPopup):
         response = super().form_valid(form)
         Relation.objects.create(
             user=self.request.user,
-            subject_entity=self.object,
-            # TODO: attribute + LinkedContactsBrick.relation_type_deps[0]
-            type_id=REL_SUB_LINKED_CONTACT,
+            # subject_entity=self.object,
+            subject_entity=form.instance,
+            type_id=self.relation_type_id,
             object_entity=self.get_related_entity(),
         )
 
