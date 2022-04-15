@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,6 +32,7 @@ if apps.is_installed('creme.activities'):
     from .constants import REL_SUB_COMPLETE_GOAL
     from .models import CommercialApproach
 
+    # TODO: convert as Workflow? would need a 'multi-sources' action
     # Catching the save of the relation between an activity and an opportunity as a subject
     @receiver(
         post_save, sender=Relation, dispatch_uid='commercial-manage_opp_as_activity_subject',

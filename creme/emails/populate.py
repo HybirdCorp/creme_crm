@@ -53,10 +53,12 @@ class Populator(BasePopulator):
     JOBS = [
         Job(type=creme_jobs.entity_emails_send_type),
         Job(type=creme_jobs.campaign_emails_send_type),
+        Job(type=creme_jobs.workflow_emails_send_type),
         Job(
             type=creme_jobs.entity_emails_sync_type,
             periodicity=date_period_registry.get_period('minutes', 30),
         ),
+
     ]
     CUSTOM_FORMS = [
         custom_forms.CAMPAIGN_CREATION_CFORM,
