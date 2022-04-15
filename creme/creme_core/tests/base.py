@@ -553,7 +553,7 @@ class _CremeTestCase:
             if field_name not in form_errors:
                 self.fail(
                     'The error "{field}" has not been found in the form '
-                    '(fields: {fields})'.format(
+                    '(fields with errors: {fields})'.format(
                         field=field_name,
                         fields=[*form_errors.keys()],
                     )
