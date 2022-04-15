@@ -1,0 +1,14 @@
+{% extends 'creme_config/portals/base.html' %}
+{% load i18n creme_widgets %}
+
+{% block page_title %}{% translate 'Configuration of the Workflow engine' %} - {% endblock %}
+
+{% block title %}
+    {{block.super}}{% translate 'Workflow rules' %}
+{% endblock %}
+
+{% block portal_help %}
+{% blocktranslate asvar help_msg %}You can define how and when some automatic actions (like relationship adding or email sending) are performed, in order to avoid some manual work.
+Notice than Workflows which <strong>have just been created are disabled</strong>; so you can add as much as actions you want before you enable them.{% endblocktranslate %}
+    {% widget_help_sign message=help_msg %}
+{% endblock %}

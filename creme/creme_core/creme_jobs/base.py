@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from django.template.loader import get_template
 from django.utils.timezone import now
 
 from ..apps import CremeAppConfig
+from ..core.workflow import WorkflowEngine
 from ..models import Job, JobResult
 
 if TYPE_CHECKING:
@@ -133,6 +134,14 @@ class JobType:
 
         # job.last_run = now()
         job.save()
+
+        events = WorkflowEngine.get_current()._queue.pickup()
+        if events:
+            logger.critical(
+                'Some workflow events have not been managed by the job %s: %s '
+                'Hint: see <creme.creme_core.core.workflow.run_workflow_engine()>',
+                type(self), events,
+            )  # TODO: unit test
 
         from ..core.job import get_queue
         get_queue().end_job(job)

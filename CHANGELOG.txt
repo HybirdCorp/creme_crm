@@ -22,6 +22,15 @@
         - The new types have just one regular field ("name"), you can add custom-field as usual.
         - BEWARE: if you upgrade from a previous version of Creme, 'creme.custom_entities' must be
           in your 'settings.INSTALLED_APPS' (it should be OK it you did not modify it or have modified as advised).
+    # A Workflow engine has been added; it allows to configure from the UI some automatic actions.
+        - Current events which can trigger a Workflow :
+          entity creation, entity edition, relationship adding, property adding.
+        - Current available actions :
+            - Add a property
+            - Add a relationship
+            - Send an email (needs the app 'emails').
+      Note: a new middleware has been added in the default settings 'MIDDLEWARE' : "WorkflowMiddleware".
+            You should add it in you have your own definition of this variable.
     # The deletion & cloning buttons have been reworked in detailed views & list-views;
       they are now disabled when a rule avoids you to delete them (e.g. a Contact corresponding
       to a user) & the reason is displayed as tool-tip.
@@ -80,6 +89,10 @@
                 - QUOTE_NUMBER_PREFIX
                 - INVOICE_NUMBER_PREFIX
                 - SALESORDER_NUMBER_PREFIX
+            - Since always, these actions are automatically performed :
+                - The target of a Quote becomes a prospect of the emitter.
+                - The target of an Invoice becomes a supplier of the emitter.
+                These behaviours are now implemented as Workflows (so you could disable them for example).
             - It's now forbidden by default to edit the source Organisation of a Invoice/CreditNote when a number is set.
               This behaviour can be changed in the configuration portal of 'billing'.
             - The 'Convert to ...' buttons have been reworked :
@@ -92,6 +105,10 @@
             - You can now create unsuccessful phone calls from an Opportunity's detail-view :
                 - A button has been added (not enabled in default installations).
                 - In the block "Linked Contacts", you can activate an new action in the configuration (idem).
+            - Since always, the target of an Opportunity automatically becomes a prospect of the emitter.
+              This behaviour is now implemented as Workflows.
+              A new behaviour has been added with a Workflow: the target of a
+              won Opportunity becomes a customer of the emitter.
             - The field 'Opportunity.chance_to_win' checks now that the value is between 0 & 100.
         * Crudity :
             - BEWARE: the date format corresponds now to your server's language (i.e. 'settings.LANGUAGE_CODE').
@@ -150,6 +167,7 @@
             - App :
                 * Persons :
                     - The method 'models.base.PersonWithAddressesMixin._post_save_clone()' is deprecated.
+                    - The module 'workflow' is deprecated.
                 * Assistants :
                     - The constant 'MIN_HOUR_4_TODO_REMINDER' is deprecated;
                       use 'setting_keys.todo_reminder_key.id' instead.
@@ -458,11 +476,13 @@
                     - The class view 'convert.Conversion' has been reworked :
                         - The attribute 'dest_title' has been removed.
                         - The method 'get_destination_model()' has been removed.
+                - The function 'signals.manage_creation_workflows()' (& the related global variable '_WORKFLOWS') has been removed.
             * Opportunities :
                 - In 'bricks' :
                     - In the class 'OpportunityCardHatBrick', the variable "hidden_fields" is not injected anymore.
                     - In the class 'TargetingOpportunitiesBrick', theses variables are not injected anymore:
                       "hidden_fields", "is_organisation" & "is_contact".
+                - The class attribute 'views.billing.BillingDocGeneration.behaviours' has changed (see comments in code).
             * Emails :
                 - In the brick classes 'ContactsBrick' & 'OrganisationsBrick',
                   the variable "field_hidden" is not injected anymore.
@@ -4306,7 +4326,7 @@
                 - The function 'views.product.add_images()' has been removed ; use the class-based view 'ImagesAdding' instead.
                 - The function 'views.service.add_images()' has been removed ; use the class-based view 'ImagesAdding' instead.
             * Billing :
-                - The URL for the list-view of CreditNotes has change (but its name did not change, so no breaking with 'reverse()').
+                - The URL for the list-view of CreditNotes has changed (but its name did not change, so no breaking with 'reverse()').
                 - The class 'models.templatebase._VerboseStatusField' has moved to 'function_fields.TemplateBaseVerboseStatusField'.
                 - The function 'views.payment_information.add()' has been removed ; use the class-based view 'PaymentInformationCreation' instead.
                 - The function 'views.line.add_to_catalog()' has been removed ; use the class-based view 'AddingToCatalog' instead.

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2024  Hybird
+#    Copyright (C) 2012-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ from django.db.transaction import atomic
 from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils.decorators import method_decorator
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
@@ -42,6 +43,7 @@ from creme.creme_core.templatetags.creme_widgets import (
 from creme.creme_core.utils import get_from_POST_or_404, update_model_instance
 from creme.creme_core.utils.media import get_current_theme
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 
 from ..constants import DEFAULT_HFILTER_PREPLY
 from ..core import MultiEnumPollLineType
@@ -93,6 +95,7 @@ def _format_previous_answered_question(preply_id, line, style):
 @login_required
 @permission_required('polls')
 @atomic
+@workflow_engine
 def edit_line_wizard(request, preply_id, line_id):
     preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
@@ -160,6 +163,7 @@ def edit_line_wizard(request, preply_id, line_id):
 @login_required
 @permission_required('polls')
 @atomic
+@workflow_engine
 def fill(request, preply_id):
     preply = get_object_or_404(PollReply.objects.select_for_update(), pk=preply_id)
 
@@ -385,10 +389,11 @@ class PollReplyCleaning(generic.base.EntityRelatedMixin, generic.CheckedView):
     def get_related_entity_id(self):
         return get_from_POST_or_404(self.request.POST, self.preply_id_arg)
 
+    @atomic
+    @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
-        with atomic():
-            preply = self.get_related_entity()
-            self.clean(preply)
+        preply = self.get_related_entity()
+        self.clean(preply)
 
         if is_ajax(request):
             return HttpResponse()

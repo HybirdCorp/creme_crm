@@ -48,6 +48,7 @@ from ..menu import (
     SearchConfigEntry,
     TimezoneEntry,
     UsersConfigEntry,
+    WorkflowsConfigEntry,
 )
 from ..views.portal import Portal
 
@@ -144,6 +145,13 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertEqual(_('Custom forms'),                     entry.label)
         self.assertEqual(reverse('creme_config__custom_forms'), entry.url)
         self.assertEqual('creme_config',                        entry.permissions)
+
+    def test_workflows_entry(self):
+        entry = WorkflowsConfigEntry()
+        self.assertEqual('creme_config-workflows',           entry.id)
+        self.assertEqual(_('Workflows'),                     entry.label)
+        self.assertEqual(reverse('creme_config__workflows'), entry.url)
+        self.assertEqual('creme_config',                     entry.permissions)
 
     def test_history_entry(self):
         entry = HistoryConfigEntry()
@@ -328,6 +336,7 @@ class MenuEntriesTestCase(CremeTestCase):
                 for a_node in li_node.findall('.//a')
             )
 
+        self.maxDiff = None
         self.assertListEqual(
             [
                 (reverse('creme_config__portal'),              _('General configuration')),
@@ -337,6 +346,7 @@ class MenuEntriesTestCase(CremeTestCase):
                 (reverse('creme_config__custom_entity_types'), _('Custom entities')),
                 (reverse('creme_config__fields'),              _('Fields')),
                 (reverse('creme_config__custom_forms'),        _('Custom forms')),
+                (reverse('creme_config__workflows'),           _('Workflows')),
                 (reverse('creme_config__history'),             _('History')),
                 (reverse('creme_config__menu'),                _('Menu')),
                 (reverse('creme_config__notification'),        _('Notifications')),

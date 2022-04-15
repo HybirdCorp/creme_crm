@@ -36,6 +36,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 from creme.creme_core.views.generic.listview import SelectionMode
 
@@ -179,6 +180,7 @@ LINE_FORMSET_PREFIX = {
 @login_required
 @permission_required('billing')
 @atomic
+@workflow_engine
 def multi_save_lines(request, document_id):
     get_for_ct = ContentType.objects.get_for_model
     b_entity = get_object_or_404(

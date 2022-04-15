@@ -24,6 +24,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.views.bricks as bricks_views
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 from creme.persons import get_organisation_model
@@ -139,7 +140,7 @@ class OrganisationRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletio
         orga_id = get_from_POST_or_404(request.POST, self.organisation_id_arg, cast=int)
         strategy = self.get_related_entity()
 
-        with atomic():
+        with atomic(), run_workflow_engine(user=request.user):
             strategy.evaluated_orgas.remove(orga_id)
             CommercialAssetScore.objects.filter(
                 asset__strategy=strategy, organisation=orga_id,

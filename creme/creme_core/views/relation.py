@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2023  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,6 +32,7 @@ from django.utils.translation import ngettext
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
+from ..core.workflow import WorkflowEngine
 from ..forms import relation as rel_forms
 from ..models import CremeEntity, Relation, RelationType
 from ..shortcuts import get_bulk_or_404
@@ -480,6 +481,8 @@ def add_relations_with_same_type(request):
     except ValidationError as e:
         raise ConflictError(e.messages[0])
 
+    engine = WorkflowEngine.get_current()
+
     for entity in entities:
         # NB: 'entity' is used in error messages of clean_subject_entity(),
         #     so it's a good thing to have the permission to view it.
@@ -505,7 +508,9 @@ def add_relations_with_same_type(request):
             errors[409].append(e.messages[0])
             continue
 
-        Relation.objects.safe_multi_save([rel])
+        # TODO: unit test workflow
+        with engine.run(user=user):
+            Relation.objects.safe_multi_save([rel])
 
     if not errors:
         status = 200

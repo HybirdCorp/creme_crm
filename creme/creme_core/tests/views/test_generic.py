@@ -9,9 +9,13 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core import workflows
 from creme.creme_core.bricks import PropertiesBrick
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter.operators import EndsWithOperator
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.gui.custom_form import (
     CustomFormDescriptor,
@@ -32,6 +36,7 @@ from creme.creme_core.models import (
     Imprint,
     RelationType,
     SemiFixedRelationType,
+    Workflow,
 )
 from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
@@ -729,6 +734,40 @@ class CreationTestCase(CremeTestCase):
             status_code=403,
         )
 
+    def test_workflow(self):
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_bought', 'is bought by'),
+            ('test-object_bought',  'buys'),
+        )[0]
+        orga1 = FakeOrganisation.objects.create(user=user2)
+
+        Workflow.objects.create(
+            title='Created Organisations are cool',
+            content_type=FakeOrganisation,
+            trigger=workflows.EntityCreationTrigger(model=FakeOrganisation),
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=workflows.CreatedEntitySource(model=FakeOrganisation),
+                    rtype=rtype.id,
+                    object_source=workflows.FixedEntitySource(entity=orga1),
+                )
+            ],
+        )
+
+        name = 'NERV'
+        self.assertNoFormError(self.client.post(
+            FakeOrganisation.get_create_absolute_url(),
+            data={'user': user2.id, 'name': name},
+            follow=True,
+        ))
+        orga2 = self.get_object_or_fail(FakeOrganisation, name=name)
+
+        rel = self.assertHaveRelation(subject=orga2, type=rtype, object=orga1)
+        self.assertEqual(user1, rel.user)
+
 
 class EditionTestCase(CremeTestCase):
     def test_entity_edition(self):
@@ -977,3 +1016,52 @@ class EditionTestCase(CremeTestCase):
         nerv.user = user
         nerv.save()
         self.assertGET200(url)
+
+    def test_workflow(self):
+        user1 = self.login_as_root_and_get()
+        user2 = self.create_user()
+
+        model = FakeOrganisation
+        create_orga = partial(model.objects.create, user=user2)
+        orga1 = create_orga(name='NERV')
+        orga2 = create_orga(name='Seele')
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_bought', 'is bought by'),
+            ('test-object_bought',  'buys'),
+        )[0]
+
+        suffix = ' Corp'
+        source = workflows.EditedEntitySource(model=model)
+        Workflow.objects.create(
+            title='Edited Corporations are cool',
+            content_type=model,
+            trigger=workflows.EntityEditionTrigger(model=model),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=model,
+                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                )],
+            ),
+            actions=[
+                workflows.RelationAddingAction(
+                    subject_source=source,
+                    rtype=rtype.id,
+                    object_source=workflows.FixedEntitySource(entity=orga1),
+                ),
+            ],
+        )
+
+        name = f'{orga2.name}{suffix}'
+        self.assertNoFormError(self.client.post(
+            orga2.get_edit_absolute_url(),
+            data={'user': user2.id, 'name': name},
+            follow=True,
+        ))
+
+        orga2 = self.refresh(orga2)
+        self.assertEqual(name, orga2.name)
+
+        rel = self.assertHaveRelation(subject=orga2, type=rtype, object=orga1)
+        self.assertEqual(user1, rel.user)

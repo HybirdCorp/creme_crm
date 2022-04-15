@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2024  Hybird
+#    Copyright (C) 2016-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from django.views.generic.detail import SingleObjectMixin
 from formtools.wizard.views import SessionWizardView
 
 from creme.creme_core import models
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.models import CustomFormConfigItem
 
@@ -137,12 +138,13 @@ class CremeWizardView(base.PermissionsMixin,
 
         return super().dispatch(request, *args, **kwargs)
 
-    def post(self, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         if kwargs.get('atomic_POST', self.atomic_POST):
-            with atomic():
-                return super().post(*args, **kwargs)
+            # TODO: unit test workflow (new fake view)
+            with atomic(), run_workflow_engine(user=request.user):
+                return super().post(request, *args, **kwargs)
         else:
-            return super().post(*args, **kwargs)
+            return super().post(request, *args, **kwargs)
 
     def done_save(self, form_list):
         # We save the last form

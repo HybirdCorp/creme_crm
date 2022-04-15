@@ -22,16 +22,18 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
 from creme import billing
 from creme.billing.constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.http import is_ajax
 from creme.creme_core.models import Relation, RelationType, SettingValue, Vat
+from creme.creme_core.views.decorators import workflow_engine
 from creme.creme_core.views.generic import base
 from creme.creme_core.views.relation import RelationsObjectsSelectionPopup
-from creme.persons import workflow
 from creme.products import get_product_model
 
 from .. import constants, get_opportunity_model
@@ -81,11 +83,13 @@ class CurrentQuoteSetting(base.CheckedView):
 
         relations = Relation.objects.filter(**kwargs)
 
-        if action == 'set_current':
-            if not relations:
-                Relation.objects.safe_create(**kwargs, user=user)
-        else:  # action == 'unset_current':
-            relations.delete()
+        # TODO: unit test workflow
+        with atomic(), run_workflow_engine(user=user):
+            if action == 'set_current':
+                if not relations:
+                    Relation.objects.safe_create(**kwargs, user=user)
+            else:  # action == 'unset_current':
+                relations.delete()
 
         if is_ajax(request):
             return HttpResponse()
@@ -102,19 +106,20 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
     behaviours = {
         # Value is (Relation type ID between the new doc & the opportunity,
         #           Set the Relationship 'Current doc' ?,
-        #           Workflow function,
+        #           # Workflow function,
         #         )
         Quote: (
             constants.REL_SUB_LINKED_QUOTE,
             True,
-            workflow.transform_target_into_prospect,
+            # workflow.transform_target_into_prospect,
         ),
         Invoice: (
             constants.REL_SUB_LINKED_INVOICE,
             False,
-            workflow.transform_target_into_customer,
+            # workflow.transform_target_into_customer,
         ),
-        SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
+        # SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False, None),
+        SalesOrder: (constants.REL_SUB_LINKED_SALESORDER, False),
     }
     generated_name = '{document.number} — {opportunity}'
 
@@ -122,11 +127,13 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
         user.has_perm_to_link_or_die(entity)
 
     @atomic
+    @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
         klass = self.get_ctype().model_class()
 
         try:
-            rtype_id, set_as_current, workflow_action = self.behaviours[klass]
+            # rtype_id, set_as_current, workflow_action = self.behaviours[klass]
+            rtype_id, set_as_current = self.behaviours[klass]
         except KeyError as e:
             raise Http404('Bad billing document type') from e
 
@@ -186,8 +193,8 @@ class BillingDocGeneration(base.EntityCTypeRelatedMixin,
             # TODO: what if RelationType disabled?
             create_relation(type_id=constants.REL_SUB_CURRENT_DOC, object_entity=opp)
 
-        if workflow_action:
-            workflow_action(opp.emitter, opp.target, user)
+        # if workflow_action:
+        #     workflow_action(opp.emitter, opp.target, user)
 
         if is_ajax(request):
             return HttpResponse()

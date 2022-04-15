@@ -106,6 +106,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.CustomFieldsBrick,
             bricks.CustomEnumsBrick,
             bricks.CustomFormsBrick,
+            bricks.WorkflowsBrick,
             bricks.BrickDetailviewLocationsBrick,
             bricks.BrickHomeLocationsBrick,
             bricks.BrickDefaultMypageLocationsBrick,

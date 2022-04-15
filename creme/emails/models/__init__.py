@@ -14,3 +14,4 @@ from .synchronization import (  # NOQA
     EmailToSyncPerson,
 )
 from .template import AbstractEmailTemplate, EmailTemplate  # NOQA
+from .workflow import WorkflowEmail  # NOQA

@@ -4,7 +4,11 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core import workflows
+from creme.creme_core.core.entity_filter import condition_handler
+from creme.creme_core.core.entity_filter.operators import EndsWithOperator
 from creme.creme_core.core.exceptions import ConflictError
+from creme.creme_core.core.workflow import WorkflowConditions
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -16,6 +20,7 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
     SemiFixedRelationType,
+    Workflow,
 )
 
 from ..base import CremeTestCase
@@ -156,9 +161,9 @@ class RelationViewsTestCase(CremeTestCase):
             data={'fields': ['id', 'unicode']},
         )
 
-    def _create_contact(self, user):
+    def _create_contact(self, user, first_name='Laharl', last_name='Overlord'):
         return FakeContact.objects.create(
-            user=user, first_name='Laharl', last_name='Overlord',
+            user=user, first_name=first_name, last_name=last_name,
         )
 
     def _create_contacts(self, user):
@@ -168,8 +173,8 @@ class RelationViewsTestCase(CremeTestCase):
             create_contact(first_name='Etna',   last_name='Devil'),
         )
 
-    def _create_organisation(self, user):
-        return FakeOrganisation.objects.create(user=user, name='Underworld')
+    def _create_organisation(self, user, name='Underworld'):
+        return FakeOrganisation.objects.create(user=user, name=name)
 
     def _create_organisations(self, user):
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -248,14 +253,14 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertHaveRelation(subject, rtype1, object1)
         self.assertHaveRelation(subject, rtype2, object2)
 
-    def test_add_relations_not_superuser01(self):
+    def test_add_relations__not_superuser01(self):
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*')
 
         subject = CremeEntity.objects.create(user=user)
         self.assertGET200(self._build_add_url(subject))
 
-    def test_add_relations_not_superuser02(self):
+    def test_add_relations__not_superuser02(self):
         "Credentials problems."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*', all='!LINK')
@@ -263,7 +268,7 @@ class RelationViewsTestCase(CremeTestCase):
         subject = CremeEntity.objects.create(user=self.get_root_user())
         self.assertGET403(self._build_add_url(subject))
 
-    def test_add_relations_link_perm(self):
+    def test_add_relations__link_perm(self):
         "Credentials problems (no link credentials)."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*', all='!LINK')
@@ -291,7 +296,7 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertFalse(subject.relations.all())
 
-    def test_add_relations_duplicates01(self):
+    def test_add_relations__duplicates01(self):
         "Duplicates -> error."
         user = self.login_as_root_and_get()
 
@@ -316,7 +321,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
 
-    def test_add_relations_duplicates02(self):
+    def test_add_relations__duplicates02(self):
         "Do not recreate existing relationships."
         user = self.login_as_root_and_get()
         subject = self._create_contact(user=user)
@@ -341,7 +346,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())  # Not 3
 
-    def test_add_relations_circular(self):
+    def test_add_relations__circular(self):
         "Cannot link an entity to itself."
         user = self.login_as_root_and_get()
 
@@ -361,7 +366,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
 
-    def test_add_relations_property_constraints01(self):
+    def test_add_relations__property_constraints01(self):
         "CremeProperty constraints on subject."
         user = self.login_as_root_and_get()
 
@@ -440,7 +445,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertNoFormError(response3)
         self.assertEqual(1, subject.relations.count())
 
-    def test_add_relations_property_constraints02(self):
+    def test_add_relations__property_constraints02(self):
         "CremeProperty constraints on subject (forbidden types)."
         user = self.login_as_root_and_get()
 
@@ -495,7 +500,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertNoFormError(response2)
         self.assertEqual(1, subject.relations.count())
 
-    def test_add_relations_property_constraints03(self):
+    def test_add_relations__property_constraints03(self):
         "CremeProperty constraints on objects."
         user = self.login_as_root_and_get()
 
@@ -540,7 +545,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data=data))
         self.assertEqual(1, subject.relations.count())
 
-    def test_add_relations_exclude(self):
+    def test_add_relations__exclude(self):
         "'exclude' parameter."
         user = self.login_as_root_and_get()
 
@@ -575,6 +580,50 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertNotIn(rtype3, rtypes)
 
         self.assertListEqual([(sfrt2.id, sfrt2.predicate)], semifixed_choices)
+
+    def test_add_relations__workflow(self):
+        user = self.login_as_root_and_get()
+        rtype = self._create_rtype()
+        ptype = CremePropertyType.objects.create(text='Is a fan')
+
+        subject = self._create_contact(user=user)
+
+        suffix = ' Corp'
+        object_orga = self._create_organisation(user=user, name=f'Underworld{suffix}')
+
+        Workflow.objects.create(
+            title='Edited Corporations are cool',
+            content_type=type(subject),
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=type(subject),
+                rtype=rtype,
+                object_model=type(object_orga),
+            ),
+            conditions=WorkflowConditions().add(
+                source=workflows.ObjectEntitySource(model=type(object_orga)),
+                conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=type(object_orga),
+                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                )],
+            ),
+            actions=[
+                workflows.PropertyAddingAction(
+                    entity_source=workflows.SubjectEntitySource(model=type(subject)),
+                    ptype=ptype,
+                ),
+            ],
+        )
+
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(subject),
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    (rtype, object_orga),
+                ),
+            },
+        ))
+        self.assertHaveRelation(subject, rtype, object_orga)
+        self.assertHasProperty(entity=subject, ptype=ptype)
 
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed."
@@ -1579,7 +1628,7 @@ class RelationViewsTestCase(CremeTestCase):
             ('test-object_foobar',  'is loved by'),
         )[0]
 
-    def test_add_relations_with_same_type01(self):
+    def test_add_relations_with_same_type(self):
         "No error."
         user = self.login_as_root_and_get()
         self._aux_add_relations_with_same_type(user=user)
@@ -1599,7 +1648,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertEqual(2, len(relations))
         self.assertCountEqual(object_ids, [r.object_entity_id for r in relations])
 
-    def test_add_relations_with_same_type02(self):
+    def test_add_relations_with_same_type__invalid_entity_id(self):
         "An entity does not exist."
         user = self.login_as_root_and_get()
         self._aux_add_relations_with_same_type(user=user)
@@ -1618,7 +1667,7 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
-    def test_add_relations_with_same_type_errors01(self):
+    def test_add_relations_with_same_type__errors01(self):
         "Errors."
         user = self.login_as_root_and_get()
         self._aux_add_relations_with_same_type(user=user)
@@ -1662,7 +1711,7 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
 
-    def test_add_relations_with_same_type_errors02(self):
+    def test_add_relations_with_same_type__errors02(self):
         "Object ID is not an int."
         self.login_as_root()
 
@@ -1681,7 +1730,7 @@ class RelationViewsTestCase(CremeTestCase):
             html=True,
         )
 
-    def test_add_relations_with_same_type_credentials(self):
+    def test_add_relations_with_same_type__credentials(self):
         "Credentials errors."
         user = self.login_as_standard()
         self.add_credentials(user.role, own='*', all='!LINK')
@@ -1721,7 +1770,7 @@ class RelationViewsTestCase(CremeTestCase):
         self.assertEqual(allowed01, relation.subject_entity)
         self.assertEqual(allowed02, relation.object_entity)
 
-    def test_add_relations_with_same_type_ctype_constraints(self):
+    def test_add_relations_with_same_type__ctype_constraints(self):
         "ContentType constraint errors."
         user = self.login_as_root_and_get()
 
@@ -1763,7 +1812,7 @@ class RelationViewsTestCase(CremeTestCase):
             [*Relation.objects.filter(type=rtype).values_list('object_entity', flat=True)],
         )
 
-    def test_add_relations_with_same_type_properties_constraints01(self):
+    def test_add_relations_with_same_type__properties_constraints01(self):
         "Property constraints."
         user = self.login_as_root_and_get()
 
@@ -1824,7 +1873,7 @@ class RelationViewsTestCase(CremeTestCase):
             [rel.object_entity.description for rel in Relation.objects.filter(type=rtype)],
         )
 
-    def test_add_relations_with_same_type_properties_constraints02(self):
+    def test_add_relations_with_same_type__properties_constraints02(self):
         "Forbidden property constraints."
         user = self.login_as_root_and_get()
 
@@ -1867,7 +1916,7 @@ class RelationViewsTestCase(CremeTestCase):
             [rel.object_entity.description for rel in Relation.objects.filter(type=rtype)],
         )
 
-    def test_add_relations_with_same_type_internal(self):
+    def test_add_relations_with_same_type__internal(self):
         "Is internal."
         user = self.login_as_root_and_get()
 
@@ -1890,7 +1939,7 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertFalse(Relation.objects.filter(type=rtype))
 
-    def test_add_relations_with_same_type_disabled(self):
+    def test_add_relations_with_same_type__disabled(self):
         "Is disabled."
         user = self.login_as_root_and_get()
 
@@ -1916,7 +1965,7 @@ class RelationViewsTestCase(CremeTestCase):
         )
         self.assertFalse(Relation.objects.filter(type=rtype))
 
-    def test_add_relations_with_same_type_circular(self):
+    def test_add_relations_with_same_type__circular(self):
         "Subject is in the objects."
         user = self.login_as_root_and_get()
 
@@ -1937,6 +1986,48 @@ class RelationViewsTestCase(CremeTestCase):
             },
         )
         self.assertFalse(Relation.objects.filter(type=rtype))
+
+    def test_add_relations_with_same_type__workflow(self):
+        user = self.login_as_root_and_get()
+        rtype = self._create_rtype()
+        ptype = CremePropertyType.objects.create(text='Is a fan')
+
+        subject = self._create_contact(user=user)
+
+        suffix = ' Corp'
+        object_orga = self._create_organisation(user=user, name=f'Underworld{suffix}')
+
+        Workflow.objects.create(
+            title='Edited Corporations are cool',
+            content_type=type(subject),
+            trigger=workflows.RelationAddingTrigger(
+                subject_model=type(subject),
+                rtype=rtype,
+                object_model=type(object_orga),
+            ),
+            conditions=WorkflowConditions().add(
+                source=workflows.ObjectEntitySource(model=type(object_orga)),
+                conditions=[condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=type(object_orga),
+                    operator=EndsWithOperator, field_name='name', values=[suffix],
+                )],
+            ),
+            actions=[workflows.PropertyAddingAction(
+                entity_source=workflows.SubjectEntitySource(model=type(subject)),
+                ptype=ptype,
+            )],
+        )
+
+        self.assertPOST200(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id':   subject.id,
+                'predicate_id': rtype.id,
+                'entities':     object_orga.id,
+            },
+        )
+        self.assertHaveRelation(subject, rtype, object_orga)
+        self.assertHasProperty(entity=subject, ptype=ptype)
 
     def _delete(self, relation):
         return self.client.post(

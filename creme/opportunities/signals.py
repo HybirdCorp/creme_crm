@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2024  Hybird
+#    Copyright (C) 2015-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,18 +23,6 @@ from django.dispatch import receiver
 from creme.creme_core.models import Relation
 
 from . import constants
-
-
-@receiver(post_save, sender=Relation, dispatch_uid='opportunities-transform_as_prospect')
-def _handle_prospect(sender, instance, **kwargs):
-    if instance.type_id == constants.REL_SUB_TARGETS:
-        from creme.persons import workflow
-
-        opp = instance.subject_entity
-        workflow.transform_target_into_prospect(
-            source=opp.emitter, target=opp.target, user=opp.user,
-        )
-
 
 if apps.is_installed('creme.billing'):
     from django.db.models import Sum

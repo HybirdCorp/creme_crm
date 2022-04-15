@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2024  Hybird
+#    Copyright (C) 2009-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,14 +23,17 @@ from typing import Iterator
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import BadRequestError
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BricksReloading
+from creme.creme_core.views.decorators import workflow_engine
 
 from .. import registry
 from ..backends.models import CrudityBackend
@@ -85,6 +88,8 @@ class ActionsRefreshing(RegistryMixin, generic.CheckedView):
     def refresh(self, user) -> list[CrudityBackend]:
         return self.crudity_registry.fetch(user)
 
+    @atomic
+    @method_decorator(workflow_engine)  # TODO: unit test
     def post(self, request, *args, **kwargs):
         return self.response_class(
             [backend.get_id() for backend in self.refresh(request.user)],
@@ -149,7 +154,8 @@ class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
 
             backend = self.get_backend(action)
 
-            with atomic():
+            # TODO: test workflow
+            with atomic(), run_workflow_engine(user=request.user):
                 is_created = backend.create(action)
 
                 if is_created:

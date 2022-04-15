@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2024  Hybird
+#    Copyright (C) 2024-2025  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,6 +24,7 @@ from functools import partial
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.transaction import atomic
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +34,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, Relation, SettingValue
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.views import generic
+from creme.creme_core.views.decorators import workflow_engine
 from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model, setting_keys
@@ -153,16 +155,16 @@ class UnsuccessfulPhoneCallCreation(generic.base.EntityRelatedMixin, generic.Che
         self._post_creation_relations(user=user, activity=activity)
         self._post_creation_calendar(user=user, activity=activity)
 
-    # @atomic
+    @atomic
+    @method_decorator(workflow_engine)
     def post(self, request, *args, **kwargs):
         entity = self.get_related_entity()
         user = request.user
         self._pre_creation(user=user, entity=entity)
 
-        with atomic():
-            activity = self._build_activity(user)
-            activity.save()
-            self._post_creation(user=user, activity=activity)
+        activity = self._build_activity(user)
+        activity.save()
+        self._post_creation(user=user, activity=activity)
 
         return HttpResponse()
 

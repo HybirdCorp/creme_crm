@@ -24,6 +24,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
+from creme.creme_core.core.workflow import run_workflow_engine
 from creme.creme_core.models import (
     CREME_REPLACE,
     CremeEntity,
@@ -143,97 +144,99 @@ class AbstractEvent(CremeEntity):
     def set_invitation_status(self, contact, status, user):
         relations = Relation.objects
 
-        if status == constants.INV_STATUS_NOT_INVITED:
-            relations.filter(
-                subject_entity=contact.id,
-                object_entity=self.id,
-                type__in=(
-                    constants.REL_SUB_IS_INVITED_TO,
-                    constants.REL_SUB_ACCEPTED_INVITATION,
-                    constants.REL_SUB_REFUSED_INVITATION,
-                ),
-            ).delete()
-        else:
-            relations.safe_get_or_create(
-                subject_entity=contact,
-                type=RelationType.objects.get(pk=constants.REL_SUB_IS_INVITED_TO),
-                object_entity=self,
-                user=user,
-            )
+        with run_workflow_engine(user=user):
+            if status == constants.INV_STATUS_NOT_INVITED:
+                relations.filter(
+                    subject_entity=contact.id,
+                    object_entity=self.id,
+                    type__in=(
+                        constants.REL_SUB_IS_INVITED_TO,
+                        constants.REL_SUB_ACCEPTED_INVITATION,
+                        constants.REL_SUB_REFUSED_INVITATION,
+                    ),
+                ).delete()
+            else:
+                relations.safe_get_or_create(
+                    subject_entity=contact,
+                    type=RelationType.objects.get(pk=constants.REL_SUB_IS_INVITED_TO),
+                    object_entity=self,
+                    user=user,
+                )
 
-            match status:
-                case constants.INV_STATUS_ACCEPTED:
-                    relations.safe_get_or_create(
-                        subject_entity=contact,
-                        type_id=constants.REL_SUB_ACCEPTED_INVITATION,
-                        object_entity=self,
-                        user=user,
-                    )
-                    relations.filter(
-                        subject_entity=contact.id,
-                        object_entity=self.id,
-                        type=constants.REL_SUB_REFUSED_INVITATION,
-                    ).delete()
-                case constants.INV_STATUS_REFUSED:
-                    relations.safe_get_or_create(
-                        subject_entity=contact,
-                        type_id=constants.REL_SUB_REFUSED_INVITATION,
-                        object_entity=self,
-                        user=user,
-                    )
-                    relations.filter(
-                        subject_entity=contact.id,
-                        type=constants.REL_SUB_ACCEPTED_INVITATION,
-                        object_entity=self.id,
-                    ).delete()
-                case _:
-                    assert status == constants.INV_STATUS_NO_ANSWER
-                    relations.filter(
-                        subject_entity=contact.id,
-                        type__in=(
-                            constants.REL_SUB_ACCEPTED_INVITATION,
-                            constants.REL_SUB_REFUSED_INVITATION,
-                        ),
-                        object_entity=self.id,
-                    ).delete()
+                match status:
+                    case constants.INV_STATUS_ACCEPTED:
+                        relations.safe_get_or_create(
+                            subject_entity=contact,
+                            type_id=constants.REL_SUB_ACCEPTED_INVITATION,
+                            object_entity=self,
+                            user=user,
+                        )
+                        relations.filter(
+                            subject_entity=contact.id,
+                            object_entity=self.id,
+                            type=constants.REL_SUB_REFUSED_INVITATION,
+                        ).delete()
+                    case constants.INV_STATUS_REFUSED:
+                        relations.safe_get_or_create(
+                            subject_entity=contact,
+                            type_id=constants.REL_SUB_REFUSED_INVITATION,
+                            object_entity=self,
+                            user=user,
+                        )
+                        relations.filter(
+                            subject_entity=contact.id,
+                            type=constants.REL_SUB_ACCEPTED_INVITATION,
+                            object_entity=self.id,
+                        ).delete()
+                    case _:
+                        assert status == constants.INV_STATUS_NO_ANSWER
+                        relations.filter(
+                            subject_entity=contact.id,
+                            type__in=(
+                                constants.REL_SUB_ACCEPTED_INVITATION,
+                                constants.REL_SUB_REFUSED_INVITATION,
+                            ),
+                            object_entity=self.id,
+                        ).delete()
 
     @atomic
     def set_presence_status(self, contact, status, user):
         relations = Relation.objects
 
-        if status == constants.PRES_STATUS_NOT_COME:
-            relations.filter(
-                subject_entity=contact.id,
-                type=constants.REL_SUB_CAME_EVENT,
-                object_entity=self.id,
-            ).delete()
-            relations.safe_get_or_create(
-                subject_entity=contact,
-                type_id=constants.REL_SUB_NOT_CAME_EVENT,
-                object_entity=self,
-                user=user,
-            )
-        elif status == constants.PRES_STATUS_COME:
-            relations.filter(
-                subject_entity=contact.id,
-                type=constants.REL_SUB_NOT_CAME_EVENT,
-                object_entity=self.id,
-            ).delete()
-            relations.safe_get_or_create(
-                subject_entity=contact,
-                type_id=constants.REL_SUB_CAME_EVENT,
-                object_entity=self,
-                user=user,
-            )
-        else:  # PRES_STATUS_DONT_KNOW
-            relations.filter(
-                subject_entity=contact.id,
-                type__in=(
-                    constants.REL_SUB_CAME_EVENT,
-                    constants.REL_SUB_NOT_CAME_EVENT,
-                ),
-                object_entity=self.id,
-            ).delete()
+        with run_workflow_engine(user=user):
+            if status == constants.PRES_STATUS_NOT_COME:
+                relations.filter(
+                    subject_entity=contact.id,
+                    type=constants.REL_SUB_CAME_EVENT,
+                    object_entity=self.id,
+                ).delete()
+                relations.safe_get_or_create(
+                    subject_entity=contact,
+                    type_id=constants.REL_SUB_NOT_CAME_EVENT,
+                    object_entity=self,
+                    user=user,
+                )
+            elif status == constants.PRES_STATUS_COME:
+                relations.filter(
+                    subject_entity=contact.id,
+                    type=constants.REL_SUB_NOT_CAME_EVENT,
+                    object_entity=self.id,
+                ).delete()
+                relations.safe_get_or_create(
+                    subject_entity=contact,
+                    type_id=constants.REL_SUB_CAME_EVENT,
+                    object_entity=self,
+                    user=user,
+                )
+            else:  # PRES_STATUS_DONT_KNOW
+                relations.filter(
+                    subject_entity=contact.id,
+                    type__in=(
+                        constants.REL_SUB_CAME_EVENT,
+                        constants.REL_SUB_NOT_CAME_EVENT,
+                    ),
+                    object_entity=self.id,
+                ).delete()
 
 
 class Event(AbstractEvent):

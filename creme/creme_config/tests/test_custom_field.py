@@ -142,14 +142,14 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         url = reverse('creme_config__create_first_ctype_custom_field')
-        response = self.assertGET200(url)
-        context = response.context
-
-        with self.assertNoException():
-            ctypes1 = context['form'].fields['content_type'].ctypes
+        response1 = self.assertGET200(url)
+        context = response1.context
 
         self.assertEqual(_('New custom field configuration'), context.get('title'))
         self.assertEqual(_('Save the custom field'),          context.get('submit_label'))
+
+        with self.assertNoException():
+            ctypes1 = context['form'].fields['content_type'].ctypes
 
         self.assertIn(ct, ctypes1)
         self.assertIn(ct_orga, ctypes1)
@@ -172,10 +172,10 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIs(cfield.is_deleted, False)
 
         # ---
-        response = self.assertGET200(url)
+        response2 = self.assertGET200(url)
 
         with self.assertNoException():
-            ctypes2 = response.context['form'].fields['content_type'].ctypes
+            ctypes2 = response2.context['form'].fields['content_type'].ctypes
 
         self.assertNotIn(ct, ctypes2)
         self.assertIn(ct_orga, ctypes2)

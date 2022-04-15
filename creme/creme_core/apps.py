@@ -50,6 +50,7 @@ if TYPE_CHECKING:
     from .core.sandbox import SandboxTypeRegistry
     from .core.setting_key import SettingKeyRegistry
     from .core.sorter import CellSorterRegistry
+    from .core.workflow import WorkflowRegistry
     from .gui.actions import ActionRegistry
     from .gui.bricks import BrickRegistry
     from .gui.bulk_update import BulkUpdateRegistry
@@ -251,6 +252,7 @@ class CremeAppConfig(AppConfig):
                 sandbox,
                 setting_key,
                 sorter,
+                workflow,
             )
             from .gui import (
                 actions,
@@ -305,6 +307,7 @@ class CremeAppConfig(AppConfig):
             self.register_statistics(statistics.statistic_registry)
             self.register_smart_columns(listview.smart_columns_registry)
             self.register_user_setting_keys(setting_key.user_setting_key_registry)
+            self.register_workflows(workflow.workflow_registry)
 
     def register_entity_models(self, creme_registry: CremeRegistry) -> None:
         pass
@@ -403,6 +406,9 @@ class CremeAppConfig(AppConfig):
         pass
 
     def register_user_setting_keys(self, user_setting_key_registry: 'SettingKeyRegistry') -> None:
+        pass
+
+    def register_workflows(self, workflow_registry: 'WorkflowRegistry') -> None:
         pass
 
 
@@ -672,6 +678,28 @@ class CremeCoreConfig(CremeAppConfig):
             setting_keys.brick_opening_key,
             setting_keys.brick_showempty_key,
             setting_keys.currency_symbol_key,
+        )
+
+    def register_workflows(self, workflow_registry):
+        from . import workflows
+
+        workflow_registry.register_triggers(
+            workflows.EntityCreationTrigger,
+            workflows.EntityEditionTrigger,
+            workflows.PropertyAddingTrigger,
+            workflows.RelationAddingTrigger,
+        ).register_sources(
+            workflows.CreatedEntitySource,
+            workflows.EditedEntitySource,
+            workflows.TaggedEntitySource,
+            workflows.SubjectEntitySource,
+            workflows.ObjectEntitySource,
+            workflows.FixedEntitySource,
+            workflows.EntityFKSource,
+            workflows.FirstRelatedEntitySource,
+        ).register_actions(
+            workflows.PropertyAddingAction,
+            workflows.RelationAddingAction,
         )
 
     # TODO: set Meta.formfield_callback for Creme(Model)Form instead?

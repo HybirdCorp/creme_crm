@@ -5,8 +5,16 @@ from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core import workflows
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import FakeContact, SetCredentials
+from creme.creme_core.core.entity_filter import condition_handler, operators
+from creme.creme_core.core.workflow import WorkflowConditions
+from creme.creme_core.models import (
+    CremePropertyType,
+    FakeContact,
+    SetCredentials,
+    Workflow,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import get_document_model, get_folder_model
 
@@ -573,6 +581,46 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         creds.value = EntityCredentials.VIEW | EntityCredentials.LINK
         creds.save()
         self.assertPOST403(url, data={'id': img_2.id})
+
+    def test_remove_image__workflow(self):
+        user = self.login_as_root_and_get()
+
+        ptype = CremePropertyType.objects.create(text='No images')
+
+        source = workflows.EditedEntitySource(model=Product)
+        Workflow.objects.create(
+            title='Created Organisations are cool',
+            content_type=Product,
+            trigger=workflows.EntityEditionTrigger(model=Product),
+            conditions=WorkflowConditions().add(
+                source=source,
+                conditions=[
+                    condition_handler.RegularFieldConditionHandler.build_condition(
+                        model=Product,
+                        operator=operators.IsEmptyOperator,
+                        field_name='images',
+                        values=[True],
+                    ),
+                ],
+            ),
+            actions=[workflows.PropertyAddingAction(entity_source=source, ptype=ptype)],
+        )
+
+        img = self._create_image(ident=1, user=user)
+        sub_cat = SubCategory.objects.first()
+        product = Product.objects.create(
+            user=user, name='Eva00',
+            description='A fake god', unit_price=Decimal('1.23'), code=42,
+            category=sub_cat.category, sub_category=sub_cat,
+        )
+        product.images.set([img])
+
+        self.assertPOST200(
+            reverse('products__remove_image', args=(product.id,)),
+            data={'id': img.id}, follow=True,
+        )
+        self.assertFalse([*product.images.all()])
+        self.assertHasProperty(entity=product, ptype=ptype)
 
     def test_mass_import01(self):
         "Categories not in CSV."

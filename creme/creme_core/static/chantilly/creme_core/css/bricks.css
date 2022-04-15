@@ -1386,6 +1386,13 @@ svg.icon {
     font-weight: 600;
 }
 
+.creme_core-history-brick .history-line-workflow {
+    cursor: help;
+
+    font-style: italic;
+    color: hsla(199, 9%, 50%, 1);
+}
+
 .popover-content .history-line-field-change-text-old_value {
     padding: 5px;
     background: #ffd4d4;

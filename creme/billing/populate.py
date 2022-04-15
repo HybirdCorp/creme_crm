@@ -47,7 +47,16 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
     SettingValue,
+    Workflow,
 )
+from creme.creme_core.workflows import (
+    FirstRelatedEntitySource,
+    ObjectEntitySource,
+    RelationAddingAction,
+    RelationAddingTrigger,
+    SubjectEntitySource,
+)
+from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER, REL_SUB_PROSPECT
 
 from . import bricks, buttons, constants, custom_forms, menu, setting_keys
 from .core import BILLING_MODELS
@@ -251,16 +260,17 @@ class Populator(BasePopulator):
         ).exists()
 
     def _populate(self):
+        # NB: Statuses could be used by EntityFilters, Workflows etc...
+        self._populate_creditnote_statuses()
+        self._populate_invoice_statuses()
+        self._populate_quote_statuses()
+        self._populate_order_statuses()
+
         super()._populate()
         self._populate_exporters_config()
         self._populate_payment_terms()
         self._populate_settlement_terms()
         self._populate_additional_information()
-
-        self._populate_creditnote_statuses()
-        self._populate_invoice_statuses()
-        self._populate_quote_statuses()
-        self._populate_order_statuses()
 
     def _first_populate(self):
         super()._first_populate()
@@ -405,6 +415,64 @@ class Populator(BasePopulator):
             RelationType.objects.get(
                 pk=REL_SUB_ACTIVITY_SUBJECT,
             ).add_subject_ctypes(self.Invoice, self.Quote, self.SalesOrder)
+
+    def _populate_workflows(self):
+        # NB:
+        #  - The target of a Quote becomes a prospect of the emitter
+        #  - The target of an Invoice becomes a supplier of the emitter
+        for uid, billing_model, target_model, title, rtype_id in (
+            (
+                'a6a8f398-4967-49f8-8d8f-4aece55329fa',
+                self.Quote,
+                self.Organisation,
+                _('The target Organisation becomes a prospect'),
+                REL_SUB_PROSPECT,
+            ), (
+                '81a52347-4988-4a11-81dc-55eca701447e',
+                self.Quote,
+                self.Contact,
+                _('The target Contact becomes a prospect'),
+                REL_SUB_PROSPECT,
+            ), (
+                '3cc968ec-23c2-4f70-9609-1894d91ff300',
+                self.Invoice,
+                self.Organisation,
+                _('The target Organisation becomes a customer'),
+                REL_SUB_CUSTOMER_SUPPLIER,
+            ), (
+                '457f762d-0bd7-41de-8215-14585e3002ba',
+                self.Invoice,
+                self.Contact,
+                _('The target Contact becomes a customer'),
+                REL_SUB_CUSTOMER_SUPPLIER,
+            ),
+        ):
+            Workflow.objects.get_or_create(
+                uuid=uid,
+                defaults={
+                    'title': title,
+                    'content_type': billing_model,
+                    'is_custom': False,
+                    'trigger': RelationAddingTrigger(
+                        subject_model=billing_model,
+                        rtype=constants.REL_SUB_BILL_RECEIVED,
+                        object_model=target_model,
+                    ),
+                    'actions': [
+                        RelationAddingAction(
+                            # NB: the target of the billing instance
+                            subject_source=ObjectEntitySource(model=target_model),
+                            rtype=rtype_id,
+                            # NB: the emitter of the billing instance
+                            object_source=FirstRelatedEntitySource(
+                                subject_source=SubjectEntitySource(model=billing_model),
+                                rtype=constants.REL_SUB_BILL_ISSUED,
+                                object_model=self.Organisation,
+                            ),
+                        )
+                    ],
+                }
+            )
 
     def _populate_entity_filters(self):
         Invoice = self.Invoice
