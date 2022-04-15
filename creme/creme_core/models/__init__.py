@@ -38,6 +38,7 @@ from .search import SearchConfigItem  # NOQA
 from .setting_value import SettingValue  # NOQA
 from .vat import Vat  # NOQA
 from .version import Version  # NOQA
+from .workflow_engine import WorkflowRule  # NOQA
 from .world_settings import WorldSettings  # NOQA
 
 if settings.TESTS_ON:
