@@ -22,7 +22,21 @@ from .views import (
     user,
     user_role,
     user_settings,
+    world_settings,
 )
+
+world_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        world_settings.Portal.as_view(),
+        name='creme_config__world_settings',
+    ),
+    re_path(
+        r'^edit/(?P<field_name>\w+)[/]?$',
+        world_settings.WorldSettingEdition.as_view(),
+        name='creme_config__edit_world_setting',
+    ),
+]
 
 user_patterns = [
     re_path(
@@ -655,6 +669,7 @@ urlpatterns = [
     re_path(r'^$', portal.Portal.as_view(), name='creme_config__portal'),
 
     # General
+    re_path(r'^world/',         include(world_patterns)),
     re_path(r'^bricks/',        include(bricks_patterns)),
     re_path(r'^button_menu/',   include(button_menu_patterns)),
     re_path(r'^custom_fields/', include(custom_fields_patterns)),

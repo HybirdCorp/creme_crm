@@ -56,6 +56,7 @@ class CremeConfigConfig(CremeAppConfig):
         from . import bricks
 
         brick_registry.register(
+            bricks.WorldSettingsBrick,
             bricks.SettingsBrick,
             bricks.PropertyTypesBrick,
             bricks.RelationTypesBrick,

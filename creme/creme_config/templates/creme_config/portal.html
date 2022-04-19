@@ -27,6 +27,10 @@
             <table class="brick-table-content">
                 <tbody>
                     <tr><td>
+                        <a href="{% url 'creme_config__world_settings' %}">{% translate 'Instance settings' %}</a>
+                        <span class="help-text">{% translate 'Some global settings, like menu icon' %}</span>
+                    </td></tr>
+                    <tr><td>
                         <a href="{% url 'creme_config__rtypes' %}">{% translate 'Relationship types settings' %}</a>
                         <span class="help-text">{% translate 'See existing Relationship types, create customised ones' %}</span>
                     </td></tr>

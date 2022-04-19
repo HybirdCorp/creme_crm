@@ -22,6 +22,7 @@ from django.conf import settings
 from django.utils.timezone import now
 
 from creme import __version__
+from creme.creme_core import get_world_settings_model
 
 from .gui.bricks import BricksManager
 from .models import FieldsConfig
@@ -80,3 +81,7 @@ def get_site_domain(request):
 
 def get_repository(request):
     return {'REPOSITORY': settings.REPOSITORY}
+
+
+def get_world_settings(request):
+    return {'world_settings': get_world_settings_model().objects.instance()}

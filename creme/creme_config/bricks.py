@@ -30,6 +30,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.base as core_forms
+from creme.creme_core import get_world_settings_model
 from creme.creme_core.core import setting_key
 from creme.creme_core.core.entity_filter import EF_USER
 from creme.creme_core.gui.bricks import (
@@ -80,6 +81,7 @@ from . import constants
 # _PAGE_SIZE = 20
 _PAGE_SIZE = 50
 User = get_user_model()
+WorldSettings = get_world_settings_model()
 logger = logging.getLogger(__name__)
 
 
@@ -171,6 +173,20 @@ class SettingsBrick(QuerysetBrick):
             context,
             SettingValue.objects.filter(key_id__in=skeys_ids),
             app_name=app_name,
+        ))
+
+
+class WorldSettingsBrick(Brick):
+    id_ = QuerysetBrick.generate_id('creme_config', 'world_settings')
+    verbose_name = _('Instance settings')
+    dependencies = (WorldSettings,)
+    template_name = 'creme_config/bricks/world-settings.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            world_settings=WorldSettings.objects.instance(),
         ))
 
 

@@ -441,7 +441,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         return self.queryset
 
     def get_unordered_queryset_n_count(self) -> Tuple[QuerySet, int]:
-        # Cannot use this because it use get_ordering() too early
+        # Cannot use this because it uses get_ordering() too early
         qs = self.model._default_manager.filter(is_deleted=False)
         state = self.state
 

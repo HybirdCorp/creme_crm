@@ -20,6 +20,8 @@
 
 import logging
 # import warnings
+from base64 import b64encode
+from os.path import splitext
 from typing import Dict, Tuple, Type
 
 from django.conf import settings
@@ -31,7 +33,12 @@ from django.utils.html import urlize as django_urlize
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
-from ..gui.icons import get_icon_by_name, get_icon_size_px, icon_registry
+from ..gui.icons import (
+    BaseIcon,
+    get_icon_by_name,
+    get_icon_size_px,
+    icon_registry,
+)
 from ..utils.media import get_current_theme_from_context
 from . import KWARG_RE
 
@@ -114,6 +121,39 @@ class InstanceIconNode(IconNode):
         return icon
 
 
+class DataIconNode(IconNode):
+    def __init__(self, data_var, **kwargs):
+        super().__init__(**kwargs)
+        self.data_var = data_var
+
+    def _build_icon(self, context, theme, size_px, label, css_class):
+        path = self.data_var.resolve(context)
+
+        # TODO: extract this class?
+        class InlinedIcon(BaseIcon):
+            # TODO: accept bytes? PIl.Image?
+            def __init__(this, path: str, *args, **kwargs):
+                super().__init__(*args, **kwargs)
+                this.path = path
+
+            def render(this, css_class=''):
+                final_css_class = this.css_class + css_class
+
+                with open(this.path, 'rb') as img:
+                    _base_path, extension = splitext(path)
+                    img_data = b64encode(img.read()).decode()
+
+                return format_html(
+                    '<img src="{url}" {attrs}title="{label}" alt="{label}" width="{size}px"/>',
+                    size=this.size,
+                    label=this.label,
+                    attrs=format_html('class="{}" ', final_css_class) if final_css_class else '',
+                    url=f'data:image/{extension[1:]};base64, {img_data}',
+                )
+
+        return InlinedIcon(path, size=size_px, label=label)
+
+
 __ICON_ARGS_MAP: Dict[str, str] = {
     'size':  'size_var',
     'label': 'label_var',
@@ -123,6 +163,7 @@ _WIDGET_ICON_NODES: Dict[str, Tuple[str, Type[IconNode]]] = {
     'name':     ('name_var',     NamedIconNode),
     'ctype':    ('ctype_var',    ContentTypeIconNode),
     'instance': ('instance_var', InstanceIconNode),
+    'data':     ('data_var',     DataIconNode),
 }
 
 
@@ -147,6 +188,8 @@ def do_icon(parser, token):
            is used (see icon_registry.register()).
        instance=my_instance => The icon associated to this instance is used
            (see icon_registry.register_4_instance()).
+       data='path_to_an_image_file' => The image is inlined in the "src"
+           attribute (the theme is only used to compute the "width" attribute).
 
     C. The other arguments are:
        - size: a String in big/medium/small/brick-header/global-button/...

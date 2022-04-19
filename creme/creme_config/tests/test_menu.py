@@ -322,6 +322,7 @@ class MenuEntriesTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 (reverse('creme_config__portal'),         _('General configuration')),
+                (reverse('creme_config__world_settings'), _('Instance')),
                 (reverse('creme_config__bricks'),         _('Blocks')),
                 (reverse('creme_config__custom_fields'),  _('Custom fields')),
                 (reverse('creme_config__fields'),         _('Fields')),
