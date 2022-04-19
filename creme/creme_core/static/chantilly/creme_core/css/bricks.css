@@ -1245,16 +1245,14 @@ svg.icon {
 }
 
 /* Trash brick */
-.creme_core-trash-brick .trash-brick-modelname {
-    vertical-align: middle;
-}
 
+.creme_core-trash-brick .trash-brick-modelicon,
 .creme_core-trash-brick .trash-brick-modelname {
     vertical-align: middle;
-    margin-right: 5px;
 }
 
 /* History brick */
+
 .creme_core-history-brick .ctype-icon {
     vertical-align: middle;
 }
