@@ -201,8 +201,9 @@ def do_icon(parser, token):
 def do_render_icon(parser, token):
     """Render an Icon with additional CSS classes.
 
-    {% widget_icon name='add' class='A' as my_icon %}
-    {% widget_render_icon my_icon class='B' %} {# Outputs <img class="A B" ...> #}
+    Eg:
+      {% widget_icon name='add' class='A' as my_icon %}
+      {% widget_render_icon my_icon class='B' %} {# Outputs <img class="A B" ...> #}
     """
     bits = token.split_contents()
 
@@ -233,22 +234,46 @@ class IconRendererNode(TemplateNode):
 # WIDGET ICON [END] ------------------------------------------------------------
 
 @register.simple_tag
-def widget_hyperlink(instance):
-    """{% widget_hyperlink my_instance %}
-    @param instance: Instance of DjangoModel which has a get_absolute_url() method
-           & should have overload its __str__() method too.
+def widget_hyperlink(instance, label=None):
+    """ Prints a <a> tag referencing the page of a model instance.
+    @param instance: Instance of DjangoModel which has a method 'get_absolute_url()'
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
+    @param label: String use as label of the link ; by default the label used is
+           'instance.__str__()'.
+
+    Eg:
+       {% widget_hyperlink my_instance %}
+       {% widget_hyperlink my_instance 'My favorite instance' %}
     """
     try:
-        return format_html('<a href="{}">{}</a>', instance.get_absolute_url(), instance)
+        return format_html(
+            '<a href="{url}">{label}</a>',
+            url=instance.get_absolute_url(),
+            label=instance if label is None else label,
+        )
     except AttributeError:
+        # NB: we do not use label ; the template-tag juste print a string in this case.
         return escape(instance)
 
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user, ignore_deleted=False):
-    "{% widget_entity_hyperlink my_entity user %}"
+def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None):
+    """" Prints a <a> tag referencing the detail-view of an entity instance.
+    @param instance: Instance of a model inheriting CremeEntity which has
+           overridden the method 'get_absolute_url()'.
+    @param user: 'django.contrib.auth.get_user_model()' instance corresponding
+           to the logged user (in order to use credentials correctly).
+   @param ignore_deleted: Boolean indicating if entities marked as deleted should
+          be display like other ones. Default value is 'False'.
+    @param label: String use as label of the link ; by default the label used is
+           'entity.__str__()'.
+
+    Eg:
+      {% widget_entity_hyperlink my_entity user %}
+      {% widget_entity_hyperlink my_entity user ignored_deleted=True %}
+      {% widget_entity_hyperlink my_entity user label='An interesting entity' %}
+    """
     entity = entity.get_real_entity()
 
     if user.has_perm_to_view(entity):
@@ -260,7 +285,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False):
                 if entity.is_deleted and not ignore_deleted else
                 ''
             ),
-            label=entity,
+            label=entity if label is None else label,
         )
 
     return settings.HIDDEN_VALUE
