@@ -2,12 +2,13 @@
 <div class="header-menu">
     {% block home_link %}
     <a id="logo" href="/" alt="{% translate 'Home' %}">
-        {% block home_icon %}
-{% comment %} One way to customize the icon without having an icon per theme: (need to load 'media')
-        <img src="{% media_url 'common/images/my_icon_30.png' %}" height="30px" width="30px" alt="{% translate 'Home' %}">
-{% endcomment %}
-        {% widget_icon name='creme' size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
-        {% endblock %}
+      {% block home_icon %}
+        {% if world_settings.menu_icon %}
+          {% widget_icon data=world_settings.menu_icon.path size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
+        {% else %}
+          {% widget_icon name='creme' size='header-menu-home' label=_('Home') class='header-menu-home-icon' %}
+        {% endif %}
+      {% endblock %}
     </a>
     {% endblock %}
 

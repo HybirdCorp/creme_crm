@@ -38,6 +38,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* My configuration - end */
 
+/* WorldSettings brick */
+
+.creme_config-world_settings-brick .world_settings-default {
+    font-style: italic;
+    color: #777;
+}
+
 /* Search/Bricks config */
 
 .creme_config-configurable-model-brick th.configmodel-column-order {

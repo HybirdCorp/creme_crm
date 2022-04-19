@@ -1397,3 +1397,8 @@ class CremeTextarea(widgets.Widget):
         final_attrs['widget'] = widget_type
 
         return context
+
+
+class NoPreviewClearableFileInput(widgets.ClearableFileInput):
+    clear_checkbox_label = _('Clear the current file')
+    template_name = 'creme_core/forms/widgets/clearable-file-input.html'

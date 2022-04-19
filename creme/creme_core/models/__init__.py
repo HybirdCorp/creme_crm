@@ -40,6 +40,7 @@ from .search import SearchConfigItem  # NOQA
 from .setting_value import SettingValue  # NOQA
 from .vat import Vat  # NOQA
 from .version import Version  # NOQA
+from .world_settings import WorldSettings  # NOQA
 
 if settings.TESTS_ON:
     from creme.creme_core.tests.fake_models import *  # NOQA

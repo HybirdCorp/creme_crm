@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
+
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.template import Context, Template, TemplateSyntaxError
 from django.test import override_settings
+from django.test.testcases import assert_and_parse_html
 from django.utils.translation import gettext as _
 
 from creme.creme_core.templatetags.creme_widgets import (
@@ -373,6 +376,37 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             render,
         )
 
+    def test_widget_icon_data01(self):
+        path = Path(
+            settings.CREME_ROOT, 'static', 'icecream', 'images', 'remove_16.png',
+        )
+        self.assertTrue(path.exists())
+
+        label = 'My image'
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_icon data=path label=label %}'
+            ).render(Context({
+                'THEME_NAME': 'icecream',
+                'path': path,
+                'label': label,
+            }))
+
+        dom = assert_and_parse_html(self, render, 'Rendered icon is not valid HTML', None)
+        self.assertEqual('img', dom.name)
+        self.assertFalse(dom.children)
+
+        get_attribute = dict(dom.attributes).get
+        self.assertEqual('22px', get_attribute('width'))
+        self.assertEqual(label, get_attribute('alt'))
+        self.assertEqual(label, get_attribute('title'))
+        self.assertStartsWith(
+            get_attribute('src', ''),
+            'data:image/png;base64, iVBORw0KGgoAAAANSUh',
+        )
+
     def test_widget_icon_named_error01(self):
         with self.assertRaises(TemplateSyntaxError) as cm:
             Template(
@@ -406,7 +440,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
 
         self.assertEqual(
             '''Invalid 1rst argument to "widget_icon" tag ; '''
-            '''it must be in dict_keys(['name', 'ctype', 'instance'])''',
+            '''it must be in dict_keys(['name', 'ctype', 'instance', 'data'])''',
             str(cm.exception),
         )
 

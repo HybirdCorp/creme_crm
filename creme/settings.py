@@ -266,11 +266,12 @@ TEMPLATES = [
                 'django.template.context_processors.request',
 
                 'creme.creme_core.context_processors.get_version',
-                'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_django_version',
+                'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_repository',
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
+                'creme.creme_core.context_processors.get_world_settings',
                 'creme.creme_core.context_processors.get_css_theme',
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
@@ -651,6 +652,20 @@ ESLINT = {
 }
 
 # GUI ##########################################################################
+
+# Concrete model used to store WorldSettings
+CREME_CORE_WSETTINGS_MODEL = 'creme_core.WorldSettings'
+
+# Maximum size of the image file corresponding to the icon if the menu when you
+# customize it. When a user upload a custom icon, the file is resized if it's
+# bigger than these values.
+# Notice that the themes set a width in the <img> tag (currently 30px), so what
+# ever the maximum width/height you configure, the display will be correct.
+# But smaller values ensure better performance (notice that the custom image is
+# embedded in the HTML code)
+MENU_ICON_MAX_WIDTH = MENU_ICON_MAX_HEIGHT = 36
+# Limit size (byte) of uploaded icon files (before being resized).
+MENU_ICON_MAX_SIZE = 3145728  # 3 Mega bytes
 
 # Lines number in common blocks
 BLOCK_SIZE = 10

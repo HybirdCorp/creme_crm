@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 18:52+0200\n"
+"POT-Creation-Date: 2022-04-22 17:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -21,6 +21,9 @@ msgstr "Configuration générale"
 
 msgid "Export & import configuration"
 msgstr "Exporter & importer la configuration"
+
+msgid "Instance settings"
+msgstr "Gestion de l'instance"
 
 msgid "Types of property"
 msgstr "Types de propriété"
@@ -860,6 +863,9 @@ msgstr "Créer"
 msgid "Cannot create"
 msgstr "Création interdite"
 
+msgid "The file is too large (maximum size: {} bytes)"
+msgstr "Le fichier est trop gros  (taille maximum size : {} octets)"
+
 msgid "*User's timezone*"
 msgstr "*Fuseau horaire de l'utilisateur*"
 
@@ -875,6 +881,9 @@ msgstr "*Gestion d'app courante*"
 #, python-brace-format
 msgid "Configuration of «{app}»"
 msgstr "Configuration de «{app}»"
+
+msgid "Instance"
+msgstr "Instance"
 
 msgid "Custom forms"
 msgstr "Formulaires personnalisés"
@@ -1722,6 +1731,18 @@ msgstr "Vous ne pouvez pas supprimer l'utilisateur courant."
 msgid "Delete this user"
 msgstr "Supprimer cet utilisateur"
 
+msgid "Key"
+msgstr "Clé"
+
+msgid "Menu icon"
+msgstr "Icône du menu"
+
+msgid "Home"
+msgstr "Accueil"
+
+msgid "Default icon"
+msgstr "Icône par défaut"
+
 #, python-format
 msgid "Configuration of «%(object)s»"
 msgstr "Configuration de «%(object)s»"
@@ -1799,6 +1820,9 @@ msgstr "Portail de Configuration de Creme"
 msgid "General"
 msgstr "Général"
 
+msgid "Some global settings, like menu icon"
+msgstr "De la configuration globale, comme l'icône du menu"
+
 msgid "Relationship types settings"
 msgstr "Gestion des types de Relation"
 
@@ -1836,7 +1860,7 @@ msgid ""
 "Customise the blocks' locations on detailed views, homes & default «My page»"
 msgstr ""
 "Personnaliser l'emplacement des blocs pour les vues détaillées, les accueils "
-"et «Ma page» par défaut."
+"et «Ma page» par défaut"
 
 msgid "Menu settings"
 msgstr "Gestion du menu"
@@ -2054,11 +2078,11 @@ msgstr ""
 msgid "Configuration of users"
 msgstr "Configuration des utilisateurs"
 
+msgid "Configuration of the instance"
+msgstr "Configuration de l'instance"
+
 msgid "View your settings"
 msgstr "Voir vos réglages"
-
-msgid "Home"
-msgstr "Accueil"
 
 msgid "View and edit your Creme settings"
 msgstr "Voir et modifier vos réglages Creme"
@@ -2314,6 +2338,9 @@ msgstr "Supprimer le rôle"
 msgid "A deletion process for a role already exists."
 msgstr "Il y a déjà un processus de suppression pour un rôle."
 
+msgid "Edit the instance's settings"
+msgstr "Modifier la configuration de l'instance"
+
 #~ msgid "Show this form"
 #~ msgstr "Montrer ce formulaire"
 
@@ -2518,17 +2545,11 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 #~ msgid "Login"
 #~ msgstr "Nom d'utilisateur"
 
-#~ msgid "Key"
-#~ msgstr "Clé"
-
 #~ msgid "Profiles"
 #~ msgstr "Profils"
 
 #~ msgid "New profile"
 #~ msgstr "Nouveau profil"
-
-#~ msgid "Entities credentials settings"
-#~ msgstr "Gestion des droits de fiche"
 
 #~ msgid "Applications credentials settings"
 #~ msgstr "Gestion des droits des applications"

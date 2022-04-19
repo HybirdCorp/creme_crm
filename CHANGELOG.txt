@@ -11,6 +11,7 @@
       So, by default, the formats for dates & times depend on the user's language.
     # Apps :
         * Creme_config :
+            - The menu icon can now be customised.
             - The (non-internal) relationship types can now be disabled.
             - An edition view for semi-fixed relationship types has been added.
         * Activities :

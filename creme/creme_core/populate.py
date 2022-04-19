@@ -24,7 +24,15 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
-from . import bricks, constants, creme_jobs, menu, sandboxes, setting_keys
+from . import (
+    bricks,
+    constants,
+    creme_jobs,
+    get_world_settings_model,
+    menu,
+    sandboxes,
+    setting_keys,
+)
 from .gui.menu import ContainerEntry, Separator0Entry, Separator1Entry
 from .management.commands.creme_populate import BasePopulator
 from .models import (
@@ -49,6 +57,8 @@ from .utils.date_period import date_period_registry
 class Populator(BasePopulator):
     def populate(self):
         already_populated = RelationType.objects.filter(id=constants.REL_SUB_HAS).exists()
+
+        get_world_settings_model().objects.get_or_create(pk=1)
 
         if not CaseSensitivity.objects.exists():
             CaseSensitivity.objects.create(text='CasE')

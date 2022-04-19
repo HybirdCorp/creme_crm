@@ -71,3 +71,8 @@ def get_concrete_model(model_setting: str) -> Type[Model]:
                 model_setting, model_str,
             )
         ) from e
+
+
+def get_world_settings_model():
+    """Returns the WorldSettings model that is active in this project."""
+    return get_concrete_model('CREME_CORE_WSETTINGS_MODEL')

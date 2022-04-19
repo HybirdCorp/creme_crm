@@ -39,6 +39,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* My configuration - end */
 
+/* WorldSettings brick */
+
+.creme_config-world_settings-brick .world_settings-default {
+    font-style: italic;
+    color: #818485;
+}
+
 /* Search/Bricks config */
 
 .creme_config-configurable-model-brick th.configmodel-column-order {
@@ -47,6 +54,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 /* PropertyTypes & RelationTypes brick */
+
 .creme_config-property-types-brick .property-label,
 .creme_config-property-types-brick .property-count {
     width: 15%;
