@@ -422,6 +422,11 @@ ul.select_or_input-widget {
     padding: 0;
 }
 
+ul.optional-widget li:first-child {
+    margin-bottom: 5px;
+    margin-right: 15px;
+}
+
 ul.select_or_input-widget li {
     margin-right: 3px;
 }
@@ -429,7 +434,6 @@ ul.select_or_input-widget li {
 ul.select_or_input-widget input[type="text"] {
     min-width: 250px;
 }
-
 
 /* MERGE TOOL */
 .li_merge_entity_header1 {

@@ -949,7 +949,8 @@ class OptionalWidget(widgets.MultiWidget):
         super().__init__(
             widgets=(
                 widgets.CheckboxInput(
-                    attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'},
+                    # attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'},
+                    attrs={'class': 'optional-widget-trigger'},
                 ),
                 sub_widget,
             ),

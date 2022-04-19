@@ -1,7 +1,8 @@
 {% with widgets=widget.subwidgets %}
-<ul class="optional-widget">
+<ul class="optional-widget ui-creme-widget widget-auto ui-creme-optional" widget="ui-creme-optional" >
     <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
-    <li>{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
+    <li class="optional-widget-hiddable">{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
+{% comment %}
     <script type="text/javascript">
         creme.forms.optionalWidgetHandler = function(checkBox) {
             var jqCheckBox = $(checkBox);
@@ -14,5 +15,6 @@
             });
         });
     </script>
+{% endcomment %}
 </ul>
 {% endwith %}
