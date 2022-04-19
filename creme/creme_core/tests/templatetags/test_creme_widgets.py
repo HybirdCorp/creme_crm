@@ -34,13 +34,25 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         s.get_absolute_url = lambda: '/creme_core/sectors'
 
         with self.assertNoException():
-            render = Template(
+            render1 = Template(
                 r'{% load creme_widgets %}{% widget_hyperlink object %}'
             ).render(Context({'object': s}))
 
         self.assertEqual(
             '<a href="/creme_core/sectors">Yello&lt;br&gt;</a>',
-            render,
+            render1,
+        )
+
+        # Label given
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_widgets %}{% widget_hyperlink object label=label %}'
+            ).render(Context({'object': s, 'label': 'My favorite <i>one</i>'}))
+
+        # self.assertEqual('My favorite &lt;i&gt;one&lt;/i&gt;', render2)
+        self.assertEqual(
+            '<a href="/creme_core/sectors">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
+            render2,
         )
 
     def test_widget_entity_hyperlink01(self):
@@ -51,7 +63,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         orga = FakeOrganisation.objects.create(user=user, name=name + '<br/>')  # escaping OK ??
 
         with self.assertNoException():
-            render = Template(
+            render1 = Template(
                 r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}'
             ).render(Context({'user': user, 'my_entity': orga}))
 
@@ -60,7 +72,26 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                 orga.id,
                 name + '&lt;br/&gt;',
             ),
-            render,
+            render1,
+        )
+
+        # Label given
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_entity_hyperlink my_entity user label=label %}'
+            ).render(Context({
+                'user': user,
+                'my_entity': orga,
+                'label': 'My favorite <i>one</i>',
+            }))
+
+        self.assertEqual(
+            '<a href="/tests/organisation/{}">{}</a>'.format(
+                orga.id,
+                'My favorite &lt;i&gt;one&lt;/i&gt;'
+            ),
+            render2,
         )
 
     def test_widget_entity_hyperlink02(self):
@@ -80,15 +111,28 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         "Is deleted."
         user = self.create_user()
         orga = FakeOrganisation.objects.create(user=user, name='Seele', is_deleted=True)
+        ctxt = Context({'user': user, 'my_entity': orga})
 
         with self.assertNoException():
-            render = Template(
+            render1 = Template(
                 r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}'
-            ).render(Context({'user': user, 'my_entity': orga}))
+            ).render(ctxt)
 
         self.assertHTMLEqual(
             f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>',
-            render,
+            render1,
+        )
+
+        # Ignore deleted
+        with self.assertNoException():
+            render2 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_entity_hyperlink my_entity user ignore_deleted=True %}'
+            ).render(ctxt)
+
+        self.assertHTMLEqual(
+            f'<a href="/tests/organisation/{orga.id}">{orga}</a>',
+            render2,
         )
 
     @override_settings(URLIZE_TARGET_BLANK=False)
