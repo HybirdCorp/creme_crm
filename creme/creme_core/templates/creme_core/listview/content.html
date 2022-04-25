@@ -66,6 +66,7 @@
             </th>
         </tr>
         <tr class="lv-columns-header">
+          {% block lv_columns_headers %}
             {% if is_selection_multiple %}<th class="choices"><center><input name="select_all" value="all" type="checkbox" title="{% translate 'Select all' %}"/></center></th>{% endif %}
             {% for cell in cells %}
                 {% if cell.is_hidden %}
@@ -86,8 +87,10 @@
                     </th>
                 {% endif %}
             {% endfor %}
+          {% endblock %}
         </tr>
         <tr class="lv-search-header">
+          {% block lv_search_header %}
             {% if is_selection_multiple %}<th class="choices">&nbsp;</th>{% endif %}
             {% for cell in cells %}
                 {% if cell.is_hidden %}
@@ -103,9 +106,11 @@
                     </th>
                 {% endif %}
             {% endfor %}
+          {% endblock %}
         </tr>
     </thead>
     <tbody>
+      {% block lv_content_rows %}
         {% for entity in page_obj.object_list %}
             <tr class="lv-row {% if is_selection_enabled %}selectable{% endif %}{% cycle ' odd' '' %}" {% get_entity_html_attrs entity %}>
                 {% if is_selection_multiple %}<td class="choices"><input name="select_one" value="{{entity.pk}}" type="checkbox" /></td>{% endif %}
@@ -113,6 +118,7 @@
                     <input type="hidden" name="entity_id" value="{{entity.pk}}" />
                 </td>
                 {% for cell in cells %}
+                  {% block lv_content_cell %}
                     {% if cell.type_id == 'actions' %}
                         <td class="lv-actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
                     {% else %}
@@ -130,6 +136,7 @@
                         </td>
                         {% endif %}
                     {% endif %}
+                  {% endblock %}
                 {% endfor %}
             </tr>
             {% empty %}
@@ -137,6 +144,7 @@
                 <td colspan="{{colspan}}">{% translate 'No entity exists / matches your search' %}</td>
             </tr>
         {% endfor %}
+      {% endblock %}
     </tbody>
     <tfoot>
         <tr>
