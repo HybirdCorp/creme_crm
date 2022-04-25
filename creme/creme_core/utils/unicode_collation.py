@@ -5,7 +5,7 @@
 # found at: https://github.com/jtauber/pyuca
 
 # Copyright (c) 2006-2013 James Tauber and contributors
-# Copyright (c) 2013-2021 Hybird
+# Copyright (c) 2013-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ but you can always subset this for just the characters you are dealing with.
 """
 
 from logging import info
+from pathlib import Path
 from re import compile as compile_re
 
 
@@ -73,8 +74,7 @@ class _Collator:
         self._root = _Node()
 
         if filename is None:
-            from os.path import dirname, join
-            filename = join(dirname(__file__), 'allkeys.txt')
+            filename = Path(__file__).parent / 'allkeys.txt'
 
         # weights = {} #cache of (int, int, int, int) elements
         match = compile_re(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -26,15 +26,17 @@
 
 from collections import Counter, defaultdict
 from os import listdir
-from os.path import exists, join
+from pathlib import Path
 
 from django.apps import apps
 from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
-    help = 'Find duplicates in .po files of your project. ' \
-           'Diverging duplicates are different translations for the same key.'
+    help = (
+        'Find duplicates in .po files of your project. '
+        'Diverging duplicates are different translations for the same key.'
+    )
 
     def add_arguments(self, parser):
         add_argument = parser.add_argument
@@ -79,12 +81,12 @@ class Command(BaseCommand):
         entries_per_id = defaultdict(list)
 
         for app_config in apps.get_app_configs():
-            basepath = join(app_config.path, 'locale', language, 'LC_MESSAGES')
+            basepath = Path(app_config.path, 'locale', language, 'LC_MESSAGES')
 
-            if exists(basepath):
+            if basepath.exists():
                 for fname in listdir(basepath):
                     if fname.endswith('.po'):
-                        path = join(basepath, fname)
+                        path = basepath / fname
 
                         for entry in pofile(path).translated_entries():
                             entry_count += 1

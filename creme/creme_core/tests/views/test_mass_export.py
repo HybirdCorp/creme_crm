@@ -2,7 +2,7 @@
 
 from datetime import date
 from functools import partial
-from os.path import dirname, exists, join
+from pathlib import Path
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -559,10 +559,9 @@ class MassExportViewsTestCase(ViewsTestCase):
         self.assertEqual('fakecontact.xls', fileref.basename)
         self.assertEqual(user, fileref.user)
 
-        fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
-        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'xls'), dirname(fullpath))
-        self.assertEqual(join(settings.MEDIA_ROOT, 'xls'), dirname(fullpath))
+        fullpath = Path(fileref.filedata.path)
+        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'xls'), fullpath.parent)
 
     @override_settings(
         USE_L10N=False,

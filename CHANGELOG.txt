@@ -183,6 +183,8 @@
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
         # In 'creme_core.gui.last_viewed.LastViewedItem', the key "ctype_id" is now mandatory.
+        # In 'creme_core.management.commands.i18n_overload.Command._get_catalog_paths()', the return
+          values are now instances of 'pathlib.Path'.
 
 
 == Version 2.3 ==

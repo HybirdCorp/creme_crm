@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from functools import partial
-from os.path import basename, dirname, exists, join
+from pathlib import Path
 from unittest import skipIf
 
 from django.conf import settings
@@ -231,11 +231,11 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
         self.assertEqual(user, fileref.user)
 
-        fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists ?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'graphs'), dirname(fullpath))
+        fullpath = Path(fileref.filedata.path)
+        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'graphs'), fullpath.parent)
         self.assertEqual(
-            f'attachment; filename="{basename(fullpath)}"',
+            f'attachment; filename="{fullpath.name}"',
             response['Content-Disposition'],
         )
 
