@@ -4,7 +4,7 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
-from os.path import dirname, exists, join
+from pathlib import Path
 from shutil import which
 from unittest import skipIf
 
@@ -38,7 +38,6 @@ from creme.products import get_product_model, get_service_model
 from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-# from .. import constants
 from ..forms.export import ExporterLocalisationField
 from .base import (
     Address,
@@ -882,10 +881,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.pdf", fileref.basename)
         self.assertEqual(user, fileref.user)
 
-        fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
-        # self.assertEqual(join(settings.MEDIA_ROOT, 'upload', 'billing'), dirname(fullpath))
-        self.assertEqual(join(settings.MEDIA_ROOT, 'billing'), dirname(fullpath))
+        fullpath = Path(fileref.filedata.path)
+        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'billing'), fullpath.parent)
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
             response['Content-Disposition'],
@@ -931,9 +929,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual('{}_{}.pdf'.format(_('Invoice'), invoice.id), fileref.basename)
         self.assertEqual(user, fileref.user)
 
-        fullpath = fileref.filedata.path
-        self.assertTrue(exists(fullpath), f'<{fullpath}> does not exists?!')
-        self.assertEqual(join(settings.MEDIA_ROOT, 'billing'), dirname(fullpath))
+        fullpath = Path(fileref.filedata.path)
+        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'billing'), fullpath.parent)
         self.assertEqual(
             f'attachment; filename="{fileref.basename}"',
             response['Content-Disposition'],
@@ -1065,7 +1063,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=product.unit_price,
             quantity=Decimal('2'),
             discount=Decimal('5'),
-            # discount_unit=constants.DISCOUNT_PERCENT,
             discount_unit=Line.Discount.PERCENT,
         )
 
@@ -1091,7 +1088,6 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             unit_price=service.unit_price,
             quantity=Decimal('1'),
             discount=Decimal('5.5'),
-            # discount_unit=constants.DISCOUNT_ITEM_AMOUNT,
             discount_unit=Line.Discount.ITEM_AMOUNT,
         )
 
@@ -1108,12 +1104,9 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(f"{_('Invoice')}_{invoice.id}.xls", fileref.basename)
         self.assertEqual(user, fileref.user)
 
-        full_path = fileref.filedata.path
-        self.assertTrue(exists(full_path), f'<{full_path}> does not exists?!')
-        self.assertEqual(
-            join(settings.MEDIA_ROOT, 'billing'),
-            dirname(full_path),
-        )
+        full_path = Path(fileref.filedata.path)
+        self.assertTrue(full_path.exists(), f'<{full_path}> does not exists?!')
+        self.assertEqual(Path(settings.MEDIA_ROOT, 'billing'), full_path.parent)
 
         lines = iter(XlrdReader(None, file_contents=b''.join(response.streaming_content)))
 

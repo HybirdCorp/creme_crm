@@ -6,7 +6,7 @@ import socket
 from email.headerregistry import Address as EmailAddress
 from email.message import EmailMessage
 from functools import partial
-from os.path import basename, join
+from pathlib import Path
 from unittest.mock import MagicMock, call, patch
 
 from django.conf import settings
@@ -886,15 +886,15 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         body = 'Hi\nI would like a yellow one.\nThx.\n'
         msg.set_content(body)
 
-        img_path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images')
+        img_path = Path(settings.CREME_ROOT, 'static', 'chantilly', 'images')
         img_name1 = 'creme_22.png'
-        with open(join(img_path, img_name1), 'rb') as image_file1:
+        with open(img_path / img_name1, 'rb') as image_file1:
             msg.add_attachment(
                 image_file1.read(),
                 maintype='image', subtype='png',
                 filename=img_name1,
             )
-        with open(join(img_path, 'add_16.png'), 'rb') as image_file2:
+        with open(img_path / 'add_16.png', 'rb') as image_file2:
             msg.add_attachment(
                 image_file2.read(),
                 maintype='image', subtype='png',
@@ -924,10 +924,10 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertFalse(file_ref1.temporary)
         self.assertEqual(img_name1, file_ref1.basename)
 
-        path1 = file_ref1.filedata.path
-        self.assertStartsWith(basename(path1), 'creme_22')
+        path1 = Path(file_ref1.filedata.path)
+        self.assertStartsWith(path1.name, 'creme_22')
 
-        with open_img(file_ref1.filedata.path) as img:
+        with open_img(path1) as img:
             self.assertTupleEqual((22, 22), img.size)
 
         file_ref2 = attachments[1]
@@ -956,7 +956,7 @@ class POPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         msg.set_content('Hi\nI would like a yellow one.\nThx.\n')
 
         with open(
-            join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
+            Path(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
             'rb',
         ) as image_file:
             img_data = image_file.read()
@@ -1804,15 +1804,15 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         body = 'Hi\nI would like a yellow one.\nThx.\n'
         msg.set_content(body)
 
-        img_path = join(settings.CREME_ROOT, 'static', 'chantilly', 'images')
+        img_path = Path(settings.CREME_ROOT, 'static', 'chantilly', 'images')
         img_name1 = 'creme_22.png'
-        with open(join(img_path, img_name1), 'rb') as image_file1:
+        with open(img_path / img_name1, 'rb') as image_file1:
             msg.add_attachment(
                 image_file1.read(),
                 maintype='image', subtype='png',
                 filename=img_name1,
             )
-        with open(join(img_path, 'add_16.png'), 'rb') as image_file2:
+        with open(img_path / 'add_16.png', 'rb') as image_file2:
             msg.add_attachment(
                 image_file2.read(),
                 maintype='image', subtype='png',
@@ -1842,10 +1842,10 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         self.assertFalse(file_ref1.temporary)
         self.assertEqual(img_name1, file_ref1.basename)
 
-        path1 = file_ref1.filedata.path
-        self.assertStartsWith(basename(path1), 'creme_22')
+        path1 = Path(file_ref1.filedata.path)
+        self.assertStartsWith(path1.name, 'creme_22')
 
-        with open_img(file_ref1.filedata.path) as img:
+        with open_img(path1) as img:
             self.assertTupleEqual((22, 22), img.size)
 
         file_ref2 = attachments[1]
@@ -1875,7 +1875,7 @@ class IMAPSynchronizationJobTestCase(_SynchronizationJobTestCase):
         msg.set_content('Hi\nI would like a yellow one.\nThx.\n')
 
         with open(
-            join(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
+            Path(settings.CREME_ROOT, 'static', 'chantilly', 'images', 'creme_22.png'),
             'rb',
         ) as image_file:
             img_data = image_file.read()

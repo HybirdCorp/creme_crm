@@ -27,7 +27,8 @@
 from collections import defaultdict
 from datetime import datetime
 from os import listdir, makedirs
-from os.path import exists, isdir, join
+# from os.path import exists, isdir, join
+from pathlib import Path
 
 import pytz
 from django.apps import apps
@@ -106,22 +107,25 @@ class Command(BaseCommand):
             self._overload_terms(language, verbosity, polib, file_name, *terms)
 
     def _get_catalog_paths(self, language, file_name):
-        catalog_dirpath = join(
-            # settings.CREME_ROOT, APP_NAME, 'locale', language, 'LC_MESSAGES',
+        # catalog_dirpath = join(
+        #     settings.BASE_DIR, self.directory, language, 'LC_MESSAGES',
+        # )
+        # catalog_path = join(catalog_dirpath, file_name)
+        catalog_dirpath = Path(
             settings.BASE_DIR, self.directory, language, 'LC_MESSAGES',
         )
-        catalog_path = join(catalog_dirpath, file_name)
+        catalog_path = catalog_dirpath / file_name
 
         return catalog_dirpath, catalog_path
 
     def _iter_pofiles(self, language, polib, file_name):
         for app_config in apps.get_app_configs():
-            basepath = join(app_config.path, 'locale', language, 'LC_MESSAGES')
+            basepath = Path(app_config.path, 'locale', language, 'LC_MESSAGES')
 
-            if exists(basepath):
+            if basepath.exists():
                 for fname in listdir(basepath):
                     if fname == file_name:
-                        path = join(basepath, fname)
+                        path = basepath / fname
 
                         yield polib.pofile(path)
 
@@ -131,7 +135,8 @@ class Command(BaseCommand):
 
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
 
-        if not exists(catalog_path):
+        # if not exists(catalog_path):
+        if not catalog_path.exists():
             raise CommandError(
                 f'no existing overloading {file_name} found in "{catalog_dirpath}".'
             )
@@ -169,7 +174,8 @@ class Command(BaseCommand):
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
         all_plural_forms = defaultdict(list)
 
-        if exists(catalog_path):
+        # if exists(catalog_path):
+        if catalog_path.exists():
             catalog = polib.pofile(catalog_path)
 
             for entry in catalog.translated_entries():
@@ -179,12 +185,14 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write(f'Create catalog at {catalog_path}')
 
-            if not exists(catalog_dirpath):
+            # if not exists(catalog_dirpath):
+            if not catalog_dirpath.exists():
                 if verbosity >= 2:
                     self.stdout.write(f'Create the folder "{catalog_dirpath}"')
 
                 makedirs(catalog_dirpath)
-            elif not isdir(catalog_dirpath):
+            # elif not isdir(catalog_dirpath):
+            elif not catalog_dirpath.is_dir():
                 self.stderr.write(f'"{catalog_dirpath}" exists and is not a directory.')
                 return
 
