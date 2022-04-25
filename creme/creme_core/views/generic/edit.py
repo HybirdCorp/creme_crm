@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,9 @@ from typing import Type, Union
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.generic import UpdateView
 
 from creme.creme_core import forms, models
@@ -157,6 +159,7 @@ class EntityEdition(CremeModelEdition):
 
 
 # TODO: factorise with CremeModelCreationPopup ?
+@method_decorator(xframe_options_sameorigin, name='dispatch')
 class CremeModelEditionPopup(CremeModelEdition):
     """ Base class for edition view with a form in Creme within an Inner-Popup.
     See CremeModelEdition.
