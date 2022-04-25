@@ -107,7 +107,7 @@ class Populator(BasePopulator):
             minimal_display=(False, True),
         )[0]
         create_rtype(
-            (constants.REL_SUB_HAS_LINE, _('had the line'),   BILLING_MODELS),
+            (constants.REL_SUB_HAS_LINE, _('has the line'),   BILLING_MODELS),
             (constants.REL_OBJ_HAS_LINE, _('is the line of'), line_entities),
             is_internal=True,
             minimal_display=(True, True),

@@ -1,5 +1,7 @@
 == Version 2.2.12 Work in progress (not released -- this is a draft) ==
 
+TODO: compilemessages (billing)
+
   Users side :
   ------------
     # Apps :
