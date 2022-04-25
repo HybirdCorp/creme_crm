@@ -1,6 +1,6 @@
 == Version 2.3.3 Work in progress (not released -- this is a draft) ==
 
-TODO: compilemessages (creme_core, documents, reports)
+TODO: compilemessages (creme_core, documents, reports, billing)
 
   Users side :
   ------------
