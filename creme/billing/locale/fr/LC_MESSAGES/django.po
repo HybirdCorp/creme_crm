@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-04-25 19:50+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -983,7 +983,7 @@ msgid "has received"
 msgstr "a reçu"
 
 #: populate.py:110
-msgid "had the line"
+msgid "has the line"
 msgstr "a la ligne"
 
 #: populate.py:111
