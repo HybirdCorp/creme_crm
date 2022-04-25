@@ -20,6 +20,7 @@ TODO: compilemessages (creme_core, documents, reports)
 
     Non breaking changes :
     ----------------------
+        # There were issues when uploading file in popup for inner-edition.
         # A settings variable 'JQUERY_MIGRATE_MUTE' and a related context processor 'get_jqmigrate_mute'
           have been added to disable almost all the annoying warnings in the JavaScript console.
 
