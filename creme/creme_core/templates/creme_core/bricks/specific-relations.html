@@ -64,7 +64,9 @@
                             {% brick_table_column title=cell.title %}
                         {% endif %}
                     {% endfor %}
-                    {% brick_table_column title=_('Action') status='action' %}
+                    {% if not relation_type.is_internal %}
+                        {% brick_table_column title=_('Action') status='action' %}
+                    {% endif %}
                     </tr>
                 </thead>
                 <tbody>
@@ -88,9 +90,11 @@
                         <td>{{HIDDEN_VALUE}}</td>
                         {% endfor %}
                     {% endif %}
+                      {% if not relation_type.is_internal %}
                         <td  {% brick_table_data_status action %}>{% has_perm_to unlink entity_obj as object_unlink_perm %}
-                        {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+                          {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
                         </td>
+                      {% endif %}
                     </tr>
                 {% endfor %}
             {% else %}
@@ -98,8 +102,10 @@
                 {% for entity_obj in entities %}
                     <tr>
                         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink entity_obj user %}</td>
-                        <td {% brick_table_data_status action %}>{% has_perm_to unlink entity_obj as object_unlink_perm %}
-                        {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+                        <td {% brick_table_data_status action %}>
+                          {% if not relation_type.is_internal %}{% has_perm_to unlink entity_obj as object_unlink_perm %}
+                            {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}
+                          {% endif %}
                         </td>
                     </tr>
                 {% endfor %}
