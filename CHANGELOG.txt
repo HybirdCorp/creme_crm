@@ -4,6 +4,7 @@ TODO: compilemessages (creme_core, documents, reports, billing)
 
   Users side :
   ------------
+    # In History block, the modifications concerning entities which cannot be viewed are now hidden.
     # The style of the 'steps' buttons in wizards has been fixed.
     # Apps :
         * Billing :
