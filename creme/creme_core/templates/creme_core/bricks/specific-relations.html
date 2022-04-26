@@ -25,8 +25,12 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-{% has_perm_to link object as subject_link_perm %}{% url 'creme_core__create_relations' object.id relation_type.id as create_url %}
-    {% brick_header_action id='link' url=create_url label=_('New relationships') enabled=subject_link_perm %}
+    {% if relation_type.is_internal %}
+      {% brick_header_action id='link' label=_('New relationships') help_text=_('This relation type is internal, so you cannot create a relationship with this generic block') enabled=False %}
+    {% else %}
+      {% has_perm_to link object as subject_link_perm %}{% url 'creme_core__create_relations' object.id relation_type.id as create_url %}
+      {% brick_header_action id='link' url=create_url label=_('New relationships') enabled=subject_link_perm %}
+    {% endif %}
 {% endblock %}
 
 {% block brick_list_content %}
