@@ -6,7 +6,9 @@ TODO: compilemessages (creme_core, documents, reports, billing)
   ------------
     # In blocks :
         - In History block, the modifications concerning entities which cannot be viewed are now hidden.
-        - The button to create new relationships on block related to a specific RelationType is now disabled when the RelationType is internal.
+        - In blocks related to a specific RelationType, when the RelationType is internal :
+            - The button to create new relationships is now disabled.
+            - The button to delete relationships is now removed.
     # The style of the 'steps' buttons in wizards has been fixed.
     # Apps :
         * Billing :
