@@ -6,6 +6,8 @@ TODO: compilemessages (creme_core, documents, reports, billing)
   ------------
     # The style of the 'steps' buttons in wizards has been fixed.
     # Apps :
+        * Billing :
+            - A signal handler was failed silently.
         * Emails :
             - Some features of the Rich-text editor were broken
               (issue with "X-Frame-Options" when serving the tinyMCE's static files).
