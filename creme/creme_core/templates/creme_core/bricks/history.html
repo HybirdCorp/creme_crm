@@ -36,29 +36,33 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for line in page.object_list %}
+    {% for line in page.object_list %}{% with concerned_entity=line.entity %}
     <tr>
         <td {% brick_table_data_status primary %} data-type="date">
             {% print_field object=line field='date' %}
         </td>
         {% if not object %}
         <td>
-        {% with concerned_entity=line.entity %}
-            {% if concerned_entity %}
-                {% widget_icon instance=concerned_entity size='brick-table' class='ctype-icon' %}
-                {% widget_entity_hyperlink concerned_entity user %}
-            {% else %}
-                {% widget_icon ctype=line.entity_ctype size='brick-table' class='ctype-icon' %}
-                {{line.entity_repr}}{# TODO: improve credentials here !! #}
-            {% endif %}
-        {% endwith %}
+          {% if concerned_entity %}
+            {% widget_icon instance=concerned_entity size='brick-table' class='ctype-icon' %}
+            {% widget_entity_hyperlink concerned_entity user %}
+          {% else %}
+            {% widget_icon ctype=line.entity_ctype size='brick-table' class='ctype-icon' %}
+            {{line.entity_repr}}{# TODO: improve credentials here !! #}
+          {% endif %}
         </td>
         {% endif %}
         <td>{{line.get_type_str}}</td>
-        <td data-type="list">{{line.explainer.render}}</td>
+        <td data-type="list">
+          {% if concerned_entity %}{% has_perm_to view concerned_entity as has_perm %}
+            {% if has_perm %}{{line.explainer.render}}{% else %}{{HIDDEN_VALUE}}{% endif %}
+          {% else %}
+            {{line.explainer.render}}{# TODO: improve credentials here !! #}
+          {% endif %}
+        </td>
         <td>{% if line.user is not None %}{% widget_hyperlink line.user %}{% else %}{{line.username}}{% endif %}</td>
     </tr>
-    {% endfor %}
+    {% endwith %}{% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}
