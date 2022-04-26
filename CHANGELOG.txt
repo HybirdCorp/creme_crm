@@ -5,6 +5,8 @@ TODO: compilemessages (billing)
   Users side :
   ------------
     # Apps :
+        * Billing :
+            - A signal handler was failed silently.
         * Reports :
             - The initial value of the 'user' field in the creation form of Reports has been fixed.
         * VCFs :
