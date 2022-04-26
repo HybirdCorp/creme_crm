@@ -11,7 +11,7 @@ from creme.creme_core.utils.content_type import (
     get_ctype_or_404,
 )
 
-from ..base import CremeTestCase
+from ..base import CremeTestCase, skipIfNotInstalled
 
 
 class ContentTypeTestCase(CremeTestCase):
@@ -21,7 +21,7 @@ class ContentTypeTestCase(CremeTestCase):
         self.assertEqual(ctype, as_ctype(FakeOrganisation))
         self.assertEqual(ctype, as_ctype(FakeOrganisation()))
 
-    def test_creme_entity_content_types(self):
+    def test_creme_entity_content_types01(self):
         ctypes = [*entity_ctypes()]
 
         get_ct = ContentType.objects.get_for_model
@@ -29,6 +29,21 @@ class ContentTypeTestCase(CremeTestCase):
         self.assertIn(get_ct(FakeContact),      ctypes)
 
         self.assertNotIn(get_ct(FakeSector), ctypes)
+
+    @skipIfNotInstalled('creme.persons')
+    @skipIfNotInstalled('creme.documents')
+    def test_creme_entity_content_types02(self):
+        from creme import documents, persons
+
+        ctypes = [*entity_ctypes(app_labels=['persons'])]
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertIn(get_ct(persons.get_contact_model()),      ctypes)
+        self.assertIn(get_ct(persons.get_organisation_model()), ctypes)
+
+        self.assertNotIn(get_ct(documents.get_document_model()), ctypes)
+        self.assertNotIn(get_ct(FakeContact), ctypes)
+        self.assertNotIn(get_ct(FakeOrganisation), ctypes)
 
     def test_get_ctype_or_404(self):
         get_ct = ContentType.objects.get_for_model

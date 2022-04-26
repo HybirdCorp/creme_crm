@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2009-2021 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,7 @@
 #
 ################################################################################
 
-from typing import Iterable, Iterator, List, Tuple, Union
+from typing import Container, Iterable, Iterator, List, Optional, Tuple, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -39,12 +39,17 @@ def as_ctype(ct_or_model_or_instance) -> ContentType:
     )
 
 
-def entity_ctypes() -> Iterator[ContentType]:
-    "Generator which yields ContentType instances corresponding to registered entity models."
+def entity_ctypes(app_labels: Optional[Container[str]] = None) -> Iterator[ContentType]:
+    """Generator which yields ContentType instances corresponding to registered
+     entity models.
+    @param app_labels: If None is given, all the registered models are yielded.
+           If a container of app labels is given, only models related to these
+           apps are yielded.
+    """
     from ..registry import creme_registry
     return map(
         ContentType.objects.get_for_model,
-        creme_registry.iter_entity_models(),
+        creme_registry.iter_entity_models(app_labels=app_labels),
     )
 
 
