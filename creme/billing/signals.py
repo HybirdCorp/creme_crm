@@ -64,6 +64,11 @@ def set_simple_conf_billing(sender, instance, **kwargs):
 
 @receiver(core_signals.pre_merge_related)
 def handle_merge_organisations(sender, other_entity, **kwargs):
+    # TODO: change 'pre_merge_related' to have sender=Organisation & arguments "entity1/entity2"
+    #       (& so write '@receiver(core_signals.pre_merge_related, sender=Organisation)' )
+    if not isinstance(sender, Organisation):
+        return
+
     # NB: we assume that all CTs are covered if at least one CT is covered
     #     because ConfigBillingAlgo/SimpleBillingAlgo instances are only
     #     created in _simple_conf_billing_for_org_managed_by_creme().
