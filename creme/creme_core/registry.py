@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import TYPE_CHECKING, Iterator, Type
+from typing import TYPE_CHECKING, Container, Iterator, Optional, Type
 
 from django.utils.datastructures import OrderedSet
 
@@ -30,11 +32,11 @@ logger = logging.getLogger(__name__)
 
 
 class CremeRegistry:
-    """Registry for Creme Applications and Entities."""
+    """Registry for CremeEntity models."""
     def __init__(self):
         self._entity_models = OrderedSet()
 
-    def register_entity_models(self, *models: Type['CremeEntity']) -> None:
+    def register_entity_models(self, *models: Type['CremeEntity']) -> CremeRegistry:
         """Register CremeEntity models."""
         from .models import CremeEntity
 
@@ -43,18 +45,32 @@ class CremeRegistry:
         for model in models:
             if not issubclass(model, CremeEntity):
                 logger.critical(
-                    'CremeRegistry.register_entity_models: "%s" is not'
-                    ' a subclass of CremeEntity, so we ignore it', model,
+                    'CremeRegistry.register_entity_models: %s is not '
+                    'a subclass of CremeEntity, so we ignore it', model,
                 )
                 continue
 
             entity_models.add(model)
 
+        return self
+
     def is_entity_model_registered(self, model: Type['CremeEntity']) -> bool:
         return model in self._entity_models
 
-    def iter_entity_models(self) -> Iterator[Type['CremeEntity']]:
-        return iter(self._entity_models)
+    def iter_entity_models(self,
+                           app_labels: Optional[Container[str]] = None,
+                           ) -> Iterator[Type['CremeEntity']]:
+        """Iterate on the registered models.
+        @param app_labels: If None is given, all the registered models are yielded.
+               If a container of app labels is given, only models related to
+               these apps are yielded.
+        """
+        if app_labels is None:
+            yield from self._entity_models
+        else:
+            for model in self._entity_models:
+                if model._meta.app_label in app_labels:
+                    yield model
 
 
 creme_registry = CremeRegistry()

@@ -44,6 +44,7 @@ from .models import (
 )
 # from .utils.db import populate_related
 from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
+from .utils.content_type import entity_ctypes
 
 logger = logging.getLogger(__name__)
 
@@ -275,13 +276,16 @@ class HistoryBrick(QuerysetBrick):
         return self._render(btc)
 
     def home_display(self, context):
-        btc = self.get_template_context(
-            context,
-            HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL)),
-            HIDDEN_VALUE=settings.HIDDEN_VALUE,
-        )
-        hlines = btc['page'].object_list
         user = context['user']
+        qs = HistoryLine.objects.exclude(type__in=(TYPE_SYM_RELATION, TYPE_SYM_REL_DEL))
+
+        if not user.is_superuser:
+            qs = qs.filter(entity_ctype__in=[
+                *entity_ctypes(app_labels=user.role.extended_allowed_apps),
+            ])
+
+        btc = self.get_template_context(context, qs, HIDDEN_VALUE=settings.HIDDEN_VALUE)
+        hlines = btc['page'].object_list
 
         HistoryLine.populate_related_lines(hlines)
         related_hlines = [*filter(None, (hline.related_line for hline in hlines))]

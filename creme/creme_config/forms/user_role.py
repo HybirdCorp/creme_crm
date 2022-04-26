@@ -56,20 +56,21 @@ from creme.creme_core.models import (
     SetCredentials,
     UserRole,
 )
-from creme.creme_core.registry import creme_registry
+# from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils import update_model_instance
+from creme.creme_core.utils.content_type import entity_ctypes
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 from creme.creme_core.utils.unicode_collation import collator
 
 
-# TODO: move to creme_core.utils ?? (improve iter_entity_models() ?)
 def filtered_entity_ctypes(app_labels):
     ext_app_labels = {app_config.label for app_config in extended_app_configs(app_labels)}
-    get_ct = ContentType.objects.get_for_model
-
-    for model in creme_registry.iter_entity_models():
-        if model._meta.app_label in ext_app_labels:
-            yield get_ct(model)
+    # get_ct = ContentType.objects.get_for_model
+    #
+    # for model in creme_registry.iter_entity_models():
+    #     if model._meta.app_label in ext_app_labels:
+    #         yield get_ct(model)
+    yield from entity_ctypes(app_labels=ext_app_labels)
 
 
 class CredentialsGeneralStep(CremeModelForm):

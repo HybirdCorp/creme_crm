@@ -9,6 +9,7 @@
   ------------
     # The setting 'USE_L10N' is now set to 'True' by default (previously only 'False' was working).
       So, by default, the formats for dates & times depend on the user's language.
+    # In the History's block, lines related to entities from apps you cannot view are excluded.
     # Apps :
         * Creme_config :
             - The menu icon can now be customised.
