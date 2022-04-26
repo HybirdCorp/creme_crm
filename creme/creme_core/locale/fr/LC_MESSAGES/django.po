@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-07 19:05+0200\n"
+"POT-Creation-Date: 2022-04-26 15:38+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -2817,6 +2817,13 @@ msgstr "{count} Fiches"
 #, python-brace-format
 msgid "{count} Entity"
 msgstr "{count} Fiche"
+
+msgid ""
+"This relation type is internal, so you cannot create a relationship with "
+"this generic block"
+msgstr ""
+"Ce type de relation est interne, donc vous ne pouvez pas créer de relation "
+"via ce bloc générique"
 
 #, python-format
 msgid "%(count)s Entity"
