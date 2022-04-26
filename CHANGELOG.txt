@@ -4,7 +4,9 @@ TODO: compilemessages (creme_core, documents, reports, billing)
 
   Users side :
   ------------
-    # In History block, the modifications concerning entities which cannot be viewed are now hidden.
+    # In blocks :
+        - In History block, the modifications concerning entities which cannot be viewed are now hidden.
+        - The button to create new relationships on block related to a specific RelationType is now disabled when the RelationType is internal.
     # The style of the 'steps' buttons in wizards has been fixed.
     # Apps :
         * Billing :
@@ -27,6 +29,7 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         # A settings variable 'JQUERY_MIGRATE_MUTE' and a related context processor 'get_jqmigrate_mute'
           have been added to disable almost all the annoying warnings in the JavaScript console.
         # Some {% blocks %} were added in the content template of list-views.
+        # The given help_text passed to {% brick_header_action %} is now used.
 
 
 == Version 2.3.2 ==
