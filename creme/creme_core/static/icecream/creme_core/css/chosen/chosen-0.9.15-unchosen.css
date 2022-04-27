@@ -10,7 +10,7 @@
   display: inline-block;
   vertical-align: middle;
   zoom: 1;
-  *display: inline;
+  /*display: inline;*/
 }
 .chzn-drop {
   background: #fff;
