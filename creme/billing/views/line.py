@@ -36,6 +36,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.content_type import get_ctype_or_404
 from creme.creme_core.views import generic
+from creme.creme_core.views.generic.listview import SelectionMode
 
 from .. import constants
 from ..core import BILLING_MODELS
@@ -70,12 +71,18 @@ class ServiceLinesCreation(_LinesCreation):
 class ProductLinesList(generic.EntitiesList):
     model = ProductLine
 
+    def get_mode(self):
+        return SelectionMode.NONE
+
     def get_show_actions(self):
         return False
 
 
 class ServiceLinesList(generic.EntitiesList):
     model = ServiceLine
+
+    def get_mode(self):
+        return SelectionMode.NONE
 
     def get_show_actions(self):
         return False

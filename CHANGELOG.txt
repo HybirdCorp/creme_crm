@@ -17,6 +17,7 @@ TODO: compilemessages (creme_core, documents, reports, billing)
             - The auto-completion has been added when choosing the ContentType in the creation form for Button Menu.
         * Billing :
             - A signal handler was failed silently.
+            - The selection check-boxes in list-views for ProductLines & ServiceLines have been removed.
         * Emails :
             - Some features of the Rich-text editor were broken
               (issue with "X-Frame-Options" when serving the tinyMCE's static files).
