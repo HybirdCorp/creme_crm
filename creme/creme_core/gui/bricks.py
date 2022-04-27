@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,7 +164,7 @@ class Brick:
 
     # Some reloading views (see 'creme_core.views.bricks.BricksReloading') check
     # permissions to avoid information leaking.
-    # It's can be:
+    # It can be:
     #  - a classical permission string
     #     eg: permissions = 'my_app'
     #  - a sequence of permission strings
@@ -386,7 +386,7 @@ class _QuerysetBrickContext(_PaginatedBrickContext):
 
 class QuerysetBrick(PaginatedBrick):
     """In this brick, displayed objects are stored in a queryset.
-    It allows to order objects by one of its columns (which can change): order
+    It allows ordering objects by one of its columns (which can change): order
     changes are done with ajax of course.
     """
     context_class = _QuerysetBrickContext
@@ -646,8 +646,8 @@ class BricksManager:
 
     Documentation for DEPRECATED features:
     Using to solve the bricks dependencies problem in a page.
-    Bricks can depends on the same model : updating one brick involves to update
-    the bricks which depend on the same than it.
+    Bricks can depend on the same model: updating one brick involves to update
+    the bricks which depend on the same as it.
     """
     var_name: str = 'bricks_manager'
 
@@ -804,7 +804,7 @@ class _BrickRegistry:
         return self
 
     def register_invalid_models(self, *models: Type[CremeEntity]) -> '_BrickRegistry':
-        """Register some models which cannot have a bricks configuration for
+        """Register some models which cannot have a configuration for Bricks on
         their detail-views (eg: they have no detail-view, or they are not 'classical' ones).
         @param models: Classes inheriting CremeEntity.
         """
@@ -890,8 +890,8 @@ class _BrickRegistry:
             brick = brick_class(ibi)
 
             if entity:
-                # When an InstanceBrick is on a detail-view of a entity, the content
-                # of this brick depends (generally) of this entity, so we have to
+                # When an InstanceBrick is on a detail-view of an entity, the content
+                # of this brick depends (generally) on this entity, so we have to
                 # complete the dependencies.
                 model = entity.entity_type.model_class()
                 if model not in brick.dependencies:
@@ -986,8 +986,8 @@ class _BrickRegistry:
             self,
             obj_or_ct: Union[Type[CremeEntity], ContentType, CremeEntity]) -> Brick:
         """Return the Brick that displays fields for a CremeEntity instance.
-        @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType instance
-                          representing this model, or instance of this model.
+        @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType
+               instance representing this model, or instance of this model.
         """
         model = (
             obj_or_ct.__class__ if isinstance(obj_or_ct, CremeEntity) else
@@ -1038,7 +1038,7 @@ class _BrickRegistry:
         """Returns the registered bricks that are configurable and
         compatible with the given ContentType.
         @param model: Constraint on a CremeEntity class ;
-                      None means bricks must be compatible with all kind of CremeEntity.
+               <None> means bricks must be compatible with all kind of CremeEntity.
         """
         for brick_cls in self._brick_classes.values():
             brick = brick_cls()
