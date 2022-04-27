@@ -87,9 +87,9 @@ class RelationTypeManager(models.Manager):
                instances (same value for the both).
         @param is_internal: Value of <RelationType.is_internal> in the created
                instances (same value for the both).
-        @param is_copiable: Values of <RelationType.is_internal> in the created
+        @param is_copiable: Values of <RelationType.is_copiable> in the created
                instances.
-        @param minimal_display: Values of <RelationType.is_internal> in the
+        @param minimal_display: Values of <RelationType.minimal_display> in the
                created instances.
         """
         # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
