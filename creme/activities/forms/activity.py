@@ -261,7 +261,7 @@ class _AssistantSubCell(CustomFormExtraSubCell):
         raise NotImplementedError()
 
     @staticmethod
-    def _create_alert(activity, trigger_date):
+    def _create_alert(activity, trigger_date, **kwargs):
         from creme.assistants.models import Alert
 
         Alert.objects.create(
@@ -271,6 +271,7 @@ class _AssistantSubCell(CustomFormExtraSubCell):
             real_entity=activity,
             title=gettext('Alert of activity'),
             description=gettext('Alert related to {activity}').format(activity=activity),
+            **kwargs
         )
 
     def formfield(self, instance, user, **kwargs):
@@ -333,7 +334,15 @@ class PeriodAlertSubCell(_AssistantSubCell):
 
     def post_save_instance(self, *, instance: AbstractActivity, value, form):
         if value:
-            self._create_alert(instance, instance.start - value.as_timedelta())
+            self._create_alert(
+                instance,
+                trigger_date=instance.start - value.as_timedelta(),
+                trigger_offset={
+                    'cell': {'type': 'regular_field', 'value': 'start'},
+                    'sign': -1,
+                    'period': value.as_dict(),
+                },
+            )
 
         return False  # Do not save the Activity again (not modified)
 

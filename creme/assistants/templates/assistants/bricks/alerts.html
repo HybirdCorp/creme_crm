@@ -15,9 +15,9 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% if object %}{% has_perm_to change object as has_perm %}
+  {% if object %}{% has_perm_to change object as has_perm %}
     {% brick_header_action id='add' url='assistants__create_alert'|url:object.id label=_('New alert') enabled=has_perm %}
-    {% endif %}
+  {% endif %}
 {% endblock %}
 
 {% block brick_table_columns %}
@@ -43,7 +43,27 @@
             <td>{% widget_entity_hyperlink alert.real_entity user %}</td>
         {% endif %}
         <td>{% print_field object=alert field='user' %}</td>
-        <td data-type="date" class="{% if alert.trigger_date >= today %}brick-table-data-valid{% else %}brick-table-data-error{% endif %}">{% print_field object=alert field='trigger_date' %}</td>
+        <td data-type="date"
+          {% if alert.trigger_date is None %}
+            class="brick-table-data-error" title="{% translate 'The date cannot be computed (related field is empty)' %}"
+          {% elif alert.trigger_date >= today %}
+            class="brick-table-data-valid" title="{% translate 'The date is not expired' %}"
+          {% else %}
+            class="brick-table-data-error" title="{% translate 'The date is expired' %}"
+          {% endif %}
+        >
+            {% if alert.trigger_date is None %}{% translate '(error)' %}{% else %}{% print_field object=alert field='trigger_date' %}
+            {% endif %}
+            {% if alert.trigger_offset %}
+            <a data-action="popover">
+                {% widget_icon name='info' label=_('The trigger date is relative') size='brick-table' %}
+                <summary>{% translate 'Details' %}</summary>
+                <details>
+                    <span>{% assistants_verbose_date_offset offset_dict=alert.trigger_offset entity=alert.real_entity %}</span>
+                </details>
+            </a>
+            {% endif %}
+        </td>
         <td>{% print_field object=alert field='description' %}</td>
 {#        {% has_perm_to change alert.creme_entity as has_perm %} #}
         {% has_perm_to change alert.real_entity as has_perm %}

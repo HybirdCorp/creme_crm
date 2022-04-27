@@ -977,6 +977,51 @@ class OptionalSelect(OptionalWidget):
         super().__init__(widgets.Select(choices=choices), *args, **kwargs)
 
 
+class UnionWidget(widgets.Widget):
+    template_name = 'creme_core/forms/widgets/union.html'
+
+    def __init__(self, attrs=None, widgets_choices=()):
+        super().__init__(attrs)
+        self.widgets_choices = widgets_choices
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name=name, value=value, attrs=attrs)
+
+        widget_type = 'ui-creme-union'
+        final_attrs = context['widget']['attrs']
+        base_css = (
+            'union-widget ui-creme-widget widget-auto '
+            if final_attrs.pop('auto', True) else
+            'union-widget ui-creme-widget '
+        )
+        final_attrs['class'] = f"{base_css} {final_attrs.get('class', '')} {widget_type}".strip()
+        final_attrs['widget'] = widget_type  # TODO: data-widget
+
+        selected_sub_name, sub_values = ('', {}) if value is None else value
+        # TODO: factorise f'{name}_{sub_name}' ?
+        context['widget']['subwidget_choices'] = [
+            {
+                'name': sub_name,
+                'label': sub_label,
+                'checked': selected_sub_name == sub_name,
+                'widget': sub_widget.get_context(
+                    name=f'{name}_{sub_name}', value=sub_values.get(sub_name), attrs={},
+                )['widget'],
+            } for sub_name, sub_label, sub_widget in self.widgets_choices
+        ]
+
+        return context
+
+    def value_from_datadict(self, data, files, name):
+        selected = data.get(name)
+        sub_values = {
+            sub_name: sub_widget.value_from_datadict(data, files, f'{name}_{sub_name}')
+            for sub_name, _label, sub_widget in self.widgets_choices
+        }
+
+        return selected, sub_values
+
+
 class TinyMCEEditor(widgets.Textarea):
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-editor'
@@ -1245,6 +1290,11 @@ class DatePeriodWidget(widgets.MultiWidget):
 
         # TODO: do we need a system for localized settings (like python in locale/ ) ?
         try:
+            # Translators: this string is used to set the order of the inputs
+            # in the widget to choose the relative trigger date of Alerts.
+            # Just re-order the format argument, DO NOT ADD other characters (like space...)
+            # dateperiod_value: the value of the period ("1" in "1 week)
+            # dateperiod_type: the type of the period ("week" in "1 week)
             localized_order = _('{dateperiod_value}{dateperiod_type}').format(
                 dateperiod_type='0',
                 dateperiod_value='1',
@@ -1255,6 +1305,76 @@ class DatePeriodWidget(widgets.MultiWidget):
             inverted = False
 
         context['widget']['indices'] = (1, 0) if inverted else (0, 1)
+
+        return context
+
+
+# TODO: factorise with DatePeriodWidget?
+class RelativeDatePeriodWidget(widgets.MultiWidget):
+    template_name = 'creme_core/forms/widgets/date-period.html'
+
+    def __init__(self, period_choices=(), relative_choices=(), attrs=None):
+        super().__init__(
+            widgets=(
+                widgets.Select(
+                    choices=relative_choices,
+                    attrs={'class': 'relative_dperiod-direction'},
+                ),
+                widgets.Select(
+                    choices=period_choices,
+                    attrs={'class': 'relative_dperiod-type'},
+                ),
+                widgets.NumberInput(attrs={'class': 'relative_dperiod-value', 'min': 1}),
+            ),
+            attrs=attrs,
+        )
+
+    @property
+    def period_choices(self):
+        return self.widgets[1].choices
+
+    @period_choices.setter
+    def period_choices(self, choices):
+        self.widgets[1].choices = choices
+
+    @property
+    def relative_choices(self):
+        return self.widgets[0].choices
+
+    @relative_choices.setter
+    def relative_choices(self, choices):
+        self.widgets[0].choices = choices
+
+    def decompress(self, value):
+        if value:
+            sign, period = value
+            d = period.as_dict()
+            return sign, d['type'], d['value']
+
+        return None, None, None
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name=name, value=value, attrs=attrs)
+
+        # TODO: do we need a system for localized settings (like python in locale/ ) ?
+        try:
+            # Translators: this string is used to set the order of the inputs
+            # in the widget to choose the relative trigger date of Alerts.
+            # Just re-order the format argument, DO NOT ADD other characters (like space...)
+            # dateperiod_value: the value of the period ("1" in "1 week)
+            # dateperiod_type: the type of the period ("week" in "1 week)
+            # dateperiod_direction: "after" or "before"
+            localized_order = _('{dateperiod_value}{dateperiod_type}{dateperiod_direction}').format(  # NOQA
+                dateperiod_type='1',
+                dateperiod_value='2',
+                dateperiod_direction='0',
+            )
+            indices = [int(i) for i in localized_order]
+        except Exception:  # TODO: better exception
+            logger.exception('RelativeDatePeriodWidget.get_context()')
+            indices = (0, 1, 2)
+
+        context['widget']['indices'] = indices
 
         return context
 

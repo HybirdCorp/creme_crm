@@ -122,6 +122,41 @@ class EntityCellTestCase(CremeTestCase):
         with self.assertRaises(KeyError):
             registry1[EntityCellFunctionField.type_id]
 
+    def test_registry_build_cell_from_dict(self):
+        build = partial(CELLS_MAP.build_cell_from_dict, model=FakeContact)
+        cell1 = build(dict_cell={
+            'type': EntityCellRegularField.type_id,
+            'value': 'first_name',
+        })
+        self.assertIsInstance(cell1, EntityCellRegularField)
+        self.assertEqual(FakeContact,  cell1.model)
+        self.assertEqual('first_name', cell1.value)
+
+        cell2 = build(dict_cell={
+            'type': EntityCellFunctionField.type_id,
+            'value': 'get_pretty_properties',
+        })
+        self.assertIsInstance(cell2, EntityCellFunctionField)
+        self.assertEqual(FakeContact,             cell2.model)
+        self.assertEqual('get_pretty_properties', cell2.value)
+
+        self.assertIsNone(build(dict_cell={
+            'type': EntityCellRegularField.type_id,
+            'value': 'invalid',
+        }))
+        self.assertIsNone(build(dict_cell={
+            # 'type': EntityCellRegularField.type_id,
+            'value': 'first_name',
+        }))
+        self.assertIsNone(build(dict_cell={
+            'type': EntityCellRegularField.type_id,
+            # 'value': 'first_name',
+        }))
+        self.assertIsNone(build(dict_cell={
+            'type': 'not_registered',  # <==
+            'value': 'first_name',
+        }))
+
     def test_registry_build_cells_from_dicts01(self):
         "No error."
         cells, errors = CELLS_MAP.build_cells_from_dicts(

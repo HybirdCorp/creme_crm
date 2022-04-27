@@ -440,6 +440,30 @@ ul.select_or_input-widget input[type="text"] {
     min-width: 250px;
 }
 
+
+ul.union-widget {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+}
+
+ul.union-widget .union-sub_widget + .union-sub_widget {
+    margin-top: 15px;
+}
+
+ul.union-widget .union-sub_widget label {
+    font-weight: 600;
+}
+
+ul.union-widget .union-sub_widget_container {
+    margin-left: 25px;
+    margin-top: 2px;
+}
+
+ul.union-widget .union-sub_widget_container:not(.switch-on) {
+    opacity: 0.3;
+}
+
 /* MERGE TOOL */
 .li_merge_entity_header1 {
     display: inline;

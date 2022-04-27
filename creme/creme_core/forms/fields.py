@@ -1343,6 +1343,77 @@ class OptionalModelChoiceField(OptionalChoiceField):
     sub_field = mforms.ModelChoiceField
 
 
+class UnionField(fields.Field):
+    """Base class for fields which are a union of other subfields, ie the user
+    has to pick one subfield among several ones (of potentially different types).
+
+    It's particularly useful when the subfields are complex ; you can use simpler
+    & more specific field/widget in other cases (see 'ChoiceOrCharField').
+    """
+    widget = core_widgets.UnionWidget
+    default_error_messages = {
+        'invalid': 'No sub-data related to your choice.',
+    }
+
+    def __init__(self, fields_choices=(), empty_label=_('Empty'), **kwargs):
+        """Constructor.
+        @param fields_choices: A sequence of tuples (field_id, field).
+               Each 'field_id' must be unique (strings & integers are good choices).
+               'field' is an instance of <django.forms.Field>.
+        @param empty_label: Label used when the field is not required to propose
+               an additional empty choice.
+        """
+        super().__init__(**kwargs)
+        self.empty_label = empty_label
+        self.fields_choices = fields_choices
+
+    def __deepcopy__(self, memo):
+        result = super().__deepcopy__(memo)
+
+        # Need to force a new CallableChoiceIterator to be created.
+        result.fields_choices = result.fields_choices
+
+        return result
+
+    @property
+    def fields_choices(self):
+        return self._fields_choices
+
+    @fields_choices.setter
+    def fields_choices(self, value):
+        "See constructor."
+        choices = list(value)
+        self._fields_choices = choices
+
+        def _widget_choices():
+            w_choices = []
+            if not self.required:
+                w_choices.append(('', self.empty_label, widgets.HiddenInput()))
+
+            for name, field in choices:
+                w_choices.append((name, field.label, field.widget))
+
+            return w_choices
+
+        self.widget.widgets_choices = fields.CallableChoiceIterator(_widget_choices)
+
+    def to_python(self, value):
+        # TODO: use 'disabled' attribute?
+        if value:
+            choice, sub_values = value
+
+            for field_id, field in self._fields_choices:
+                if choice == field_id:
+                    try:
+                        sub_value = sub_values[field_id]
+                    except KeyError:
+                        raise ValidationError(
+                            self.error_messages['invalid'], code='invalid',
+                        )
+
+                    return (field_id, field.clean(sub_value))
+
+
 class ListEditionField(fields.Field):
     """A field to allow the user to edit/delete a list of strings.
     It returns a list with the same order:
@@ -1437,6 +1508,9 @@ class MultiEmailField(fields.Field):
 
 
 class DatePeriodField(fields.MultiValueField):
+    """Field to choose a date period (eg: "3 weeks").
+    Hint: see <creme_core.utils.date_period> too.
+    """
     widget = core_widgets.DatePeriodWidget
 
     def __init__(self, *, period_registry=date_period_registry, period_names=None, **kwargs):
@@ -1458,7 +1532,7 @@ class DatePeriodField(fields.MultiValueField):
         ]
 
     @property
-    def choices(self):
+    def choices(self):  # TODO: rename "period_choices"?
         return self.fields[0].choices
 
     @property
@@ -1469,7 +1543,7 @@ class DatePeriodField(fields.MultiValueField):
     def period_names(self, period_names):
         """Set the periods which are valid (they must be registered in the related registry too).
         @param period_names: Sequence of strings (see DatePeriod.name for valid values),
-                             or None (== all available periods in the registry are used.
+               or None (== all available periods in the registry are used).
         """
         self._period_names = period_names
         self._update_choices()
@@ -1494,6 +1568,81 @@ class DatePeriodField(fields.MultiValueField):
             return None
 
         return date_period_registry.get_period(period_name, period_value)
+
+
+class RelativeDatePeriodField(fields.MultiValueField):
+    """Field to choose a relative date period (eg: "3 weeks before", "1 day after").
+    Hint: see DatePeriodField too.
+    """
+    widget = core_widgets.RelativeDatePeriodWidget
+
+    def __init__(self, *, period_registry=date_period_registry, period_names=None, **kwargs):
+        """Constructor.
+        @param period_registry: See DatePeriodField.
+        @param period_names: See DatePeriodField.
+        """
+        super().__init__(
+            (
+                fields.TypedChoiceField(
+                    coerce=int,
+                    empty_value=1,  # Hint: use the second value to test emptiness
+                ),
+                DatePeriodField(period_registry=period_registry),
+            ),
+            **kwargs
+        )
+
+        self.period_names = period_names
+        self.relative_choices = [(-1, _('Before')), (1, _('After'))]
+
+    @property
+    def period_choices(self):
+        return self.fields[1].choices
+
+    @property
+    def period_names(self):
+        return self.fields[1].period_names
+
+    @period_names.setter
+    def period_names(self, period_names):
+        """Set the periods which are valid (they must be registered in the related registry too).
+        @param period_names: Sequence of strings (see DatePeriod.name for valid values),
+               or None (== all available periods in the registry are used).
+        """
+        period_f = self.fields[1]
+        period_f.period_names = period_names
+        self.widget.period_choices = period_f.choices
+
+    @property
+    def period_registry(self):
+        return self.fields[1].period_registry
+
+    @period_registry.setter
+    def period_registry(self, period_registry):
+        self.fields[1].period_registry = period_registry
+
+    @property
+    def relative_choices(self):
+        return self.fields[0].choices
+
+    @relative_choices.setter
+    def relative_choices(self, choices):
+        self.fields[0].choices = self.widget.relative_choices = choices
+
+    def compress(self, data_list):
+        return (data_list[0], data_list[1]) if data_list else ()
+
+    def validate(self, value):
+        if self.required and value[1] is None:
+            raise ValidationError(self.error_messages['required'], code='required')
+
+    def clean(self, value):
+        if isinstance(value, (list, tuple)) and len(value) == 3:
+            value = [value[0], value[1:]]
+
+        cleaned = super().clean(value)
+
+        return cleaned if (cleaned and cleaned[1]) else ()
 
 
 class DateRangeField(fields.MultiValueField):

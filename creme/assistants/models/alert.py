@@ -18,12 +18,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from datetime import datetime, time
+
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.models as core_models
 import creme.creme_core.models.fields as core_fields
+from creme.creme_core.utils.dates import make_aware_dt
 
 
 class AlertManager(models.Manager):
@@ -36,7 +39,10 @@ class Alert(core_models.CremeModel):
     title = models.CharField(_('Title'), max_length=200)
     description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
-    trigger_date = models.DateTimeField(_('Trigger date'))
+
+    # trigger_date = models.DateTimeField(_('Trigger date'))
+    trigger_date = models.DateTimeField(_('Trigger date'), null=True, editable=False)
+    trigger_offset = models.JSONField(default=dict, editable=False)
 
     # Needed by creme_core.core.reminder
     reminded = models.BooleanField(_('Notification sent'), editable=False, default=False)
@@ -75,3 +81,17 @@ class Alert(core_models.CremeModel):
     @property
     def to_be_reminded(self):
         return not self.is_validated and not self.reminded
+
+    def trigger_date_from_offset(self, cell, sign, period):
+        # TODO?
+        # if not isinstance(cell, EntityCellRegularField):
+        #     return None
+        origin = cell.field_info.value_from(self.real_entity)
+
+        if origin:
+            if not isinstance(origin, datetime):
+                origin = make_aware_dt(datetime.combine(origin, time()))
+
+            return origin + (sign * period.as_timedelta())
+
+        return None

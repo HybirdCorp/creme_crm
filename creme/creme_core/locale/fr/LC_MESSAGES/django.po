@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-26 15:38+0200\n"
+"POT-Creation-Date: 2022-05-11 14:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -959,6 +959,15 @@ msgstr ""
 msgid "Enter a value if you check the box."
 msgstr "Entrez une valeur si vous cochez la case."
 
+msgid "Empty"
+msgstr "Vide"
+
+msgid "Before"
+msgstr "Avant"
+
+msgid "After"
+msgstr "Après"
+
 msgid ""
 "If you select «customized» you have to specify a start date and/or an end "
 "date."
@@ -1359,9 +1368,24 @@ msgstr "Sélectionner"
 msgid "Eg: {}"
 msgstr "Ex: {}"
 
+#. Translators: this string is used to set the order of the inputs
+#. in the widget to choose the relative trigger date of Alerts.
+#. Just re-order the format argument, DO NOT ADD other characters (like space...)
+#. dateperiod_value: the value of the period ("1" in "1 week)
+#. dateperiod_type: the type of the period ("week" in "1 week)
 #, python-brace-format
 msgid "{dateperiod_value}{dateperiod_type}"
 msgstr "{dateperiod_value}{dateperiod_type}"
+
+#. Translators: this string is used to set the order of the inputs
+#. in the widget to choose the relative trigger date of Alerts.
+#. Just re-order the format argument, DO NOT ADD other characters (like space...)
+#. dateperiod_value: the value of the period ("1" in "1 week)
+#. dateperiod_type: the type of the period ("week" in "1 week)
+#. dateperiod_direction: "after" or "before"
+#, python-brace-format
+msgid "{dateperiod_value}{dateperiod_type}{dateperiod_direction}"
+msgstr "{dateperiod_value}{dateperiod_type}{dateperiod_direction}"
 
 msgid "Value not in the choices? Fill it here!"
 msgstr "Valeur indisponible ? Remplissez ici !"
