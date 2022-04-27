@@ -382,6 +382,11 @@ ul.multi-select {
     cursor: pointer;
 }
 
+/* TODO: Remove when Chosen is removed */
+.chzn-select {
+    width: 280px;
+}
+
 /* Not used by all browsers... */
 .select-wrapper option {
     background-color: #fff;

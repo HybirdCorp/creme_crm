@@ -9,7 +9,9 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         - In blocks related to a specific RelationType, when the RelationType is internal :
             - The button to create new relationships is now disabled.
             - The button to delete relationships is now removed.
-    # The style of the 'steps' buttons in wizards has been fixed.
+    # Some style fixes have been made :
+        - The 'steps' buttons in wizards had not the same style than the other button.
+        - The width of the 'Chosen' widget was not the same than the other <select> widgets (& was too small in some cases).
     # Apps :
         * Billing :
             - A signal handler was failed silently.
