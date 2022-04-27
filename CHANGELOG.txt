@@ -13,6 +13,8 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         - The 'steps' buttons in wizards had not the same style than the other button.
         - The width of the 'Chosen' widget was not the same than the other <select> widgets (& was too small in some cases).
     # Apps :
+        * Creme_config :
+            - The auto-completion has been added when choosing the ContentType in the creation form for Button Menu.
         * Billing :
             - A signal handler was failed silently.
         * Emails :
