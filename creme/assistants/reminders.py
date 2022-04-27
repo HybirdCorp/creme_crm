@@ -46,9 +46,8 @@ class AssistantReminder(Reminder):
 
 
 class ReminderAlert(AssistantReminder):
-    id    = Reminder.generate_id('assistants', 'alert')
+    id = Reminder.generate_id('assistants', 'alert')
     model = Alert
-
     body = _(
         """This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
             Alert : {title}.
@@ -75,20 +74,22 @@ class ReminderAlert(AssistantReminder):
         )
 
     def get_Q_filter(self):
-        return Q(trigger_date__lte=now() + self._get_delta(), is_validated=False)
+        return Q(
+            trigger_date__lte=now() + self._get_delta(),
+            is_validated=False,
+        )
 
     def next_wakeup(self, now_value):
-        alert = Alert.objects.filter(is_validated=False, reminded=False) \
-                             .order_by('trigger_date') \
-                             .first()
+        alert = Alert.objects.filter(
+            is_validated=False, reminded=False, trigger_date__isnull=False,
+        ).order_by('trigger_date').first()
 
         return alert.trigger_date - self._get_delta() if alert is not None else None
 
 
 class ReminderTodo(AssistantReminder):
-    id    = Reminder.generate_id('assistants', 'todo')
+    id = Reminder.generate_id('assistants', 'todo')
     model = ToDo
-
     body = _(
         """This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
             Todo : {title}.
@@ -126,9 +127,9 @@ class ReminderTodo(AssistantReminder):
 
     def next_wakeup(self, now_value):
         wakeup = None
-        todo = ToDo.objects.filter(is_ok=False, reminded=False, deadline__isnull=False) \
-                           .order_by('deadline') \
-                           .first()
+        todo = ToDo.objects.filter(
+            is_ok=False, reminded=False, deadline__isnull=False,
+        ).order_by('deadline').first()
 
         if todo is not None:
             wakeup = localtime(todo.deadline - self._get_delta())

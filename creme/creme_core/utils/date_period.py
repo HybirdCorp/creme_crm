@@ -36,8 +36,8 @@ from django.utils.translation import ngettext
 
 
 class DatePeriod:
-    name: str = 'base_date_period'  # Overload
-    verbose_name = 'Date period'  # Overload
+    name: str = 'base_date_period'  # Override
+    verbose_name = 'Date period'  # Override
 
     def __str__(self):
         return str(self.verbose_name)

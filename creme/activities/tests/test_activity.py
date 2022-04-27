@@ -30,6 +30,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.tests.base import skipIfNotInstalled
+from creme.creme_core.utils.date_period import DaysPeriod
 from creme.persons.constants import REL_SUB_EMPLOYED_BY, REL_SUB_MANAGES
 from creme.persons.tests.base import (
     skipIfCustomContact,
@@ -888,6 +889,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'Meeting01'
         my_calendar = Calendar.objects.get_default_calendar(user)
+        days = 2
         response = self.client.post(
             self.ACTIVITY_CREATION_URL, follow=True,
             data={
@@ -909,8 +911,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     year=2010, month=2, day=10, hour=10, minute=5,
                 ),
 
-                f'{self.EXTRA_ALERTPERIOD_KEY}_0': 'days',
-                f'{self.EXTRA_ALERTPERIOD_KEY}_1': 2,
+                f'{self.EXTRA_ALERTPERIOD_KEY}_0': DaysPeriod.name,
+                f'{self.EXTRA_ALERTPERIOD_KEY}_1': days,
             },
         )
         self.assertNoFormError(response)
@@ -933,7 +935,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
         self.assertEqual(create_dt(2010, 2, 10, 10, 5), alert1.trigger_date)
 
-        self.assertEqual(create_dt(2010, 1, 8, 0, 0), alerts[1].trigger_date)
+        alert2 = alerts[1]
+        self.assertEqual(create_dt(2010, 1, 8, 0, 0), alert2.trigger_date)
+        self.assertDictEqual(
+            {
+                'cell': {'type': 'regular_field', 'value': 'start'},
+                'sign': -1,
+                'period': {'type': DaysPeriod.name, 'value': days},
+            },
+            alert2.trigger_offset,
+        )
+
+        # Relative Alert updating
+        act.start = create_dt(year=2010, month=1, day=12)
+        act.save()
+        self.assertEqual(create_dt(2010, 1, 10, 0, 0), self.refresh(alert2).trigger_date)
 
     @skipIfNotInstalled('creme.assistants')
     def test_createview_alert02(self):

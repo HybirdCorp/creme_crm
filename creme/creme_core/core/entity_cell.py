@@ -261,6 +261,30 @@ class EntityCellsRegistry:
     def __getitem__(self, type_id: str):
         return self._cell_classes[type_id]
 
+    def build_cell_from_dict(self,
+                             model: Type[Model],
+                             dict_cell: Dict,
+                             ) -> Optional[EntityCell]:
+        try:
+            type_id = dict_cell['type']
+            value = dict_cell['value']
+        except KeyError:
+            logger.exception(
+                'EntityCellsRegistry.build_cell_from_dict(): data=%s',
+                dict_cell,
+            )
+        else:
+            cls = self._cell_classes.get(type_id)
+            if cls is None:
+                logger.exception(
+                    'EntityCellsRegistry.build_cell_from_dict(): unknown type_id="%s"',
+                    type_id,
+                )
+            else:
+                return cls.build(model, value)
+
+        return None
+
     def build_cells_from_dicts(self,
                                model: Type[Model],
                                dicts: Iterable[Dict],
@@ -276,20 +300,26 @@ class EntityCellsRegistry:
 
         try:
             for dict_cell in dicts:
-                try:
-                    cell = self._cell_classes[dict_cell['type']].build(
-                        model, dict_cell['value'],
-                    )
+                # try:
+                #     cell = self._cell_classes[dict_cell['type']].build(
+                #         model, dict_cell['value'],
+                #     )
+                #
+                #     if cell is not None:
+                #         cells.append(cell)
+                #     else:
+                #         errors = True
+                # except Exception:
+                #     logger.exception(
+                #         'EntityCellsRegistry.build_cells_from_dicts(): data=%s',
+                #         dict_cell,
+                #     )
+                #     errors = True
+                cell = self.build_cell_from_dict(model, dict_cell)
 
-                    if cell is not None:
-                        cells.append(cell)
-                    else:
-                        errors = True
-                except Exception:
-                    logger.exception(
-                        'EntityCellsRegistry.build_cells_from_dicts(): data=%s',
-                        dict_cell,
-                    )
+                if cell is not None:
+                    cells.append(cell)
+                else:
                     errors = True
         except Exception:
             logger.exception(

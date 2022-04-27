@@ -15,8 +15,14 @@
             - The menu icon can now be customised.
             - The (non-internal) relationship types can now be disabled.
             - An edition view for semi-fixed relationship types has been added.
+        * Assistants :
+            - The trigger date of an Alert can now be relative to a date field of the linked entity (eg: "3 days before its birthday").
+              Relative trigger dates are automatically updated when the date field changes.
         * Activities :
             - The relationships type "is subject of the activity" is now internal.
+            - In creation form, when an Alert with a trigger date relative to the Activity's start is created,
+              the new feature <Alert with relative trigger date> is used.
+              So the trigger date is finally updated when the Activity's start is modified (a very old annoying behaviour disappears).
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch e-mails from some mailboxes to potentially create true Email entities
@@ -145,7 +151,10 @@
         # Apps :
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
-                - In models, the fields "creme_entity" have been renamed "real_entity" for consistency.
+                - The form 'AlertForm' has been heavily modified (the fields "trigger_date" & trigger_time" have been removed...).
+                - In models:
+                    - the fields "creme_entity" have been renamed "real_entity" for consistency.
+                    - the field 'Alert.trigger' can now be NULL.
             * Documents :
                 - In 'bricks.LinkedDocsBrick', the template variable "predicate_id" is not injected anymore.
             * Persons :
