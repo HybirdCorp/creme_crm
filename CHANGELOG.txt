@@ -39,6 +39,11 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         # The given help_text passed to {% brick_header_action %} is now used.
 
 
+    Breaking changes :
+    ----------------------
+        # The context of 'creme_core.forms.widgets.DatePeriodWidget' has been fixed.
+
+
 == Version 2.3.2 ==
 
   UPGRADE NOTE :
