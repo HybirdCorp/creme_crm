@@ -1253,7 +1253,7 @@ class DatePeriodWidget(widgets.MultiWidget):
             logger.exception('DatePeriodWidget.get_context()')
             inverted = False
 
-        context['widget_indices'] = (1, 0) if inverted else (0, 1)
+        context['widget']['indices'] = (1, 0) if inverted else (0, 1)
 
         return context
 
