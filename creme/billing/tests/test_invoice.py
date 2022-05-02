@@ -1057,14 +1057,14 @@ class InvoiceTestCase(_BillingTestCase):
         target = create_orga(name='Target Orga')
 
         create_address = Address.objects.create
-        target.billing_address = b_addr = create_address(
+        target.billing_address = create_address(
             name='Billing address 01', address='BA1 - Address',
             po_box='BA1 - PO box', zipcode='BA1 - Zip code',
             city='BA1 - City', department='BA1 - Department',
             state='BA1 - State', country='BA1 - Country',
             owner=target,
         )
-        target.shipping_address = s_addr = create_address(
+        target.shipping_address = create_address(
             name='Shipping address 01', address='SA1 - Address',
             po_box='SA1 - PO box', zipcode='SA1 - Zip code',
             city='SA1 - City', department='SA1 - Department',
@@ -1072,6 +1072,8 @@ class InvoiceTestCase(_BillingTestCase):
             owner=target,
         )
         target.save()
+
+        address_count = Address.objects.count()
 
         currency = Currency.objects.create(
             name='Martian dollar', local_symbol='M$',
@@ -1087,6 +1089,16 @@ class InvoiceTestCase(_BillingTestCase):
         ServiceLine.objects.create(on_the_fly_item='otf service', **kwargs)
         ProductLine.objects.create(related_item=self.create_product(), **kwargs)
         ProductLine.objects.create(on_the_fly_item='otf product', **kwargs)
+
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        origin_b_addr = invoice.billing_address
+        origin_b_addr.zipcode += ' (edited)'
+        origin_b_addr.save()
+
+        origin_s_addr = invoice.shipping_address
+        origin_s_addr.zipcode += ' (edited)'
+        origin_s_addr.save()
 
         cloned = self.refresh(invoice.clone())
         invoice = self.refresh(invoice)
@@ -1110,17 +1122,21 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertFalse({*src_line_ids} & {*cloned_line_ids})
 
         # Addresses are cloned
+        self.assertEqual(address_count + 4, Address.objects.count())
+
         billing_address = cloned.billing_address
         self.assertIsInstance(billing_address, Address)
-        self.assertEqual(cloned,      billing_address.owner)
-        self.assertEqual(b_addr.name, billing_address.name)
-        self.assertEqual(b_addr.city, billing_address.city)
+        self.assertEqual(cloned,                billing_address.owner)
+        self.assertEqual(origin_b_addr.name,    billing_address.name)
+        self.assertEqual(origin_b_addr.city,    billing_address.city)
+        self.assertEqual(origin_b_addr.zipcode, billing_address.zipcode)
 
         shipping_address = cloned.shipping_address
         self.assertIsInstance(shipping_address, Address)
-        self.assertEqual(cloned,            shipping_address.owner)
-        self.assertEqual(s_addr.name,       shipping_address.name)
-        self.assertEqual(s_addr.department, shipping_address.department)
+        self.assertEqual(cloned,                   shipping_address.owner)
+        self.assertEqual(origin_s_addr.name,       shipping_address.name)
+        self.assertEqual(origin_s_addr.department, shipping_address.department)
+        self.assertEqual(origin_s_addr.zipcode,    shipping_address.zipcode)
 
     def test_clone_source_n_target(self):
         "Internal relation-types should not be cloned."
