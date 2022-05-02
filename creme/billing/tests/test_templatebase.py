@@ -20,6 +20,7 @@ from ..models import (
     SalesOrderStatus,
 )
 from .base import (
+    Address,
     CreditNote,
     Invoice,
     Organisation,
@@ -103,6 +104,7 @@ class TemplateBaseTestCase(_BillingTestCase):
             additional_info=AdditionalInformation.objects.all()[0],
             payment_terms=PaymentTerms.objects.all()[0],
         )
+        address_count = Address.objects.count()
 
         self.assertEqual('', tpl.number)
 
@@ -122,6 +124,8 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual('0', invoice.number)
         self.assertEqual(date.today(), invoice.issuing_date)
         self.assertEqual(invoice.issuing_date + timedelta(days=30), invoice.expiration_date)
+
+        self.assertEqual(address_count + 2, Address.objects.count())
 
     @skipIfCustomInvoice
     def test_create_invoice02(self):
