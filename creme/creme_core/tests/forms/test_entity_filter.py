@@ -2245,16 +2245,34 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(self.rtype02.id, condition2.name)
         self.assertDictEqual({'has': False},  condition2.value)
 
+        # ---
+        self.assertListEqual(
+            [
+                {
+                    'has':    'true',
+                    'rtype':  self.rtype01.id,
+                    'ctype':  0,
+                    'entity': None,
+                }, {
+                    'has':    'false',
+                    'rtype':  self.rtype02.id,
+                    'ctype':  0,
+                    'entity': None,
+                },
+            ],
+            json_load(field.from_python(conditions)),
+        )
+
     def test_ok02(self):
         "Wanted CT + filter_type."
         field = RelationsConditionsField(
             model=FakeContact,
             efilter_type=EF_CREDENTIALS,
         )
-        ct = ContentType.objects.get_for_model(FakeContact)
+        ct_id = ContentType.objects.get_for_model(FakeContact).id
         conditions = field.clean(json_dump([
-            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct.id, 'entity': None},
-            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct.id},
+            {'rtype': self.rtype01.id, 'has': True,  'ctype': ct_id, 'entity': None},
+            {'rtype': self.rtype02.id, 'has': False, 'ctype': ct_id},
         ]))
         self.assertEqual(2, len(conditions))
 
@@ -2263,12 +2281,30 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(type_id,         condition1.type)
         self.assertEqual(self.rtype01.id, condition1.name)
         self.assertEqual(EF_CREDENTIALS,  condition1.filter_type)
-        self.assertDictEqual({'has': True, 'ct_id': ct.id}, condition1.value)
+        self.assertDictEqual({'has': True, 'ct_id': ct_id}, condition1.value)
 
         condition2 = conditions[1]
         self.assertEqual(type_id,         condition2.type)
         self.assertEqual(self.rtype02.id, condition2.name)
-        self.assertDictEqual({'has': False, 'ct_id': ct.id}, condition2.value)
+        self.assertDictEqual({'has': False, 'ct_id': ct_id}, condition2.value)
+
+        # ---
+        self.assertListEqual(
+            [
+                {
+                    'has':    'true',
+                    'rtype':  self.rtype01.id,
+                    'ctype':  ct_id,
+                    'entity': None,
+                }, {
+                    'has':    'false',
+                    'rtype':  self.rtype02.id,
+                    'ctype':  ct_id,
+                    'entity': None,
+                },
+            ],
+            json_load(field.from_python(conditions)),
+        )
 
     def test_ok03(self):
         "Wanted entity."
@@ -2286,6 +2322,17 @@ class RelationsConditionsFieldTestCase(FieldTestCase):
         self.assertEqual(RelationConditionHandler.type_id, condition.type)
         self.assertEqual(self.rtype01.id,                  condition.name)
         self.assertDictEqual({'has': True, 'entity_id': naru.id}, condition.value)
+
+        # ---
+        self.assertListEqual(
+            [{
+                'has':    'true',
+                'rtype':  self.rtype01.id,
+                'ctype':  ct.id,
+                'entity': naru.id,
+            }],
+            json_load(field.from_python(conditions)),
+        )
 
     def test_ok04(self):
         "Wanted CT + wanted entity."

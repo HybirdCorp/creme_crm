@@ -754,7 +754,8 @@ class RelationsConditionsField(_ConditionsField):
 
     def _condition_to_dict(self, condition):
         value = condition.value
-        ctype_id = 0
+        # ctype_id = 0
+        ctype_id = value.get('ct_id', 0)
 
         # TODO: regroup queries....
         entity_id = value.get('entity_id')

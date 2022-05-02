@@ -4,6 +4,7 @@ TODO: compilemessages (creme_core, documents, reports, billing)
 
   Users side :
   ------------
+    # In the form for EntityFilter, the initial value of the field for conditions of relationships was wrong with ContentType choice.
     # In blocks :
         - In History block, the modifications concerning entities which cannot be viewed are now hidden.
         - In blocks related to a specific RelationType, when the RelationType is internal :
