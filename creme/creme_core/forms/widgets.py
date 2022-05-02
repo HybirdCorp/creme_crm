@@ -1289,7 +1289,8 @@ class DatePeriodWidget(widgets.MultiWidget):
         super().__init__(
             widgets=(
                 widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                widgets.TextInput(attrs={'class': 'dperiod-value'}),  # TODO: min_value
+                # widgets.TextInput(attrs={'class': 'dperiod-value'}),
+                widgets.NumberInput(attrs={'class': 'dperiod-value', 'min': 1}),
             ),
             attrs=attrs,
         )
