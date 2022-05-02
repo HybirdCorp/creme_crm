@@ -90,7 +90,7 @@ class ConvertTestCase(_BillingTestCase):
         target = create_orga(name='Target Orga')
 
         create_address = Address.objects.create
-        target.billing_address = b_addr = create_address(
+        target.billing_address = create_address(
             name='Billing address 01',
             address='BA1 - Address', po_box='BA1 - PO box',
             zipcode='BA1 - Zip code', city='BA1 - City',
@@ -98,7 +98,7 @@ class ConvertTestCase(_BillingTestCase):
             state='BA1 - State', country='BA1 - Country',
             owner=target,
         )
-        target.shipping_address = s_addr = create_address(
+        target.shipping_address = create_address(
             name='Shipping address 01',
             address='SA1 - Address', po_box='SA1 - PO box',
             zipcode='SA1 - Zip code', city='SA1 - City',
@@ -108,6 +108,8 @@ class ConvertTestCase(_BillingTestCase):
         )
         target.save()
 
+        address_count = Address.objects.count()
+
         quote = self.create_quote('My Quote', source, target, currency)
         quote.additional_info = AdditionalInformation.objects.all()[0]
         quote.payment_terms = PaymentTerms.objects.all()[0]
@@ -115,9 +117,17 @@ class ConvertTestCase(_BillingTestCase):
             organisation=source, name='Bank details', is_default=True,
         )
         quote.save()
+        self.assertEqual(address_count + 2, Address.objects.count())
+
+        quote_b_addr = quote.billing_address
+        quote_b_addr.zipcode += ' (Quote)'
+        quote_b_addr.save()
+
+        quote_s_addr = quote.shipping_address
+        quote_s_addr.zipcode += ' (Quote)'
+        quote_s_addr.save()
 
         self.assertFalse(Invoice.objects.count())
-
         self._convert(200, quote, 'invoice')
 
         invoices = Invoice.objects.all()
@@ -149,17 +159,21 @@ class ConvertTestCase(_BillingTestCase):
         self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, object_entity=source)
 
         # Addresses are cloned
+        self.assertEqual(address_count + 4, Address.objects.count())
+
         billing_address = invoice.billing_address
         self.assertIsInstance(billing_address, Address)
-        self.assertEqual(invoice,     billing_address.owner)
-        self.assertEqual(b_addr.name, billing_address.name)
-        self.assertEqual(b_addr.city, billing_address.city)
+        self.assertEqual(invoice,              billing_address.owner)
+        self.assertEqual(quote_b_addr.name,    billing_address.name)
+        self.assertEqual(quote_b_addr.city,    billing_address.city)
+        self.assertEqual(quote_b_addr.zipcode, billing_address.zipcode)
 
         shipping_address = invoice.shipping_address
         self.assertIsInstance(shipping_address, Address)
-        self.assertEqual(invoice,           shipping_address.owner)
-        self.assertEqual(s_addr.name,       shipping_address.name)
-        self.assertEqual(s_addr.department, shipping_address.department)
+        self.assertEqual(invoice,                 shipping_address.owner)
+        self.assertEqual(quote_s_addr.name,       shipping_address.name)
+        self.assertEqual(quote_s_addr.department, shipping_address.department)
+        self.assertEqual(quote_s_addr.zipcode,    shipping_address.zipcode)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
