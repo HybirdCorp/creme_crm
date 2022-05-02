@@ -19,7 +19,8 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         * Activities :
             - The widget for date-period (Alerts' trigger) uses now a NumberInput (with a minimum value) instead of a simple TextInput.
         * Billing :
-            - A signal handler was failed silently.
+            - Some useless Addresses were created when cloning/converting a billing entity.
+            - A signal handler was failing silently.
             - The selection check-boxes in list-views for ProductLines & ServiceLines have been removed.
         * Emails :
             - Some features of the Rich-text editor were broken
