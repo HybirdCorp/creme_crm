@@ -303,6 +303,12 @@ class _CremeTestCase:
             else:
                 raise ValueError(f'assertIsList: unknown argument "{k}"')
 
+    def assertIsTuple(self, o, *, length):
+        self.assertIsInstance(o, tuple)
+
+        if length != len(o):
+            self.fail(f'This tuple has not the expected length of {length}: {o}')
+
     def assertNoException(self, function=None, *args, **kwargs):
         if function is None:
             return _AssertNoExceptionContext(self)

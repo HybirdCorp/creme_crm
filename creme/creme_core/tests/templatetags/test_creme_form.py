@@ -37,8 +37,7 @@ class CremeFormTagsTestCase(CremeTestCase):
             if e2 is None:
                 self.fail(f'The result is too short, {e1} not found.')
 
-            self.assertIsInstance(e2, tuple)
-            self.assertEqual(2, len(e2))
+            self.assertIsTuple(e2, length=2)
             self.assertEqual(e1[0], e2[0])
 
             blocks = e2[1]

@@ -307,6 +307,25 @@ class BaseTestCaseTestCase(CremeTestCase):
             str(cm5.exception),
         )
 
+    def test_assertIsTuple(self):
+        self.assertIsTuple((),     length=0)
+        self.assertIsTuple((1,),   length=1)
+        self.assertIsTuple((1, 2), length=2)
+
+        with self.assertRaises(self.failureException) as cm1:
+            self.assertIsTuple([], length=0)
+        self.assertEqual(
+            "[] is not an instance of <class 'tuple'>",
+            str(cm1.exception),
+        )
+
+        with self.assertRaises(self.failureException) as cm2:
+            self.assertIsTuple((1, 2), length=1)
+        self.assertEqual(
+            'This tuple has not the expected length of 1: (1, 2)',
+            str(cm2.exception),
+        )
+
     def test_assertListContainsSubset01(self):
         self.assertListContainsSubset(
             actual=[1, 2, 3, 4],

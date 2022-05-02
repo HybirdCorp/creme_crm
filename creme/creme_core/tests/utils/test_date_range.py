@@ -77,8 +77,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertEqual(14, len(choices))
 
         choice0 = choices[0]
-        self.assertIsInstance(choice0, tuple)
-        self.assertEqual(2, len(choice0))
+        self.assertIsTuple(choice0, length=2)
 
         PreviousYearRange = date_range.PreviousYearRange
         self.assertEqual(PreviousYearRange.name, choice0[0])
