@@ -140,6 +140,7 @@ class Base(CremeEntity):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._lines_cache = {}  # Key: Line class ; Value: Lines instances (list)
+        self._address_auto_copy = True
 
     def __str__(self):
         return self.name
@@ -348,6 +349,8 @@ class Base(CremeEntity):
         #     self.number = ''
         self.number = ''
 
+        self._address_auto_copy = False
+
     def _copy_relations(self, source):
         from ..registry import relationtype_converter
 
@@ -393,6 +396,8 @@ class Base(CremeEntity):
 
     # TODO: Can not we really factorise with clone()
     def build(self, template):
+        self._address_auto_copy = False
+
         self._build_object(template)
         self._post_save_clone(template)  # Copy addresses
         self._post_clone(template)  # Copy lines
@@ -497,7 +502,8 @@ class Base(CremeEntity):
                 type_id=REL_SUB_BILL_RECEIVED, object_entity=target,
             )
 
-            self._create_addresses()
+            if self._address_auto_copy:
+                self._create_addresses()
         else:  # Edition
             self.invalidate_cache()
 
