@@ -1265,6 +1265,13 @@ class FilteredEntityTypeField(JSONField):
 
 
 class OptionalField(fields.MultiValueField):
+    """Base class for fields combining a BooleanField & another field, the first
+    one controlling the inhibition of the second one: when the value of the
+    BooleanField is <False>, the value of the second field is ignored.
+
+    Hint: in the child classes, you should probably use a widget inheriting
+          'OptionalWidget'.
+    """
     sub_field = fields.Field
     widget: Type[core_widgets.OptionalWidget] = core_widgets.OptionalWidget
 
@@ -1603,6 +1610,9 @@ class DurationField(fields.MultiValueField):
 
 
 class ChoiceOrCharField(fields.MultiValueField):
+    """Field which combines a ChoiceField & a CharField ; the user can fill the
+    second one if no choice is satisfying.
+    """
     widget = core_widgets.ChoiceOrCharWidget
 
     default_error_messages = {
@@ -1735,6 +1745,7 @@ class CTypeChoiceField(fields.Field):
 
 
 class MultiCTypeChoiceField(CTypeChoiceField):
+    """Multiple version of CTypeChoiceField."""
     widget = core_widgets.UnorderedMultipleChoiceWidget  # Beware: use Choice inner class
 
     def _build_ctype_choices(self, ctypes):
@@ -1775,12 +1786,16 @@ class MultiCTypeChoiceField(CTypeChoiceField):
 
 
 class EntityCTypeChoiceField(CTypeChoiceField):
+    """Version of CTypeChoiceField where all ContentTypes correspond to classes
+    inheriting CremeEntity.
+    """
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or entity_ctypes
         super().__init__(ctypes=ctypes, **kwargs)
 
 
 class MultiEntityCTypeChoiceField(MultiCTypeChoiceField):
+    """Multiple version of EntityCTypeChoiceField."""
     def __init__(self, *, ctypes=None, **kwargs):
         ctypes = ctypes or entity_ctypes
         super().__init__(ctypes=ctypes, **kwargs)
@@ -1989,6 +2004,9 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
 
 
 class ReadonlyMessageField(fields.CharField):
+    """Field made to display a message to the user.
+    POSTed value is ignored, the given default value is always returned.
+    """
     widget = core_widgets.Label
 
     def __init__(self, *, label, initial='', widget=None, return_value=None):
