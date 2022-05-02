@@ -954,6 +954,9 @@
             - A class 'Assert()', which factorizes some validation code, has been added.
             - A builtin method 'instance' has been added in 'creme.utils.newJQueryPlugin'.
         # Apps :
+            * Billing :
+                - A data migration removes the extra Address instances which were created when cloning or converting an entity in some previous versions of Creme
+                  (these Addresses reference the entity, but the entity does not reference them through its fields "billing_address" & "shipping_address").
             * Reports :
                 - A property 'models.AbstractReportGraph.abscissa_info' has been added.
             * Emails :
