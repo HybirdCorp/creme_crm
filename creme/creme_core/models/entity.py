@@ -422,7 +422,7 @@ class CremeEntity(CremeModel):
 
     def _post_clone(self, source):
         """Called after all clone operations (object cloned with all his
-         M2M, custom values, properties and relations.
+         M2M, custom values, properties and relations).
         """
         pass
 
