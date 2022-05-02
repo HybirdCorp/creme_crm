@@ -253,9 +253,7 @@ class ConditionListWidget(SelectorList):
 
         if self.selector is None:
             return Label(empty_label=self.empty_selector_label).get_context(
-                name=name,
-                value=value,
-                attrs=attrs
+                name=name, value=value, attrs=attrs,
             )
 
         return super().get_context(name=name, value=value, attrs=attrs)

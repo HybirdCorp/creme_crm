@@ -4,6 +4,7 @@ TODO: compilemessages (billing)
 
   Users side :
   ------------
+    # In the form for EntityFilter, the initial value of the field for conditions of relationships was wrong with ContentType choice.
     # Apps :
         * Billing :
             - A signal handler was failed silently.
