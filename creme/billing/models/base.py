@@ -336,7 +336,8 @@ class Base(CremeEntity):
 
         self._address_auto_copy = False
 
-    def _copy_relations(self, source):
+    # def _copy_relations(self, source):
+    def _copy_relations(self, source, allowed_internal=()):
         from ..registry import relationtype_converter
 
         # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
@@ -345,6 +346,7 @@ class Base(CremeEntity):
         super()._copy_relations(
             source,
             # allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED],
+            allowed_internal=allowed_internal,
         )
 
         for relation in source.relations.filter(

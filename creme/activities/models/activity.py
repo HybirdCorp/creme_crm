@@ -188,8 +188,12 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
-    def _copy_relations(self, source):
-        super()._copy_relations(source, allowed_internal=[REL_OBJ_PART_2_ACTIVITY])
+    # def _copy_relations(self, source):
+    def _copy_relations(self, source, allowed_internal=()):
+        super()._copy_relations(
+            source,
+            allowed_internal=[*allowed_internal, REL_OBJ_PART_2_ACTIVITY],
+        )
 
     def _pre_delete(self):
         for relation in self.relations.filter(type=REL_OBJ_PART_2_ACTIVITY):
