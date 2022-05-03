@@ -18,6 +18,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from datetime import date
@@ -248,7 +250,7 @@ class Base(CremeEntity):
         return credit_notes
 
     # TODO: remove "source" argument?
-    def generate_number(self, source=None):
+    def generate_number(self, source: Base = None):
         # Lazy loading of number generators
         from creme.billing.registry import algo_registry
 
@@ -378,7 +380,7 @@ class Base(CremeEntity):
             self.save()
 
     # TODO: Can not we really factorise with clone()
-    def build(self, template):
+    def build(self, template: Base):
         self._address_auto_copy = False
 
         self._build_object(template)
@@ -389,7 +391,7 @@ class Base(CremeEntity):
 
         return self
 
-    def _build_object(self, template):
+    def _build_object(self, template: Base):
         logger.debug('=> Clone base object')
 
         self.user         = template.user
@@ -411,11 +413,11 @@ class Base(CremeEntity):
         # - additional_info
         # - payment_terms
 
-    def _build_relations(self, template):
+    def _build_relations(self, template: Base):
         logger.debug('=> Clone relations')
         self._copy_relations(template)
 
-    def _build_properties(self, template):
+    def _build_properties(self, template: Base):
         logger.debug('=> Clone properties')
         self._copy_properties(template)
 

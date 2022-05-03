@@ -418,19 +418,19 @@ class CremeEntity(CremeModel):
                     value = [*value.all()]
                 CustomFieldValue.save_values_for_entities(custom_field, [self], value)
 
-    def _pre_save_clone(self, source):
+    def _pre_save_clone(self, source: CremeEntity):
         """Called just before saving the entity which is already populated
         with source attributes (except m2m).
         """
         pass
 
-    def _post_save_clone(self, source):
+    def _post_save_clone(self, source: CremeEntity):
         """Called just after saving the entity (m2m and custom fields are
          not already cloned & saved).
         """
         pass
 
-    def _post_clone(self, source):
+    def _post_clone(self, source: CremeEntity):
         """Called after all clone operations (object cloned with all his
          M2M, custom values, properties and relations).
         """
