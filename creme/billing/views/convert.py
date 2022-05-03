@@ -77,7 +77,7 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
             dest = dest_class()
             dest.build(src)
             dest.name = self.dest_title.format(src=src, dest=dest)
-            dest.generate_number()
+            # dest.generate_number()
             dest.save()
 
         url = dest.get_absolute_url()
