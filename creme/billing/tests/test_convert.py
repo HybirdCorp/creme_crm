@@ -6,6 +6,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_text
 from django.utils.timezone import now
@@ -177,6 +178,7 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
+    @override_settings(SALESORDER_NUMBER_PREFIX='ORD')
     def test_convert02(self):
         "SalesOrder + not superuser."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
@@ -195,11 +197,17 @@ class ConvertTestCase(_BillingTestCase):
             set_type=SetCredentials.ESET_OWN,
         )
 
-        quote = self.create_quote_n_orgas('My Quote')[0]
+        source, target = self.create_orgas()
+        # We set up to generate number
+        self._set_managed(source)
 
+        quote = self.create_quote('My Quote', source=source, target=target)
         self._convert(200, quote, 'sales_order')
         self.assertEqual(0, Invoice.objects.count())
-        self.assertEqual(1, SalesOrder.objects.count())
+
+        orders = SalesOrder.objects.all()
+        self.assertEqual(1, len(orders))
+        self.assertEqual('ORD1', orders[0].number)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder

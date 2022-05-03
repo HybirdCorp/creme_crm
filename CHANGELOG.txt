@@ -7,7 +7,9 @@ TODO: compilemessages (billing)
     # In the form for EntityFilter, the initial value of the field for conditions of relationships was wrong with ContentType choice.
     # Apps :
         * Billing :
-            - Some useless Addresses were created when cloning/converting a billing entity.
+            - There were issues when cloning/converting a billing entity :
+                - Some useless Addresses were created.
+                - The number generation was called too many times.
             - A signal handler was failing silently.
         * Reports :
             - The initial value of the 'user' field in the creation form of Reports has been fixed.
