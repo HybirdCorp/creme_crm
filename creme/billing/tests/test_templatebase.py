@@ -3,7 +3,7 @@
 from datetime import date, timedelta
 from functools import partial
 
-from django.conf import settings
+from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
@@ -141,11 +141,10 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertEqual(1, invoice.status_id)
 
     @skipIfCustomInvoice
+    @override_settings(INVOICE_NUMBER_PREFIX='INV')
     def test_create_invoice03(self):
         "Source is managed."
-        source = self.source
-        source.is_managed = True
-        source.save()
+        self._set_managed(self.source)
 
         invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
 
@@ -156,7 +155,7 @@ class TemplateBaseTestCase(_BillingTestCase):
             invoice = tpl.create_entity()
 
         self.assertIsInstance(invoice, Invoice)
-        self.assertStartsWith(invoice.number, settings.INVOICE_NUMBER_PREFIX)
+        self.assertEqual('INV1', invoice.number)
 
     @skipIfCustomInvoice
     def test_create_invoice04(self):
@@ -198,6 +197,24 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertIsNotNone(status)
         self.assertEqual(pk,    status.id)
         self.assertEqual(_('N/A'), status.name)
+
+    @skipIfCustomQuote
+    @override_settings(QUOTE_NUMBER_PREFIX='QU')
+    def test_create_quote03(self):
+        "Source is managed."
+        self._set_managed(self.source)
+
+        quote_status = self.get_object_or_fail(QuoteStatus, pk=2)
+        comment = '*Insert an nice comment here*'
+        tpl = self._create_templatebase(Quote, quote_status.id, comment)
+
+        with self.assertNoException():
+            quote = tpl.create_entity()
+
+        self.assertIsInstance(quote, Quote)
+        self.assertEqual(comment, quote.comment)
+        self.assertEqual(quote_status, quote.status)
+        self.assertEqual('QU1', quote.number)
 
     @skipIfCustomSalesOrder
     def test_create_order01(self):
