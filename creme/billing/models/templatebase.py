@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -76,7 +76,9 @@ class AbstractTemplateBase(Base):
 
         # Common rules for the recurrent generation of a "base" object for billing app.
         # See base's child for specific rules
-        instance.generate_number()
+        # instance.generate_number()
+        if not instance.generate_number_in_create:  # Avoid double generation
+            instance.generate_number()
         # TODO: user configurable rules ???
         instance.expiration_date = instance.issuing_date + timedelta(days=30)
 
