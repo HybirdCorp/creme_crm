@@ -73,6 +73,12 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
         src = self.get_related_entity()
         dest_class = self.get_destination_model(src)
 
+        # TODO: build() copy the number (it's a feature for recurrent generation
+        #       to fallback to the TemplateBase instance's number)
+        #       but here copy a Quote number into an Invoice number does not mean anything.
+        #  => add a argument 'copy_number=False'? do not use 'build()'?
+        src.number = ''
+
         with atomic():
             dest = dest_class()
             dest.build(src)

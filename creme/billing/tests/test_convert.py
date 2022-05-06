@@ -79,15 +79,16 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomQuote
     @skipIfCustomInvoice
     def test_convert01(self):
-        self.login()
+        user = self.login()
 
         currency = Currency.objects.create(
             name='Berry', local_symbol='B',
             international_symbol='BB', is_custom=True,
         )
 
-        create_orga = partial(Organisation.objects.create, user=self.user)
+        create_orga = partial(Organisation.objects.create, user=user)
         source = create_orga(name='Source Orga')
+        self._set_managed(source)
         target = create_orga(name='Target Orga')
 
         create_address = Address.objects.create
@@ -112,6 +113,8 @@ class ConvertTestCase(_BillingTestCase):
         address_count = Address.objects.count()
 
         quote = self.create_quote('My Quote', source, target, currency)
+        self.assertTrue(quote.number)
+
         quote.additional_info = AdditionalInformation.objects.all()[0]
         quote.payment_terms = PaymentTerms.objects.all()[0]
         quote.payment_info = PaymentInformation.objects.create(
@@ -141,6 +144,7 @@ class ConvertTestCase(_BillingTestCase):
             ),
             invoice.name,
         )
+        self.assertFalse(invoice.number)  # Not copied
 
         today = date.today()
         self.assertEqual(today, invoice.issuing_date)

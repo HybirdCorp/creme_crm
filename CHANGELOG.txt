@@ -19,9 +19,10 @@ TODO: compilemessages (creme_core, documents, reports, billing)
         * Activities :
             - The widget for date-period (Alerts' trigger) uses now a NumberInput (with a minimum value) instead of a simple TextInput.
         * Billing :
-            - There were issues when cloning/converting a billing entity :
+            - There were issues when cloning/converting/generating-recurrently a billing entity :
                 - Some useless Addresses were created.
                 - The number generation was called too many times.
+              BEWARE: when a Quote/Order is converted to an Invoice, the number of the Invoice is not automatically generated anymore.
             - A signal handler was failing silently.
             - The selection check-boxes in list-views for ProductLines & ServiceLines have been removed.
         * Emails :
