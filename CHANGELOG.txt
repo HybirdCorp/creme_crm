@@ -1,7 +1,5 @@
 == Version 2.2.12 Work in progress (not released -- this is a draft) ==
 
-TODO: compilemessages (billing)
-
   Users side :
   ------------
     # In the form for EntityFilter, the initial value of the field for conditions of relationships was wrong with ContentType choice.
