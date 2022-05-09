@@ -1,4 +1,8 @@
-== Version 2.3.3 Work in progress (not released -- this is a draft) ==
+== Version 2.3.3 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.13 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
