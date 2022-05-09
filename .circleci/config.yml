@@ -384,7 +384,9 @@ jobs:
       - image: cimg/python:3.7
     steps:
       - checkout-creme
-      - run: pip install -U pip setuptools twine wheel
+      - run: pip install -U pip setuptools wheel
+      # We need an up-to-date pip version to install twine
+      - run: pip install -U twine
       # See environment variables:
       # - TWINE_REPOSITORY_URL
       # - TWINE_USERNAME
