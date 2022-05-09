@@ -1,4 +1,10 @@
-== Version 2.2.12 Work in progress (not released -- this is a draft) ==
+== Version 2.2.12 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 2.2 (2.2.28).
+      BEWARE: Django 2.2 no longer receives security updates since April 2022,
+              so you should consider to upgrade to Creme 2.3 (which uses Django 3.2).
+
 
   Users side :
   ------------
