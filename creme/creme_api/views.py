@@ -113,7 +113,8 @@ class ApplicationEdition(generic.CremeModelEditionPopup):
     pk_url_kwarg = 'application_id'
     permissions = "creme_api.can_admin"
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
+
+class ApplicationDeletion(generic.CremeModelDeletion):
+    model = Application
+    pk_url_kwarg = 'application_id'
+    permissions = "creme_api.can_admin"

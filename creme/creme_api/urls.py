@@ -4,6 +4,7 @@ from creme.creme_api.api.routes import router
 from creme.creme_api.views import (
     ApplicationCreation,
     ApplicationEdition,
+    ApplicationDeletion,
     ConfigurationView,
     DocumentationView,
     SchemaView,
@@ -25,6 +26,11 @@ urlpatterns = [
                 r'^edit/(?P<application_id>\d+)[/]?$',
                 ApplicationEdition.as_view(),
                 name='creme_api__edit_application',
+            ),
+            re_path(
+                r'^delete/(?P<application_id>\d+)[/]?$',
+                ApplicationDeletion.as_view(),
+                name='creme_api__delete_application',
             ),
         ]),
     ),
