@@ -34,7 +34,6 @@ router.register_viewset("roles", creme.creme_api.api.auth.viewsets.UserRoleViewS
 router.register_viewset("credentials", creme.creme_api.api.auth.viewsets.SetCredentialsViewSet)
 router.register_viewset("contacts", creme.creme_api.api.persons.viewsets.ContactViewSet)
 router.register_viewset("organisations", creme.creme_api.api.persons.viewsets.OrganisationViewSet)
-router.register_viewset("addresses", creme.creme_api.api.persons.viewsets.AddressViewSet)
 router.register_viewset("civilities", creme.creme_api.api.persons.viewsets.CivilityViewSet)
 router.register_viewset("positions", creme.creme_api.api.persons.viewsets.PositionViewSet)
 router.register_viewset("staff_sizes", creme.creme_api.api.persons.viewsets.StaffSizeViewSet)

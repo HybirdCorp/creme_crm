@@ -95,32 +95,6 @@ class OrganisationViewSet(CremeEntityViewSet):
     schema = CremeSchema(tags=["Organisations"])
 
 
-class AddressViewSet(CremeModelViewSet):
-    """
-    create:
-    Create an address.
-
-    retrieve:
-    Retrieve an address.
-
-    update:
-    Update an address.
-
-    partial_update:
-    Partially update an address.
-
-    list:
-    List addresses.
-
-    delete:
-    Delete an address.
-
-    """
-    queryset = persons.get_address_model().objects.all()
-    serializer_class = AddressSerializer
-    schema = CremeSchema(tags=["Addresses"])
-
-
 class CivilityViewSet(CremeModelViewSet):
     """
     create:
