@@ -896,18 +896,3 @@ class CloneContactTestCase(CremeAPITestCase):
             'url_site': '',
             'user': fulbert.user_id,
         })
-
-
-class ListContactAddressesTestCase(CremeAPITestCase):
-    url_name = 'creme_api__contacts-addresses'
-    method = 'get'
-
-    def test_delete_contact__protected(self):
-        fulbert = Contact.objects.get()
-        response = self.make_request(to=fulbert.id, status_code=422)
-        self.assertEqual(response.data['detail'].code, 'protected')
-
-    def test_delete_contact(self):
-        contact = self.factory.contact()
-        self.make_request(to=contact.id, status_code=204)
-        self.assertFalse(Contact.objects.filter(id=contact.id).exists())

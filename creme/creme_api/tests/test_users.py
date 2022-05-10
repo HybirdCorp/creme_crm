@@ -331,7 +331,7 @@ class SetPasswordUserTestCase(CremeAPITestCase):
         self.assertTrue(user.check_password("StrongPassword"))
 
 
-class DeletePositionTestCase(CremeAPITestCase):
+class DeleteUserTestCase(CremeAPITestCase):
     url_name = 'creme_api__users-detail'
     method = 'delete'
 
