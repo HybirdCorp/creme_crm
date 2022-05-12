@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# from json import loads as json_load
 from functools import partial
-from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
 from django.forms import IntegerField
@@ -319,17 +319,18 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'role': role1.id,
                 'instance_to_copy': item1.id,
-            }
+            },
         )
         self.assertNoFormError(response2)
 
         new_item = self.get_object_or_fail(
             CustomFormConfigItem, descriptor_id=descriptor_id, role=role1, superuser=False,
         )
-        self.assertEqual(
-            json_load(item1.json_groups),
-            json_load(new_item.json_groups),
-        )
+        # self.assertEqual(
+        #     json_load(item1.json_groups),
+        #     json_load(new_item.json_groups),
+        # )
+        self.assertListEqual(item1.json_groups, new_item.json_groups)
 
     def test_form_creation_for_role_error(self):
         self.login()
