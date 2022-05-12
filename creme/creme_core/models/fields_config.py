@@ -24,7 +24,7 @@ import logging
 # import warnings
 from functools import partial
 from itertools import chain
-from json import loads as json_load
+# from json import loads as json_load
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -49,7 +49,7 @@ from django.utils.translation import gettext_lazy as _
 from ..core.field_tags import FieldTag
 from ..global_info import get_per_request_cache
 from ..utils.meta import FieldInfo
-from ..utils.serializers import json_encode
+# from ..utils.serializers import json_encode
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
@@ -170,7 +170,8 @@ class FieldsConfigManager(models.Manager):
 
 class FieldsConfig(CremeModel):
     content_type = CTypeOneToOneField(editable=False, primary_key=True)
-    raw_descriptions = models.TextField(editable=False)  # TODO: JSONField ?
+    # raw_descriptions = models.TextField(editable=False)
+    raw_descriptions = models.JSONField(editable=False, default=list)
 
     objects = FieldsConfigManager()
 
@@ -351,7 +352,8 @@ class FieldsConfig(CremeModel):
         """
         errors, desc = self._check_descriptions(
             self.content_type.model_class(),
-            json_load(self.raw_descriptions),
+            # json_load(self.raw_descriptions),
+            self.raw_descriptions,
         )
 
         if errors:
@@ -373,9 +375,10 @@ class FieldsConfig(CremeModel):
         model = ctype.model_class()
         assert model is not None
 
-        self.raw_descriptions = json_encode(
-            self._check_descriptions(model, value)[1]
-        )
+        # self.raw_descriptions = json_encode(
+        #     self._check_descriptions(model, value)[1]
+        # )
+        self.raw_descriptions = self._check_descriptions(model, value)[1]
 
     @property
     def errors_on_hidden(self) -> List[str]:
