@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+# from json import loads as jsonloads
 from functools import partial
-from json import loads as jsonloads
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -614,9 +614,13 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
 
         # Inject error by bypassing checks
-        RelationBrickItem.objects.filter(id=rbi.id).update(
-            json_cells_map=rbi.json_cells_map.replace('description', 'invalid'),
-        )
+        # RelationBrickItem.objects.filter(id=rbi.id).update(
+        #     json_cells_map=rbi.json_cells_map.replace('description', 'invalid'),
+        # )
+        invalid_info = rbi.json_cells_map
+        invalid_info[ct_contact.id][1]['value'] = 'invalid'
+        rbi.json_cells_map = invalid_info
+        rbi.save()
 
         rbi = self.refresh(rbi)
         cells_contact = rbi.get_cells(ct_contact)
@@ -624,10 +628,12 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('last_name', cells_contact[0].value)
 
         with self.assertNoException():
-            deserialized = jsonloads(rbi.json_cells_map)
+            # deserialized = jsonloads(rbi.json_cells_map)
+            deserialized = rbi.json_cells_map
 
         self.assertDictEqual(
-            {str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
+            # {str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
+            {ct_contact.id: [{'type': 'regular_field', 'value': 'last_name'}]},
             deserialized,
         )
 
@@ -740,15 +746,20 @@ class BrickTestCase(CremeTestCase):
         )
 
         # Inject error by bypassing checks
-        CustomBrickConfigItem.objects.filter(id=cbci.id).update(
-            json_cells=cbci.json_cells.replace('description', 'invalid'),
-        )
+        # CustomBrickConfigItem.objects.filter(id=cbci.id).update(
+        #     json_cells=cbci.json_cells.replace('description', 'invalid'),
+        # )
+        invalid_info = cbci.json_cells
+        invalid_info[1]['value'] = 'invalid'
+        cbci.json_cells = invalid_info
+        cbci.save()
 
         cbci = self.refresh(cbci)
         self.assertEqual(1, len(cbci.cells))
 
         with self.assertNoException():
-            deserialized = jsonloads(cbci.json_cells)
+            # deserialized = jsonloads(cbci.json_cells)
+            deserialized = cbci.json_cells
 
         self.assertListEqual(
             [{'type': 'regular_field', 'value': 'name'}],

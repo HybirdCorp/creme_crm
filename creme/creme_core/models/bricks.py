@@ -23,7 +23,7 @@ from __future__ import annotations
 import logging
 import warnings
 from functools import partial
-from json import loads as json_load
+# from json import loads as json_load
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -53,7 +53,7 @@ from ..constants import (
     SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS,
 )
 from ..utils.content_type import entity_ctypes
-from ..utils.serializers import json_encode
+# from ..utils.serializers import json_encode
 from .auth import UserRole
 from .base import CremeModel
 from .entity import CremeEntity
@@ -480,7 +480,8 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         RelationType, on_delete=models.CASCADE,
         verbose_name=_('Related type of relationship'),
     )
-    json_cells_map = models.TextField(editable=False, default='{}')  # TODO: JSONField
+    # json_cells_map = models.TextField(editable=False, default='{}')
+    json_cells_map = models.JSONField(editable=False, default=dict)
 
     objects = RelationBrickItemManager()
 
@@ -548,10 +549,14 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return None
 
     def _dump_cells_map(self):
-        self.json_cells_map = json_encode({
+        # self.json_cells_map = json_encode({
+        #     ct_id: [cell.to_dict() for cell in cells]
+        #     for ct_id, cells in self._cells_map.items()
+        # })
+        self.json_cells_map = {
             ct_id: [cell.to_dict() for cell in cells]
             for ct_id, cells in self._cells_map.items()
-        })
+        }
 
     def _cells_by_ct(self):
         cells_map = self._cells_map
@@ -564,7 +569,8 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             build = CELLS_MAP.build_cells_from_dicts
             total_errors = False
 
-            for ct_id, cells_as_dicts in json_load(self.json_cells_map).items():
+            # for ct_id, cells_as_dicts in json_load(self.json_cells_map).items():
+            for ct_id, cells_as_dicts in self.json_cells_map.items():
                 ct = get_ct(ct_id)
                 # TODO: do it lazily ??
                 cells, errors = build(model=ct.model_class(), dicts=cells_as_dicts)
@@ -616,10 +622,14 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     )
 
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
-    json_extra_data = models.TextField(
+    # json_extra_data = models.TextField(
+    #     editable=False,
+    #     default='{}',
+    # ).set_tags(viewable=False)
+    json_extra_data = models.JSONField(
         editable=False,
-        default='{}',
-    ).set_tags(viewable=False)  # TODO: JSONField ?
+        default=dict,
+    ).set_tags(viewable=False)
 
     creation_label = _('Create a block')
     save_label     = _('Save the block')
@@ -634,7 +644,8 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._extra_data = json_load(self.json_extra_data)
+        # self._extra_data = json_load(self.json_extra_data)
+        self._extra_data = self.json_extra_data
 
     def __str__(self):
         return self.brick.verbose_name
@@ -713,7 +724,8 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return f'{cls._brick_id_prefix}_{app_name}-{name}'
 
     def save(self, **kwargs):
-        self.json_extra_data = json_encode(self._extra_data)
+        # self.json_extra_data = json_encode(self._extra_data)
+        self.json_extra_data = self._extra_data
         super().save(**kwargs)
 
 
@@ -721,7 +733,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     id = models.CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
     name = models.CharField(_('Name'), max_length=200)
-    json_cells = models.TextField(editable=False, default='[]')  # TODO: JSONField
+    # json_cells = models.TextField(editable=False, default='[]')
+    json_cells = models.JSONField(editable=False, default=list)
 
     _cells = None
 
@@ -757,7 +770,9 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return None if prefix != 'customblock' else cbci_id
 
     def _dump_cells(self, cells: Iterable['EntityCell']) -> None:
-        self.json_cells = json_encode([cell.to_dict() for cell in cells])
+        # self.json_cells = json_encode([cell.to_dict() for cell in cells])
+        # TODO: custom encoder instead?
+        self.json_cells = [cell.to_dict() for cell in cells]
 
     # TODO: factorise with HeaderFilter.cells
     @property
@@ -769,7 +784,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
             cells, errors = CELLS_MAP.build_cells_from_dicts(
                 model=self.content_type.model_class(),
-                dicts=json_load(self.json_cells),
+                # dicts=json_load(self.json_cells),
+                dicts=self.json_cells,
             )
 
             if errors:
@@ -858,8 +874,10 @@ class BrickState(CremeModel):
     show_empty_fields = models.BooleanField(default=True)
 
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
-    # TODO: JSONField ?
-    json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)
+    # json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)
+    json_extra_data = models.JSONField(
+        editable=False, default=dict,
+    ).set_tags(viewable=False)
 
     objects = BrickStateManager()
 
@@ -869,7 +887,8 @@ class BrickState(CremeModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._extra_data = json_load(self.json_extra_data)
+        # self._extra_data = json_load(self.json_extra_data)
+        self._extra_data = self.json_extra_data
 
     def __str__(self):
         return (
@@ -878,7 +897,8 @@ class BrickState(CremeModel):
             f'brick_id="{self.brick_id}", '
             f'is_open={self.is_open}, '
             f'show_empty_fields={self.show_empty_fields}, '
-            f'json_extra_data="{self.json_extra_data}"'
+            # f'json_extra_data="{self.json_extra_data}"'
+            f'json_extra_data={self.json_extra_data}'
             f')'
         )
 
@@ -895,5 +915,6 @@ class BrickState(CremeModel):
         return old_value != value
 
     def save(self, **kwargs):
-        self.json_extra_data = json_encode(self._extra_data)
+        # self.json_extra_data = json_encode(self._extra_data)
+        self.json_extra_data = self._extra_data
         super().save(**kwargs)

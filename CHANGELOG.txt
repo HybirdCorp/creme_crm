@@ -139,8 +139,14 @@
               you have to rename this attribute in your child classes.
             - The method 'bricks.SpecificRelationsBrick.id_is_specific()' has been removed.
         # In 'creme_core.models' :
-            - The field 'RelationBrickItem.brick' has been removed ;
-              a property is used instead, but the generated value is different.
+            - In 'bricks' :
+                - The field 'RelationBrickItem.brick' has been removed ;
+                  a property is used instead, but the generated value is different.
+                - The TextFields which were used to store JSON have been replaced by JSONFields :
+                    - RelationBrickItem.json_cells_map
+                    - InstanceBrickConfigItem.json_extra_data
+                    - CustomBrickConfigItem.json_cells
+                    - BrickState.json_extra_data
             - A mandatory field "object_ctype" has been added to 'Relation' ;
               but it is set automatically in 'save()' by using the value of the field 'object_entity', so your code will probably work without change.
             - A mandatory field "object_ctype" has been added to 'SemiFixedRelationType'.
