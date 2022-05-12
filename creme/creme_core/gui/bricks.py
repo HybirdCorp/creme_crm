@@ -618,11 +618,12 @@ class CustomBrick(Brick):
     )  # TODO: properties to insert dynamically the cells ?
     template_name = 'creme_core/bricks/custom.html'
 
-    def __init__(self, id_: str, customblock_conf_item: CustomBrickConfigItem):
+    # def __init__(self, id_: str, customblock_conf_item: CustomBrickConfigItem):
+    def __init__(self, id_: str, custombrick_conf_item: CustomBrickConfigItem):
         super().__init__()
         self.id_ = id_
         # TODO: related models (by FK/M2M/...) ?
-        self.dependencies = deps = [customblock_conf_item.content_type.model_class()]
+        self.dependencies = deps = [custombrick_conf_item.content_type.model_class()]
 
         rtype_ids = [
             rtype.id
@@ -630,7 +631,7 @@ class CustomBrick(Brick):
                 None,
                 (
                     getattr(cell, 'relation_type', None)
-                    for cell in customblock_conf_item.cells
+                    for cell in custombrick_conf_item.cells
                 ),
             )
         ]
@@ -639,8 +640,8 @@ class CustomBrick(Brick):
             deps.append(Relation)
             self.relation_type_deps = rtype_ids
 
-        self.verbose_name = customblock_conf_item.name
-        self.config_item = customblock_conf_item
+        self.verbose_name = custombrick_conf_item.name
+        self.config_item = custombrick_conf_item
 
     def detailview_display(self, context) -> str:
         return self._render(self.get_template_context(context, config_item=self.config_item))
