@@ -153,6 +153,7 @@
             - In the models 'EntityJobResult' & 'MassImportJobResult', the new fields "entity_ctype" have to be
               filled when the field "entity" is not NULL (hint: use the new virtual field "real_entity").
             - The field 'FieldsConfig.raw_descriptions' is now a JSONField.
+            - The field 'CustomFormConfigItem.json_groups' is now a JSONField.
             - A mandatory field "entity_ctype" has been added to 'Imprint'.
         # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # Apps :
