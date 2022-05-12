@@ -738,7 +738,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     _cells = None
 
-    # TODO: _brick_id_prefix
+    # TODO: replace by "custom_brick" (needs data migration)
+    _brick_id_prefix = 'customblock'
 
     class Meta:
         app_label = 'creme_core'
@@ -748,8 +749,8 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
-        # TODO: custom_brick + attribute
-        return f'customblock-{self.id}'
+        # return f'customblock-{self.id}'
+        return f'{self._brick_id_prefix}-{self.id}'
 
     @atomic
     def delete(self, *args, **kwargs):
@@ -760,14 +761,17 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    @staticmethod
-    def id_from_brick_id(brick_id: str) -> Optional[str]:
+    # @staticmethod
+    @classmethod
+    # def id_from_brick_id(brick_id: str) -> Optional[str]:
+    def id_from_brick_id(cls, brick_id: str) -> Optional[str]:
         try:
             prefix, cbci_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
             return None
 
-        return None if prefix != 'customblock' else cbci_id
+        # return None if prefix != 'customblock' else cbci_id
+        return None if prefix != cls._brick_id_prefix else cbci_id
 
     def _dump_cells(self, cells: Iterable['EntityCell']) -> None:
         # self.json_cells = json_encode([cell.to_dict() for cell in cells])
