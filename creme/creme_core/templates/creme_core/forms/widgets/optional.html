@@ -1,5 +1,5 @@
 {% with widgets=widget.subwidgets %}
-<ul class="optional-widget ui-creme-widget widget-auto ui-creme-optional" widget="ui-creme-optional" >
+<ul {% include "django/forms/widgets/attrs.html" %}>
     <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
     <li class="optional-widget-hiddable">{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
 {% comment %}
