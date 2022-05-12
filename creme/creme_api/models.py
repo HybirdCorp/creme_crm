@@ -16,7 +16,7 @@ from creme.creme_core.models.fields import (
 
 
 def generate_secret(length, chars=(string.ascii_letters + string.digits)):
-    return ''.join(secrets.choice(chars) for i in range(length))
+    return "".join(secrets.choice(chars) for i in range(length))
 
 
 def default_application_client_secret():
@@ -28,7 +28,10 @@ class Application(CremeModel):
     # Allow to restrict this application to a subset of resources ?
 
     name = models.CharField(
-        verbose_name=_("Name"), max_length=255, unique=True, db_index=True,
+        verbose_name=_("Name"),
+        max_length=255,
+        unique=True,
+        db_index=True,
     )
 
     client_id = models.UUIDField(
@@ -40,31 +43,35 @@ class Application(CremeModel):
         editable=False,
     )
     client_secret = models.CharField(
-        verbose_name=_("Client secret"), max_length=255, blank=True,
+        verbose_name=_("Client secret"),
+        max_length=255,
+        blank=True,
     )
     _client_secret = None
 
     enabled = models.BooleanField(
-        verbose_name=_("Enabled"), default=True,
+        verbose_name=_("Enabled"),
+        default=True,
     )
     token_duration = models.IntegerField(
-        verbose_name=_('Tokens duration'), default=3600,
-        help_text=_("Number of seconds during which tokens will be valid. "
-                    "It will only affect newly created tokens."),
+        verbose_name=_("Tokens duration"),
+        default=3600,
+        help_text=_(
+            "Number of seconds during which tokens will be valid. "
+            "It will only affect newly created tokens."
+        ),
     )
 
-    created = CreationDateTimeField(
-        verbose_name=_('Creation date'), editable=False
-    )
+    created = CreationDateTimeField(verbose_name=_("Creation date"), editable=False)
     modified = ModificationDateTimeField(
-        verbose_name=_('Last modification'), editable=False
+        verbose_name=_("Last modification"), editable=False
     )
 
     class Meta:
         verbose_name = _("Application")
         verbose_name_plural = _("Applications")
-        app_label = 'creme_api'
-        ordering = ['name']
+        app_label = "creme_api"
+        ordering = ["name"]
 
     def __str__(self):
         return self.name
@@ -77,6 +84,7 @@ class Application(CremeModel):
         def setter(rcs):
             self.set_client_secret(rcs)
             self.save(update_fields=["client_secret"])
+
         return check_password(raw_client_secret, self.client_secret, setter)
 
     def save(self, **kwargs):
@@ -94,8 +102,9 @@ class Application(CremeModel):
         except (Application.DoesNotExist, ValidationError):
             Application().set_client_secret(client_secret)
         else:
-            if application.check_client_secret(client_secret) \
-                    and application.can_authenticate(request=request):
+            if application.check_client_secret(
+                client_secret
+            ) and application.can_authenticate(request=request):
                 return application
 
 
@@ -109,7 +118,9 @@ class Token(models.Model):
 
     application = models.ForeignKey(Application, on_delete=models.CASCADE)
 
-    code = models.CharField(max_length=255, unique=True, db_index=True, default=default_token_code)
+    code = models.CharField(
+        max_length=255, unique=True, db_index=True, default=default_token_code
+    )
     expires = models.DateTimeField()
 
     created = CreationDateTimeField(editable=False)

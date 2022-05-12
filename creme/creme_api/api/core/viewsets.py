@@ -9,7 +9,7 @@ from .serializers import SimpleCremeEntitySerializer
 
 
 class CremeModelViewSet(viewsets.ModelViewSet):
-    LOCK_METHODS = {'POST', 'PUT' 'PATCH'}
+    LOCK_METHODS = {"POST", "PUT" "PATCH"}
 
     def perform_destroy(self, instance):
         try:
@@ -25,8 +25,7 @@ class CremeModelViewSet(viewsets.ModelViewSet):
 
 
 class CremeEntityViewSet(CremeModelViewSet):
-
-    @action(methods=['post'], detail=True, serializer_class=SimpleCremeEntitySerializer)
+    @action(methods=["post"], detail=True, serializer_class=SimpleCremeEntitySerializer)
     def trash(self, request, *args, **kwargs):
         instance = self.get_object()
 
@@ -38,7 +37,7 @@ class CremeEntityViewSet(CremeModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=True, serializer_class=SimpleCremeEntitySerializer)
+    @action(methods=["post"], detail=True, serializer_class=SimpleCremeEntitySerializer)
     def restore(self, request, *args, **kwargs):
         instance = self.get_object()
 
@@ -47,7 +46,7 @@ class CremeEntityViewSet(CremeModelViewSet):
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
 
-    @action(methods=['post'], detail=True)
+    @action(methods=["post"], detail=True)
     def clone(self, request, *args, **kwargs):
         instance = self.get_object()
 

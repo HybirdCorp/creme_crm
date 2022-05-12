@@ -21,12 +21,14 @@ from .serializers import (
 CremeUser = get_user_model()
 
 
-class UserViewSet(mixins.CreateModelMixin,
-                  mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
-                  # mixins.DestroyModelMixin,
-                  mixins.ListModelMixin,
-                  viewsets.GenericViewSet):
+class UserViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    # mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """
     create:
     Create a user.
@@ -50,11 +52,12 @@ class UserViewSet(mixins.CreateModelMixin,
     Delete a user.
 
     """
+
     queryset = CremeUser.objects.filter(is_team=False, is_staff=False)
     serializer_class = UserSerializer
     schema = CremeSchema(tags=["Users"], operation_id_base="Users")
 
-    @action(methods=['post'], detail=True, serializer_class=PasswordSerializer)
+    @action(methods=["post"], detail=True, serializer_class=PasswordSerializer)
     def set_password(self, request, pk):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
@@ -65,7 +68,7 @@ class UserViewSet(mixins.CreateModelMixin,
         return Response(serializer.data)
 
     @action(
-        methods=['post'],
+        methods=["post"],
         detail=True,
         serializer_class=DeleteUserSerializer,
         url_path="delete",
@@ -80,12 +83,14 @@ class UserViewSet(mixins.CreateModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TeamViewSet(mixins.CreateModelMixin,
-                  mixins.RetrieveModelMixin,
-                  mixins.UpdateModelMixin,
-                  # mixins.DestroyModelMixin,
-                  mixins.ListModelMixin,
-                  viewsets.GenericViewSet):
+class TeamViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    # mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """
     create:
     Create a team.
@@ -106,12 +111,13 @@ class TeamViewSet(mixins.CreateModelMixin,
     Delete a team.
 
     """
+
     queryset = CremeUser.objects.filter(is_team=True, is_staff=False)
     serializer_class = TeamSerializer
     schema = CremeSchema(tags=["Teams"], operation_id_base="Teams")
 
     @action(
-        methods=['post'],
+        methods=["post"],
         detail=True,
         serializer_class=DeleteUserSerializer,
         url_path="delete",
@@ -126,12 +132,14 @@ class TeamViewSet(mixins.CreateModelMixin,
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class UserRoleViewSet(mixins.CreateModelMixin,
-                      mixins.RetrieveModelMixin,
-                      mixins.UpdateModelMixin,
-                      mixins.DestroyModelMixin,
-                      mixins.ListModelMixin,
-                      viewsets.GenericViewSet):
+class UserRoleViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """
 
     create:
@@ -153,6 +161,7 @@ class UserRoleViewSet(mixins.CreateModelMixin,
     List roles.
 
     """
+
     queryset = UserRole.objects.all()
     serializer_class = UserRoleSerializer
     schema = CremeSchema(tags=["Roles"])
@@ -164,12 +173,14 @@ class UserRoleViewSet(mixins.CreateModelMixin,
             raise PermissionDenied(e.args[0]) from e
 
 
-class SetCredentialsViewSet(mixins.CreateModelMixin,
-                            mixins.RetrieveModelMixin,
-                            mixins.UpdateModelMixin,
-                            mixins.DestroyModelMixin,
-                            mixins.ListModelMixin,
-                            viewsets.GenericViewSet):
+class SetCredentialsViewSet(
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.DestroyModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet,
+):
     """
 
     create:
@@ -191,11 +202,12 @@ class SetCredentialsViewSet(mixins.CreateModelMixin,
     List credential sets.
 
     """
+
     queryset = SetCredentials.objects.all()
     serializer_class = SetCredentialsSerializer
     schema = CremeSchema(tags=["Credential Sets"])
 
     def get_serializer_class(self):
-        if self.action == 'create':
+        if self.action == "create":
             return SetCredentialsCreateSerializer
         return super().get_serializer_class()

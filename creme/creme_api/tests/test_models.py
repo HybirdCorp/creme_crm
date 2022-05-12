@@ -33,16 +33,22 @@ class ApplicationTestCase(TestCase):
         application.save()
         self.assertIsNotNone(application._client_secret)
         self.assertIsNotNone(application.client_secret)
-        self.assertTrue(check_password(application._client_secret, application.client_secret))
+        self.assertTrue(
+            check_password(application._client_secret, application.client_secret)
+        )
 
         application.save()
-        self.assertTrue(check_password(application._client_secret, application.client_secret))
+        self.assertTrue(
+            check_password(application._client_secret, application.client_secret)
+        )
 
     def test_save02(self):
         application = Application.objects.create(name="TestCase")
         self.assertIsNotNone(application._client_secret)
         self.assertIsNotNone(application.client_secret)
-        self.assertTrue(check_password(application._client_secret, application.client_secret))
+        self.assertTrue(
+            check_password(application._client_secret, application.client_secret)
+        )
 
     def test_check_client_secret(self):
         application = Application(name="TestCase")
@@ -71,7 +77,8 @@ class ApplicationTestCase(TestCase):
     def test_authenticate04(self):
         application = Application.objects.create(name="TestCase")
         authenticated_application = Application.authenticate(
-            application.client_id, application._client_secret)
+            application.client_id, application._client_secret
+        )
         self.assertEqual(authenticated_application.pk, application.pk)
 
 
@@ -88,7 +95,8 @@ class TokenTestCase(TestCase):
         token.save()
         expected_expires = timezone.now() + timezone.timedelta(seconds=20)
         self.assertAlmostEqual(
-            token.expires, expected_expires, delta=timezone.timedelta(seconds=1))
+            token.expires, expected_expires, delta=timezone.timedelta(seconds=1)
+        )
 
     def test_save02(self):
         application = Application.objects.create(name="TestCase", token_duration=20)

@@ -11,15 +11,6 @@ from creme.creme_api.api.authentication import TokenAuthentication
 from creme.creme_api.models import Application, Token
 
 
-class Factory:
-    @classmethod
-    def register(cls, func):
-        if hasattr(cls, func.__name__):
-            raise AttributeError(func.__name__)
-        setattr(cls, func.__name__, classmethod(func))
-        return func
-
-
 def to_iso8601(value):
     return DateTimeField().to_representation(value)
 
@@ -30,8 +21,9 @@ class PrettyPrinter(pprint.PrettyPrinter):
 
 
 def pformat(obj):
-    return PrettyPrinter(indent=2, width=80, depth=None,
-                         compact=False, sort_dicts=True).pformat(obj)
+    return PrettyPrinter(
+        indent=2, width=80, depth=None, compact=False, sort_dicts=True
+    ).pformat(obj)
 
 
 class CremeAPITestCase(APITestCase):
@@ -45,7 +37,6 @@ class CremeAPITestCase(APITestCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.application = Application.objects.create(name="APITestCase")
-        cls.factory = Factory()
 
     def login(self, application):
         self.token = Token.objects.create(application=application)
@@ -75,26 +66,29 @@ class CremeAPITestCase(APITestCase):
     def _assertPayloadEqual(self, first, second):
         if first != second:
             first = self._prepare_payload(first)
-            diff = '\n'.join(difflib.unified_diff(
-                pformat(first).splitlines(),
-                pformat(second).splitlines()))
+            second = self._prepare_payload(second)
+            diff = "\n".join(
+                difflib.unified_diff(
+                    pformat(first).splitlines(), pformat(second).splitlines()
+                )
+            )
             self.fail(f"Payload error:\n{diff}")
 
     def _prepare_payload(self, data):
         if isinstance(data, list):
             return [self._prepare_payload(obj) for obj in data]
         if isinstance(data, dict):
-            return {key: self._prepare_payload(value) for key, value in data.items()}
+            return {key: self._prepare_payload(data[key]) for key in sorted(data)}
         return data
 
     def assertPayloadEqual(self, response, expected):
-        self.assertIsInstance(response, Response, 'First argument is not a Response')
+        self.assertIsInstance(response, Response, "First argument is not a Response")
         data = response.data
         if isinstance(expected, dict):
-            self._assertPayloadEqual(data, expected)
+            self._assertPayloadEqual(expected, data)
         elif isinstance(expected, list):
-            self.assertEqual(len(data['results']), len(expected))
-            self._assertPayloadEqual(data['results'], expected)
+            self.assertEqual(len(expected), len(data["results"]))
+            self._assertPayloadEqual(expected, data["results"])
         else:
             self.assertEqual(response, expected)
 
@@ -104,21 +98,21 @@ class CremeAPITestCase(APITestCase):
         args = [to] if to is not None else None
         url = reverse(self.url_name, args=args)
         method = getattr(self.client, self.method)
-        response = method(url, data=data, format='json')
+        response = method(url, data=data, format="json")
         self.assertEqual(response.status_code, status_code, response.data)
         return response
 
     def consume_list(self, data=None):
         assert self.url_name is not None and self.url_name.endswith("-list")
-        assert self.method == 'get'
+        assert self.method == "get"
         method = getattr(self.client, self.method)
 
         responses = []
         results = []
         url = reverse(self.url_name)
         while url:
-            response = method(url, data=data, format='json')
+            response = method(url, data=data, format="json")
             responses.append(response)
-            results.extend(response.data['results'])
-            url = response.data['next']
+            results.extend(response.data["results"])
+            url = response.data["next"]
         return responses, results

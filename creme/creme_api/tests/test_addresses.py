@@ -1,27 +1,17 @@
-from creme.creme_api.tests.utils import Factory
-from creme.persons import get_address_model
-
-Address = get_address_model()
-
-
-@Factory.register
-def address(factory, **kwargs):
-    data = factory.address_data(**kwargs)
-    return Address.objects.create(**data)
-
-
-@Factory.register
-def address_data(factory, **kwargs):
-    data = {
-        # 'name': "Address name",
-        'address': "1 Main Street",
-        'po_box': "PO123",
-        'zipcode': "ZIP123",
-        'city': "City",
-        'department': "Dept",
-        'state': "State",
-        'country': "Country",
-        # 'owner': "",
-    }
-    data.update(**kwargs)
-    return data
+# from creme.persons import get_address_model
+# from .factories import AddressFactory
+# Address = get_address_model()
+#
+# #
+# # @Tests.register
+# # def factory_address_equal(tests, instance, *, owner, name, **kwargs):
+#
+# self.assertEqual(address.name, name)
+# self.assertEqual(address.address, "1 Main Street")
+# self.assertEqual(address.po_box, "PO123")
+# self.assertEqual(address.zipcode, "ZIP123")
+# self.assertEqual(address.city, "City")
+# self.assertEqual(address.department, "Dept")
+# self.assertEqual(address.state, "State")
+# self.assertEqual(address.country, "Country")
+# self.assertEqual(address.owner, owner)

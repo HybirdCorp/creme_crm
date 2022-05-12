@@ -13,13 +13,15 @@ class TokenAuthentication(BaseAuthentication):
     Token based authentication
     """
 
-    keyword = 'Token'
+    keyword = "Token"
     errors = {
-        'empty': _('Invalid token header. No credentials provided.'),
-        'too_long': _('Invalid token header. Token string should not contain spaces.'),
-        'encoding': _('Invalid token header. Token string should not contain invalid characters.'),
-        'invalid': _('Incorrect authentication credentials.'),
-        'expired': _('Incorrect authentication credentials. Token has expired.'),
+        "empty": _("Invalid token header. No credentials provided."),
+        "too_long": _("Invalid token header. Token string should not contain spaces."),
+        "encoding": _(
+            "Invalid token header. Token string should not contain invalid characters."
+        ),
+        "invalid": _("Incorrect authentication credentials."),
+        "expired": _("Incorrect authentication credentials. Token has expired."),
     }
 
     def authentication_failure(self, code):
@@ -35,25 +37,25 @@ class TokenAuthentication(BaseAuthentication):
             return None
 
         if len(auth) == 1:
-            raise self.authentication_failure('empty')
+            raise self.authentication_failure("empty")
         elif len(auth) > 2:
-            raise self.authentication_failure('too_long')
+            raise self.authentication_failure("too_long")
 
         try:
             token_code = auth[1].decode()
         except UnicodeError:
-            raise self.authentication_failure('encoding')
+            raise self.authentication_failure("encoding")
 
         try:
-            token = Token.objects.select_related('application').get(code=token_code)
+            token = Token.objects.select_related("application").get(code=token_code)
         except Token.DoesNotExist:
-            raise self.authentication_failure('invalid')
+            raise self.authentication_failure("invalid")
 
         if not token.application.can_authenticate(request=request):
-            raise self.authentication_failure('invalid')
+            raise self.authentication_failure("invalid")
 
         if token.is_expired():
-            raise self.authentication_failure('expired')
+            raise self.authentication_failure("expired")
 
         request.token = token
         request.application = token.application

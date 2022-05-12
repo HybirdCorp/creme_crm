@@ -12,8 +12,7 @@ from creme.persons.models.other_models import (
     StaffSize,
 )
 
-from .serializers import (
-    AddressSerializer,
+from .serializers import (  # AddressSerializer,
     CivilitySerializer,
     ContactSerializer,
     LegalFormSerializer,
@@ -54,8 +53,10 @@ class ContactViewSet(CremeEntityViewSet):
     Clone a contact.
 
     """
+
     queryset = persons.get_contact_model().objects.select_related(
-        'billing_address', 'shipping_address')
+        "billing_address", "shipping_address"
+    )
     serializer_class = ContactSerializer
     schema = CremeSchema(tags=["Contacts"])
 
@@ -90,6 +91,7 @@ class OrganisationViewSet(CremeEntityViewSet):
     Clone an organisation.
 
     """
+
     queryset = persons.get_organisation_model().objects.all()
     serializer_class = OrganisationSerializer
     schema = CremeSchema(tags=["Organisations"])
@@ -116,6 +118,7 @@ class CivilityViewSet(CremeModelViewSet):
     Delete a civility
 
     """
+
     queryset = Civility.objects.all()
     serializer_class = CivilitySerializer
     schema = CremeSchema(tags=["Civilities"])
@@ -142,6 +145,7 @@ class PositionViewSet(CremeModelViewSet):
     Delete a position
 
     """
+
     queryset = Position.objects.all()
     serializer_class = PositionSerializer
     schema = CremeSchema(tags=["Positions"])
@@ -168,6 +172,7 @@ class StaffSizeViewSet(CremeModelViewSet):
     Delete a staff size
 
     """
+
     queryset = StaffSize.objects.all()
     serializer_class = StaffSizeSerializer
     schema = CremeSchema(tags=["Staff sizes"])
@@ -194,6 +199,7 @@ class LegalFormViewSet(CremeModelViewSet):
     Delete a legal form
 
     """
+
     queryset = LegalForm.objects.all()
     serializer_class = LegalFormSerializer
     schema = CremeSchema(tags=["Legal forms"])
@@ -220,6 +226,7 @@ class SectorViewSet(CremeModelViewSet):
     Delete a sector
 
     """
+
     queryset = Sector.objects.all()
     serializer_class = SectorSerializer
     schema = CremeSchema(tags=["Sectors"])

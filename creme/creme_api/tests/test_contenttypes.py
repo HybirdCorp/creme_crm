@@ -9,23 +9,26 @@ Contact = get_contact_model()
 
 
 class RetrieveContentTypeTestCase(CremeAPITestCase):
-    url_name = 'creme_api__contenttypes-detail'
-    method = 'get'
+    url_name = "creme_api__contenttypes-detail"
+    method = "get"
 
     def test_retrieve_contenttype(self):
         contact_ct = ContentType.objects.get_for_model(Contact)
 
         response = self.make_request(to=contact_ct.id, status_code=200)
-        self.assertPayloadEqual(response, {
-            'id': contact_ct.id,
-            'application': _('Accounts and Contacts'),
-            'name': _("Contacts"),
-        })
+        self.assertPayloadEqual(
+            response,
+            {
+                "id": contact_ct.id,
+                "application": _("Accounts and Contacts"),
+                "name": _("Contacts"),
+            },
+        )
 
 
 class ListContentTypeTestCase(CremeAPITestCase):
-    url_name = 'creme_api__contenttypes-list'
-    method = 'get'
+    url_name = "creme_api__contenttypes-list"
+    method = "get"
 
     def test_list_contenttypes(self):
         responses, data = self.consume_list()

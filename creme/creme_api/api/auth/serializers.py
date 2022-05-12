@@ -18,52 +18,52 @@ CremeUser = get_user_model()
 
 class PasswordSerializer(serializers.Serializer):
     password = serializers.CharField(
-        label=_('Password'), trim_whitespace=False, write_only=True, required=True)
+        label=_("Password"), trim_whitespace=False, write_only=True, required=True
+    )
 
     def validate_password(self, password):
         password_validation.validate_password(password, self.instance)
         return password
 
     def save(self):
-        self.instance.set_password(self.validated_data['password'])
+        self.instance.set_password(self.validated_data["password"])
         self.instance.save()
         return self.instance
 
 
 class UserSerializer(serializers.ModelSerializer):
     default_error_messages = {
-        'is_superuser_xor_role': _("A user must either have a role, or be a superuser.")
+        "is_superuser_xor_role": _("A user must either have a role, or be a superuser.")
     }
 
     class Meta:
         model = CremeUser
         fields = [
-            'id',
-            'username',
-            'last_name',
-            'first_name',
-            'email',
-
-            'date_joined',
-            'last_login',
-            'is_active',
+            "id",
+            "username",
+            "last_name",
+            "first_name",
+            "email",
+            "date_joined",
+            "last_login",
+            "is_active",
             # 'is_staff',
-            'is_superuser',
-            'role',
+            "is_superuser",
+            "role",
             # 'is_team',
             # 'teammates_set',
-            'time_zone',
-            'theme',
+            "time_zone",
+            "theme",
             # 'settings',
         ]
         read_only_fields = [
-            'date_joined',
-            'last_login',
+            "date_joined",
+            "last_login",
         ]
         extra_kwargs = {
-            'first_name': {'required': True},
-            'last_name': {'required': True},
-            'email': {'required': True},
+            "first_name": {"required": True},
+            "last_name": {"required": True},
+            "email": {"required": True},
         }
 
     def validate(self, attrs):
@@ -74,8 +74,8 @@ class UserSerializer(serializers.ModelSerializer):
             is_superuser = self.instance.is_superuser
             role_id = self.instance.role_id
 
-        has_is_superuser = bool(attrs.get('is_superuser', is_superuser))
-        has_role = bool(attrs.get('role', role_id))
+        has_is_superuser = bool(attrs.get("is_superuser", is_superuser))
+        has_role = bool(attrs.get("role", role_id))
         if not (has_is_superuser ^ has_role):
             self.fail("is_superuser_xor_role")
         return attrs
@@ -85,21 +85,19 @@ class TeamSerializer(serializers.ModelSerializer):
     teammates = serializers.PrimaryKeyRelatedField(
         queryset=CremeUser.objects.filter(is_team=False, is_staff=False),
         many=True,
-        label=_('Teammates'),
+        label=_("Teammates"),
         required=True,
-        source='teammates_set',
+        source="teammates_set",
     )
 
     class Meta:
         model = CremeUser
         fields = [
-            'id',
-            'username',
-            'teammates',
+            "id",
+            "username",
+            "teammates",
         ]
-        extra_kwargs = {
-            'username': {"label": _("Team name")}
-        }
+        extra_kwargs = {"username": {"label": _("Team name")}}
 
     def __init__(self, *args, **kwargs):
         super(TeamSerializer, self).__init__(*args, **kwargs)
@@ -108,7 +106,7 @@ class TeamSerializer(serializers.ModelSerializer):
         self.fields["name"] = username_field
 
     def save(self, **kwargs):
-        kwargs['is_team'] = True
+        kwargs["is_team"] = True
         team = super().save(**kwargs)
         return team
 
@@ -118,24 +116,24 @@ class DeleteUserSerializer(serializers.ModelSerializer):
     Serializer which assigns the fields with type CremeUserForeignKey
     referencing a given user A to another user B, then deletes A.
     """
+
     transfer_to = serializers.PrimaryKeyRelatedField(
-        queryset=CremeUser.objects.none(),
-        required=True
+        queryset=CremeUser.objects.none(), required=True
     )
 
     class Meta:
         model = CremeUser
-        fields = ['transfer_to']
+        fields = ["transfer_to"]
 
     def __init__(self, instance=None, **kwargs):
         super().__init__(instance=instance, **kwargs)
         users = CremeUser.objects.exclude(is_staff=True)
         if instance is not None:
             users = users.exclude(pk=instance.pk)
-        self.fields['transfer_to'].queryset = users
+        self.fields["transfer_to"].queryset = users
 
     def save(self, **kwargs):
-        CremeUserForeignKey._TRANSFER_TO_USER = self.validated_data['transfer_to']
+        CremeUserForeignKey._TRANSFER_TO_USER = self.validated_data["transfer_to"]
 
         try:
             self.instance.delete()
@@ -145,38 +143,41 @@ class DeleteUserSerializer(serializers.ModelSerializer):
 
 class UserRoleSerializer(serializers.ModelSerializer):
     allowed_apps = serializers.MultipleChoiceField(
-        label=_('Allowed applications'),
+        label=_("Allowed applications"),
         choices=(),
     )
     admin_4_apps = serializers.MultipleChoiceField(
-        label=_('Administrated applications'),
+        label=_("Administrated applications"),
         choices=(),
         help_text=_(
-            'These applications can be configured. '
-            'For example, the concerned users can create new choices '
-            'available in forms (eg: position for contacts).'
+            "These applications can be configured. "
+            "For example, the concerned users can create new choices "
+            "available in forms (eg: position for contacts)."
         ),
     )
     creatable_ctypes = serializers.PrimaryKeyRelatedField(
-        label=_('Creatable resources'),
+        label=_("Creatable resources"),
         many=True,
         queryset=ContentType.objects.none(),
     )
     exportable_ctypes = serializers.PrimaryKeyRelatedField(
-        label=_('Exportable resources'),
+        label=_("Exportable resources"),
         many=True,
         queryset=ContentType.objects.none(),
         help_text=_(
-            'This types of entities can be downloaded as CSV/XLS '
-            'files (in the corresponding list-views).'
+            "This types of entities can be downloaded as CSV/XLS "
+            "files (in the corresponding list-views)."
         ),
     )
 
     default_error_messages = {
-        'admin_4_not_allowed_app': _('App "{app}" is not an allowed app for this role.'),
-        'not_allowed_ctype': _(
+        "admin_4_not_allowed_app": _(
+            'App "{app}" is not an allowed app for this role.'
+        ),
+        "not_allowed_ctype": _(
             'Content type "{ct}" ({id}) is part of the app "{app}" '
-            'which is not an allowed app for this role.'),
+            "which is not an allowed app for this role."
+        ),
     }
 
     class Meta:
@@ -188,7 +189,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
             "admin_4_apps",
             "creatable_ctypes",
             "exportable_ctypes",
-            "credentials"
+            "credentials",
         ]
         read_only_fields = [
             "credentials",
@@ -199,23 +200,27 @@ class UserRoleSerializer(serializers.ModelSerializer):
         apps = list(creme_app_configs())
 
         CRED_REGULAR = CremeAppConfig.CRED_REGULAR
-        allowed_apps_f = self.fields['allowed_apps']
+        allowed_apps_f = self.fields["allowed_apps"]
         allowed_apps_f.choices = (
-            (app.label, str(app.verbose_name)) for app in apps if app.credentials & CRED_REGULAR
+            (app.label, str(app.verbose_name))
+            for app in apps
+            if app.credentials & CRED_REGULAR
         )
 
         CRED_ADMIN = CremeAppConfig.CRED_ADMIN
-        admin_4_apps_f = self.fields['admin_4_apps']
+        admin_4_apps_f = self.fields["admin_4_apps"]
         admin_4_apps_f.choices = (
-            (app.label, str(app.verbose_name)) for app in apps if app.credentials & CRED_ADMIN
+            (app.label, str(app.verbose_name))
+            for app in apps
+            if app.credentials & CRED_ADMIN
         )
 
         ct_queryset = get_cremeentity_contenttype_queryset()
 
-        creatable_ctypes_f = self.fields['creatable_ctypes']
+        creatable_ctypes_f = self.fields["creatable_ctypes"]
         creatable_ctypes_f.child_relation.queryset = ct_queryset.all()
 
-        exportable_ctypes_f = self.fields['exportable_ctypes']
+        exportable_ctypes_f = self.fields["exportable_ctypes"]
         exportable_ctypes_f.child_relation.queryset = ct_queryset.all()
 
     def build_error_detail(self, error_code, **kwargs):
@@ -243,7 +248,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
 
         allowed_ctypes = set(filtered_entity_ctypes(allowed_apps))
 
-        for admin_not_allowed_app in (admin_4_apps - allowed_apps):
+        for admin_not_allowed_app in admin_4_apps - allowed_apps:
             errors["admin_4_apps"].append(
                 self.build_error_detail(
                     "admin_4_not_allowed_app",
@@ -251,7 +256,7 @@ class UserRoleSerializer(serializers.ModelSerializer):
                 )
             )
 
-        for create_not_allowed_ctype in (creatable_ctypes - allowed_ctypes):
+        for create_not_allowed_ctype in creatable_ctypes - allowed_ctypes:
             errors["creatable_ctypes"].append(
                 self.build_error_detail(
                     "not_allowed_ctype",
@@ -261,13 +266,14 @@ class UserRoleSerializer(serializers.ModelSerializer):
                 )
             )
 
-        for export_not_allowed_ctype in (exportable_ctypes - allowed_ctypes):
+        for export_not_allowed_ctype in exportable_ctypes - allowed_ctypes:
             errors["exportable_ctypes"].append(
                 self.build_error_detail(
                     "not_allowed_ctype",
                     id=export_not_allowed_ctype.id,
                     ct=export_not_allowed_ctype.model,
-                    app=export_not_allowed_ctype.app_label)
+                    app=export_not_allowed_ctype.app_label,
+                )
             )
 
         if errors:
@@ -278,20 +284,20 @@ class UserRoleSerializer(serializers.ModelSerializer):
 
 class SetCredentialsSerializer(serializers.ModelSerializer):
     can_view = serializers.BooleanField(
-        label=_('View'),
+        label=_("View"),
         required=True,
     )
     can_change = serializers.BooleanField(
-        label=_('Change'),
+        label=_("Change"),
         required=True,
     )
     can_delete = serializers.BooleanField(
-        label=_('Delete'),
+        label=_("Delete"),
         required=True,
     )
 
     can_link = serializers.BooleanField(
-        label=_('Link'),
+        label=_("Link"),
         required=True,
         help_text=_(
             "You must have the permission to link on 2 entities "
@@ -302,11 +308,11 @@ class SetCredentialsSerializer(serializers.ModelSerializer):
         ),
     )
     can_unlink = serializers.BooleanField(
-        label=_('Unlink'),
+        label=_("Unlink"),
         required=True,
         help_text=_(
-            'You must have the permission to unlink on '
-            '2 entities to delete a relationship between them.'
+            "You must have the permission to unlink on "
+            "2 entities to delete a relationship between them."
         ),
     )
 
@@ -326,21 +332,21 @@ class SetCredentialsSerializer(serializers.ModelSerializer):
             "efilter",
         ]
         read_only_fields = [
-            'efilter',
+            "efilter",
         ]
         extra_kwargs = {
-            'set_type': {'required': True},
-            'ctype': {'required': True},
-            'forbidden': {'required': True},
+            "set_type": {"required": True},
+            "ctype": {"required": True},
+            "forbidden": {"required": True},
         }
 
     def update(self, instance, validated_data):
         instance.set_value(
-            can_view=validated_data.pop('can_view', instance.can_view),
-            can_change=validated_data.pop('can_change', instance.can_change),
-            can_delete=validated_data.pop('can_delete', instance.can_delete),
-            can_link=validated_data.pop('can_link', instance.can_link),
-            can_unlink=validated_data.pop('can_unlink', instance.can_unlink),
+            can_view=validated_data.pop("can_view", instance.can_view),
+            can_change=validated_data.pop("can_change", instance.can_change),
+            can_delete=validated_data.pop("can_delete", instance.can_delete),
+            can_link=validated_data.pop("can_link", instance.can_link),
+            can_unlink=validated_data.pop("can_unlink", instance.can_unlink),
         )
         return super().update(instance, validated_data)
 
@@ -353,18 +359,18 @@ class SetCredentialsCreateSerializer(SetCredentialsSerializer):
 
     def create(self, validated_data):
         instance = SetCredentials(
-            role=validated_data['role'],
-            set_type=validated_data['set_type'],
-            ctype=validated_data['ctype'],
-            forbidden=validated_data['forbidden'],
+            role=validated_data["role"],
+            set_type=validated_data["set_type"],
+            ctype=validated_data["ctype"],
+            forbidden=validated_data["forbidden"],
             # efilter=validated_data['efilter'],
         )
         instance.set_value(
-            can_view=validated_data['can_view'],
-            can_change=validated_data['can_change'],
-            can_delete=validated_data['can_delete'],
-            can_link=validated_data['can_link'],
-            can_unlink=validated_data['can_unlink'],
+            can_view=validated_data["can_view"],
+            can_change=validated_data["can_change"],
+            can_delete=validated_data["can_delete"],
+            can_link=validated_data["can_link"],
+            can_unlink=validated_data["can_unlink"],
         )
         instance.save()
         return instance

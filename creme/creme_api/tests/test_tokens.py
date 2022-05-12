@@ -6,15 +6,18 @@ from creme.creme_api.tests.utils import CremeAPITestCase
 
 class TokensTestCase(CremeAPITestCase):
     auto_login = False
-    url_name = 'creme_api__tokens-list'
-    method = 'post'
+    url_name = "creme_api__tokens-list"
+    method = "post"
 
     def test_create_token__missing(self):
         response = self.make_request(data={}, status_code=400)
-        self.assertValidationErrors(response, {
-            'client_id': ['required'],
-            'client_secret': ['required'],
-        })
+        self.assertValidationErrors(
+            response,
+            {
+                "client_id": ["required"],
+                "client_secret": ["required"],
+            },
+        )
 
     def test_create_token__empty(self):
         data = {
@@ -22,10 +25,13 @@ class TokensTestCase(CremeAPITestCase):
             "client_secret": "",
         }
         response = self.make_request(data=data, status_code=400)
-        self.assertValidationErrors(response, {
-            'client_id': ['invalid'],  # Must be a valid UUID.
-            'client_secret': ['blank'],
-        })
+        self.assertValidationErrors(
+            response,
+            {
+                "client_id": ["invalid"],  # Must be a valid UUID.
+                "client_secret": ["blank"],
+            },
+        )
 
     def test_create_token__no_application(self):
         data = {
@@ -33,9 +39,12 @@ class TokensTestCase(CremeAPITestCase):
             "client_secret": "Secret",
         }
         response = self.make_request(data=data, status_code=400)
-        self.assertValidationErrors(response, {
-            '': ['authentication_failure'],
-        })
+        self.assertValidationErrors(
+            response,
+            {
+                "": ["authentication_failure"],
+            },
+        )
 
     def test_create_token(self):
         data = {

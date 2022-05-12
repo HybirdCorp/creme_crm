@@ -9,9 +9,9 @@ from creme.creme_core.models import CremeEntity
 class CremeEntityRelatedField(serializers.RelatedField):
     queryset = CremeEntity.objects.all()
     default_error_messages = {
-        'required': _('This field is required.'),
-        'does_not_exist': _('Invalid pk "{pk_value}" - object does not exist.'),
-        'incorrect_type': _('Incorrect type. Expected pk value, received {data_type}.'),
+        "required": _("This field is required."),
+        "does_not_exist": _('Invalid pk "{pk_value}" - object does not exist.'),
+        "incorrect_type": _("Incorrect type. Expected pk value, received {data_type}."),
     }
 
     def use_pk_only_optimization(self):
@@ -22,9 +22,9 @@ class CremeEntityRelatedField(serializers.RelatedField):
             creme_entity = self.get_queryset().get(pk=data)
             return creme_entity.get_real_entity()
         except ObjectDoesNotExist:
-            self.fail('does_not_exist', pk_value=data)
+            self.fail("does_not_exist", pk_value=data)
         except (TypeError, ValueError):
-            self.fail('incorrect_type', data_type=type(data).__name__)
+            self.fail("incorrect_type", data_type=type(data).__name__)
 
     def to_representation(self, value):
         return value.pk
@@ -34,11 +34,11 @@ class SimpleCremeEntitySerializer(serializers.ModelSerializer):
     class Meta:
         model = CremeEntity
         fields = [
-            'id',
-            'uuid',
-            'created',
-            'modified',
-            'is_deleted',
+            "id",
+            "uuid",
+            "created",
+            "modified",
+            "is_deleted",
         ]
 
 
@@ -48,6 +48,6 @@ class CremeEntitySerializer(SimpleCremeEntitySerializer):
     class Meta(SimpleCremeEntitySerializer.Meta):
         model = CremeEntity
         fields = SimpleCremeEntitySerializer.Meta.fields + [
-            'user',
-            'description',
+            "user",
+            "description",
         ]

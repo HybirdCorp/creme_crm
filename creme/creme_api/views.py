@@ -29,7 +29,8 @@ class SchemaView(DRFSchemaView):
 
     def get_description(self, context=None, request=None):
         description = render_to_string(
-            self.description_template, context=context, request=request)
+            self.description_template, context=context, request=request
+        )
         # Force django safestring into builtin string
         return description + ""
 
@@ -38,9 +39,11 @@ class SchemaView(DRFSchemaView):
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        creme_api_app_config = apps.get_app_config('creme_api')
-        creme_api_rool_url = self.request.build_absolute_uri(creme_api_app_config.url_root)
-        context = {'creme_api_rool_url': creme_api_rool_url}
+        creme_api_app_config = apps.get_app_config("creme_api")
+        creme_api_rool_url = self.request.build_absolute_uri(
+            creme_api_app_config.url_root
+        )
+        context = {"creme_api_rool_url": creme_api_rool_url}
         title = self.get_title()
         description = self.get_description(context=context, request=request)
         self.schema_generator = self.generator_class(
@@ -55,25 +58,26 @@ class _DocumentationBaseView(base.BricksView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['page_title'] = self.title
+        context["page_title"] = self.title
         return context
 
 
 class DocumentationView(_DocumentationBaseView):
-    template_name = 'creme_api/documentation.html'
-    extra_context = {'schema_url': 'creme_api__openapi_schema'}
+    template_name = "creme_api/documentation.html"
+    extra_context = {"schema_url": "creme_api__openapi_schema"}
     permissions = "creme_api"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['creme_api__tokens_url'] = self.request.build_absolute_uri(
-            reverse("creme_api__tokens-list"))
-        context['token_type'] = TokenAuthentication.keyword
+        context["creme_api__tokens_url"] = self.request.build_absolute_uri(
+            reverse("creme_api__tokens-list")
+        )
+        context["token_type"] = TokenAuthentication.keyword
         return context
 
 
 class ConfigurationView(_DocumentationBaseView):
-    template_name = 'creme_api/configuration.html'
+    template_name = "creme_api/configuration.html"
     permissions = "creme_api.can_admin"
 
     def get_brick_ids(self):
@@ -83,7 +87,7 @@ class ConfigurationView(_DocumentationBaseView):
 class ApplicationCreation(generic.CremeModelCreationPopup):
     model = Application
     form_class = ApplicationForm
-    title = _('New Application')
+    title = _("New Application")
     success_message = _(
         "The application «{application_name}» has been created. "
         "Identifiers have been generated, here they are: \n\n"
@@ -110,11 +114,11 @@ class ApplicationCreation(generic.CremeModelCreationPopup):
 class ApplicationEdition(generic.CremeModelEditionPopup):
     model = Application
     form_class = ApplicationForm
-    pk_url_kwarg = 'application_id'
+    pk_url_kwarg = "application_id"
     permissions = "creme_api.can_admin"
 
 
 class ApplicationDeletion(generic.CremeModelDeletion):
     model = Application
-    pk_url_kwarg = 'application_id'
+    pk_url_kwarg = "application_id"
     permissions = "creme_api.can_admin"
