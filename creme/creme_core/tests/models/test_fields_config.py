@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
+
 from io import StringIO
-from json import dumps as json_dump
+# from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
@@ -575,17 +576,22 @@ class FieldsConfigTestCase(CremeTestCase):
         h_field = 'phone'
         fconf = FieldsConfig.objects.create(
             content_type=FakeContact,
-            raw_descriptions=json_dump([
-                (h_field,   {FieldsConfig.HIDDEN: True}),
+            # raw_descriptions=json_dump([
+            #     (h_field,   {FieldsConfig.HIDDEN: True}),
+            #     ('invalid', {FieldsConfig.HIDDEN: True}),
+            # ]),
+            raw_descriptions=[
+                (h_field, {FieldsConfig.HIDDEN: True}),
                 ('invalid', {FieldsConfig.HIDDEN: True}),
-            ]),
+            ],
         )
 
         fconf = self.refresh(fconf)
         self.assertEqual(1, len(fconf.descriptions))
 
         fconf = self.refresh(fconf)
-        self.assertEqual(1, len(json_load(fconf.raw_descriptions)))
+        # self.assertEqual(1, len(json_load(fconf.raw_descriptions)))
+        self.assertEqual(1, len(fconf.raw_descriptions))
         self.assertTrue(fconf.is_field_hidden(FakeContact._meta.get_field(h_field)))
 
     def test_ct_cache(self):
@@ -843,6 +849,7 @@ class FieldsConfigTestCase(CremeTestCase):
         )
         data = json_load(stream.getvalue())
         self.assertEqual(len(data), 1)
-        self.assertEqual(
-            data[0]["fields"]["content_type"],
-            [*contact_ct.natural_key()])
+        self.assertListEqual(
+            data[0]['fields']['content_type'],
+            [*contact_ct.natural_key()],
+        )
