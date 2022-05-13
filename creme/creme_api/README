@@ -1,29 +1,13 @@
-A way to use a specific block for the creme config - creme model administration ?
-
-ajouter une application
- créer un token pour une application donnée (app id app secret)
- -> génération d'un token
-
-appel api avec le app id et le token
-
-
-
-
 
 ###################################
-# Configuration
-- Une page spécifique à l'api pour la gestion des applications, des tokens ?
-Pour l'accès à la documentation?
-
 ## application
-applications serveurs / application user
+applications servers / application user
 filtre / IP
 utilisateurs autorisés
 configuration de la durée max des tokens
 restriction par scopes (resources)
 ##tokens
 restriction par scopes (resources)
-durée de validité
 
 
 # Documentation

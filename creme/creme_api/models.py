@@ -19,7 +19,7 @@ def generate_secret(length, chars=(string.ascii_letters + string.digits)):
     return "".join(secrets.choice(chars) for i in range(length))
 
 
-def default_application_client_secret():
+def default_application_application_secret():
     return generate_secret(40)
 
 
@@ -34,20 +34,20 @@ class Application(CremeModel):
         db_index=True,
     )
 
-    client_id = models.UUIDField(
-        verbose_name=_("Client ID"),
+    application_id = models.UUIDField(
+        verbose_name=_("Application ID"),
         max_length=100,
         unique=True,
         db_index=True,
         default=uuid.uuid4,
         editable=False,
     )
-    client_secret = models.CharField(
-        verbose_name=_("Client secret"),
+    application_secret = models.CharField(
+        verbose_name=_("Application secret"),
         max_length=255,
         blank=True,
     )
-    _client_secret = None
+    _application_secret = None
 
     enabled = models.BooleanField(
         verbose_name=_("Enabled"),
@@ -76,34 +76,34 @@ class Application(CremeModel):
     def __str__(self):
         return self.name
 
-    def set_client_secret(self, raw_client_secret):
-        self.client_secret = make_password(raw_client_secret)
-        self._client_secret = raw_client_secret
+    def set_application_secret(self, raw_application_secret):
+        self.application_secret = make_password(raw_application_secret)
+        self._application_secret = raw_application_secret
 
-    def check_client_secret(self, raw_client_secret):
+    def check_application_secret(self, raw_application_secret):
         def setter(rcs):
-            self.set_client_secret(rcs)
-            self.save(update_fields=["client_secret"])
+            self.set_application_secret(rcs)
+            self.save(update_fields=["application_secret"])
 
-        return check_password(raw_client_secret, self.client_secret, setter)
+        return check_password(raw_application_secret, self.application_secret, setter)
 
     def save(self, **kwargs):
         if self.pk is None:
-            self.set_client_secret(default_application_client_secret())
+            self.set_application_secret(default_application_application_secret())
         return super().save(**kwargs)
 
     def can_authenticate(self, request=None):
         return self.enabled
 
     @staticmethod
-    def authenticate(client_id, client_secret, request=None):
+    def authenticate(application_id, application_secret, request=None):
         try:
-            application = Application.objects.get(client_id=client_id)
+            application = Application.objects.get(application_id=application_id)
         except (Application.DoesNotExist, ValidationError):
-            Application().set_client_secret(client_secret)
+            Application().set_application_secret(application_secret)
         else:
-            if application.check_client_secret(
-                client_secret
+            if application.check_application_secret(
+                application_secret
             ) and application.can_authenticate(request=request):
                 return application
 
@@ -130,6 +130,11 @@ class Token(models.Model):
 
     def is_expired(self):
         return timezone.now() >= self.expires
+
+    # def expires_in(self):
+    #     if self.is_expired():
+    #         return 0
+    #     return int((self.expires - timezone.now()).total_seconds())
 
     def save(self, **kwargs):
         if self.expires is None:

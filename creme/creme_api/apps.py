@@ -13,3 +13,12 @@ class CremeApiConfig(CremeAppConfig):
         from .bricks import ApplicationsBrick
 
         brick_registry.register(ApplicationsBrick)
+
+    def register_menu_entries(self, menu_registry):
+        from creme.creme_config.menu import CremeConfigEntry, WorldConfigEntry
+
+        from .menu import CremeApiEntry
+
+        CremeConfigEntry.children_classes.insert(
+            CremeConfigEntry.children_classes.index(WorldConfigEntry), CremeApiEntry
+        )

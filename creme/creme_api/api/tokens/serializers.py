@@ -9,19 +9,22 @@ class TokenSerializer(serializers.Serializer):
         "authentication_failure": _("Unable to log in with provided credentials.")
     }
 
-    client_id = serializers.UUIDField(label=_("Client ID"), write_only=True)
-    client_secret = serializers.CharField(
-        label=_("Client secret"), style={"input_type": "password"}, write_only=True
+    application_id = serializers.UUIDField(label=_("Application ID"), write_only=True)
+    application_secret = serializers.CharField(
+        label=_("Application secret"), style={"input_type": "password"}, write_only=True
     )
+
     token = serializers.CharField(label=_("Token"), read_only=True)
+    token_type = serializers.CharField(label=_("Token type"), read_only=True)
+    expires_in = serializers.IntegerField(label=_("Expires in"), read_only=True)
 
     def validate(self, attrs):
-        client_id = attrs["client_id"]
-        client_secret = attrs["client_secret"]
+        application_id = attrs["application_id"]
+        application_secret = attrs["application_secret"]
 
         application = Application.authenticate(
-            client_id,
-            client_secret,
+            application_id,
+            application_secret,
             request=self.context["request"],
         )
         if not application:

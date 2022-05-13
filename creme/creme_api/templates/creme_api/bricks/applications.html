@@ -23,10 +23,10 @@
 
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name'        status='primary' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='client_id' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='application_id' %}
     {% brick_table_column_for_field ctype=objects_ctype field='enabled' %}
     {% brick_table_column_for_field ctype=objects_ctype field='token_duration' %}
-{#    {% brick_table_column_for_field ctype=objects_ctype field='_client_secret' %}#}
+{#    {% brick_table_column_for_field ctype=objects_ctype field='_application_secret' %}#}
     {% brick_table_column_for_field ctype=objects_ctype field='created' data_type='date' %}
     {% brick_table_column_for_field ctype=objects_ctype field='modified' data_type='date' %}
     {% brick_table_column title=_('Action') status='action' %}
@@ -36,7 +36,7 @@
     {% for application in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>{% print_field object=application field='name' %}</td>
-        <td>{% print_field object=application field='client_id' %}</td>
+        <td>{% print_field object=application field='application_id' %}</td>
         <td>{% print_field object=application field='enabled' %}</td>
         <td>{% print_field object=application field='token_duration' %} {% trans 'seconds' %}</td>
         <td data-type="date">{{application.created|date:"DATE_FORMAT"}}</td>

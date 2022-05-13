@@ -36,19 +36,19 @@ class Migration(migrations.Migration):
                     ),
                 ),
                 (
-                    "client_id",
+                    "application_id",
                     models.UUIDField(
                         db_index=True,
                         default=uuid.uuid4,
                         editable=False,
                         unique=True,
-                        verbose_name="Client ID",
+                        verbose_name="Application ID",
                     ),
                 ),
                 (
-                    "client_secret",
+                    "application_secret",
                     models.CharField(
-                        blank=True, max_length=255, verbose_name="Client secret"
+                        blank=True, max_length=255, verbose_name="Application secret"
                     ),
                 ),
                 ("enabled", models.BooleanField(default=True, verbose_name="Enabled")),

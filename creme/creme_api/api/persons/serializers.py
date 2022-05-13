@@ -2,8 +2,7 @@ from django.db import transaction
 from django.utils.translation import gettext as _
 from rest_framework import serializers
 
-from creme.creme_api.api.core.serializers import (
-    # CremeEntityRelatedField,
+from creme.creme_api.api.core.serializers import (  # CremeEntityRelatedField,
     CremeEntitySerializer,
 )
 from creme.persons import (

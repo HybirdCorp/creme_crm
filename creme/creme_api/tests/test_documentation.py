@@ -79,4 +79,4 @@ class DocumentationViewTestCase(CremeTestCase):
             response.context["creme_api__tokens_url"],
             "http://testserver/creme_api/tokens/",
         )
-        self.assertEqual(response.context["token_type"], "Token")
+        self.assertEqual(response.context["token_type"], "token")

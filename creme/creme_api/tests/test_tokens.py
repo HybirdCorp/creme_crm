@@ -14,29 +14,29 @@ class TokensTestCase(CremeAPITestCase):
         self.assertValidationErrors(
             response,
             {
-                "client_id": ["required"],
-                "client_secret": ["required"],
+                "application_id": ["required"],
+                "application_secret": ["required"],
             },
         )
 
     def test_create_token__empty(self):
         data = {
-            "client_id": "",  # trim
-            "client_secret": "",
+            "application_id": "",  # trim
+            "application_secret": "",
         }
         response = self.make_request(data=data, status_code=400)
         self.assertValidationErrors(
             response,
             {
-                "client_id": ["invalid"],  # Must be a valid UUID.
-                "client_secret": ["blank"],
+                "application_id": ["invalid"],  # Must be a valid UUID.
+                "application_secret": ["blank"],
             },
         )
 
     def test_create_token__no_application(self):
         data = {
-            "client_id": uuid4().hex,
-            "client_secret": "Secret",
+            "application_id": uuid4().hex,
+            "application_secret": "Secret",
         }
         response = self.make_request(data=data, status_code=400)
         self.assertValidationErrors(
@@ -48,8 +48,8 @@ class TokensTestCase(CremeAPITestCase):
 
     def test_create_token(self):
         data = {
-            "client_id": self.application.client_id,
-            "client_secret": self.application._client_secret,
+            "application_id": self.application.application_id,
+            "application_secret": self.application._application_secret,
         }
         response = self.make_request(data=data, status_code=200)
         token = Token.objects.get(application=self.application)

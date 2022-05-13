@@ -13,7 +13,7 @@ class TokenAuthentication(BaseAuthentication):
     Token based authentication
     """
 
-    keyword = "Token"
+    keyword = "token"
     errors = {
         "empty": _("Invalid token header. No credentials provided."),
         "too_long": _("Invalid token header. Token string should not contain spaces."),

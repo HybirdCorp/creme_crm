@@ -1,6 +1,7 @@
 from rest_framework import mixins, parsers, renderers, viewsets
 from rest_framework.response import Response
 
+from creme.creme_api.api.authentication import TokenAuthentication
 from creme.creme_api.api.schemas import CremeSchema
 from creme.creme_api.models import Token
 
@@ -35,4 +36,10 @@ class TokenViewSet(mixins.CreateModelMixin, viewsets.GenericViewSet):
         serializer.is_valid(raise_exception=True)
         application = serializer.validated_data["application"]
         token = Token.objects.create(application=application)
-        return Response({"token": token.code})
+        return Response(
+            {
+                "token": token.code,
+                "token_type": TokenAuthentication.keyword,
+                "expires_in": application.token_duration,
+            }
+        )

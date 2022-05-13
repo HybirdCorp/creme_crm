@@ -1,4 +1,3 @@
-from django.apps import apps
 from django.contrib import messages
 from django.template.loader import render_to_string
 from django.urls import reverse
@@ -39,11 +38,8 @@ class SchemaView(DRFSchemaView):
 
     def initial(self, request, *args, **kwargs):
         super().initial(request, *args, **kwargs)
-        creme_api_app_config = apps.get_app_config("creme_api")
-        creme_api_rool_url = self.request.build_absolute_uri(
-            creme_api_app_config.url_root
-        )
-        context = {"creme_api_rool_url": creme_api_rool_url}
+        creme_root_url = self.request.build_absolute_uri(location="/")
+        context = {"creme_root_url": creme_root_url}
         title = self.get_title()
         description = self.get_description(context=context, request=request)
         self.schema_generator = self.generator_class(
@@ -91,8 +87,8 @@ class ApplicationCreation(generic.CremeModelCreationPopup):
     success_message = _(
         "The application «{application_name}» has been created. "
         "Identifiers have been generated, here they are: \n\n"
-        "Client ID : {client_id}\n"
-        "Client Secret : {client_secret}\n\n"
+        "Application ID : {application_id}\n"
+        "Application Secret : {application_secret}\n\n"
         "This is the first and last time this secret displayed!"
     )
     permissions = "creme_api.can_admin"
@@ -100,8 +96,8 @@ class ApplicationCreation(generic.CremeModelCreationPopup):
     def get_success_message(self):
         return self.success_message.format(
             application_name=self.object.name,
-            client_id=self.object.client_id,
-            client_secret=self.object._client_secret,
+            application_id=self.object.application_id,
+            application_secret=self.object._application_secret,
         )
 
     def form_valid(self, form):
