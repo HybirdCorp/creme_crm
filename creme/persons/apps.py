@@ -320,6 +320,7 @@ class PersonsConfig(CremeAppConfig):
                 user = super().save(*args, **kwargs)
                 cdata = this.cleaned_data
 
+                # TODO: check properties constraints?
                 Relation.objects.create(
                     user=user, subject_entity=user.linked_contact,
                     type=cdata['relation'],

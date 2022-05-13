@@ -1,0 +1,9 @@
+{% load i18n creme_widgets %}{% load uca_sort from creme_core_tags %}
+{% if not mandatory and not forbidden %}
+    <span title="{% translate 'No property constraint' %}" >—</span>
+{% else %}
+  <ul>
+      <li>{% widget_enumerator mandatory|uca_sort threshold=1 empty=_('No mandatory property type') summary=_('{count} mandatory type(s) of property') %}</li>
+      <li>{% widget_enumerator forbidden|uca_sort threshold=1 empty=_('No forbidden property type') summary=_('{count} forbidden type(s) of property') %}</li>
+  </ul>
+{% endif %}

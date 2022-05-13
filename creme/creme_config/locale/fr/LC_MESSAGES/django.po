@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-22 17:50+0200\n"
+"POT-Creation-Date: 2022-05-13 19:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -609,6 +609,9 @@ msgstr "Contrainte sur les propriétés"
 msgid "The subject must have all the selected properties."
 msgstr "Le sujet doit avoir toutes les propriétés sélectionnées."
 
+msgid "The subject cannot have any of the selected properties."
+msgstr "Le sujet ne peut avoir aucune des propriétés sélectionnées."
+
 msgid "Subject => object"
 msgstr "Sujet => objet"
 
@@ -653,6 +656,9 @@ msgstr ""
 
 msgid "The object must have all the selected properties."
 msgstr "L'objet doit avoir toutes les propriétés sélectionnées."
+
+msgid "The object cannot have any of the selected properties."
+msgstr "L'objet ne peut avoir aucune des propriétés sélectionnées."
 
 msgid "Subject"
 msgstr "Sujet"
@@ -1230,6 +1236,23 @@ msgstr ""
 msgid "No fields configuration for the moment"
 msgstr "Aucune configuration de champs pour le moment"
 
+msgid "No property constraint"
+msgstr "Pas de contrainte de propriété"
+
+msgid "No mandatory property type"
+msgstr "Pas de type de propriété obligatoire"
+
+#, python-brace-format
+msgid "{count} mandatory type(s) of property"
+msgstr "{count} type(s) de propriété obligatoire(s)"
+
+msgid "No forbidden property type"
+msgstr "Pas de type de propriété interdite"
+
+#, python-brace-format
+msgid "{count} forbidden type(s) of property"
+msgstr "{count} type(s) de propriété interdit(s)"
+
 msgid "Create a view"
 msgstr "Créer une vue"
 
@@ -1390,13 +1413,6 @@ msgstr "Objet(s)"
 
 msgid "No type"
 msgstr "Pas de type"
-
-msgid "No property"
-msgstr "Pas de propriété"
-
-#, python-brace-format
-msgid "{count} types of property"
-msgstr "{count} types de propriété"
 
 msgid "The relationships are not copied when the subject entity is cloned"
 msgstr "Les relations ne sont pas copiées quand la fiche sujet est clonée"

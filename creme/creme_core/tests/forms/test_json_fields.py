@@ -85,16 +85,19 @@ class _JSONFieldBaseTestCase(FieldTestCase):
         return FakeOrganisation.objects.create(user=user, name=name, **kwargs)
 
     @staticmethod
-    def create_loves_rtype(subject_ptypes=(), object_ptypes=()):
+    def create_loves_rtype(subject_ptypes=(), object_ptypes=(), object_forbidden_ptypes=()):
         if isinstance(subject_ptypes, CremePropertyType):
             subject_ptypes = (subject_ptypes,)
 
         if isinstance(object_ptypes, CremePropertyType):
             object_ptypes = (object_ptypes,)
 
+        if isinstance(object_forbidden_ptypes, CremePropertyType):
+            object_forbidden_ptypes = (object_forbidden_ptypes,)
+
         return RelationType.objects.smart_update_or_create(
             ('test-subject_loves', 'is loving', (), subject_ptypes),
-            ('test-object_loves',  'loved by',  (), object_ptypes),
+            ('test-object_loves',  'loved by',  (), object_ptypes, object_forbidden_ptypes),
         )
 
     @staticmethod
@@ -1270,10 +1273,19 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         # Does not have the property 'ptype2'
         contact = self.create_contact(ptypes=(ptype1, ptype3))
 
+        # self.assertFieldValidationError(
+        #     RelationEntityField, 'nopropertymatch',
+        #     RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
+        #     self.build_data(rtype.id, contact),
+        # )
         self.assertFieldValidationError(
-            RelationEntityField, 'nopropertymatch',
+            RelationEntityField, 'missingproperty',
             RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
             self.build_data(rtype.id, contact),
+            message_args={
+                'predicate': rtype.predicate,
+                'property': ptype2.text,
+            },
         )
 
     def test_clean_properties_constraint(self):
@@ -1288,6 +1300,44 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         # Has all the properties
         contact = self.create_contact(ptypes=(ptype1, ptype2, ptype3))
+
+        field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
+        self.assertTupleEqual(
+            (rtype, contact),
+            field.clean(self.build_data(rtype.id, contact)),
+        )
+
+    def test_clean_forbidden_properties_constraint_error(self):
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_strong', text='Is not kind',
+        )
+
+        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)[0]
+        contact = self.create_contact(ptypes=ptype)
+
+        self.assertFieldValidationError(
+            RelationEntityField, 'forbiddenproperty',
+            RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
+            self.build_data(rtype.id, contact),
+            message_args={
+                'predicate': rtype.predicate,
+                'property': ptype.text,
+            },
+        )
+
+    def test_clean_forbidden_properties_constraint(self):
+        user = self.login()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+
+        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
+
+        # Has no forbidden property
+        contact = self.create_contact(ptypes=ptype2)
 
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
@@ -1677,12 +1727,24 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiRelationEntityField(
             allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user,
         )
+        # self.assertFieldValidationError(
+        #     MultiRelationEntityField, 'nopropertymatch', field.clean,
+        #     self.build_data(
+        #         (rtype_constr.id,    contact),
+        #         (rtype_no_constr.id, orga),
+        #     )
+        # )
         self.assertFieldValidationError(
-            MultiRelationEntityField, 'nopropertymatch', field.clean,
+            MultiRelationEntityField, 'missingproperty', field.clean,
             self.build_data(
                 (rtype_constr.id,    contact),
                 (rtype_no_constr.id, orga),
-            )
+            ),
+            message_args={
+                'entity': contact,
+                'predicate': rtype_constr.predicate,
+                'property': ptype2.text,
+            },
         )
 
     def test_clean_properties_constraint(self):
@@ -1698,6 +1760,60 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 
         # Has all the properties
         contact = self.create_contact(ptypes=(ptype1, ptype3, ptype2))
+
+        orga = self.create_orga()
+
+        field = MultiRelationEntityField(allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk])
+        field.user = user
+        self.assertListEqual(
+            [(rtype_constr, contact), (rtype_no_constr, orga)],
+            field.clean(self.build_data(
+                (rtype_constr.pk,    contact),
+                (rtype_no_constr.pk, orga),
+            )),
+        )
+
+    def test_clean_forbidden_properties_constraint_error(self):
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_strong', text='Is not kind',
+        )
+
+        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=[ptype])[0]
+        rtype_no_constr = self.create_hates_rtype()[0]
+
+        contact = self.create_contact(ptypes=ptype)
+        orga = self.create_orga()
+
+        field = MultiRelationEntityField(
+            allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user,
+        )
+        self.assertFieldValidationError(
+            MultiRelationEntityField, 'forbiddenproperty', field.clean,
+            self.build_data(
+                (rtype_constr.id,    contact),
+                (rtype_no_constr.id, orga),
+            ),
+            message_args={
+                'entity': contact,
+                'predicate': rtype_constr.predicate,
+                'property': ptype.text,
+            },
+        )
+
+    def test_clean_forbidden_properties_constraint(self):
+        user = self.login()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is not kind')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+
+        rtype_constr    = self.create_loves_rtype(object_forbidden_ptypes=ptype1)[0]
+        rtype_no_constr = self.create_hates_rtype()[0]
+
+        # Has no forbidden properties
+        contact = self.create_contact(ptypes=ptype2)
 
         orga = self.create_orga()
 
@@ -1732,7 +1848,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 {'rtype': rtype.id, 'ctype': ct_id},
                 {'rtype': rtype.id, 'ctype': ct_id, 'entity': str(contact.id)},
                 {'rtype': rtype.id},
-            ]))
+            ])),
         )
 
     def test_clean_incomplete02(self):
@@ -1827,7 +1943,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 {'entity': contact.id, 'ctype': contact.entity_type_id, 'rtype': rtype1.id},
                 {'entity': orga.id,    'ctype': orga.entity_type_id,    'rtype': rtype2.id},
             ],
-            json_data
+            json_data,
         )
 
     def test_autocomplete_property(self):

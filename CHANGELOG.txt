@@ -13,7 +13,9 @@
     # Apps :
         * Creme_config :
             - The menu icon can now be customised.
-            - The (non-internal) relationship types can now be disabled.
+            - The relationship types have been improved :
+                - Non-internal types can now be disabled.
+                - A new kind of constraints has been added : forbidden properties (on subject & object of course).
             - An edition view for semi-fixed relationship types has been added.
         * Assistants :
             - The trigger date of an Alert can now be relative to a date field of the linked entity (eg: "3 days before its birthday").
@@ -89,7 +91,10 @@
             - The file "creme/django.wsgi" has been removed.
             - In 'creme_core.forms' :
                 - The alias 'base.FieldBlocksGroup' has been removed.
-                - The class 'fields.AjaxModelChoiceField' has been removed.
+                - In 'fields' :
+                    - The class 'AjaxModelChoiceField' has been removed.
+                    - The message with key "nopropertymatch" has been removed in 'RelationEntityField'.
+                    - The return of 'MultiRelationEntityField._build_rtype_cache' has changed.
             - In 'creme_core.models' :
                 - The method 'CremePropertyType.create()' has been removed.
                 - The method 'Job.not_finished_jobs()' has been removed.

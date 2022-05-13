@@ -1234,7 +1234,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         )
 
         # --
-        form4 = FakeContactForm(
+        form5 = FakeContactForm(
             user=user,
             data={
                 **data,
@@ -1245,11 +1245,119 @@ class CremeEntityFormTestCase(CremeTestCase):
             },
         )
         self.assertFormInstanceErrors(
-            form4,
+            form5,
             (
                 'relation_types',
                 _(
                     'These properties are mandatory in order to use '
+                    'the relationship «%(predicate)s»: %(properties)s'
+                ) % {
+                    'properties': f'{ptype1.text}, {ptype2.text}',
+                    'predicate': rtype2.predicate,
+                },
+            ),
+        )
+
+    @override_settings(FORMS_RELATION_FIELDS=True)
+    def test_relations_error03(self):
+        "Forbidden property constraint errors."
+        user = self.login()
+
+        orga = FakeOrganisation.objects.create(user=user, name='Bebop')
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
+        ptype2 = create_ptype(str_pk='test-prop_doctor',  text='Is a doctor')
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_pilots', 'pilots',        [FakeContact], [], [ptype1]),
+            ('test-object_pilots',  'is piloted by', [FakeOrganisation]),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_repairs', 'repairs',        [FakeContact], [], [ptype1, ptype2]),
+            ('test-object_repairs',  'is repaired by', [FakeOrganisation]),
+        )[0]
+
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Pilots the Bebop',
+            relation_type=rtype1,
+            real_object=orga,
+        )
+
+        # ---
+        form1 = FakeContactForm(user=user)
+
+        with self.assertNoException():
+            sf_choices = form1.fields['semifixed_rtypes'].choices
+
+        self.assertInChoices(value=sfrt.id, label=sfrt.predicate, choices=sf_choices)
+
+        # ---
+        data = {
+            'user': user.id,
+            'first_name': 'Spike',
+            'last_name': 'Spiegel',
+
+            'property_types': [ptype1.id],
+        }
+
+        form2 = FakeContactForm(
+            user=user,
+            data={
+                **data,
+                'relation_types': self.formfield_value_multi_relation_entity((rtype1.id, orga)),
+            },
+        )
+        self.assertFormInstanceErrors(
+            form2,
+            (
+                'relation_types',
+                _(
+                    'The property «%(property)s» is forbidden '
+                    'in order to use the relationship «%(predicate)s»'
+                ) % {
+                    'property': ptype1.text,
+                    'predicate': rtype1.predicate,
+                },
+            ),
+        )
+
+        # --
+        form3 = FakeContactForm(
+            user=user,
+            data={**data, 'semifixed_rtypes': [sfrt.id]},
+        )
+        self.assertFormInstanceErrors(
+            form3,
+            (
+                'semifixed_rtypes',
+                _(
+                    'The property «%(property)s» is forbidden '
+                    'in order to use the relationship «%(predicate)s»'
+                ) % {
+                    'property': ptype1.text,
+                    'predicate': rtype1.predicate,
+                }
+            ),
+        )
+
+        # --
+        form4 = FakeContactForm(
+            user=user,
+            data={
+                **data,
+                'relation_types': self.formfield_value_multi_relation_entity(
+                    (rtype2.id, orga),
+                ),
+            },
+        )
+        self.assertFormInstanceErrors(
+            form4,
+            (
+                'relation_types',
+                _(
+                    'These properties are forbidden in order to use '
                     'the relationship «%(predicate)s»: %(properties)s'
                 ) % {
                     'properties': f'{ptype1.text}, {ptype2.text}',
@@ -1268,9 +1376,10 @@ class CremeEntityFormTestCase(CremeTestCase):
         create_ptype = CremePropertyType.objects.smart_update_or_create
         ptype1 = create_ptype(str_pk='test-prop_captain', text='Is a captain')
         ptype2 = create_ptype(str_pk='test-prop_strong',  text='Is strong')
+        ptype3 = create_ptype(str_pk='test-prop_weak',    text='Is weak')
 
         rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_leads', 'leads',   [FakeContact], [ptype1, ptype2]),
+            ('test-subject_leads', 'leads',   [FakeContact], [ptype1, ptype2], [ptype3]),
             ('test-object_leads',  'is lead', [FakeOrganisation]),
         )[0]
 

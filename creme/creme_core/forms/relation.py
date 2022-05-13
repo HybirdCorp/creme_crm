@@ -47,12 +47,18 @@ class _RelationsCreateForm(CremeForm):
         'duplicates': _('There are duplicates: %(duplicates)s'),
         'link_themselves': _('An entity can not be linked to itself : %(entities)s'),
         'empty': _('You must give one relationship at least.'),
+
         'missing_property_single': _(
             '«%(subject)s» must have the property «%(property)s» '
             'in order to use the relationship «%(predicate)s»'
         ),
         'missing_property_multi': _(
             '«%(subject)s» must have a property in «%(properties)s» '
+            'in order to use the relationship «%(predicate)s»'
+        ),
+
+        'forbidden_property_single': _(
+            '«%(subject)s» cannot have the property «%(property)s» '
             'in order to use the relationship «%(predicate)s»'
         ),
     }
@@ -125,14 +131,21 @@ class _RelationsCreateForm(CremeForm):
     def _check_properties(self, rtypes):
         subjects = self.subjects
         need_validation = False
-        ptypes_contraints = OrderedDict()
+        ptypes_constraints = OrderedDict()
+        forb_ptypes_constraints = OrderedDict()
 
+        # TODO: populate properties constraints
         for rtype in rtypes:
-            if rtype.id not in ptypes_contraints:
+            if rtype.id not in ptypes_constraints:
                 properties = dict(rtype.subject_properties.values_list('id', 'text'))
-                ptypes_contraints[rtype.id] = (rtype, properties)
+                ptypes_constraints[rtype.id] = (rtype, properties)
 
-                if properties:
+                forb_properties = dict(
+                    rtype.subject_forbidden_properties.values_list('id', 'text')
+                )
+                forb_ptypes_constraints[rtype.id] = (rtype, forb_properties)
+
+                if properties or forb_properties:
                     need_validation = True
 
         if not need_validation:
@@ -141,7 +154,7 @@ class _RelationsCreateForm(CremeForm):
         CremeEntity.populate_properties(subjects)
 
         for subject in subjects:
-            for rtype, needed_properties in ptypes_contraints.values():
+            for rtype, needed_properties in ptypes_constraints.values():
                 if not needed_properties:
                     continue
 
@@ -172,6 +185,23 @@ class _RelationsCreateForm(CremeForm):
                                 'predicate': rtype.predicate,
                             },
                             code='missing_property_multi',
+                        )
+
+            for rtype, forbidden_properties in forb_ptypes_constraints.values():
+                if not forbidden_properties:
+                    continue
+
+                for prop in subject.get_properties():
+                    ptext = forbidden_properties.get(prop.type_id)
+                    if ptext:
+                        raise ValidationError(
+                            self.error_messages['forbidden_property_single'],
+                            params={
+                                'subject':    subject,
+                                'property':   ptext,
+                                'predicate':  rtype.predicate,
+                            },
+                            code='forbidden_property_single',
                         )
 
     def _check_loops(self, relations):

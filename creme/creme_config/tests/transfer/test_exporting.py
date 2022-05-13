@@ -1141,21 +1141,19 @@ class ExportingTestCase(CremeTestCase):
 
         self.assertTrue(RelationType.objects.filter(is_custom=False))
 
-        ptype1 = CremePropertyType.objects.create(
-            pk='creme_config_export-test_export_relation_types', text='Sugoi !',
-        )
-        ptype2 = CremePropertyType.objects.smart_update_or_create(
-            str_pk='creme_config_export-test_export_relation_types_1',
-            text='Is important',
-            is_custom=True,
-        )
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        pt_id_fmt = 'creme_config_export-test_export_relation_types_{}'.format
+        ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Sugoi!')
+        ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
+        ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Nope')
+        ptype4 = create_ptype(str_pk=pt_id_fmt(3), text='Never')
 
         s_pk_fmt = 'creme_config_export-subject_test_export_relations_types_{}'.format
         o_pk_fmt = 'creme_config_export-object_test_export_relations_types_{}'.format
         create_rtype = RelationType.objects.smart_update_or_create
         rtype1a, rtype1b = create_rtype(
-            (s_pk_fmt(1),  'loves',       (), [ptype1]),
-            (o_pk_fmt(1),  'is loved by', (), [ptype2]),
+            (s_pk_fmt(1),  'loves',       (), [ptype1], [ptype3]),
+            (o_pk_fmt(1),  'is loved by', (), [ptype2], [ptype4]),
             is_custom=True,
             is_copiable=(True, False),
             minimal_display=(False, True),
@@ -1193,6 +1191,9 @@ class ExportingTestCase(CremeTestCase):
             subject_ptypes1a = rtype1_data.pop('subject_properties')
             object_ptypes1a  = rtype1_data.pop('object_properties')
 
+            subject_forbidden_ptypes1a = rtype1_data.pop('subject_forbidden_properties')
+            object_forbidden_ptypes1a  = rtype1_data.pop('object_forbidden_properties')
+
         self.assertDictEqual(
             {
                 'id':          rtype1a.id, 'predicate':       rtype1a.predicate,
@@ -1206,6 +1207,8 @@ class ExportingTestCase(CremeTestCase):
         )
         self.assertEqual([ptype1.id], subject_ptypes1a)
         self.assertEqual([ptype2.id], object_ptypes1a)
+        self.assertEqual([ptype3.id], subject_forbidden_ptypes1a)
+        self.assertEqual([ptype4.id], object_forbidden_ptypes1a)
 
         # --
         rtype2_data = loaded_rtypes.get(rtype2a.id)

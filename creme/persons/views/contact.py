@@ -70,7 +70,7 @@ class RelatedContactCreation(_ContactBaseCreation):
         return super().post(*args, **kwargs)
 
     def check_view_permissions(self, user):
-        super(RelatedContactCreation, self).check_view_permissions(user=user)
+        super().check_view_permissions(user=user)
         self.request.user.has_perm_to_link_or_die(Contact)
 
     def get_form_kwargs(self):
@@ -128,6 +128,7 @@ class RelatedContactCreation(_ContactBaseCreation):
                 instance = this.instance
 
                 if rtype:
+                    # TODO: check properties constraints?
                     relations.append(Relation(
                         subject_entity=instance,
                         type=rtype,

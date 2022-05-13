@@ -211,38 +211,47 @@ class PropertyTypesBrick(_ConfigAdminBrick):
         ))
 
 
-class RelationTypesBrick(_ConfigAdminBrick):
-    id_ = _ConfigAdminBrick.generate_id('creme_config', 'relation_types')
+class _RelationTypesBrick(_ConfigAdminBrick):
+    # id_ = _ConfigAdminBrick.generate_id(...)
+    # verbose_name = 'Types of relation'
+    dependencies = (RelationType,)
+    template_name = 'creme_config/bricks/relation-types.html'
+
+    custom_types = False
+
+    def detailview_display(self, context):
+        is_custom = self.custom_types
+
+        return self._render(self.get_template_context(
+            context,
+            RelationType.objects.filter(
+                is_custom=is_custom,
+                pk__contains='-subject_',
+            ).prefetch_related(
+                'symmetric_type',
+
+                'subject_ctypes',
+                'subject_properties',
+                'subject_forbidden_properties',
+
+                'symmetric_type__subject_ctypes',
+                'symmetric_type__subject_properties',
+                'symmetric_type__subject_forbidden_properties',
+            ),
+            custom=is_custom,
+        ))
+
+
+class RelationTypesBrick(_RelationTypesBrick):
+    id_ = _RelationTypesBrick.generate_id('creme_config', 'relation_types')
     verbose_name = _('Standard types of relation')
-    dependencies = (RelationType,)
-    template_name = 'creme_config/bricks/relation-types.html'
-
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            RelationType.objects.filter(
-                is_custom=False,
-                pk__contains='-subject_',
-            ),
-            custom=False,
-        ))
 
 
-class CustomRelationTypesBrick(_ConfigAdminBrick):
-    id_ = _ConfigAdminBrick.generate_id('creme_config', 'custom_relation_types')
+class CustomRelationTypesBrick(_RelationTypesBrick):
+    id_ = _RelationTypesBrick.generate_id('creme_config', 'custom_relation_types')
     verbose_name = _('Custom types of relation')
-    dependencies = (RelationType,)
-    template_name = 'creme_config/bricks/relation-types.html'
 
-    def detailview_display(self, context):
-        return self._render(self.get_template_context(
-            context,
-            RelationType.objects.filter(
-                is_custom=True,
-                pk__contains='-subject_',
-            ),
-            custom=True,
-        ))
+    custom_types = True
 
 
 class SemiFixedRelationTypesBrick(_ConfigAdminBrick):

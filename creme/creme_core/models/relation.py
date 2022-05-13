@@ -77,12 +77,16 @@ class RelationTypeManager(models.Manager):
         @param subject_desc: Tuple describing the subject RelationType instance
                (
                 string_pk, predicate_string
-                [, sequence_of_cremeEntityClasses [, sequence_of_propertyTypes]]
+                [, sequence_of_cremeEntityClasses
+                  [, sequence_of_propertyTypes [, 2nd_sequence_of_propertyTypes]]
+                ]
                )
                'string_pk' is used as ID value (or it's prefix -- see generate_pk).
                'predicate_string' is used as <RelationType.predicate>.
                'sequence_of_cremeEntityClasses' is used to fill <RelationType.subject_ctypes>.
                'sequence_of_propertyTypes' is used to fill <RelationType.subject_properties>.
+               '2nd_sequence_of_propertyTypes' is used to fill
+                <RelationType.subject_forbidden_properties>.
         @param object_desc: Tuple describing the object RelationType instance ;
                see 'subject_desc'.
         @param generate_pk: If True, 'string_pk' args are used as prefix to
@@ -96,8 +100,8 @@ class RelationTypeManager(models.Manager):
         @param minimal_display: Values of <RelationType.minimal_display> in the
                created instances.
         """
-        # In case sequence_of_cremeEntityClasses or sequence_of_propertyType not given.
-        padding = ((), ())
+        # In case sequence_of_cremeEntityClasses, sequence_of_propertyType... not given.
+        padding = ((), (), ())
 
         subject_desc += padding
         object_desc  += padding
@@ -152,27 +156,19 @@ class RelationTypeManager(models.Manager):
         sub_relation_type.symmetric_type = obj_relation_type
         obj_relation_type.symmetric_type = sub_relation_type
 
-        # Delete old m2m (TODO: just remove useless ones ???)
-        for rt in (sub_relation_type, obj_relation_type):
-            rt.subject_ctypes.clear()
-            rt.subject_properties.clear()
-
-        get_ct = ContentType.objects.get_for_model
-
-        for subject_ctype in subject_desc[2]:
-            sub_relation_type.subject_ctypes.add(get_ct(subject_ctype))
-
-        for object_ctype in object_desc[2]:
-            obj_relation_type.subject_ctypes.add(get_ct(object_ctype))
-
-        for subject_prop in subject_desc[3]:
-            sub_relation_type.subject_properties.add(subject_prop)
-
-        for object_prop in object_desc[3]:
-            obj_relation_type.subject_properties.add(object_prop)
-
         sub_relation_type.save()
         obj_relation_type.save()
+
+        # Many-to-Many fields ----------
+        get_ct = ContentType.objects.get_for_model
+        sub_relation_type.subject_ctypes.set(map(get_ct, subject_desc[2]))
+        obj_relation_type.subject_ctypes.set(map(get_ct, object_desc[2]))
+
+        sub_relation_type.subject_properties.set(subject_desc[3])
+        obj_relation_type.subject_properties.set(object_desc[3])
+
+        sub_relation_type.subject_forbidden_properties.set(subject_desc[4])
+        obj_relation_type.subject_forbidden_properties.set(object_desc[4])
 
         return sub_relation_type, obj_relation_type
 
@@ -181,7 +177,7 @@ class RelationManager(models.Manager):
     def safe_create(self, **kwargs) -> None:
         """Create a Relation in DB by taking care of the UNIQUE constraint
         of Relation.
-        Notice that, unlike 'create()' it always return None (to avoid a
+        Notice that, unlike 'create()' it always returns None (to avoid a
         query in case of IntegrityError) ; use 'safe_get_or_create()' if
         you need the Relation instance.
         @param kwargs: same as 'create()'.
@@ -317,6 +313,9 @@ class RelationType(CremeModel):
     )
     subject_properties = models.ManyToManyField(
         CremePropertyType, blank=True, related_name='relationtype_subjects_set',
+    )
+    subject_forbidden_properties = models.ManyToManyField(
+        CremePropertyType, blank=True, related_name='relationtype_forbidden_set',
     )
 
     # If True, the relations with this type cannot be created/deleted directly by the users.
@@ -460,6 +459,10 @@ class RelationType(CremeModel):
     @property
     def object_properties(self):
         return self.symmetric_type.subject_properties
+
+    @property
+    def object_forbidden_properties(self):
+        return self.symmetric_type.subject_forbidden_properties
 
 
 class Relation(CremeModel):

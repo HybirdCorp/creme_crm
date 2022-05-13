@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 16:14+0200\n"
+"POT-Creation-Date: 2022-05-23 11:45+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -770,6 +770,22 @@ msgstr ""
 "Ces propriétés sont obligatoires pour pouvoir utiliser la relation "
 "«%(predicate)s» : %(properties)s"
 
+#, python-format
+msgid ""
+"The property «%(property)s» is forbidden in order to use the relationship "
+"«%(predicate)s»"
+msgstr ""
+"La propriété «%(property)s» est interdite pour pouvoir utiliser la "
+"relation «%(predicate)s»"
+
+#, python-format
+msgid ""
+"These properties are forbidden in order to use the relationship "
+"«%(predicate)s»: %(properties)s"
+msgstr ""
+"Ces propriétés sont interdites pour pouvoir utiliser la relation "
+"«%(predicate)s» : %(properties)s"
+
 msgid "You are not allowed to link the created entity (wrong owner?)."
 msgstr ""
 "Vous n'êtes pas autorisé à relier la fiche créée (mauvais propriétaire ?)"
@@ -949,12 +965,37 @@ msgstr ""
 "Ce type de ressource provoque une erreur de contrainte avec le type de "
 "relation (id=\"%(ctype_id)s\")."
 
+#, python-format
 msgid ""
-"This entity has no property that matches the constraints of the type of "
-"relationship."
+"This entity has no property «%(property)s» which is required by the "
+"relationship «%(predicate)s»."
 msgstr ""
-"Cette fiche n'a aucune propriété qui convient avec les contrainte de type de "
-"relation"
+"Cette fiche n'a pas la propriété «%(property)s» qui est obligatoire pour la "
+"relation «%(predicate)s»"
+
+#, python-format
+msgid ""
+"This entity has the property «%(property)s» which is forbidden by the "
+"relationship «%(predicate)s»."
+msgstr ""
+"Cette fiche a la propriété «%(property)s» qui est interdite par la "
+"relation «%(predicate)s»"
+
+#, python-format
+msgid ""
+"The entity «%(entity)s» has no property «%(property)s» which is required by "
+"the relationship «%(predicate)s»."
+msgstr ""
+"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
+"pour la relation «%(predicate)s»"
+
+#, python-format
+msgid ""
+"The entity «%(entity)s» has the property «%(property)s» which is forbidden "
+"by the relationship «%(predicate)s»."
+msgstr ""
+"La fiche «{entity}» a la propriété «%(property)s» qui est interdite "
+"par la relation «%(predicate)s»"
 
 msgid "Enter a value if you check the box."
 msgstr "Entrez une valeur si vous cochez la case."
@@ -1278,11 +1319,27 @@ msgstr ""
 
 #, python-brace-format
 msgid ""
+"The entity has the property «{property}» which is forbidden by the "
+"relationship «{predicate}»"
+msgstr ""
+"La fiche n'a pas la propriété «{property}» qui est interdite par la "
+"relation «{predicate}»"
+
+#, python-brace-format
+msgid ""
 "The entity «{entity}» has no property «{property}» which is mandatory for "
 "the relationship «{predicate}»"
 msgstr ""
-"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
-"pour la relation «%(predicate)s»"
+"La fiche «{entity}» n'a pas la propriété «{property}» qui est obligatoire "
+"pour la relation «{predicate}»"
+
+#, python-brace-format
+msgid ""
+"The entity «{entity}» has the property «{property}» which is forbidden by "
+"the relationship «{predicate}»"
+msgstr ""
+"La fiche «{entity}» a la propriété «{property}» qui est interdite "
+"par la relation «%(predicate)s»"
 
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
@@ -1329,6 +1386,14 @@ msgid ""
 msgstr ""
 "«%(subject)s» doit avoir une propriété parmi «%(properties)s» pour pouvoir "
 "utiliser la relation «%(predicate)s»"
+
+#, python-format
+msgid ""
+"«%(subject)s» cannot have the property «%(property)s» in order to use the "
+"relationship «%(predicate)s»"
+msgstr ""
+"«%(subject)s» ne doit pas avoir la propriété «%(property)s» pour pouvoir utiliser "
+"la relation «%(predicate)s»"
 
 msgid "Unlinkable entities"
 msgstr "Fiches non reliables"
@@ -3693,6 +3758,17 @@ msgstr[0] ""
 msgstr[1] ""
 "Ce type de relation nécessite une fiche avec ces propriétés : {properties}."
 
+#, python-brace-format
+msgid ""
+"This type of relationship refuses entities with this property: {properties}."
+msgid_plural ""
+"This type of relationship refuses entities with these properties: "
+"{properties}."
+msgstr[0] ""
+"Ce type de relation refuse les fiches avec cette propriété : {properties}."
+msgstr[1] ""
+"Ce type de relation refuse les fiches avec ces propriétés : {properties}."
+
 msgid "Multiple adding of relationships"
 msgstr "Ajout multiple de relations"
 
@@ -3701,6 +3777,9 @@ msgstr "Type incompatible pour la fiche objet avec l'id={}"
 
 msgid "Missing compatible property for object entity with id={}"
 msgstr "Il manque une propriété compatible pour la fiche objet avec l'id={}"
+
+msgid "Forbidden property for object entity with id={}"
+msgstr "Propriété interdite pour la fiche objet avec l'id={}"
 
 msgid "Permission denied to entity with id={}"
 msgstr "Permission refusée pour la fiche avec l'id={}"
@@ -3711,6 +3790,13 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid ""
+#~ "This entity has no property that matches the constraints of the type of "
+#~ "relationship."
+#~ msgstr ""
+#~ "Cette fiche n'a aucune propriété qui convient avec les contrainte de type "
+#~ "de relation"
 
 #~ msgid "Execute all reminders"
 #~ msgstr "Exécuter tous les mémentos"

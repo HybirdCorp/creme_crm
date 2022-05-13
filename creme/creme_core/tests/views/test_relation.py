@@ -43,8 +43,11 @@ class RelationViewsTestCase(ViewsTestCase):
         return reverse('creme_core__create_relations', args=(subject.id,))
 
     @staticmethod
-    def _build_bulk_add_url(ct_id, *subjects, **kwargs):
-        url = reverse('creme_core__create_relations_bulk', args=(ct_id,))
+    def _build_bulk_add_url(model, *subjects, **kwargs):
+        url = reverse(
+            'creme_core__create_relations_bulk',
+            args=(ContentType.objects.get_for_model(model).id,),
+        )
 
         if kwargs.get('GET', False):
             url += '?' + '&'.join(f'ids={e.id}' for e in subjects)
@@ -159,40 +162,59 @@ class RelationViewsTestCase(ViewsTestCase):
             data={'fields': ['id', 'unicode']},
         )
 
-    def _aux_test_add_relations(self, is_superuser=True):
-        user = self.login(is_superuser)
+    def _create_contact(self):
+        return FakeContact.objects.create(
+            user=self.user, first_name='Laharl', last_name='Overlord',
+        )
 
-        create_contact = partial(FakeContact.objects.create, user=user)
-        self.subject01 = create_contact(first_name='Laharl', last_name='Overlord')
-        self.subject02 = create_contact(first_name='Etna',   last_name='Devil')
+    def _create_contacts(self):
+        create_contact = partial(FakeContact.objects.create, user=self.user)
+        return (
+            create_contact(first_name='Laharl', last_name='Overlord'),
+            create_contact(first_name='Etna',   last_name='Devil'),
+        )
 
-        create_orga = partial(FakeOrganisation.objects.create, user=user)
-        self.object01 = create_orga(name='orga01')
-        self.object02 = create_orga(name='orga02')
+    def _create_organisation(self):
+        return FakeOrganisation.objects.create(user=self.user, name='Underworld')
 
-        self.ct_id = ContentType.objects.get_for_model(CremeEntity).id
+    def _create_organisations(self):
+        create_orga = partial(FakeOrganisation.objects.create, user=self.user)
+        return (
+            create_orga(name='Underworld'),
+            create_orga(name='Heaven'),
+        )
 
+    def _create_rtype(self):
+        return RelationType.objects.smart_update_or_create(
+            ('test-subject_loves', 'is loving'),
+            ('test-object_loves',  'is loved by'),
+        )[0]
+
+    def _create_rtypes(self):
         create_rtype = RelationType.objects.smart_update_or_create
-        self.rtype01 = create_rtype(
-            ('test-subject_foobar1', 'is loving'),
-            ('test-object_foobar1',  'is loved by'),
-        )[0]
-        self.rtype02 = create_rtype(
-            ('test-subject_foobar2', 'is hating'),
-            ('test-object_foobar2',  'is hated by'),
-        )[0]
+        return (
+            create_rtype(
+                ('test-subject_loves', 'is loving'),
+                ('test-object_loves',  'is loved by'),
+            )[0],
+            create_rtype(
+                ('test-subject_hates', 'is hating'),
+                ('test-object_hates',  'is hated by'),
+            )[0],
+        )
 
-    def test_add_relations01(self):
-        self._aux_test_add_relations()
+    def test_add_relations(self):
+        self.login()
 
-        rtype03 = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar3', 'is disabled'),
-            ('test-object_foobar3',  'whatever'),
+        rtype1, rtype2 = self._create_rtypes()
+        rtype3 = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'is disabled'),
+            ('test-object_disabled',  'whatever'),
         )[0]
-        rtype03.enabled = False
-        rtype03.save()
+        rtype3.enabled = False
+        rtype3.save()
 
-        subject = self.subject01
+        subject = self._create_contact()
         self.assertFalse(subject.relations.all())
 
         url = self._build_add_url(subject)
@@ -210,26 +232,25 @@ class RelationViewsTestCase(ViewsTestCase):
             relations_f = context['form'].fields['relations']
 
         rtype_ids = {*relations_f.allowed_rtypes.values_list('id', flat=True)}
-        rtype01 = self.rtype01
-        rtype02 = self.rtype02
-        self.assertIn(rtype01.id, rtype_ids)
-        self.assertIn(rtype02.id, rtype_ids)
-        self.assertNotIn(rtype03.id, rtype_ids)
+        self.assertIn(rtype1.id, rtype_ids)
+        self.assertIn(rtype2.id, rtype_ids)
+        self.assertNotIn(rtype3.id, rtype_ids)
 
         # ---
+        object1, object2 = self._create_organisations()
         response2 = self.client.post(
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (rtype01.id, self.object01),
-                    (rtype02.id, self.object02),
+                    (rtype1.id, object1),
+                    (rtype2.id, object2),
                 ),
             },
         )
         self.assertNoFormError(response2)
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, rtype01, self.object01)
-        self.assertEntiTyHasRelation(subject, rtype02, self.object02)
+        self.assertEntiTyHasRelation(subject, rtype1, object1)
+        self.assertEntiTyHasRelation(subject, rtype2, object2)
 
     def test_add_relations_not_superuser01(self):
         user = self.login(is_superuser=False)
@@ -243,21 +264,24 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = CremeEntity.objects.create(user=self.other_user)
         self.assertGET403(self._build_add_url(subject))
 
-    def test_add_relations03(self):
+    def test_add_relations_link_perm(self):
         "Credentials problems (no link credentials)."
-        self._aux_test_add_relations(is_superuser=False)
+        self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
 
+        subject = self._create_contact()
         unlinkable = CremeEntity.objects.create(user=self.other_user)
         self.assertTrue(self.user.has_perm_to_view(unlinkable))
         self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
+        rtype1, rtype2 = self._create_rtypes()
+        linkable = self._create_organisation()
         response = self.client.post(
-            self._build_add_url(self.subject01),
+            self._build_add_url(subject),
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, self.object01),
-                    (self.rtype02.id, unlinkable),
+                    (rtype1.id, linkable),
+                    (rtype2.id, unlinkable),
                 ),
             },
         )
@@ -265,61 +289,68 @@ class RelationViewsTestCase(ViewsTestCase):
             response, 'form', 'relations',
             _('Some entities are not linkable: {}').format(unlinkable),
         )
-        self.assertEqual(0, self.subject01.relations.count())
+        self.assertFalse(subject.relations.all())
 
-    def test_add_relations04(self):
+    def test_add_relations_duplicates01(self):
         "Duplicates -> error."
-        self._aux_test_add_relations()
+        self.login()
 
+        subject = self._create_contact()
+        rtype1, rtype2 = self._create_rtypes()
+        object1, object2 = self._create_organisations()
         response = self.client.post(
-            self._build_add_url(self.subject01),
+            self._build_add_url(subject),
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, self.object01),
-                    (self.rtype02.id, self.object02),
-                    (self.rtype01.id, self.object01),
+                    (rtype1.id, object1),
+                    (rtype2.id, object2),
+                    (rtype1.id, object1),
                 ),
             },
         )
         self.assertFormError(
             response, 'form', 'relations',
             _('There are duplicates: %(duplicates)s') % {
-                'duplicates': f'({self.rtype01}, {self.object01})',
+                'duplicates': f'({rtype1}, {object1})',
             },
         )
 
-    def test_add_relations05(self):
+    def test_add_relations_duplicates02(self):
         "Do not recreate existing relationships."
-        self._aux_test_add_relations()
+        user = self.login()
+        subject = self._create_contact()
+        rtype1, rtype2 = self._create_rtypes()
+        object1, object2 = self._create_organisations()
 
         Relation.objects.create(
-            user=self.user,
-            subject_entity=self.subject01,
-            type=self.rtype02,
-            object_entity=self.object02,
+            user=user,
+            subject_entity=subject,
+            type=rtype2,
+            object_entity=object2,
         )
-        response = self.client.post(
-            self._build_add_url(self.subject01),
-            data={
-                'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, self.object01),
-                    (self.rtype02.id, self.object02),
-                ),
-            },
-        )
-        self.assertNoFormError(response)
-        self.assertEqual(2, self.subject01.relations.count())  # Not 3
-
-    def test_add_relations06(self):
-        "Cannot link an entity to itself."
-        self._aux_test_add_relations()
-
-        subject = self.subject01
         response = self.client.post(
             self._build_add_url(subject),
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [self.rtype01.id, subject],
+                    (rtype1.id, object1),
+                    (rtype2.id, object2),
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(2, subject.relations.count())  # Not 3
+
+    def test_add_relations_circular(self):
+        "Cannot link an entity to itself."
+        self.login()
+
+        subject = self._create_contact()
+        rtype = self._create_rtype()
+        response = self.client.post(
+            self._build_add_url(subject),
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    [rtype.id, subject],
                 ),
             },
         )
@@ -330,87 +361,223 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
-    def test_add_relations07(self):
+    def test_add_relations_property_constraints01(self):
         "CremeProperty constraints on subject."
-        self._aux_test_add_relations()
+        self.login()
 
-        subject = self.subject01
+        subject = self._create_contact()
+        object1 = self._create_organisation()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
-        ptype03 = create_ptype(str_pk='test-prop_foobar03', text='Is smart')
+        ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
 
-        # NB: not ptype03
+        # NB: not ptype3
         create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
-        create_prop(type=ptype01)
-        create_prop(type=ptype02)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
 
         # Constraint KO & OK
         create_rtype = RelationType.objects.smart_update_or_create
-        rtype03 = create_rtype(
-            ('test-subject_foobar3', 'rules', [FakeContact], [ptype01, ptype03]),
-            ('test-object_foobar3',  'is ruled by'),
+        rtype1 = create_rtype(
+            ('test-subject_teaches', 'teaches', [FakeContact], [ptype3]),
+            ('test-object_teaches', 'is taught by'),
         )[0]
-        rtype04 = create_rtype(
-            ('test-subject_foobar4', 'is the hero of', [FakeContact], [ptype02]),
-            ('test-object_foobar4',  'has a hero which is'),
+        rtype2 = create_rtype(
+            ('test-subject_rules', 'rules', [FakeContact], [ptype1, ptype3]),
+            ('test-object_rules',  'is ruled by'),
+        )[0]
+        rtype3 = create_rtype(
+            ('test-subject_hero', 'is the hero of', [FakeContact], [ptype2]),
+            ('test-object_hero',  'has a hero which is'),
         )[0]
 
         url = self._build_add_url(subject)
-        response = self.assertPOST200(
+
+        # 1 Property needed
+        response1 = self.assertPOST200(
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [rtype03.id, self.object01],
+                    [rtype1.id, object1],
                 ),
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('«%(subject)s» must have a property in «%(properties)s» '
+            response1, 'form', 'relations',
+            _('«%(subject)s» must have the property «%(property)s» '
               'in order to use the relationship «%(predicate)s»') % {
-                'subject':    subject,
-                'properties': f'{ptype03}/{ptype01}',
-                'predicate':  rtype03.predicate,
+                'subject': subject,
+                'property': ptype3,
+                'predicate': rtype1.predicate,
             },
         )
 
-        response = self.client.post(
+        # 2 Properties needed
+        response2 = self.assertPOST200(
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [rtype04.id, self.object01],
+                    [rtype2.id, object1],
                 ),
             },
         )
-        self.assertNoFormError(response)
+        self.assertFormError(
+            response2, 'form', 'relations',
+            _('«%(subject)s» must have a property in «%(properties)s» '
+              'in order to use the relationship «%(predicate)s»') % {
+                'subject':    subject,
+                'properties': f'{ptype3}/{ptype1}',
+                'predicate':  rtype2.predicate,
+            },
+        )
+
+        # OK ---
+        response3 = self.client.post(
+            url,
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    [rtype3.id, object1],
+                ),
+            },
+        )
+        self.assertNoFormError(response3)
         self.assertEqual(1, subject.relations.count())
 
-    def test_add_relations08(self):
-        "'exclude' parameter."
-        self._aux_test_add_relations()
+    def test_add_relations_property_constraints02(self):
+        "CremeProperty constraints on subject (forbidden types)."
+        self.login()
 
-        rtype01 = self.rtype01
+        subject = self._create_contact()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_cool', text='Is cool')
+        ptype2 = create_ptype(str_pk='test-prop_weak', text='Is weak')
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        # Constraint KO & OK
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('test-subject_foobar3', 'rules', [FakeContact], [ptype1], [ptype2]),
+            ('test-object_foobar3',  'is ruled by'),
+        )[0]
+        rtype2 = create_rtype(
+            ('test-subject_foobar5', 'is the hero of', [FakeContact], [ptype1]),
+            ('test-object_foobar5',  'has a hero which is'),
+        )[0]
+
+        url = self._build_add_url(subject)
+
+        # A forbidden Property is used
+        object1 = self._create_organisation()
+        response1 = self.assertPOST200(
+            url,
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    [rtype1.id, object1],
+                ),
+            },
+        )
+        self.assertFormError(
+            response1, 'form', 'relations',
+            _('«%(subject)s» cannot have the property «%(property)s» '
+              'in order to use the relationship «%(predicate)s»') % {
+                'subject': subject,
+                'property': ptype2,
+                'predicate': rtype1.predicate,
+            },
+        )
+
+        # OK ---
+        response2 = self.client.post(
+            url,
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    [rtype2.id, object1],
+                ),
+            },
+        )
+        self.assertNoFormError(response2)
+        self.assertEqual(1, subject.relations.count())
+
+    def test_add_relations_property_constraints03(self):
+        "CremeProperty constraints on objects."
+        self.login()
+
+        subject = self._create_organisation()
+        rel_object = self._create_contact()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        # NB: not ptype3
+        create_prop = partial(CremeProperty.objects.create, creme_entity=rel_object)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        # Constraint KO & OK
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_ruled', 'is ruled by'),
+            ('test-object_ruled',  'rules', [FakeContact], [ptype1, ptype3]),
+        )[0]
+
+        url = self._build_add_url(subject)
+
+        # Invalid object
+        data = {
+            'relations': self.formfield_value_multi_relation_entity(
+                [rtype.id, rel_object],
+            ),
+        }
+        response1 = self.assertPOST200(url, data=data)
+        self.assertFormError(
+            response1, 'form', 'relations',
+            _('The entity «%(entity)s» has no property «%(property)s» which is '
+              'required by the relationship «%(predicate)s».') % {
+                'entity': rel_object,
+                'property': ptype3,
+                'predicate': rtype.predicate,
+            },
+        )
+
+        # OK ---
+        create_prop(type=ptype3)
+        self.assertNoFormError(self.client.post(url, data=data))
+        self.assertEqual(1, subject.relations.count())
+
+    def test_add_relations_exclude(self):
+        "'exclude' parameter."
+        self.login()
+
+        subject = self._create_contact()
+        rtype1, rtype2 = self._create_rtypes()
         response = self.client.get(
-            self._build_add_url(self.subject01), data={'exclude': [rtype01.id]},
+            self._build_add_url(subject), data={'exclude': [rtype1.id]},
         )
 
         with self.assertNoException():
             rtypes = response.context['form'].fields['relations'].allowed_rtypes
 
-        self.assertIn(self.rtype02, rtypes)
-        self.assertNotIn(rtype01, rtypes)
+        self.assertIn(rtype2, rtypes)
+        self.assertNotIn(rtype1, rtypes)
 
     def test_add_relations_with_semi_fixed01(self):
         "Only semi fixed."
-        self._aux_test_add_relations()
+        self.login()
 
-        subject = self.subject01
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
+        rtype1, rtype2 = self._create_rtypes()
 
         # Constraint OK & KO
         create_rtype = RelationType.objects.smart_update_or_create
-        rtype03 = create_rtype(
+        rtype3 = create_rtype(
             ('test-subject_foobar3', 'is hating orga',     [FakeContact]),
             ('test-object_foobar3',  '(orga) is hated by', [FakeOrganisation]),
         )[0]
@@ -421,33 +588,29 @@ class RelationViewsTestCase(ViewsTestCase):
         )[0]
         disabled_rtype = create_rtype(
             ('test-subject_disabled', 'disabled'),
-            ('test-object_disabled',  'what  ever'),
+            ('test-object_disabled',  'what ever'),
         )[0]
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
-            predicate='Related to "object01"',
-            # relation_type=self.rtype01, object_entity=self.object01,
-            relation_type=self.rtype01, real_object=self.object01,
+            predicate='Related to "object1"',
+            relation_type=rtype1, real_object=object1,
         )
         sfrt2 = create_sfrt(
-            predicate='Related to "object02"',
-            # relation_type=self.rtype02, object_entity=self.object02,
-            relation_type=self.rtype02, real_object=self.object02,
+            predicate='Related to "object2"',
+            relation_type=rtype2, real_object=object2,
         )
         sfrt3 = create_sfrt(
-            predicate='Linked to "object02"',
-            # relation_type=rtype03, object_entity=self.object02,
-            relation_type=rtype03, real_object=self.object02,
+            predicate='Linked to "object2"',
+            relation_type=rtype3, real_object=object2,
         )
         create_sfrt(
-            predicate='Linked to "object01"',
-            # relation_type=incompatible_rtype, object_entity=self.object01,
-            relation_type=incompatible_rtype, real_object=self.object01,
+            predicate='Linked to "object1"',
+            relation_type=incompatible_rtype, real_object=object1,
         )  # Should not be proposed
         create_sfrt(
-            predicate='Related to "object01" but disabled',
-            relation_type=disabled_rtype, real_object=self.object01,
+            predicate='Related to "object1" but disabled',
+            relation_type=disabled_rtype, real_object=object1,
         )  # Should not be proposed
 
         disabled_rtype.enabled = False
@@ -471,33 +634,32 @@ class RelationViewsTestCase(ViewsTestCase):
             self.client.post(url, data={'semifixed_rtypes': [sfrt1.id, sfrt2.id]})
         )
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, self.rtype01, self.object01)
-        self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
+        self.assertEntiTyHasRelation(subject, rtype1, object1)
+        self.assertEntiTyHasRelation(subject, rtype2, object2)
 
     def test_add_relations_with_semi_fixed02(self):
         "Semi-fixed & not semi-fixed."
-        self._aux_test_add_relations()
+        self.login()
 
-        subject = self.subject01
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
+        rtype1, rtype2 = self._create_rtypes()
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
-            predicate='Related to "object01"',
-            relation_type=self.rtype01,
-            # object_entity=self.object01,
-            real_object=self.object01,
+            predicate='Related to "object1"',
+            relation_type=rtype1,
+            real_object=object1,
         )
         sfrt2 = create_sfrt(
             predicate='Related to "object02"',
-            relation_type=self.rtype02,
-            # object_entity=self.object02,
-            real_object=self.object02,
+            relation_type=rtype2,
+            real_object=object2,
         )
         create_sfrt(
-            predicate='Related to "subject01"',
-            relation_type=self.rtype02,
-            # object_entity=self.subject01,
-            real_object=self.subject01,
+            predicate='Related to "subject1"',
+            relation_type=rtype2,
+            real_object=subject,
         )  # Should not be proposed
 
         url = self._build_add_url(subject)
@@ -513,49 +675,50 @@ class RelationViewsTestCase(ViewsTestCase):
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [self.rtype01.id, self.object01],
+                    [rtype1.id, object1],
                 ),
                 'semifixed_rtypes': [sfrt2.id],
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, self.rtype01, self.object01)
-        self.assertEntiTyHasRelation(subject, self.rtype02, self.object02)
+        self.assertEntiTyHasRelation(subject, rtype1, object1)
+        self.assertEntiTyHasRelation(subject, rtype2, object2)
 
-    def test_add_relations_with_semi_fixed03(self):
+    def test_add_relations_with_semi_fixed_empty(self):
         "One relationship at least (semi-fixed or not semi-fixed)."
-        self._aux_test_add_relations()
+        self.login()
 
-        response = self.assertPOST200(self._build_add_url(self.subject01))
+        subject = self._create_contact()
+        response = self.assertPOST200(self._build_add_url(subject))
         self.assertFormError(
             response, 'form', None,
             _('You must give one relationship at least.'),
         )
 
-    def test_add_relations_with_semi_fixed04(self):
+    def test_add_relations_with_semi_fixed_duplicates(self):
         "Collision fixed / not fixed."
-        self._aux_test_add_relations()
+        self.login()
 
-        subject = self.subject01
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
+        rtype1, rtype2 = self._create_rtypes()
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
-            predicate='Related to "object01"',
-            # relation_type=self.rtype01, object_entity=self.object01,
-            relation_type=self.rtype01, real_object=self.object01,
+            predicate='Related to "object1"',
+            relation_type=rtype1, real_object=object1,
         )
         sfrt2 = create_sfrt(
-            predicate='Related to "object02"',
-            # relation_type=self.rtype02, object_entity=self.object02,
-            relation_type=self.rtype02, real_object=self.object02,
+            predicate='Related to "object2"',
+            relation_type=rtype2, real_object=object2,
         )
 
         response = self.client.post(
             self._build_add_url(subject),
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [self.rtype01.id, self.object01],
+                    [rtype1.id, object1],
                 ),
                 'semifixed_rtypes': [sfrt1.id, sfrt2.id],
             },
@@ -563,71 +726,71 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertFormError(
             response, 'form', None,
             _('There are duplicates: %(duplicates)s') % {
-                'duplicates': f'({self.rtype01}, {self.object01})',
+                'duplicates': f'({rtype1}, {object1})',
             },
         )
 
-    def test_add_relations_with_semi_fixed05(self):
+    def test_add_relations_with_semi_fixed_link_perm(self):
         "Filter not linkable entities."
-        self._aux_test_add_relations(is_superuser=False)
+        self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
 
+        subject = self._create_contact()
+        rtype1, rtype2 = self._create_rtypes()
         unlinkable = CremeEntity.objects.create(user=self.other_user)
+        object2 = self._create_organisation()
 
         create_sfrt = SemiFixedRelationType.objects.create
         create_sfrt(
             predicate='Related to "unlinkable"',
-            relation_type=self.rtype01,
-            # object_entity=unlinkable,  # <===
+            relation_type=rtype1,
             real_object=unlinkable,  # <===
         )
         sfrt2 = create_sfrt(
-            predicate='Related to "object02"',
-            relation_type=self.rtype02,
-            # object_entity=self.object02,
-            real_object=self.object02,
+            predicate='Related to "object2"',
+            relation_type=rtype2,
+            real_object=object2,
         )
 
-        response = self.assertGET200(self._build_add_url(self.subject01))
+        response = self.assertGET200(self._build_add_url(subject))
 
         with self.assertNoException():
             sfrt_field = response.context['form'].fields['semifixed_rtypes']
 
         self.assertListEqual([(sfrt2.id, sfrt2.predicate)], [*sfrt_field.choices])
 
-    def test_add_relations_with_semi_fixed06(self):
+    def test_add_relations_with_semi_fixed_property_constraints01(self):
         "CremeProperty constraints on subject."
-        self._aux_test_add_relations()
+        self.login()
 
-        subject = self.subject01
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype01 = create_ptype(str_pk='test-prop_foobar01', text='Is strong')
-        ptype02 = create_ptype(str_pk='test-prop_foobar02', text='Is cool')
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cool', text='Is cool')
 
-        CremeProperty.objects.create(type=ptype02, creme_entity=subject)
+        CremeProperty.objects.create(type=ptype2, creme_entity=subject)
 
         # Constraint OK & KO
         create_rtype = RelationType.objects.smart_update_or_create
-        rtype03 = create_rtype(
-            ('test-subject_foobar3', 'rules', [FakeContact], [ptype01]),
-            ('test-object_foobar3',  'is ruled by'),
+        rtype1 = create_rtype(
+            ('test-subject_rules', 'rules', [FakeContact], [ptype1]),
+            ('test-object_rules',  'is ruled by'),
         )[0]
-        rtype04 = create_rtype(
-            ('test-subject_foobar4', 'is the hero of', [FakeContact], [ptype02]),
-            ('test-object_foobar4',  'has a hero which is'),
+        rtype2 = create_rtype(
+            ('test-subject_hero', 'is the hero of', [FakeContact], [ptype2]),
+            ('test-object_hero',  'has a hero which is'),
         )[0]
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
-            predicate='Rules "object01"',
-            # relation_type=rtype03, object_entity=self.object01,
-            relation_type=rtype03, real_object=self.object01,
+            predicate='Rules "object1"',
+            relation_type=rtype1, real_object=object1,
         )
         sfrt2 = create_sfrt(
-            predicate='Is the hero of "object02"',
-            # relation_type=rtype04, object_entity=self.object02,
-            relation_type=rtype04, real_object=self.object02,
+            predicate='Is the hero of "object2"',
+            relation_type=rtype2, real_object=object2,
         )
 
         url = self._build_add_url(subject)
@@ -637,8 +800,8 @@ class RelationViewsTestCase(ViewsTestCase):
             _('«%(subject)s» must have the property «%(property)s» '
               'in order to use the relationship «%(predicate)s»') % {
                 'subject':    subject,
-                'property':   ptype01,
-                'predicate':  rtype03.predicate,
+                'property':   ptype1,
+                'predicate':  rtype1.predicate,
             },
         )
 
@@ -646,11 +809,60 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertNoFormError(response)
         self.assertEqual(1, subject.relations.count())
 
-    def test_add_relations_narrowedtype01(self):
-        self._aux_test_add_relations()
+    def test_add_relations_with_semi_fixed_property_constraints02(self):
+        "CremeProperty constraints on subject (forbidden types)."
+        self.login()
 
-        rtype = self.rtype01
-        subject = self.subject01
+        subject1, subject2 = self._create_contacts()
+        object1 = self._create_organisation()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_weak',   text='Is weak')
+        ptype2 = create_ptype(str_pk='test-prop_string', text='Is strong')
+
+        create_prop = CremeProperty.objects.create
+        create_prop(type=ptype1, creme_entity=subject1)
+        create_prop(type=ptype2, creme_entity=subject2)
+
+        # Constraint OK & KO
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_rules', 'rules', [FakeContact], [], [ptype1]),
+            ('test-object_rules',  'is ruled by'),
+        )[0]
+
+        sfrt = SemiFixedRelationType.objects.create(
+            predicate='Rules "object1"',
+            relation_type=rtype, real_object=object1,
+        )
+
+        response1 = self.assertPOST200(
+            self._build_add_url(subject1),
+            data={'semifixed_rtypes': [sfrt.id]},
+        )
+        self.assertFormError(
+            response1, 'form', 'semifixed_rtypes',
+            _('«%(subject)s» cannot have the property «%(property)s» '
+              'in order to use the relationship «%(predicate)s»') % {
+                'subject':    subject1,
+                'property':   ptype1,
+                'predicate':  rtype.predicate,
+            },
+        )
+
+        # OK ---
+        self.assertNoFormError(self.client.post(
+            self._build_add_url(subject2),
+            data={'semifixed_rtypes': [sfrt.id]},
+        ))
+        self.assertEqual(1, subject2.relations.count())
+
+    def test_add_relations_narrowedtype01(self):
+        self.login()
+
+        rtype = self._create_rtype()
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
+
         url = self._build_narrowed_add_url(subject, rtype)
         self.assertGET200(url)
 
@@ -658,27 +870,31 @@ class RelationViewsTestCase(ViewsTestCase):
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (rtype.id, self.object01),
-                    (rtype.id, self.object02),
+                    (rtype.id, object1),
+                    (rtype.id, object2),
                 ),
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, rtype, self.object01)
-        self.assertEntiTyHasRelation(subject, rtype, self.object02)
+        self.assertEntiTyHasRelation(subject, rtype, object1)
+        self.assertEntiTyHasRelation(subject, rtype, object2)
 
     def test_add_relations_narrowedtype02(self):
         "Validation error."
-        self._aux_test_add_relations()
+        self.login()
+
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
+        rtype1, rtype2 = self._create_rtypes()
 
         response = self.client.post(
-            self._build_narrowed_add_url(self.subject01, self.rtype01),
+            self._build_narrowed_add_url(subject, rtype1),
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, self.object01),
+                    (rtype1.id, object1),
                     # RelationType not allowed:
-                    (self.rtype02.id, self.object02),
+                    (rtype2.id, object2),
                 ),
             },
         )
@@ -687,27 +903,26 @@ class RelationViewsTestCase(ViewsTestCase):
             _(
                 'This type of relationship causes a constraint error '
                 '(id="%(rtype_id)s").'
-            ) % {'rtype_id': self.rtype02.id},
+            ) % {'rtype_id': rtype2.id},
         )
 
     def test_add_relations_narrowedtype03(self):
-        self._aux_test_add_relations()
+        self.login()
 
-        allowed_rtype = self.rtype01
-        subject = self.subject01
+        allowed_rtype, rtype2 = self._create_rtypes()
+        subject = self._create_contact()
+        object1, object2 = self._create_organisations()
 
         create_sfrt = SemiFixedRelationType.objects.create
         sfrt1 = create_sfrt(
-            predicate='Related to "object01"',
+            predicate=f'Related to "{object1}"',
             relation_type=allowed_rtype,
-            # object_entity=self.object01,
-            real_object=self.object01,
+            real_object=object1,
         )
         create_sfrt(
-            predicate='Related to "object02"',
-            relation_type=self.rtype02,
-            # object_entity=self.object02,
-            real_object=self.object02,
+            predicate=f'Related to "{object2}"',
+            relation_type=rtype2,
+            real_object=object2,
         )
 
         url = self._build_narrowed_add_url(subject, allowed_rtype)
@@ -721,20 +936,20 @@ class RelationViewsTestCase(ViewsTestCase):
             url,
             data={
                 'relations': self.formfield_value_multi_relation_entity(
-                    [allowed_rtype.id, self.object02],
+                    [allowed_rtype.id, object2],
                 ),
                 'semifixed_rtypes': [sfrt1.id],
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(2, subject.relations.count())
-        self.assertEntiTyHasRelation(subject, allowed_rtype, self.object01)
-        self.assertEntiTyHasRelation(subject, allowed_rtype, self.object02)
+        self.assertEntiTyHasRelation(subject, allowed_rtype, object1)
+        self.assertEntiTyHasRelation(subject, allowed_rtype, object2)
 
-    def test_add_relations_narrowedtype04(self):
+    def test_add_relations_narrowedtype_internal(self):
         "Internal type => error."
-        user = self.login()
-        subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
+        self.login()
+        subject = self._create_contact()
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
             ('test-object_foobar1',  'is loved by'),
@@ -743,78 +958,10 @@ class RelationViewsTestCase(ViewsTestCase):
         # self.assertGET404(self._build_narrowed_add_url(subject, rtype))
         self.assertGET409(self._build_narrowed_add_url(subject, rtype))
 
-    def test_add_relations_narrowedtype05(self):
-        "ContentType & CremeProperty constraints on subject."
-        user = self.login()
-
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_realm', text='Is a realm')
-        ptype2 = create_ptype(str_pk='test-prop_nasty', text='Is nasty')
-
-        subject = FakeOrganisation.objects.create(user=user, name='Netherworld')
-
-        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
-        create_prop(type=ptype1)
-        create_prop(type=ptype2)
-
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
-            ('test-object_foobar1',  'is hired by'),
-        )[0]
-        self.assertGET200(self._build_narrowed_add_url(subject, rtype))
-
-    def test_add_relations_narrowedtype06(self):
-        "Subject does not respect ContentType constraints => error."
-        user = self.login()
-        subject = FakeContact.objects.create(
-            user=user, first_name='Laharl', last_name='Overlord',
-        )
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
-            ('test-object_foobar1',  'is hired by'),
-        )[0]
-        self.assertContains(
-            self.client.get(self._build_narrowed_add_url(subject, rtype)),
-            _('This type of relationship is not compatible with «{model}».').format(
-                model='Test Contact',
-            ),
-            status_code=409,
-            html=True,
-        )
-
-    def test_add_relations_narrowedtype07(self):
-        "Subject does not respect CremeProperty constraints => error."
-        user = self.login()
-
-        create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
-        ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
-        ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
-
-        subject = FakeOrganisation.objects.create(user=user, name='Netherworld')
-
-        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
-        create_prop(type=ptype1)
-        create_prop(type=ptype3)  # Not ptype2 !
-
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
-            ('test-object_foobar1',  'is hired by'),
-        )[0]
-        self.assertContains(
-            self.client.get(self._build_narrowed_add_url(subject, rtype)),
-            ngettext(
-                'This type of relationship needs an entity with this property: {properties}.',
-                'This type of relationship needs an entity with these properties: {properties}.',
-                number=1
-            ).format(properties=ptype2),
-            status_code=409,
-        )
-
-    def test_add_relations_narrowedtype08(self):
+    def test_add_relations_narrowedtype_disabled(self):
         "Disabled type => error."
-        user = self.login()
-        subject = FakeContact.objects.create(user=user, first_name='Laharl', last_name='Overlord')
+        self.login()
+        subject = self._create_contact()
 
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar1', 'is loving'),
@@ -825,8 +972,94 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertGET409(self._build_narrowed_add_url(subject, rtype))
 
-    def test_add_relations_bulk01(self):
-        self._aux_test_add_relations()
+    def test_add_relations_narrowedtype_constraints01(self):
+        "ContentType constraints."
+        self.login()
+        subject01 = self._create_contact()
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar1', 'is hiring', [FakeOrganisation]),
+            ('test-object_foobar1',  'is hired by'),
+        )[0]
+        self.assertContains(
+            self.client.get(self._build_narrowed_add_url(subject01, rtype)),
+            _('This type of relationship is not compatible with «{model}».').format(
+                model='Test Contact',
+            ),
+            status_code=409,
+            html=True,
+        )
+
+        # OK ---
+        subject02 = self._create_organisation()
+        self.assertGET200(self._build_narrowed_add_url(subject02, rtype))
+
+    def test_add_relations_narrowedtype_constraints02(self):
+        "CremeProperty constraints."
+        self.login()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_realm',  text='Is a realm')
+        ptype2 = create_ptype(str_pk='test-prop_gentle', text='Is gentle')
+        ptype3 = create_ptype(str_pk='test-prop_nasty',  text='Is nasty')
+
+        subject = self._create_organisation()
+
+        create_prop = partial(CremeProperty.objects.create, creme_entity=subject)
+        create_prop(type=ptype1)
+        create_prop(type=ptype3)  # Not ptype2 !
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [ptype1, ptype2]),
+            ('test-object_foobar1',  'is hired by'),
+        )[0]
+        url = self._build_narrowed_add_url(subject, rtype)
+        self.assertContains(
+            self.client.get(url),
+            ngettext(
+                'This type of relationship needs an entity with this property: {properties}.',
+                'This type of relationship needs an entity with these properties: {properties}.',
+                number=1
+            ).format(properties=ptype2),
+            status_code=409,
+        )
+
+        # OK ---
+        create_prop(type=ptype2)
+        self.assertGET200(url)
+
+    def test_add_relations_narrowedtype_constraints03(self):
+        "Forbidden CremeProperty."
+        self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_nasty',  text='Is nasty',
+        )
+
+        subject = self._create_organisation()
+        CremeProperty.objects.create(creme_entity=subject, type=ptype)
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar1', 'is hiring', [FakeOrganisation], [], [ptype]),
+            ('test-object_foobar1',  'is hired by'),
+        )[0]
+        self.assertContains(
+            self.client.get(self._build_narrowed_add_url(subject, rtype)),
+            ngettext(
+                'This type of relationship refuses entities with this property: {properties}.',
+                'This type of relationship refuses entities with these properties: {properties}.',
+                number=1
+            ).format(properties=ptype),
+            status_code=409,
+        )
+
+    def _aux_test_add_relations_bulk(self):
+        self.subject01, self.subject02 = self._create_contacts()
+        self.object01, self.object02 = self._create_organisations()
+        self.rtype01, self.rtype02 = self._create_rtypes()
+
+    def test_add_relations_bulk(self):
+        self.login()
+        self._aux_test_add_relations_bulk()
 
         rtype3 = RelationType.objects.smart_update_or_create(
             ('test-subject_disabled', 'disabled'),
@@ -842,9 +1075,8 @@ class RelationViewsTestCase(ViewsTestCase):
             type=self.rtype02,
             object_entity=self.object02,
         )
-        ct_id = self.ct_id
         response1 = self.assertGET200(
-            self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
+            self._build_bulk_add_url(CremeEntity, self.subject01, self.subject02, GET=True)
         )
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
@@ -862,7 +1094,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         # ---
         response2 = self.client.post(
-            self._build_bulk_add_url(ct_id),
+            self._build_bulk_add_url(CremeEntity),
             data={
                 'entities_lbl': 'wtf',
                 'relations': self.formfield_value_multi_relation_entity(
@@ -882,24 +1114,29 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-    def test_add_relations_bulk02(self):
-        self._aux_test_add_relations(is_superuser=False)
+    def test_add_relations_bulk_view_perm(self):
+        "Ignore subjects which are not viewable."
+        user = self.login(is_superuser=False)
+        self._set_all_creds_except_one(excluded=EntityCredentials.VIEW)
+        self._aux_test_add_relations_bulk()
 
         unviewable = CremeEntity.objects.create(user=self.other_user)
-        self.assertFalse(self.user.has_perm_to_view(unviewable))
+        self.assertFalse(user.has_perm_to_view(unviewable))
 
-        ct_id = self.ct_id
-        response = self.assertGET200(
-            self._build_bulk_add_url(ct_id, self.subject01, unviewable, GET=True)
+        response1 = self.assertGET200(
+            self._build_bulk_add_url(CremeEntity, self.subject01, unviewable, GET=True)
         )
 
         with self.assertNoException():
-            label = response.context['form'].fields['bad_entities_lbl']
+            label = response1.context['form'].fields['bad_entities_lbl']
 
-        self.assertTrue(label.initial)
+        self.assertEqual(
+            _('Entity #{id} (not viewable)').format(id=unviewable.id),
+            label.initial,
+        )
 
-        response = self.client.post(
-            self._build_bulk_add_url(ct_id),
+        response2 = self.client.post(
+            self._build_bulk_add_url(CremeEntity),
             data={
                 'entities_lbl':     'do not care',
                 'bad_entities_lbl': 'do not care',
@@ -910,20 +1147,23 @@ class RelationViewsTestCase(ViewsTestCase):
                 'ids': [self.subject01.id, unviewable.id],
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.assertEqual(2, self.subject01.relations.count())
         self.assertEqual(0, unviewable.relations.count())
 
-    def test_add_relations_bulk03(self):
-        self._aux_test_add_relations(is_superuser=False)
-
+    def test_add_relations_bulk_link_perm01(self):
+        "Ignore subjects which are not linkable."
+        self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
+
+        subject = self._create_contact()
+
         unlinkable = CremeEntity.objects.create(user=self.other_user)
         self.assertTrue(self.user.has_perm_to_view(unlinkable))
         self.assertFalse(self.user.has_perm_to_link(unlinkable))
 
         response = self.assertGET200(
-            self._build_bulk_add_url(self.ct_id, self.subject01, unlinkable, GET=True),
+            self._build_bulk_add_url(CremeEntity, subject, unlinkable, GET=True),
         )
 
         with self.assertNoException():
@@ -931,22 +1171,24 @@ class RelationViewsTestCase(ViewsTestCase):
 
         self.assertEqual(str(unlinkable), label.initial)
 
-    def test_add_relations_bulk04(self):
-        self._aux_test_add_relations(is_superuser=False)
-
-        self.assertGET200(self._build_bulk_add_url(self.ct_id, self.subject01, GET=True))
-
+    def test_add_relations_bulk_link_perm02(self):
+        "Any object which is not linkable => error."
+        self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
-        unlinkable = CremeEntity.objects.create(user=self.other_user)
 
+        subject = self._create_contact()
+        self.assertGET200(self._build_bulk_add_url(CremeEntity, subject, GET=True))
+
+        unlinkable = CremeEntity.objects.create(user=self.other_user)
+        rtype = self._create_rtype()
         response = self.assertPOST200(
-            self._build_bulk_add_url(self.ct_id),
+            self._build_bulk_add_url(CremeEntity),
             data={
                 'entities_lbl': 'wtf',
                 'relations': self.formfield_value_multi_relation_entity(
-                    [self.rtype01.id, unlinkable],
+                    [rtype.id, unlinkable],
                 ),
-                'ids': [self.subject01.id],
+                'ids': [subject.id],
             },
         )
         self.assertFormError(
@@ -954,38 +1196,75 @@ class RelationViewsTestCase(ViewsTestCase):
             _('Some entities are not linkable: {}').format(unlinkable),
         )
 
-    def test_add_relations_bulk05(self):
-        "Cannot link an entity to itself"
-        self._aux_test_add_relations()
+    def test_add_relations_bulk_circular(self):
+        "Cannot link an entity to itself."
+        self.login()
 
-        ct_id = self.ct_id
-        subject01 = self.subject01
-        subject02 = self.subject02
+        subject1, subject2 = self._create_contacts()
+        rtype1, rtype2 = self._create_rtypes()
         response = self.client.post(
-            self._build_bulk_add_url(ct_id),
+            self._build_bulk_add_url(CremeEntity),
             data={
                 'entities_lbl': 'wtf',
                 'relations': self.formfield_value_multi_relation_entity(
-                    (self.rtype01.id, subject01),
-                    (self.rtype02.id, subject02),
+                    (rtype1.id, subject1),
+                    (rtype2.id, subject2),
                 ),
-                'ids': [subject01.id, subject02.id],
+                'ids': [subject1.id, subject2.id],
             },
         )
         self.assertFormError(
             response, 'form', 'relations',
             _('An entity can not be linked to itself : %(entities)s') % {
-                'entities': f'{subject01}, {subject02}',
+                'entities': f'{subject1}, {subject2}',
             },
         )
 
-    def test_add_relations_bulk06(self):
+    def test_add_relations_bulk_property_constraint(self):
+        "CremeProperty constraints on subject."
+        self.login()
+
+        subject = self._create_contact()
+        object1 = self._create_organisation()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_string', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cool',   text='Is cool')
+
+        CremeProperty.objects.create(creme_entity=subject, type=ptype1)
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_teaches', 'teaches', [FakeContact], [ptype2]),
+            ('test-object_teaches',  'is taught by'),
+        )[0]
+
+        response = self.assertPOST200(
+            self._build_bulk_add_url(type(subject)),
+            data={
+                'relations': self.formfield_value_multi_relation_entity(
+                    [rtype.id, object1],
+                ),
+                'ids': [subject.id],
+            },
+        )
+        self.assertFormError(
+            response, 'form', 'relations',
+            _('«%(subject)s» must have the property «%(property)s» '
+              'in order to use the relationship «%(predicate)s»') % {
+                'subject': subject,
+                'property': ptype2,
+                'predicate': rtype.predicate,
+            },
+        )
+
+    def test_add_relations_bulk_with_semi_fixed(self):
         "With SemiFixedRelationType."
-        self._aux_test_add_relations()
+        user = self.login()
+        self._aux_test_add_relations_bulk()
 
         # This relation should not be recreated by the view
         Relation.objects.create(
-            user=self.user,
+            user=user,
             subject_entity=self.subject02,
             type=self.rtype02,
             object_entity=self.object02,
@@ -994,12 +1273,11 @@ class RelationViewsTestCase(ViewsTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Related to "object01"',
             relation_type=self.rtype01,
-            # object_entity=self.object01,
             real_object=self.object01,
         )
 
         response = self.client.post(
-            self._build_bulk_add_url(self.ct_id),
+            self._build_bulk_add_url(FakeContact),
             data={
                 'entities_lbl': 'wtf',
                 'relations': self.formfield_value_multi_relation_entity(
@@ -1019,21 +1297,21 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEntiTyHasRelation(self.subject02, self.rtype01, self.object01)
         self.assertEntiTyHasRelation(self.subject02, self.rtype02, self.object02)
 
-    def test_add_relations_bulk07(self):
+    def test_add_relations_bulk_narrowed_types(self):
         "Choices of RelationTypes limited by the GUI."
-        self._aux_test_add_relations()
+        user = self.login()
+        self._aux_test_add_relations_bulk()
 
         # This relation should not be recreated by the view
         Relation.objects.create(
-            user=self.user,
+            user=user,
             subject_entity=self.subject02,
             type=self.rtype02,
             object_entity=self.object02,
         )
 
-        ct_id = self.ct_id
         response = self.assertGET200(
-            self._build_bulk_add_url(ct_id, self.subject01, self.subject02, GET=True)
+            self._build_bulk_add_url(FakeContact, self.subject01, self.subject02, GET=True)
             + f'&rtype={self.rtype01.id}&rtype={self.rtype02.id}'
         )
 
@@ -1043,7 +1321,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertSetEqual({self.rtype01, self.rtype02}, {*allowed_rtypes})
 
         response = self.client.post(
-            self._build_bulk_add_url(ct_id),
+            self._build_bulk_add_url(FakeContact),
             data={
                 'entities_lbl': 'wtf',
                 'relations': self.formfield_value_multi_relation_entity(
@@ -1091,24 +1369,26 @@ class RelationViewsTestCase(ViewsTestCase):
             'objects_ct_id': self.ct_contact.id,
         }
 
-        response = self.assertGET200(self.SELECTION_URL, data=data)
+        url = self.SELECTION_URL
+        response = self.assertGET200(url, data=data)
 
         try:
             entities = response.context['page_obj']
         except KeyError:
             self.fail(response.content)
 
-        contacts = entities.object_list
-        self.assertEqual(3, len(contacts))
-        self.assertTrue(all(isinstance(c, FakeContact) for c in contacts))
-        self.assertSetEqual({self.contact01, self.contact02, self.contact03}, {*contacts})
+        self.assertCountEqual(
+            [self.contact01, self.contact02, self.contact03],
+            entities.object_list,
+        )
 
         # 'selection'  TODO: test better
-        self.assertGET200(self.SELECTION_URL, data={**data, 'selection': 'single'})
-        self.assertGET200(self.SELECTION_URL, data={**data, 'selection': 'multiple'})
-        self.assertGET404(self.SELECTION_URL, data={**data, 'selection': 'invalid'})
+        self.assertGET200(url, data={**data, 'selection': 'single'})
+        self.assertGET200(url, data={**data, 'selection': 'multiple'})
+        self.assertGET404(url, data={**data, 'selection': 'invalid'})
 
     def test_select_relations_objects02(self):
+        "Ignore already linked objects."
         self._aux_relation_objects_to_link_selection()
 
         # 'contact03' will not be proposed by the list-view
@@ -1125,12 +1405,13 @@ class RelationViewsTestCase(ViewsTestCase):
                 'objects_ct_id': self.ct_contact.id,
             },
         )
+        self.assertCountEqual(
+            [self.contact01, self.contact02],
+            response.context['page_obj'].object_list,
+        )
 
-        contacts = response.context['page_obj'].object_list
-        self.assertEqual(2, len(contacts))
-        self.assertSetEqual({self.contact01, self.contact02}, {*contacts})
-
-    def test_select_relations_objects03(self):
+    def test_select_relations_objects_properties_constraints01(self):
+        "Mandatory properties."
         self._aux_relation_objects_to_link_selection()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -1148,10 +1429,10 @@ class RelationViewsTestCase(ViewsTestCase):
         create_property(type=ptype01, creme_entity=contact04)
         create_property(type=ptype02, creme_entity=contact04)
 
-        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
+        rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_loving', 'is loving',   [FakeContact]),
             ('test-object_loving',  'is loved by', [FakeContact], [ptype01, ptype02]),
-        )
+        )[0]
 
         response = self.assertGET200(
             self.SELECTION_URL,
@@ -1161,12 +1442,40 @@ class RelationViewsTestCase(ViewsTestCase):
                 'objects_ct_id': self.ct_contact.id,
             },
         )
+        self.assertCountEqual(
+            [self.contact01, self.contact03, contact04],
+            response.context['page_obj'].object_list,
+        )
 
-        contacts = response.context['page_obj'].object_list
-        self.assertEqual(3, len(contacts))
-        self.assertSetEqual({self.contact01, self.contact03, contact04}, {*contacts})
+    def test_select_relations_objects_properties_constraints02(self):
+        "Forbidden properties."
+        self._aux_relation_objects_to_link_selection()
 
-    def test_select_relations_objects04(self):
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_bad', text='Is bad'
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_loving', 'is loving',   [FakeContact]),
+            ('test-object_loving',  'is loved by', [FakeContact], [], [ptype]),
+        )[0]
+
+        # 'contact01' will not be proposed by the list-view
+        CremeProperty.objects.create(type=ptype, creme_entity=self.contact01)
+
+        response = self.assertGET200(
+            self.SELECTION_URL,
+            data={
+                'subject_id':    self.subject.id,
+                'rtype_id':      rtype.id,
+                'objects_ct_id': self.ct_contact.id,
+            },
+        )
+        contacts = {*response.context['page_obj'].object_list}
+        self.assertIn(self.contact02, contacts)
+        self.assertIn(self.contact03, contacts)
+        self.assertNotIn(self.contact01, contacts)
+
+    def test_select_relations_objects_internal(self):
         "Is internal => error."
         self.login()
 
@@ -1188,7 +1497,7 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
-    def test_select_relations_objects05(self):
+    def test_select_relations_objects_disabled(self):
         "Is disabled => error."
         user = self.login()
 
@@ -1259,7 +1568,7 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertEqual(2, Relation.objects.filter(type=self.rtype).count())
 
-    def test_add_relations_with_same_type03(self):
+    def test_add_relations_with_same_type_errors01(self):
         "Errors."
         self.login()
         self._aux_add_relations_with_same_type()
@@ -1303,7 +1612,26 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
-    def test_add_relations_with_same_type04(self):
+    def test_add_relations_with_same_type_errors02(self):
+        "Object ID is not an int."
+        self.login()
+
+        response = self.client.post(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id': '1',
+                'predicate_id': 'test-subject_foobar',
+                'entities': ['2', 'notanint'],
+            },
+        )
+        self.assertContains(
+            response,
+            'An ID in the argument "entities" is not an integer.',
+            status_code=404,
+            html=True,
+        )
+
+    def test_add_relations_with_same_type_credentials(self):
         "Credentials errors."
         user = self.login(is_superuser=False)
         self._set_all_creds_except_one(excluded=EntityCredentials.LINK)
@@ -1346,7 +1674,7 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(allowed01, relation.subject_entity)
         self.assertEqual(allowed02, relation.object_entity)
 
-    def test_add_relations_with_same_type05(self):
+    def test_add_relations_with_same_type_ctype_constraints(self):
         "ContentType constraint errors."
         user = self.login()
 
@@ -1363,6 +1691,7 @@ class RelationViewsTestCase(ViewsTestCase):
             ('test-object_foobar',  'is managed by', [FakeOrganisation]),
         )[0]
 
+        # Subject is invalid ---
         self.assertPOST(
             409, self.ADD_FROM_PRED_URL,
             data={
@@ -1373,6 +1702,7 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFalse(Relation.objects.filter(type=rtype.id))
 
+        # 1 object is invalid ---
         self.assertPOST(
             409, self.ADD_FROM_PRED_URL,
             data={
@@ -1381,12 +1711,13 @@ class RelationViewsTestCase(ViewsTestCase):
                 'entities':     [orga01.id, contact02.id],
             },
         )
-        relations = Relation.objects.filter(type=rtype)
-        self.assertEqual(1,         len(relations))
-        self.assertEqual(orga01.id, relations[0].object_entity_id)
+        self.assertListEqual(
+            [orga01.id],
+            [*Relation.objects.filter(type=rtype).values_list('object_entity', flat=True)],
+        )
 
-    def test_add_relations_with_same_type06(self):
-        "Property constraint."
+    def test_add_relations_with_same_type_properties_constraints01(self):
+        "Property constraints."
         user = self.login()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
@@ -1446,7 +1777,50 @@ class RelationViewsTestCase(ViewsTestCase):
             [rel.object_entity.description for rel in Relation.objects.filter(type=rtype)],
         )
 
-    def test_add_relations_with_same_type07(self):
+    def test_add_relations_with_same_type_properties_constraints02(self):
+        "Forbidden property constraints."
+        user = self.login()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        subject_forb_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
+        object_forb_ptype  = create_ptype(str_pk='test-prop_foobar02', text='Contact property')
+
+        create_entity = partial(CremeEntity.objects.create, user=user)
+        bad_subject  = create_entity(description='Bad subject')
+        good_subject = create_entity(description='Good subject')
+        bad_object   = create_entity(description='Bad object')
+        good_object  = create_entity(description='Good object')
+
+        CremeProperty.objects.create(type=subject_forb_ptype, creme_entity=bad_subject)
+        CremeProperty.objects.create(type=object_forb_ptype, creme_entity=bad_object)
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'manages',       [], [], [subject_forb_ptype]),
+            ('test-object_foobar',  'is managed by', [], [], [object_forb_ptype]),
+        )[0]
+
+        url = self.ADD_FROM_PRED_URL
+
+        # Subject is invalid ---
+        self.assertPOST(409, url, data={
+            'subject_id':   bad_subject.id,
+            'predicate_id': rtype.id,
+            'entities':     [good_object.id],
+        })
+        self.assertFalse(Relation.objects.filter(type=rtype))
+
+        # 1 object is invalid ---
+        self.assertPOST(409, url, data={
+            'subject_id':   good_subject.id,
+            'predicate_id': rtype.id,
+            'entities':     [good_object.id, bad_object.id],
+        })
+        self.assertCountEqual(
+            [good_object.description],
+            [rel.object_entity.description for rel in Relation.objects.filter(type=rtype)],
+        )
+
+    def test_add_relations_with_same_type_internal(self):
         "Is internal."
         user = self.login()
 
@@ -1470,48 +1844,7 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFalse(Relation.objects.filter(type=rtype))
 
-    def test_add_relations_with_same_type08(self):
-        "Subject is in the objects."
-        user = self.login()
-
-        create_entity = partial(CremeEntity.objects.create, user=user)
-        subject = create_entity()
-        object02 = create_entity()
-
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'is loving'),
-            ('test-object_foobar',  'is loved by'),
-        )[0]
-        self.assertPOST409(
-            self.ADD_FROM_PRED_URL,
-            data={
-                'subject_id':   subject.id,
-                'predicate_id': rtype.id,
-                'entities':     [str(object02.id), str(subject.id)],
-            },
-        )
-        self.assertFalse(Relation.objects.filter(type=rtype))
-
-    def test_add_relations_with_same_type09(self):
-        "Object ID is not an int."
-        self.login()
-
-        response = self.client.post(
-            self.ADD_FROM_PRED_URL,
-            data={
-                'subject_id': '1',
-                'predicate_id': 'test-subject_foobar',
-                'entities': ['2', 'notanint'],
-            },
-        )
-        self.assertContains(
-            response,
-            'An ID in the argument "entities" is not an integer.',
-            status_code=404,
-            html=True,
-        )
-
-    def test_add_relations_with_same_type10(self):
+    def test_add_relations_with_same_type_disabled(self):
         "Is disabled."
         user = self.login()
 
@@ -1533,6 +1866,28 @@ class RelationViewsTestCase(ViewsTestCase):
                 'subject_id':   subject.id,
                 'predicate_id': rtype.id,
                 'entities':     [object01.id, object02.id],
+            },
+        )
+        self.assertFalse(Relation.objects.filter(type=rtype))
+
+    def test_add_relations_with_same_type_circular(self):
+        "Subject is in the objects."
+        user = self.login()
+
+        create_entity = partial(CremeEntity.objects.create, user=user)
+        subject = create_entity()
+        object02 = create_entity()
+
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )[0]
+        self.assertPOST409(
+            self.ADD_FROM_PRED_URL,
+            data={
+                'subject_id':   subject.id,
+                'predicate_id': rtype.id,
+                'entities':     [str(object02.id), str(subject.id)],
             },
         )
         self.assertFalse(Relation.objects.filter(type=rtype))

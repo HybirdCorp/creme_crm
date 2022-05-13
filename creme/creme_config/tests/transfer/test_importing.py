@@ -875,18 +875,12 @@ class ImportingTestCase(CremeTestCase):
 
         # ptype1 = CremePropertyType.objects.first(); self.assertIsNotNone(ptype1)
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        ptype1 = create_ptype(
-            str_pk='creme_config-test_import_relation_types01_1',
-            text='Is very important',
-        )
-        ptype2 = create_ptype(
-            str_pk='creme_config-test_import_relation_types01_2',
-            text='Is important', is_custom=True,
-        )
-        ptype3 = create_ptype(
-            str_pk='creme_config-test_import_relation_types01_3',
-            text='Is hot', is_custom=True,
-        )
+        pt_id_fmt = 'creme_config-test_import_relation_types01_{}'.format
+        ptype1 = create_ptype(str_pk=pt_id_fmt(1), text='Is very important')
+        ptype2 = create_ptype(str_pk=pt_id_fmt(2), text='Is important', is_custom=True)
+        ptype3 = create_ptype(str_pk=pt_id_fmt(3), text='Is hot',       is_custom=True)
+        ptype4 = create_ptype(str_pk=pt_id_fmt(4), text='Is bad',       is_custom=True)
+        ptype5 = create_ptype(str_pk=pt_id_fmt(5), text='Is nasty',     is_custom=True)
 
         pk_fmt = 'creme_config-subject_test_import_relations_types01_{}'.format
         pk1a = pk_fmt(1)
@@ -899,6 +893,9 @@ class ImportingTestCase(CremeTestCase):
 
                 'subject_properties': [ptype1.id, ptype2.id],
                 'object_properties':  [ptype3.id],
+
+                'subject_forbidden_properties': [ptype4.id],
+                'object_forbidden_properties':  [ptype5.id],
 
                 'symmetric': {
                     'predicate': 'is loved by', 'is_copiable': False,
@@ -934,8 +931,10 @@ class ImportingTestCase(CremeTestCase):
         self.assertFalse(rtype1.minimal_display)
         self.assertFalse(rtype1.subject_ctypes.all())
         self.assertFalse(rtype1.object_ctypes.all())
-        self.assertSetEqual({ptype1, ptype2}, {*rtype1.subject_properties.all()})
-        self.assertListEqual([ptype3],        [*rtype1.object_properties.all()])
+        self.assertCountEqual([ptype1, ptype2], [*rtype1.subject_properties.all()])
+        self.assertListEqual([ptype3],          [*rtype1.object_properties.all()])
+        self.assertListEqual([ptype4],          [*rtype1.subject_forbidden_properties.all()])
+        self.assertListEqual([ptype5],          [*rtype1.object_forbidden_properties.all()])
 
         sym_rtype_data = rtype_data['symmetric']
         sym_rtype1 = rtype1.symmetric_type
@@ -954,6 +953,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertTrue(rtype2.minimal_display)
         self.assertFalse(rtype2.subject_properties.all())
         self.assertFalse(rtype2.object_properties.all())
+        self.assertFalse(rtype2.subject_forbidden_properties.all())
+        self.assertFalse(rtype2.object_forbidden_properties.all())
         get_ct = ContentType.objects.get_for_model
         self.assertSetEqual(
             {get_ct(FakeContact), get_ct(FakeOrganisation)},
