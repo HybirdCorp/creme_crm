@@ -52,10 +52,14 @@ _PropertyTypesField = partial(
 )
 
 
+# TODO: rename RelationTypeCreationForm
 class RelationTypeCreateForm(CremeForm):
     subject_ctypes = _CTypesField()
     subject_properties = _PropertyTypesField(
         help_text=_('The subject must have all the selected properties.'),
+    )
+    subject_forbidden_properties = _PropertyTypesField(
+        help_text=_('The subject cannot have any of the selected properties.'),
     )
 
     subject_predicate = CharField(label=_('Subject => object'))
@@ -92,12 +96,17 @@ class RelationTypeCreateForm(CremeForm):
     object_properties = _PropertyTypesField(
         help_text=_('The object must have all the selected properties.'),
     )
+    object_forbidden_properties = _PropertyTypesField(
+        help_text=_('The object cannot have any of the selected properties.'),
+    )
 
     blocks = FieldBlockManager(
         {
             'id': 'subject',
             'label': _('Subject'),
-            'fields': ['subject_ctypes', 'subject_properties'],
+            'fields': [
+                'subject_ctypes', 'subject_properties', 'subject_forbidden_properties',
+            ],
         }, {
             'id': 'predicate',
             'label': _('Verb/Predicate'),
@@ -108,7 +117,9 @@ class RelationTypeCreateForm(CremeForm):
         }, {
             'id': 'object',
             'label': _('Object'),
-            'fields': ['object_ctypes', 'object_properties'],
+            'fields': [
+                'object_ctypes', 'object_properties', 'object_forbidden_properties',
+            ],
         },
     )
 
@@ -118,8 +129,8 @@ class RelationTypeCreateForm(CremeForm):
     def save(self,
              pk_subject='creme_config-subject_userrelationtype',
              pk_object='creme_config-object_userrelationtype',
-             generate_pk=True, *args, **kwargs
-             ):
+             generate_pk=True,
+             *args, **kwargs):
         get_data = self.cleaned_data.get
 
         subject_ctypes = [ct.model_class() for ct in get_data('subject_ctypes')]
@@ -131,12 +142,14 @@ class RelationTypeCreateForm(CremeForm):
                 get_data('subject_predicate'),
                 subject_ctypes,
                 get_data('subject_properties'),
+                get_data('subject_forbidden_properties'),
             ),
             (
                 pk_object,
                 get_data('object_predicate'),
                 object_ctypes,
                 get_data('object_properties'),
+                get_data('object_forbidden_properties'),
             ),
             is_custom=True, generate_pk=generate_pk,
             is_copiable=(
@@ -156,15 +169,23 @@ class RelationTypeEditForm(RelationTypeCreateForm):
         fields = self.fields
 
         fields['subject_ctypes'].initial = instance.subject_ctypes.values_list('id', flat=True)
-        fields['subject_properties'].initial = \
-            instance.subject_properties.values_list('id', flat=True)
+        fields[
+            'subject_properties'
+        ].initial = instance.subject_properties.values_list('id', flat=True)
+        fields[
+            'subject_forbidden_properties'
+        ].initial = instance.subject_forbidden_properties.values_list('id', flat=True)
 
         fields['subject_predicate'].initial = instance.predicate
         fields['object_predicate'].initial = sym_instance.predicate
 
         fields['object_ctypes'].initial = instance.object_ctypes.values_list('id', flat=True)
-        fields['object_properties'].initial = \
-            instance.object_properties.values_list('id', flat=True)
+        fields[
+            'object_properties'
+        ].initial = instance.object_properties.values_list('id', flat=True)
+        fields[
+            'object_forbidden_properties'
+        ].initial = instance.object_forbidden_properties.values_list('id', flat=True)
 
         fields['subject_is_copiable'].initial = instance.is_copiable
         fields['object_is_copiable'].initial = sym_instance.is_copiable

@@ -173,11 +173,11 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             # TODO: make a method in RelationType (improve is_compatible() ?)
             needed_property_types = [*rtype.subject_properties.all()]
             if needed_property_types:
-                subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
+                subjects_ptype_ids = {p.type_id for p in subject.get_properties()}
                 missing_ptypes = [
                     needed_ptype
                     for needed_ptype in needed_property_types
-                    if needed_ptype.id not in subjects_prop_ids
+                    if needed_ptype.id not in subjects_ptype_ids
                 ]
 
                 if missing_ptypes:
@@ -190,6 +190,28 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
                             number=len(missing_ptypes)
                         ).format(
                             properties=', '.join(str(ptype) for ptype in missing_ptypes),
+                        )
+                    )
+
+            forbidden_property_types = [*rtype.subject_forbidden_properties.all()]
+            if forbidden_property_types:
+                subjects_ptype_ids = {p.type_id for p in subject.get_properties()}
+                refused_ptypes = [
+                    forbidden_ptype
+                    for forbidden_ptype in forbidden_property_types
+                    if forbidden_ptype.id in subjects_ptype_ids
+                ]
+
+                if refused_ptypes:
+                    raise ConflictError(
+                        ngettext(
+                            'This type of relationship refuses entities with '
+                            'this property: {properties}.',
+                            'This type of relationship refuses entities with '
+                            'these properties: {properties}.',
+                            number=len(refused_ptypes)
+                        ).format(
+                            properties=', '.join(str(ptype) for ptype in refused_ptypes),
                         )
                     )
 
@@ -220,10 +242,13 @@ class RelationsBulkAdding(base.EntityCTypeRelatedMixin, base.CremeFormPopup):
 
     def filter_entities(self, entities):
         filtered = {True: [], False: []}
-        has_perm = self.request.user.has_perm_to_link
+
+        user = self.request.user
+        view_perm = user.has_perm_to_view
+        link_perm = user.has_perm_to_link
 
         for entity in entities:
-            filtered[has_perm(entity)].append(entity)
+            filtered[view_perm(entity) and link_perm(entity)].append(entity)
 
         return filtered
 
@@ -400,12 +425,16 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
         if prop_types:
             extra_q &= Q(properties__type__in=prop_types)
 
+        forb_prop_types = [*rtype.object_forbidden_properties.values_list('id', flat=True)]
+        if forb_prop_types:
+            extra_q &= ~Q(properties__type__in=forb_prop_types)
+
         return extra_q
 
 
 @login_required
 def add_relations_with_same_type(request):
-    """Allow to create from a POST request several relations with the same
+    """Allows creating from a POST request several relations with the same
     relation type, between a subject and several other entities.
     Tip: see the JS class 'creme.relations.AddRelationToAction()'.
     """
@@ -439,7 +468,15 @@ def add_relations_with_same_type(request):
     needed_subject_pt_ids = rtype.subject_properties.values_list('id', flat=True)
     needed_object_pt_ids  = rtype.object_properties.values_list('id', flat=True)
 
-    if needed_subject_pt_ids or needed_object_pt_ids:
+    forbidden_subject_pt_ids = rtype.subject_forbidden_properties.values_list('id', flat=True)
+    forbidden_object_pt_ids = rtype.object_forbidden_properties.values_list('id', flat=True)
+
+    if (
+        needed_subject_pt_ids
+        or forbidden_subject_pt_ids
+        or needed_object_pt_ids
+        or forbidden_object_pt_ids
+    ):
         # Optimise the get_properties() (but it retrieves CremePropertyType objects too)
         CremeEntity.populate_properties(entities)
 
@@ -480,6 +517,11 @@ def add_relations_with_same_type(request):
         ):
             raise ConflictError('Missing compatible property for subject')
 
+    if forbidden_subject_pt_ids and any(
+        p.type_id in forbidden_subject_pt_ids for p in subject.get_properties()
+    ):
+        raise ConflictError('Forbidden property for subject')
+
     # TODO: idem
     object_ct_ids = frozenset(rtype.object_ctypes.values_list('id', flat=True))
     check_ctype = (
@@ -499,6 +541,17 @@ def add_relations_with_same_type(request):
             for needed_ptype_id in needed_object_pt_ids
         )
 
+    def check_forbidden_properties(entity):
+        if not forbidden_object_pt_ids:
+            return True
+
+        object_pt_ids = {p.type_id for p in entity.get_properties()}
+
+        return not any(
+            forbidden_ptype_id in object_pt_ids
+            for forbidden_ptype_id in forbidden_object_pt_ids
+        )
+
     create_relation = Relation.objects.safe_create
     for entity in entities:
         if not check_ctype(entity):
@@ -511,6 +564,12 @@ def add_relations_with_same_type(request):
             errors[409].append(
                 gettext(
                     'Missing compatible property for object entity with id={}'
+                ).format(entity.id)
+            )
+        elif not check_forbidden_properties(entity):
+            errors[409].append(
+                gettext(
+                    'Forbidden property for object entity with id={}'
                 ).format(entity.id)
             )
         elif not user.has_perm_to_link(entity):

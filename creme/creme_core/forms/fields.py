@@ -687,8 +687,17 @@ class RelationEntityField(EntityCredsJSONField):
             'This content type cause constraint error with the type of relationship '
             '(id="%(ctype_id)s").'
         ),
-        'nopropertymatch': _(
-            'This entity has no property that matches the constraints of the type of relationship.'
+        # 'nopropertymatch': _(
+        #     'This entity has no property that matches the constraints of the '
+        #     'type of relationship.'
+        # ),
+        'missingproperty': _(
+            'This entity has no property «%(property)s» which is required by '
+            'the relationship «%(predicate)s».'
+        ),
+        'forbiddenproperty': _(
+            'This entity has the property «%(property)s» which is forbidden by '
+            'the relationship «%(predicate)s».'
         ),
     }
     value_type: Type = dict
@@ -768,19 +777,50 @@ class RelationEntityField(EntityCredsJSONField):
             )
 
     def _validate_properties_constraints(self, rtype, entity):
-        needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+        # needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+        #
+        # if needed_ptype_ids:
+        #     ptype_ids = {p.type_id for p in entity.get_properties()}
+        #
+        #     if any(
+        #         needed_ptype_id not in ptype_ids
+        #         for needed_ptype_id in needed_ptype_ids
+        #     ):
+        #         raise ValidationError(
+        #             self.error_messages['nopropertymatch'],
+        #             code='nopropertymatch',
+        #         )
+        needed_ptypes = rtype.object_properties.all()
 
-        if needed_ptype_ids:
-            ptype_ids = {p.type_id for p in entity.get_properties()}
+        if needed_ptypes:
+            ptype_ids = {p.type_id: p for p in entity.get_properties()}
 
-            if any(
-                needed_ptype_id not in ptype_ids
-                for needed_ptype_id in needed_ptype_ids
-            ):
-                raise ValidationError(
-                    self.error_messages['nopropertymatch'],
-                    code='nopropertymatch',
-                )
+            for needed_ptype in needed_ptypes:
+                if needed_ptype.id not in ptype_ids:
+                    raise ValidationError(
+                        self.error_messages['missingproperty'],
+                        params={
+                            'predicate': rtype.predicate,
+                            'property': needed_ptype,
+                        },
+                        code='missingproperty',
+                    )
+
+        forbidden_ptype_ids = {
+            *rtype.object_forbidden_properties.values_list('id', flat=True),
+        }
+
+        if forbidden_ptype_ids:
+            for prop in entity.get_properties():
+                if prop.type_id in forbidden_ptype_ids:
+                    raise ValidationError(
+                        self.error_messages['forbiddenproperty'],
+                        params={
+                            'predicate': rtype.predicate,
+                            'property': prop,
+                        },
+                        code='forbiddenproperty',
+                    )
 
     def _clean_rtype(self, rtype_pk):
         # Is relation type allowed
@@ -805,11 +845,22 @@ class RelationEntityField(EntityCredsJSONField):
 
 class MultiRelationEntityField(RelationEntityField):
     widget: Type[widgets.TextInput] = core_widgets.MultiRelationSelector
+    default_error_messages = {
+        'missingproperty': _(
+            'The entity «%(entity)s» has no property «%(property)s» which is '
+            'required by the relationship «%(predicate)s».'
+        ),
+        'forbiddenproperty': _(
+            'The entity «%(entity)s» has the property «%(property)s» which is '
+            'forbidden by the relationship «%(predicate)s».'
+        ),
+    }
     value_type: Type = list
 
     def _value_to_jsonifiable(self, value):
         return [*map(super()._value_to_jsonifiable, value)]
 
+    # TODO: regroup queries to RelationType + prefetch M2M
     def _build_rtype_cache(self, rtype_pk):
         try:
             rtype = RelationType.objects.get(pk=rtype_pk)
@@ -821,9 +872,14 @@ class MultiRelationEntityField(RelationEntityField):
             ) from e
 
         allowed_ctype_ids = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-        needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+        # needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+        needed_ptypes = rtype.object_properties.all()
+        forbidden_ptype_ids = frozenset(
+            rtype.object_forbidden_properties.values_list('id', flat=True)
+        )
 
-        return rtype, allowed_ctype_ids, needed_ptype_ids
+        # return rtype, allowed_ctype_ids, needed_ptype_ids
+        return rtype, allowed_ctype_ids, needed_ptypes, forbidden_ptype_ids
 
     def _build_ctype_cache(self, ctype_pk):
         try:
@@ -877,11 +933,15 @@ class MultiRelationEntityField(RelationEntityField):
                     code='rtypenotallowed',
                 )
 
-            rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
+            # rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
+            #     rtypes_cache, rtype_pk, self._build_rtype_cache,
+            # )
+            rtype, allowed_ctype_ids, needed_ptypes, forbidden_ptype_ids = self._get_cache(
                 rtypes_cache, rtype_pk, self._build_rtype_cache,
             )
 
-            if needed_ptype_ids:
+            # if needed_ptype_ids:
+            if needed_ptypes or forbidden_ptype_ids:
                 need_property_validation = True
 
             # Check if content type is allowed by relation type
@@ -935,18 +995,49 @@ class MultiRelationEntityField(RelationEntityField):
         if need_property_validation:
             CremeEntity.populate_properties(entities_cache.values())
 
+        # for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
+        #     rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
+        #     entity = entities_cache.get(entity_pk)
+        #
+        #     if needed_ptype_ids:
+        #         ptype_ids = {p.type_id for p in entity.get_properties()}
+        #
+        #         if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
+        #             raise ValidationError(
+        #                 self.error_messages['nopropertymatch'],
+        #                 code='nopropertymatch',
+        #             )
         for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
+            rtype, _ct_ids, needed_ptypes, forbidden_ptype_ids = rtypes_cache.get(rtype_pk)
             entity = entities_cache.get(entity_pk)
 
-            if needed_ptype_ids:
+            if needed_ptypes:
                 ptype_ids = {p.type_id for p in entity.get_properties()}
 
-                if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
-                    raise ValidationError(
-                        self.error_messages['nopropertymatch'],
-                        code='nopropertymatch',
-                    )
+                for needed_ptype in needed_ptypes:
+                    if needed_ptype.id not in ptype_ids:
+                        raise ValidationError(
+                            self.error_messages['missingproperty'],
+                            params={
+                                'entity': entity,
+                                'predicate': rtype.predicate,
+                                'property': needed_ptype,
+                            },
+                            code='missingproperty',
+                        )
+
+            if forbidden_ptype_ids:
+                for prop in entity.get_properties():
+                    if prop.type_id in forbidden_ptype_ids:
+                        raise ValidationError(
+                            self.error_messages['forbiddenproperty'],
+                            params={
+                                'entity': entity,
+                                'predicate': rtype.predicate,
+                                'property': prop,
+                            },
+                            code='forbiddenproperty',
+                        )
 
             relations.append((rtype, entity))
 

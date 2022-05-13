@@ -8,6 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeEntity,
+    CremePropertyType,
     FakeContact,
     FakeOrganisation,
     Relation,
@@ -16,6 +17,7 @@ from creme.creme_core.models import (
 from creme.creme_core.utils.profiling import CaptureQueriesContext
 
 from ..base import CremeTestCase
+from ..fake_models import FakeDocument
 
 
 class RelationsTestCase(CremeTestCase):
@@ -43,8 +45,7 @@ class RelationsTestCase(CremeTestCase):
     #     self.assertEqual(rtype1.predicate,      subject_pred)
     #     self.assertEqual(rtype2.predicate,      object_pred)
 
-    def test_relation01(self):
-        user = self.user
+    def test_type_manager_smart_update_or_create01(self):
         subject_id = 'test-subject_foobar'
         subject_pred = 'is loving'
         object_id = 'test-object_foobar'
@@ -55,6 +56,12 @@ class RelationsTestCase(CremeTestCase):
                 (subject_id, subject_pred),
                 (object_id,  object_pred),
             )
+
+        self.assertIsInstance(rtype1, RelationType)
+        self.assertIsInstance(rtype2, RelationType)
+
+        rtype1 = self.refresh(rtype1)
+        rtype2 = self.refresh(rtype2)
 
         self.assertEqual(rtype1.id,             subject_id)
         self.assertEqual(rtype2.id,             object_id)
@@ -68,14 +75,178 @@ class RelationsTestCase(CremeTestCase):
         self.assertFalse(rtype2.is_custom)
         self.assertTrue(rtype1.is_copiable)
         self.assertTrue(rtype2.is_copiable)
+        self.assertFalse(rtype1.minimal_display)
+        self.assertFalse(rtype2.minimal_display)
         self.assertTrue(rtype1.enabled)
         self.assertTrue(rtype2.enabled)
 
-        with self.assertNoException():
-            rtype1.is_not_internal_or_die()
+        self.assertFalse(rtype1.subject_ctypes.all())
+        self.assertFalse(rtype1.object_ctypes.all())
+        self.assertFalse(rtype1.subject_properties.all())
+        self.assertFalse(rtype1.object_properties.all())
+
+        self.assertFalse(rtype2.subject_ctypes.all())
+        self.assertFalse(rtype2.object_ctypes.all())
+        self.assertFalse(rtype2.subject_properties.all())
+        self.assertFalse(rtype2.object_properties.all())
+
+    def test_type_manager_smart_update_or_create02(self):
+        "ContentType constraints + custom."
+        subject_id = 'test-subject_baz'
+        subject_pred = 'owns'
+        object_id = 'test-object_baz'
+        object_pred  = 'is owned by'
 
         with self.assertNoException():
-            rtype1.is_enabled_or_die()
+            rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+                (subject_id, subject_pred, [FakeContact, FakeOrganisation]),
+                (object_id,  object_pred,  [FakeDocument]),
+                is_custom=True,
+                is_copiable=(True, False),
+            )
+
+        self.assertEqual(rtype1.id,             subject_id)
+        self.assertEqual(rtype2.id,             object_id)
+        self.assertEqual(rtype1.symmetric_type, rtype2)
+        self.assertEqual(rtype2.symmetric_type, rtype1)
+        self.assertEqual(rtype1.predicate,      subject_pred)
+        self.assertEqual(rtype2.predicate,      object_pred)
+        self.assertFalse(rtype1.is_internal)
+        self.assertTrue(rtype1.enabled)
+
+        self.assertTrue(rtype1.is_copiable)
+        self.assertFalse(rtype2.is_copiable)
+
+        self.assertTrue(rtype1.is_custom)
+        self.assertTrue(rtype2.is_custom)
+
+        get_ct = ContentType.objects.get_for_model
+        self.assertCountEqual(
+            [get_ct(FakeContact), get_ct(FakeOrganisation)],
+            rtype1.subject_ctypes.all(),
+        )
+        self.assertCountEqual([get_ct(FakeDocument)], rtype1.object_ctypes.all())
+        self.assertFalse(rtype1.subject_properties.all())
+        self.assertFalse(rtype1.object_properties.all())
+
+        self.assertCountEqual([get_ct(FakeDocument)], rtype2.subject_ctypes.all())
+        self.assertCountEqual(
+            [get_ct(FakeContact), get_ct(FakeOrganisation)],
+            rtype2.object_ctypes.all(),
+        )
+        self.assertFalse(rtype2.subject_properties.all())
+
+        # Update
+        subject_pred = f'{subject_pred} (updated)'
+        object_pred  = f'{object_pred} (updated)'
+
+        with self.assertNoException():
+            new_rtype1, new_rtype2 = RelationType.objects.smart_update_or_create(
+                (subject_id, subject_pred, [FakeOrganisation]),
+                (object_id,  object_pred,  [FakeContact]),
+                is_custom=False,
+                is_copiable=(False, True),
+            )
+
+        new_rtype1 = self.refresh(new_rtype1)
+        new_rtype2 = self.refresh(new_rtype2)
+
+        self.assertEqual(new_rtype1.symmetric_type, new_rtype2)
+        self.assertEqual(new_rtype2.symmetric_type, new_rtype1)
+        self.assertEqual(new_rtype1.predicate,      subject_pred)
+        self.assertEqual(new_rtype2.predicate,      object_pred)
+
+        self.assertFalse(new_rtype1.is_copiable)
+        self.assertTrue(new_rtype2.is_copiable)
+
+        self.assertFalse(new_rtype1.is_custom)
+        self.assertFalse(new_rtype2.is_custom)
+
+        self.assertCountEqual([get_ct(FakeOrganisation)], new_rtype1.subject_ctypes.all())
+        self.assertCountEqual([get_ct(FakeContact)],      new_rtype1.object_ctypes.all())
+
+    def test_type_manager_smart_update_or_create03(self):
+        "CremeProperty constraints."
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-ptype01', text='Test01')
+        ptype2 = create_ptype(str_pk='test-ptype02', text='Test02')
+        ptype3 = create_ptype(str_pk='test-ptype03', text='Test03')
+
+        with self.assertNoException():
+            rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+                ('test-subject_foobaz', 'owns',        [], [ptype1, ptype2]),
+                ('test-object_foobaz',  'is owned by', [], [ptype3]),
+                minimal_display=(True, False),
+            )
+
+        self.assertTrue(rtype1.minimal_display)
+        self.assertFalse(rtype2.minimal_display)
+
+        self.assertCountEqual([ptype1, ptype2], rtype1.subject_properties.all())
+        self.assertCountEqual([ptype3],         rtype1.object_properties.all())
+
+        self.assertCountEqual([ptype3],         rtype2.subject_properties.all())
+        self.assertCountEqual([ptype1, ptype2], rtype2.object_properties.all())
+
+        self.assertFalse(rtype1.subject_forbidden_properties.all())
+        self.assertFalse(rtype2.subject_forbidden_properties.all())
+
+        self.assertFalse(rtype1.object_forbidden_properties.all())
+        self.assertFalse(rtype2.object_forbidden_properties.all())
+
+        # Update
+        with self.assertNoException():
+            new_rtype1, new_rtype2 = RelationType.objects.smart_update_or_create(
+                ('test-subject_foobaz', 'owns',        [], [ptype2]),
+                ('test-object_foobaz',  'is owned by', [], [ptype1, ptype3]),
+                minimal_display=(False, True),
+            )
+
+        self.assertFalse(new_rtype1.minimal_display)
+        self.assertTrue(new_rtype2.minimal_display)
+
+        self.assertCountEqual([ptype2],         new_rtype1.subject_properties.all())
+        self.assertCountEqual([ptype1, ptype3], new_rtype1.object_properties.all())
+
+    def test_type_manager_smart_update_or_create04(self):
+        "CremeProperty constraints."
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-ptype01', text='Test01')
+        ptype2 = create_ptype(str_pk='test-ptype02', text='Test02')
+        ptype3 = create_ptype(str_pk='test-ptype03', text='Test03')
+
+        with self.assertNoException():
+            rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+                ('test-subject_foobaz', 'owns',        [], [], [ptype1, ptype2]),
+                ('test-object_foobaz',  'is owned by', [], [], [ptype3]),
+            )
+
+        self.assertFalse(rtype1.subject_properties.all())
+        self.assertFalse(rtype2.subject_properties.all())
+
+        self.assertCountEqual([ptype1, ptype2], rtype1.subject_forbidden_properties.all())
+        self.assertCountEqual([ptype3],         rtype2.subject_forbidden_properties.all())
+
+        self.assertCountEqual([ptype3],         rtype1.object_forbidden_properties.all())
+        self.assertCountEqual([ptype1, ptype2], rtype2.object_forbidden_properties.all())
+
+        # Update
+        with self.assertNoException():
+            new_rtype1 = RelationType.objects.smart_update_or_create(
+                ('test-subject_foobaz', 'owns',        [], [], [ptype1]),
+                ('test-object_foobaz',  'is owned by', [], [], [ptype2, ptype3]),
+            )[0]
+
+        self.assertCountEqual([ptype1],         new_rtype1.subject_forbidden_properties.all())
+        self.assertCountEqual([ptype2, ptype3], new_rtype1.object_forbidden_properties.all())
+
+    def test_relation01(self):
+        user = self.user
+
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )
 
         with self.assertNoException():
             entity1 = CremeEntity.objects.create(user=user)
@@ -132,7 +303,16 @@ class RelationsTestCase(CremeTestCase):
             ],
         )
 
-    def test_is_not_internal_or_die(self):
+    def test_is_not_internal_or_die01(self):
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_disabled', 'is disabled'),
+            ('test-object_disabled',  'what ever'),
+        )[0]
+
+        with self.assertNoException():
+            rtype.is_not_internal_or_die()
+
+    def test_is_not_internal_or_die02(self):
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_internal', 'is internal'),
             ('test-object_internal',  'is internal too'),
@@ -147,6 +327,10 @@ class RelationsTestCase(CremeTestCase):
             ('test-subject_disabled', 'is disabled'),
             ('test-object_disabled',  'what ever'),
         )[0]
+
+        with self.assertNoException():
+            rtype.is_enabled_or_die()
+
         rtype.enabled = False
         rtype.save()
 

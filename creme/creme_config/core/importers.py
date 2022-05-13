@@ -712,6 +712,13 @@ class RelationTypesImporter(Importer):
                 'subject_ptypes': load_ptypes(rtype_info.get('subject_properties') or []),
                 'object_ptypes':  load_ptypes(rtype_info.get('object_properties') or []),
 
+                'subject_forbidden_ptypes': load_ptypes(
+                    rtype_info.get('subject_forbidden_properties') or []
+                ),
+                'object_forbidden_ptypes': load_ptypes(
+                    rtype_info.get('object_forbidden_properties') or []
+                ),
+
                 'symmetric': {
                     'id':        rtype_id.replace('-subject_', '-object_'),
                     'predicate': sym_rtype_info['predicate'],
@@ -736,12 +743,14 @@ class RelationTypesImporter(Importer):
                     data['predicate'],
                     data.get('subject_models'),
                     data.get('subject_ptypes'),
+                    data.get('subject_forbidden_ptypes'),
                 ),
                 (
                     sym_data['id'],
                     sym_data['predicate'],
                     data.get('object_models'),
                     data.get('object_ptypes'),
+                    data.get('object_forbidden_ptypes'),
                 ),
                 is_custom=True,
                 is_copiable=(data['is_copiable'], sym_data['is_copiable']),

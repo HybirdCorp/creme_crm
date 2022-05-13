@@ -486,10 +486,14 @@
 }
 
 .brick-table .brick-table-content .brick-table-action.is-disabled {
-    opacity: 0.6;
+    opacity: 0.4;
 
     cursor: default;
     cursor: not-allowed;
+}
+
+.brick-table .brick-table-content .brick-table-action.is-disabled:hover {
+    text-decoration: none;
 }
 
 .brick-table .brick-table-content .brick-table-icon {

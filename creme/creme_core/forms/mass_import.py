@@ -914,10 +914,11 @@ class RelationExtractorField(MultiRelationEntityField):
                     code='rtypenotallowed',
                 )
 
-            rtype, rtype_allowed_ctypes, rtype_allowed_properties = \
+            # rtype, allowed_ct_ids, needed_ptypes = \
+            rtype, allowed_ct_ids, _needed_ptypes, _forbidden_ptype_ids = \
                 self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
 
-            if rtype_allowed_ctypes and ctype_pk not in rtype_allowed_ctypes:
+            if allowed_ct_ids and ctype_pk not in allowed_ct_ids:
                 raise ValidationError(
                     self.error_messages['ctypenotallowed'],
                     params={'ctype': ctype_pk},
@@ -1541,6 +1542,29 @@ class ImportForm4CremeEntity(ImportForm):
 
                     continue
 
+            forbidden_subject_properties = dict(
+                rtype.subject_forbidden_properties.values_list('id', 'text')
+            )
+            if forbidden_subject_properties:
+                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
+                refused_subjects_properties = [
+                    forb_ptype_text
+                    for forb_ptype_id, forb_ptype_text in forbidden_subject_properties.items()
+                    if forb_ptype_id in subject_ptype_ids
+                ]
+
+                if refused_subjects_properties:
+                    for ptype_text in refused_subjects_properties:
+                        self.append_error(_(
+                            'The entity has the property «{property}» which is '
+                            'forbidden by the relationship «{predicate}»'
+                        ).format(
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
             relations.append(Relation(
                 subject_entity=instance,
                 type=rtype,
@@ -1577,10 +1601,33 @@ class ImportForm4CremeEntity(ImportForm):
 
                     continue
 
+            forbidden_subject_properties = dict(
+                rtype.subject_forbidden_properties.values_list('id', 'text')
+            )
+            if forbidden_subject_properties:
+                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
+                refused_subjects_properties = [
+                    forb_ptype_text
+                    for forb_ptype_id, forb_ptype_text in forbidden_subject_properties.items()
+                    if forb_ptype_id in subject_ptype_ids
+                ]
+
+                if refused_subjects_properties:
+                    for ptype_text in refused_subjects_properties:
+                        self.append_error(_(
+                            'The entity has the property «{property}» which is '
+                            'forbidden by the relationship «{predicate}»'
+                        ).format(
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
             # TODO: move object checking to extractor?
             needed_object_properties = dict(rtype.object_properties.values_list('id', 'text'))
             if needed_object_properties:
-                object_ptype_ids = {*entity.properties.values_list('type', flat=True)}
+                object_ptype_ids = {prop.type_id for prop in entity.get_properties()}
                 missing_objects_properties = [
                     needed_ptype_text
                     for needed_ptype_id, needed_ptype_text in needed_object_properties.items()
@@ -1592,6 +1639,30 @@ class ImportForm4CremeEntity(ImportForm):
                         self.append_error(_(
                             'The entity «{entity}» has no property «{property}» which is '
                             'mandatory for the relationship «{predicate}»'
+                        ).format(
+                            entity=entity,
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
+            forbidden_object_properties = dict(
+                rtype.object_forbidden_properties.values_list('id', 'text')
+            )
+            if forbidden_object_properties:
+                object_ptype_ids = {prop.type_id for prop in entity.get_properties()}
+                refused_objects_properties = [
+                    forb_ptype_text
+                    for forb_ptype_id, forb_ptype_text in forbidden_object_properties.items()
+                    if forb_ptype_id in object_ptype_ids
+                ]
+
+                if refused_objects_properties:
+                    for ptype_text in refused_objects_properties:
+                        self.append_error(_(
+                            'The entity «{entity}» has the property «{property}» which is '
+                            'forbidden by the relationship «{predicate}»'
                         ).format(
                             entity=entity,
                             property=ptype_text,

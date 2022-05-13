@@ -64,6 +64,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(rel_type.minimal_display)
         self.assertFalse(rel_type.subject_ctypes.all())
         self.assertFalse(rel_type.subject_properties.all())
+        self.assertFalse(rel_type.subject_forbidden_properties.all())
 
         sym_type = rel_type.symmetric_type
         self.assertEqual(object_pred, sym_type.predicate)
@@ -71,6 +72,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.minimal_display)
         self.assertFalse(sym_type.subject_ctypes.all())
         self.assertFalse(sym_type.subject_properties.all())
+        self.assertFalse(sym_type.subject_forbidden_properties.all())
 
     def test_create02(self):
         create_pt = CremePropertyType.objects.smart_update_or_create
@@ -83,6 +85,9 @@ class RelationTypeTestCase(CremeTestCase):
             subject_ctypes=[FakeContact],
         )
 
+        forbidden_pt_sub = create_pt(str_pk='test-pt_forb_sub', text='is greedy')
+        forbidden_pt_obj = create_pt(str_pk='test-pt_forb_obj', text='is shy')
+
         get_ct = ContentType.objects.get_for_model
         ct_orga = get_ct(FakeOrganisation)
         ct_contact = get_ct(FakeContact)
@@ -93,14 +98,17 @@ class RelationTypeTestCase(CremeTestCase):
         response = self.client.post(
             self.ADD_URL,
             data={
-                'subject_predicate':  subject_pred,
-                'object_predicate':   'is employed by (test version)',
+                'subject_predicate': subject_pred,
+                'object_predicate':  'is employed by (test version)',
 
-                'subject_ctypes':     [ct_orga.id],
-                'object_ctypes':      [ct_contact.id],
+                'subject_ctypes': [ct_orga.id],
+                'object_ctypes':  [ct_contact.id],
 
                 'subject_properties': [pt_sub.id],
                 'object_properties':  [pt_obj.id],
+
+                'subject_forbidden_properties': [forbidden_pt_sub.id],
+                'object_forbidden_properties':  [forbidden_pt_obj.id],
 
                 'object_is_copiable': 'on',
             },
@@ -108,12 +116,10 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertNoFormError(response)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
-        self.assertListEqual(
-            [ct_orga.id], [ct.id for ct in rel_type.subject_ctypes.all()],
-        )
-
-        self.assertListEqual(
-            [pt_sub.id], [pt.id for pt in rel_type.subject_properties.all()],
+        self.assertCountEqual([ct_orga], rel_type.subject_ctypes.all())
+        self.assertCountEqual([pt_sub], rel_type.subject_properties.all())
+        self.assertCountEqual(
+            [forbidden_pt_sub], rel_type.subject_forbidden_properties.all(),
         )
 
         self.assertFalse(rel_type.is_copiable)
@@ -122,8 +128,11 @@ class RelationTypeTestCase(CremeTestCase):
         sym_type = rel_type.symmetric_type
         self.assertTrue(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
-        self.assertEqual([ct_contact.id], [ct.id for ct in sym_type.subject_ctypes.all()])
-        self.assertEqual([pt_obj.id],     [pt.id for pt in sym_type.subject_properties.all()])
+        self.assertCountEqual([ct_contact], sym_type.subject_ctypes.all())
+        self.assertCountEqual([pt_obj], sym_type.subject_properties.all())
+        self.assertCountEqual(
+            [forbidden_pt_obj], sym_type.subject_forbidden_properties.all(),
+        )
 
     def test_create03(self):
         subject_pred = 'loves'

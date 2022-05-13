@@ -501,6 +501,7 @@ class RelationTypeExporter(Exporter):
     model = models.RelationType
 
     def get_queryset(self):
+        # TODO: prefetch
         return super().get_queryset().filter(
             is_custom=True,
             pk__contains='-subject_',
@@ -536,9 +537,19 @@ class RelationTypeExporter(Exporter):
         if subject_properties:
             data['subject_properties'] = [*subject_properties]
 
+        subject_forbidden_properties = instance.subject_forbidden_properties\
+                                               .values_list('id', flat=True)
+        if subject_forbidden_properties:
+            data['subject_forbidden_properties'] = [*subject_forbidden_properties]
+
         object_properties = instance.object_properties.values_list('id', flat=True)
         if object_properties:
             data['object_properties'] = [*object_properties]
+
+        object_forbidden_properties = instance.object_forbidden_properties\
+                                              .values_list('id', flat=True)
+        if object_forbidden_properties:
+            data['object_forbidden_properties'] = [*object_forbidden_properties]
 
         return data
 

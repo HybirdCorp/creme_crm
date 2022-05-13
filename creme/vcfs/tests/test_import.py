@@ -503,8 +503,12 @@ END:VCARD"""
             ('test-object_fights',  'is fought by', [Organisation]),
         )[0]
         rtype_with_object_prop = create_rtype(
-            ('test-subject_', 'is an insignificant pawn of', [Contact]),
-            ('test-object_',  'has pawn',                    [Organisation], [ptype02]),
+            ('test-subject_pawn', 'is an insignificant pawn of', [Contact]),
+            ('test-object_pawn',  'has pawn',                    [Organisation], [ptype02]),
+        )[0]
+        rtype_with_object_forb_prop = create_rtype(
+            ('test-subject_fan', 'is a fan of', [Contact]),
+            ('test-object_fan',  'has fan',                    [Organisation], [], [ptype02]),
         )[0]
 
         disabled_rtype = create_rtype(
@@ -533,11 +537,12 @@ END:VCARD"""
         self.assertIn(REL_SUB_EMPLOYED_BY, rtype_ids)
         self.assertIn(REL_SUB_MANAGES,     rtype_ids)
         self.assertIn(rtype.id,            rtype_ids)
-        self.assertNotIn(ct_incompatible_rtype.id,   rtype_ids)
-        self.assertNotIn(internal_rtype.id,          rtype_ids)
-        self.assertNotIn(disabled_rtype.id,          rtype_ids)
-        self.assertNotIn(rtype_with_subject_prop.id, rtype_ids)
-        self.assertNotIn(rtype_with_object_prop.id,  rtype_ids)
+        self.assertNotIn(ct_incompatible_rtype.id,       rtype_ids)
+        self.assertNotIn(internal_rtype.id,              rtype_ids)
+        self.assertNotIn(disabled_rtype.id,              rtype_ids)
+        self.assertNotIn(rtype_with_subject_prop.id,     rtype_ids)
+        self.assertNotIn(rtype_with_object_prop.id,      rtype_ids)
+        self.assertNotIn(rtype_with_object_forb_prop.id, rtype_ids)
 
         # ---
         response = self._post_step1(

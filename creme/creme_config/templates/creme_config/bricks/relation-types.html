@@ -36,12 +36,16 @@
     {% with sym_type=relation_type.symmetric_type %}
     <tr {% if not relation_type.enabled %}class="relation-type-disabled"{% endif %} >
         <td class="relation-subject-ctypes">{% widget_enumerator relation_type.subject_ctypes.all|uca_sort threshold=5 empty=_('No type') summary=_('{count} types of resource') %}</td>
-        <td class="relation-subject-properties">{% widget_enumerator relation_type.subject_properties.all|uca_sort threshold=5 empty=_('No property') summary=_('{count} types of property') %}</td>
+        <td class="relation-subject-properties">
+            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.subject_properties.all forbidden=relation_type.subject_forbidden_properties.all %}
+        </td>
         <td class="relation-subject-copiable">{% if not relation_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the subject entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if relation_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of subject) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
         <td class="relation-predicate">{{relation_type.predicate}} — {{sym_type.predicate}}</td>
         <td class="relation-object-ctypes">{% widget_enumerator relation_type.object_ctypes.all|uca_sort threshold=5 empty=_('No type') summary=_('{count} types of resource') %}</td>
-        <td class="relation-object-properties">{% widget_enumerator relation_type.object_properties.all|uca_sort threshold=5 empty=_('No property') summary=_('{count} types of property') %}</td>
+        <td class="relation-object-properties">
+            {% include 'creme_config/bricks/frags/rtype_property_contraints.html' with mandatory=relation_type.object_properties.all forbidden=relation_type.object_forbidden_properties.all %}
+        </td>
         <td class="relation-object-copiable">{% if not sym_type.is_copiable %}<span title="{% translate 'The relationships are not copied when the object entity is cloned' %}">{% translate 'No copy' %}</span>{% endif %}</td>
         <td class="relation-subject-display">{% if sym_type.minimal_display %}<span title="{% translate 'The relationships are not displayed in the «Relationships» block (detail-view of object) when they are already displayed by another block.' %}">{% translate 'Display once' %}</span>{% endif %}</td>
         <td {% brick_table_data_status action %}>
