@@ -1,5 +1,4 @@
 /* Layout with columns
-   NB: the "inner-popup-content" layout is used for activity form in calendar)
    TODO: new file inner-popup.css ??
 */
 
@@ -76,7 +75,7 @@
 .content-form-view .south,
 .inner-popup-content .north,
 .inner-popup-content .south {
-    width:99.9%;
+    width: 99.9%;
 }
 
 /* Buttons lists (global, entity, business) */
