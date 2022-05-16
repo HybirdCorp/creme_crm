@@ -40,7 +40,10 @@ def http_port():
 class CremeTestSuite(unittest.TestSuite):
     """This test suite populates the DB in the Creme way."""
     def run(self, *args, **kwargs):
-        call_command(PopulateCommand(), verbosity=0)
+        populate_command = PopulateCommand()
+        populate_command.requires_system_checks = False
+        populate_command.requires_migrations_checks = False
+        call_command(populate_command, verbosity=0)
         # The cache seems corrupted when we switch to the test DB
         ContentType.objects.clear_cache()
 
@@ -49,7 +52,10 @@ class CremeTestSuite(unittest.TestSuite):
 
 def creme_init_worker(counter):
     _init_worker(counter)
-    call_command(PopulateCommand(), verbosity=0)
+    populate_command = PopulateCommand()
+    populate_command.requires_system_checks = False
+    populate_command.requires_migrations_checks = False
+    call_command(populate_command, verbosity=0)
     # The cache seems corrupted when we switch to the test DB
     ContentType.objects.clear_cache()
 
