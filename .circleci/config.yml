@@ -29,6 +29,14 @@ commands:
 #      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
       - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
 
+  clean-pyc:
+    parameters:
+      path:
+        type: string
+    steps:
+      - run: find << parameters.path >> -type f -name "*.py[co]" -delete
+      - run: find << parameters.path >> -type d -name "__pycache__" -delete
+
   install-py-dev-env:
     parameters:
       python:
@@ -103,6 +111,8 @@ commands:
       - run: creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
+      - clean-pyc:
+          path: << pipeline.parameters.source_path >>
 
   run-creme-unit-tests:
     description: Run Creme unit tests
