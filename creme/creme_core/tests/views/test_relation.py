@@ -1188,6 +1188,28 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
 
+    def test_select_relations_objects05(self):
+        "Is disabled => error."
+        user = self.login()
+
+        subject = CremeEntity.objects.create(user=user)
+        ct = ContentType.objects.get_for_model(FakeContact)
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_foobar', 'is loving'),
+            ('test-object_foobar',  'is loved by'),
+        )[0]
+        rtype.enabled = False
+        rtype.save()
+
+        self.assertGET409(
+            self.SELECTION_URL,
+            data={
+                'subject_id':    subject.id,
+                'rtype_id':      rtype.id,
+                'objects_ct_id': ct.id,
+            },
+        )
+
     def _aux_add_relations_with_same_type(self):
         create_entity = partial(CremeEntity.objects.create, user=self.user)
         self.subject  = create_entity()

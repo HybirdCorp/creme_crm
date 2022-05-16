@@ -366,6 +366,7 @@ class RelationsObjectsSelectionPopup(base.EntityRelatedMixin,
             pk=utils.get_from_GET_or_404(self.request.GET, key=self.rtype_id_arg),
         )
         rtype.is_not_internal_or_die()
+        rtype.is_enabled_or_die()
 
         return rtype
 
