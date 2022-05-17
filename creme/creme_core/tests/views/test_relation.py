@@ -1364,48 +1364,65 @@ class RelationViewsTestCase(ViewsTestCase):
         self.assertEqual(orga01.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type06(self):
-        "Property constraint errors."
+        "Property constraint."
         user = self.login()
 
         create_ptype = CremePropertyType.objects.smart_update_or_create
-        subject_ptype = create_ptype(str_pk='test-prop_foobar01', text='Subject property')
-        object_ptype  = create_ptype(str_pk='test-prop_foobar02', text='Contact property')
+        subject_ptype1 = create_ptype(str_pk='test-prop_subj1', text='Subject property #1')
+        subject_ptype2 = create_ptype(str_pk='test-prop_subj2', text='Subject property #2')
+        object_ptype1  = create_ptype(str_pk='test-prop_obj1',  text='Contact property #1')
+        object_ptype2  = create_ptype(str_pk='test-prop_obj2',  text='Contact property #2')
 
         create_entity = partial(CremeEntity.objects.create, user=user)
-        bad_subject  = create_entity()
-        good_subject = create_entity()
-        bad_object   = create_entity()
-        good_object  = create_entity()
+        bad_subject1  = create_entity(description='Bad subject #1')
+        bad_subject2  = create_entity(description='Bad subject #2')
+        good_subject  = create_entity(description='Good subject')
+        bad_object1   = create_entity(description='Bad object #1')
+        bad_object2   = create_entity(description='Bad object #2')
+        good_object   = create_entity(description='Good object #1')
 
-        CremeProperty.objects.create(type=subject_ptype, creme_entity=good_subject)
-        CremeProperty.objects.create(type=object_ptype, creme_entity=good_object)
+        create_prop = CremeProperty.objects.create
+        create_prop(type=subject_ptype1, creme_entity=good_subject)
+        create_prop(type=subject_ptype2, creme_entity=good_subject)
+        create_prop(type=object_ptype1, creme_entity=good_object)
+        create_prop(type=object_ptype2, creme_entity=good_object)
+
+        create_prop(type=subject_ptype1, creme_entity=bad_subject2)  # only one property
+        create_prop(type=object_ptype1,  creme_entity=bad_object2)  # only one property
 
         rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_foobar', 'manages',       [], [subject_ptype]),
-            ('test-object_foobar',  'is managed by', [], [object_ptype]),
+            ('test-subject_foobar', 'manages',       [], [subject_ptype1, subject_ptype2]),
+            ('test-object_foobar',  'is managed by', [], [object_ptype1, object_ptype2]),
         )[0]
 
-        self.assertPOST(
-            409, self.ADD_FROM_PRED_URL,
-            data={
-                'subject_id':   bad_subject.id,
-                'predicate_id': rtype.id,
-                'entities':     [good_object.id],
-            },
-        )
+        url = self.ADD_FROM_PRED_URL
+
+        # Subject with 0 needed property ---
+        self.assertPOST(409, url, data={
+            'subject_id':   bad_subject1.id,
+            'predicate_id': rtype.id,
+            'entities':     [good_object.id],
+        })
         self.assertFalse(Relation.objects.filter(type=rtype))
 
-        self.assertPOST(
-            409, self.ADD_FROM_PRED_URL,
-            data={
-                'subject_id':   good_subject.id,
-                'predicate_id': rtype.id,
-                'entities':     [good_object.id, bad_object.id],
-            },
+        # Subject with 1 needed property ---
+        self.assertPOST(409, url, data={
+            'subject_id':   bad_subject2.id,
+            'predicate_id': rtype.id,
+            'entities':     [good_object.id],
+        })
+        self.assertFalse(Relation.objects.filter(type=rtype))
+
+        # Objects with 0 & 1 needed property ---
+        self.assertPOST(409, self.ADD_FROM_PRED_URL, data={
+            'subject_id':   good_subject.id,
+            'predicate_id': rtype.id,
+            'entities':     [good_object.id, bad_object1.id, bad_object2.id],
+        })
+        self.assertCountEqual(
+            [good_object.description],
+            [rel.object_entity.description for rel in Relation.objects.filter(type=rtype)],
         )
-        relations = Relation.objects.filter(type=rtype)
-        self.assertEqual(1,              len(relations))
-        self.assertEqual(good_object.id, relations[0].object_entity_id)
 
     def test_add_relations_with_same_type07(self):
         "Is internal."

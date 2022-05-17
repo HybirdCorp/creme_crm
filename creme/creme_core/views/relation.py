@@ -435,10 +435,10 @@ def add_relations_with_same_type(request):
     entity_ids.add(subject_id)  # NB: so we can do only one query
     entities = [*CremeEntity.objects.filter(pk__in=entity_ids)]
 
-    subject_properties = frozenset(rtype.subject_properties.values_list('id', flat=True))
-    object_properties  = frozenset(rtype.object_properties.values_list('id', flat=True))
+    needed_subject_pt_ids = rtype.subject_properties.values_list('id', flat=True)
+    needed_object_pt_ids  = rtype.object_properties.values_list('id', flat=True)
 
-    if subject_properties or object_properties:
+    if needed_subject_pt_ids or needed_object_pt_ids:
         # Optimise the get_properties() (but it retrieves CremePropertyType objects too)
         CremeEntity.populate_properties(entities)
 
@@ -466,33 +466,37 @@ def add_relations_with_same_type(request):
         )
 
     # TODO: improve RelationType.is_compatible()
-    subject_ctypes = frozenset(
-        int(ct_id)
-        for ct_id in rtype.subject_ctypes.values_list('id', flat=True)
-    )
-    if subject_ctypes and subject.entity_type_id not in subject_ctypes:
+    subject_ct_ids = rtype.subject_ctypes.values_list('id', flat=True)
+    if subject_ct_ids and subject.entity_type_id not in subject_ct_ids:
         raise ConflictError('Incompatible type for subject')
 
-    if subject_properties and not any(
-        p.type_id in subject_properties for p in subject.get_properties()
-    ):
-        raise ConflictError('Missing compatible property for subject')
+    if needed_subject_pt_ids:
+        subject_pt_ids = {p.type_id for p in subject.get_properties()}
+
+        if any(
+            needed_ptype_id not in subject_pt_ids
+            for needed_ptype_id in needed_subject_pt_ids
+        ):
+            raise ConflictError('Missing compatible property for subject')
 
     # TODO: idem
-    object_ctypes = frozenset(
-        int(ct_id) for ct_id in rtype.object_ctypes.values_list('id', flat=True)
-    )
+    object_ct_ids = frozenset(rtype.object_ctypes.values_list('id', flat=True))
     check_ctype = (
-        (lambda e: e.entity_type_id in object_ctypes)
-        if object_ctypes else
+        (lambda e: e.entity_type_id in object_ct_ids)
+        if object_ct_ids else
         (lambda e: True)
     )
 
-    check_properties = (
-        (lambda e: any(p.type_id in object_properties for p in e.get_properties()))
-        if object_properties else
-        (lambda e: True)
-    )
+    def check_properties(entity):
+        if not needed_object_pt_ids:
+            return True
+
+        object_pt_ids = {p.type_id for p in entity.get_properties()}
+
+        return all(
+            needed_ptype_id in object_pt_ids
+            for needed_ptype_id in needed_object_pt_ids
+        )
 
     create_relation = Relation.objects.safe_create
     for entity in entities:
@@ -514,13 +518,19 @@ def add_relations_with_same_type(request):
                     'Permission denied to entity with id={}'
                 ).format(entity.id))
         else:
-            create_relation(subject_entity=subject, type=rtype, object_entity=entity, user=user)
+            create_relation(
+                subject_entity=subject, type=rtype, object_entity=entity, user=user,
+            )
 
     if not errors:
         status = 200
         message = gettext('Operation successfully completed')
     else:
         status = min(errors)
-        message = ','.join(msg for error_messages in errors.values() for msg in error_messages)
+        message = ','.join(
+            msg
+            for error_messages in errors.values()
+            for msg in error_messages
+        )
 
     return HttpResponse(message, status=status)
