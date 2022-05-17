@@ -1,5 +1,10 @@
 == Version 2.3.4 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # The management of the properties constraints of a Relation view has been fixed
+      (it was not mandatory to have all the needed properties).
+
 
 == Version 2.3.3 ==
 
