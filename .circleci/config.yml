@@ -1,4 +1,5 @@
 version: 2.1
+
 parameters:
   source_path:
     type: string
@@ -28,14 +29,6 @@ commands:
       - run: sudo apt update
 #      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
       - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
-
-  clean-pyc:
-    parameters:
-      path:
-        type: string
-    steps:
-      - run: find << parameters.path >> -type f -name "*.py[co]" -delete
-      - run: find << parameters.path >> -type d -name "__pycache__" -delete
 
   install-py-dev-env:
     parameters:
@@ -111,14 +104,20 @@ commands:
       - run: creme migrate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme creme_populate --settings=<< pipeline.parameters.instance_directory >>.settings
       - run: creme generatemedia --settings=<< pipeline.parameters.instance_directory >>.settings
-      - clean-pyc:
-          path: << pipeline.parameters.source_path >>
 
   run-creme-unit-tests:
     description: Run Creme unit tests
     steps:
       - run:
-          name: "Run tests with coverage"
+          name: "Run Creme unit tests"
+          command: |
+            creme test --settings=<< pipeline.parameters.instance_directory >>.settings --noinput --parallel=8 creme
+
+  run-creme-coverage:
+    description: Run Creme unit tests with coverage
+    steps:
+      - run:
+          name: "Run Creme unit tests with coverage"
           command: |
             COVERAGE_PROCESS_START=<< pipeline.parameters.source_path >>/.coveragerc;
             coverage run --source << pipeline.parameters.source_path >>/creme/ --rcfile << pipeline.parameters.source_path >>/.coveragerc \
@@ -242,6 +241,31 @@ jobs:
       - run-creme-unit-tests
 
 
+  run-coverage:
+    docker:
+      - image: cimg/python:3.7
+      - image: cimg/postgres:12.10
+        environment:
+          POSTGRES_USER: creme
+          POSTGRES_PASSWORD: creme
+          POSTGRES_DB: cremecrm
+    resource_class: large
+    steps:
+      - checkout-creme
+      - setup-locale:
+          language: en_US
+          encoding: UTF-8
+      - wait-database:
+          port: 5432
+      - install-creme-system-packages
+      - install-py-dev-env:
+          python: "python3.7"
+      - create-creme-project
+      - setup-creme-unit-tests:
+          local_settings: 'pgsql_settings'
+      - run-creme-coverage
+
+
   python38-tests-sqlite3:
     docker:
       - image: cimg/python:3.8
@@ -275,6 +299,7 @@ jobs:
       - setup-creme-unit-tests
       - run-creme-unit-tests
 
+
   python310-tests-sqlite3:
     docker:
       - image: cimg/python:3.10
@@ -290,6 +315,7 @@ jobs:
       - create-creme-project
       - setup-creme-unit-tests
       - run-creme-unit-tests
+
 
   javascript-lint:
     docker:
@@ -326,6 +352,7 @@ jobs:
                   --rule 'template/no-template-branch: 2' \
                   --global '____' \
                   --format stylish
+
 
   javascript-tests:
     docker:
@@ -410,6 +437,18 @@ jobs:
 
 workflows:
   version: 2
+
+  coverage:
+    triggers:
+      - schedule:
+          cron: "0 0 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - run-coverage
+
   build:
     jobs:
       - javascript-lint:
