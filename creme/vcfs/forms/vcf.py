@@ -285,6 +285,9 @@ class VcfImportForm(CremeModelForm):
             symmetric_type__subject_ctypes=_get_ct(Organisation),
             is_internal=False,
             enabled=True,
+            subject_properties__isnull=True,  # TODO: propose to add properties?
+            # TODO: validates Organisation properties instead of ignoring the RelationType
+            symmetric_type__subject_properties__isnull=True,
         )
 
         self._hide_fields()
