@@ -422,8 +422,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFalse(FakeOrganisation.objects.filter(name=orga_name))
 
         employed = RelationType.objects.smart_update_or_create(
-            ('persons-subject_employed_by', 'is an employee of'),
-            ('persons-object_employed_by',  'employs'),
+            ('test-subject_employed_by', 'is an employee of'),
+            ('test-object_employed_by',  'employs'),
         )[0]
         doc = builder([('Ayanami', 'Rei', orga_name)])
         response = self.client.post(
@@ -531,8 +531,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         user = self.login()
 
         employed = RelationType.objects.smart_update_or_create(
-            ('persons-subject_employed_by', 'is an employee of'),
-            ('persons-object_employed_by',  'employs'),
+            ('test-subject_employed_by', 'employed by'),
+            ('test-object_employed_by',  'employs'),
         )[0]
 
         nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
@@ -546,8 +546,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'fixed_relations': self.formfield_value_multi_relation_entity([employed.id, nerv]),
-                'dyn_relations': self._dyn_relations_value(employed, FakeOrganisation, 3, 'name'),
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    [employed.id, nerv],
+                ),
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 3, 'name',
+                ),
             },
         )
 
@@ -555,6 +559,269 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
         self.assertRelationCount(1, rei, employed.id, nerv)  # Not 2
+
+    def test_relations_with_property_constraint01(self):
+        "Constraint on object."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_rich', text='Is rich',
+        )
+        employed = RelationType.objects.smart_update_or_create(
+            ('test-subject_employed_by', 'employed by', [FakeContact]),
+            ('test-object_employed_by',  'employs',     [FakeOrganisation], [ptype]),
+        )[0]
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        nerv = create_orga(name='Nerv')  # No ptype
+
+        seele = create_orga(name='Seele')
+        CremeProperty.objects.create(type=ptype, creme_entity=seele)
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name, seele.name)])
+
+        # Fixed relation
+        response1 = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    [employed.id, nerv],
+                    [employed.id, seele],
+                ),
+            },
+        )
+        self.assertFormError(
+            response1, 'form', 'fixed_relations',
+            _(
+                'This entity has no property that matches the constraints of '
+                'the type of relationship.'
+            ),
+        )
+
+        # Dynamic relation
+        orga_ct_id = str(ContentType.objects.get_for_model(FakeOrganisation).id)
+        response2 = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'dyn_relations': json_dump([
+                    {
+                        'rtype': employed.id,
+                        'ctype': orga_ct_id,
+                        'column': '3',
+                        'searchfield': 'name',
+                    }, {
+                        'rtype': employed.id,
+                        'ctype': orga_ct_id,
+                        'column': '4',
+                        'searchfield': 'name',
+                    },
+                ]),
+            },
+        )
+        self.assertNoFormError(response2)
+
+        job = self._execute_job(response2)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, rei, employed.id, seele)
+        self.assertRelationCount(0, rei, employed.id, nerv)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+        self.assertListEqual(
+            [
+                _(
+                    'The entity «{entity}» has no property «{property}» which is '
+                    'mandatory for the relationship «{predicate}»'
+                ).format(
+                    entity=nerv,
+                    property=ptype.text,
+                    predicate=employed.predicate,
+                ),
+            ],
+            results[0].messages,
+        )
+
+    def test_relations_with_property_constraint02(self):
+        "Constraint on subject: fixed relationships + error."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_pilot', text='Is a pilot',
+        )
+        employed = RelationType.objects.smart_update_or_create(
+            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
+            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
+        )[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')  # No ptype
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+
+        response = self.client.post(
+            self._build_import_url(FakeContact), follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    [employed.id, nerv],
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(0, rei, employed.id, nerv)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+        self.assertListEqual(
+            [
+                _(
+                    'The entity has no property «{property}» which is '
+                    'mandatory for the relationship «{predicate}»'
+                ).format(
+                    property=ptype.text,
+                    predicate=employed.predicate,
+                ),
+            ],
+            results[0].messages,
+        )
+
+    def test_relations_with_property_constraint03(self):
+        "Constraint on subject: fixed relationships (OK)."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_pilot', text='Is a pilot',
+        )
+        employed = RelationType.objects.smart_update_or_create(
+            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
+            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
+        )[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'property_types': [ptype.id],
+                'fixed_relations': self.formfield_value_multi_relation_entity(
+                    [employed.id, nerv],
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, rei, employed.id, nerv)
+
+    def test_relations_with_property_constraint04(self):
+        "Constraint on subject: dynamic relationships + error."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_pilot', text='Is a pilot',
+        )
+        employed = RelationType.objects.smart_update_or_create(
+            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
+            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
+        )[0]
+
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 3, 'name',
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        job = self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(0, rei, employed.id, nerv)
+
+        results = self._get_job_results(job)
+        self.assertEqual(1, len(results))
+        self.assertListEqual(
+            [
+                _(
+                    'The entity has no property «{property}» which is '
+                    'mandatory for the relationship «{predicate}»'
+                ).format(
+                    property=ptype.text,
+                    predicate=employed.predicate,
+                ),
+            ],
+            results[0].messages,
+        )
+
+    def test_relations_with_property_constraint05(self):
+        "Constraint on subject: dynamic relationships (OK)."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_pilot', text='Is a pilot',
+        )
+        employed = RelationType.objects.smart_update_or_create(
+            ('test-subject_employed_by', 'employed by', [FakeContact], [ptype]),
+            ('test-object_employed_by',  'employs',     [FakeOrganisation]),
+        )[0]
+        nerv = FakeOrganisation.objects.create(user=user, name='Nerv')
+
+        last_name = 'Ayanami'
+        first_name = 'Rei'
+        doc = self._build_csv_doc([(first_name, last_name, nerv.name)])
+        response = self.client.post(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'property_types': [ptype.id],
+                'dyn_relations': self._dyn_relations_value(
+                    employed, FakeOrganisation, 3, 'name',
+                ),
+            },
+        )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        rei = self.get_object_or_fail(FakeContact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, rei, employed.id, nerv)
 
     def test_default_value(self):
         "Use default value when CSV value is empty (+ fix unicode bug)."
@@ -1107,8 +1374,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
 
         employed = RelationType.objects.smart_update_or_create(
-            ('persons-subject_employed_by', 'is an employee of'),
-            ('persons-object_employed_by',  'employs'),
+            ('test-subject_employed_by', 'is an employee of'),
+            ('test-object_employed_by',  'employs'),
         )[0]
         doc = self._build_csv_doc([('Ayanami', 'Rei', 'NERV')])
         response = self.assertPOST200(

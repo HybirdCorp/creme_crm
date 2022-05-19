@@ -1521,25 +1521,95 @@ class ImportForm4CremeEntity(ImportForm):
             create_prop(type=prop_type)
 
         # Relationships -----
-        relations = [
-            Relation(
+        relations = []
+
+        for rtype, entity in cdata['fixed_relations']:
+            needed_subject_properties = dict(rtype.subject_properties.values_list('id', 'text'))
+            if needed_subject_properties:
+                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
+                missing_subjects_properties = [
+                    needed_ptype_text
+                    for needed_ptype_id, needed_ptype_text in needed_subject_properties.items()
+                    if needed_ptype_id not in subject_ptype_ids
+                ]
+
+                if missing_subjects_properties:
+                    for ptype_text in missing_subjects_properties:
+                        self.append_error(_(
+                            'The entity has no property «{property}» which is '
+                            'mandatory for the relationship «{predicate}»'
+                        ).format(
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
+            relations.append(Relation(
                 subject_entity=instance,
                 type=rtype,
                 object_entity=entity,
                 user=user,
-            ) for rtype, entity in cdata['fixed_relations']
-        ]
+            ))
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
                 self.append_error(err_msg)
-            elif entity is not None:
-                relations.append(Relation(
-                    subject_entity=instance,
-                    type=rtype,
-                    object_entity=entity,
-                    user=user,
-                ))
+                continue
+
+            if entity is None:
+                continue
+
+            needed_subject_properties = dict(rtype.subject_properties.values_list('id', 'text'))
+            if needed_subject_properties:
+                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
+                missing_subjects_properties = [
+                    needed_ptype_text
+                    for needed_ptype_id, needed_ptype_text in needed_subject_properties.items()
+                    if needed_ptype_id not in subject_ptype_ids
+                ]
+
+                if missing_subjects_properties:
+                    for ptype_text in missing_subjects_properties:
+                        self.append_error(_(
+                            'The entity has no property «{property}» which is '
+                            'mandatory for the relationship «{predicate}»'
+                        ).format(
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
+            # TODO: move object checking to extractor?
+            needed_object_properties = dict(rtype.object_properties.values_list('id', 'text'))
+            if needed_object_properties:
+                object_ptype_ids = {*entity.properties.values_list('type', flat=True)}
+                missing_objects_properties = [
+                    needed_ptype_text
+                    for needed_ptype_id, needed_ptype_text in needed_object_properties.items()
+                    if needed_ptype_id not in object_ptype_ids
+                ]
+
+                if missing_objects_properties:
+                    for ptype_text in missing_objects_properties:
+                        self.append_error(_(
+                            'The entity «{entity}» has no property «{property}» which is '
+                            'mandatory for the relationship «{predicate}»'
+                        ).format(
+                            entity=entity,
+                            property=ptype_text,
+                            predicate=rtype.predicate,
+                        ))
+
+                    continue
+
+            relations.append(Relation(
+                subject_entity=instance,
+                type=rtype,
+                object_entity=entity,
+                user=user,
+            ))
 
         Relation.objects.safe_multi_save(relations)
 
