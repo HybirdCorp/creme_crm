@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -265,6 +265,9 @@ class VcfImportForm(CremeModelForm):
             # object_ctypes=_get_ct(Organisation),
             symmetric_type__subject_ctypes=_get_ct(Organisation),
             is_internal=False,
+            subject_properties__isnull=True,  # TODO: propose to add properties?
+            # TODO: validates Organisation properties instead of ignoring the RelationType
+            symmetric_type__subject_properties__isnull=True,
         )
 
         self._hide_fields()

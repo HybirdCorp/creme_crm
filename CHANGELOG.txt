@@ -4,6 +4,10 @@
   ------------
     # The management of the properties constraints of a Relation view has been fixed
       (it was not mandatory to have all the needed properties).
+    # Apps :
+        * VCFs :
+            - In the import form, the RelationTypes with property constraints are not proposed anymore
+              (it's an easy way in order to respect the constraints, we could do better).
 
 
 == Version 2.2.12 ==
