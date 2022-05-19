@@ -504,6 +504,7 @@ class RelationTypeExporter(Exporter):
         return super().get_queryset().filter(
             is_custom=True,
             pk__contains='-subject_',
+            enabled=True,
         )
 
     @staticmethod
