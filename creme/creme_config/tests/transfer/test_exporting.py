@@ -1168,6 +1168,16 @@ class ExportingTestCase(CremeTestCase):
             minimal_display=(True, False),
         )
 
+        rtype3a, rtype3b = create_rtype(
+            (s_pk_fmt(3),  'dislike',        [FakeContact, FakeOrganisation]),
+            (o_pk_fmt(3),  'is disliked by', [FakeDocument]),
+            is_custom=True,
+        )
+        rtype3a.enabled = False
+        rtype3a.save()
+        rtype3b.enabled = False
+        rtype3b.save()
+
         response = self.assertGET200(self.URL)
         content = response.json()
 
