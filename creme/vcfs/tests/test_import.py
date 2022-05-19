@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from PIL.Image import open as open_img
 
 from creme.creme_core.models import (
+    CremePropertyType,
     CustomField,
     CustomFieldValue,
     FieldsConfig,
@@ -474,8 +475,20 @@ END:VCARD"""
     def test_add_contact_vcf01(self):
         user = self.login()
 
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype01 = create_ptype(
+            str_pk='test-prop_fighter', text='Is a fighter',
+        )
+        ptype02 = create_ptype(
+            str_pk='test-prop_bigcorp', text='Is big corp',
+        )
+
         create_rtype = RelationType.objects.smart_update_or_create
-        incompatible_rtype = create_rtype(
+        rtype = create_rtype(
+            ('test-subject_showcases', 'showcases',       [Contact]),
+            ('test-object_showcases',  'is showcased by', [Organisation]),
+        )[0]
+        ct_incompatible_rtype = create_rtype(
             ('test-subject_loves', 'is loving',   [Contact]),
             ('test-object_loves',  'is loved by', [Contact]),
         )[0]
@@ -483,6 +496,14 @@ END:VCARD"""
             ('test-subject_leads', 'is leading', [Contact]),
             ('test-object_leads',  'is lead by', [Organisation]),
             is_internal=True,
+        )[0]
+        rtype_with_subject_prop = create_rtype(
+            ('test-subject_fights', 'fights',       [Contact],      [ptype01]),
+            ('test-object_fights',  'is fought by', [Organisation]),
+        )[0]
+        rtype_with_object_prop = create_rtype(
+            ('test-subject_pawn', 'is an insignificant pawn of', [Contact]),
+            ('test-object_pawn',  'has pawn',                    [Organisation], [ptype02]),
         )[0]
 
         contact_count = Contact.objects.count()
@@ -503,8 +524,11 @@ END:VCARD"""
 
         self.assertIn(REL_SUB_EMPLOYED_BY, rtype_ids)
         self.assertIn(REL_SUB_MANAGES,     rtype_ids)
-        self.assertNotIn(incompatible_rtype.id, rtype_ids)
-        self.assertNotIn(internal_rtype.id,     rtype_ids)
+        self.assertIn(rtype.id,            rtype_ids)
+        self.assertNotIn(ct_incompatible_rtype.id,   rtype_ids)
+        self.assertNotIn(internal_rtype.id,          rtype_ids)
+        self.assertNotIn(rtype_with_subject_prop.id, rtype_ids)
+        self.assertNotIn(rtype_with_object_prop.id,  rtype_ids)
 
         # ---
         response = self._post_step1(
