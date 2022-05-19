@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-26 15:38+0200\n"
+"POT-Creation-Date: 2022-05-20 16:14+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1248,6 +1248,22 @@ msgstr "Propriétés associées"
 
 msgid "Associated relationships"
 msgstr "Relations associées"
+
+#, python-brace-format
+msgid ""
+"The entity has no property «{property}» which is mandatory for the "
+"relationship «{predicate}»"
+msgstr ""
+"La fiche n'a pas la propriété «%(property)s» qui est obligatoire pour la "
+"relation «%(predicate)s»"
+
+#, python-brace-format
+msgid ""
+"The entity «{entity}» has no property «{property}» which is mandatory for "
+"the relationship «{predicate}»"
+msgstr ""
+"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
+"pour la relation «%(predicate)s»"
 
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
