@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-03-16 10:01+0100\n"
+"POT-Creation-Date: 2022-05-20 18:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1075,11 +1075,11 @@ msgstr "Ce type de ressource n'est pas autorisé."
 msgid "This entity is invalid."
 msgstr "Cette fiche est invalide."
 
-#: forms/entity_filter/fields.py:857 forms/fields.py:1187
+#: forms/entity_filter/fields.py:858 forms/fields.py:1187
 msgid "This filter is invalid."
 msgstr "Ce filtre est invalide."
 
-#: forms/entity_filter/fields.py:927
+#: forms/entity_filter/fields.py:928
 msgid "This property type is invalid with this model."
 msgstr "Ce type de propriété est invalide avec ce type de fiche."
 
@@ -1128,19 +1128,19 @@ msgstr "N'a pas la relation"
 msgid "No choice available."
 msgstr "Aucun choix disponible."
 
-#: forms/entity_filter/widgets.py:412
+#: forms/entity_filter/widgets.py:410
 msgid "No custom field at present."
 msgstr "Aucun champ personnalisé pour le moment."
 
-#: forms/entity_filter/widgets.py:436
+#: forms/entity_filter/widgets.py:434
 msgid "No date custom field at present."
 msgstr "Aucun champ personnalisé de date pour le moment."
 
-#: forms/entity_filter/widgets.py:503
+#: forms/entity_filter/widgets.py:501
 msgid "No relation type at present."
 msgstr "Aucun type de relation pour le moment."
 
-#: forms/entity_filter/widgets.py:533
+#: forms/entity_filter/widgets.py:531
 msgid "(no filter)"
 msgstr "(pas de filtre)"
 
@@ -1560,16 +1560,34 @@ msgstr "Propriétés associées"
 msgid "Associated relationships"
 msgstr "Relations associées"
 
-#: forms/mass_import.py:1598
+#: forms/mass_import.py:1553 forms/mass_import.py:1589
+#, python-brace-format
+msgid ""
+"The entity has no property «{property}» which is mandatory for the "
+"relationship «{predicate}»"
+msgstr ""
+"La fiche n'a pas la propriété «%(property)s» qui est obligatoire pour la "
+"relation «%(predicate)s»"
+
+#: forms/mass_import.py:1611
+#, python-brace-format
+msgid ""
+"The entity «{entity}» has no property «{property}» which is mandatory for "
+"the relationship «{predicate}»"
+msgstr ""
+"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
+"pour la relation «%(predicate)s»"
+
+#: forms/mass_import.py:1668
 msgid "Not in the file"
 msgstr "Pas dans le fichier"
 
-#: forms/mass_import.py:1602
+#: forms/mass_import.py:1672
 #, python-brace-format
 msgid "Column {index} - {name}"
 msgstr "Colonne {index} - {name}"
 
-#: forms/mass_import.py:1609
+#: forms/mass_import.py:1679
 msgid "Column {}"
 msgstr "Colonne {}"
 
@@ -4204,7 +4222,7 @@ msgid_plural "{count} entities don't exist or have been removed."
 msgstr[0] "{count} fiche n'existe pas ou a été supprimée."
 msgstr[1] "{count} fiches n'existent pas ou ont été supprimées."
 
-#: views/entity.py:1212 views/relation.py:571
+#: views/entity.py:1212 views/relation.py:577
 msgid "Operation successfully completed"
 msgstr "Opération effectuée avec succès"
 
@@ -4332,15 +4350,15 @@ msgstr[1] ""
 msgid "Multiple adding of relationships"
 msgstr "Ajout multiple de relations"
 
-#: views/relation.py:552
+#: views/relation.py:556
 msgid "Incompatible type for object entity with id={}"
 msgstr "Type incompatible pour la fiche objet avec l'id={}"
 
-#: views/relation.py:558
+#: views/relation.py:562
 msgid "Missing compatible property for object entity with id={}"
 msgstr "Il manque une propriété compatible pour la fiche objet avec l'id={}"
 
-#: views/relation.py:564
+#: views/relation.py:568
 msgid "Permission denied to entity with id={}"
 msgstr "Permission refusée pour la fiche avec l'id={}"
 
