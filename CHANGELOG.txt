@@ -1,9 +1,12 @@
 == Version 2.2.13 Work in progress (not released -- this is a draft) ==
 
+  TODO: re-compile .mo (creme_core)
+
   Users side :
   ------------
     # The management of the properties constraints of a Relation view has been fixed
       (it was not mandatory to have all the needed properties).
+    # The mass-import code checks now property constraints for relationships.
     # Apps :
         * VCFs :
             - In the import form, the RelationTypes with property constraints are not proposed anymore
