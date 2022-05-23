@@ -768,9 +768,10 @@ class _CremeTestCase:
         return json_dump([entity.id for entity in entities])
 
     @staticmethod
-    def formfield_value_relation_entity(rtype_id, entity):
+    # def formfield_value_relation_entity(rtype_id, entity):
+    def formfield_value_relation_entity(rtype, entity):
         return json_dump({
-            'rtype':  rtype_id,
+            'rtype':  rtype.id if isinstance(rtype, RelationType) else rtype,
             'ctype':  str(entity.entity_type_id),
             'entity': str(entity.id),
         })
@@ -779,10 +780,10 @@ class _CremeTestCase:
     def formfield_value_multi_relation_entity(*relations):
         return json_dump([
             {
-                'rtype':  rtype_id,
+                'rtype':  rtype.id if isinstance(rtype, RelationType) else rtype,
                 'ctype':  str(entity.entity_type_id),
                 'entity': str(entity.id),
-            } for rtype_id, entity in relations
+            } for rtype, entity in relations
         ])
 
     @staticmethod

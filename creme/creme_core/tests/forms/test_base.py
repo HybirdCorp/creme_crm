@@ -567,9 +567,9 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'last_name':  'Suruga',
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype1.id, contact),
-                    (rtype2.id, orga),
-                    (rtype2.id, orga),  # Duplicates
+                    (rtype1, contact),
+                    (rtype2, orga),
+                    (rtype2, orga),  # Duplicates
                 ),
             },
         )
@@ -687,7 +687,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'last_name':  'Suruga',
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype1.id, contact),  # Duplicated with fixed
+                    (rtype1, contact),  # Duplicated with fixed
                 ),
                 'semifixed_rtypes': [sfrt1.id, sfrt2.id],
             },
@@ -761,9 +761,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'first_name': 'Kanbaru',
                 'last_name':  'Suruga',
 
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype1.id, contact2),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype1, contact2)),
             },
         )
         self.assertFalse(form.errors)
@@ -911,7 +909,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'last_name':  'Suruga',
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype.id, orga),  # Should not be used
+                    (rtype, orga),  # Should not be used
                 ),
                 'semifixed_rtypes': [sfrt.id],  # Idem
             },
@@ -942,9 +940,7 @@ class CremeEntityFormTestCase(CremeTestCase):
         data = {
             'first_name': 'Kanbaru',
             'last_name': 'Suruga',
-            'relation_types': self.formfield_value_multi_relation_entity(
-                (rtype.id, orga),
-            ),
+            'relation_types': self.formfield_value_multi_relation_entity((rtype, orga)),
         }
 
         # KO ---
@@ -1110,9 +1106,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'first_name': 'Kanbaru',
                 'last_name':  'Suruga',
 
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1173,7 +1167,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             user=user,
             data={
                 **data,
-                'relation_types': self.formfield_value_multi_relation_entity((rtype1.id, orga)),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype1, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1214,9 +1208,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             user=user,
             data={
                 **data,
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype2.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype2, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1239,9 +1231,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             data={
                 **data,
                 'property_types': [ptype1.id],
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype2.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype2, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1306,7 +1296,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             user=user,
             data={
                 **data,
-                'relation_types': self.formfield_value_multi_relation_entity((rtype1.id, orga)),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype1, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1347,9 +1337,7 @@ class CremeEntityFormTestCase(CremeTestCase):
             user=user,
             data={
                 **data,
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype2.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype2, orga)),
             },
         )
         self.assertFormInstanceErrors(
@@ -1390,9 +1378,7 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'first_name': 'Spike',
                 'last_name':  'Spiegel',
                 'property_types': [ptype1.id, ptype2.id],
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype, orga)),
             },
         )
         self.assertFalse(form.errors)

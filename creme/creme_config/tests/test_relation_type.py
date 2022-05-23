@@ -326,9 +326,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             url,
             data={
                 'predicate':     predicate,
-                'semi_relation': self.formfield_value_relation_entity(
-                    self.loves.id, iori,
-                ),
+                'semi_relation': self.formfield_value_relation_entity(self.loves, iori),
             },
         )
         self.assertNoFormError(response)
@@ -358,7 +356,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             self.ADD_URL,
             data={
                 'predicate':     predicate,
-                'semi_relation': self.formfield_value_relation_entity(self.loves.id, itsuki),
+                'semi_relation': self.formfield_value_relation_entity(self.loves, itsuki),
             },
         )
         self.assertFormError(
@@ -388,7 +386,7 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             url,
             data={
                 'predicate':     predicate,
-                'semi_relation': self.formfield_value_relation_entity(self.loves.id, self.iori),
+                'semi_relation': self.formfield_value_relation_entity(self.loves, self.iori),
             },
         )
         self.assertFormError(

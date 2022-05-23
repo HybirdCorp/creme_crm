@@ -361,9 +361,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
                 'property_types': [ptype1.id],
 
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [loves.id, shinji]
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((loves, shinji)),
                 'dyn_relations': self._dyn_relations_value(
                     employed, FakeOrganisation, 6, 'name',
                 ),
@@ -562,9 +560,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
                 'dyn_relations': self._dyn_relations_value(
                     employed, FakeOrganisation, 3, 'name',
                 ),
@@ -606,8 +602,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                    [employed.id, seele],
+                    (employed, nerv),
+                    (employed, seele),
                 ),
             },
         )
@@ -704,8 +700,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                    [employed.id, seele],
+                    (employed, nerv),
+                    (employed, seele),
                 ),
             },
         )
@@ -792,9 +788,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
             },
         )
         self.assertNoFormError(response)
@@ -844,9 +838,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype.id],
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
             },
         )
         self.assertNoFormError(response)
@@ -962,9 +954,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype.id],
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
             },
         )
         self.assertNoFormError(response)
@@ -1016,9 +1006,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'document': doc.id,
                 'user': user.id,
                 'property_types': [ptype2.id],
-                'fixed_relations': self.formfield_value_multi_relation_entity(
-                    [employed.id, nerv],
-                ),
+                'fixed_relations': self.formfield_value_multi_relation_entity((employed, nerv)),
             },
         )
         self.assertNoFormError(response)
@@ -1756,8 +1744,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'email_colselect': 4,
                 'property_types': [ptype1.id, ptype2.id],
                 'fixed_relations': self.formfield_value_multi_relation_entity(
-                    (loves.id, shinji),
-                    (loves.id, gendo),
+                    (loves, shinji),
+                    (loves, gendo),
                 ),
             },
         )
