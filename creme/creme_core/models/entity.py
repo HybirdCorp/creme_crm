@@ -53,12 +53,8 @@ _SEARCH_FIELD_MAX_LENGTH = 200
 
 
 class CremeEntity(CremeModel):
-    created = CreationDateTimeField(
-        _('Creation date'), editable=False
-    ).set_tags(clonable=False)
-    modified = ModificationDateTimeField(
-        _('Last modification'), editable=False
-    ).set_tags(clonable=False)
+    created = CreationDateTimeField(_('Creation date')).set_tags(clonable=False)
+    modified = ModificationDateTimeField(_('Last modification')).set_tags(clonable=False)
 
     entity_type = CTypeForeignKey(editable=False).set_tags(viewable=False)
 
