@@ -207,7 +207,9 @@ class PropertyTypesBrick(_ConfigAdminBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
-            CremePropertyType.objects.annotate(stats=Count('cremeproperty')),
+            CremePropertyType.objects
+                             .annotate(stats=Count('cremeproperty'))
+                             .prefetch_related('subject_ctypes'),
         ))
 
 
