@@ -1548,9 +1548,9 @@ class FieldGroupListTestCase(CremeTestCase):
                 'last_name':  'Donatello',
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype1.id, contact1),
-                    (rtype2.id, orga1),
-                    (rtype2.id, orga1),  # Duplicates
+                    (rtype1, contact1),
+                    (rtype2, orga1),
+                    (rtype2, orga1),  # Duplicates
                 ),
                 'semifixed_rtypes': [sfrt1.id, sfrt2.id],
             },
@@ -1581,7 +1581,7 @@ class FieldGroupListTestCase(CremeTestCase):
                 'description': 'Nerd',
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype2.id, orga2),
+                    (rtype2, orga2),
                 ),  # Should not be used
             },
         )
@@ -1677,9 +1677,7 @@ class FieldGroupListTestCase(CremeTestCase):
                 'first_name': 'Krang',
                 'last_name':  'BigBrain',
 
-                'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype.id, orga),
-                ),
+                'relation_types': self.formfield_value_multi_relation_entity((rtype, orga)),
             },
         )
         self.assertFormInstanceErrors(

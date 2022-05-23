@@ -428,9 +428,9 @@ class CreationTestCase(ViewsTestCase):
                 'last_name':  last_name,
 
                 'relation_types': self.formfield_value_multi_relation_entity(
-                    (rtype1.id, contact1),
-                    (rtype2.id, orga1),
-                    (rtype2.id, orga1),  # Duplicates
+                    (rtype1, contact1),
+                    (rtype2, orga1),
+                    (rtype2, orga1),  # Duplicates
                 ),
                 'semifixed_rtypes': [sfrt1.id, sfrt2.id],
             },
