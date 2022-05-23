@@ -256,7 +256,7 @@ creme.forms.DateTimePicker.set = function(self, year, month, day, hour, minute) 
     creme.forms.DateTimePicker.setDate(self, new Date(year, month, day, hour, minute));
 };
 
-// TODO: refactor in order the widget can be properly reload (see report.js)
+/*
 creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumns, refreshStore, reduced) {
     // Containers
     var $div   = $('<div class="dcms_div"></div>');
@@ -459,7 +459,7 @@ creme.forms._toDualColumnMultiSelect = function(store_id, use_order, buildColumn
     // Set the same dimensions for the 2 columns
     var height = Math.max($available.height() + $chosen.height(), $buttons.height());
 
-    if (height !== 0) { // TODO: Problem with inner popups (computed dimensions are always 0) ....
+    if (height !== 0) {
         $chosen.height(height);
         $available.height(height);
 
@@ -524,6 +524,7 @@ creme.forms.toOrderedMultiSelect = function(table_id, reduced) {
 
     creme.forms._toDualColumnMultiSelect(table_id, true, buildColumns, refreshTable, reduced);
 };
+*/
 
 // TODO : create a real widget instead
 creme.forms.toImportField = function(table_id, target_query, speed) {

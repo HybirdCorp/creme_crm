@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-13 16:04+0200\n"
+"POT-Creation-Date: 2022-06-29 21:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -274,6 +274,12 @@ msgstr "bloc personnalisé avec id=\"{id}\""
 
 msgid "The brick zone «{}» is not valid."
 msgstr "La zone de bloc «{}» n'est pas valide."
+
+msgid "Available blocks"
+msgstr "Blocs disponibles"
+
+msgid "Chosen blocks"
+msgstr "Blocs choisis"
 
 msgid "Header block"
 msgstr "Bloc entête"
@@ -1797,9 +1803,6 @@ msgstr "Statut"
 
 msgid "Finish"
 msgstr "Terminer"
-
-msgid "Available blocks"
-msgstr "Blocs disponibles"
 
 msgid "Top of page"
 msgstr "Haut de page"

@@ -32,7 +32,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.forms import base
-from creme.creme_core.forms.fields import EntityCTypeChoiceField
+from creme.creme_core.forms import fields as core_fields
 from creme.creme_core.forms.header_filter import EntityCellsField
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -59,25 +59,36 @@ __all__ = (
 )
 
 
-class BrickLocationsField(forms.MultipleChoiceField):
+# class BrickLocationsField(forms.MultipleChoiceField):
+class BrickLocationsField(core_fields.OrderedMultipleChoiceField):
     def __init__(self, *, required=False, choices=(),
-                 widget=core_widgets.OrderedMultipleChoiceWidget,
+                 # widget=core_widgets.OrderedMultipleChoiceWidget,
                  **kwargs):
         super().__init__(
-            required=required, choices=choices, widget=widget,
+            required=required, choices=choices,
+            # widget=widget,
             **kwargs
         )
+        widget = self.widget
+        widget.available_title = _('Available blocks')
+        widget.enabled_title = _('Chosen blocks')
 
 
 class _BrickLocationsForm(base.CremeForm):
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
         choices = [
-            (brick.id_, str(brick.verbose_name))
-            for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
+            # (brick.id_, str(brick.verbose_name))
+            # for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
+            {
+                'value': brick.id_,
+                'label': str(brick.verbose_name),
+                'help': str(brick.description),
+            } for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
         ]
         sort_key = collator.sort_key
-        choices.sort(key=lambda c: sort_key(c[1]))
+        # choices.sort(key=lambda c: sort_key(c[1]))
+        choices.sort(key=lambda c: sort_key(c['label']))
 
         bricks.choices = choices
         bricks.initial = [bl.brick_id for bl in brick_locations]
@@ -364,7 +375,7 @@ class RTypeBrickAddForm(base.CremeModelForm):
 
 
 class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
-    ctype = EntityCTypeChoiceField(
+    ctype = core_fields.EntityCTypeChoiceField(
         label=_('Customised resource'),
         widget=core_widgets.DynamicSelect({'autocomplete': True}),
     )
@@ -474,7 +485,7 @@ class _CustomBrickConfigItemBaseForm(base.CremeModelForm):
 
 
 class CustomBrickConfigItemCreateForm(_CustomBrickConfigItemBaseForm):
-    ctype = EntityCTypeChoiceField(
+    ctype = core_fields.EntityCTypeChoiceField(
         label=_('Related resource'),
         widget=core_widgets.DynamicSelect(attrs={'autocomplete': True}),
     )

@@ -4,7 +4,7 @@
 {{ widget.choices|json_script:choices_id }}
 
 <div class="bricks-config-widget" id="{{widget.attrs.id}}">
-    <input type="hidden" name="{{widget.name}}" value="{{ widget.value }}">
+    <input type="hidden" name="{{widget.name}}" value="{{widget.value}}">
     <div class="widget-available">
         <div class="widget-title">{% translate "Available blocks" %}</div>
         <div class="widget-choices widget-available-choices"></div>

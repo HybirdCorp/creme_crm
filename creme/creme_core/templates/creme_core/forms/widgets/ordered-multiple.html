@@ -1,3 +1,27 @@
+{% load i18n %}{% load blockjsondata jsonify from creme_core_tags %}
+<div {% include "django/forms/widgets/attrs.html" %}>
+    {% blockjsondata class="ordered-widget-choices" %}
+        [
+          {% for group_name, group_choices, group_index in widget.optgroups %}{# TODO: manage group ? #}
+            {% for option in group_choices %}{"value": "{{option.value.value}}", "label": "{{option.label|escapejs}}", "help": "{{option.value.help|escapejs}}"{% if option.value.disabled %}, "disabled": true{% endif %} }{% if not forloop.last %},{% endif %}{% endfor %}
+            {% if not forloop.last %},{% endif %}
+          {% endfor %}
+        ]
+    {% endblockjsondata %}
+
+    <input class="ordered-widget-value" type="hidden" name="{{widget.name}}" value="{{widget.value|jsonify}}">
+
+    <div class="ordered-widget-container ordered-widget-available">
+        <div class="ordered-widget-title" title="{% translate "Drag'n drop an element to the other list to select it, or simply double-click on it" %}">{{widget.available_title}}</div>
+        <div class="ordered-widget-choices ordered-widget-available-choices"></div>
+    </div>
+    <div class="ordered-widget-container ordered-widget-enabled">
+        <div class="ordered-widget-title" title="{% translate "Reorder elements with drag'n drop. To deselect an element, use the button «De-select», or simply double-click on it" %}">{{widget.enabled_title}}</div>
+        <div class="ordered-widget-choices ordered-widget-enabled-choices"></div>
+    </div>
+</div>
+
+{% comment %}
 {% load creme_core_tags %}
 {% with name=widget.name orders=widget.orders %}
 <table name="{{name}}" {% include 'django/forms/widgets/attrs.html' %}>
@@ -20,3 +44,4 @@
     });
 </script>
 {% endwith %}
+{% endcomment %}

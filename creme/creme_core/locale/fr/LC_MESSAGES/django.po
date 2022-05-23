@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-21 14:52+0200\n"
+"POT-Creation-Date: 2022-06-29 21:40+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -970,6 +970,10 @@ msgstr ""
 "Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
 #, python-format
+msgid "The choice %(value)s is mandatory."
+msgstr "Le choix %(value)s est obligatoire."
+
+#, python-format
 msgid "This value is invalid: %(value)s"
 msgstr "Cette valeur est invalide : %(value)s"
 
@@ -1322,6 +1326,12 @@ msgstr "Sélectionner"
 
 msgid "Eg: {}"
 msgstr "Ex: {}"
+
+msgid "Available"
+msgstr "Disponible"
+
+msgid "Chosen"
+msgstr "Choisi"
 
 #. Translators: this string is used to set the order of the inputs
 #. in the widget to choose the relative trigger date of Alerts.
@@ -3016,6 +3026,20 @@ msgid ""
 msgstr ""
 "Créer les fiches si elle ne sont pas trouvées ? (seuls les champs suivi de "
 "[CRÉATION] vous permettent de créer, si ils existent)"
+
+msgid ""
+"Drag'n drop an element to the other list to select it, or simply double-"
+"click on it"
+msgstr ""
+"Glissez-déposez un élément vers l'autre liste pour le sélectionner, ou juste "
+"double-cliquez dessus"
+
+msgid ""
+"Reorder elements with drag'n drop. To deselect an element, use the button "
+"«De-select», or simply double-click on it"
+msgstr ""
+"Re-ordonnez les éléments par glisser-déposer. Pour dé-sélectionner un "
+"élément, utilisez le bouton «Dé-sélectionner», ou juste double-cliquez dessus"
 
 msgid "Check all"
 msgstr "Tout sélectionner"

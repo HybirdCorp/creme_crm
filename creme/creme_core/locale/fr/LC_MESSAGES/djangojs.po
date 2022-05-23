@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.3\n"
+"Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-23 17:00+0100\n"
+"POT-Creation-Date: 2022-06-29 21:42+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -52,33 +52,6 @@ msgstr "Export"
 
 msgid "Calendar"
 msgstr "Calendrier"
-
-msgid "Add"
-msgstr "Ajouter"
-
-msgid "Remove"
-msgstr "Enlever"
-
-msgid "Add all"
-msgstr "Ajouter tout"
-
-msgid "Remove all"
-msgstr "Enlever tout"
-
-msgid "Up"
-msgstr "Monter"
-
-msgid "Down"
-msgstr "Descendre"
-
-msgid "Available"
-msgstr "Disponible(s)"
-
-msgid "Chosen"
-msgstr "Choisi(s)"
-
-msgid "Select"
-msgstr "Sélectionnez"
 
 msgid ""
 "Communication error with the job manager (last changes have not been taken "
@@ -132,9 +105,6 @@ msgstr[1] "%d entités n'ont pu être supprimées."
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins une fiche."
 
-msgid "Close"
-msgstr "Fermer"
-
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectionner 2 fiches."
 
@@ -146,6 +116,9 @@ msgstr "Valider la sélection"
 
 msgid "Cancel"
 msgstr "Annuler"
+
+msgid "Close"
+msgstr "Fermer"
 
 msgid "Are you sure ?"
 msgstr "Êtes-vous sûr ?"
@@ -180,6 +153,9 @@ msgstr "Erreur !"
 
 msgid "The page will be reload !"
 msgstr "La page va être rechargée !"
+
+msgid "Add"
+msgstr "Ajouter"
 
 msgid "Connection Refused"
 msgstr "Connexion refusée"
@@ -269,9 +245,15 @@ msgstr ""
 msgid "Selection"
 msgstr "Sélection"
 
+msgid "Select"
+msgstr "Sélectionner"
+
 #, javascript-format
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
+
+msgid "De-select"
+msgstr "Dé-sélectionner"
 
 msgid "Canvas image"
 msgstr "Capture du graphique"
@@ -281,6 +263,27 @@ msgstr "Capturer une image du graphique"
 
 msgid "Delete"
 msgstr "Supprimer"
+
+#~ msgid "Remove"
+#~ msgstr "Enlever"
+
+#~ msgid "Add all"
+#~ msgstr "Ajouter tout"
+
+#~ msgid "Remove all"
+#~ msgstr "Enlever tout"
+
+#~ msgid "Up"
+#~ msgstr "Monter"
+
+#~ msgid "Down"
+#~ msgstr "Descendre"
+
+#~ msgid "Available"
+#~ msgstr "Disponible(s)"
+
+#~ msgid "Chosen"
+#~ msgstr "Choisi(s)"
 
 #~ msgid "Error during loading the page."
 #~ msgstr "Le chargement de la page a échoué"

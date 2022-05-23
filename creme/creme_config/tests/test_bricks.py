@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-import json
 from copy import deepcopy
 from functools import partial
+from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
@@ -34,6 +34,13 @@ from creme.creme_core.models import (
     BrickState,
     CustomBrickConfigItem,
     CustomField,
+    FakeActivity,
+    FakeAddress,
+    FakeContact,
+    FakeEmailCampaign,
+    FakeImage,
+    FakeInvoiceLine,
+    FakeOrganisation,
     FieldsConfig,
     InstanceBrickConfigItem,
     RelationBrickItem,
@@ -42,15 +49,6 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.tests.base import CremeTestCase
-from creme.creme_core.tests.fake_models import (
-    FakeActivity,
-    FakeAddress,
-    FakeContact,
-    FakeEmailCampaign,
-    FakeImage,
-    FakeInvoiceLine,
-    FakeOrganisation,
-)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
 
@@ -306,7 +304,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url,
             data={
                 'role': role.id if role else '',
-                'locations': json.dumps(locations_data),
+                'locations': json_dump(locations_data),
             },
         )
         self.assertNoFormError(response)
@@ -441,7 +439,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url,
             data={
                 'hat': FakeContactHatBrick.id_,
-                'locations': json.dumps({'top': [CompleteBrick1.id_]})
+                'locations': json_dump({'top': [CompleteBrick1.id_]})
             },
         )
         self.assertNoFormError(response)
@@ -522,10 +520,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             'bottom': [brick_bottom.id_],
         }
         response = self.client.post(
-            url,
-            data={
-                'locations': json.dumps(locations_data)
-            },
+            url, data={'locations': json_dump(locations_data)},
         )
         self.assertNoFormError(response)
 
@@ -649,10 +644,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             'top': [brick_top_id1, brick_top_id2],
         }
         response = self.client.post(
-            url,
-            data={
-                'locations': json.dumps(locations_data),
-            },
+            url, data={'locations': json_dump(locations_data)},
         )
         self.assertNoFormError(response)
 
@@ -692,10 +684,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertIn(brick_id, locations_choices)
         response = self.client.post(
-            url,
-            data={
-                'locations': json.dumps({'top': [brick_id]}),
-            },
+            url, data={'locations': json_dump({'top': [brick_id]})},
         )
         self.assertNoFormError(response)
 
@@ -735,7 +724,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             response = self.client.post(
                 url,
                 data={
-                    'locations': json.dumps(
+                    'locations': json_dump(
                         {'right': [block_right_id], 'left': [brick_left_id]}
                     ),
                 },
@@ -836,7 +825,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url,
             data={
                 'hat': FakeContactHatBrick.id_,
-                'locations': json.dumps({'top': [brick_top_id]}),
+                'locations': json_dump({'top': [brick_top_id]}),
             },
         )
         self.assertNoFormError(response)
@@ -881,7 +870,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         [{'locations': "{}"}],
     ])
     def test_edit_detailview__location_required(self, data):
-        "Invalid data provided to the locations field"
+        "Invalid data provided to the locations field."
         self.login()
 
         url = self._build_editdetail_url(ct=None)
@@ -892,7 +881,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_edit_detailview__invalid_json(self):
-        "Invalid data provided to the locations field"
+        "Invalid data provided to the locations field."
         self.login()
 
         url = self._build_editdetail_url(ct=None)
@@ -904,12 +893,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @parameterized.expand([
         [{'locations': "42"}],
-        [{'locations': json.dumps("not a dict")}],
-        [{'locations': json.dumps(["not a dict"])}],
-        [{'locations': json.dumps({"top": "lot a list"})}],
+        [{'locations': json_dump("not a dict")}],
+        [{'locations': json_dump(["not a dict"])}],
+        [{'locations': json_dump({"top": "lot a list"})}],
     ])
     def test_edit_detailview__invalid_formats(self, payload):
-        "Invalid data provided to the locations field"
+        "Invalid data provided to the locations field."
         self.login()
 
         url = self._build_editdetail_url(ct=None)
@@ -920,12 +909,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_delete_detailview01(self):
-        "Can not delete default conf"
+        "Can not delete default configuration."
         self.login()
         self.assertPOST404(self.DEL_DETAIL_URL, data={'id': 0})
 
     def test_delete_detailview02(self):
-        "Default ContentType configuration"
+        "Default ContentType configuration."
         self.login()
         get_ct = ContentType.objects.get_for_model
         ct = get_ct(FakeContact)
@@ -1048,14 +1037,20 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Save the configuration'),  context.get('submit_label'))
 
         with self.assertNoException():
-            choices = context['form'].fields['bricks'].choices
+            # choices = context['form'].fields['bricks'].choices
+            choices = [
+                (choice.value, label)
+                for choice, label in context['form'].fields['bricks'].choices
+            ]
 
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
             choices=choices,
         )
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
             choices=choices,
@@ -1069,13 +1064,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'role': '' if role is None else role.id,
 
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': CompleteBrick1.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': HomeOnlyBrick1.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': CompleteBrick1.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': HomeOnlyBrick1.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([CompleteBrick1.id_, HomeOnlyBrick1.id_]),
             },
         )
         self.assertNoFormError(response)
@@ -1159,19 +1155,24 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = context['form'].fields['bricks']
-            choices = bricks_field.choices
+            # choices = bricks_field.choices
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
 
         initial = bricks_field.initial
         self.assertIn(already_chosen.id_, initial)
         self.assertNotIn(not_already_chosen1.id_, initial)
         self.assertNotIn(not_already_chosen2.id_, initial)
 
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=already_chosen.id_,
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=not_already_chosen1.id_,
             label=not_already_chosen1.verbose_name,
             choices=choices,
@@ -1195,13 +1196,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': not_already_chosen1.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': already_chosen.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': not_already_chosen1.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': already_chosen.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_]),
             },
         )
         self.assertNoFormError(response)
@@ -1235,19 +1237,24 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            choices = bricks_field.choices
+            # choices = bricks_field.choices
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
 
         initial = bricks_field.initial
         self.assertIn(already_chosen.id_, initial)
         self.assertNotIn(not_already_chosen1.id_, initial)
         self.assertNotIn(not_already_chosen2.id_, initial)
 
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=already_chosen.id_,
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=not_already_chosen1.id_,
             label=not_already_chosen1.verbose_name,
             choices=choices,
@@ -1264,13 +1271,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': not_already_chosen1.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': already_chosen.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': not_already_chosen1.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': already_chosen.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_]),
             },
         )
         self.assertNoFormError(response)
@@ -1304,7 +1312,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            choices = bricks_field.choices
+            # choices = bricks_field.choices
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
 
         initial = bricks_field.initial
         self.assertIn(already_chosen.id_, initial)
@@ -1316,12 +1327,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=not_already_chosen1.id_,
             label=not_already_chosen1.verbose_name,
             choices=choices,
         )
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=not_already_chosen2.id_,
             label=not_already_chosen2.verbose_name,
             choices=choices,
@@ -1332,13 +1345,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': not_already_chosen2.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': not_already_chosen1.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': not_already_chosen2.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': not_already_chosen1.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([not_already_chosen2.id_, not_already_chosen1.id_]),
             },
         )
         self.assertNoFormError(response)
@@ -1487,20 +1501,26 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = context['form'].fields['bricks']
-            choices = bricks_field.choices
+            # choices = bricks_field.choices
+            choices = [
+                (choice.value, label)
+                for choice, label in bricks_field.choices
+            ]
 
         self.assertGreaterEqual(len(choices), 2)
         self.assertListEqual(
             [*BrickMypageLocation.objects.filter(user=None).values_list('brick_id', flat=True)],
-            bricks_field.initial
+            bricks_field.initial,
         )
 
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
             choices=choices,
         )
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
             choices=choices,
@@ -1509,13 +1529,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': HomeOnlyBrick1.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': CompleteBrick1.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': HomeOnlyBrick1.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': CompleteBrick1.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([HomeOnlyBrick1.id_, CompleteBrick1.id_]),
             },
         )
         self.assertNoFormError(response)
@@ -1537,7 +1558,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            choices = bricks_field.choices
+            # choices = bricks_field.choices
+            choices = [
+                (choice.value, label) for choice, label in bricks_field.choices
+            ]
 
         self.assertGreaterEqual(len(choices), 2)
         self.assertListEqual(
@@ -1546,15 +1570,17 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                                     .filter(user=None)
                                     .values_list('brick_id', flat=True),
             ],
-            bricks_field.initial
+            bricks_field.initial,
         )
 
-        index1 = self.assertInChoices(
+        # index1 = self.assertInChoices(
+        self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
             choices=choices,
         )
-        index2 = self.assertInChoices(
+        # index2 = self.assertInChoices(
+        self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
             choices=choices,
@@ -1563,13 +1589,14 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             url,
             data={
-                f'bricks_check_{index1}': 'on',
-                f'bricks_value_{index1}': CompleteBrick1.id_,
-                f'bricks_order_{index1}': 1,
-
-                f'bricks_check_{index2}': 'on',
-                f'bricks_value_{index2}': HomeOnlyBrick1.id_,
-                f'bricks_order_{index2}': 2,
+                # f'bricks_check_{index1}': 'on',
+                # f'bricks_value_{index1}': CompleteBrick1.id_,
+                # f'bricks_order_{index1}': 1,
+                #
+                # f'bricks_check_{index2}': 'on',
+                # f'bricks_value_{index2}': HomeOnlyBrick1.id_,
+                # f'bricks_order_{index2}': 2,
+                'bricks': json_dump([CompleteBrick1.id_, HomeOnlyBrick1.id_]),
             },
         )
         self.assertNoFormError(response)

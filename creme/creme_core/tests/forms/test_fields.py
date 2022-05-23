@@ -33,6 +33,8 @@ from creme.creme_core.forms.fields import (
     MultiCTypeChoiceField,
     MultiEntityCTypeChoiceField,
     OptionalChoiceField,
+    OrderedChoiceIterator,
+    OrderedMultipleChoiceField,
     ReadonlyMessageField,
     RelativeDatePeriodField,
     UnionField,
@@ -1587,6 +1589,160 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         choices = [*field.choices]
         choice = self.assertFoundChoice(sector.id, sector.title, choices)
         self.assertEqual(f'The "{sector}" sector', choice.help)
+
+
+class OrderedMultipleChoiceFieldTestCase(FieldTestCase):
+    def test_required(self):
+        choices = [(1, 'Sword'), (2, 'Axes'), (3, 'Spear')]
+        field = OrderedMultipleChoiceField(choices=choices)
+        self.assertTrue(field.required)
+        self.assertIsInstance(field.widget, core_widgets.OrderedMultipleChoiceWidget)
+        self.assertIsNone(field.initial)
+
+        clean = field.clean
+        self.assertListEqual(['1', '3'], clean([1, 3]))
+        self.assertListEqual(['1', '3'], clean(['1', '3']))
+
+        # NB: we need a 0-argument constructor
+        field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
+        self.assertFieldValidationError(field_builder, 'required', clean, '')
+        self.assertFieldValidationError(field_builder, 'required', clean, [])
+        self.assertFieldValidationError(field_builder, 'required', clean, None)
+
+    def test_not_required(self):
+        field = OrderedMultipleChoiceField(
+            choices=[
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes'},
+                {'value': 3, 'label': 'Spear'},
+            ],
+            required=False,
+        )
+        clean = field.clean
+        self.assertListEqual(['2'], clean(['2']))
+        self.assertFalse([], clean(''))
+        self.assertFalse([], clean([]))
+
+    def test_invalid(self):
+        field_builder = partial(
+            OrderedMultipleChoiceField,
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+        )
+        field = field_builder()
+        self.assertFieldValidationError(
+            field_builder, 'invalid_choice', field.clean, [str(4)],
+            message_args={'value': 4},
+        )
+
+    def test_choices01(self):
+        "From tuples."
+        field = OrderedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes'), (3, 'Spear')],
+        )
+
+        choices = [*field.choices]
+        choice1 = choices[0]
+        value1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,  value1.value)
+        self.assertEqual('', value1.help)
+        self.assertFalse(value1.disabled)
+
+        choice2 = choices[1]
+        value2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2, value2.value)
+
+        wchoice = [*field.widget.choices][0]
+        self.assertEqual('Sword', wchoice[1])
+        self.assertEqual(1,       wchoice[0].value)
+
+    def test_choices02(self):
+        """From dict."""
+        help_text = 'Stronger than word'
+        field = OrderedMultipleChoiceField(
+            choices=[
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes', 'help': help_text},
+                {'value': 3, 'label': 'Spear', 'disabled': True},
+            ],
+        )
+
+        choices = [*field.choices]
+        choice1 = choices[0]
+        value1, label1 = choice1
+        self.assertEqual('Sword', label1)
+        self.assertEqual(1,  value1.value)
+        self.assertEqual('', value1.help)
+        self.assertIs(value1.disabled, False)
+
+        choice2 = choices[1]
+        value2, label2 = choice2
+        self.assertEqual('Axes', label2)
+        self.assertEqual(2, value2.value)
+        self.assertEqual(help_text, value2.help)
+
+        value3, label3 = choices[2]
+        self.assertEqual('Spear', label3)
+        self.assertEqual(3, value3.value)
+        self.assertIs(value3.disabled, True)
+
+        wchoice2 = [*field.widget.choices][1]
+        self.assertEqual('Axes', wchoice2[1])
+        wid2 = wchoice2[0]
+        self.assertEqual(2, wid2.value)
+        self.assertEqual(help_text, wid2.help)
+
+    def test_disabled_values(self):
+        "Disabled "
+        field_builder = partial(
+            OrderedMultipleChoiceField,
+            choices=[
+                {'value': 1, 'label': 'Sword'},
+                {'value': 2, 'label': 'Axes'},
+                {'value': 3, 'label': 'Spear', 'disabled': True},
+            ],
+            required=False,
+        )
+        field = field_builder()
+
+        # Disabled choice is initially not selected
+        clean = field.clean
+        self.assertListEqual(['2', '1'], clean(['2', '1']))
+        self.assertFieldValidationError(
+            field_builder, 'invalid_choice', clean, ['3'],
+            message_args={'value': 3},
+        )
+
+        # Disabled choice is initially selected
+        field.initial = [1, 3]
+        self.assertListEqual(['2', '3'], clean(['2', '3']))
+        self.assertFieldValidationError(
+            field_builder, 'missing_choice', clean, ['2'],
+            message_args={'value': 3},
+        )
+
+    def test_iterator(self):
+        class CustomIterator(OrderedChoiceIterator):
+            def __iter__(self):
+                for x in self.choices:
+                    label = x[1]
+
+                    yield (
+                        self.choice_cls(
+                            value=x[0],
+                            help=f'The "{label}" weapon',
+                        ),
+                        label,
+                    )
+
+        field = OrderedMultipleChoiceField(
+            choices=[(1, 'Sword'), (2, 'Axes')],
+            iterator=CustomIterator,
+        )
+
+        choice = [*field.choices][0]
+        self.assertEqual('The "Sword" weapon', choice[0].help)
 
 
 class ReadonlyMessageFieldTestCase(FieldTestCase):
