@@ -906,6 +906,7 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/union.js',
     'creme_core/js/widgets/dselect.js',
     'creme_core/js/widgets/checklistselect.js',
+    'creme_core/js/widgets/ordered.js',
     'creme_core/js/widgets/datetime.js',
     'creme_core/js/widgets/daterange.js',
     'creme_core/js/widgets/daterangeselector.js',

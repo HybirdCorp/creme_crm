@@ -173,7 +173,13 @@
                       "rtypedoesnotexist", "ctypenotallowed", "nopropertymatch".
                 - In 'MultiRelationEntityField', these methods have been removed :
                   _get_cache(), _build_ctype_cache(), _build_rtype_cache().
-            - The attribute 'widgets.CalendarWidget.default_help_text' is now a format string.
+            - In 'widgets' :
+                - The attribute 'CalendarWidget.default_help_text' is now a format string.
+                - The class 'OrderedMultipleChoiceWidget' has been reworked (& its template file too) ;
+                    - The input value has changed ; it's now a JSON list with selected choices.
+                      So you'll have to update your unit tests for the forms using these kind of widget.
+                    - The widget must now be used with the new class 'OrderedMultipleChoiceField'
+                      (classical 'django.forms.OrderedMultipleChoiceField' won't work anymore).
             - In 'listview', these methods have been removed :
                 - RegularDateField._get_date()
                 - CustomDatetimeField._get_date()
@@ -205,6 +211,9 @@
         # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # In the template file "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
           (use {% block lv_hidden_buttons %} + {{block.super}} instead).
+        # In JavaScript :
+            - The function 'creme.forms._toDualColumnMultiSelect' & 'creme.forms.toOrderedMultiSelect' have been removed ;
+              the new component 'creme.widget.SelectOrInputWidget' is used instead.
         # Apps :
             * Creme_config :
                 - The extra data stored in the BrickStates related to 'bricks.CustomFormsBrick' has changed from <ctype_id> to <{'ctype': ctype_id, items: [...]}>.

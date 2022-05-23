@@ -19,6 +19,7 @@
 ################################################################################
 
 import copy
+import json
 import logging
 import warnings
 from datetime import date
@@ -161,6 +162,8 @@ class EnhancedSelectOptions:
             self.help = help
 
         def __str__(self):
+            # NB: important for django.forms.fields.ChoiceField.valid_value()
+            #     to consider the choice as valid
             return str(self.value)
 
     def _set_options(self, options):
@@ -1274,32 +1277,65 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
 class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/ordered-multiple.html'
 
+    class Choice:
+        def __init__(self, value, disabled=False, help=''):
+            self.value = value
+            self.disabled = disabled
+            self.help = help
+
+        def __str__(self):
+            return str(self.value)
+
+    def __init__(self,
+                 available_title=gettext_lazy('Available'),
+                 enabled_title=gettext_lazy('Chosen'),
+                 *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.available_title = available_title
+        self.enabled_title = enabled_title
+
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
-        context['widget']['orders'] = {
-            opt_value: order + 1
-            for order, opt_value in enumerate(value or ())
-        }
+        # context['widget']['orders'] = {
+        #     opt_value: order + 1
+        #     for order, opt_value in enumerate(value or ())
+        # }
+        widget_type = 'ui-creme-ordered'
+        w_ctxt = context['widget']
+        final_attrs = w_ctxt['attrs']
+        base_css = (
+            'ordered-widget ui-creme-widget widget-auto'
+            if final_attrs.pop('auto', True) else
+            'ordered-widget ui-creme-widget'
+        )
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: data-widget
+
+        w_ctxt['available_title'] = self.available_title
+        w_ctxt['enabled_title'] = self.enabled_title
 
         return context
 
     def value_from_datadict(self, data, files, name):
-        prefix_check = f'{name}_check_'
-        prefix_order = f'{name}_order_'
-        prefix_value = f'{name}_value_'
-
-        selected = []
-        for key, value in data.items():
-            if key.startswith(prefix_check):
-                index = key[len(prefix_check):]  # In fact not an int...
-                order = int(data.get(prefix_order + index) or 0)
-                value = data[prefix_value + index]
-                selected.append((order, value))
-
-        selected.sort(key=lambda i: i[0])
-
-        return [val for _order, val in selected]
+        # prefix_check = f'{name}_check_'
+        # prefix_order = f'{name}_order_'
+        # prefix_value = f'{name}_value_'
+        #
+        # selected = []
+        # for key, value in data.items():
+        #     if key.startswith(prefix_check):
+        #         index = key[len(prefix_check):]  # In fact not an int...
+        #         order = int(data.get(prefix_order + index) or 0)
+        #         value = data[prefix_value + index]
+        #         selected.append((order, value))
+        #
+        # selected.sort(key=lambda i: i[0])
+        #
+        # return [val for _order, val in selected]
+        return json.loads(data.get(name))
 
 
 class Label(widgets.TextInput):

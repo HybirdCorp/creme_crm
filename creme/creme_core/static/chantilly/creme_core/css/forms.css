@@ -932,6 +932,7 @@ table .dragtable-col-placeholder:first {
 /* Dragtable end */
 
 /* DualColumnMultiSelect (dcms) */
+/*
 .dcms_div li.dcms_focused {
     background: #f7b5ad none repeat scroll 0 0;
 }
@@ -992,8 +993,109 @@ table .dragtable-col-placeholder:first {
     display: block;
     width: auto !important;
 }
-
+*/
 /* DualColumnMultiSelect - end */
+
+/* Ordered multiple select */
+
+.ordered-widget {
+    display: flex;
+}
+
+.ordered-widget .ordered-widget-container {
+    width: 50%;
+}
+
+.ordered-widget .ordered-widget-container + .ordered-widget-container {
+    padding-left: 5px;
+}
+
+.ordered-widget .ordered-widget-title {
+    padding: 2px;
+
+    border: 1px solid #bdd3dc;
+    background: #e9f6fb;
+
+    cursor: help;
+
+    text-align: center;
+    text-transform: uppercase;
+    color: hsla(198, 41%, 35%, 1);
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.ordered-widget .ordered-widget-enabled .ordered-widget-title {
+    background: rgba(245, 71, 71, 0.07);
+    border: 1px solid #f49b90;
+
+    color: #95453c;
+}
+
+.ordered-widget .ordered-widget-choice {
+    display: flex;
+    justify-content: space-between;
+
+    padding: 1px;
+
+    border: 1px solid #cce0e8;
+    border-top: none;
+
+    cursor: grab;
+
+    font-size: 13px;
+    color: #406270;
+
+    transition: 0.2s;
+}
+
+.ordered-widget .ordered-widget-enabled .ordered-widget-choice {
+    border: 1px solid #ffcbc5;
+    border-top: none;
+
+    color: #915d58;
+}
+
+.ordered-widget .ordered-widget-choice:hover,
+.ordered-widget .ordered-widget-choice.sortable-ghost,
+.ordered-widget .ordered-widget-choice.sortable-chosen {
+    box-shadow: inset 0 0 0.3em #bfc7d3;
+}
+
+.ordered-widget .ordered-widget-enabled .ordered-widget-choice:hover,
+.ordered-widget .ordered-widget-enabled .ordered-widget-choice.sortable-ghost,
+.ordered-widget .ordered-widget-enabled .ordered-widget-choice.sortable-chosen {
+    box-shadow: inset 0 0 0.3em #ffc2c2;
+}
+
+.ordered-widget .ordered-widget-choice.not-draggable {
+    cursor: not-allowed;
+    color: #9fb0b7;
+}
+
+.ordered-widget .ordered-widget-enabled .ordered-widget-choice.not-draggable {
+    color: #c9b5b2;
+}
+
+.ordered-widget button.deselect-choice {
+    border: none;
+
+    background: none;
+    cursor: pointer;
+
+    color: #c9b5b2;
+    font-style: italic;
+}
+
+.ordered-widget button.deselect-choice:hover {
+    text-decoration: underline;
+}
+
+.ordered-widget button[disabled].deselect-choice {
+    visibility: hidden;
+}
+
+/* Ordered multiple select - end */
 
 /* Mass import forms */
 

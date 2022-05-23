@@ -2331,6 +2331,123 @@ class EnhancedModelMultipleChoiceField(mforms.ModelMultipleChoiceField):
         self._initial = value
 
 
+class OrderedChoiceIterator:
+    """Generate the choices for OrderedMultipleChoiceField."""
+    def __init__(self, field, choices):
+        self.field = field
+        self.choices = choices
+        self.choice_cls = field.widget.Choice
+
+    def __iter__(self):
+        choices = self.choices
+        choice_cls = self.choice_cls
+
+        # TODO: manage callable choices?
+        #       for choice in (choices() if callable(choices) else choices):
+        for choice in choices:
+            if isinstance(choice, (list, tuple)):
+                value_or_group_name, label_or_sub_choices = choice
+
+                if isinstance(label_or_sub_choices, (list, tuple)):
+                    # TODO
+                    # yield (choice_cls(group=True.....), value_or_group_name)
+                    #
+                    # for sub_choice in label_or_sub_choices:
+                    #     if isinstance(sub_choice, dict):
+                    #         choice_kwargs = {**sub_choice}
+                    #         label = choice_kwargs.pop('label')
+                    #         yield (choice_cls(**choice_kwargs), label)
+                    #     else:
+                    #         assert isinstance(sub_choice, (list, tuple))
+                    #         value, label = sub_choice
+                    #         yield (choice_cls(value=value), label)
+                    raise ValueError(
+                        'groups are not managed yet. '
+                        'Hint: you can use prefix for your labels, '
+                        'and/or use disabled items for separators.'
+                    )
+                else:
+                    yield (choice_cls(value=value_or_group_name), label_or_sub_choices)
+            elif isinstance(choice, dict):
+                choice_kwargs = {**choice}
+                label = choice_kwargs.pop('label')
+
+                yield (choice_cls(**choice_kwargs), label)
+            else:
+                raise ValueError(f'invalid choice format: {choice}')
+
+
+class OrderedMultipleChoiceField(fields.MultipleChoiceField):
+    """Version of MultipleChoiceField where the order of the selected items can
+    be set by the user.
+
+    Format of the choices:
+        - Classical tuple: (item_id, item_label)
+        - Dictionary: {'value': item_id, 'label': item_label}
+          Optional keys:
+            - "help": an help-text/description of the item
+            - "disabled": a boolean ; <True> means that the state of the choice
+               (ie: selected or not selected) cannot be changed.
+        - Note: groups are not managed yet. Currently, you can prefix the label
+          of the items you want to group (with "my group: " for example) and/or
+          use disabled item as group separators.
+    """
+    widget = core_widgets.OrderedMultipleChoiceWidget
+    default_error_messages = {
+        'missing_choice': _('The choice %(value)s is mandatory.'),
+    }
+    iterator = OrderedChoiceIterator
+
+    def __init__(self, *, iterator=None, **kwargs):
+        """Constructor.
+
+        @param iterator: Class with the interface of <OrderedChoiceIterator>.
+        @param kwargs: See <MultipleChoiceField>.
+        """
+        if iterator is not None:
+            self.iterator = iterator
+
+        super().__init__(**kwargs)
+
+    @fields.MultipleChoiceField.choices.setter
+    def choices(self, value):
+        self._choices = self.widget.choices = self.iterator(field=self, choices=value)
+
+    def valid_value(self, value):
+        # NB: "Optimised" version of valid_value() (we know 'choice' is a Choice instance)
+        #     We'll have to improve it if we manage groups.
+        text_value = str(value)
+        for choice, label in self.choices:
+            if text_value == str(choice.value):
+                return (
+                    any(text_value == str(i) for i in self.initial or ())
+                    if choice.disabled
+                    else True
+                )
+
+        return False
+
+    def validate(self, value):
+        super().validate(value)
+
+        if self.initial:
+            initial = {str(i) for i in self.initial}
+
+            for choice, _label in self.choices:
+                if choice.disabled:
+                    str_choice = str(choice.value)
+
+                    if (
+                        str_choice in initial
+                        and not any(str(val) == str_choice for val in value)
+                    ):
+                        raise ValidationError(
+                            self.error_messages['missing_choice'],
+                            code='invalid_choice',
+                            params={'value': str_choice},
+                        )
+
+
 class ReadonlyMessageField(fields.CharField):
     """Field made to display a message to the user.
     POSTed value is ignored, the given default value is always returned.
