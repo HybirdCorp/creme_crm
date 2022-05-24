@@ -357,6 +357,10 @@ INSTALLED_CREME_APPS = [
     # They can be created through specific blocks in detailed views of entities.
     'creme.assistants',
 
+    # Gives tools for drawing charts, dashboards, dependency graphs or anything
+    # the D3 framework allows to do.
+    'creme.sketch',
+
     # Manages the Graphs entities ; they are used to generated images to
     # visualize all the entities which are linked to given entities.
     'creme.graphs',
@@ -771,6 +775,8 @@ CREME_OPT_CSS = [  # APPS
 
     ('creme.geolocation', 'geolocation/css/leaflet-1.6.0.css'),
     ('creme.geolocation', 'geolocation/css/geolocation.css'),
+
+    ('creme.sketch',           'sketch/css/sketch.css'),
 ]
 
 CREME_I18N_JS = [
@@ -934,6 +940,8 @@ CREME_CORE_JS = [
 CREME_OPTLIB_JS = [
     ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.2.js'),
     ('creme.geolocation', 'geolocation/js/lib/leaflet-1.6.0.js'),
+    ('creme.sketch', 'sketch/js/lib/d3-5.16.0.js'),
+    ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
 ]
 
 CREME_OPT_JS = [  # OPTIONAL APPS
@@ -943,6 +951,19 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.creme_config',  'creme_config/js/menu-editor.js'),
     ('creme.creme_config',  'creme_config/js/bricks-config-editor.js'),
     ('creme.creme_config',  'creme_config/js/settings-menu.js'),
+
+    ('creme.sketch',        'sketch/js/utils.js'),
+    ('creme.sketch',        'sketch/js/sketch.js'),
+    ('creme.sketch',        'sketch/js/chart.js'),
+    ('creme.sketch',        'sketch/js/bricks.js'),
+    ('creme.sketch',        'sketch/js/draw/drawable.js'),
+    ('creme.sketch',        'sketch/js/draw/legend.js'),
+    ('creme.sketch',        'sketch/js/draw/limit.js'),
+    ('creme.sketch',        'sketch/js/chart/areachart.js'),
+    ('creme.sketch',        'sketch/js/chart/barchart.js'),
+    ('creme.sketch',        'sketch/js/chart/donutchart.js'),
+    ('creme.sketch',        'sketch/js/chart/groupbarchart.js'),
+    ('creme.sketch',        'sketch/js/chart/stackbarchart.js'),
 
     ('creme.persons',       'persons/js/persons.js'),
 
@@ -1107,6 +1128,13 @@ TEST_CREME_OPT_JS = [
     ('creme.persons',       'persons/js/tests/persons.js'),
     ('creme.persons',       'persons/js/tests/persons-actions.js'),
     ('creme.projects',      'projects/js/tests/projects.js'),
+    ('creme.sketch',        'sketch/js/tests/qunit-sketch-mixin.js'),
+    ('creme.sketch',        'sketch/js/tests/utils.js'),
+    ('creme.sketch',        'sketch/js/tests/sketch.js'),
+    ('creme.sketch',        'sketch/js/tests/chart.js'),
+    ('creme.sketch',        'sketch/js/tests/drawable.js'),
+    ('creme.sketch',        'sketch/js/tests/bricks.js'),
+    ('creme.sketch',        'sketch/js/tests/demo.js'),
     ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
     ('creme.reports',       'reports/js/tests/reports-chart.js'),
@@ -1301,6 +1329,9 @@ EMAILCAMPAIGN_USE_TLS   = True
 # Emails are sent by chunks, and sleep between 2 chunks.
 EMAILCAMPAIGN_SIZE = 40
 EMAILCAMPAIGN_SLEEP_TIME = 2
+
+# Sketch -----------------------------------------------------------------------
+SKETCH_ENABLE_DEMO_BRICKS = False
 
 # SMS --------------------------------------------------------------------------
 SMS_CAMPAIGN_MODEL = 'sms.SMSCampaign'

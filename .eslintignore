@@ -21,6 +21,7 @@
 **/js/lib/Sortable/*
 **/js/tests/qunit/qunit-*.js
 **/creme_core/js/datejs/*
-**/creme_core/js/d3/*
+**/sketch/js/lib/d3-*.js
+**/sketch/js/lib/filesaver-*.js
 **/tiny_mce/**
 **/media/static/**

@@ -1,0 +1,107 @@
+.south .sketch-chart-brick .d3-sketch,
+.north .sketch-chart-brick .d3-sketch {
+    min-height: 300px;
+}
+
+.east .sketch-chart-brick .d3-sketch,
+.west .sketch-chart-brick .d3-sketch {
+    min-height: 200px;
+}
+
+.d3-sketch {
+    font: 10px sans-serif;
+}
+
+.d3-sketch .axis path, .d3-chart .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+
+.bar-chart .bar rect {
+    fill: #4682b4;
+    shape-rendering: crispEdges;
+}
+
+.bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.bar-chart .bar rect:hover {
+    fill: #66a2d4;
+}
+
+.bar-chart .bar.selected rect {
+    fill: #b6a2d4;
+}
+
+.bar-chart .bar.selected rect:hover {
+    fill: #d6c2f4;
+}
+
+.bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.bar-chart .bar text.inner {
+    fill: #fff;
+}
+
+.bar-chart .limit {
+    stroke: #f6c2d4;
+    z-index: 1;
+}
+
+.donut-chart .arc path {
+    stroke: #fff;
+}
+
+.area-chart .area {
+    fill: #4682b4;
+}
+
+.group-bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.group-bar-chart .bar text.inner {
+    fill: #fff;
+}
+
+.group-bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.stack-bar-chart .bar text {
+    text-anchor: middle;
+}
+
+.stack-bar-chart .bar text.inner {
+    fill: #fff;
+}
+
+.stack-bar-chart .bar:hover {
+    cursor: pointer;
+}
+
+.stack-bar-chart .bar text.outer {
+    display: none;
+}
+
+.sketch-dashboard-brick .brick-d3-content {
+    min-height: 300px;
+    border: 0px;
+}
+
+.sketch-dashboard-brick .brick-content.is-empty {
+    padding: 5px 10px;
+}
+
+.sketch-dashboard-brick .brick-d3-content.brick-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    cursor: default;
+    color: #777;
+}

@@ -108,7 +108,7 @@ karma: __media karma-clean
 
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
-karma-browsers: media karma-clean
+karma-browsers: __media karma-clean
 	CHROME_BIN=/usr/bin/google-chrome \
 	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
 	    node_modules/.bin/karma start .karma.conf.js \
@@ -311,6 +311,10 @@ gettext-collect:
 			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE}  -i "static/geolocation/js/tests/*" --no-location && \
 			popd; \
 		pushd ./creme/billing && \
+			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
+			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} --no-location && \
+			popd; \
+		pushd ./creme/sketch && \
 			django-admin makemessages -l ${CREME_LANGUAGE} -i "tests/*" --no-location && \
 			django-admin makemessages -d djangojs -l ${CREME_LANGUAGE} --no-location && \
 			popd; \
