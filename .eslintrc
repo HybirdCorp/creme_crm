@@ -24,6 +24,8 @@
     "setTimeout": true,
     "clearTimeout": true,
     "XMLHttpRequest": true,
+    "Blob": true,
+    "Set": true,
 
     /* External libraries */
     "jQuery": true,
@@ -34,6 +36,8 @@
     "google": true,
     "Sortable": true,
     "_": true,
+    "d3": true,
+    "FileSaver": true,
 
     /* Django i18n */
     "gettext": true,

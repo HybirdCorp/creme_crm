@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2020-2021  Hybird
+    Copyright (C) 2020-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -111,9 +111,9 @@ FunctionFaker.prototype = {
             faker._calls.push(args);
 
             if (faker._follow) {
-                return faker._origin.call(faker._instance, Array.copy(arguments));
+                return faker._origin.apply(faker._instance, args);
             } else if (Object.isFunc(faker.callable)) {
-                return faker.callable.call(faker._instance, Array.copy(arguments));
+                return faker.callable.apply(faker._instance, args);
             } else {
                 return faker.result;
             }

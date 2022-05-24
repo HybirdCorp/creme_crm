@@ -48,6 +48,9 @@
         - New dependency 'underscorejs 1.13.2'
         - The version of 'floathead' is now "2.2.4".
         - The version of 'jquery-ui' is now "1.13.1".
+    - New application Sketch :
+        - New dependency 'd3js 5.16.0'
+        - New dependency 'filesaver 2.0.4' (customized)
 
     Non breaking changes :
     ----------------------
@@ -82,6 +85,16 @@
                 - 'creme_core-hatmenubar-view'
                 - 'creme_core-hatmenubar-update'
                 - 'creme_core-hatmenubar-form'
+        # Apps
+            - Sketch : New application that integrates D3js tools for creme
+                * Added base bricks for the most common usecases.
+                   - BarChartBrick
+                   - GroupBarChartBrick
+                   - StackBarChartBrick
+                   - DonutChartBrick
+                * Added actions for sketch bricks
+                   - 'sketch-download'
+                   - 'sketch-popover'
 
     Breaking changes :
     ------------------

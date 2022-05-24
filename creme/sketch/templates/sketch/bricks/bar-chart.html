@@ -1,0 +1,11 @@
+{% extends 'sketch/bricks/chart.html' %}
+
+{% block brick_script %}
+    <script type="text/javascript">
+        (function($) {
+            creme.setupD3ChartBrick('.brick[id="{{brick_id}}"]', {
+                chart: new creme.D3BarChart()
+            });
+        }(jQuery));
+    </script>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'creme_core/bricks/base/base.html' %}
+{% load i18n creme_bricks %}
+{% load jsondata templatize from creme_core_tags %}
+
+{% block brick_extra_class %}sketch-chart-brick{% endblock %}
+
+{% block brick_header_title %}
+    {% trans "Chart" context "sketch-chart" as title_prefix %}{% templatize '{{title_prefix}} — {{verbose_name}}' as title %}
+    {% brick_header_title title=title icon='report' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='refresh' label=_('Reload') icon='reload' %}
+{% endblock %}
+
+{% block brick_content_extra_class %}{% if not data %} is-empty{% endif %}{% endblock %}
+
+{% block brick_content %}
+    {% if data %}
+    <div class="brick-d3-content"></div>
+    {% jsondata data class="sketch-chart-data" %}
+    {% else %}
+    <div class="brick-d3-content brick-empty">{% trans 'No data' %}</div>
+    {% endif %}
+    {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
+{% endblock %}

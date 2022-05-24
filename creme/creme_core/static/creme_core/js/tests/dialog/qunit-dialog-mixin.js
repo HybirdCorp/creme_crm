@@ -39,7 +39,7 @@
 
         assertOpenedPopover: function() {
             var dialogs = $('body > .popover');
-            equal(1, dialogs.length, 'is popover not opened');
+            equal(1, dialogs.length, 'is popover opened');
             return dialogs;
         },
 
@@ -134,6 +134,12 @@
         closeDialog: function() {
             equal(1, $('.ui-dialog').length, 'single form dialog allowed');
             $('.ui-dialog-content').dialog('close');
+        },
+
+        closePopover: function() {
+            var dialogs = $('body > .popover');
+            equal(1, dialogs.length, 'single popover at once allowed');
+            dialogs.trigger('modal-close');
         },
 
         submitFormDialog: function(data) {

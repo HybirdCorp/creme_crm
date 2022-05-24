@@ -382,6 +382,23 @@ QUnit.test('fallbacks.Object.isString', function() {
     equal(Object.isString(null), false);
 });
 
+QUnit.test('fallbacks.Object.isNumber', function() {
+    equal(typeof Object.isNumber, 'function');
+
+    equal(Object.isNumber(''), false);
+    equal(Object.isNumber(String('')), false);
+    equal(Object.isNumber(false), false);
+    equal(Object.isNumber([12, 13]), false);
+    equal(Object.isNumber(new MockObjectA()), false);
+    equal(Object.isNumber({}), false);
+    equal(Object.isNumber(undefined), false);
+    equal(Object.isNumber(null), false);
+    equal(Object.isNumber(12), true);
+    equal(Object.isNumber(12.154), true);
+    equal(Object.isNumber(Number(12)), true);
+    equal(Object.isNumber(Number(12.154)), true);
+});
+
 QUnit.test('fallbacks.Array.indexOf', function() {
     equal(typeof Array.prototype.indexOf, 'function');
     equal(typeof [].indexOf, 'function');
