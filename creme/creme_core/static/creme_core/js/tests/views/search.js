@@ -181,9 +181,14 @@ QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(1);
+
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
+    }, 100);
 });
 
 QUnit.test('creme.search.SearchBox.search (click outside => close popover)', function() {
@@ -197,15 +202,23 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(2);
 
-    $('.glasspane').trigger('click');
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+        $('.glasspane').trigger('click');
+
+        setTimeout(function() {
+            equal(false, search.isOpened());
+            equal(0, element.find('.inline-search-results.showing').length);
+            equal(0, $('.glasspane').length);
+            start();
+        }, 100);
+    }, 100);
 });
 
 QUnit.test('creme.search.SearchBox.search (length < default min length)', function() {
@@ -555,14 +568,23 @@ QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(2);
 
-    element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+        element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
+
+        setTimeout(function() {
+            equal(false, search.isOpened());
+            equal(0, element.find('.inline-search-results.showing').length);
+            equal(0, $('.glasspane').length);
+            start();
+        }, 100);
+    }, 100);
+
 });
 }(jQuery));
