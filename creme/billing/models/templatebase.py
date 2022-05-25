@@ -42,7 +42,7 @@ class AbstractTemplateBase(Base):
 
     generate_number_in_create = False
 
-    _verbose_status_cache = None
+    # _verbose_status_cache = None
 
     class Meta(Base.Meta):
         abstract = True
