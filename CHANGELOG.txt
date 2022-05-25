@@ -223,6 +223,7 @@
                   "emailsync-link", "emailsync-action", "emailsync-delete".
             * Tickets :
                 - In 'buttons.Linked2TicketButton', the template variable "rtype_id" is not injected anymore.
+                - In 'models.AbstractTicket', the attribute "old_status_id" has been removed.
             * Crudity :
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
             * Graphs :

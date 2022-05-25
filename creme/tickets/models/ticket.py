@@ -87,9 +87,9 @@ class AbstractTicket(TicketMixin):
         verbose_name_plural = _('Tickets')
         ordering = ('title',)
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.old_status_id = self.status_id  # TODO: remove ?
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__(*args, **kwargs)
+    #     self.old_status_id = self.status_id
 
     def __str__(self):
         return f'#{self.number} - {self.title}'
