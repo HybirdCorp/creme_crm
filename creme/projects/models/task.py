@@ -146,6 +146,7 @@ class AbstractProjectTask(CremeEntity):
 
         return activities
 
+    # TODO: property
     def get_task_cost(self):
         return sum(
             (activity.duration or 0) * activity.projects_resource.hourly_cost
@@ -166,9 +167,11 @@ class AbstractProjectTask(CremeEntity):
 
         return self.effective_duration
 
+    # TODO: property
     def get_delay(self):
         return self.get_effective_duration() - self.duration
 
+    # TODO: property
     def is_alive(self):
         return self.tstatus_id not in (COMPLETED_PK, CANCELED_PK)
 
