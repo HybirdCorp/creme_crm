@@ -76,7 +76,7 @@ class MiscTestCase(CremeTestCase):
         self.assertIsNone(find_first(list_, lambda i: i.data == 12, None))
         self.assertRaises(IndexError, find_first, list_, lambda i: i.data == 12)
 
-    def test_split_filter(self):
+    def test_split_filter(self):  # DEPRECATED
         ok, ko = split_filter((lambda x: x % 2), range(5))
         self.assertEqual([1, 3], ok)
         self.assertEqual([0, 2, 4], ko)

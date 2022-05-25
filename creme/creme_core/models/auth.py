@@ -53,13 +53,14 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q, QuerySet
+from django.utils.functional import partition
 from django.utils.timezone import now
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
-from ..utils import split_filter
+# from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
@@ -520,7 +521,8 @@ class SetCredentials(models.Model):
             if not single_perm & perm:
                 continue
 
-            forbidden, allowed = split_filter(
+            # forbidden, allowed = split_filter(
+            allowed, forbidden = partition(
                 lambda sc: sc.forbidden,
                 sorted(
                     (
@@ -705,7 +707,8 @@ class SetCredentials(models.Model):
             ct_id = get_for_model(model).id
             model_ct_ids = {None, ct_id}   # <None> means <CremeEntity>
 
-            forbidden, allowed = split_filter(
+            # forbidden, allowed = split_filter(
+            allowed, forbidden = partition(
                 lambda sc: sc.forbidden,
                 (
                     sc for sc in sorted_sc

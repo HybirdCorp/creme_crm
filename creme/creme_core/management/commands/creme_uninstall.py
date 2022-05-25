@@ -30,6 +30,7 @@ from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.migrations.recorder import MigrationRecorder
 from django.dispatch import receiver
 from django.utils.encoding import force_str
+from django.utils.functional import partition
 
 from creme.creme_core.core.setting_key import setting_key_registry
 from creme.creme_core.gui.bricks import Brick
@@ -53,7 +54,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.signals import post_uninstall_flush, pre_uninstall_flush
-from creme.creme_core.utils import split_filter
+# from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
 
@@ -289,7 +290,8 @@ class Command(AppCommand):
         #     avoid major dependencies problems.
         models_info = [
             (model, True)  # True means 'First deletion trial"
-            for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
+            # for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
+            for model in chain(*partition(lambda m: not issubclass(m, CremeEntity), models))
         ]
 
         while True:

@@ -25,12 +25,13 @@ from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.functional import partition
 from django.utils.translation import gettext, ngettext, pgettext_lazy
 from django.views.generic.detail import SingleObjectMixin
 
 from creme.creme_core.core.exceptions import BadRequestError, ConflictError
 from creme.creme_core.models import Job, Relation
-from creme.creme_core.utils import get_from_POST_or_404, split_filter
+from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.serializers import json_encode
 from creme.creme_core.views import generic
 from creme.documents import get_document_model, get_folder_model
@@ -178,7 +179,7 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
     def perform_operation(self, e2s):
         user = e2s.user
 
-        senders, recipients = split_filter(
+        recipients, senders = partition(
             lambda person: person.type == EmailToSyncPerson.Type.SENDER,
             e2s.related_persons.all()
         )

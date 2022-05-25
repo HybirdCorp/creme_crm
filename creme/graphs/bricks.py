@@ -20,11 +20,11 @@
 
 import logging
 
+from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
 # from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
-from creme.creme_core.utils import split_filter
 from creme.sketch.bricks import ChartBrick
 
 from . import get_graph_model
@@ -139,7 +139,7 @@ class RootNodesBrick(QuerysetBrick):
         # CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
 
         for root_node in btc['page'].object_list:
-            root_node.rtypes_list, root_node.disabled_rtypes_list = split_filter(
+            root_node.disabled_rtypes_list, root_node.rtypes_list = partition(
                 (lambda rtype: rtype.enabled),
                 root_node.relation_types.all()
             )

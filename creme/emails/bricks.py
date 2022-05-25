@@ -22,12 +22,12 @@
 from collections import defaultdict
 
 from django.urls import reverse
+from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import Relation, RelationType  # CremeEntity
-from creme.creme_core.utils import split_filter
 
 from . import constants
 from .models import (
@@ -402,7 +402,7 @@ class EmailsToSyncBrick(QuerysetBrick):
         for e2s in btc['page'].object_list:
             email_persons = related_persons[e2s.id]
 
-            e2s.senders, e2s.recipients = split_filter(
+            e2s.recipients, e2s.senders = partition(
                 (lambda rp: rp.type == EmailToSyncPerson.Type.SENDER),
                 email_persons
             )

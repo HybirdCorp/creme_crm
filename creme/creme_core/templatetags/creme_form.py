@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,9 +19,10 @@
 #############################################################################
 
 from django.template import Library
+from django.utils.functional import partition
 
+# from creme.creme_core.utils import split_filter
 from creme.creme_core.forms.base import LAYOUT_DUAL_FIRST, LAYOUT_REGULAR
-from creme.creme_core.utils import split_filter
 
 register = Library()
 
@@ -55,8 +56,10 @@ def form_gather_blocks_for_layout(form_blocks):
 
             sections.append((
                 'dual',
-                split_filter(
-                    lambda b: b.layout == LAYOUT_DUAL_FIRST,
+                # split_filter(
+                partition(
+                    # lambda b: b.layout == LAYOUT_DUAL_FIRST,
+                    lambda b: b.layout != LAYOUT_DUAL_FIRST,
                     dual_section,
                 ),
             ))
