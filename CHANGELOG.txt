@@ -227,6 +227,8 @@
                 - All the code related to InfoPath support has been removed (.py, .html. .xml...).
             * Graphs :
                 - A mandatory field "entity_content_type" has been added to 'models.RootNode'.
+            * Projects :
+                - In 'bricks.ProjectTasksBrick', the variable "creation_perm" is not injected in the context anymore.
 
     Internal breaking changes :
     ---------------------------

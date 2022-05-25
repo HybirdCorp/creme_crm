@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_bricks creme_widgets %}
-{% load absolute format_amount has_perm_to url from creme_core_tags %}
+{% load absolute and_op format_amount has_perm_to url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} projects-tasks-brick{% endblock %}
 
@@ -9,7 +9,8 @@
 {% endblock %}
 
 {% block brick_header_actions %}
-    {% brick_header_action id='add' url='projects__create_task'|url:object.id label=_('New task') enabled=creation_perm %}
+    {% has_perm_to create objects_ctype as creation_perm %}{% has_perm_to change object as edit_perm %}
+    {% brick_header_action id='add' url='projects__create_task'|url:object.id label=_('New task') enabled=creation_perm|and_op:edit_perm %}
 {% endblock %}
 
 {% block brick_table_columns %}

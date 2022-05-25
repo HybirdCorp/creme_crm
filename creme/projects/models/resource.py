@@ -35,7 +35,7 @@ class Resource(CremeModel):
     hourly_cost = models.PositiveIntegerField(_('Hourly cost'), default=0)
     task = models.ForeignKey(
         settings.PROJECTS_TASK_MODEL, verbose_name=_('Task'),
-        related_name='resources_set',  # TODO: rename 'resources'
+        related_name='resources_set',
         editable=False, on_delete=models.CASCADE,
     )
 
