@@ -20,7 +20,7 @@
 
 from collections import OrderedDict
 from functools import partial
-from typing import List, Sequence, Tuple, Type
+from typing import List, Sequence, Type  # Tuple
 
 from django.apps import apps
 from django.db.models.query_utils import FilteredRelation, Q
@@ -502,8 +502,8 @@ class ManagedOrganisationsBrick(PaginatedBrick):
         ))
 
 
-# TODO: rename brick_classes + list() ?
-bricks_list: Tuple[Type[Brick], ...] = (
+# bricks_list: Tuple[Type[Brick], ...] = (
+brick_classes: List[Type[Brick]] = [
     DetailedAddressesBrick,
     PrettyAddressesBrick,
     DetailedOtherAddressesBrick,
@@ -511,8 +511,8 @@ bricks_list: Tuple[Type[Brick], ...] = (
     ManagersBrick,
     EmployeesBrick,
     ManagedOrganisationsBrick,
-)
-
+]
+# )
 
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
@@ -610,6 +610,7 @@ if apps.is_installed('creme.activities'):
                 self._get_neglected(context['today']),
             ))
 
-    bricks_list += (
-        NeglectedOrganisationsBrick,
-    )
+    # bricks_list += (
+    #     NeglectedOrganisationsBrick,
+    # )
+    brick_classes.append(NeglectedOrganisationsBrick)

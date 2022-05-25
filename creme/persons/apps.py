@@ -59,7 +59,8 @@ class PersonsConfig(CremeAppConfig):
         from . import bricks
 
         brick_registry.register(
-            *bricks.bricks_list
+            # *bricks.bricks_list
+            *bricks.brick_classes
         ).register_hat(
             self.Contact,
             main_brick_cls=bricks.ContactBarHatBrick,

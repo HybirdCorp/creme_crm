@@ -195,7 +195,9 @@
             * Documents :
                 - In 'bricks.LinkedDocsBrick', the template variable "predicate_id" is not injected anymore.
             * Persons :
-                - In 'bricks.ManagersBrick' (& so 'EmployeesBrick'), the template variable "rtype_id" is not injected anymore.
+                - In 'bricks' :
+                    - In the class 'ManagersBrick' (& so 'EmployeesBrick'), the template variable "rtype_id" is not injected anymore.
+                    - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'.
@@ -203,6 +205,7 @@
                 - In 'bricks' :
                     - In the base class '_LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
                     - In the mixin class '_RelatedToOpportunity', the method 'get_related_contacts()' has been removed.
+                    - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
             * Commercial :
                 - In 'bricks' :
                     - The method 'ApproachesBrick._populate_related_real_entities()' has been removed.
