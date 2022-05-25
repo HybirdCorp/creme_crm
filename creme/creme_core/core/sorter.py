@@ -408,7 +408,7 @@ class CellSorterRegistry(AbstractCellSorter):
 
 
 class QuerySorter:
-    """Builds a QuerySortInfo (see the main method get()."""
+    """Builds a QuerySortInfo (see the main method 'get()')."""
     def __init__(self, cell_sorter_registry: Optional[CellSorterRegistry] = None):
         """Constructor.
 

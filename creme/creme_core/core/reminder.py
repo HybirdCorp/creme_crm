@@ -141,17 +141,19 @@ class ReminderRegistry:
     def __init__(self):
         self._reminders: Dict[str, Reminder] = {}
 
-    # TODO: rename 'reminder_class'
-    def register(self, reminder: Type[Reminder]) -> ReminderRegistry:
+    # def register(self, reminder: Type[Reminder]) -> ReminderRegistry:
+    def register(self, reminder_class: Type[Reminder]) -> ReminderRegistry:
         """Register a class of Reminder.
-        @type reminder: Class "inheriting" creme_core.core.reminder.Reminder.
+        @type reminder_class: Class "inheriting" <creme_core.core.reminder.Reminder>.
         """
         reminders = self._reminders
-        reminder_id = reminder.id
+        # reminder_id = reminder.id
+        reminder_id = reminder_class.id
 
         if not reminder_id:
             raise self.RegistrationError(
-                f"Reminder class with empty id: {reminder}",
+                # f"Reminder class with empty id: {reminder}",
+                f"Reminder class with empty id: {reminder_class}",
             )
 
         if reminder_id in reminders:
@@ -159,14 +161,18 @@ class ReminderRegistry:
                 f"Duplicated reminder's id or reminder registered twice: {reminder_id}"
             )
 
-        reminders[reminder_id] = reminder()
+        # reminders[reminder_id] = reminder()
+        reminders[reminder_id] = reminder_class()
 
         return self
 
-    def unregister(self, reminder: Type[Reminder]) -> None:
-        if self._reminders.pop(reminder.id, None) is None:
+    # def unregister(self, reminder: Type[Reminder]) -> None:
+    def unregister(self, reminder_class: Type[Reminder]) -> None:
+        # if self._reminders.pop(reminder.id, None) is None:
+        if self._reminders.pop(reminder_class.id, None) is None:
             raise self.RegistrationError(
-                f'No reminder is registered with this ID: {reminder.id}'
+                # f'No reminder is registered with this ID: {reminder.id}'
+                f'No reminder is registered with this ID: {reminder_class.id}'
             )
 
     def __iter__(self) -> Iterator[Reminder]:
