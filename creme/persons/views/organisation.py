@@ -25,6 +25,7 @@ from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.urls import reverse
+from django.utils.functional import cached_property
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext
@@ -69,18 +70,14 @@ class ContactRelatedToOrganisationMixin:
         },
     ]
 
-    _contact_rtypes_cache = None
-
-    def get_related_contact_rtypes(self):
-        if self._contact_rtypes_cache is None:
-            self._contact_rtypes_cache = RelationType.objects.in_bulk([
-                desc['id'] for desc in self.relation_type_desc
-            ])
-
-        return self._contact_rtypes_cache
+    @cached_property
+    def related_contact_rtypes(self):
+        return RelationType.objects.in_bulk([
+            desc['id'] for desc in self.relation_type_desc
+        ])
 
     def get_enabled_descriptions(self):
-        rtypes = self.get_related_contact_rtypes()
+        rtypes = self.related_contact_rtypes
         descriptions = [
             desc
             for desc in self.relation_type_desc
