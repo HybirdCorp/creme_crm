@@ -19,7 +19,7 @@
 ################################################################################
 
 from datetime import timedelta
-from typing import Tuple, Type
+from typing import List, Type  # Tuple
 
 from django.apps import apps
 from django.core.paginator import Paginator
@@ -352,7 +352,8 @@ class OppTargetBrick(Brick):
         ))
 
 
-bricks_list: Tuple[Type[Brick], ...] = (
+# bricks_list: Tuple[Type[Brick], ...] = (
+brick_classes: List[Type[Brick]] = [
     LinkedContactsBrick,
     LinkedProductsBrick,
     LinkedServicesBrick,
@@ -360,8 +361,8 @@ bricks_list: Tuple[Type[Brick], ...] = (
     OppTotalBrick,
     OppTargetBrick,
     TargettingOpportunitiesBrick,
-)
-
+]
+# )
 
 if apps.is_installed('creme.billing'):
     from creme import billing
@@ -432,8 +433,13 @@ if apps.is_installed('creme.billing'):
         #         relations__type=constants.REL_SUB_LINKED_INVOICE,
         #     )
 
-    bricks_list += (
+    # bricks_list += (
+    #     QuotesBrick,
+    #     SalesOrdersBrick,
+    #     InvoicesBrick,
+    # )
+    brick_classes += [
         QuotesBrick,
         SalesOrdersBrick,
         InvoicesBrick,
-    )
+    ]
