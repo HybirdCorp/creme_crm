@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,7 +18,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import BooleanField, CharField, ValidationError
+from django.forms import BooleanField, CharField  # ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
@@ -45,21 +45,20 @@ class _CremePropertyTypeBaseForm(CremeForm):
 
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
-    error_messages = {
-        'duplicated_name': _('A property type with this name already exists.'),
-    }
-
-    def clean_text(self):
-        text = self.cleaned_data['text']
-
-        # TODO: unique constraint in model too ??
-        if CremePropertyType.objects.filter(text=text).exists():
-            raise ValidationError(
-                self.error_messages['duplicated_name'],
-                code='duplicated_name',
-            )
-
-        return text
+    # error_messages = {
+    #     'duplicated_name': _('A property type with this name already exists.'),
+    # }
+    #
+    # def clean_text(self):
+    #     text = self.cleaned_data['text']
+    #
+    #     if CremePropertyType.objects.filter(text=text).exists():
+    #         raise ValidationError(
+    #             self.error_messages['duplicated_name'],
+    #             code='duplicated_name',
+    #         )
+    #
+    #     return text
 
     def save(self):
         get_data = self.cleaned_data.get
