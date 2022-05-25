@@ -238,6 +238,9 @@
         # In 'creme_core.gui.last_viewed.LastViewedItem', the key "ctype_id" is now mandatory.
         # In 'creme_core.management.commands.i18n_overload.Command._get_catalog_paths()', the return
           values are now instances of 'pathlib.Path'.
+        # Apps :
+            * Billing :
+                - In 'models.AbstractTemplateBase', the protected attribute '_verbose_status_cache' has been removed (was useless since years).
 
 
 == Version 2.3 ==
