@@ -27,6 +27,7 @@
 import logging
 import sys
 import traceback
+import warnings
 from typing import Callable, Iterable, List, Tuple, TypeVar
 
 from django.http import Http404
@@ -160,6 +161,12 @@ def split_filter(predicate: Callable[[T], bool],
            & returns a value used as a boolean ('True' to accept the element).
     @return: 2 lists (accepted then rejected).
     """
+    warnings.warn(
+        'The function creme_core.utils.split_filter() is deprecated ; '
+        'use django.utils.functional.partition() instead (beware the lists '
+        'are returned in the reverse order).',
+        DeprecationWarning
+    )
     ok = []
     ko = []
 

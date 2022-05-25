@@ -23,11 +23,12 @@ from functools import partial
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import partition
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+# from creme.creme_core.utils import split_filter
 from creme.creme_core.models import CremeEntity, CremeModel
-from creme.creme_core.utils import split_filter
 
 from .. import get_pollform_model, get_pollreply_model
 from .base import _PollLine
@@ -94,7 +95,8 @@ class AbstractPollForm(CremeEntity):
         # children, then the children of children etc...), and we create for each
         # PollFormSection the corresponding PollFormSection or PollReplySection.
         while fsections:
-            children, fsections = split_filter(
+            # children, fsections = split_filter(
+            fsections, children = partition(
                 (lambda section: section.parent in parents),
                 fsections,
             )

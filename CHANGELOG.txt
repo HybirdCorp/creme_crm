@@ -69,8 +69,11 @@
                 - The method 'bricks.RelationBrickItemManager.create_if_needed()' is deprecated.
                 - The method 'Relation.populate_real_object_entities()'' is deprecated ;
                   use 'Relation.objects.prefetch_related("real_object")' instead.'
-            - The function 'creme_core.utils.imports.import_object()' is deprecated ;
-              use 'django.utils.module_loading.import_string()' instead.
+            - In 'creme_core.utils' :
+                - The function 'split_filter()' is deprecated ;
+                  use 'django.utils.functional.partition()' instead (beware the lists 'are returned in the reverse order).
+                - The function 'imports.import_object()' is deprecated ;
+                  use 'django.utils.module_loading.import_string()' instead.
             - Apps :
                 * Emails :
                     - In the class 'emails.models._Email':

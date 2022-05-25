@@ -6,6 +6,7 @@ from unittest import skipIf
 from django.apps import apps
 from django.forms import CharField
 from django.urls import reverse
+from django.utils.functional import partition
 from django.utils.html import escape
 from django.utils.translation import gettext as _
 
@@ -24,8 +25,8 @@ from creme.creme_core.tests.fake_menu import (
     FakeContactsEntry,
     FakeOrganisationCreationEntry,
 )
+# from creme.creme_core.utils import split_filter
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.creme_core.utils import split_filter
 
 from ..bricks import MenuBrick
 from ..forms.fields import MenuEntriesField
@@ -366,7 +367,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         MenuConfigItem.objects.all().delete()
 
         create_items = MenuConfigItem.objects.bulk_create
-        parent_items, child_items = split_filter(
+        # parent_items, child_items = split_filter(
+        #     (lambda item: item.parent_id is None),
+        #     cls._items_backup,
+        # )
+        child_items, parent_items = partition(
             (lambda item: item.parent_id is None),
             cls._items_backup,
         )
