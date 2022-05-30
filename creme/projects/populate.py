@@ -230,6 +230,7 @@ class Populator(BasePopulator):
             groups_desc=[
                 {
                     'name': _('General information'),
+                    'layout': LAYOUT_DUAL_FIRST,
                     'cells': [
                         *task_rfields_cells,
                         ParentTasksSubCell(model=ProjectTask).into_cell(),
@@ -248,6 +249,7 @@ class Populator(BasePopulator):
             groups_desc=[
                 {
                     'name': _('General information'),
+                    'layout': LAYOUT_DUAL_FIRST,
                     'cells': [
                         *task_rfields_cells,
                         (

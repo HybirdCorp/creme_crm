@@ -8,6 +8,8 @@
       (it was not mandatory to have all the needed properties).
     # The mass-import code checks now property constraints for relationships.
     # Apps :
+        * Projects :
+            - The default form layout for ProjectTask has been fixed.
         * VCFs :
             - In the import form, the RelationTypes with property constraints are not proposed anymore
               (it's an easy way in order to respect the constraints, we could do better).
