@@ -144,6 +144,28 @@ class RelatedContactCreation(_ContactBaseCreation):
                             }
                         )
 
+                forbidden_object_ptype_ids = {
+                    *rtype.object_forbidden_properties.values_list('id', flat=True),
+                }
+                if forbidden_object_ptype_ids:
+                    object_refused_ptypes = [
+                        prop.type
+                        for prop in self.linked_orga.get_properties()
+                        if prop.type_id in forbidden_object_ptype_ids
+                    ]
+
+                    if object_refused_ptypes:
+                        raise ValidationError(
+                            gettext(
+                                'The entity «%(entity)s» has the property «%(property)s» '
+                                'which is forbidden by the relationship «%(predicate)s».'
+                            ) % {
+                                'entity': self.linked_orga,
+                                'property': object_refused_ptypes[0],
+                                'predicate': rtype.predicate,
+                            }
+                        )
+
                 return rtype
 
             def clean_user(this):
