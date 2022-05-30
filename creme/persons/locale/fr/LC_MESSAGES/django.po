@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.2\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-09 17:09+0100\n"
+"POT-Creation-Date: 2022-05-31 15:30+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -20,32 +20,32 @@ msgstr ""
 msgid "Accounts and Contacts"
 msgstr "Comptes et Contacts"
 
-#: apps.py:161 apps.py:192 templates/persons/view_contact.html:8
+#: apps.py:172 apps.py:203 templates/persons/view_contact.html:8
 #: templates/persons/view_organisation.html:8
 msgid "Directory"
 msgstr "Annuaire"
 
-#: apps.py:175
+#: apps.py:186
 msgid "My customers / prospects / suspects"
 msgstr "Mes clients / prospects / suspects"
 
-#: apps.py:258
+#: apps.py:269
 msgid "Customers"
 msgstr "Clients"
 
-#: apps.py:262
+#: apps.py:273
 msgid "Prospects"
 msgstr "Prospects"
 
-#: apps.py:266
+#: apps.py:277
 msgid "Suspects"
 msgstr "Suspects"
 
-#: apps.py:293
+#: apps.py:304
 msgid "User organisation"
 msgstr "Société de l'utilisateur"
 
-#: apps.py:298
+#: apps.py:309
 msgid "Position in the organisation"
 msgstr "Statut dans la société"
 
@@ -97,11 +97,11 @@ msgstr "Adresses supplémentaires (jolies)"
 msgid "Neglected organisations"
 msgstr "Sociétés délaissées"
 
-#: buttons.py:67
+#: buttons.py:71
 msgid "Transform into a customer"
 msgstr "Transformer en client"
 
-#: buttons.py:69
+#: buttons.py:73
 msgid ""
 "This button links the current entity to an Organisation managed by Creme, "
 "using the relationship type «is a customer of».\n"
@@ -111,11 +111,11 @@ msgstr ""
 "utilisant le type de relation «est client de»\n"
 "App: Comptes et Contacts"
 
-#: buttons.py:80
+#: buttons.py:84
 msgid "Transform into a prospect"
 msgstr "Transformer en prospect"
 
-#: buttons.py:82
+#: buttons.py:86
 msgid ""
 "This button links the current entity to an Organisation managed by Creme, "
 "using the relationship type «is a prospect of».\n"
@@ -125,11 +125,11 @@ msgstr ""
 "utilisant le type de relation «est prospect de»\n"
 "App: Comptes et Contacts"
 
-#: buttons.py:93
+#: buttons.py:97
 msgid "Transform into a suspect"
 msgstr "Transformer en suspect"
 
-#: buttons.py:95
+#: buttons.py:99
 msgid ""
 "This button links the current entity to an Organisation managed by Creme, "
 "using the relationship type «is a suspect of».\n"
@@ -139,11 +139,11 @@ msgstr ""
 "utilisant le type de relation «est suspect de»\n"
 "App: Comptes et Contacts"
 
-#: buttons.py:106
+#: buttons.py:110
 msgid "Transform into an inactive customer"
 msgstr "Transformer en client inactif"
 
-#: buttons.py:108
+#: buttons.py:112
 msgid ""
 "This button links the current entity to an Organisation managed by Creme, "
 "using the relationship type «is an inactive customer of».\n"
@@ -153,11 +153,11 @@ msgstr ""
 "utilisant le type de relation «est un client inactif de»\n"
 "App: Comptes et Contacts"
 
-#: buttons.py:119
+#: buttons.py:123
 msgid "Transform into a supplier"
 msgstr "Transformer en fournisseur"
 
-#: buttons.py:121
+#: buttons.py:125
 msgid ""
 "This button links the current entity to an Organisation managed by Creme, "
 "using the relationship type «is a supplier of».\n"
@@ -167,11 +167,11 @@ msgstr ""
 "utilisant le type de relation «est un fournisseur de»\n"
 "App: Comptes et Contacts"
 
-#: buttons.py:132
+#: buttons.py:136
 msgid "Create a related contact"
 msgstr "Créer un contact lié"
 
-#: buttons.py:134
+#: buttons.py:138
 msgid ""
 "This button displays the creation form for contacts. The current "
 "organisation is pre-selected to be linked to the created contact.\n"
@@ -179,10 +179,10 @@ msgid ""
 "employees block too).\n"
 "App: Accounts and Contacts"
 msgstr ""
-"Ce bouton affiche le formulaire de création des contacts. La société courante "
-"est pré-sélectionnée pour être liée au contact créé.\n"
-"C'est utile pour créer des salariés par exemple (cela peut aussi être fait depuis le "
-"bloc des salariés)\n"
+"Ce bouton affiche le formulaire de création des contacts. La société "
+"courante est pré-sélectionnée pour être liée au contact créé.\n"
+"C'est utile pour créer des salariés par exemple (cela peut aussi être fait "
+"depuis le bloc des salariés)\n"
 "App: Comptes et Contacts"
 
 #: custom_forms.py:16
@@ -225,7 +225,7 @@ msgstr "Adresses"
 msgid "Contact details"
 msgstr "Coordonnées du contact"
 
-#: forms/contact.py:106 views/contact.py:104
+#: forms/contact.py:106 views/contact.py:105
 #, python-brace-format
 msgid "Status in «{organisation}»"
 msgstr "Statut dans «{organisation}»"
@@ -419,12 +419,12 @@ msgstr "Contact"
 msgid "Contacts"
 msgstr "Contacts"
 
-#: models/contact.py:113 templatetags/persons_tags.py:76
+#: models/contact.py:113 templatetags/persons_tags.py:80
 #, python-brace-format
 msgid "{civility} {first_name} {last_name}"
 msgstr "{civility} {first_name} {last_name}"
 
-#: models/contact.py:120 templatetags/persons_tags.py:83
+#: models/contact.py:120 templatetags/persons_tags.py:87
 #, python-brace-format
 msgid "{first_name} {last_name}"
 msgstr "{first_name} {last_name}"
@@ -1131,10 +1131,19 @@ msgstr "Modifier l'adresse de facturation pour «{entity}»"
 msgid "Edit shipping address for «{entity}»"
 msgstr "Modifier l'adresse de livraison pour «{entity}»"
 
-#: views/contact.py:59
+#: views/contact.py:60
 #, python-brace-format
 msgid "Create a contact related to «{organisation}»"
 msgstr "Créer un contact lié à «{organisation}»"
+
+#: views/contact.py:142
+#, python-format
+msgid ""
+"The entity «%(entity)s» has no property «%(property)s» which is required by "
+"the relationship «%(predicate)s»."
+msgstr ""
+"La fiche «%(entity)s» n'a pas la propriété «%(property)s» qui est "
+"obligatoire pour la relation «%(predicate)s»."
 
 #: views/organisation.py:62
 msgid "Create a suspect / prospect / customer"
