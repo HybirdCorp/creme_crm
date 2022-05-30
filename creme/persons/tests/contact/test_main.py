@@ -3,6 +3,7 @@
 from functools import partial
 
 from django.core.exceptions import ValidationError
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -10,6 +11,8 @@ from django.utils.translation import pgettext
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
 from creme.creme_core.models import (
+    CremeProperty,
+    CremePropertyType,
     CremeUser,
     FieldsConfig,
     Relation,
@@ -541,6 +544,78 @@ class ContactTestCase(_BaseTestCase):
         self.assertRelationCount(1, orga, REL_OBJ_EMPLOYED_BY, contact)
 
     @skipIfCustomOrganisation
+    def test_create_linked_contact_property_constraint01(self):
+        "Mandatory object's properties."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_mandatory', text='Is mandatory',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('persons-subject_test_rtype', 'RType',     [Contact]),
+            ('persons-object_test_rtype',  'Rtype sym', [Organisation], [ptype]),
+        )[0]
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        CremeProperty.objects.create(creme_entity=orga, type=ptype)
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.assertPOST200(
+            self._build_addrelated_url(orga.id),
+            follow=True,
+            data={
+                'user': user.pk,
+                'first_name': first_name,
+                'last_name': last_name,
+                'rtype_for_organisation': rtype.id,
+            },
+        )
+        self.assertNoFormError(response)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, rtype.id, orga)
+
+    @skipIfCustomOrganisation
+    @override_settings(FORMS_RELATION_FIELDS=True)
+    def test_create_linked_contact_property_constraint02(self):
+        "Mandatory subject's properties."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_mandatory', text='Is mandatory',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('persons-subject_test_rtype', 'RType',     [Contact], [ptype]),
+            ('persons-object_test_rtype',  'Rtype sym', [Organisation]),
+        )[0]
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.assertPOST200(
+            self._build_addrelated_url(orga.id),
+            follow=True,
+            data={
+                'user': user.pk,
+                'first_name': first_name,
+                'last_name': last_name,
+
+                'property_types': [ptype.id],
+
+                'rtype_for_organisation': rtype.id,
+            },
+        )
+        self.assertNoFormError(response)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, rtype.id, orga)
+        self.assertCountEqual(
+            [ptype], [p.type for p in contact.properties.all()],
+        )
+
+    @skipIfCustomOrganisation
     def test_create_linked_contact_error01(self):
         "No LINK credentials."
         user = self.login(is_superuser=False, creatable_models=[Contact])
@@ -708,6 +783,82 @@ class ContactTestCase(_BaseTestCase):
         rtype5.enabled = False
         rtype5.save()
         self.assertGET409(build_url(orga.id, rtype5.id))
+
+    @skipIfCustomOrganisation
+    @override_settings(FORMS_RELATION_FIELDS=True)
+    def test_create_linked_contact_error05(self):
+        "Mandatory properties."
+        user = self.login()
+
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(
+            str_pk='test-prop_mandatory', text='Is mandatory',
+        )
+        ptype2 = create_ptype(
+            str_pk='test-prop_optional', text='Is optional',
+        )
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype1 = create_rtype(
+            ('persons-subject_test_rtype1', 'RType #1',     [Contact]),
+            ('persons-object_test_rtype1',  'Rtype sym #1', [Organisation], [ptype1]),
+        )[0]
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        CremeProperty.objects.create(creme_entity=orga, type=ptype2)
+
+        url = self._build_addrelated_url(orga.id)
+        data = {
+            'user': user.pk,
+            'first_name': 'Bugs',
+            'last_name': 'Bunny',
+        }
+
+        # Object constraint
+        response1 = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                **data,
+                'rtype_for_organisation': rtype1.id,
+            },
+        )
+        self.assertFormError(
+            response1, 'form', 'rtype_for_organisation',
+            _(
+                'The entity «%(entity)s» has no property «%(property)s» which is '
+                'required by the relationship «%(predicate)s».'
+            ) % {
+                'entity': orga,
+                'property': ptype1,
+                'predicate': rtype1.predicate,
+            },
+        )
+
+        # Subject constraint
+        rtype2 = create_rtype(
+            ('persons-subject_test_rtype2', 'RType #2',     [Contact], [ptype1]),
+            ('persons-object_test_rtype2',  'Rtype sym #2', [Organisation]),
+        )[0]
+        response2 = self.assertPOST200(
+            url,
+            follow=True,
+            data={
+                **data,
+                'property_types': [ptype2.id],
+                'rtype_for_organisation': rtype2.id,
+            },
+        )
+        self.assertFormError(
+            response2, 'form', 'rtype_for_organisation',
+            _(
+                'The property «%(property)s» is mandatory '
+                'in order to use the relationship «%(predicate)s»'
+            ) % {
+                'property': ptype1,
+                'predicate': rtype2.predicate,
+            },
+        )
 
     @skipIfCustomAddress
     def test_clone(self):
