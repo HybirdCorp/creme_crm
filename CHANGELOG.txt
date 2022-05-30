@@ -1,6 +1,6 @@
 == Version 2.3.4 Work in progress (not released -- this is a draft) ==
 
-  TODO: re-compile .mo (creme_core)
+  TODO: re-compile .mo (creme_core, persons)
 
   Users side :
   ------------
@@ -8,6 +8,8 @@
       (it was not mandatory to have all the needed properties).
     # The mass-import code checks now property constraints for relationships.
     # Apps :
+        * Persons :
+            - The mandatory properties are now checked when a Contact (related to an Organisation) is created.
         * Projects :
             - The default form layout for ProjectTask has been fixed.
         * VCFs :
