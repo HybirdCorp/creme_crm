@@ -616,6 +616,38 @@ class ContactTestCase(_BaseTestCase):
         )
 
     @skipIfCustomOrganisation
+    def test_create_linked_contact_property_constraint03(self):
+        "Forbidden object's properties."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_forbidden', text='Is forbidden',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('persons-subject_test_rtype', 'RType',     [Contact]),
+            ('persons-object_test_rtype',  'Rtype sym', [Organisation], [], [ptype]),
+        )[0]
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+
+        first_name = 'Bugs'
+        last_name = 'Bunny'
+        response = self.assertPOST200(
+            self._build_addrelated_url(orga.id),
+            follow=True,
+            data={
+                'user': user.pk,
+                'first_name': first_name,
+                'last_name': last_name,
+                'rtype_for_organisation': rtype.id,
+            },
+        )
+        self.assertNoFormError(response)
+
+        contact = self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
+        self.assertRelationCount(1, contact, rtype.id, orga)
+
+    @skipIfCustomOrganisation
     def test_create_linked_contact_error01(self):
         "No LINK credentials."
         user = self.login(is_superuser=False, creatable_models=[Contact])
@@ -857,6 +889,45 @@ class ContactTestCase(_BaseTestCase):
             ) % {
                 'property': ptype1,
                 'predicate': rtype2.predicate,
+            },
+        )
+
+    @skipIfCustomOrganisation
+    @override_settings(FORMS_RELATION_FIELDS=True)
+    def test_create_linked_contact_error06(self):
+        "Forbidden properties (object constraint)."
+        user = self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_forbidden', text='Is forbidden',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('persons-subject_test_rtype1', 'RType #1',     [Contact]),
+            ('persons-object_test_rtype1',  'Rtype sym #1', [Organisation], [], [ptype]),
+        )[0]
+
+        orga = Organisation.objects.create(user=user, name='Acme')
+        CremeProperty.objects.create(creme_entity=orga, type=ptype)
+
+        response1 = self.assertPOST200(
+            self._build_addrelated_url(orga.id),
+            follow=True,
+            data={
+                'user': user.pk,
+                'first_name': 'Bugs',
+                'last_name': 'Bunny',
+                'rtype_for_organisation': rtype.id,
+            },
+        )
+        self.assertFormError(
+            response1, 'form', 'rtype_for_organisation',
+            _(
+                'The entity «%(entity)s» has the property «%(property)s» which is '
+                'forbidden by the relationship «%(predicate)s».'
+            ) % {
+                'entity': orga,
+                'property': ptype,
+                'predicate': rtype.predicate,
             },
         )
 
