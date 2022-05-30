@@ -22,6 +22,7 @@ from typing import Optional, Type, Union
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -113,6 +114,36 @@ class RelatedContactCreation(_ContactBaseCreation):
                 'fields': ['rtype_for_organisation'],
                 'order': 0,
             })
+
+            def clean_rtype_for_organisation(this):
+                rtype = this.cleaned_data['rtype_for_organisation']
+
+                this._check_properties([rtype])  # Checks subject's properties
+
+                needed_object_ptypes = rtype.object_properties.all()
+                if needed_object_ptypes:
+                    object_prop_ids = {
+                        prop.type_id for prop in self.linked_orga.get_properties()
+                    }
+                    object_missing_ptypes = [
+                        ptype
+                        for ptype in needed_object_ptypes
+                        if ptype.id not in object_prop_ids
+                    ]
+
+                    if object_missing_ptypes:
+                        raise ValidationError(
+                            gettext(
+                                'The entity «%(entity)s» has no property «%(property)s» which is '
+                                'required by the relationship «%(predicate)s».'
+                            ) % {
+                                'entity': self.linked_orga,
+                                'property': object_missing_ptypes[0],
+                                'predicate': rtype.predicate,
+                            }
+                        )
+
+                return rtype
 
             def clean_user(this):
                 super().clean_user()
