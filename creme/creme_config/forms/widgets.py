@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -169,20 +169,13 @@ class BricksConfigWidget(forms.Widget):
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)
         memo[id(self)] = obj
+
         return obj
 
     def get_context(self, name, value, attrs):
-        context = {}
-        cleaned_value = self.clean_value(value)
-        context['widget'] = {
-            'name': name,
-            'is_hidden': self.is_hidden,
-            'required': self.is_required,
-            'value': self.format_value(value),
-            'attrs': self.build_attrs(self.attrs, attrs),
-            'template_name': self.template_name,
-            'choices': self.build_choices(name, cleaned_value, attrs),
-        }
+        context = super().get_context(name=name, value=value, attrs=attrs)
+        context['widget']['choices'] = self.build_choices(name, self.clean_value(value), attrs)
+
         return context
 
     def clean_value(self, value):
@@ -199,8 +192,10 @@ class BricksConfigWidget(forms.Widget):
                 continue
             if not isinstance(value[zone], list):
                 del value[zone]
+
         return value
 
+    # TODO: remove name & attrs?
     def build_choices(self, name, cleaned_value, attrs=None):
         choices = []
         for brick_id, brick in self.choices:
@@ -217,8 +212,9 @@ class BricksConfigWidget(forms.Widget):
                 "orientation": brick_zone,
                 "name": brick.verbose_name,
                 "description": brick.description,
-                "order": order
+                "order": order,
             })
+
         return [*sorted(choices, key=lambda choice: choice["order"])]
 
     def value_from_datadict(self, data, files, name):
