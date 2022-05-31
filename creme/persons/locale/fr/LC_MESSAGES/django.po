@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:25+0200\n"
+"POT-Creation-Date: 2022-05-31 15:54+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -958,6 +958,20 @@ msgstr "Créer un contact lié à «{organisation}»"
 #, python-brace-format
 msgid "Status in «{organisation}»"
 msgstr "Statut dans «{organisation}»"
+
+# Already in creme_core
+#, python-format
+msgid ""
+"The entity «%(entity)s» has no property «%(property)s» which is required by "
+"the relationship «%(predicate)s»."
+msgstr ""
+
+# Already in creme_core
+#, python-format
+msgid ""
+"The entity «%(entity)s» has the property «%(property)s» which is forbidden "
+"by the relationship «%(predicate)s»."
+msgstr ""
 
 msgid "customer"
 msgstr "client"

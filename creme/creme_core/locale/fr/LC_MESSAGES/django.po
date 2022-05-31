@@ -971,7 +971,7 @@ msgid ""
 "relationship «%(predicate)s»."
 msgstr ""
 "Cette fiche n'a pas la propriété «%(property)s» qui est obligatoire pour la "
-"relation «%(predicate)s»"
+"relation «%(predicate)s»."
 
 #, python-format
 msgid ""
@@ -979,23 +979,23 @@ msgid ""
 "relationship «%(predicate)s»."
 msgstr ""
 "Cette fiche a la propriété «%(property)s» qui est interdite par la "
-"relation «%(predicate)s»"
+"relation «%(predicate)s»."
 
 #, python-format
 msgid ""
 "The entity «%(entity)s» has no property «%(property)s» which is required by "
 "the relationship «%(predicate)s»."
 msgstr ""
-"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
-"pour la relation «%(predicate)s»"
+"La fiche «%(entity)s» n'a pas la propriété «%(property)s» qui est obligatoire "
+"pour la relation «%(predicate)s»."
 
 #, python-format
 msgid ""
 "The entity «%(entity)s» has the property «%(property)s» which is forbidden "
 "by the relationship «%(predicate)s»."
 msgstr ""
-"La fiche «{entity}» a la propriété «%(property)s» qui est interdite "
-"par la relation «%(predicate)s»"
+"La fiche «%(entity)s» a la propriété «%(property)s» qui est interdite "
+"par la relation «%(predicate)s»."
 
 msgid "Enter a value if you check the box."
 msgstr "Entrez une valeur si vous cochez la case."
