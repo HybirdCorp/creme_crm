@@ -147,7 +147,7 @@ class Brick:
     #   (but it is still reloaded when the dependant bricks are reloaded of course).
     read_only: bool = False
 
-    template_name: str = 'OVERLOAD_ME.html'  # Used to render the brick of course
+    template_name: str = 'OVERRIDE_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
     # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ----------
@@ -177,6 +177,12 @@ class Brick:
     GENERIC_HAT_BRICK_ID: str = 'hatbrick'
 
     def __init__(self):
+        if self.relation_type_deps and Relation not in self.dependencies:
+            raise ValueError(
+                f'The Brick <{self.__class__.__name__}> gets RelationTypes '
+                f'dependencies but the model Relation is not a dependence.'
+            )
+
         self._reloading_info = None
 
     @property
