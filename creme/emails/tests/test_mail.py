@@ -27,6 +27,7 @@ from creme.creme_core.models import (
     Relation,
     SetCredentials,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.models import FolderCategory
 from creme.persons.tests.base import (
     skipIfCustomContact,
@@ -34,6 +35,7 @@ from creme.persons.tests.base import (
 )
 
 from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
+from ..bricks import MailsHistoryBrick
 from ..constants import (  # MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
     REL_OBJ_MAIL_RECEIVED,
     REL_OBJ_MAIL_SENDED,
@@ -57,7 +59,7 @@ from .base import (
 
 
 @skipIfCustomEntityEmail
-class EntityEmailTestCase(_EmailsTestCase):
+class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -975,6 +977,42 @@ better &amp; lighter than the previous one.
             [REL_OBJ_RELATED_TO],
             [rtype.id for rtype in allowed_rtypes],
         )
+
+    def test_brick(self):
+        user = self.login()
+
+        contact = Contact.objects.create(
+            user=user,
+            first_name='Vincent', last_name='Law',
+            email='vincent.law@immigrates.rmd',
+        )
+
+        subject = 'Under arrest'
+        self.assertNoFormError(self.client.post(
+            self._build_create_entitymail_url(contact),
+            data={
+                'user':         user.id,
+                'sender':       user.linked_contact.email,
+                'c_recipients': self.formfield_value_multi_creator_entity(contact),
+                'subject':      subject,
+                'body':         'Freeze !',
+                # 'body_html':    '<p>Freeze !</p>',
+            },
+        ))
+        email = self.get_object_or_fail(EntityEmail, subject=subject)
+
+        response = self.assertGET200(contact.get_absolute_url())
+
+        tree = self.get_html_tree(response.content)
+        brick_node = self.get_brick_node(tree, MailsHistoryBrick.id_)
+        self.assertEqual(
+            _('{count} Email in the history').format(count=1),
+            self.get_brick_title(brick_node),
+        )
+
+        subject_td = brick_node.find('.//td[@class="email-subject"]')
+        self.assertIsNotNone(subject_td)
+        self.assertEqual(email.subject, subject_td.text)
 
     def test_listview01(self):
         self.login()
