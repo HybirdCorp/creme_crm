@@ -36,6 +36,7 @@ from creme.creme_core.models import (
 )
 
 from ..base import CremeTestCase
+from ..fake_constants import FAKE_REL_OBJ_EMPLOYED_BY
 
 
 class BrickRegistryTestCase(CremeTestCase):
@@ -1175,6 +1176,32 @@ class BrickTestCase(CremeTestCase):
 
         return context.flatten()
 
+    def test_relation_type_deps(self):
+        class OKBrick1(Brick):
+            dependencies = (FakeOrganisation, Relation)
+            # relation_type_deps = ()
+
+        class OKBrick2(Brick):
+            dependencies = (FakeOrganisation, Relation)
+            relation_type_deps = (FAKE_REL_OBJ_EMPLOYED_BY,)
+
+        with self.assertNoException():
+            OKBrick1()
+            OKBrick2()
+
+        class KOBrick(Brick):
+            dependencies = (FakeOrganisation,)  # Relation
+            relation_type_deps = (FAKE_REL_OBJ_EMPLOYED_BY,)
+
+        with self.assertRaises(ValueError) as cm:
+            KOBrick()
+
+        self.assertEqual(
+            'The Brick <KOBrick> gets RelationTypes dependencies but the model '
+            'Relation is not a dependence.',
+            str(cm.exception),
+        )
+
     def test_custom_brick01(self):
         cbci = CustomBrickConfigItem.objects.create(
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
@@ -1432,7 +1459,7 @@ class BrickTestCase(CremeTestCase):
             ('test-object_loved', 'is loved by'),
         )[0]
         # rbi = RelationBrickItem.objects.create_if_needed(rtype)
-        rbi = RelationBrickItem.objects.create_if_needed(relation_type=rtype)
+        rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)
         expected_models = [FakeOrganisation, FakeContact]
