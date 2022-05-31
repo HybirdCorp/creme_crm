@@ -23,8 +23,11 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         return response.json()[0][1]
 
     @parameterized.expand([
-        [bricks.BarChartBrick, {"limits": [], "transition": True}],
-        [bricks.DonutChartBrick, {"band": 60, "colors": None, "transition": True}],
+        [
+            bricks.BarChartBrick,
+            {"limits": [], "transition": True, "xAxisTitle": None, "yAxisTitle": None}
+        ],
+        [bricks.DonutChartBrick, {"band": 60, "transition": True}],
         [bricks.GroupBarChartBrick, {"limits": [], "transition": True, "showLegend": True}],
         [bricks.StackBarChartBrick, {"limits": [], "transition": True, "showLegend": True}],
     ])
