@@ -10,6 +10,8 @@
     # Apps :
         * Persons :
             - The mandatory properties are now checked when a Contact (related to an Organisation) is created.
+        * Emails :
+            - The brick for Emails' history has been fixed: it was always empty.
         * Projects :
             - The default form layout for ProjectTask has been fixed.
         * VCFs :
