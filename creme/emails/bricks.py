@@ -288,7 +288,8 @@ class MailsHistoryBrick(QuerysetBrick):
     def detailview_display(self, context):
         pk = context['object'].pk
         entityemail_ids = Relation.objects.filter(
-            type__pk__in=self.relation_type_deps,
+            # type__pk__in=self.relation_type_deps,
+            type__symmetric_type_id__in=self.relation_type_deps,
             object_entity=pk,
         ).values_list('subject_entity', flat=True).distinct()
 
