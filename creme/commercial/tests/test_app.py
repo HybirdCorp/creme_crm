@@ -36,8 +36,9 @@ class CommercialTestCase(CremeTestCase):
 
         complete_goal = self.get_object_or_fail(RelationType, id=REL_SUB_COMPLETE_GOAL)
         self.assertEqual(REL_OBJ_COMPLETE_GOAL, complete_goal.symmetric_type_id)
-        self.assertEqual([Act], [ct.model_class() for ct in complete_goal.object_ctypes.all()])
-        subject_models = {ct.model_class() for ct in complete_goal.subject_ctypes.all()}
+        self.assertListEqual([Act], [*complete_goal.object_models])
+
+        subject_models = {*complete_goal.subject_models}
         self.assertIn(Contact,      subject_models)
         self.assertIn(Organisation, subject_models)
 

@@ -1435,13 +1435,13 @@ class BrickTestCase(CremeTestCase):
         rbi = RelationBrickItem.objects.create_if_needed(relation_type=rtype)
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)
-        expected_models = {FakeOrganisation, FakeContact}
+        expected_models = [FakeOrganisation, FakeContact]
 
         with self.assertNumQueries(1):
             models = brick.target_ctypes
 
         self.assertIsInstance(models, tuple)
-        self.assertSetEqual(expected_models, {*models})
+        self.assertCountEqual(expected_models, [*models])
 
         with self.assertNumQueries(0):
-            self.assertSetEqual(expected_models, {*brick.target_ctypes})
+            self.assertCountEqual(expected_models, [*brick.target_ctypes])

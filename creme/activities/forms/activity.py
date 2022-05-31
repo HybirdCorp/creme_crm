@@ -214,12 +214,9 @@ class ActivitySubjectsSubCell(CustomFormExtraSubCell):
     def formfield(self, instance, user, **kwargs):
         return core_forms.MultiGenericEntityField(
             label=self.verbose_name, user=user,
-            models=[
-                ct.model_class()
-                for ct in RelationType.objects
-                                      .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
-                                      .subject_ctypes.all()
-            ],
+            models=RelationType.objects.get(
+                pk=constants.REL_SUB_ACTIVITY_SUBJECT,
+            ).subject_models,
             help_text=_(
                 'The organisations of the participants will be automatically added as subjects'
             ) if is_auto_orga_subject_enabled() else None,

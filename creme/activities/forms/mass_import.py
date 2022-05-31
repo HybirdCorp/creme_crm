@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -407,10 +407,9 @@ class SubjectsExtractor(RelatedExtractor):
         self._column_index = column_index - 1
         self._separator = separator
         self._models = [
-            ct.model_class()
-            for ct in RelationType.objects
-                                  .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
-                                  .subject_ctypes.all()
+            *RelationType.objects
+                         .get(pk=constants.REL_SUB_ACTIVITY_SUBJECT)
+                         .subject_models,
         ]
 
     def extract_value(self, line, user):

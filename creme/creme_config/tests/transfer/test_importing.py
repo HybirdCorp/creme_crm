@@ -955,12 +955,10 @@ class ImportingTestCase(CremeTestCase):
         self.assertFalse(rtype2.object_properties.all())
         self.assertFalse(rtype2.subject_forbidden_properties.all())
         self.assertFalse(rtype2.object_forbidden_properties.all())
-        get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual(
-            {get_ct(FakeContact), get_ct(FakeOrganisation)},
-            {*rtype2.subject_ctypes.all()},
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation], [*rtype2.subject_models],
         )
-        self.assertListEqual([get_ct(FakeDocument)], [*rtype2.object_ctypes.all()])
+        self.assertListEqual([FakeDocument], [*rtype2.object_models])
 
         sym_rtype2 = rtype2.symmetric_type
         self.assertTrue(sym_rtype2.is_copiable)

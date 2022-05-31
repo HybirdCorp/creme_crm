@@ -453,8 +453,18 @@ class RelationType(CremeModel):
             )
 
     @property
+    def subject_models(self):
+        for ctype in self.subject_ctypes.all():
+            yield ctype.model_class()
+
+    @property
     def object_ctypes(self):
         return self.symmetric_type.subject_ctypes
+
+    @property
+    def object_models(self):
+        for ctype in self.object_ctypes.all():
+            yield ctype.model_class()
 
     @property
     def object_properties(self):
