@@ -21,11 +21,6 @@ from ..fake_models import FakeDocument
 
 
 class RelationsTestCase(CremeTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.contact_ct = ContentType.objects.get_for_model(FakeContact)
-
     def setUp(self):
         super().setUp()
         self.user = get_user_model().objects.create(username='name')
@@ -81,7 +76,9 @@ class RelationsTestCase(CremeTestCase):
         self.assertTrue(rtype2.enabled)
 
         self.assertFalse(rtype1.subject_ctypes.all())
+        self.assertFalse([*rtype1.subject_models])
         self.assertFalse(rtype1.object_ctypes.all())
+        self.assertFalse([*rtype1.object_models])
         self.assertFalse(rtype1.subject_properties.all())
         self.assertFalse(rtype1.object_properties.all())
 
@@ -125,14 +122,19 @@ class RelationsTestCase(CremeTestCase):
             [get_ct(FakeContact), get_ct(FakeOrganisation)],
             rtype1.subject_ctypes.all(),
         )
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation],
+            [*rtype1.subject_models],
+        )
         self.assertCountEqual([get_ct(FakeDocument)], rtype1.object_ctypes.all())
+        self.assertCountEqual([FakeDocument], [*rtype1.object_models])
         self.assertFalse(rtype1.subject_properties.all())
         self.assertFalse(rtype1.object_properties.all())
 
-        self.assertCountEqual([get_ct(FakeDocument)], rtype2.subject_ctypes.all())
+        self.assertListEqual([FakeDocument], [*rtype2.subject_models])
         self.assertCountEqual(
-            [get_ct(FakeContact), get_ct(FakeOrganisation)],
-            rtype2.object_ctypes.all(),
+            [FakeContact, FakeOrganisation],
+            [*rtype2.object_models],
         )
         self.assertFalse(rtype2.subject_properties.all())
 
@@ -162,8 +164,8 @@ class RelationsTestCase(CremeTestCase):
         self.assertFalse(new_rtype1.is_custom)
         self.assertFalse(new_rtype2.is_custom)
 
-        self.assertCountEqual([get_ct(FakeOrganisation)], new_rtype1.subject_ctypes.all())
-        self.assertCountEqual([get_ct(FakeContact)],      new_rtype1.object_ctypes.all())
+        self.assertListEqual([FakeOrganisation], [*new_rtype1.subject_models])
+        self.assertListEqual([FakeContact],      [*new_rtype1.object_models])
 
     def test_type_manager_smart_update_or_create03(self):
         "CremeProperty constraints."
@@ -349,9 +351,12 @@ class RelationsTestCase(CremeTestCase):
         self.assertRaises(RelationType.DoesNotExist, get_rtype, id=rtype2.id)
 
     def build_compatible_set(self, ct_or_model=None, **kwargs):
+        if ct_or_model is None:
+            ct_or_model = ContentType.objects.get_for_model(FakeContact)
+
         return {
             *RelationType.objects
-                         .compatible(ct_or_model or self.contact_ct, **kwargs)
+                         .compatible(ct_or_model, **kwargs)
                          .values_list('id', flat=True),
         }
 
@@ -379,7 +384,7 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(rtype.id,          compatibles_internal_ids)
         self.assertIn(internal_rtype.id, compatibles_internal_ids)
 
-        contact_ct = self.contact_ct
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
         self.assertTrue(rtype.is_compatible(contact_ct.id))
         self.assertTrue(rtype.is_compatible(contact_ct))
         self.assertTrue(rtype.is_compatible(str(contact_ct.id)))
@@ -449,7 +454,9 @@ class RelationsTestCase(CremeTestCase):
         self.assertIn(internal_rtype.id,     compatibles_ids)
         self.assertIn(internal_sym_rtype.id, compatibles_ids)
 
-        self.assertTrue(rtype.is_compatible(self.contact_ct.id))
+        self.assertTrue(rtype.is_compatible(
+            ContentType.objects.get_for_model(FakeContact).id
+        ))
 
     def test_manager_safe_create(self):
         rtype, srtype = RelationType.objects.smart_update_or_create(

@@ -586,10 +586,7 @@ class SpecificRelationsBrick(QuerysetBrick):
 
     @cached_property
     def target_ctypes(self):
-        return tuple(
-            ct.model_class()
-            for ct in self.config_item.relation_type.subject_ctypes.all()
-        )
+        return tuple(self.config_item.relation_type.subject_models)
 
 
 class InstanceBrick(Brick):
