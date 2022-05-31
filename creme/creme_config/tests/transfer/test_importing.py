@@ -828,10 +828,8 @@ class ImportingTestCase(CremeTestCase):
         self.get_object_or_fail(CremePropertyType, **ptypes_data[1])
 
         ptype3 = self.get_object_or_fail(CremePropertyType, **ptype3_data)
-        get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual(
-            {get_ct(FakeContact), get_ct(FakeOrganisation)},
-            {*ptype3.subject_ctypes.all()},
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation], [*ptype3.subject_models],
         )
 
     def test_property_types02(self):

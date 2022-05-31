@@ -73,21 +73,19 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login(is_superuser=False, admin_4_apps=['creme_core'])
 
         get_ct = ContentType.objects.get_for_model
-        ct_ids = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+        models = [FakeContact, FakeOrganisation]
         text = 'is beautiful'
         response = self.client.post(
             self.ADD_URL,
             data={
                 'text':           text,
-                'subject_ctypes': ct_ids,
+                'subject_ctypes': [get_ct(model).id for model in models],
             },
         )
         self.assertNoFormError(response)
 
         prop_type = self.get_object_or_fail(CremePropertyType, text=text)
-        ctypes = prop_type.subject_ctypes.all()
-        self.assertEqual(2, len(ctypes))
-        self.assertSetEqual({*ct_ids}, {ct.id for ct in ctypes})
+        self.assertCountEqual(models, [*prop_type.subject_models])
 
     def test_create03(self):
         "Not allowed."
@@ -115,20 +113,19 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
 
         # ---
-        ct_orga = get_ct(FakeOrganisation)
         text = 'is very beautiful'
         response = self.client.post(
             url,
             data={
                 'text':           text,
-                'subject_ctypes': [ct_orga.id],
+                'subject_ctypes': [get_ct(FakeOrganisation).id],
             },
         )
         self.assertNoFormError(response)
 
         pt = self.refresh(pt)
         self.assertEqual(text, pt.text)
-        self.assertListEqual([ct_orga.id], [ct.id for ct in pt.subject_ctypes.all()])
+        self.assertListEqual([FakeOrganisation], [*pt.subject_models])
 
     def test_edit_error01(self):
         "Edit a not custom type."

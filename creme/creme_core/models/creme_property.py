@@ -266,6 +266,11 @@ class CremePropertyType(CremeModel):
     #         is_copiable=is_copiable,
     #     )
 
+    @property
+    def subject_models(self):
+        for ctype in self.subject_ctypes.all():
+            yield ctype.model_class()
+
 
 class CremeProperty(CremeModel):
     type = models.ForeignKey(

@@ -99,6 +99,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertTrue(ptype.is_copiable)
         self.assertTrue(ptype.enabled)
         self.assertFalse(ptype.subject_ctypes.all())
+        self.assertFalse([*ptype.subject_models])
 
     def test_manager_smart_update_or_create02(self):
         "ContentTypes."
@@ -116,8 +117,11 @@ class CremePropertyTypeTestCase(CremeTestCase):
 
         self.assertTrue(ptype.is_custom)
         self.assertFalse(ptype.is_copiable)
-        self.assertSetEqual(
-            {get_ct(FakeContact), orga_ct}, {*ptype.subject_ctypes.all()},
+        self.assertCountEqual(
+            [get_ct(FakeContact), orga_ct], [*ptype.subject_ctypes.all()],
+        )
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation], [*ptype.subject_models],
         )
 
     def test_manager_smart_update_or_create03(self):
@@ -138,10 +142,7 @@ class CremePropertyTypeTestCase(CremeTestCase):
         self.assertEqual(text, ptype.text)
         self.assertTrue(ptype.is_custom)
         self.assertFalse(ptype.is_copiable)
-        self.assertListEqual(
-            [FakeContact],
-            [ct.model_class() for ct in ptype.subject_ctypes.all()],
-        )
+        self.assertListEqual([FakeContact], [*ptype.subject_models])
 
     def test_manager_smart_update_or_create04(self):
         "Generate pk."
