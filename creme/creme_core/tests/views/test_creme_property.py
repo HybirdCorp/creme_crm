@@ -156,14 +156,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.login()
 
         get_ct = ContentType.objects.get_for_model
-        ct_ids = [get_ct(FakeContact).id, get_ct(FakeOrganisation).id]
+        models = [FakeContact, FakeOrganisation]
         text = 'is beautiful'
         response = self.client.post(
             self.ADD_TYPE_URL,
             follow=True,
             data={
                 'text':           text,
-                'subject_ctypes': ct_ids,
+                'subject_ctypes': [get_ct(model).id for model in models],
                 'is_copiable':    'on',
             },
         )
@@ -171,10 +171,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         ptype = self.get_object_or_fail(CremePropertyType, text=text)
         self.assertTrue(ptype.is_copiable)
-
-        ctypes = ptype.subject_ctypes.all()
-        self.assertEqual(2, len(ctypes))
-        self.assertSetEqual({*ct_ids}, {ct.id for ct in ctypes})
+        self.assertCountEqual(models, [*ptype.subject_models])
 
     def test_add_type03(self):
         "Not allowed."
@@ -215,14 +212,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(_('Save the modifications'),               get_ctxt('submit_label'))
         self.assertEqual(referer_url,                               get_ctxt('cancel_url'))
 
-        ct_orga = ContentType.objects.get_for_model(FakeOrganisation)
+        model = FakeOrganisation
         text = 'is very beautiful'
         response = self.client.post(
             url,
             follow=True,
             data={
                 'text':           text,
-                'subject_ctypes': [ct_orga.id],
+                'subject_ctypes': [ContentType.objects.get_for_model(model).id],
             },
         )
         self.assertNoFormError(response)
@@ -230,7 +227,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         ptype = self.refresh(ptype)
         self.assertEqual(text, ptype.text)
-        self.assertListEqual([ct_orga], [*ptype.subject_ctypes.all()])
+        self.assertListEqual([model], [*ptype.subject_models])
 
     def test_edit_type03(self):
         "Not allowed."
