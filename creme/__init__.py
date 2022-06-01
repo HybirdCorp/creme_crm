@@ -1,4 +1,17 @@
-__version__ = '2.4-alpha1'
+
+def get_version(package_name):
+    try:
+        # Python >= 3.8
+        from importlib.metadata import version
+        return version(package_name)
+    except ModuleNotFoundError:
+        # Python < 3.8
+        from pkg_resources import get_distribution
+        distribution = get_distribution(package_name)
+        return distribution.version
+
+
+__version__ = get_version('creme-crm')
 
 # App registry hooking ---------------------------------------------------------
 
