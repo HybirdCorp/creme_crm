@@ -7,6 +7,9 @@ parameters:
   instance_directory:
     type: string
     default: 'creme_project'
+  pycache_prefix:
+    type: string
+    default: 'creme-crm-cache-v1'
 
 commands:
   wait-database:
@@ -39,8 +42,7 @@ commands:
 
       - restore_cache:
           keys:
-            - << parameters.python >>-creme_crm-v2.4-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
-            - << parameters.python >>-creme_crm-v2.4
+            - << pipeline.parameters.pycache_prefix >>-<< parameters.python >>-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
 
       - run: <<parameters.python>> -m venv ~/venv
       # Require setuptools v46.4.0 at least
@@ -53,7 +55,7 @@ commands:
       - run: pip list --outdated
 
       - save_cache:
-          key: << parameters.python >>-creme_crm-v2.4-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+          key: << pipeline.parameters.pycache_prefix >>-<< parameters.python >>-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -165,7 +167,7 @@ jobs:
 
   python37-lint-flake8:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
     steps:
       - checkout-creme
       - install-creme-system-packages
@@ -176,7 +178,7 @@ jobs:
 
   python37-tests-mysql:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
       - image: cimg/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: creme
@@ -201,7 +203,7 @@ jobs:
 
   python37-tests-pgsql:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
       - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
@@ -226,7 +228,7 @@ jobs:
 
   python37-tests-sqlite3:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
     resource_class: large
     steps:
       - checkout-creme
@@ -243,7 +245,7 @@ jobs:
 
   run-coverage:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
       - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
@@ -268,7 +270,7 @@ jobs:
 
   python38-tests-sqlite3:
     docker:
-      - image: cimg/python:3.8
+      - image: cimg/python:3.8.13
     resource_class: large
     steps:
       - checkout-creme
@@ -285,7 +287,7 @@ jobs:
 
   python39-tests-sqlite3:
     docker:
-      - image: cimg/python:3.9
+      - image: cimg/python:3.9.13
     resource_class: large
     steps:
       - checkout-creme
@@ -302,7 +304,7 @@ jobs:
 
   python310-tests-sqlite3:
     docker:
-      - image: cimg/python:3.10
+      - image: cimg/python:3.10.4
     resource_class: large
     steps:
       - checkout-creme
@@ -319,7 +321,7 @@ jobs:
 
   javascript-lint:
     docker:
-     - image: cimg/python:3.7-node
+     - image: cimg/python:3.7.13-node
     steps:
       - checkout-creme
       - install-creme-system-packages
@@ -356,7 +358,7 @@ jobs:
 
   javascript-tests:
     docker:
-     - image: cimg/python:3.7-browsers
+     - image: cimg/python:3.7.13-browsers
     steps:
       - browser-tools/install-browser-tools
       - checkout-creme
@@ -418,7 +420,7 @@ jobs:
 
   creme-package:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.7.13
     steps:
       - checkout-creme
       - run: pip install -U pip setuptools wheel
