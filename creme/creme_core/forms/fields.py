@@ -23,13 +23,13 @@ from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from json import loads as json_load
-from typing import Optional, Type
+from typing import Collection, Dict, Optional, Sequence, Type
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import validate_email
-from django.db.models.query import Q, QuerySet
+from django.db.models.query import Q, QuerySet, prefetch_related_objects
 from django.forms import ValidationError, fields
 from django.forms import models as mforms
 from django.forms import widgets
@@ -40,7 +40,7 @@ from django.utils.translation import pgettext_lazy
 from ..auth.entity_credentials import EntityCredentials
 from ..core import validators
 from ..gui import quick_forms
-from ..models import CremeEntity, EntityFilter, RelationType
+from ..models import CremeEntity, EntityFilter, Relation, RelationType
 from ..utils import find_first
 from ..utils.collections import OrderedSet
 from ..utils.content_type import ctype_choices, entity_ctypes
@@ -676,43 +676,35 @@ class ChoiceModelIterator:
 class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
-        'rtypedoesnotexist': _(
-            'This type of relationship does not exist (id=%(rtype_id)s).'
-        ),
+        # 'rtypedoesnotexist': _(
+        #     'This type of relationship does not exist (id=%(rtype_id)s).'
+        # ),
         'rtypenotallowed': _(
             'This type of relationship causes a constraint error '
             '(id="%(rtype_id)s").'
         ),
-        'ctypenotallowed': _(
-            'This content type cause constraint error with the type of relationship '
-            '(id="%(ctype_id)s").'
-        ),
+        # 'ctypenotallowed': _(
+        #     'This content type cause constraint error with the type of relationship '
+        #     '(id="%(ctype_id)s").'
+        # ),
         # 'nopropertymatch': _(
         #     'This entity has no property that matches the constraints of the '
         #     'type of relationship.'
         # ),
-        'missingproperty': _(
-            'This entity has no property «%(property)s» which is required by '
-            'the relationship «%(predicate)s».'
-        ),
-        'forbiddenproperty': _(
-            'This entity has the property «%(property)s» which is forbidden by '
-            'the relationship «%(predicate)s».'
-        ),
     }
     value_type: Type = dict
 
-    def __init__(
-            self, *,
-            allowed_rtypes=RelationType.objects.none(),
-            autocomplete=False,
-            **kwargs):
+    def __init__(self, *,
+                 allowed_rtypes=RelationType.objects.none(),
+                 autocomplete=False,
+                 **kwargs):
         super().__init__(**kwargs)
         self.autocomplete = autocomplete
         self.allowed_rtypes = allowed_rtypes
 
     @property
     def allowed_rtypes(self):
+        # TODO: .all()?
         return self._allowed_rtypes
 
     @allowed_rtypes.setter
@@ -756,289 +748,344 @@ class RelationEntityField(EntityCredsJSONField):
         if not entity_pk:
             return self._return_none_or_raise(self.required, 'entityrequired')
 
+        # rtype = self._clean_rtype(rtype_pk)
+        # self._validate_ctype_constraints(rtype, ctype_pk)
+        #
+        # entity = self._clean_entity(ctype_pk, entity_pk)
+        # self._check_entity_perms(entity)
+        # self._validate_properties_constraints(rtype, entity)
+        #
+        # return rtype, entity
         rtype = self._clean_rtype(rtype_pk)
-        self._validate_ctype_constraints(rtype, ctype_pk)
-
         entity = self._clean_entity(ctype_pk, entity_pk)
         self._check_entity_perms(entity)
-        self._validate_properties_constraints(rtype, entity)
 
+        Relation(
+            # user=self.user
+            subject_entity=entity,
+            type=rtype.symmetric_type,
+        ).clean_subject_entity()
+
+        # TODO: return Relation?
         return rtype, entity
 
-    def _validate_ctype_constraints(self, rtype, ctype_pk):
-        ctype_ids = rtype.object_ctypes.values_list('pk', flat=True)
+    # def _validate_ctype_constraints(self, rtype, ctype_pk):
+    #     ctype_ids = rtype.object_ctypes.values_list('pk', flat=True)
+    #
+    #     # Is relation type accepts content type
+    #     if ctype_ids and ctype_pk not in ctype_ids:
+    #         raise ValidationError(
+    #             self.error_messages['ctypenotallowed'],
+    #             params={'ctype_id': ctype_pk},
+    #             code='ctypenotallowed',
+    #         )
 
-        # Is relation type accepts content type
-        if ctype_ids and ctype_pk not in ctype_ids:
-            raise ValidationError(
-                self.error_messages['ctypenotallowed'],
-                params={'ctype_id': ctype_pk},
-                code='ctypenotallowed',
-            )
+    # def _validate_properties_constraints(self, rtype, entity):
+    #     needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+    #
+    #     if needed_ptype_ids:
+    #         ptype_ids = {p.type_id for p in entity.get_properties()}
+    #
+    #         if any(
+    #             needed_ptype_id not in ptype_ids
+    #             for needed_ptype_id in needed_ptype_ids
+    #         ):
+    #             raise ValidationError(
+    #                 self.error_messages['nopropertymatch'],
+    #                 code='nopropertymatch',
+    #             )
 
-    def _validate_properties_constraints(self, rtype, entity):
-        # needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
-        #
-        # if needed_ptype_ids:
-        #     ptype_ids = {p.type_id for p in entity.get_properties()}
-        #
-        #     if any(
-        #         needed_ptype_id not in ptype_ids
-        #         for needed_ptype_id in needed_ptype_ids
-        #     ):
-        #         raise ValidationError(
-        #             self.error_messages['nopropertymatch'],
-        #             code='nopropertymatch',
-        #         )
-        needed_ptypes = rtype.object_properties.all()
-
-        if needed_ptypes:
-            ptype_ids = {p.type_id: p for p in entity.get_properties()}
-
-            for needed_ptype in needed_ptypes:
-                if needed_ptype.id not in ptype_ids:
-                    raise ValidationError(
-                        self.error_messages['missingproperty'],
-                        params={
-                            'predicate': rtype.predicate,
-                            'property': needed_ptype,
-                        },
-                        code='missingproperty',
-                    )
-
-        forbidden_ptype_ids = {
-            *rtype.object_forbidden_properties.values_list('id', flat=True),
-        }
-
-        if forbidden_ptype_ids:
-            for prop in entity.get_properties():
-                if prop.type_id in forbidden_ptype_ids:
-                    raise ValidationError(
-                        self.error_messages['forbiddenproperty'],
-                        params={
-                            'predicate': rtype.predicate,
-                            'property': prop,
-                        },
-                        code='forbiddenproperty',
-                    )
-
+    # def _clean_rtype(self, rtype_pk):
+    #     # Is relation type allowed
+    #     if rtype_pk not in self._get_allowed_rtypes_ids():
+    #         raise ValidationError(
+    #             self.error_messages['rtypenotallowed'],
+    #             params={'rtype_id': rtype_pk}, code='rtypenotallowed',
+    #         )
+    #
+    #     # NB: we are sure the RelationType exists here
+    #     return RelationType.objects.get(pk=rtype_pk)
     def _clean_rtype(self, rtype_pk):
-        # Is relation type allowed
-        if rtype_pk not in self._get_allowed_rtypes_ids():
+        rtypes = self._allowed_rtypes
+
+        try:
+            rtype = rtypes.select_related('symmetric_type').get(pk=rtype_pk)
+        except rtypes.model.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['rtypenotallowed'],
-                params={'rtype_id': rtype_pk}, code='rtypenotallowed',
-            )
+                code='rtypenotallowed',
+                params={'rtype_id': rtype_pk},
+            ) from e
 
-        # NB: we are sure the RelationType exists here
-        return RelationType.objects.get(pk=rtype_pk)
+        return rtype
 
     def _get_options(self):  # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
 
-    def _get_allowed_rtypes_objects(self):
-        return self._allowed_rtypes.all()
+    # def _get_allowed_rtypes_objects(self):
+    #     return self._allowed_rtypes.all()
 
-    def _get_allowed_rtypes_ids(self):
-        return self._allowed_rtypes.values_list('id', flat=True)
+    # def _get_allowed_rtypes_ids(self):
+    #     return self._allowed_rtypes.values_list('id', flat=True)
 
 
 class MultiRelationEntityField(RelationEntityField):
     widget: Type[widgets.TextInput] = core_widgets.MultiRelationSelector
-    default_error_messages = {
-        'missingproperty': _(
-            'The entity «%(entity)s» has no property «%(property)s» which is '
-            'required by the relationship «%(predicate)s».'
-        ),
-        'forbiddenproperty': _(
-            'The entity «%(entity)s» has the property «%(property)s» which is '
-            'forbidden by the relationship «%(predicate)s».'
-        ),
-    }
     value_type: Type = list
 
     def _value_to_jsonifiable(self, value):
         return [*map(super()._value_to_jsonifiable, value)]
 
-    # TODO: regroup queries to RelationType + prefetch M2M
-    def _build_rtype_cache(self, rtype_pk):
+    def _clean_ctype(self, ctype_id: int) -> ContentType:
         try:
-            rtype = RelationType.objects.get(pk=rtype_pk)
-        except RelationType.DoesNotExist as e:
-            raise ValidationError(
-                self.error_messages['rtypedoesnotexist'],
-                params={'rtype_id': rtype_pk},
-                code='rtypedoesnotexist',
-            ) from e
-
-        allowed_ctype_ids = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-        # needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
-        needed_ptypes = rtype.object_properties.all()
-        forbidden_ptype_ids = frozenset(
-            rtype.object_forbidden_properties.values_list('id', flat=True)
-        )
-
-        # return rtype, allowed_ctype_ids, needed_ptype_ids
-        return rtype, allowed_ctype_ids, needed_ptypes, forbidden_ptype_ids
-
-    def _build_ctype_cache(self, ctype_pk):
-        try:
-            ctype = ContentType.objects.get_for_id(ctype_pk)
+            ctype = ContentType.objects.get_for_id(ctype_id)
         except ContentType.DoesNotExist as e:
             raise ValidationError(
-                self.error_messages['ctypedoesnotexist'],
-                code='ctypedoesnotexist',
+                # self.error_messages['ctypedoesnotexist'],
+                # code='ctypedoesnotexist',
+                str(e)
             ) from e
 
-        return ctype, []
+        return ctype
 
-    def _get_cache(self, entries, key, build_func):
-        cache = entries.get(key)
+    def _clean_entities(self,
+                        ctype: ContentType,
+                        entity_ids: Sequence[int],
+                        ) -> Dict[int, CremeEntity]:
+        entities = {
+            entity.id: entity
+            for entity in ctype.get_all_objects_for_this_type(pk__in=entity_ids)
+        }
 
-        if not cache:
-            cache = build_func(key)
-            entries[key] = cache
+        if any(entity_id not in entities for entity_id in entity_ids):
+            raise ValidationError(
+                self.error_messages['doesnotexist'],
+                code='doesnotexist',
+                # TODO: params={'entity_id': ...} ?
+            )
 
-        return cache
+        for entity in entities.values():
+            if entity.is_deleted:
+                raise ValidationError(
+                    self.error_messages['isdeleted'],
+                    code='isdeleted',
+                    params={'entity': entity.allowed_str(self._user)},
+                )
 
-    def _value_from_unjsonfied(self, data):
-        clean_value = self.clean_value
-        cleaned_entries = []
+        return entities
 
-        for entry in data:
-            rtype_pk = clean_value(entry, 'rtype', str)
+    def _clean_rtypes(self, rtype_ids: Collection[str]) -> Dict[str, RelationType]:
+        rtypes_by_ids = self._allowed_rtypes.select_related('symmetric_type').in_bulk(rtype_ids)
 
-            ctype_pk = clean_value(entry, 'ctype', int, required=False)
-            if not ctype_pk:
-                continue
-
-            entity_pk = clean_value(entry, 'entity', int, required=False)
-            if not entity_pk:
-                continue
-
-            cleaned_entries.append((rtype_pk, ctype_pk, entity_pk))
-
-        rtypes_cache = {}
-        ctypes_cache = {}
-        allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
-
-        need_property_validation = False
-
-        for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            # Check if relation type is allowed
-            if rtype_pk not in allowed_rtypes_ids:
+        for rtype_id in rtype_ids:
+            if rtype_id not in rtypes_by_ids:
                 raise ValidationError(
                     self.error_messages['rtypenotallowed'],
-                    params={'rtype_id': rtype_pk},
+                    params={'rtype_id': rtype_id},
                     code='rtypenotallowed',
                 )
 
-            # rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
-            #     rtypes_cache, rtype_pk, self._build_rtype_cache,
-            # )
-            rtype, allowed_ctype_ids, needed_ptypes, forbidden_ptype_ids = self._get_cache(
-                rtypes_cache, rtype_pk, self._build_rtype_cache,
-            )
+        return rtypes_by_ids
 
-            # if needed_ptype_ids:
-            if needed_ptypes or forbidden_ptype_ids:
-                need_property_validation = True
+    # def _build_rtype_cache(self, rtype_pk):
+    #     try:
+    #         rtype = RelationType.objects.get(pk=rtype_pk)
+    #     except RelationType.DoesNotExist as e:
+    #         raise ValidationError(
+    #             self.error_messages['rtypedoesnotexist'],
+    #             params={'rtype_id': rtype_pk},
+    #             code='rtypedoesnotexist',
+    #         ) from e
+    #
+    #     allowed_ctype_ids = frozenset(ct.pk for ct in rtype.object_ctypes.all())
+    #     needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
+    #
+    #     return rtype, allowed_ctype_ids, needed_ptype_ids
 
-            # Check if content type is allowed by relation type
-            if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
-                raise ValidationError(
-                    self.error_messages['ctypenotallowed'],
-                    params={'ctype_id': ctype_pk},
-                    code='ctypenotallowed',
-                )
+    # def _build_ctype_cache(self, ctype_pk):
+    #     try:
+    #         ctype = ContentType.objects.get_for_id(ctype_pk)
+    #     except ContentType.DoesNotExist as e:
+    #         raise ValidationError(
+    #             self.error_messages['ctypedoesnotexist'],
+    #             code='ctypedoesnotexist',
+    #         ) from e
+    #
+    #     return ctype, []
 
-            ctype, ctype_entity_pks = self._get_cache(
-                ctypes_cache, ctype_pk,
-                self._build_ctype_cache,
-            )
-            ctype_entity_pks.append(entity_pk)
+    # def _get_cache(self, entries, key, build_func):
+    #     cache = entries.get(key)
+    #
+    #     if not cache:
+    #         cache = build_func(key)
+    #         entries[key] = cache
+    #
+    #     return cache
 
-        entities_cache = {}
+    # def _value_from_unjsonfied(self, data):
+    #     clean_value = self.clean_value
+    #     cleaned_entries = []
+    #
+    #     for entry in data:
+    #         rtype_pk = clean_value(entry, 'rtype', str)
+    #
+    #         ctype_pk = clean_value(entry, 'ctype', int, required=False)
+    #         if not ctype_pk:
+    #             continue
+    #
+    #         entity_pk = clean_value(entry, 'entity', int, required=False)
+    #         if not entity_pk:
+    #             continue
+    #
+    #         cleaned_entries.append((rtype_pk, ctype_pk, entity_pk))
+    #
+    #     rtypes_cache = {}
+    #     ctypes_cache = {}
+    #     allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
+    #
+    #     need_property_validation = False
+    #
+    #     for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
+    #         # Check if relation type is allowed
+    #         if rtype_pk not in allowed_rtypes_ids:
+    #             raise ValidationError(
+    #                 self.error_messages['rtypenotallowed'],
+    #                 params={'rtype_id': rtype_pk},
+    #                 code='rtypenotallowed',
+    #             )
+    #
+    #         rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
+    #             rtypes_cache, rtype_pk, self._build_rtype_cache,
+    #         )
+    #
+    #         if needed_ptype_ids:
+    #             need_property_validation = True
+    #
+    #         # Check if content type is allowed by relation type
+    #         if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
+    #             raise ValidationError(
+    #                 self.error_messages['ctypenotallowed'],
+    #                 # params={'ctype': ctype_pk},
+    #                 params={'ctype_id': ctype_pk},
+    #                 code='ctypenotallowed',
+    #             )
+    #
+    #         ctype, ctype_entity_pks = self._get_cache(
+    #             ctypes_cache, ctype_pk,
+    #             self._build_ctype_cache,
+    #         )
+    #         ctype_entity_pks.append(entity_pk)
+    #
+    #     entities_cache = {}
+    #
+    #     # Build real entity cache and check both entity id exists and in correct content type
+    #     for ctype, entity_pks in ctypes_cache.values():
+    #         ctype_entities = {
+    #             entity.pk: entity
+    #             for entity in ctype.get_all_objects_for_this_type(pk__in=entity_pks)
+    #         }
+    #
+    #         if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
+    #             raise ValidationError(
+    #                 self.error_messages['doesnotexist'],
+    #                 code='doesnotexist',
+    #             )
+    #
+    #         for entity in ctype_entities.values():
+    #             if entity.is_deleted:
+    #                 raise ValidationError(
+    #                     self.error_messages['isdeleted'],
+    #                     code='isdeleted',
+    #                     params={'entity': entity.allowed_str(self._user)},
+    #                 )
+    #
+    #         entities_cache.update(ctype_entities)
+    #
+    #     self._check_entities_perms(entities_cache.values())
+    #
+    #     relations = []
+    #
+    #     # Build cache for validation of properties constraint between relationtypes and entities
+    #     if need_property_validation:
+    #         CremeEntity.populate_properties(entities_cache.values())
+    #
+    #     for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
+    #         rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
+    #         entity = entities_cache.get(entity_pk)
+    #
+    #         if needed_ptype_ids:
+    #             ptype_ids = {p.type_id for p in entity.get_properties()}
+    #
+    #             if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
+    #                 raise ValidationError(
+    #                     self.error_messages['nopropertymatch'],
+    #                     code='nopropertymatch',
+    #                 )
+    #
+    #         relations.append((rtype, entity))
+    #
+    #     if not relations:
+    #         return self._return_list_or_raise(self.required)
+    #
+    #     return relations
+    def _value_from_unjsonfied(self, data):
+        clean_value = self.clean_value
+        cleaned_entries = []
+        rtype_ids = set()
+        entity_ids_by_ct_id = defaultdict(list)
 
-        # Build real entity cache and check both entity id exists and in correct content type
-        for ctype, entity_pks in ctypes_cache.values():
-            ctype_entities = {
-                entity.pk: entity
-                # for entity in ctype.model_class()
-                #                    .objects
-                #                    .filter(is_deleted=False, pk__in=entity_pks)
-                for entity in ctype.get_all_objects_for_this_type(pk__in=entity_pks)
-            }
+        for entry in data:
+            rtype_id = clean_value(entry, 'rtype', str)
 
-            if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
-                raise ValidationError(
-                    self.error_messages['doesnotexist'],
-                    code='doesnotexist',
-                    # TODO: params={'entity_id': ...} ?
-                )
+            ctype_id = clean_value(entry, 'ctype', int, required=False)
+            if not ctype_id:
+                continue
 
-            for entity in ctype_entities.values():
-                if entity.is_deleted:
-                    raise ValidationError(
-                        self.error_messages['isdeleted'],
-                        code='isdeleted',
-                        params={'entity': entity.allowed_str(self._user)},
-                    )
+            entity_id = clean_value(entry, 'entity', int, required=False)
+            if not entity_id:
+                continue
 
-            entities_cache.update(ctype_entities)
+            rtype_ids.add(rtype_id)
+            entity_ids_by_ct_id[ctype_id].append(entity_id)
+            cleaned_entries.append((rtype_id, entity_id))
 
-        self._check_entities_perms(entities_cache.values())
+        rtypes_by_id = self._clean_rtypes(rtype_ids)
+
+        entities_by_id = {}
+        for ctype_id, entity_ids in entity_ids_by_ct_id.items():
+            entities_by_id.update(self._clean_entities(
+                ctype=self._clean_ctype(ctype_id),
+                entity_ids=entity_ids,
+            ))
+
+        self._check_entities_perms(entities_by_id.values())
+
+        # Prefetching
+        prefetch_related_objects(
+            [
+                single_rtype
+                for rtype in rtypes_by_id.values()
+                for single_rtype in (rtype, rtype.symmetric_type)
+            ],
+            'subject_ctypes',
+            'subject_properties',
+            'subject_forbidden_properties',
+        )
+        CremeEntity.populate_properties(entities_by_id.values())
 
         relations = []
 
-        # Build cache for validation of properties constraint between relationtypes and entities
-        if need_property_validation:
-            CremeEntity.populate_properties(entities_cache.values())
+        for rtype_id, entity_id in cleaned_entries:
+            rtype = rtypes_by_id[rtype_id]
+            entity = entities_by_id[entity_id]
 
-        # for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-        #     rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
-        #     entity = entities_cache.get(entity_pk)
-        #
-        #     if needed_ptype_ids:
-        #         ptype_ids = {p.type_id for p in entity.get_properties()}
-        #
-        #         if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
-        #             raise ValidationError(
-        #                 self.error_messages['nopropertymatch'],
-        #                 code='nopropertymatch',
-        #             )
-        for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-            rtype, _ct_ids, needed_ptypes, forbidden_ptype_ids = rtypes_cache.get(rtype_pk)
-            entity = entities_cache.get(entity_pk)
+            Relation(
+                # user=self.user
+                subject_entity=entity,
+                type=rtype.symmetric_type,
+            ).clean_subject_entity()
 
-            if needed_ptypes:
-                ptype_ids = {p.type_id for p in entity.get_properties()}
-
-                for needed_ptype in needed_ptypes:
-                    if needed_ptype.id not in ptype_ids:
-                        raise ValidationError(
-                            self.error_messages['missingproperty'],
-                            params={
-                                'entity': entity,
-                                'predicate': rtype.predicate,
-                                'property': needed_ptype,
-                            },
-                            code='missingproperty',
-                        )
-
-            if forbidden_ptype_ids:
-                for prop in entity.get_properties():
-                    if prop.type_id in forbidden_ptype_ids:
-                        raise ValidationError(
-                            self.error_messages['forbiddenproperty'],
-                            params={
-                                'entity': entity,
-                                'predicate': rtype.predicate,
-                                'property': prop,
-                            },
-                            code='forbiddenproperty',
-                        )
-
+            # TODO: return Relations?
             relations.append((rtype, entity))
 
         if not relations:

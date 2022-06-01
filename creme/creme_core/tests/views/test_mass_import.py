@@ -579,10 +579,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_rich', text='Is rich',
         )
-        employed = RelationType.objects.smart_update_or_create(
+        employed, employs = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation], [ptype]),
-        )[0]
+        )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')  # No ptype
@@ -613,13 +613,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             #     'This entity has no property that matches the constraints of '
             #     'the type of relationship.'
             # ),
-            _(
-                'The entity «%(entity)s» has no property «%(property)s» which is '
-                'required by the relationship «%(predicate)s».'
-            ) % {
+            Relation.error_messages['missing_subject_property'] % {
                 'entity': nerv,
                 'property': ptype,
-                'predicate': employed.predicate,
+                'predicate': employs.predicate,
             },
         )
 
@@ -658,14 +655,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity «{entity}» has no property «{property}» which is '
-                    'mandatory for the relationship «{predicate}»'
-                ).format(
-                    entity=nerv,
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': nerv,
+                    'predicate': employs.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )
@@ -677,10 +671,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_bankrupt', text='Went bankrupt',
         )
-        employed = RelationType.objects.smart_update_or_create(
+        employed, employs = RelationType.objects.smart_update_or_create(
             ('test-subject_employed_by', 'employed by', [FakeContact]),
             ('test-object_employed_by',  'employs',     [FakeOrganisation], [], [ptype]),
-        )[0]
+        )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
         nerv = create_orga(name='Nerv')
@@ -707,13 +701,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.assertFormError(
             response1, 'form', 'fixed_relations',
-            _(
-                'The entity «%(entity)s» has the property «%(property)s» which is '
-                'forbidden by the relationship «%(predicate)s».'
-            ) % {
+            Relation.error_messages['refused_subject_property'] % {
                 'entity': nerv,
                 'property': ptype,
-                'predicate': employed.predicate,
+                'predicate': employs.predicate,
             },
         )
 
@@ -752,14 +743,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity «{entity}» has the property «{property}» which '
-                    'is forbidden by the relationship «{predicate}»'
-                ).format(
-                    entity=nerv,
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                Relation.error_messages['refused_subject_property'] % {
+                    'entity': nerv,
+                    'predicate': employs.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )
@@ -801,13 +789,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity has no property «{property}» which is '
-                    'mandatory for the relationship «{predicate}»'
-                ).format(
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )
@@ -887,13 +873,18 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity has no property «{property}» which is '
-                    'mandatory for the relationship «{predicate}»'
-                ).format(
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                # _(
+                #     'The entity has no property «{property}» which is '
+                #     'mandatory for the relationship «{predicate}»'
+                # ).format(
+                #     property=ptype.text,
+                #     predicate=employed.predicate,
+                # ),
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )
@@ -967,13 +958,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity has the property «{property}» which is '
-                    'forbidden by the relationship «{predicate}»'
-                ).format(
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                Relation.error_messages['refused_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )
@@ -1054,13 +1043,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                _(
-                    'The entity has the property «{property}» which is '
-                    'forbidden by the relationship «{predicate}»'
-                ).format(
-                    property=ptype.text,
-                    predicate=employed.predicate,
-                ),
+                Relation.error_messages['refused_subject_property'] % {
+                    'entity': rei,
+                    'predicate': employed.predicate,
+                    'property': ptype.text,
+                },
             ],
             results[0].messages,
         )

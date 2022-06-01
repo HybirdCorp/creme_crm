@@ -996,7 +996,7 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
 
 class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     @staticmethod
-    def build_data(rtype_id, entity):
+    def _build_data(rtype_id, entity):
         return json_dump({
             'rtype':  rtype_id,
             'ctype':  str(entity.entity_type_id),
@@ -1010,15 +1010,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertNumQueries(0):
             field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
 
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(2, len(rtypes))
+        # self.assertIn(rtype1, rtypes)
+        # self.assertIn(rtype2, rtypes)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(2, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
-        self.assertIn(rtype2.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(2, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        # self.assertIn(rtype2.id, rtypes_ids)
 
     def test_rtypes_queryset(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -1029,15 +1030,16 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]),
             )
 
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(2, len(rtypes))
+        # self.assertIn(rtype1, rtypes)
+        # self.assertIn(rtype2, rtypes)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(2, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
-        self.assertIn(rtype2.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(2, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        # self.assertIn(rtype2.id, rtypes_ids)
 
     def test_rtypes_queryset_changes(self):
         rtype2 = self.create_hates_rtype()[0]
@@ -1047,25 +1049,27 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 pk__in=['test-subject_loves', rtype2.id],
             ),
         )
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(1, len(rtypes))
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(1, len(rtypes))
+        # self.assertIn(rtype2, rtypes)
+        self.assertListEqual([rtype2], [*field.allowed_rtypes.all()])
 
         rtype1 = self.create_loves_rtype()[0]
-
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(2, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
-        self.assertIn(rtype2.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(2, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        # self.assertIn(rtype2.id, rtypes_ids)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
         rtype2.delete()
-
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(1, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(1, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        self.assertListEqual([rtype1], [*field.allowed_rtypes.all()])
 
     def test_default_rtypes(self):
-        self.assertFalse(RelationEntityField()._get_allowed_rtypes_objects())
+        # self.assertFalse(RelationEntityField()._get_allowed_rtypes_objects())
+        self.assertFalse(RelationEntityField().allowed_rtypes.all())
 
     def test_rtypes_property(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -1074,28 +1078,29 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField()
         self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
         self.assertFalse(field.allowed_rtypes)
-        self.assertFalse(field._get_allowed_rtypes_ids())
-        self.assertFalse(field._get_allowed_rtypes_objects())
+        # self.assertFalse(field._get_allowed_rtypes_ids())
+        # self.assertFalse(field._get_allowed_rtypes_objects())
 
         field.allowed_rtypes = [rtype1.id, rtype2.id]  # <===
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(2, len(rtypes))
+        # self.assertIn(rtype1, rtypes)
+        # self.assertIn(rtype2, rtypes)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
-    def test_rtypes_queryset_property(self):
-        rtype1 = self.create_loves_rtype()[0]
-        rtype2 = self.create_hates_rtype()[0]
-
-        field = RelationEntityField()
-        self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
-        self.assertFalse(field.allowed_rtypes)
-
-        field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id])  # <===
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+    # def test_rtypes_queryset_property(self):
+    #     rtype1 = self.create_loves_rtype()[0]
+    #     rtype2 = self.create_hates_rtype()[0]
+    #
+    #     field = RelationEntityField()
+    #     self.assertTrue(isinstance(field.allowed_rtypes, QuerySet))
+    #     self.assertFalse(field.allowed_rtypes)
+    #
+    #     field.allowed_rtypes = RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id])  # <===
+    #     rtypes = [*field._get_allowed_rtypes_objects()]
+    #     self.assertEqual(2, len(rtypes))
+    #     self.assertIn(rtype1, rtypes)
+    #     self.assertIn(rtype2, rtypes)
 
     def test_clean_empty_required(self):
         clean = RelationEntityField(required=True).clean
@@ -1147,7 +1152,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(
             RelationEntityField, 'rtypenotallowed',
             RelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]).clean,
-            self.build_data(rtype_id1, contact),
+            self._build_data(rtype_id1, contact),
             message_args={'rtype_id': rtype_id1},
         )
 
@@ -1165,7 +1170,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(
             RelationEntityField, 'rtypenotallowed',
             RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
-            self.build_data(rtype3.id, contact),
+            self._build_data(rtype3.id, contact),
             message_args={'rtype_id': rtype3.id},
         )
 
@@ -1185,21 +1190,39 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             RelationEntityField(
                 allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id]),
             ).clean,
-            self.build_data(rtype3.id, contact),
+            self._build_data(rtype3.id, contact),
             message_args={'rtype_id': rtype3.id},
         )
 
     def test_clean_ctype_constraint_error(self):
-        self.login()
+        user = self.login()
         orga = self.create_orga()
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
-        self.assertFieldValidationError(
-            RelationEntityField, 'ctypenotallowed',
-            RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
-            self.build_data(rtype1.id, orga),  # <= needs a Contact
-            message_args={'ctype_id': orga.entity_type_id},
+        # self.assertFieldValidationError(
+        #     RelationEntityField, 'ctypenotallowed',
+        #     RelationEntityField(user=user, allowed_rtypes=[rtype1.id, rtype2.id]).clean,
+        #     self._build_data(rtype1.id, orga),  # <= needs a Contact
+        #     message_args={'ctype_id': orga.entity_type_id},
+        # )
+        field = RelationEntityField(user=user, allowed_rtypes=[rtype1.id, rtype2.id])
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(rtype1.id, orga))  # <= needs a Contact
+
+        self.assertEqual(
+            [
+                _(
+                    'The entity «%(entity)s» is a «%(model)s» which is not '
+                    'allowed by the relationship «%(predicate)s».'
+                ) % {
+                    'entity': orga,
+                    'model': orga.entity_type,
+                    'predicate': rtype1.symmetric_type.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_unknown_entity(self):
@@ -1232,7 +1255,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             # RelationEntityField, 'doesnotexist',
             type(field), 'isdeleted',
             field.clean,
-            self.build_data(rtype1.id, orga),
+            self._build_data(rtype1.id, orga),
             message_args={'entity': str(orga)},
         )
 
@@ -1242,12 +1265,14 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
 
-        field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
-        field.user = user
-        self.assertTupleEqual(
-            (rtype1, contact),
-            field.clean(self.build_data(rtype1.id, contact)),
-        )
+        with self.assertNumQueries(0):
+            field = RelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
+            field.user = user
+
+        with self.assertNumQueries(5):
+            cleaned = field.clean(self._build_data(rtype1.id, contact))
+
+        self.assertTupleEqual((rtype1, contact), cleaned)
 
     def test_clean_ctype_without_constraint(self):
         user = self.login()
@@ -1257,7 +1282,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
             (rtype, contact),
-            field.clean(self.build_data(rtype.id, contact)),
+            field.clean(self._build_data(rtype.id, contact)),
         )
 
     def test_clean_properties_constraint_error(self):
@@ -1268,7 +1293,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
         ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
 
-        rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))[0]
+        rtype, sym_rtype = self.create_loves_rtype(object_ptypes=(ptype1, ptype2))
 
         # Does not have the property 'ptype2'
         contact = self.create_contact(ptypes=(ptype1, ptype3))
@@ -1278,14 +1303,23 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         #     RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
         #     self.build_data(rtype.id, contact),
         # )
-        self.assertFieldValidationError(
-            RelationEntityField, 'missingproperty',
-            RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
-            self.build_data(rtype.id, contact),
-            message_args={
-                'predicate': rtype.predicate,
-                'property': ptype2.text,
-            },
+        field = RelationEntityField(allowed_rtypes=[rtype.pk], user=user)
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(rtype.id, contact))
+
+        self.assertEqual(
+            [
+                _(
+                    'The entity «%(entity)s» has no property «%(property)s» '
+                    'which is required by the relationship «%(predicate)s».'
+                ) % {
+                    'entity': contact,
+                    'property': ptype2.text,
+                    'predicate': sym_rtype.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_properties_constraint(self):
@@ -1304,7 +1338,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
             (rtype, contact),
-            field.clean(self.build_data(rtype.id, contact)),
+            field.clean(self._build_data(rtype.id, contact)),
         )
 
     def test_clean_forbidden_properties_constraint_error(self):
@@ -1314,17 +1348,26 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             str_pk='test-prop_strong', text='Is not kind',
         )
 
-        rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)[0]
+        rtype, sym_rtype = self.create_loves_rtype(object_forbidden_ptypes=ptype)
         contact = self.create_contact(ptypes=ptype)
 
-        self.assertFieldValidationError(
-            RelationEntityField, 'forbiddenproperty',
-            RelationEntityField(allowed_rtypes=[rtype.pk], user=user).clean,
-            self.build_data(rtype.id, contact),
-            message_args={
-                'predicate': rtype.predicate,
-                'property': ptype.text,
-            },
+        field = RelationEntityField(allowed_rtypes=[rtype.pk], user=user)
+
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(rtype.id, contact))
+
+        self.assertEqual(
+            [
+                _(
+                    'The entity «%(entity)s» has the property «%(property)s» '
+                    'which is forbidden by the relationship «%(predicate)s».'
+                ) % {
+                    'entity': contact,
+                    'property': ptype.text,
+                    'predicate': sym_rtype.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_forbidden_properties_constraint(self):
@@ -1342,7 +1385,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
             (rtype, contact),
-            field.clean(self.build_data(rtype.id, contact)),
+            field.clean(self._build_data(rtype.id, contact)),
         )
 
     def test_clean_with_permission01(self):
@@ -1354,7 +1397,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertTupleEqual(
             (rtype, contact),
-            field.clean(self.build_data(rtype.id, contact)),
+            field.clean(self._build_data(rtype.id, contact)),
         )
 
     def test_clean_with_permission02(self):
@@ -1366,7 +1409,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = RelationEntityField(allowed_rtypes=[rtype.id], user=user)
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data(rtype.id, contact))
+            field.clean(self._build_data(rtype.id, contact))
 
         self.assertEqual('linknotallowed', cm.exception.code)
 
@@ -1412,7 +1455,7 @@ class RelationEntityFieldTestCase(_JSONFieldBaseTestCase):
 class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
     # TODO: factorise
     @classmethod
-    def build_entry(cls, rtype_id, ctype_id, entity_id):
+    def _build_entry(cls, rtype_id, ctype_id, entity_id):
         return {
             'rtype':  rtype_id,
             'ctype':  str(ctype_id),
@@ -1420,9 +1463,9 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         }
 
     @classmethod
-    def build_data(cls, *relations):
+    def _build_data(cls, *relations):
         return json_dump([
-            cls.build_entry(rtype_id, entity.entity_type_id, entity.id)
+            cls._build_entry(rtype_id, entity.entity_type_id, entity.id)
             for rtype_id, entity in relations
         ])
 
@@ -1433,10 +1476,11 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         with self.assertNumQueries(0):
             field = MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id])
 
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(2, len(rtypes))
+        # self.assertIn(rtype1, rtypes)
+        # self.assertIn(rtype2, rtypes)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
     def test_rtypes_queryset(self):
         rtype1 = self.create_loves_rtype()[0]
@@ -1449,38 +1493,40 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 ),
             )
 
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(2, len(rtypes))
-        self.assertIn(rtype1, rtypes)
-        self.assertIn(rtype2, rtypes)
+        # rtypes = [*field._get_allowed_rtypes_objects()]
+        # self.assertEqual(2, len(rtypes))
+        # self.assertIn(rtype1, rtypes)
+        # self.assertIn(rtype2, rtypes)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(2, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
-        self.assertIn(rtype2.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(2, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        # self.assertIn(rtype2.id, rtypes_ids)
 
     def test_rtypes_queryset_changes(self):
         rtype2 = self.create_hates_rtype()[0]
 
         field = MultiRelationEntityField(
-            allowed_rtypes=RelationType.objects.filter(pk__in=['test-subject_loves', rtype2.id]),
+            allowed_rtypes=RelationType.objects.filter(
+                pk__in=['test-subject_loves', rtype2.id],
+            ),
         )
-        rtypes = [*field._get_allowed_rtypes_objects()]
-        self.assertEqual(1, len(rtypes))
-        self.assertIn(rtype2, rtypes)
+        # self.assertListEqual([rtype2], [*field._get_allowed_rtypes_objects()])
+        self.assertListEqual([rtype2], [*field.allowed_rtypes.all()])
 
         rtype1 = self.create_loves_rtype()[0]
-
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(2, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
-        self.assertIn(rtype2.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(2, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        # self.assertIn(rtype2.id, rtypes_ids)
+        self.assertCountEqual([rtype1, rtype2], [*field.allowed_rtypes.all()])
 
         rtype2.delete()
-
-        rtypes_ids = [*field._get_allowed_rtypes_ids()]
-        self.assertEqual(1, len(rtypes_ids))
-        self.assertIn(rtype1.id, rtypes_ids)
+        # rtypes_ids = [*field._get_allowed_rtypes_ids()]
+        # self.assertEqual(1, len(rtypes_ids))
+        # self.assertIn(rtype1.id, rtypes_ids)
+        self.assertListEqual([rtype1], [*field.allowed_rtypes.all()])
 
     def test_default_rtypes(self):
         self.assertFalse(MultiRelationEntityField().allowed_rtypes)
@@ -1539,7 +1585,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(
             MultiRelationEntityField, 'rtypenotallowed',
             MultiRelationEntityField(allowed_rtypes=[rtype_id1, rtype_id2]).clean,
-            self.build_data([rtype_id1, contact]),
+            self._build_data([rtype_id1, contact]),
             message_args={'rtype_id': rtype_id1},
         )
 
@@ -1558,7 +1604,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(
             MultiRelationEntityField, 'rtypenotallowed',
             MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
-            self.build_data(
+            self._build_data(
                 (rtype3.id, contact),
                 (rtype3.id, orga),
             ),
@@ -1581,7 +1627,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         self.assertFieldValidationError(
             cls, 'rtypenotallowed',
             cls(allowed_rtypes=RelationType.objects.filter(pk__in=[rtype1.id, rtype2.id])).clean,
-            self.build_data(
+            self._build_data(
                 (rtype3.id, contact),
                 (rtype3.id, orga),
             ),
@@ -1589,21 +1635,38 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         )
 
     def test_clean_ctype_constraint_error(self):
-        self.login()
+        user = self.login()
         contact = self.create_contact()
         orga = self.create_orga()
 
         rtype1 = self.create_employed_rtype()[1]
         rtype2 = self.create_customer_rtype()[1]
 
-        self.assertFieldValidationError(
-            MultiRelationEntityField, 'ctypenotallowed',
-            MultiRelationEntityField(allowed_rtypes=[rtype2.id, rtype1.id]).clean,
-            self.build_data(
+        field = MultiRelationEntityField(user=user, allowed_rtypes=[rtype2.id, rtype1.id])
+
+        # self.assertFieldValidationError(
+        #     type(field), 'ctypenotallowed', field.clean,
+        #     self._build_data(
+        #         (rtype1.id, orga),  # <= not a Contact
+        #         (rtype2.id, contact),
+        #     ),
+        #     message_args={'ctype_id': orga.entity_type_id},
+        # )
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(
                 (rtype1.id, orga),  # <= not a Contact
                 (rtype2.id, contact),
-            ),
-            message_args={'ctype_id': orga.entity_type_id},
+            ))
+
+        self.assertListEqual(
+            [
+                Relation.error_messages['forbidden_subject_ctype'] % {
+                    'entity': orga,
+                    'model': orga.entity_type,
+                    'predicate': rtype1.symmetric_type.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_unknown_entity(self):
@@ -1618,8 +1681,8 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             MultiRelationEntityField, 'doesnotexist',
             MultiRelationEntityField(allowed_rtypes=[rtype1.id, rtype2.id]).clean,
             json_dump([
-                self.build_entry(rtype1.id, contact.entity_type_id, orga.id),  # <=== bad ctype !
-                self.build_entry(rtype2.id, contact.entity_type_id, contact.id),
+                self._build_entry(rtype1.id, contact.entity_type_id, orga.id),  # <=== bad ctype !
+                self._build_entry(rtype2.id, contact.entity_type_id, contact.id),
             ]),
         )
 
@@ -1637,7 +1700,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
             # MultiRelationEntityField, 'doesnotexist',
             type(field), 'isdeleted',
             field.clean,
-            self.build_data([rtype1.id, contact]),
+            self._build_data([rtype1.id, contact]),
             message_args={'entity': str(contact)},
         )
 
@@ -1649,25 +1712,38 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         rtype_employed, rtype_employs = self.create_employed_rtype()
         rtype_supplier = self.create_customer_rtype()[1]
 
-        field = MultiRelationEntityField(
-            allowed_rtypes=[
-                rtype_supplier.id,
-                rtype_employs.id,
-                rtype_employed.id,
-            ],
-        )
-        field.user = user
+        with self.assertNumQueries(0):
+            field = MultiRelationEntityField(
+                allowed_rtypes=[
+                    rtype_supplier.id,
+                    rtype_employs.id,
+                    rtype_employed.id,
+                ],
+            )
+            field.user = user
+
+        # Queries:
+        #  - the RelationTypes (with symmetric parts)
+        #  - the FakeContact
+        #  - the FakeOrganisation
+        #  - the ContentTypes (constraints)
+        #  - the CremePropertyTypes (constraints)
+        #  - the forbidden CremePropertyTypes (constraints)
+        #  - the CremeProperties of the FakeContact/FakeOrganisation
+        with self.assertNumQueries(7):
+            cleaned = field.clean(self._build_data(
+                (rtype_employs.id, contact),
+                (rtype_supplier.id, contact),
+                (rtype_employed.id, orga),
+            ))
+
         self.assertListEqual(
             [
                 (rtype_employs, contact),
                 (rtype_supplier, contact),
                 (rtype_employed, orga),
             ],
-            field.clean(self.build_data(
-                (rtype_employs.id,  contact),
-                (rtype_supplier.id, contact),
-                (rtype_employed.id, orga),
-            ))
+            cleaned,
         )
 
     def test_clean_relations_queryset(self):
@@ -1690,7 +1766,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
                 (rtype_supplier, contact),
                 (rtype_employed, orga),
             ],
-            field.clean(self.build_data(
+            field.clean(self._build_data(
                 (rtype_employs.id,  contact),
                 (rtype_supplier.id, contact),
                 (rtype_employed.id, orga),
@@ -1705,7 +1781,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiRelationEntityField(allowed_rtypes=[rtype.id], user=user)
         self.assertListEqual(
             [(rtype, contact)],
-            field.clean(self.build_data([rtype.id, contact]))
+            field.clean(self._build_data([rtype.id, contact]))
         )
 
     def test_clean_properties_constraint_error(self):
@@ -1734,17 +1810,21 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         #         (rtype_no_constr.id, orga),
         #     )
         # )
-        self.assertFieldValidationError(
-            MultiRelationEntityField, 'missingproperty', field.clean,
-            self.build_data(
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(
                 (rtype_constr.id,    contact),
                 (rtype_no_constr.id, orga),
-            ),
-            message_args={
-                'entity': contact,
-                'predicate': rtype_constr.predicate,
-                'property': ptype2.text,
-            },
+            ))
+
+        self.assertListEqual(
+            [
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': contact,
+                    'property': ptype2.text,
+                    'predicate': rtype_constr.symmetric_type.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_properties_constraint(self):
@@ -1767,7 +1847,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
         self.assertListEqual(
             [(rtype_constr, contact), (rtype_no_constr, orga)],
-            field.clean(self.build_data(
+            field.clean(self._build_data(
                 (rtype_constr.pk,    contact),
                 (rtype_no_constr.pk, orga),
             )),
@@ -1789,17 +1869,21 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field = MultiRelationEntityField(
             allowed_rtypes=[rtype_constr.pk, rtype_no_constr.pk], user=user,
         )
-        self.assertFieldValidationError(
-            MultiRelationEntityField, 'forbiddenproperty', field.clean,
-            self.build_data(
+        with self.assertRaises(ValidationError) as cm:
+            field.clean(self._build_data(
                 (rtype_constr.id,    contact),
                 (rtype_no_constr.id, orga),
-            ),
-            message_args={
-                'entity': contact,
-                'predicate': rtype_constr.predicate,
-                'property': ptype.text,
-            },
+            ))
+
+        self.assertListEqual(
+            [
+                Relation.error_messages['refused_subject_property'] % {
+                    'entity': contact,
+                    'property': ptype.text,
+                    'predicate': rtype_constr.symmetric_type.predicate,
+                },
+            ],
+            cm.exception.messages,
         )
 
     def test_clean_forbidden_properties_constraint(self):
@@ -1821,7 +1905,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
         self.assertListEqual(
             [(rtype_constr, contact), (rtype_no_constr, orga)],
-            field.clean(self.build_data(
+            field.clean(self._build_data(
                 (rtype_constr.pk,    contact),
                 (rtype_no_constr.pk, orga),
             )),
@@ -1892,7 +1976,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
         self.assertListEqual(
             [(rtype1, contact), (rtype2, orga)],
-            field.clean(self.build_data(
+            field.clean(self._build_data(
                 (rtype1.pk, contact),
                 (rtype2.pk, orga),
             )),
@@ -1911,7 +1995,7 @@ class MultiRelationEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
 
         with self.assertRaises(ValidationError) as cm:
-            field.clean(self.build_data(
+            field.clean(self._build_data(
                 (rtype1.id, contact),
                 (rtype2.id, orga),
             ))

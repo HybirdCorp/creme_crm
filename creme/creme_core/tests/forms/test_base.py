@@ -1157,10 +1157,13 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertInChoices(value=sfrt.id, label=sfrt.predicate, choices=sf_choices)
 
         # ---
+        first_name = 'Spike'
+        last_name = 'Spiegel'
+        contact_str = str(FakeContact(first_name=first_name, last_name=last_name))
         data = {
             'user': user.id,
-            'first_name': 'Spike',
-            'last_name': 'Spiegel',
+            'first_name': first_name,
+            'last_name': last_name,
         }
 
         form2 = FakeContactForm(
@@ -1170,14 +1173,20 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'relation_types': self.formfield_value_multi_relation_entity((rtype1, orga)),
             },
         )
+        msg = Relation.error_messages['missing_subject_property']
         self.assertFormInstanceErrors(
             form2,
             (
                 'relation_types',
-                _(
-                    'The property «%(property)s» is mandatory '
-                    'in order to use the relationship «%(predicate)s»'
-                ) % {
+                # _(
+                #     'The property «%(property)s» is mandatory '
+                #     'in order to use the relationship «%(predicate)s»'
+                # ) % {
+                #     'property': ptype1.text,
+                #     'predicate': rtype1.predicate,
+                # },
+                msg % {
+                    'entity': contact_str,
                     'property': ptype1.text,
                     'predicate': rtype1.predicate,
                 },
@@ -1193,13 +1202,18 @@ class CremeEntityFormTestCase(CremeTestCase):
             form3,
             (
                 'semifixed_rtypes',
-                _(
-                    'The property «%(property)s» is mandatory '
-                    'in order to use the relationship «%(predicate)s»'
-                ) % {
+                # _(
+                #     'The property «%(property)s» is mandatory '
+                #     'in order to use the relationship «%(predicate)s»'
+                # ) % {
+                #     'property': ptype1.text,
+                #     'predicate': rtype1.predicate,
+                # }
+                msg % {
+                    'entity': contact_str,
                     'property': ptype1.text,
                     'predicate': rtype1.predicate,
-                }
+                },
             ),
         )
 
@@ -1215,11 +1229,16 @@ class CremeEntityFormTestCase(CremeTestCase):
             form4,
             (
                 'relation_types',
-                _(
-                    'These properties are mandatory in order to use '
-                    'the relationship «%(predicate)s»: %(properties)s'
-                ) % {
-                    'properties': f'{ptype1.text}, {ptype2.text}',
+                # _(
+                #     'These properties are mandatory in order to use '
+                #     'the relationship «%(predicate)s»: %(properties)s'
+                # ) % {
+                #     'properties': f'{ptype1.text}, {ptype2.text}',
+                #     'predicate': rtype2.predicate,
+                # },
+                msg % {
+                    'entity': contact_str,
+                    'property': ptype1.text,
                     'predicate': rtype2.predicate,
                 },
             ),
@@ -1238,11 +1257,16 @@ class CremeEntityFormTestCase(CremeTestCase):
             form5,
             (
                 'relation_types',
-                _(
-                    'These properties are mandatory in order to use '
-                    'the relationship «%(predicate)s»: %(properties)s'
-                ) % {
-                    'properties': f'{ptype1.text}, {ptype2.text}',
+                # _(
+                #     'These properties are mandatory in order to use '
+                #     'the relationship «%(predicate)s»: %(properties)s'
+                # ) % {
+                #     'properties': f'{ptype1.text}, {ptype2.text}',
+                #     'predicate': rtype2.predicate,
+                # },
+                msg % {
+                    'entity': contact_str,
+                    'property': ptype2.text,
                     'predicate': rtype2.predicate,
                 },
             ),
@@ -1284,10 +1308,13 @@ class CremeEntityFormTestCase(CremeTestCase):
         self.assertInChoices(value=sfrt.id, label=sfrt.predicate, choices=sf_choices)
 
         # ---
+        first_name = 'Spike'
+        last_name = 'Spiegel'
+        contact_str = str(FakeContact(first_name=first_name, last_name=last_name))
         data = {
             'user': user.id,
-            'first_name': 'Spike',
-            'last_name': 'Spiegel',
+            'first_name': first_name,
+            'last_name': last_name,
 
             'property_types': [ptype1.id],
         }
@@ -1299,16 +1326,15 @@ class CremeEntityFormTestCase(CremeTestCase):
                 'relation_types': self.formfield_value_multi_relation_entity((rtype1, orga)),
             },
         )
+        msg = Relation.error_messages['refused_subject_property']
         self.assertFormInstanceErrors(
             form2,
             (
                 'relation_types',
-                _(
-                    'The property «%(property)s» is forbidden '
-                    'in order to use the relationship «%(predicate)s»'
-                ) % {
-                    'property': ptype1.text,
+                msg % {
+                    'entity': contact_str,
                     'predicate': rtype1.predicate,
+                    'property': ptype1.text,
                 },
             ),
         )
@@ -1322,13 +1348,11 @@ class CremeEntityFormTestCase(CremeTestCase):
             form3,
             (
                 'semifixed_rtypes',
-                _(
-                    'The property «%(property)s» is forbidden '
-                    'in order to use the relationship «%(predicate)s»'
-                ) % {
-                    'property': ptype1.text,
+                msg % {
+                    'entity': contact_str,
                     'predicate': rtype1.predicate,
-                }
+                    'property': ptype1.text,
+                },
             ),
         )
 
@@ -1344,12 +1368,10 @@ class CremeEntityFormTestCase(CremeTestCase):
             form4,
             (
                 'relation_types',
-                _(
-                    'These properties are forbidden in order to use '
-                    'the relationship «%(predicate)s»: %(properties)s'
-                ) % {
-                    'properties': f'{ptype1.text}, {ptype2.text}',
+                msg % {
+                    'entity': contact_str,
                     'predicate': rtype2.predicate,
+                    'property': ptype1.text,
                 },
             ),
         )

@@ -840,10 +840,12 @@ class ContactTestCase(_BaseTestCase):
         CremeProperty.objects.create(creme_entity=orga, type=ptype2)
 
         url = self._build_addrelated_url(orga.id)
+        first_name = 'Bugs'
+        last_name = 'Bunny'
         data = {
             'user': user.pk,
-            'first_name': 'Bugs',
-            'last_name': 'Bunny',
+            'first_name': first_name,
+            'last_name': last_name,
         }
 
         # Object constraint
@@ -857,10 +859,11 @@ class ContactTestCase(_BaseTestCase):
         )
         self.assertFormError(
             response1, 'form', 'rtype_for_organisation',
-            _(
-                'The entity «%(entity)s» has no property «%(property)s» which is '
-                'required by the relationship «%(predicate)s».'
-            ) % {
+            # _(
+            #     'The entity «%(entity)s» has no property «%(property)s» which is '
+            #     'required by the relationship «%(predicate)s».'
+            # ) % {
+            Relation.error_messages['missing_subject_property'] % {
                 'entity': orga,
                 'property': ptype1,
                 'predicate': rtype1.predicate,
@@ -883,10 +886,15 @@ class ContactTestCase(_BaseTestCase):
         )
         self.assertFormError(
             response2, 'form', 'rtype_for_organisation',
-            _(
-                'The property «%(property)s» is mandatory '
-                'in order to use the relationship «%(predicate)s»'
-            ) % {
+            # _(
+            #     'The property «%(property)s» is mandatory '
+            #     'in order to use the relationship «%(predicate)s»'
+            # ) % {
+            #     'property': ptype1,
+            #     'predicate': rtype2.predicate,
+            # },
+            Relation.error_messages['missing_subject_property'] % {
+                'entity': Contact(last_name=last_name, first_name=first_name),
                 'property': ptype1,
                 'predicate': rtype2.predicate,
             },

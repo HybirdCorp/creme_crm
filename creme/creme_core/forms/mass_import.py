@@ -30,7 +30,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db.models import BooleanField as ModelBooleanField
-from django.db.models import ManyToManyField
+from django.db.models import ManyToManyField, prefetch_related_objects
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.forms.widgets import HiddenInput, Select, Widget
@@ -851,6 +851,9 @@ class RelationExtractorField(MultiRelationEntityField):
     default_error_messages = {
         'fielddoesnotexist': _("This field doesn't exist in this ContentType."),
         'invalidcolunm':     _('This column is not a valid choice.'),
+        'forbiddenctype': _(
+            'The type «%(model)s» is not allowed by the relationship «%(predicate)s».'
+        ),
     }
 
     def __init__(self, *, columns=(), **kwargs):
@@ -895,11 +898,22 @@ class RelationExtractorField(MultiRelationEntityField):
             ) for entry in selector_data
         ]
         extractors = []
-        rtypes_cache = {}
-        allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
         allowed_columns = frozenset(c[0] for c in self._columns)
+        rtypes_by_id = self._clean_rtypes({entry[0] for entry in cleaned_entries})
 
-        for rtype_pk, ctype_pk, column, searchfield in cleaned_entries:
+        # TODO: factorise?
+        prefetch_related_objects(
+            [
+                single_rtype
+                for rtype in rtypes_by_id.values()
+                for single_rtype in (rtype, rtype.symmetric_type)
+            ],
+            'subject_ctypes',
+            'subject_properties',
+            'subject_forbidden_properties',
+        )
+
+        for rtype_id, ctype_id, column, searchfield in cleaned_entries:
             if column not in allowed_columns:
                 raise ValidationError(
                     self.error_messages['invalidcolunm'],
@@ -907,34 +921,27 @@ class RelationExtractorField(MultiRelationEntityField):
                     code='invalidcolunm',
                 )
 
-            if rtype_pk not in allowed_rtypes_ids:
+            try:
+                ctype = ContentType.objects.get_for_id(ctype_id)
+            except ContentType.DoesNotExist as e:
+                raise ValidationError(str(e)) from e
+
+            rtype = rtypes_by_id[rtype_id]
+
+            if not rtype.symmetric_type.is_compatible(ctype_id):
                 raise ValidationError(
-                    self.error_messages['rtypenotallowed'],
-                    params={'rtype': rtype_pk, 'ctype': ctype_pk},
-                    code='rtypenotallowed',
+                    message=self.error_messages['forbiddenctype'],
+                    code='forbiddenctype',
+                    params={
+                        'model': ctype,
+                        'predicate': rtype.symmetric_type.predicate,
+                    },
                 )
 
-            # rtype, allowed_ct_ids, needed_ptypes = \
-            rtype, allowed_ct_ids, _needed_ptypes, _forbidden_ptype_ids = \
-                self._get_cache(rtypes_cache, rtype_pk, self._build_rtype_cache)
-
-            if allowed_ct_ids and ctype_pk not in allowed_ct_ids:
-                raise ValidationError(
-                    self.error_messages['ctypenotallowed'],
-                    params={'ctype': ctype_pk},
-                    code='ctypenotallowed',
-                )
+            model = ctype.model_class()
 
             try:
-                ct = ContentType.objects.get_for_id(ctype_pk)
-                model = ct.model_class()
                 model._meta.get_field(searchfield)
-            except ContentType.DoesNotExist as e:
-                raise ValidationError(
-                    self.error_messages['ctypedoesnotexist'],
-                    params={'ctype': ctype_pk},
-                    code='ctypedoesnotexist',
-                ) from e
             except FieldDoesNotExist as e:
                 raise ValidationError(
                     self.error_messages['fielddoesnotexist'],
@@ -1521,56 +1528,16 @@ class ImportForm4CremeEntity(ImportForm):
         relations = []
 
         for rtype, entity in cdata['fixed_relations']:
-            needed_subject_properties = dict(rtype.subject_properties.values_list('id', 'text'))
-            if needed_subject_properties:
-                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
-                missing_subjects_properties = [
-                    needed_ptype_text
-                    for needed_ptype_id, needed_ptype_text in needed_subject_properties.items()
-                    if needed_ptype_id not in subject_ptype_ids
-                ]
-
-                if missing_subjects_properties:
-                    for ptype_text in missing_subjects_properties:
-                        self.append_error(_(
-                            'The entity has no property «{property}» which is '
-                            'mandatory for the relationship «{predicate}»'
-                        ).format(
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            forbidden_subject_properties = dict(
-                rtype.subject_forbidden_properties.values_list('id', 'text')
+            rel = Relation(
+                subject_entity=instance, type=rtype, object_entity=entity, user=user,
             )
-            if forbidden_subject_properties:
-                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
-                refused_subjects_properties = [
-                    forb_ptype_text
-                    for forb_ptype_id, forb_ptype_text in forbidden_subject_properties.items()
-                    if forb_ptype_id in subject_ptype_ids
-                ]
 
-                if refused_subjects_properties:
-                    for ptype_text in refused_subjects_properties:
-                        self.append_error(_(
-                            'The entity has the property «{property}» which is '
-                            'forbidden by the relationship «{predicate}»'
-                        ).format(
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            relations.append(Relation(
-                subject_entity=instance,
-                type=rtype,
-                object_entity=entity,
-                user=user,
-            ))
+            try:
+                rel.clean_subject_entity()
+            except ValidationError as e:
+                self.append_error(e.messages[0])
+            else:
+                relations.append(rel)
 
         for (rtype, entity), err_msg in cdata['dyn_relations'].extract_value(line, user):
             if err_msg:
@@ -1580,103 +1547,16 @@ class ImportForm4CremeEntity(ImportForm):
             if entity is None:
                 continue
 
-            needed_subject_properties = dict(rtype.subject_properties.values_list('id', 'text'))
-            if needed_subject_properties:
-                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
-                missing_subjects_properties = [
-                    needed_ptype_text
-                    for needed_ptype_id, needed_ptype_text in needed_subject_properties.items()
-                    if needed_ptype_id not in subject_ptype_ids
-                ]
-
-                if missing_subjects_properties:
-                    for ptype_text in missing_subjects_properties:
-                        self.append_error(_(
-                            'The entity has no property «{property}» which is '
-                            'mandatory for the relationship «{predicate}»'
-                        ).format(
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            forbidden_subject_properties = dict(
-                rtype.subject_forbidden_properties.values_list('id', 'text')
+            rel = Relation(
+                subject_entity=instance, type=rtype, object_entity=entity, user=user,
             )
-            if forbidden_subject_properties:
-                subject_ptype_ids = {prop.type_id for prop in instance.get_properties()}
-                refused_subjects_properties = [
-                    forb_ptype_text
-                    for forb_ptype_id, forb_ptype_text in forbidden_subject_properties.items()
-                    if forb_ptype_id in subject_ptype_ids
-                ]
 
-                if refused_subjects_properties:
-                    for ptype_text in refused_subjects_properties:
-                        self.append_error(_(
-                            'The entity has the property «{property}» which is '
-                            'forbidden by the relationship «{predicate}»'
-                        ).format(
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            # TODO: move object checking to extractor?
-            needed_object_properties = dict(rtype.object_properties.values_list('id', 'text'))
-            if needed_object_properties:
-                object_ptype_ids = {prop.type_id for prop in entity.get_properties()}
-                missing_objects_properties = [
-                    needed_ptype_text
-                    for needed_ptype_id, needed_ptype_text in needed_object_properties.items()
-                    if needed_ptype_id not in object_ptype_ids
-                ]
-
-                if missing_objects_properties:
-                    for ptype_text in missing_objects_properties:
-                        self.append_error(_(
-                            'The entity «{entity}» has no property «{property}» which is '
-                            'mandatory for the relationship «{predicate}»'
-                        ).format(
-                            entity=entity,
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            forbidden_object_properties = dict(
-                rtype.object_forbidden_properties.values_list('id', 'text')
-            )
-            if forbidden_object_properties:
-                object_ptype_ids = {prop.type_id for prop in entity.get_properties()}
-                refused_objects_properties = [
-                    forb_ptype_text
-                    for forb_ptype_id, forb_ptype_text in forbidden_object_properties.items()
-                    if forb_ptype_id in object_ptype_ids
-                ]
-
-                if refused_objects_properties:
-                    for ptype_text in refused_objects_properties:
-                        self.append_error(_(
-                            'The entity «{entity}» has the property «{property}» which is '
-                            'forbidden by the relationship «{predicate}»'
-                        ).format(
-                            entity=entity,
-                            property=ptype_text,
-                            predicate=rtype.predicate,
-                        ))
-
-                    continue
-
-            relations.append(Relation(
-                subject_entity=instance,
-                type=rtype,
-                object_entity=entity,
-                user=user,
-            ))
+            try:
+                rel.clean()
+            except ValidationError as e:
+                self.append_error(e.messages[0])
+            else:
+                relations.append(rel)
 
         Relation.objects.safe_multi_save(relations)
 
