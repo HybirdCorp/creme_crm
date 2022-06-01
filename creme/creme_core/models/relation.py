@@ -27,6 +27,7 @@ from collections import defaultdict
 from typing import Iterable, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -411,25 +412,41 @@ class RelationType(CremeModel):
                - A model class (inheriting CremeEntity).
                - A CremeEntity instance (its model is used).
         @return: Boolean. <True> means "yes it is compatible".
+
+        Hint: you should prefetch 'subject_ctypes' if you want to call it several times.
         """
         assert len(args) == 1
 
-        # TODO: check if self.subject_ctypes.all() is already retrieved (prefetch_related)? cache ?
-        subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
-
+        # subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
+        #
+        # arg = args[0]
+        # if isinstance(arg, ContentType):
+        #     ctype_id = arg.id
+        # elif isinstance(arg, type):
+        #     assert issubclass(arg, CremeEntity)
+        #
+        #     ctype_id = ContentType.objects.get_for_model(arg).id
+        # elif isinstance(arg, CremeEntity):
+        #     ctype_id = arg.entity_type_id
+        # else:
+        #     ctype_id = int(arg)
+        #
+        # return not subject_ctype_ids or ctype_id in subject_ctype_ids
         arg = args[0]
         if isinstance(arg, ContentType):
-            ctype_id = arg.id
+            ctype = arg
         elif isinstance(arg, type):
             assert issubclass(arg, CremeEntity)
 
-            ctype_id = ContentType.objects.get_for_model(arg).id
+            ctype = ContentType.objects.get_for_model(arg)
         elif isinstance(arg, CremeEntity):
-            ctype_id = arg.entity_type_id
+            ctype = arg.entity_type
         else:
-            ctype_id = int(arg)
+            ctype = ContentType.objects.get_for_id(arg)
 
-        return not subject_ctype_ids or ctype_id in subject_ctype_ids
+        subject_ctypes = self.subject_ctypes.all()
+
+        return not subject_ctypes or ctype in subject_ctypes
 
     def is_not_internal_or_die(self) -> None:
         if self.is_internal:
@@ -509,6 +526,20 @@ class Relation(CremeModel):
     )
 
     objects = RelationManager()
+    error_messages = {
+        'forbidden_subject_ctype': _(
+            'The entity «%(entity)s» is a «%(model)s» which is not '
+            'allowed by the relationship «%(predicate)s».'
+        ),
+        'missing_subject_property': _(
+            'The entity «%(entity)s» has no property «%(property)s» '
+            'which is required by the relationship «%(predicate)s».'
+        ),
+        'refused_subject_property': _(
+            'The entity «%(entity)s» has the property «%(property)s» '
+            'which is forbidden by the relationship «%(predicate)s».'
+        ),
+    }
 
     class Meta:
         app_label = 'creme_core'
@@ -518,6 +549,90 @@ class Relation(CremeModel):
 
     def __str__(self):
         return f'«{self.subject_entity}» {self.type} «{self.object_entity}»'
+
+    def _clean_subject_ctype(self):
+        rtype = self.type
+        entity = self.subject_entity
+        subject_ctypes = rtype.subject_ctypes.all()
+        if subject_ctypes and entity.entity_type not in subject_ctypes:
+            raise ValidationError(
+                message=self.error_messages['forbidden_subject_ctype'],
+                code='forbidden_subject_ctype',
+                params={
+                    'entity': entity,
+                    'model': entity.entity_type,
+                    'predicate': rtype.predicate,
+                },
+            )
+
+    def _clean_subject_mandatory_properties(self, property_types=None):
+        rtype = self.type
+        entity = self.subject_entity
+        needed_ptypes = rtype.subject_properties.all()
+
+        if needed_ptypes:
+            ptype_ids = {
+                p.type_id for p in entity.get_properties()
+            } if property_types is None else {
+                ptype.id for ptype in property_types
+            }
+
+            for needed_ptype in needed_ptypes:
+                if needed_ptype.id not in ptype_ids:
+                    raise ValidationError(
+                        message=self.error_messages['missing_subject_property'],
+                        code='missing_subject_property',
+                        params={
+                            'entity': entity,
+                            'property': needed_ptype,
+                            'predicate': rtype.predicate,
+                        },
+                    )
+
+    def _clean_subject_forbidden_properties(self, property_types=None):
+        rtype = self.type
+        entity = self.subject_entity
+        forbidden_ptype_ids = {
+            ptype.id for ptype in rtype.subject_forbidden_properties.all()
+        }
+
+        if forbidden_ptype_ids:
+            if property_types is None:
+                property_types = (
+                    prop.type for prop in entity.get_properties()
+                )
+
+            for ptype in property_types:
+                if ptype.id in forbidden_ptype_ids:
+                    raise ValidationError(
+                        self.error_messages['refused_subject_property'],
+                        code='refused_subject_property',
+                        params={
+                            'entity': entity,
+                            'predicate': rtype.predicate,
+                            'property': ptype,
+                        },
+                    )
+
+    def clean_subject_entity(self, property_types=None):
+        self._clean_subject_ctype()
+        self._clean_subject_mandatory_properties(property_types=property_types)
+        self._clean_subject_forbidden_properties(property_types=property_types)
+
+    def clean(self):
+        # super().clean()
+        self.clean_subject_entity()
+
+        # TODO: factorise with save()
+        sym_relation = type(self)(
+            user=self.user,
+            type=self.type.symmetric_type,
+            symmetric_relation=self,
+            subject_entity=self.object_entity,
+            real_object=self.subject_entity,
+        )
+        # CremeModel.clean(sym_relation)
+        sym_relation.clean_subject_entity()
 
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
         """See django.db.models.Model.save().

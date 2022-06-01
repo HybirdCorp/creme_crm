@@ -81,8 +81,10 @@
                         - 'SYNCHRONIZATION_STATUSES' is deprecated.
                 * Graphs :
                     - The method 'models.RootNode.get_relation_types()' is deprecated.
-        # The class 'creme_core.models.fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
-          so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
+        # In 'creme_core.models' :
+            - The class 'fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
+              so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
+            - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
         # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
           can now be called with a combination of permissions (like 'VIEW | CHANGE').
         # In Javascript:
@@ -113,10 +115,7 @@
             - The file "creme/django.wsgi" has been removed.
             - In 'creme_core.forms' :
                 - The alias 'base.FieldBlocksGroup' has been removed.
-                - In 'fields' :
-                    - The class 'AjaxModelChoiceField' has been removed.
-                    - The message with key "nopropertymatch" has been removed in 'RelationEntityField'.
-                    - The return of 'MultiRelationEntityField._build_rtype_cache' has changed.
+                - The class 'fields.AjaxModelChoiceField' has been removed.
             - In 'creme_core.models' :
                 - The method 'CremePropertyType.create()' has been removed.
                 - The method 'Job.not_finished_jobs()' has been removed.
@@ -158,11 +157,24 @@
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
         # In 'creme_core.forms' :
+            - In 'base.CremeEntityForm', the error messages with the following keys have been removed :
+              "missing_property_single", "missing_property_multi".
+            - In 'fields' :
+                - In 'RelationEntityField' :
+                    - These methods have been removed :
+                        - _get_allowed_rtypes_objects(), _get_allowed_rtypes_ids().
+                        - _validate_ctype_constraints(), _validate_properties_constraints().
+                    - The error messages with the following keys have been removed :
+                      "rtypedoesnotexist", "ctypenotallowed", "nopropertymatch".
+                - In 'MultiRelationEntityField', these methods have been removed :
+                  _get_cache(), _build_ctype_cache(), _build_rtype_cache().
             - The attribute 'widgets.CalendarWidget.default_help_text' is now a format string.
-            - These methods have been removed :
-                - listview.RegularDateField._get_date()
-                - listview.CustomDatetimeField._get_date()
-                - listview.BaseDecimalField._sanitize_separators()
+            - In 'listview', these methods have been removed :
+                - RegularDateField._get_date()
+                - CustomDatetimeField._get_date()
+                - BaseDecimalField._sanitize_separators()
+            - In 'relation._RelationsCreateForm', the error messages with the following keys have been removed :
+              "missing_property_single", "missing_property_multi".
         # In 'creme_core.gui' :
             - The class attribute 'button_menu.Button.id_' has been renamed "id" ;
               you have to rename this attribute in your child classes.

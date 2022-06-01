@@ -5,8 +5,8 @@ from functools import partial
 from django.contrib.contenttypes.models import ContentType
 # from django.http import Http404
 from django.urls import reverse
+# from django.utils.translation import ngettext
 from django.utils.translation import gettext as _
-from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.exceptions import ConflictError
@@ -400,11 +400,17 @@ class RelationViewsTestCase(ViewsTestCase):
                 'relations': self.formfield_value_multi_relation_entity((rtype1, object1)),
             },
         )
+        msg = Relation.error_messages['missing_subject_property']
         self.assertFormError(
             response1, 'form', 'relations',
-            _('«%(subject)s» must have the property «%(property)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject': subject,
+            # _('«%(subject)s» must have the property «%(property)s» '
+            #   'in order to use the relationship «%(predicate)s»') % {
+            #     'subject': subject,
+            #     'property': ptype3,
+            #     'predicate': rtype1.predicate,
+            # },
+            msg % {
+                'entity': subject,
                 'property': ptype3,
                 'predicate': rtype1.predicate,
             },
@@ -419,11 +425,16 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response2, 'form', 'relations',
-            _('«%(subject)s» must have a property in «%(properties)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject':    subject,
-                'properties': f'{ptype3}/{ptype1}',
-                'predicate':  rtype2.predicate,
+            # _('«%(subject)s» must have a property in «%(properties)s» '
+            #   'in order to use the relationship «%(predicate)s»') % {
+            #     'subject':    subject,
+            #     'properties': f'{ptype3}/{ptype1}',
+            #     'predicate':  rtype2.predicate,
+            # },
+            msg % {
+                'entity': subject,
+                'property': ptype3,
+                'predicate': rtype2.predicate,
             },
         )
 
@@ -474,11 +485,10 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response1, 'form', 'relations',
-            _('«%(subject)s» cannot have the property «%(property)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject': subject,
-                'property': ptype2,
+            Relation.error_messages['refused_subject_property'] % {
+                'entity': subject,
                 'predicate': rtype1.predicate,
+                'property': ptype2,
             },
         )
 
@@ -510,10 +520,10 @@ class RelationViewsTestCase(ViewsTestCase):
         create_prop(type=ptype2)
 
         # Constraint KO & OK
-        rtype = RelationType.objects.smart_update_or_create(
+        rtype, sym_rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_ruled', 'is ruled by'),
             ('test-object_ruled',  'rules', [FakeContact], [ptype1, ptype3]),
-        )[0]
+        )
 
         url = self._build_add_url(subject)
 
@@ -524,11 +534,16 @@ class RelationViewsTestCase(ViewsTestCase):
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
             response1, 'form', 'relations',
-            _('The entity «%(entity)s» has no property «%(property)s» which is '
-              'required by the relationship «%(predicate)s».') % {
+            # _('The entity «%(entity)s» has no property «%(property)s» which is '
+            #   'required by the relationship «%(predicate)s».') % {
+            #     'entity': rel_object,
+            #     'property': ptype3,
+            #     'predicate': rtype.predicate,
+            # },
+            Relation.error_messages['missing_subject_property'] % {
                 'entity': rel_object,
                 'property': ptype3,
-                'predicate': rtype.predicate,
+                'predicate': sym_rtype.predicate,
             },
         )
 
@@ -779,11 +794,16 @@ class RelationViewsTestCase(ViewsTestCase):
         response = self.assertPOST200(url, data={'semifixed_rtypes': [sfrt1.id]})
         self.assertFormError(
             response, 'form', 'semifixed_rtypes',
-            _('«%(subject)s» must have the property «%(property)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject':    subject,
-                'property':   ptype1,
-                'predicate':  rtype1.predicate,
+            # _('«%(subject)s» must have the property «%(property)s» '
+            #   'in order to use the relationship «%(predicate)s»') % {
+            #     'subject':    subject,
+            #     'property':   ptype1,
+            #     'predicate':  rtype1.predicate,
+            # },
+            Relation.error_messages['missing_subject_property'] % {
+                'entity': subject,
+                'property': ptype1,
+                'predicate': rtype1.predicate,
             },
         )
 
@@ -823,11 +843,10 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response1, 'form', 'semifixed_rtypes',
-            _('«%(subject)s» cannot have the property «%(property)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject':    subject1,
-                'property':   ptype1,
-                'predicate':  rtype.predicate,
+            Relation.error_messages['refused_subject_property'] % {
+                'entity': subject1,
+                'predicate': rtype.predicate,
+                'property': ptype1,
             },
         )
 
@@ -964,9 +983,14 @@ class RelationViewsTestCase(ViewsTestCase):
         )[0]
         self.assertContains(
             self.client.get(self._build_narrowed_add_url(subject01, rtype)),
-            _('This type of relationship is not compatible with «{model}».').format(
-                model='Test Contact',
-            ),
+            # _('This type of relationship is not compatible with «{model}».').format(
+            #     model='Test Contact',
+            # ),
+            Relation.error_messages['forbidden_subject_ctype'] % {
+                'entity': subject01,
+                'model': subject01.entity_type,
+                'predicate': rtype.predicate,
+            },
             status_code=409,
             html=True,
         )
@@ -997,11 +1021,16 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_narrowed_add_url(subject, rtype)
         self.assertContains(
             self.client.get(url),
-            ngettext(
-                'This type of relationship needs an entity with this property: {properties}.',
-                'This type of relationship needs an entity with these properties: {properties}.',
-                number=1
-            ).format(properties=ptype2),
+            # ngettext(
+            #     'This type of relationship needs an entity with this property: {properties}.',
+            #     'This type of relationship needs an entity with these properties: {properties}.',
+            #     number=1
+            # ).format(properties=ptype2),
+            Relation.error_messages['missing_subject_property'] % {
+                'entity': subject,
+                'property': ptype2,
+                'predicate': rtype.predicate,
+            },
             status_code=409,
         )
 
@@ -1026,11 +1055,11 @@ class RelationViewsTestCase(ViewsTestCase):
         )[0]
         self.assertContains(
             self.client.get(self._build_narrowed_add_url(subject, rtype)),
-            ngettext(
-                'This type of relationship refuses entities with this property: {properties}.',
-                'This type of relationship refuses entities with these properties: {properties}.',
-                number=1
-            ).format(properties=ptype),
+            Relation.error_messages['refused_subject_property'] % {
+                'entity': subject,
+                'property': ptype,
+                'predicate': rtype.predicate,
+            },
             status_code=409,
         )
 
@@ -1231,9 +1260,14 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         self.assertFormError(
             response, 'form', 'relations',
-            _('«%(subject)s» must have the property «%(property)s» '
-              'in order to use the relationship «%(predicate)s»') % {
-                'subject': subject,
+            # _('«%(subject)s» must have the property «%(property)s» '
+            #   'in order to use the relationship «%(predicate)s»') % {
+            #     'subject': subject,
+            #     'property': ptype2,
+            #     'predicate': rtype.predicate,
+            # },
+            Relation.error_messages['missing_subject_property'] % {
+                'entity': subject,
                 'property': ptype2,
                 'predicate': rtype.predicate,
             },

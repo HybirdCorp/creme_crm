@@ -20,6 +20,7 @@
 
 from typing import List, Type, Union
 
+from django.core.exceptions import ValidationError
 from django.forms.forms import BaseForm
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -32,7 +33,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from creme.creme_core.auth import build_creation_perm as cperm
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
-from creme.creme_core.models import RelationType
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.shortcuts import get_bulk_or_404
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.html import sanitize_html
@@ -145,30 +146,41 @@ class EntityEmailLinking(RelationsAdding):
 
     def get_relation_types(self):
         subject = self.get_related_entity()
-        subject_ctype = subject.entity_type
         compatible_rtypes = []
-        subjects_prop_ids = None  # TODO: lazy object
+        # subject_ctype = subject.entity_type
+        # subjects_prop_ids = None
 
         for rtype in RelationType.objects.filter(
             id__in=bricks.MailsHistoryBrick.relation_type_deps,
+        ).prefetch_related(
+            'subject_ctypes', 'subject_properties', 'subject_forbidden_properties',
         ):
-            if not rtype.is_compatible(subject_ctype):
-                continue
-
-            # TODO: unit test
-            # TODO: factorise with RelationsAdding
-            needed_property_types = [*rtype.subject_properties.all()]
-            if needed_property_types:
-                if subjects_prop_ids is None:
-                    subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
-
-                if any(
-                    needed_ptype.id not in subjects_prop_ids
-                    for needed_ptype in needed_property_types
-                ):
-                    continue
-
-            compatible_rtypes.append(rtype)
+            # if not rtype.is_compatible(subject_ctype):
+            #     continue
+            #
+            # needed_property_types = [*rtype.subject_properties.all()]
+            # if needed_property_types:
+            #     if subjects_prop_ids is None:
+            #         subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
+            #
+            #     if any(
+            #         needed_ptype.id not in subjects_prop_ids
+            #         for needed_ptype in needed_property_types
+            #     ):
+            #         continue
+            #
+            # compatible_rtypes.append(rtype)
+            try:
+                Relation(
+                    # user=user,
+                    subject_entity=subject,
+                    type=rtype,
+                    # object_entity=...,
+                ).clean_subject_entity()
+            except ValidationError:
+                pass
+            else:
+                compatible_rtypes.append(rtype)
 
         # TODO: unit test
         if not compatible_rtypes:

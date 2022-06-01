@@ -4,10 +4,14 @@ from functools import partial
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ValidationError
+from django.db.models import prefetch_related_objects
+from django.utils.translation import gettext as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import (
     CremeEntity,
+    CremeProperty,
     CremePropertyType,
     FakeContact,
     FakeOrganisation,
@@ -339,6 +343,69 @@ class RelationsTestCase(CremeTestCase):
         with self.assertRaises(ConflictError):
             self.refresh(rtype).is_enabled_or_die()
 
+    def test_is_compatible01(self):
+        rtype1, rtype2 = RelationType.objects.smart_update_or_create(
+            ('test-subject_manages', 'manages'),
+            ('test-object_manages',  'is managed by', [FakeContact, FakeOrganisation]),
+        )
+
+        # No constraint
+        get_ct = ContentType.objects.get_for_model
+        contact_ct = get_ct(FakeContact)
+        self.assertTrue(rtype1.is_compatible(contact_ct))
+        self.assertTrue(rtype1.is_compatible(contact_ct.id))
+        self.assertTrue(rtype1.is_compatible(FakeContact))
+        self.assertTrue(rtype1.is_compatible(FakeContact()))
+
+        self.assertTrue(rtype1.is_compatible(FakeOrganisation))
+        self.assertTrue(rtype1.is_compatible(FakeDocument))
+
+        # Constraint
+        self.assertTrue(rtype2.is_compatible(contact_ct))
+        self.assertTrue(rtype2.is_compatible(contact_ct.id))
+        self.assertTrue(rtype2.is_compatible(FakeContact))
+        self.assertTrue(rtype2.is_compatible(FakeContact()))
+        self.assertTrue(rtype2.is_compatible(FakeOrganisation))
+
+        doc_ct = get_ct(FakeDocument)
+        self.assertFalse(rtype2.is_compatible(doc_ct))
+        self.assertFalse(rtype2.is_compatible(doc_ct.id))
+        self.assertFalse(rtype2.is_compatible(FakeDocument))
+        self.assertFalse(rtype2.is_compatible(FakeDocument()))
+
+    def test_is_compatible02(self):
+        "Queries (no prefetch)."
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_manages', 'manages',       [FakeContact]),
+            ('test-object_manages',  'is managed by', [FakeOrganisation]),
+        )[0]
+
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+
+        with self.assertNumQueries(1):
+            rtype.is_compatible(contact_ct)
+
+        with self.assertNumQueries(1):
+            rtype.is_compatible(contact_ct.id)
+
+    def test_is_compatible03(self):
+        "Queries (prefetch)."
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_manages', 'manages',       [FakeContact]),
+            ('test-object_manages',  'is managed by', [FakeOrganisation]),
+        )[0]
+
+        contact_ct = ContentType.objects.get_for_model(FakeContact)
+
+        with self.assertNumQueries(1):
+            prefetch_related_objects([rtype], 'subject_ctypes')
+
+        with self.assertNumQueries(0):
+            rtype.is_compatible(contact_ct)
+
+        with self.assertNumQueries(0):
+            rtype.is_compatible(contact_ct.id)
+
     def test_delete_rtype(self):
         rtype1, rtype2 = RelationType.objects.smart_update_or_create(
             ('test-subject_foobar', 'is loving'),
@@ -669,14 +736,14 @@ class RelationsTestCase(CremeTestCase):
     def test_manager_safe_multi_save05(self):
         "Argument <check_existing>."
         create_rtype = RelationType.objects.smart_update_or_create
-        rtype1, srtype1 = create_rtype(
+        rtype1 = create_rtype(
             ('test-subject_challenge', 'challenges'),
             ('test-object_challenge',  'is challenged by'),
-        )
-        rtype2, srtype2 = create_rtype(
+        )[0]
+        rtype2 = create_rtype(
             ('test-subject_foobar', 'loves'),
             ('test-object_foobar',  'is loved by'),
-        )
+        )[0]
 
         user = self.user
         create_contact = partial(FakeContact.objects.create, user=user)
@@ -700,3 +767,302 @@ class RelationsTestCase(CremeTestCase):
         self.assertRelationCount(1, subject_entity=ryuko, type_id=rtype2.id, object_entity=satsuki)
 
         self.assertEqual(len(ctxt1), len(ctxt2) + 1)
+
+    def test_clean01(self):
+        "No constraint."
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype = create_rtype(
+            ('test-subject_loves', 'loves'),
+            ('test-object_loves',  'is loved by'),
+        )[0]
+
+        user = self.user
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
+        satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
+
+        rel = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+
+        with self.assertNoException():
+            rel.clean()
+
+    def test_clean02(self):
+        "ContentType constraints."
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype, sym_rtype = create_rtype(
+            ('test-subject_loves', 'loves',       [FakeContact]),
+            ('test-object_loves',  'is loved by', [FakeContact]),
+        )
+
+        user = self.user
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
+        satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
+
+        rel1 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertNoException():
+            rel1.clean()
+
+        # ---
+        orga = FakeOrganisation.objects.create(user=user, name='Honnoji')
+
+        rel2 = Relation(user=user, subject_entity=ryuko, real_object=orga, type=rtype)
+        with self.assertRaises(ValidationError) as cm1:
+            rel2.clean()
+
+        msg = _(
+            'The entity «%(entity)s» is a «%(model)s» which is not '
+            'allowed by the relationship «%(predicate)s».'
+        )
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': orga,
+                    'model': 'Test Organisation',
+                    # 'predicate': rtype.predicate,
+                    'predicate': sym_rtype.predicate,
+                },
+            ],
+            cm1.exception.messages,
+        )
+
+        # ---
+        rel3 = Relation(user=user, subject_entity=orga, real_object=satsuki, type=rtype)
+        with self.assertRaises(ValidationError) as cm2:
+            rel3.clean()
+
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': orga,
+                    'model': 'Test Organisation',
+                    'predicate': rtype.predicate,
+                },
+            ],
+            cm2.exception.messages,
+        )
+
+    def test_clean03(self):
+        "Mandatory CremeProperties constraints."
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype, sym_rtype = create_rtype(
+            ('test-subject_loves', 'loves',       [FakeContact], [ptype1, ptype2]),
+            ('test-object_loves',  'is loved by', [FakeContact], [ptype3]),
+        )
+
+        user = self.user
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
+        satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
+
+        CremeProperty.objects.create(creme_entity=ryuko, type=ptype1)
+
+        # ---
+        rel1 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertRaises(ValidationError) as cm1:
+            rel1.clean()
+
+        msg = _(
+            'The entity «%(entity)s» has no property «%(property)s» '
+            'which is required by the relationship «%(predicate)s».'
+        )
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': ryuko,
+                    'property': ptype2.text,
+                    'predicate': rtype.predicate,
+                },
+            ],
+            cm1.exception.messages,
+        )
+
+        # ---
+        CremeProperty.objects.create(creme_entity=ryuko, type=ptype2)
+        ryuko = self.refresh(ryuko)
+
+        rel2 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertRaises(ValidationError) as cm2:
+            rel2.clean()
+
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': satsuki,
+                    'property': ptype3.text,
+                    'predicate': sym_rtype.predicate,
+                },
+            ],
+            cm2.exception.messages,
+        )
+
+        # ---
+        CremeProperty.objects.create(creme_entity=satsuki, type=ptype3)
+        satsuki = self.refresh(satsuki)
+
+        rel3 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertNoException():
+            rel3.clean()
+
+    def test_clean04(self):
+        "Forbidden CremeProperties constraints."
+        create_ptype = CremePropertyType.objects.smart_update_or_create
+        ptype1 = create_ptype(str_pk='test-prop_strong', text='Is strong')
+        ptype2 = create_ptype(str_pk='test-prop_cute',   text='Is cute')
+        ptype3 = create_ptype(str_pk='test-prop_smart',  text='Is smart')
+
+        create_rtype = RelationType.objects.smart_update_or_create
+        rtype, sym_rtype = create_rtype(
+            ('test-subject_loves', 'loves',       [], [], [ptype2]),
+            ('test-object_loves',  'is loved by', [], [], [ptype3]),
+        )
+
+        user = self.user
+        create_contact = partial(FakeContact.objects.create, user=user)
+        ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
+        satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
+
+        create_ptype = CremeProperty.objects.create
+        create_ptype(creme_entity=ryuko, type=ptype1)
+        create_ptype(creme_entity=ryuko, type=ptype3)
+
+        rel1 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertNoException():
+            rel1.clean()
+
+        # ---
+        create_ptype(creme_entity=satsuki, type=ptype3)
+        satsuki = self.refresh(satsuki)
+        rel2 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertRaises(ValidationError) as cm1:
+            rel2.clean()
+
+        msg = _(
+            'The entity «%(entity)s» has the property «%(property)s» '
+            'which is forbidden by the relationship «%(predicate)s».'
+        )
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': satsuki,
+                    'property': ptype3.text,
+                    'predicate': sym_rtype.predicate,
+                },
+            ],
+            cm1.exception.messages,
+        )
+
+        # ---
+        CremeProperty.objects.create(creme_entity=ryuko, type=ptype2)
+        ryuko = self.refresh(ryuko)
+
+        rel3 = Relation(user=user, subject_entity=ryuko, real_object=satsuki, type=rtype)
+        with self.assertRaises(ValidationError) as cm2:
+            rel3.clean()
+
+        self.assertListEqual(
+            [
+                msg % {
+                    'entity': ryuko,
+                    'property': ptype2.text,
+                    'predicate': rtype.predicate,
+                },
+            ],
+            cm2.exception.messages,
+        )
+
+    def test_clean_subject_entity01(self):
+        "Mandatory Property + argument 'property_types'."
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_cute', text='Is cute',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_loved', 'is loved by', [], [ptype]),
+            ('test-object_loved',  'loves'),
+        )[0]
+
+        ryuko = FakeContact.objects.create(
+            user=self.user, first_name='Ryuko', last_name='Matoi',
+        )
+
+        # ---
+        rel = Relation(
+            # user=self.user,
+            subject_entity=ryuko,
+            type=rtype,
+            # real_object=satsuki,
+        )
+        with self.assertRaises(ValidationError) as cm:
+            rel.clean_subject_entity(property_types=[])
+
+        self.assertListEqual(
+            [
+                Relation.error_messages['missing_subject_property'] % {
+                    'entity': ryuko,
+                    'property': ptype.text,
+                    'predicate': rtype.predicate,
+                },
+            ],
+            cm.exception.messages,
+        )
+
+        # --
+        with self.assertNoException():
+            rel.clean_subject_entity(property_types=[ptype])
+
+    def test_clean_subject_entity02(self):
+        "Forbidden Property + argument 'property_types'."
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_not_cute', text='Is not cute',
+        )
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_loved', 'is loved by', [], [], [ptype]),
+            ('test-object_loved',  'loves'),
+        )[0]
+
+        ryuko = FakeContact.objects.create(
+            user=self.user, first_name='Ryuko', last_name='Matoi',
+        )
+
+        # ---
+        rel1 = Relation(
+            # user=self.user,
+            subject_entity=ryuko,
+            type=rtype,
+            # real_object=satsuki,
+        )
+
+        with self.assertRaises(ValidationError) as cm1:
+            rel1.clean_subject_entity(property_types=[ptype])
+
+        message = Relation.error_messages['refused_subject_property'] % {
+            'entity': ryuko,
+            'property': ptype.text,
+            'predicate': rtype.predicate,
+        }
+        self.assertListEqual([message], cm1.exception.messages)
+
+        # --
+        with self.assertNoException():
+            rel1.clean_subject_entity(property_types=[])
+
+        # ---
+        CremeProperty.objects.create(creme_entity=ryuko, type=ptype)
+        ryuko = self.refresh(ryuko)
+
+        rel2 = Relation(
+            # user=self.user,
+            subject_entity=ryuko,
+            type=rtype,
+            # real_object=satsuki,
+        )
+
+        with self.assertRaises(ValidationError) as cm2:
+            rel2.clean_subject_entity()
+
+        self.assertListEqual([message], cm2.exception.messages)

@@ -594,24 +594,14 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     )
 
     error_messages = {
-        'missing_property_single': _(
-            'The property «%(property)s» is mandatory '
-            'in order to use the relationship «%(predicate)s»'
-        ),
-        'missing_property_multi': _(
-            'These properties are mandatory in order to use '
-            'the relationship «%(predicate)s»: %(properties)s'
-        ),
-
-        'forbidden_property_single': _(
-            'The property «%(property)s» is forbidden '
-            'in order to use the relationship «%(predicate)s»'
-        ),
-        'forbidden_property_multi': _(
-            'These properties are forbidden in order to use '
-            'the relationship «%(predicate)s»: %(properties)s'
-        ),
-
+        # 'missing_property_single': _(
+        #     'The property «%(property)s» is mandatory '
+        #     'in order to use the relationship «%(predicate)s»'
+        # ),
+        # 'missing_property_multi': _(
+        #     'These properties are mandatory in order to use '
+        #     'the relationship «%(predicate)s»: %(properties)s'
+        # ),
         'subject_not_linkable': _(
             'You are not allowed to link the created entity (wrong owner?).'
         ),
@@ -757,77 +747,55 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         else:
             fields['rtypes_info'].initial = info
 
-    # TODO: factorise with _RelationsCreateForm ??
-    def _check_properties(self, rtypes: Iterable[RelationType]) -> None:
-        need_validation = False
-        ptypes_constraints: Dict[
-            str, Tuple[RelationType, Dict[str, str], Dict[str, str]]
-        ] = OrderedDict()
-
+    # def _check_properties(self, rtypes: Iterable[RelationType]) -> None:
+    #     need_validation = False
+    #     ptypes_contraints: Dict[str, Tuple[RelationType, Dict[str, str]]] = OrderedDict()
+    #
+    #     for rtype in rtypes:
+    #         if rtype.id not in ptypes_contraints:
+    #             properties = dict(rtype.subject_properties.values_list('id', 'text'))
+    #             ptypes_contraints[rtype.id] = (rtype, properties)
+    #
+    #             if properties:
+    #                 need_validation = True
+    #
+    #     if need_validation:
+    #         subject_prop_ids = {pt.id for pt in self.cleaned_data.get('property_types', ())}
+    #
+    #         for rtype, needed_properties in ptypes_contraints.values():
+    #             if any(
+    #                 ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()
+    #             ):
+    #                 if len(needed_properties) == 1:
+    #                     raise forms.ValidationError(
+    #                         self.error_messages['missing_property_single'],
+    #                         params={
+    #                             'property':  next(iter(needed_properties.values())),
+    #                             'predicate': rtype.predicate,
+    #                         },
+    #                         code='missing_property_single',
+    #                     )
+    #                 else:
+    #                     raise forms.ValidationError(
+    #                         self.error_messages['missing_property_multi'],
+    #                         params={
+    #                             'properties': ', '.join(
+    #                                 sorted(map(str, needed_properties.values()))
+    #                             ),
+    #                             'predicate': rtype.predicate,
+    #                         },
+    #                         code='missing_property_multi',
+    #                     )
+    def _check_properties(self, rtypes: Iterable[RelationType]):
         for rtype in rtypes:
-            if rtype.id not in ptypes_constraints:
-                needed_properties = dict(rtype.subject_properties.values_list('id', 'text'))
-                forbidden_properties = dict(
-                    rtype.subject_forbidden_properties.values_list('id', 'text')
-                )
-                ptypes_constraints[rtype.id] = (rtype, needed_properties, forbidden_properties)
-
-                if needed_properties or forbidden_properties:
-                    need_validation = True
-
-        if need_validation:
-            subject_prop_ids = {pt.id for pt in self.cleaned_data.get('property_types', ())}
-
-            for rtype, needed_properties, forbidden_properties in ptypes_constraints.values():
-                if any(
-                    ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()
-                ):
-                    if len(needed_properties) == 1:
-                        raise forms.ValidationError(
-                            self.error_messages['missing_property_single'],
-                            params={
-                                'property':  next(iter(needed_properties.values())),
-                                'predicate': rtype.predicate,
-                            },
-                            code='missing_property_single',
-                        )
-                    else:
-                        raise forms.ValidationError(
-                            self.error_messages['missing_property_multi'],
-                            params={
-                                'properties': ', '.join(
-                                    sorted(map(str, needed_properties.values()))
-                                ),
-                                'predicate': rtype.predicate,
-                            },
-                            code='missing_property_multi',
-                        )
-
-                if forbidden_properties:
-                    if any(
-                        ptype_id in forbidden_properties
-                        for ptype_id in subject_prop_ids
-                    ):
-                        if len(forbidden_properties) == 1:
-                            raise forms.ValidationError(
-                                self.error_messages['forbidden_property_single'],
-                                params={
-                                    'property': next(iter(forbidden_properties.values())),
-                                    'predicate': rtype.predicate,
-                                },
-                                code='forbidden_property_single',
-                            )
-                        else:
-                            raise forms.ValidationError(
-                                self.error_messages['forbidden_property_multi'],
-                                params={
-                                    'properties': ', '.join(
-                                        sorted(map(str, forbidden_properties.values()))
-                                    ),
-                                    'predicate': rtype.predicate,
-                                },
-                                code='forbidden_property_multi',
-                            )
+            Relation(
+                # user=self.user,
+                subject_entity=self.instance,
+                type=rtype,
+                # object_entity=...
+            ).clean_subject_entity(
+                property_types=self.cleaned_data.get('property_types', ()),
+            )
 
     def _check_subject_linkable(self, rtypes: Collection[RelationType]) -> None:
         if rtypes and not self.user.has_perm_to_link(
