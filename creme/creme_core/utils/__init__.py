@@ -143,6 +143,11 @@ def find_first(iterable, function, *default):
     @param default: Optional argument ; if given, it is returned if no element is found.
     @raise IndexError.
     """
+    warnings.warn(
+        'creme_core.utils.find_first() is deprecated ; use next() instead.',
+        DeprecationWarning
+    )
+
     for elt in iterable:
         if function(elt):
             return elt

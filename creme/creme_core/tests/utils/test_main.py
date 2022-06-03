@@ -61,7 +61,7 @@ from ..fake_models import FakeCivility, FakeContact
 
 
 class MiscTestCase(CremeTestCase):
-    def test_find_first(self):
+    def test_find_first(self):  # DEPRECATED
         class Info:
             def __init__(self, data):
                 self.data = data

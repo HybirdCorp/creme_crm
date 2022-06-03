@@ -28,7 +28,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.forms.fields import ListEditionField
 from creme.creme_core.forms.widgets import CremeRadioSelect
-from creme.creme_core.utils import find_first, update_model_instance
+from creme.creme_core.utils import update_model_instance  # find_first
 
 from ..core import PollLineType
 from ..models import PollFormLine, PollFormLineCondition, PollFormSection
@@ -148,7 +148,8 @@ class PollFormLineCreateForm(_PollFormLineForm):
                     else:
                         next_lines.append(node)
                 elif node.id == section_id:
-                    previous_line = find_first(node_it, (lambda node: not node.is_section), None)
+                    # previous_line = find_first(node_it, (lambda node: not node.is_section), None)
+                    previous_line = next((node for node in node_it if not node.is_section), None)
 
                     if previous_line:
                         self.empty_section_order = previous_line.order + 1
@@ -292,10 +293,13 @@ class PollFormLineEditForm(_PollFormLineForm):
                 raise ValidationError(
                     self.error_messages['used_choice'],
                     params={
-                        'choice': find_first(
-                            choices_2_del,
-                            (lambda c: c[0] == choice_id)
-                        )[1],
+                        # 'choice': find_first(
+                        #     choices_2_del,
+                        #     (lambda c: c[0] == choice_id)
+                        # )[1],
+                        'choice': next(
+                            label for cid, label in choices_2_del if cid == choice_id
+                        ),
                         'question': condition.line.question,
                     },
                     code='used_choice',

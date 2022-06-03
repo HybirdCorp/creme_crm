@@ -40,7 +40,6 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from ..utils import find_first
 from ..utils.meta import ModelFieldEnumerator
 from .auth import UserRole
 from .base import CremeModel
@@ -133,10 +132,7 @@ class SearchConfigItemManager(models.Manager):
             sc_items = sc_items_per_ctid.get(ctype.id)
 
             if sc_items:
-                try:
-                    yield find_first(sc_items, filter_func)
-                except IndexError:
-                    yield sc_items[0]
+                yield next((item for item in sc_items if filter_func(item)), sc_items[0])
             else:
                 yield self.model(content_type=ctype)
 
