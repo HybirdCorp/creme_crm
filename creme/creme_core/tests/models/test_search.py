@@ -253,7 +253,7 @@ class SearchConfigTestCase(CremeTestCase):
         )
 
     def test_manager_get_for_models01(self):
-        "No model"
+        "No model."
         user = self.create_user()
 
         self.assertListEqual([], [*SearchConfigItem.objects.iter_for_models([], user)])

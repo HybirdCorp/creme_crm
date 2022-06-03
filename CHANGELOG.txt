@@ -70,6 +70,7 @@
                 - The method 'Relation.populate_real_object_entities()'' is deprecated ;
                   use 'Relation.objects.prefetch_related("real_object")' instead.'
             - In 'creme_core.utils' :
+                - The function 'creme_core.utils.find_first()' is deprecated ; use next() instead.
                 - The function 'split_filter()' is deprecated ;
                   use 'django.utils.functional.partition()' instead (beware the lists 'are returned in the reverse order).
                 - The function 'imports.import_object()' is deprecated ;

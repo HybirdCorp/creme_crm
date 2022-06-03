@@ -41,7 +41,6 @@ from ..auth.entity_credentials import EntityCredentials
 from ..core import validators
 from ..gui import quick_forms
 from ..models import CremeEntity, EntityFilter, Relation, RelationType
-from ..utils import find_first
 from ..utils.collections import OrderedSet
 from ..utils.content_type import ctype_choices, entity_ctypes
 from ..utils.date_period import date_period_registry
@@ -1935,13 +1934,13 @@ class ChoiceOrCharField(fields.MultiValueField):
         strval = None
 
         if data_list:
-            index = data_list[0]
+            str_index = data_list[0]
 
-            if index == '0':
+            if str_index == '0':
                 index = 0
                 strval = data_list[1]
-            elif index:
-                index, strval = find_first(self.choices, lambda item: str(item[0]) == index)
+            elif str_index:
+                index, strval = next(item for item in self.choices if str(item[0]) == str_index)
 
         return index, strval
 

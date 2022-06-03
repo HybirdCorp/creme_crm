@@ -23,15 +23,14 @@ from collections import defaultdict
 from django.forms import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.forms import CremeForm, MultiRelationEntityField
+from creme.creme_core import forms as core_forms
 from creme.creme_core.models import Relation
-from creme.creme_core.utils import find_first
 
 from .. import constants
 
 
-class AddContactsToEventForm(CremeForm):
-    related_contacts = MultiRelationEntityField(
+class AddContactsToEventForm(core_forms.CremeForm):
+    related_contacts = core_forms.MultiRelationEntityField(
         allowed_rtypes=[
             constants.REL_OBJ_IS_INVITED_TO,
             constants.REL_OBJ_CAME_EVENT,
@@ -82,7 +81,7 @@ class AddContactsToEventForm(CremeForm):
         event = self.event
         user = self.user
         relations = Relation.objects
-        create_relation = relations.create
+        create_relation = relations.safe_create
 
         related_contacts = self.cleaned_data['related_contacts']
 
@@ -105,20 +104,15 @@ class AddContactsToEventForm(CremeForm):
 
             if relationtype_id != constants.REL_OBJ_IS_INVITED_TO:
                 symmetric = self.symmetric_rtype_ids[relationtype_id]
-                rel2del = find_first(
-                    contact_relations,
-                    lambda relation: relation.type_id == symmetric,
-                    None,
+                rel2del = next(
+                    (rel for rel in contact_relations if rel.type_id == symmetric),
+                    None,  # default
                 )
 
                 if rel2del is not None:
                     relations2del.append(rel2del.id)
 
-            if find_first(
-                    contact_relations,
-                    lambda relation: relation.type_id == relationtype_id,
-                    None
-            ) is None:
+            if not any(rel.type_id == relationtype_id for rel in contact_relations):
                 create_relation(
                     subject_entity=event,
                     type=relationtype,
