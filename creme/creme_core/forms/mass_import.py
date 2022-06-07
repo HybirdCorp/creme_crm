@@ -932,9 +932,10 @@ class RelationExtractorField(MultiRelationEntityField):
                 model._meta.get_field(searchfield)
             except ContentType.DoesNotExist as e:
                 raise ValidationError(
-                    self.error_messages['ctypedoesnotexist'],
-                    params={'ctype': ctype_pk},
-                    code='ctypedoesnotexist',
+                    # self.error_messages['ctypedoesnotexist'],
+                    # params={'ctype': ctype_pk},
+                    # code='ctypedoesnotexist',
+                    str(e)
                 ) from e
             except FieldDoesNotExist as e:
                 raise ValidationError(
