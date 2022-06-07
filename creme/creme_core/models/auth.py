@@ -327,6 +327,20 @@ class UserRole(models.Model):
             as_model=as_model,
         )
 
+    def refresh_from_db(self, *args, **kwargs):
+        self._allowed_apps = None
+        self._extended_allowed_apps = None
+
+        self._admin_4_apps = None
+        self._extended_admin_4_apps = None
+
+        self._creatable_ctypes_set = None
+        self._exportable_ctypes_set = None
+
+        self._setcredentials = None
+
+        super().refresh_from_db(*args, **kwargs)
+
 
 class SetCredentials(models.Model):
     # 'ESET' means 'Entities SET'
@@ -804,6 +818,26 @@ class SetCredentials(models.Model):
 
         super().save(*args, **kwargs)
 
+    @property
+    def can_view(self):
+        return bool(self.value & EntityCredentials.VIEW)
+
+    @property
+    def can_change(self):
+        return bool(self.value & EntityCredentials.CHANGE)
+
+    @property
+    def can_delete(self):
+        return bool(self.value & EntityCredentials.DELETE)
+
+    @property
+    def can_link(self):
+        return bool(self.value & EntityCredentials.LINK)
+
+    @property
+    def can_unlink(self):
+        return bool(self.value & EntityCredentials.UNLINK)
+
     def set_value(self, *,
                   can_view: bool,
                   can_change: bool,
@@ -1275,6 +1309,12 @@ class CremeUser(AbstractBaseUser):
                     entity.allowed_str(self),
                 )
             )
+
+    def refresh_from_db(self, *args, **kwargs):
+        self._teams = None
+        self._teammates = None
+        self._settings = None
+        super().refresh_from_db(*args, **kwargs)
 
 
 get_user_field = CremeUser._meta.get_field

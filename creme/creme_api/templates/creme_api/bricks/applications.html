@@ -1,0 +1,56 @@
+{% extends 'creme_core/bricks/base/paginated-table.html' %}
+{% load i18n creme_bricks creme_widgets %}
+{% load has_perm_to print_field url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_api-applications-brick{% endblock %}
+
+{% block brick_content %}
+    {% if secret_application_message %}
+    <div class="secret_application_message" style="padding: 5px; border-left: 2px solid #48b017; background: #b0da9d9e;">
+        {{ secret_application_message|linebreaksbr }}
+    </div>
+    {% endif %}
+
+    {{ block.super }}
+{% endblock %}
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Application') plural=_('{count} Applications') empty=verbose_name icon='relations' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% brick_header_action id='add' url='creme_api__create_application'|url label=_('New application') %}
+{% endblock %}
+
+{% block brick_table_columns %}
+    {% brick_table_column_for_field ctype=objects_ctype field='name'        status='primary' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='application_id' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='enabled' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='token_duration' %}
+{#    {% brick_table_column_for_field ctype=objects_ctype field='_application_secret' %}#}
+    {% brick_table_column_for_field ctype=objects_ctype field='created' data_type='date' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='modified' data_type='date' %}
+    {% brick_table_column title=_('Action') status='action' %}
+{% endblock %}
+
+{% block brick_table_rows %}
+    {% for application in page.object_list %}
+    <tr>
+        <td {% brick_table_data_status primary %}>{% print_field object=application field='name' %}</td>
+        <td>{% print_field object=application field='application_id' %}</td>
+        <td>{% print_field object=application field='enabled' %}</td>
+        <td>{% print_field object=application field='token_duration' %} {% trans 'seconds' %}</td>
+        <td data-type="date">{{application.created|date:"DATE_FORMAT"}}</td>
+        <td data-type="date">{{application.modified|date:"DATE_FORMAT"}}</td>
+        <td {% brick_table_data_status action %}>{% url 'creme_api__edit_application' application.id as edit_url %}
+            {% brick_table_action id='edit' url=edit_url label=_('Edit this application') %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='delete' url='creme_api__delete_application'|url:application.id __id=application.id label=_('Delete this application') icon='delete' %}
+        </td>
+    </tr>
+    {% endfor %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No application for the moment' %}
+{% endblock %}

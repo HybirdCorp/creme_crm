@@ -939,7 +939,7 @@ def brick_declare(context, *bricks):
     for brick_or_seq in bricks:
         if brick_or_seq == '':
             raise ValueError(
-                '{% brick_declare %}, "bricks" seems empty. Is you variable valid ?'
+                '{% brick_declare %}, "bricks" seems empty. Is your variable valid ?'
             )
 
         if hasattr(brick_or_seq, '__iter__'):
@@ -1037,7 +1037,7 @@ def brick_display(context, *bricks, **kwargs):
     for brick_or_seq in bricks:
         if brick_or_seq == '':
             raise ValueError(
-                '{% brick_display %}: "bricks" seems empty. Is you variable valid ?'
+                '{% brick_display %}: "bricks" seems empty. Is your variable valid ?'
             )
 
         # We avoid generator, because we need to iterate twice (import & display)

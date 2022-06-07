@@ -322,6 +322,8 @@ INSTALLED_DJANGO_APPS = [
     # EXTERNAL APPS
     'formtools',
     'creme.creme_core.apps.MediaGeneratorConfig',  # It manages JS, CSS & static images
+
+    'rest_framework',
 ]
 INSTALLED_CREME_APPS = [
     # ----------------------
@@ -458,6 +460,9 @@ INSTALLED_CREME_APPS = [
     # display maps (Google Maps, Open Street Map) using the address information.
     # I can be useful to plan a business itinerary.
     'creme.geolocation',
+
+    # Enable creme API
+    'creme.creme_api',
 ]
 INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS
 
@@ -1479,6 +1484,35 @@ GEOLOCATION_OSM_TILEMAP_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.pn
 # Copyright link href & title (appears in the bottom-right of the maps)
 GEOLOCATION_OSM_COPYRIGHT_URL = 'https://www.openstreetmap.org/copyright'
 GEOLOCATION_OSM_COPYRIGHT_TITLE = 'OpenStreetMap contributors'
+
+# API
+REST_FRAMEWORK = {
+    # Remove BrowsableAPIRenderer
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    # 'DEFAULT_PARSER_CLASSES': Defaults
+
+    # Authenticate with header Authorization: Token {token}
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'creme.creme_api.api.authentication.TokenAuthentication',
+    ],
+
+    # TODO: token scopes
+    'DEFAULT_PERMISSION_CLASSES': [
+        'creme.creme_api.api.permissions.TokenPermission',
+    ],
+
+    # Cursor pagination
+    'DEFAULT_PAGINATION_CLASS': "creme.creme_api.api.pagination.CremeCursorPagination",
+    'PAGE_SIZE': 25,
+
+    # Todo: custom exception handler
+    # {'errors': [{'code', 'field_name', 'message'}, ...]}
+    'EXCEPTION_HANDLER': 'rest_framework.views.exception_handler',
+    'NON_FIELD_ERRORS_KEY': '',
+
+}
 
 # APPS CONFIGURATION [END]######################################################
 

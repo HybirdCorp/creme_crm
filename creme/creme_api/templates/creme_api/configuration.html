@@ -1,0 +1,8 @@
+{% extends 'creme_api/base.html' %}
+
+{% load i18n creme_widgets creme_bricks %}
+
+{% block content-right-panel %}
+    {% brick_declare bricks %}
+    {% brick_display bricks %}
+{% endblock %}
