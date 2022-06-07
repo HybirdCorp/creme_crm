@@ -75,6 +75,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.subject_forbidden_properties.all())
 
     def test_create02(self):
+        "Property types (mandatory & forbidden)."
         create_pt = CremePropertyType.objects.smart_update_or_create
         pt_sub = create_pt(
             str_pk='test-pt_sub', text='has cash',
@@ -92,25 +93,53 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(RelationType.objects.filter(predicate=subject_pred))
 
         get_ct = ContentType.objects.get_for_model
-        response = self.client.post(
+        data = {
+            'subject_predicate': subject_pred,
+            'object_predicate': 'is employed by (test version)',
+
+            'subject_ctypes': [get_ct(FakeOrganisation).id],
+            'object_ctypes': [get_ct(FakeContact).id],
+
+            'subject_properties': [pt_sub.id],
+            'object_properties': [pt_obj.id],
+
+            # 'subject_forbidden_properties': [forbidden_pt_sub.id],
+            # 'object_forbidden_properties': [forbidden_pt_obj.id],
+
+            'object_is_copiable': 'on',
+        }
+        # Error ---
+        response1 = self.client.post(
             self.ADD_URL,
             data={
-                'subject_predicate': subject_pred,
-                'object_predicate':  'is employed by (test version)',
-
-                'subject_ctypes': [get_ct(FakeOrganisation).id],
-                'object_ctypes':  [get_ct(FakeContact).id],
-
-                'subject_properties': [pt_sub.id],
-                'object_properties':  [pt_obj.id],
-
-                'subject_forbidden_properties': [forbidden_pt_sub.id],
-                'object_forbidden_properties':  [forbidden_pt_obj.id],
-
-                'object_is_copiable': 'on',
+                **data,
+                'subject_forbidden_properties': [forbidden_pt_sub.id, pt_sub.id],
+                'object_forbidden_properties':  [forbidden_pt_obj.id, pt_obj.id],
             },
         )
-        self.assertNoFormError(response)
+        msg = _(
+            'These property types cannot be mandatory and forbidden at the '
+            'same time: %(properties)s'
+        )
+        self.assertFormError(
+            response1, 'form', 'subject_forbidden_properties',
+            msg % {'properties': pt_sub.text},
+        )
+        self.assertFormError(
+            response1, 'form', 'object_forbidden_properties',
+            msg % {'properties': pt_obj.text},
+        )
+
+        # OK ---
+        response2 = self.client.post(
+            self.ADD_URL,
+            data={
+                **data,
+                'subject_forbidden_properties': [forbidden_pt_sub.id],
+                'object_forbidden_properties':  [forbidden_pt_obj.id],
+            },
+        )
+        self.assertNoFormError(response2)
 
         rel_type = self.get_object_or_fail(RelationType, predicate=subject_pred)
         self.assertListEqual([FakeOrganisation], [*rel_type.subject_models])
@@ -131,7 +160,7 @@ class RelationTypeTestCase(CremeTestCase):
             [forbidden_pt_obj], sym_type.subject_forbidden_properties.all(),
         )
 
-    def test_create03(self):
+    def test_create_minimal_display_subject(self):
         subject_pred = 'loves'
         response = self.client.post(
             self.ADD_URL,
@@ -153,7 +182,7 @@ class RelationTypeTestCase(CremeTestCase):
         self.assertFalse(sym_type.is_copiable)
         self.assertFalse(sym_type.minimal_display)
 
-    def test_create04(self):
+    def test_create_minimal_display_object(self):
         subject_pred = 'loves'
         response = self.client.post(
             self.ADD_URL,

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-25 14:34+0200\n"
+"POT-Creation-Date: 2022-06-07 12:25+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -602,6 +602,14 @@ msgstr "Aucune contrainte signifiera que tous les types sont acceptés."
 
 msgid "Properties constraint"
 msgstr "Contrainte sur les propriétés"
+
+#, python-format
+msgid ""
+"These property types cannot be mandatory and forbidden at the same time: "
+"%(properties)s"
+msgstr ""
+"Ces types de propriété ne peuvent pas être okligatoires et interdits à la "
+"fois : %(properties)s"
 
 msgid "The subject must have all the selected properties."
 msgstr "Le sujet doit avoir toutes les propriétés sélectionnées."
