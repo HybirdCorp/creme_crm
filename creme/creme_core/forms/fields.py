@@ -832,8 +832,9 @@ class MultiRelationEntityField(RelationEntityField):
             ctype = ContentType.objects.get_for_id(ctype_pk)
         except ContentType.DoesNotExist as e:
             raise ValidationError(
-                self.error_messages['ctypedoesnotexist'],
-                code='ctypedoesnotexist',
+                # self.error_messages['ctypedoesnotexist'],
+                # code='ctypedoesnotexist',
+                str(e)
             ) from e
 
         return ctype, []
