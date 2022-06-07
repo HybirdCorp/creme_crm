@@ -18,14 +18,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models.query_utils import Q
+from django.db.models import Q, prefetch_related_objects
 from django.utils.translation import gettext_lazy as _
 
 from creme import documents
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import EntityBrick, QuerysetBrick, SimpleBrick
 from creme.creme_core.models import Relation, RelationType
-from creme.creme_core.utils.db import populate_related
 from creme.creme_core.utils.queries import QSerializer
 
 from .constants import REL_SUB_RELATED_2_DOC
@@ -128,9 +127,9 @@ class LinkedDocsBrick(QuerysetBrick):
         #     relation.object_entity = docs[relation.object_entity_id]
         # TODO: assert only Documents?
         # TODO: method which prefetch all related needed by __str__()?
-        populate_related(
+        prefetch_related_objects(
             [rel.real_object for rel in btc['page'].object_list],
-            ['linked_folder'],
+            'linked_folder',
         )
 
         return self._render(btc)
