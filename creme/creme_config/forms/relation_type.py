@@ -54,6 +54,13 @@ _PropertyTypesField = partial(
 
 # TODO: rename RelationTypeCreationForm
 class RelationTypeCreateForm(CremeForm):
+    error_messages = {
+        'property_types_collision':  _(
+            'These property types cannot be mandatory and forbidden at the '
+            'same time: %(properties)s'
+        ),
+    }
+
     subject_ctypes = _CTypesField()
     subject_properties = _PropertyTypesField(
         help_text=_('The subject must have all the selected properties.'),
@@ -125,6 +132,33 @@ class RelationTypeCreateForm(CremeForm):
 
     def __init__(self, instance=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def clean(self):
+        cdata = super().clean()
+
+        if not self._errors:
+            for field1, field2 in [
+                ('subject_properties', 'subject_forbidden_properties'),
+                ('object_properties',  'object_forbidden_properties'),
+            ]:
+                subject_ptypes_collision = {
+                    *cdata.get(field1),
+                } & {*cdata.get(field2)}
+                if subject_ptypes_collision:
+                    self.add_error(
+                        field2,
+                        ValidationError(
+                            self.error_messages['property_types_collision'],
+                            code='property_types_collision',
+                            params={
+                                'properties': ', '.join(
+                                    str(ptype) for ptype in subject_ptypes_collision
+                                ),
+                            }
+                        ),
+                    )
+
+        return cdata
 
     def save(self,
              pk_subject='creme_config-subject_userrelationtype',

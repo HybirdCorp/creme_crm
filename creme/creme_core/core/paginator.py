@@ -354,7 +354,7 @@ class FlowPage(Sequence):
                to get the object_list.
         @param max_size: Maximum size of pages with the paginator.
         @param next_item: First item of the next page ; 'None' if it's the last page.
-        @param first_page: Indicates if its the first page (so there is no previous page).
+        @param first_page: Indicates if it's the first page (so there is no previous page).
         """
         # QuerySets do not manage negative indexing, so we build a list.
         self.object_list: List[Model] = [*object_list]
