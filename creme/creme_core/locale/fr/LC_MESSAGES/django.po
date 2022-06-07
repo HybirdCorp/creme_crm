@@ -1566,8 +1566,8 @@ msgid ""
 "The entity has no property «{property}» which is mandatory for the "
 "relationship «{predicate}»"
 msgstr ""
-"La fiche n'a pas la propriété «%(property)s» qui est obligatoire pour la "
-"relation «%(predicate)s»"
+"La fiche n'a pas la propriété «{property}» qui est obligatoire pour la "
+"relation «{predicate}»"
 
 #: forms/mass_import.py:1611
 #, python-brace-format
@@ -1575,8 +1575,8 @@ msgid ""
 "The entity «{entity}» has no property «{property}» which is mandatory for "
 "the relationship «{predicate}»"
 msgstr ""
-"La fiche «{entity}» n'a pas la propriété «%(property)s» qui est obligatoire "
-"pour la relation «%(predicate)s»"
+"La fiche «{entity}» n'a pas la propriété «{property}» qui est obligatoire "
+"pour la relation «{predicate}»"
 
 #: forms/mass_import.py:1668
 msgid "Not in the file"
