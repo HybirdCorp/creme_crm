@@ -1153,7 +1153,7 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
             choices=[
                 {'value': 1, 'label': 'Sword'},
                 {'value': 2, 'label': 'Axes', 'help': help_text},
-                {'value': 3, 'label': 'Spear'},
+                {'value': 3, 'label': 'Spear', 'disabled': True},
             ],
         )
 
@@ -1161,14 +1161,20 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         choice1 = choices[0]
         id1, label1 = choice1
         self.assertEqual('Sword', label1)
-        self.assertEqual(1,       id1.value)
-        self.assertEqual('',      id1.help)
+        self.assertEqual(1,  id1.value)
+        self.assertEqual('', id1.help)
+        self.assertIs(id1.disabled, False)
 
         choice2 = choices[1]
         id2, label2 = choice2
         self.assertEqual('Axes', label2)
         self.assertEqual(2, id2.value)
         self.assertEqual(help_text, id2.help)
+
+        id3, label3 = choices[2]
+        self.assertEqual('Spear', label3)
+        self.assertEqual(3, id3.value)
+        self.assertIs(id3.disabled, True)
 
         wchoice2 = [*field.widget.choices][1]
         self.assertEqual('Axes', wchoice2[1])
