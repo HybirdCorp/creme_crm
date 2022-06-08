@@ -21,6 +21,16 @@
               (it's an easy way in order to respect the constraints, we could do better).
 
 
+  Developers side :
+  -----------------
+
+    Breaking changes :
+    ----------------------
+        # The class 'creme_core.forms.fields.EnhancedChoiceIterator' now passes the whole dictionaries (excepted the key "label") it gets to the constructor of the choice.
+          Eg: the argument "disabled" of 'creme_core.forms.widgets.EnhancedSelectOptions.Choice' can now be used by dictionary-choices.
+          Beware: if your dictionary-choices contain some odd additinal keys, they are not ignored anymore & can make crash the choice's constructor.
+
+
 == Version 2.3.3 ==
 
   UPGRADE NOTE :
