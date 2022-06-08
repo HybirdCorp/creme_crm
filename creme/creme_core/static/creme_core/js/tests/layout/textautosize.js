@@ -59,13 +59,15 @@ QUnit.parametrize('creme.layout.TextAreaAutoSize (initial state)', [
     var layout = new creme.layout.TextAreaAutoSize(options);
     layout.bind(element);
 
-    if (QUnit.browsers.isFirefox()) {
-        equal(layout._initial, expected.initial - 1);
-        equal(element.attr('rows'), String(expected.rows - 1));
-    } else {
-        equal(layout._initial, expected.initial);
-        equal(element.attr('rows'), String(expected.rows));
-    }
+//    if (QUnit.browsers.isFirefox()) {
+//        equal(layout._initial, expected.initial - 1);
+//        equal(element.attr('rows'), String(expected.rows - 1));
+//    } else {
+//        equal(layout._initial, expected.initial);
+//        equal(element.attr('rows'), String(expected.rows));
+//    }
+    equal(layout._initial, expected.initial);
+    equal(element.attr('rows'), String(expected.rows));
 });
 
 QUnit.parametrize('creme.layout.TextAreaAutoSize (change)', [
@@ -79,11 +81,12 @@ QUnit.parametrize('creme.layout.TextAreaAutoSize (change)', [
 
     element.trigger($.Event(event, eventData));
 
-    if (QUnit.browsers.isFirefox()) {
-        equal(element.attr('rows'), String(expected.rows - 1));
-    } else {
-        equal(element.attr('rows'), String(expected.rows));
-    }
+//    if (QUnit.browsers.isFirefox()) {
+//        equal(element.attr('rows'), String(expected.rows - 1));
+//    } else {
+//        equal(element.attr('rows'), String(expected.rows));
+//    }
+    equal(element.attr('rows'), String(expected.rows));
 });
 
 }(jQuery));
