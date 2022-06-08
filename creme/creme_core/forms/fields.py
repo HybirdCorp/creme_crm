@@ -1864,23 +1864,35 @@ class EnhancedChoiceIterator:
         choices = self.choices
         forced_values = self.forced_values
 
-        for x in (choices() if callable(choices) else choices):
-            if isinstance(x, dict):
-                value = x['value']
-                label = x['label']
-                help_txt = x.get('help', '')
+        # for x in (choices() if callable(choices) else choices):
+        #     if isinstance(x, dict):
+        #         value = x['value']
+        #         label = x['label']
+        #         help_txt = x.get('help', '')
+        #     else:
+        #         value, label = x
+        #         help_txt = ''
+        #
+        #     yield (
+        #         self.choice_cls(
+        #             value=value,
+        #             readonly=(value in forced_values),
+        #             help=help_txt,
+        #         ),
+        #         label,
+        #     )
+        for choice in (choices() if callable(choices) else choices):
+            if isinstance(choice, dict):
+                choice_kwargs = {**choice}
+                value = choice_kwargs['value']
+                label = choice_kwargs.pop('label')
             else:
-                value, label = x
-                help_txt = ''
+                value, label = choice
+                choice_kwargs = {'value': value}
 
-            yield (
-                self.choice_cls(
-                    value=value,
-                    readonly=(value in forced_values),
-                    help=help_txt,
-                ),
-                label,
-            )
+            choice_kwargs['readonly'] = (value in forced_values)
+
+            yield (self.choice_cls(**choice_kwargs), label)
 
 
 class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
