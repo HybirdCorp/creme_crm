@@ -84,6 +84,16 @@ select.line-vat {
     width: 15%;
 }
 
+.bline-discount .select-wrapper select,
+.bline-vat .select-wrapper select {
+    width: 120px;
+}
+
+.bline-discount .select-wrapper .select-arrow,
+.bline-vat .select-wrapper .select-arrow {
+    left: 100px;
+}
+
 .bline-vat {
     width: 7%;
 }
