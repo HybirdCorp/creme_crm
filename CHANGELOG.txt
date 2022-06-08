@@ -10,6 +10,8 @@
             - The mandatory properties are now checked when a Contact (related to an Organisation) is created.
         * Emails :
             - The brick for Emails' history has been fixed: it was always empty.
+        * Billing :
+            - The width of <select> in the brick of lines has been fixed (smaller now).
         * Projects :
             - The default form layout for ProjectTask has been fixed.
         * VCFs :
