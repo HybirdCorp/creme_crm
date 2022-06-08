@@ -5,6 +5,7 @@
     # The management of the properties constraints of a Relation view has been fixed
       (it was not mandatory to have all the needed properties).
     # The mass-import code checks now property constraints for relationships.
+    # An issue with Firefox and 'creme.layout.TextAreaAutoSize' has been fixed.
     # Apps :
         * Persons :
             - The mandatory properties are now checked when a Contact (related to an Organisation) is created.
