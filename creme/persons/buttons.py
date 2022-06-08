@@ -16,12 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.models import Relation, RelationType
+from creme.creme_core.buttons import ActionButton
+from creme.creme_core.models import RelationType
 
 from . import constants
 
@@ -29,116 +30,151 @@ Contact = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
 
 
-class CrmButton(Button):
+class CrmButton(ActionButton):
     __managed_orga = False
-    relation_type_id = 'OVERRIDE'
-    template_name = 'persons/buttons/become.html'
+    relation_type_id = "OVERRIDE"
+    icon_title = _("Relationship")
+    icon = "relations"
 
-    def ok_4_display(self, entity):
-        # TODO: only one query ??
-        already_linked_pk = Relation.objects.filter(
-            type=self.relation_type_id,
-            subject_entity=entity,
-        ).values_list('object_entity_id', flat=True)
-        self.__managed_orga = (
-            Organisation.objects
-                        .filter_managed_by_creme()
-                        .exclude(pk__in=already_linked_pk)
-                        .exclude(id=entity.id)
+    def get_managed_orgas(self, entity):
+        return (
+            Organisation.objects.filter_managed_by_creme()
+            .exclude(
+                relations_where_is_object__type_id=self.relation_type_id,
+                relations_where_is_object__subject_entity=entity,
+            )
+            .exclude(id=entity.id)
         )
 
-        return bool(self.__managed_orga)
+    def ok_4_display(self, entity):
+        return self.get_managed_orgas(entity).exists()
 
     def get_ctypes(self):
         return Contact, Organisation
 
-    def render(self, context):
-        context['managed_orga'] = self.__managed_orga
-        context['verbose_name'] = self.verbose_name
-        # context['rtype_id'] = self.relation_type_id
-        context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
+    def eval_is_enabled(self, context) -> bool:
+        return context["can_link"] and context["rtype"].enabled
 
-        return super().render(context)
+    def eval_action_data(self, context) -> dict:
+        return {
+            "organisations": [
+                {"value": o.pk, "label": str(o)}
+                for o in self.get_managed_orgas(context["object"])
+            ],
+            "subject_id": context["object"].id,
+            "rtype_id": self.relation_type_id,
+        }
+
+    def eval_description(self, context):
+        rtype = context["rtype"]
+
+        if not context["can_link"]:
+            return _("You are not allowed to link this entity")
+        elif not rtype.enabled:
+            return _("The relationship type «{predicate}» is disabled").format(
+                predicate=rtype.predicate
+            )
+        else:
+            return self.description
+
+    def eval_rtype(self, context):
+        rtype = RelationType.objects.get(id=self.relation_type_id)
+        context["rtype"] = rtype
+        return rtype
+
+    def eval_can_link(self, context):
+        can_link = context["user"].has_perm_to_link(context["object"])
+        context["can_link"] = can_link
+        return can_link
 
 
 class BecomeCustomerButton(CrmButton):
     # id_ = Button.generate_id('persons', 'become_customer')
-    id = Button.generate_id('persons', 'become_customer')
-    verbose_name = _('Transform into a customer')
+    id = CrmButton.generate_id("persons", "become_customer")
+    action = "persons-hatmenubar-become"
+    verbose_name = _("Transform into a customer")
     description = _(
-        'This button links the current entity to an Organisation managed by Creme, '
-        'using the relationship type «is a customer of».\n'
-        'App: Accounts and Contacts'
+        "This button links the current entity to an Organisation managed by Creme, "
+        "using the relationship type «is a customer of».\n"
+        "App: Accounts and Contacts"
     )
     relation_type_id = constants.REL_SUB_CUSTOMER_SUPPLIER
 
 
 class BecomeProspectButton(CrmButton):
     # id_ = Button.generate_id('persons', 'become_prospect')
-    id = Button.generate_id('persons', 'become_prospect')
-    verbose_name = _('Transform into a prospect')
+    id = CrmButton.generate_id("persons", "become_prospect")
+    action = "persons-hatmenubar-become"
+    verbose_name = _("Transform into a prospect")
     description = _(
-        'This button links the current entity to an Organisation managed by Creme, '
-        'using the relationship type «is a prospect of».\n'
-        'App: Accounts and Contacts'
+        "This button links the current entity to an Organisation managed by Creme, "
+        "using the relationship type «is a prospect of».\n"
+        "App: Accounts and Contacts"
     )
     relation_type_id = constants.REL_SUB_PROSPECT
 
 
 class BecomeSuspectButton(CrmButton):
     # id_ = Button.generate_id('persons', 'become_suspect')
-    id = Button.generate_id('persons', 'become_suspect')
-    verbose_name = _('Transform into a suspect')
+    id = CrmButton.generate_id("persons", "become_suspect")
+    action = "persons-hatmenubar-become"
+    verbose_name = _("Transform into a suspect")
     description = _(
-        'This button links the current entity to an Organisation managed by Creme, '
-        'using the relationship type «is a suspect of».\n'
-        'App: Accounts and Contacts'
+        "This button links the current entity to an Organisation managed by Creme, "
+        "using the relationship type «is a suspect of».\n"
+        "App: Accounts and Contacts"
     )
     relation_type_id = constants.REL_SUB_SUSPECT
 
 
 class BecomeInactiveButton(CrmButton):
     # id_ = Button.generate_id('persons', 'become_inactive')
-    id = Button.generate_id('persons', 'become_inactive')
-    verbose_name = _('Transform into an inactive customer')
+    id = CrmButton.generate_id("persons", "become_inactive")
+    action = "persons-hatmenubar-become"
+    verbose_name = _("Transform into an inactive customer")
     description = _(
-        'This button links the current entity to an Organisation managed by Creme, '
-        'using the relationship type «is an inactive customer of».\n'
-        'App: Accounts and Contacts'
+        "This button links the current entity to an Organisation managed by Creme, "
+        "using the relationship type «is an inactive customer of».\n"
+        "App: Accounts and Contacts"
     )
     relation_type_id = constants.REL_SUB_INACTIVE
 
 
 class BecomeSupplierButton(CrmButton):
     # id_ = Button.generate_id('persons', 'become_supplier')
-    id = Button.generate_id('persons', 'become_supplier')
-    verbose_name = _('Transform into a supplier')
+    id = CrmButton.generate_id("persons", "become_supplier")
+    action = "persons-hatmenubar-become"
+    verbose_name = _("Transform into a supplier")
     description = _(
-        'This button links the current entity to an Organisation managed by Creme, '
-        'using the relationship type «is a supplier of».\n'
-        'App: Accounts and Contacts'
+        "This button links the current entity to an Organisation managed by Creme, "
+        "using the relationship type «is a supplier of».\n"
+        "App: Accounts and Contacts"
     )
     relation_type_id = constants.REL_OBJ_CUSTOMER_SUPPLIER
 
 
-class AddLinkedContactButton(Button):
+class AddLinkedContactButton(ActionButton):
     # id_ = Button.generate_id('persons', 'add_linked_contact')
-    id = Button.generate_id('persons', 'add_linked_contact')
-    verbose_name = _('Create a related contact')
+    id = CrmButton.generate_id("persons", "add_linked_contact")
+    verbose_name = _("Create a related contact")
     description = _(
-        'This button displays the creation form for contacts. '
-        'The current organisation is pre-selected to be linked to the created contact.\n'
-        'It is useful to create employees for example '
-        '(it can be done through the employees block too).\n'
-        'App: Accounts and Contacts'
+        "This button displays the creation form for contacts. "
+        "The current organisation is pre-selected to be linked to the created contact.\n"
+        "It is useful to create employees for example "
+        "(it can be done through the employees block too).\n"
+        "App: Accounts and Contacts"
     )
-    template_name = 'persons/buttons/add-linked-contact.html'
     permissions = cperm(Contact)  # TODO: 'persons.addrelated_contact' ??
 
     def get_ctypes(self):
         return (Organisation,)
 
-    def render(self, context):
-        context['contact_link_perm'] = context['user'].has_perm_to_link(Contact)
+    def eval_action_url(self, context) -> str:
+        url = reverse("persons__create_related_contact", args=(context["object"].id,))
+        return url + f'?callback_url={context["request"].path}'
 
-        return super().render(context)
+    def has_perm(self, context) -> bool:
+        user = context["user"]
+        return user.has_perm_to_link(Contact) and user.has_perm_to_link(
+            context["object"]
+        )

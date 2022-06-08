@@ -18,22 +18,21 @@
 
 from __future__ import annotations
 
+from django.urls.base import reverse
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
+from creme.creme_core.buttons import ActionButton
 from creme.creme_core.gui.button_menu import Button
-from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
-from creme.creme_core.utils.media import get_current_theme_from_context
 
 from . import constants, get_activity_model
 
 Activity = get_activity_model()
 
 
-class AddRelatedActivityButton(Button):
+class AddRelatedActivityButton(ActionButton):
     # id_ = Button.generate_id('activities', 'add_activity')
     id = Button.generate_id('activities', 'add_activity')
-    template_name = 'activities/buttons/add-related.html'
     permissions = build_creation_perm(Activity)
     verbose_name = _('Create a related activity')
     description = _(
@@ -43,24 +42,26 @@ class AddRelatedActivityButton(Button):
     )
     activity_type: str | None = None  # None means type is not fixed
 
-    def render(self, context):
-        context['activity_type'] = self.activity_type
-        context['verbose_name'] = self.verbose_name
+    def eval_action_url(self, context):
+        url = reverse('activities__create_related_activity', args=(context['object'].id,))
+        url += f'?callback_url={context["request"].path}'
 
-        icon_info = constants.ICONS.get(self.activity_type)
-        if icon_info:
-            name, label = icon_info
-        else:
-            name = 'calendar'
-            label = Activity._meta.verbose_name
+        if self.activity_type:
+            url += f'&activity_type={self.activity_type}'
 
-        theme = get_current_theme_from_context(context)
-        context['icon'] = get_icon_by_name(
-            name=name, label=label, theme=theme,
-            size_px=get_icon_size_px(theme=theme, size='instance-button'),
-        )
+        return url
 
-        return super().render(context)
+    def get_icon_info(self):
+        return constants.ICONS.get(self.activity_type, ('calendar', Activity._meta.verbose_name))
+
+    def get_template_context(self, context: dict) -> dict:
+        icon, icon_title = self.get_icon_info()
+
+        ctx = super().get_template_context(context)
+        ctx['icon'] = icon
+        ctx['icon_title'] = icon_title
+
+        return ctx
 
 
 class AddMeetingButton(AddRelatedActivityButton):

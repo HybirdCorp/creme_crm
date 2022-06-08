@@ -35,13 +35,32 @@ class CompleteGoalButton(Button):
         'using the relationship type «completes a goal of the commercial action».\n'
         'App: Commercial'
     )
-    template_name = 'commercial/buttons/complete-goal.html'
     permissions = 'commercial'
 
-    def render(self, context):
-        # context['predicate_id'] = REL_SUB_COMPLETE_GOAL
-        context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
-        # TODO: templatetag instead?
-        context['act_ct'] = ContentType.objects.get_for_model(get_act_model())
+    action = 'creme_core-hatmenubar-addrelationships'
+    icon = 'commercial'
+    icon_title = _('Commercial Action')
 
-        return super().render(context)
+    def eval_is_enabled(self, context) -> bool:
+        return context['has_perm'] and context['can_link']
+
+    def eval_description(self, context):
+        rtype = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
+
+        if not context['has_perm']:
+            return _('You are not allowed to access to the app «Commercial strategy»')
+        elif not context['can_link']:
+            return _('You are not allowed to link this entity')
+        elif not rtype.enabled:
+            return _('The relationship type «{predicate}» is disabled').format(
+                predicate=rtype.predicate
+            )
+        else:
+            return self.description
+
+    def eval_action_data(self, context):
+        return {
+            "subject_id": context['object'].id,
+            "rtype_id": REL_SUB_COMPLETE_GOAL,
+            "ctype_id": ContentType.objects.get_for_model(get_act_model())
+        }

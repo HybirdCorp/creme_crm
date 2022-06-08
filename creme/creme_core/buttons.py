@@ -42,3 +42,74 @@ class Restrict2SuperusersButton(Button):
         context['UUID_SANDBOX_SUPERUSERS'] = UUID_SANDBOX_SUPERUSERS
 
         return super().render(context)
+
+
+class ActionButton(Button):
+    template_name = 'creme_core/buttons/action.html'
+
+    action = ''
+    action_url = ''
+    action_data = {}
+    action_options = {}
+
+    icon = 'view'
+    icon_title = None
+    classes = ()
+
+    def eval_is_enabled(self, context) -> bool:
+        return self.has_perm(context)
+
+    def eval_action_context(self, context) -> dict:
+        return {
+            'data': context['action_data'],
+            'options': context['action_options']
+        }
+
+
+class ViewButton(ActionButton):
+    action = 'creme_core-hatmenubar-view'
+
+    def eval_action_data(self):
+        return {
+            'title': self.verbose_name
+        }
+
+
+class FormButton(ActionButton):
+    action = 'creme_core-hatmenubar-form'
+    redirect = True
+
+    def extra_submit_data(self, context):
+        return {}
+
+    def eval_action_data(self, context):
+        return {
+            'title': self.verbose_name
+        }
+
+    def eval_action_options(self, context):
+        return {
+            'redirectOnSuccess': self.redirect,
+            'submitData': self.extra_submit_data(context)
+        }
+
+
+class UpdateButton(ActionButton):
+    action = 'creme_core-hatmenubar-update'
+    method = 'POST'
+    confirm = False
+    success_message = ''
+    show_error_message = True
+    reload_on_error = True
+    reload_on_success = True
+
+    def eval_action_options(self, context):
+        return {
+            'confirm': self.confirm,
+            'action': self.method,
+            'warnOnFail': self.show_error_message,
+            'warnOnFailTitle': self.verbose_name,
+            'messageOnSuccess': self.success_message,
+            'reloadOnFail': self.reload_on_error,
+            'reloadOnSuccess': self.reload_on_success,
+        }

@@ -28,6 +28,26 @@ from ..models import CremeEntity
 logger = logging.getLogger(__name__)
 
 
+class _ButtonContext(dict):
+    def __init__(self, button: "Button", context: dict):
+        self.instance = button
+        self._context = context
+
+    def __getitem__(self, key):
+        try:
+            return super().__getitem__(key)
+        except KeyError:
+            try:
+                return self._context[key]
+            except KeyError:
+                prop = getattr(self.instance, f'eval_{key}', None)
+
+                if callable(prop):
+                    return prop(self)
+
+                return getattr(self.instance, key)
+
+
 class Button:
     # ID of the button, stored in DB (ie: the button configuration), to retrieve
     # the right button class (so it must be unique)
@@ -52,6 +72,10 @@ class Button:
     # BEWARE: you have to use the template context variable "has_perm"
     #         (computed from 'permissions' -- see 'has_perm()' ) yourself !!
     permissions: str | Sequence[str] = ''
+
+    is_valid: bool = True
+
+    context_class = _ButtonContext
 
     def __eq__(self, other):
         # return other.id_ == self.id_
@@ -87,10 +111,14 @@ class Button:
         """
         return True
 
-    def render(self, context) -> str:
-        context['has_perm'] = self.has_perm(context)
-        context['description'] = self.description
+    def eval_has_perm(self, context):
+        return self.has_perm(context)
 
+    def get_button_context(self, context: dict) -> _ButtonContext:
+        return self.context_class(self, context)
+
+    def render(self, context) -> str:
+        context['button'] = self.get_button_context(context)
         return get_template(self.template_name).render(context)
 
 
