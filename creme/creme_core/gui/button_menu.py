@@ -77,6 +77,8 @@ class Button:
     #         (computed from 'permissions' -- see 'is_allowed()' ) yourself !!
     permissions: str | Sequence[str] = ''
 
+    is_valid: bool = True
+
     def __eq__(self, other):
         return other.id == self.id
 

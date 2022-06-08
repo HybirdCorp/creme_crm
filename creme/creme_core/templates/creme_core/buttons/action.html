@@ -1,0 +1,12 @@
+{% load i18n creme_widgets %}{% load jsondata from creme_core_tags %}
+{% if button.is_allowed %}
+<a {% if button.action.id %}data-action="{{ button.action.id }}"{% endif %}
+   class="menu_button menu-button-icon  {{button.action.classes|join:' '}}" title="{{ button.description }}" href="{{ button.action.url }}">
+    {{ button.action.icon.render }}{{ button.verbose_name }}
+    {% jsondata button.action.props %}
+</a>
+{% else %}
+<span class="menu_button menu-button-icon is-disabled forbidden {{button.action.classes|join:' '}}" title="{{ button.permission_error|default:button.description }}">
+    {{ button.action.icon.render }}{{ button.verbose_name }}
+</span>
+{% endif %}

@@ -16,21 +16,27 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import build_creation_perm
+from creme.creme_core.buttons import ActionButton
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.icons import get_icon_by_name, get_icon_size_px
+
+from django.urls.base import reverse
+from django.utils.translation import gettext_lazy as _
 
 from . import constants, get_activity_model
 
 Activity = get_activity_model()
 
 
-class AddRelatedActivityButton(Button):
+class AddRelatedActivityButton(ActionButton):
+    # id_ = Button.generate_id('activities', 'add_activity')
     id = Button.generate_id('activities', 'add_activity')
-    template_name = 'activities/buttons/add-related.html'
     permissions = build_creation_perm(Activity)
     verbose_name = _('Create a related activity')
     description = _(
@@ -44,25 +50,23 @@ class AddRelatedActivityButton(Button):
         super().check_permissions(entity=entity, request=request)
         request.user.has_perm_to_link_or_die(entity)
 
-    def get_context(self, *, entity, request):
-        context = super().get_context(entity=entity, request=request)
-        type_uuid = self.activity_type_uuid
-        context['type_uuid'] = type_uuid
+    def get_action_url(self, context):
+        url = reverse('activities__create_related_activity', args=(context['object'].id,))
+        url += f'?callback_url={context["request"].path}'
 
-        icon_info = constants.ICONS.get(type_uuid)
-        if icon_info:
-            name, label = icon_info
-        else:
-            name = 'calendar'
-            label = Activity._meta.verbose_name
+        if self.activity_type_uuid:
+            url += f'&activity_type={self.activity_type_uuid}'
 
-        theme = request.user.theme_info[0]
-        context['icon'] = get_icon_by_name(
+        return url
+
+    def get_action_icon(self, context):
+        name, label = constants.ICONS.get(self.activity_type_uuid, ('calendar', Activity._meta.verbose_name))
+
+        theme = context.request.user.theme_info[0]
+        return get_icon_by_name(
             name=name, label=label, theme=theme,
             size_px=get_icon_size_px(theme=theme, size='instance-button'),
         )
-
-        return context
 
 
 class AddMeetingButton(AddRelatedActivityButton):
