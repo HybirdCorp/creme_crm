@@ -8,6 +8,8 @@
     # Apps :
         * Persons :
             - The mandatory properties are now checked when a Contact (related to an Organisation) is created.
+        * Billing :
+            - In the bricks of lines, the height of the comment text area was fixed in the theme "chantilly".
         * VCFs :
             - In the import form, the RelationTypes with property constraints are not proposed anymore
               (it's an easy way in order to respect the constraints, we could do better).
