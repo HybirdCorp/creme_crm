@@ -1,122 +1,3 @@
-/* TODO: add prefix '.billing-lines-brick' x N ?? */
-
-input.line-on_the_fly {
-    text-align: center;
-    width: 250px;
-}
-
-input.line-unit {
-    text-align: left;
-    width: 60px;
-}
-
-input.line-unit_price {
-    text-align: right;
-    width: 80px;
-}
-
-input.line-quantity_discount {
-    text-align: right;
-    width: 60px;
-}
-
-input.line-quantity {
-    text-align: right;
-    min-width: 40px;
-    width: 90%;
-}
-
-input.line-unit {
-    text-align: right;
-    width: 120px;
-}
-
-textarea.line-comment {
-    width: 99.5%;
-}
-
-select.line-vat {
-/*    text-align: right; */
-    text-align: center;
-}
-
-.linetable {
-    width: 100%;
-
-    margin: 0;
-    padding: 0;
-
-    border: 0;
-    border-spacing: 0;
-}
-
-.linetable th {
-    color: #4b6671;
-    text-align: center;
-}
-
-.linetable td {
-    text-align: center;
-}
-
-.linetable .readonly {
-    background-color: #f7f7f7;
-    color: #666;
-}
-
-.hidden-form {
-    display: none;
-}
-
-.bline-quantity {
-    width: 5%;
-}
-
-.bline-unit-price {
-    width: 9%;
-}
-
-.bline-unit {
-    width: 12%;
-}
-
-.bline-discount {
-    width: 15%;
-}
-
-.bline-discount .select-wrapper select,
-.bline-vat .select-wrapper select {
-    width: 120px;
-}
-
-.bline-discount .select-wrapper .select-arrow,
-.bline-vat .select-wrapper .select-arrow {
-    left: 100px;
-}
-
-.bline-vat {
-    width: 7%;
-}
-
-.bline-total-no-tax,
-.bline-total-discounted,
-.bline-total {
-    width: 10%;
-}
-
-.linetable .bline-comment {
-    text-align: left;
-}
-
-.bline-deletion-mark {
-    background-color: #f08080;
-}
-
-.bline-input-error,
-.bline-form input.bline-input-error {
-    background-color: #f08080;
-}
-
 ul.bline-error-list {
     margin-top: 5px;
 }
@@ -308,6 +189,11 @@ ul.bline-error-list > li {
     font-weight: 600;
 }
 
+.billing-lines-brick .linetable .readonly {
+    background-color: #f7f7f7;
+    color: #666;
+}
+
 .billing-lines-brick .bline-fields {
     background: #fcfcfc;
     width: 100%;
@@ -318,6 +204,11 @@ ul.bline-error-list > li {
 
     border-top: 1px solid #ccc;
     border-bottom: 1px solid #ccc;
+}
+
+.billing-lines-brick .bline-container-separator.hidden-form,
+.billing-lines-brick .bline-container.hidden-form {
+    display: none;
 }
 
 .billing-lines-brick input {
@@ -334,6 +225,20 @@ ul.bline-error-list > li {
     text-align: left;
 }
 
+.billing-lines-brick .linetable tr.content .bline-item {
+    vertical-align: top;
+}
+
+.billing-lines-brick .linetable tr.content .bline-item a {
+    display: inline-block;
+    padding-top: 3px;
+    cursor: pointer;
+}
+
+.billing-lines-brick .linetable td {
+    text-align: center;
+}
+
 /* empty message - override */
 .billing-lines-brick .bline-empty {
     padding: 5px 10px;
@@ -346,20 +251,83 @@ ul.bline-error-list > li {
     color: #777;
 }
 
-.billing-lines-brick .bline-container.hidden-form {
-    display: none;
+.billing-lines-brick .bline-quantity {
+    width: 5%;
 }
 
-/* creme override - product/service input */
-.billing-lines-brick .linetable tr.content .bline-item {
-    vertical-align: top;
+.billing-lines-brick .bline-unit-price {
+    width: 9%;
 }
 
-/* creme override - 'Add to catalog' link */
-.billing-lines-brick .linetable tr.content .bline-item a {
-    display: inline-block;
-    padding-top: 3px;
-    cursor: pointer;
+.billing-lines-brick .bline-unit {
+    width: 12%;
+}
+
+.billing-lines-brick .bline-discount {
+    width: 15%;
+}
+
+.billing-lines-brick .bline-discount .select-wrapper select,
+.billing-lines-brick .bline-vat .select-wrapper select {
+    width: 120px;
+}
+
+.billing-lines-brick .bline-discount .select-wrapper .select-arrow,
+.billing-lines-brick .bline-vat .select-wrapper .select-arrow {
+    left: 100px;
+}
+
+.billing-lines-brick .bline-vat {
+    width: 7%;
+}
+
+.billing-lines-brick .bline-total-no-tax,
+.billing-lines-brick .bline-total-discounted,
+.billing-lines-brick .bline-total {
+    width: 10%;
+}
+
+.billing-lines-brick input.line-on_the_fly {
+    text-align: center;
+    width: 250px;
+}
+
+.billing-lines-brick input.line-unit {
+    text-align: right;
+    width: 120px;
+}
+
+.billing-lines-brick input.line-unit_price {
+    text-align: right;
+    width: 80px;
+}
+
+.billing-lines-brick input.line-quantity_discount {
+    text-align: right;
+    width: 60px;
+}
+
+.billing-lines-brick input.line-quantity {
+    text-align: right;
+    min-width: 40px;
+    width: 90%;
+}
+
+.billing-lines-brick select.line-vat {
+    text-align: center;
+}
+
+.billing-lines-brick textarea.line-comment {
+    width: 99.5%;
+}
+
+.billing-lines-brick .bline-deletion-mark {
+    background-color: #f08080;
+}
+
+.billing-lines-brick .bline-input-error,
+.billing-lines-brick .bline-form input.bline-input-error {
+    background-color: #f08080;
 }
 
 /* Brick billing lines - end */
