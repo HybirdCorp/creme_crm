@@ -324,7 +324,7 @@ select.line-vat {
 
 .billing-lines-brick textarea.line-comment {
     width: 99.5%;
-    height: 30px;
+/*    height: 30px; */
 }
 
 .billing-lines-brick .bline-deletion-mark {
