@@ -11,7 +11,9 @@
         * Emails :
             - The brick for Emails' history has been fixed: it was always empty.
         * Billing :
-            - The width of <select> in the brick of lines has been fixed (smaller now).
+            - In the bricks of lines :
+                - The width of <select> has been fixed (smaller now).
+                - The height of the comment text area was fixed in the theme "chantilly".
         * Projects :
             - The default form layout for ProjectTask has been fixed.
         * VCFs :
