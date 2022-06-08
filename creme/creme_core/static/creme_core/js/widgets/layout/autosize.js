@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************************/
 
-/* globals BrowserVersion */
+/* //globals BrowserVersion */
 (function($) {
 "use strict";
 
@@ -83,7 +83,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         this._count = count;
 
         if (previous !== count) {
-            count = BrowserVersion.isFirefox() ? Math.max(count - 1, 0) : count;
+//            count = BrowserVersion.isFirefox() ? Math.max(count - 1, 0) : count;
             element.get().scrollTop = 0;
             element.attr('rows', count);
         }
@@ -98,7 +98,7 @@ creme.layout.TextAreaAutoSize = creme.component.Component.sub({
         element.css({'overflow-y': 'hidden', 'resize': 'none'});
 
         this._initial = parseInt(element.attr('rows')) || 1;
-        this._initial = BrowserVersion.isFirefox() ? this._initial - 1 : this._initial;
+//        this._initial = BrowserVersion.isFirefox() ? this._initial - 1 : this._initial;
         this._onResize(element);
 
 //        element.on('propertychange keydown paste input', this._listeners);
