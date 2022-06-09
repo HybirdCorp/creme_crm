@@ -26,6 +26,8 @@ from datetime import date, datetime, timedelta
 from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 
+from .date_period import date_period_registry
+
 logger = logging.getLogger(__name__)
 
 _DAY_START = {'hour': 0,  'minute': 0,  'second': 0}
@@ -58,6 +60,8 @@ class DateRange:
     name: str = 'base_date_range'  # Override in child classes
     verbose_name = 'Date range'  # Override in child classes
 
+    period_registry = date_period_registry
+
     def __str__(self):
         return str(self.verbose_name)
 
@@ -65,7 +69,7 @@ class DateRange:
     def get_dates(now):
         raise NotImplementedError
 
-    def get_q_dict(self, field: str, now) -> dict:
+    def get_q_dict(self, field: str, now, **extra_data) -> dict:
         start, end = self.get_dates(now)
 
         if start:
@@ -286,11 +290,70 @@ class TomorrowRange(DateRange):
         )
 
 
+class YearEquals(DateRange):
+    name = 'year_equals'
+    verbose_name = _('Year equals …')
+
+    def get_q_dict(self, field, *args, **extra_data):
+        return {f'{field}__year': extra_data['year']}
+
+
+class InMoreThan(DateRange):
+    name = 'in_more_than'
+    verbose_name = _('In more than …')
+
+    def get_q_dict(self, field, now, **extra_data):
+        return {
+            f'{field}__gt': now + self.period_registry.deserialize(extra_data['period'])
+                                                      .as_timedelta(),
+        }
+
+
+class InLessThan(DateRange):
+    name = 'in_less_than'
+    verbose_name = _('In less than …')
+
+    def get_q_dict(self, field, now, **extra_data):
+        return {
+            f'{field}__range': (
+                now,
+                now + self.period_registry.deserialize(extra_data['period'])
+                                          .as_timedelta(),
+            ),
+        }
+
+
+class MoreThanAgo(DateRange):
+    name = 'more_than_ago'
+    verbose_name = _('More than … ago')
+
+    def get_q_dict(self, field, now, **extra_data):
+        return {
+            f'{field}__lt': now - self.period_registry.deserialize(extra_data['period'])
+                                                      .as_timedelta(),
+        }
+
+
+class LessThanAgo(DateRange):
+    name = 'less_than_ago'
+    verbose_name = _('Less than … ago')
+
+    def get_q_dict(self, field, now, **extra_data):
+        return {
+            f'{field}__range': (
+                now - self.period_registry.deserialize(extra_data['period'])
+                                          .as_timedelta(),
+                now,
+            ),
+        }
+
+
 class EmptyRange(DateRange):
     name = 'empty'
     verbose_name = _('Is empty')
 
-    def get_q_dict(self, field, now):
+    # def get_q_dict(self, field, now):
+    def get_q_dict(self, field, *args, **kwargs):
         return {f'{field}__isnull': True}
 
 
@@ -298,7 +361,8 @@ class NotEmptyRange(DateRange):
     name = 'not_empty'
     verbose_name = _('Is not empty')
 
-    def get_q_dict(self, field, now):
+    # def get_q_dict(self, field, now):
+    def get_q_dict(self, field, *args, **kwargs):
         return {f'{field}__isnull': False}
 
 
@@ -370,5 +434,8 @@ date_range_registry = DateRangeRegistry(
     PreviousQuarterRange(), CurrentQuarterRange(), NextQuarterRange(),
     PreviousMonthRange(),   CurrentMonthRange(),   NextMonthRange(),
     YesterdayRange(), TodayRange(), TomorrowRange(),
-    FutureRange(), PastRange(), EmptyRange(), NotEmptyRange(),
+    FutureRange(), PastRange(),
+    YearEquals(),
+    InMoreThan(), InLessThan(), MoreThanAgo(), LessThanAgo(),
+    EmptyRange(), NotEmptyRange(),
 )

@@ -32,6 +32,13 @@ class DateRangeTestCase(CremeTestCase):
             date_range.FutureRange(),
             date_range.PastRange(),
 
+            date_range.YearEquals(),
+
+            date_range.InMoreThan(),
+            date_range.InLessThan(),
+            date_range.MoreThanAgo(),
+            date_range.LessThanAgo(),
+
             date_range.EmptyRange(),
             date_range.NotEmptyRange(),
         )
@@ -72,7 +79,8 @@ class DateRangeTestCase(CremeTestCase):
 
     def test_choices01(self):
         choices = [*self.registry.choices()]
-        self.assertEqual(14, len(choices))
+        length = 19
+        self.assertEqual(length, len(choices))
 
         choice0 = choices[0]
         self.assertIsTuple(choice0, length=2)
@@ -82,7 +90,7 @@ class DateRangeTestCase(CremeTestCase):
         self.assertIsInstance(choice0[1], PreviousYearRange)
 
         names = {choice[0] for choice in choices}
-        self.assertEqual(14, len(names))
+        self.assertEqual(length, len(names))
         self.assertIn(date_range.CurrentMonthRange.name, names)
         self.assertNotIn(date_range.EmptyRange.name,     names)
         self.assertNotIn(date_range.NotEmptyRange.name,  names)
@@ -90,7 +98,7 @@ class DateRangeTestCase(CremeTestCase):
     def test_choices02(self):
         "Global registry."
         choices = [*date_range.date_range_registry.choices()]
-        self.assertEqual(14, len(choices))
+        self.assertEqual(19, len(choices))
 
     def test_future(self):
         date_range = self.registry.get_range('in_future')
@@ -515,6 +523,118 @@ class DateRangeTestCase(CremeTestCase):
             self.registry
                 .get_range(name='tomorrow')
                 .get_q_dict(field='modified', now=today),
+        )
+
+    def test_year_equals(self):
+        drange = self.registry.get_range(name='year_equals')
+        self.assertIsNotNone(drange)
+
+        self.assertDictEqual(
+            {'modified__year': 2012},
+            drange.get_q_dict(field='modified', now=now(), year=2012),
+        )
+        self.assertDictEqual(
+            {'created__year': 2022},
+            drange.get_q_dict(field='created', now=now(), year=2022),
+        )
+
+    def test_in_more_than(self):
+        drange = self.registry.get_range(name='in_more_than')
+        self.assertIsNotNone(drange)
+
+        dt = self.create_datetime
+        today = dt(year=2022, month=6, day=30, hour=14, minute=14)
+        self.assertDictEqual(
+            {'modified__gt': dt(year=2022, month=9, day=30, hour=14, minute=14)},
+            drange.get_q_dict(
+                field='modified',
+                now=today, period={'type': 'months', 'value': 3},
+            ),
+        )
+        self.assertDictEqual(
+            {'created__gt': dt(year=2023, month=6, day=30, hour=14, minute=14)},
+            drange.get_q_dict(
+                field='created',
+                now=today, period={'type': 'years', 'value': 1},
+            ),
+        )
+
+    def test_in_less_than(self):
+        drange = self.registry.get_range(name='in_less_than')
+        self.assertIsNotNone(drange)
+
+        dt = self.create_datetime
+        today = dt(year=2022, month=6, day=30, hour=14, minute=14)
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    today,
+                    dt(year=2022, month=9, day=30, hour=14, minute=14),
+                ),
+            },
+            drange.get_q_dict(
+                field='modified',
+                now=today, period={'type': 'months', 'value': 3},
+            ),
+        )
+        self.assertDictEqual(
+            {'created__range': (today, dt(year=2023, month=6, day=30, hour=14, minute=14))},
+            drange.get_q_dict(
+                field='created',
+                now=today, period={'type': 'years', 'value': 1},
+            ),
+        )
+
+    def test_more_than_ago(self):
+        drange = self.registry.get_range(name='more_than_ago')
+        self.assertIsNotNone(drange)
+
+        dt = self.create_datetime
+        today = dt(year=2022, month=6, day=30, hour=14, minute=14)
+        self.assertDictEqual(
+            {'modified__lt': dt(year=2022, month=3, day=30, hour=14, minute=14)},
+            drange.get_q_dict(
+                field='modified',
+                now=today, period={'type': 'months', 'value': 3},
+            ),
+        )
+        self.assertDictEqual(
+            {'created__lt': dt(year=2021, month=6, day=30, hour=14, minute=14)},
+            drange.get_q_dict(
+                field='created',
+                now=today, period={'type': 'years', 'value': 1},
+            ),
+        )
+
+    def test_less_than_ago(self):
+        drange = self.registry.get_range(name='less_than_ago')
+        self.assertIsNotNone(drange)
+
+        dt = self.create_datetime
+        today = dt(year=2022, month=6, day=30, hour=14, minute=14)
+        self.assertDictEqual(
+            {
+                'modified__range': (
+                    dt(year=2022, month=3, day=30, hour=14, minute=14),
+                    today,
+                ),
+            },
+            drange.get_q_dict(
+                field='modified',
+                now=today, period={'type': 'months', 'value': 3},
+            ),
+        )
+        self.assertDictEqual(
+            {
+                'created__range': (
+                    dt(year=2021, month=6, day=30, hour=14, minute=14),
+                    today,
+                ),
+            },
+            drange.get_q_dict(
+                field='created',
+                now=today, period={'type': 'years', 'value': 1},
+            ),
         )
 
     def test_empty(self):

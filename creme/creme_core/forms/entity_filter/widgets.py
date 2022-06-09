@@ -404,7 +404,11 @@ class DateFieldsConditionsWidget(ConditionListWidget):
             choice_label = field.verbose_name
             is_null = field.null
 
-        choice_value = {'name': name, 'type': 'daterange__null' if is_null else 'daterange'}
+        choice_value = {
+            'name': name,
+            'type': 'daterange__null' if is_null else 'daterange',
+        }
+
         return category, (json_dump(choice_value), choice_label)
 
     # TODO: factorise (see FieldConditionSelector)
