@@ -184,14 +184,12 @@ PropertyFaker.prototype = {
 
             if (prop === undefined) {
                 newKeys.push(key);
-            } else if (prop.configurable) {
+            } else {
                 origin[key] = prop;
 
                 fake.writable = prop.writable;
                 fake.enumerable = prop.enumerable;
                 fake.configurable = prop.configurable;
-            } else {
-                throw new Error('The property "${key}" is not configurable'.template({key: key}));
             }
 
             fakes[key] = fake;

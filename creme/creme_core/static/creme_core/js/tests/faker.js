@@ -452,6 +452,7 @@ QUnit.test('PropertyFaker (add)', function(assert) {
     ok(!('c' in data));
 });
 
+/*
 QUnit.test('PropertyFaker (not configurable)', function(assert) {
     var data = {};
     Object.defineProperty(data, 'irremovable', {
@@ -470,6 +471,7 @@ QUnit.test('PropertyFaker (not configurable)', function(assert) {
         faker.with(function() {});
     }, Error, 'Error: The property "irremovable" is not configurable');
 });
+*/
 
 QUnit.parametrize('DateFaker (invalid date)', [
     ['invalid', 'The value "invalid" is not a valid date'],
