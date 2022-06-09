@@ -982,7 +982,7 @@ QUnit.parametrize('creme.dialogs.html', [
 });
 
 QUnit.parametrize('creme.dialogs.url', [
-    ['', {}, {content: 'Bad Request', fetchCount: 0, reloadCount: 0}],
+    ['', {}, {content: gettext('Bad Request'), fetchCount: 0, reloadCount: 0}],
     ['mock/error', {reloadOnClose: false}, {content: 'HTTP - Error 500', fetchCount: 1, reloadCount: 0}],
     ['mock/error', {reloadOnClose: true}, {content: 'HTTP - Error 500', fetchCount: 1, reloadCount: 1}],
     ['mock/html', {reloadOnClose: false}, {content: 'This a frame test', fetchCount: 1, reloadCount: 0}],
