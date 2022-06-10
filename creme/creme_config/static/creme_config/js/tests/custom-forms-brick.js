@@ -66,7 +66,7 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
                '<div class="customform-config-ctype-title">' +
                     '<span>${ctypeName}</span>' +
                     '<a class="customform-config-show-details" href="#" data-ct-id="${ctypeId}">Show</a>' +
-                    '<a class="customform-config-hide-details" href="#">Hide</a>' +
+                    '<a class="customform-config-hide-details" href="#" data-ct-id="${ctypeId}">Hide</a>' +
                '</div>' +
                '<div class="customform-config-ctype-content">' +
                     '<p class="help-instructions">Drag and drop the groups to order them.</p>' +
@@ -75,9 +75,10 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
                             '<span>Creation form</span>' +
                         '</div>' +
                         '<div class="customform-config-items">' +
-                            '<div class="customform-config-item customform-config-item-collapsed">' +
+/*                            '<div class="customform-config-item customform-config-item-collapsed">' + */
+                            '<div class="customform-config-item customform-config-collapsed">' +
                                 '<div class="customform-config-item-title">' +
-                                    '<div class="toggle-icon-container toggle-icon-expand" title="Show this form"><div class="toggle-icon"></div></div>' +
+                                    '<div class="toggle-icon-container toggle-icon-expand" data-item-id="${itemId}" title="Show this form"><div class="toggle-icon"></div></div>' +
                                     '<div class="toggle-icon-container toggle-icon-collapse" title="Hide this form"><div class="toggle-icon"></div></div>' +
                                     'Default form' +
                                  '</div>' +
@@ -100,6 +101,7 @@ QUnit.module("creme.FormGroupsController", new QUnitMixin(QUnitEventMixin,
             state: options.collapsed ? 'customform-config-collapsed' : '',
             ctypeId: options.ctypeId,
             ctypeName: options.ctypeName,
+            itemId: options.itemId,
             groups: options.groups.map(this.createFormFieldGroupHtml.bind(this)).join('')
         });
     },
@@ -159,6 +161,7 @@ QUnit.test('creme.FormGroupsController (items)', function(assert) {
             collapsed: true,
             ctypeId: ctypeIdA,
             ctypeName: 'Type A',
+            itemId: 42,
             groups: [{
                 reorderUrl: 'mock/group/reorder/0',
                 fields: [{name: 'a-field-a'}, {name: 'a-field-b'}]
@@ -170,6 +173,7 @@ QUnit.test('creme.FormGroupsController (items)', function(assert) {
             collapsed: true,
             ctypeId: ctypeIdB,
             ctypeName: 'Type B',
+            itemId: 43,
             groups: [{
                 reorderUrl: 'mock/group/reorder/2',
                 fields: [{name: 'b-field-a'}, {name: 'b-field-b'}]
@@ -198,11 +202,13 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
         models: [{
             ctypeId: ctypeIdA,
             ctypeName: 'Type A',
-            collapsed: true
+            collapsed: true,
+            itemId: 42
         }, {
             ctypeId: ctypeIdB,
             ctypeName: 'Type B',
-            collapsed: false
+            collapsed: false,
+            itemId: 43
         }]
     }).brick();
     var controller = new creme.FormGroupsController({
@@ -222,7 +228,8 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
     deepEqual([
-        ['POST', {ct_id: ctypeIdA}]
+//        ['POST', {ct_id: ctypeIdA}]
+        ['POST', {action: 'show', ct_id: ctypeIdA}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 
     controller.ctype(ctypeIdA).find('.customform-config-hide-details').click();
@@ -231,8 +238,36 @@ QUnit.test('creme.FormGroupsController (toggle content type)', function(assert) 
     equal(controller.ctype(ctypeIdB).is('.customform-config-collapsed'), true);
 
     deepEqual([
-        ['POST', {ct_id: ctypeIdA}],
-        ['POST', {ct_id: '0'}]
+//        ['POST', {ct_id: ctypeIdA}],
+        ['POST', {action: 'show', ct_id: ctypeIdA}],
+//        ['POST', {ct_id: '0'}]
+        ['POST', {action: 'hide', ct_id: ctypeIdA}]
+    ], this.mockBackendUrlCalls('mock/group/expand'));
+});
+
+QUnit.test('creme.FormGroupsController (toggle custom form item)', function(assert) {
+    var ctypeId = 12;
+    var itemId = 63;
+    var brick = this.createFormGroupsBrick({
+        models: [{
+            ctypeId: ctypeId,
+            ctypeName: 'Type A',
+            collapsed: false,
+            itemId: itemId
+        }]
+    }).brick();
+    var controller = new creme.FormGroupsController({
+        expandUrl: 'mock/group/expand'
+    });
+
+    controller.bind(brick);
+    deepEqual([], this.mockBackendUrlCalls('mock/group/expand'));
+    equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), true);
+
+    controller.ctype(ctypeId).find('.toggle-icon-expand').click();
+    equal(controller.ctype(ctypeId).find('.customform-config-item').is('.customform-config-collapsed'), false);
+    deepEqual([
+        ['POST', {action: 'show', item_id: itemId}]
     ], this.mockBackendUrlCalls('mock/group/expand'));
 });
 
@@ -244,6 +279,7 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
             collapsed: true,
             ctypeId: ctypeIdA,
             ctypeName: 'Type A',
+            itemId: 42,
             groups: [{
                 reorderUrl: 'mock/group/reorder/0',
                 fields: [{name: 'a-field-a'}, {name: 'field-b'}]
@@ -255,6 +291,7 @@ QUnit.test('creme.FormGroupsController (reorder groups)', function(assert) {
             collapsed: true,
             ctypeId: ctypeIdB,
             ctypeName: 'Type B',
+            itemId: 43,
             groups: [{
                 reorderUrl: 'mock/group/reorder/2',
                 fields: [{name: 'b-field-a'}, {name: 'b-field-b'}]
@@ -302,6 +339,7 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
             collapsed: true,
             ctypeId: ctypeIdA,
             ctypeName: 'Type A',
+            itemId: 42,
             groups: [{
                 reorderUrl: 'mock/group/reorder/0/fail',
                 fields: [{name: 'a-field-a'}, {name: 'field-b'}]
@@ -313,6 +351,7 @@ QUnit.test('creme.FormGroupsController (reorder groups, failure)', function(asse
             collapsed: true,
             ctypeId: ctypeIdB,
             ctypeName: 'Type B',
+            itemId: 43,
             groups: [{
                 reorderUrl: 'mock/group/reorder/2',
                 fields: [{name: 'b-field-a'}, {name: 'b-field-b'}]
@@ -348,7 +387,8 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
         models: [{
             ctypeId: ctypeIdA,
             ctypeName: 'Type A',
-            collapsed: true
+            collapsed: true,
+            itemId: 42
         }]
     }).brick();
     var controller = new creme.FormGroupsController({
@@ -358,13 +398,16 @@ QUnit.test('creme.FormGroupsController (toggle item)', function(assert) {
     controller.bind(brick);
 
     var item = controller.ctype(ctypeIdA).find('.customform-config-item').first();
-    equal(item.is('.customform-config-item-collapsed'), true);
+//    equal(item.is('.customform-config-item-collapsed'), true);
+    equal(item.is('.customform-config-collapsed'), true);
 
     item.find('.toggle-icon-expand').click();
-    equal(item.is('.customform-config-item-collapsed'), false);
+//    equal(item.is('.customform-config-item-collapsed'), false);
+    equal(item.is('.customform-config-collapsed'), false);
 
     item.find('.toggle-icon-collapse').click();
-    equal(item.is('.customform-config-item-collapsed'), true);
+//    equal(item.is('.customform-config-item-collapsed'), true);
+    equal(item.is('.customform-config-collapsed'), true);
 });
 
 }(jQuery));

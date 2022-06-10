@@ -240,6 +240,17 @@ class BrickStateExtraDataSetting(generic.CheckedView):
             self.request.POST, key=self.value_arg, cast=self.cast_value,
         )
 
+    def set_value(self, state: BrickState, value) -> None:
+        if value is None:  # TODO: self.delete_on_none ?
+            try:
+                state.del_extra_data(self.data_key)
+            except KeyError:
+                pass
+            else:
+                state.save()
+        elif state.set_extra_data(key=self.data_key, value=value):
+            state.save()
+
     def post(self, request, **kwargs):
         value = self.get_value()
 
@@ -252,15 +263,16 @@ class BrickStateExtraDataSetting(generic.CheckedView):
             )
 
             try:
-                if value is None:  # TODO: self.delete_on_none ?
-                    try:
-                        state.del_extra_data(self.data_key)
-                    except KeyError:
-                        pass
-                    else:
-                        state.save()
-                elif state.set_extra_data(key=self.data_key, value=value):
-                    state.save()
+                # if value is None:
+                #     try:
+                #         state.del_extra_data(self.data_key)
+                #     except KeyError:
+                #         pass
+                #     else:
+                #         state.save()
+                # elif state.set_extra_data(key=self.data_key, value=value):
+                #     state.save()
+                self.set_value(state, value)
             except IntegrityError:
                 logger.exception('Avoid a duplicate.')
                 continue

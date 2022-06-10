@@ -33,27 +33,27 @@ creme.FormGroupsController = creme.component.Component.sub({
     },
 
     _saveState: function(state) {
-        // Save state
         var query = new creme.ajax.Query();
-        query.url(this.expandUrl())
-             .post(state);
+        query.url(this.expandUrl()).post(state);
     },
 
-    // TODO: rename argument item
-    _toggleCType: function(item, state) {
+    _toggleCType: function(element, state) {
         if (state === undefined) {
-            state = !item.is('.customform-config-collapsed');
+            state = !element.is('.customform-config-collapsed');
         }
 
-        // collapse all other items
+        // Collapse all other ctype containers
         this.ctypes().addClass('customform-config-collapsed');
 
-        // toggle item state
-        item.toggleClass('customform-config-collapsed', !state);
+        element.toggleClass('customform-config-collapsed', !state);
 
-        // scroll to item if opened
         if (state) {
-            creme.utils.scrollTo(item, 200);
+            // Scroll to element if opened
+            creme.utils.scrollTo(element, 200);
+        } else {
+            // When we hide a ContentType container, the server side loses the
+            // information about expanded items.
+            element.find('.customform-config-item').addClass('customform-config-collapsed');
         }
     },
 
@@ -98,13 +98,15 @@ creme.FormGroupsController = creme.component.Component.sub({
         element.on('click', '.customform-config-show-details', function(e) {
             e.preventDefault();
             toggleCType($(this).parents('.customform-config-ctype').first(), true);
-            saveState({ct_id: $(this).data('ct-id')});
+//            saveState({ct_id: $(this).data('ct-id')});
+            saveState({action: 'show', ct_id: $(this).data('ct-id')});
         });
 
         element.on('click', '.customform-config-hide-details', function(e) {
             e.preventDefault();
             toggleCType($(this).parents('.customform-config-ctype').first(), false);
-            saveState({ct_id: '0'});
+//            saveState({ct_id: '0'});
+            saveState({action: 'hide', ct_id: $(this).data('ct-id')});
         });
 
         element.on('click', '.toggle-icon-container', function(e) {
@@ -115,7 +117,10 @@ creme.FormGroupsController = creme.component.Component.sub({
 
             icon.parents('.customform-config-item')
                 .first()
-                .toggleClass('customform-config-item-collapsed', !expand);
+/*                .toggleClass('customform-config-item-collapsed', !expand); */
+                .toggleClass('customform-config-collapsed', !expand);
+
+            saveState({action: (expand ? 'show' : 'hide'), item_id: $(this).data('item-id')});
         });
 
         return this;

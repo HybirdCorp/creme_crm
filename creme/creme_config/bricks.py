@@ -403,15 +403,17 @@ class CustomFormsBrick(PaginatedBrick):
         FieldGroupList.BLOCK_ID_MISSING_EXTRA_FIELD:  _('Missing required special field: {}'),
     }
 
-    def get_ctype_descriptors(self, user, expanded_ctype_id):
+    # def get_ctype_descriptors(self, user, expanded_ctype_id):
+    def get_ctype_descriptors(self, user, expanded_ctype_id, expanded_items_id):
         get_ct = ContentType.objects.get_for_model
 
         class _ExtendedConfigItem:
-            def __init__(this, *, item, descriptor):
+            def __init__(this, *, item, descriptor, collapsed=True):
                 this._descriptor = descriptor
                 this._item = item
                 this.groups = descriptor.groups(item)
                 this.id = item.id
+                this.collapsed = collapsed
 
                 # TODO: factorise with CustomFormConfigItemChoiceField
                 if item.superuser:
@@ -465,8 +467,12 @@ class CustomFormsBrick(PaginatedBrick):
                 this.verbose_name = descriptor.verbose_name
                 this.items = sorted(
                     (
-                        _ExtendedConfigItem(item=item, descriptor=descriptor)
-                        for item in items
+                        # _ExtendedConfigItem(item=item, descriptor=descriptor)
+                        # for item in items
+                        _ExtendedConfigItem(
+                            item=item, descriptor=descriptor,
+                            collapsed=(item.id not in expanded_items_id),
+                        ) for item in items
                     ),
                     key=this._item_sort_key,
                 )
@@ -522,13 +528,21 @@ class CustomFormsBrick(PaginatedBrick):
     def detailview_display(self, context):
         user = context['user']
 
-        expanded_ctype_id = BricksManager.get(context).get_state(
+        # expanded_ctype_id = BricksManager.get(context).get_state(
+        #     brick_id=self.id_, user=user,
+        # ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS)
+        expanded_info = BricksManager.get(context).get_state(
             brick_id=self.id_, user=user,
-        ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS)
+        ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
 
         return self._render(self.get_template_context(
             context,
-            self.get_ctype_descriptors(user=user, expanded_ctype_id=expanded_ctype_id),
+            # self.get_ctype_descriptors(user=user, expanded_ctype_id=expanded_ctype_id),
+            self.get_ctype_descriptors(
+                user=user,
+                expanded_ctype_id=expanded_info.get('ctype'),
+                expanded_items_id=expanded_info.get('items', ()),
+            ),
             LAYOUT_REGULAR=core_forms.LAYOUT_REGULAR,
             LAYOUT_DUAL_FIRST=core_forms.LAYOUT_DUAL_FIRST,
             LAYOUT_DUAL_SECOND=core_forms.LAYOUT_DUAL_SECOND,

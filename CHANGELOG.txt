@@ -17,6 +17,7 @@
                 - Non-internal types can now be disabled.
                 - A new kind of constraints has been added : forbidden properties (on subject & object of course).
             - An edition view for semi-fixed relationship types has been added.
+            - The configurations of CustomForms are collapsed by default, & can be expanded separately.
         * Assistants :
             - The trigger date of an Alert can now be relative to a date field of the linked entity (eg: "3 days before its birthday").
               Relative trigger dates are automatically updated when the date field changes.
@@ -202,6 +203,9 @@
         # In the template file "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
           (use {% block lv_hidden_buttons %} + {{block.super}} instead).
         # Apps :
+            * Creme_config :
+                - The extra data stored in the BrickStates related to 'bricks.CustomFormsBrick' has changed from <ctype_id> to <{'ctype': ctype_id, items: [...]}>.
+                  The view 'custom_form.CustomFormShowDetails' & the JavaScript component 'creme.FormGroupsController' have been adapted.
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
                 - The form 'AlertForm' has been heavily modified (the fields "trigger_date" & trigger_time" have been removed...).

@@ -27,7 +27,7 @@
             {% widget_icon ctype=ctype size='brick-list' class='customform-config-type-icon' %}<span>{{ctype}}</span>
 
             <a class="customform-config-show-details" href="#" data-ct-id="{{ctype.id}}">{% translate 'Show details' %}</a>
-            <a class="customform-config-hide-details" href="#">{% translate 'Hide details' %}</a>
+            <a class="customform-config-hide-details" href="#" data-ct-id="{{ctype.id}}">{% translate 'Hide details' %}</a>
         </div>
 
         <div class="customform-config-ctype-content">
@@ -42,13 +42,10 @@
                 </div>
                 <div class="customform-config-items">
                 {% for item in descriptor.items %}
-                    <div class="customform-config-item">{# TODO (2.4): customform-config-item-collapsed #}
+                    <div class="customform-config-item{% if item.collapsed %} customform-config-collapsed{% endif %}">
                         <div class="customform-config-item-title">
-{% comment %} TODO (2.4): reactivate the collapsing feature in 2.4 ; need to store the extended cforms in BrickState to avoid the cform to collapse every time it is edited.
-                            <div class="toggle-icon-container toggle-icon-expand" title="{% translate 'Show this form' %}"><div class="toggle-icon"></div></div>
-                            <div class="toggle-icon-container toggle-icon-collapse" title="{% translate 'Hide this form' %}"><div class="toggle-icon"></div></div>
-{% endcomment %}
-
+                            <div class="toggle-icon-container toggle-icon-expand"   data-item-id="{{item.id}}" title="{% translate 'Show this form' %}"><div class="toggle-icon"></div></div>
+                            <div class="toggle-icon-container toggle-icon-collapse" data-item-id="{{item.id}}" title="{% translate 'Hide this form' %}"><div class="toggle-icon"></div></div>
                             {{item.verbose_name}}
                             {% if item.can_be_deleted %}{% brick_action id='delete' url=delete_url __id=item.id enabled=admin_perm %}{% endif %}
                         </div>

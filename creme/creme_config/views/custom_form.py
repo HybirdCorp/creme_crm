@@ -19,7 +19,10 @@
 ################################################################################
 
 from abc import ABC
+from dataclasses import dataclass
+from typing import Optional
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404
@@ -54,17 +57,21 @@ class CustomFormMixin:
     group_id_url_kwarg = 'group_id'
     cfci_pk_url_kwarg = 'item_id'
 
+    def get_customform_descriptor_from_id(self, descriptor_id):
+        desc = self.cform_registry.get(descriptor_id)
+
+        if desc is None:
+            raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
+
+        return desc
+
     def get_customform_descriptor(self):
         try:
             desc = getattr(self, 'descriptor')
         except AttributeError:
-            descriptor_id = self.object.descriptor_id
-            desc = self.cform_registry.get(descriptor_id)
-
-            if desc is None:
-                raise ConflictError(f'The custom form "{descriptor_id}" is invalid.')
-
-            self.descriptor = desc
+            self.descriptor = desc = self.get_customform_descriptor_from_id(
+                self.object.descriptor_id,
+            )
 
         return desc
 
@@ -337,15 +344,104 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
         return HttpResponse()
 
 
-class CustomFormShowDetails(EntityCTypeRelatedMixin, BrickStateExtraDataSetting):
+# class CustomFormShowDetails(EntityCTypeRelatedMixin, BrickStateExtraDataSetting):
+#     ctype_id_arg = 'ct_id'
+#     ct_id_0_accepted = True
+#     brick_cls = CustomFormsBrick
+#     data_key = BRICK_STATE_SHOW_CFORMS_DETAILS
+#
+#     def get_ctype_id(self):
+#         return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg)
+#
+#     def get_value(self):
+#         ctype = self.get_ctype()
+#         return None if ctype is None else ctype.id
+class CustomFormShowDetails(EntityCTypeRelatedMixin,
+                            CustomFormMixin,
+                            BrickStateExtraDataSetting):
     ctype_id_arg = 'ct_id'
-    ct_id_0_accepted = True
+    item_id_arg = 'item_id'
+    action_arg = 'action'
     brick_cls = CustomFormsBrick
     data_key = BRICK_STATE_SHOW_CFORMS_DETAILS
+
+    # Actions
+    HIDE = 'hide'
+    SHOW = 'show'
+
+    @dataclass
+    class Action:
+        show: bool
+        ctype: ContentType
+        item: Optional[CustomFormConfigItem]
+
+    def get_show(self) -> bool:
+        action = get_from_POST_or_404(self.request.POST, key=self.action_arg)
+
+        if action == self.SHOW:
+            return True
+        elif action == self.HIDE:
+            return False
+
+        raise Http404(f'Invalid argument "action": "{self.action_arg}"')
 
     def get_ctype_id(self):
         return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg)
 
     def get_value(self):
-        ctype = self.get_ctype()
-        return None if ctype is None else ctype.id
+        show = self.get_show()
+        item_id = get_from_POST_or_404(
+            self.request.POST, key=self.item_id_arg, cast=int, default=0,
+        )
+
+        if item_id:
+            item = get_object_or_404(CustomFormConfigItem, id=item_id)
+            desc = self.get_customform_descriptor_from_id(item.descriptor_id)
+            ctype = ContentType.objects.get_for_model(desc.model)
+        else:
+            item = None
+            ctype = self.get_ctype()
+
+        return None if ctype is None else self.Action(show=show, ctype=ctype, item=item)
+
+    def set_value(self, state, value):
+        new_value = None  # By default, we hide the whole ContentType
+        current_value = state.get_extra_data(self.data_key)
+        ctype_id = value.ctype.id
+        item = value.item
+
+        if current_value is None:
+            if not value.show:
+                # Hide a ContentType/item but the config is already empty => do nothing
+                return
+
+            new_value = {'ctype': ctype_id}
+
+            if item:
+                new_value['items'] = [item.id]
+        else:
+            if value.show:
+                new_value = {'ctype': ctype_id}
+
+                if item:
+                    # NB: we use a set to de-duplicate IDs
+                    items = {item.id}
+                    if current_value['ctype'] == ctype_id:
+                        items.update(current_value.get('items', ()))
+
+                    # NB: we sort to facilitate unit testing
+                    new_value['items'] = sorted(items)
+            else:  # Hide
+                if current_value['ctype'] == ctype_id:
+                    if item:
+                        items = {*current_value.get('items', ())}
+                        items.discard(item.id)
+
+                        if items:
+                            new_value = {'ctype': ctype_id, 'items': sorted(items)}
+                else:
+                    # Hide a ContentType not shown => do nothing
+                    # new_value = current_value
+                    return
+
+        super().set_value(state=state, value=new_value)
