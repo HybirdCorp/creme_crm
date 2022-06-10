@@ -180,6 +180,8 @@ class CustomFormCellsFieldTestCase(EntityCellsFieldTestCaseMixin, CremeTestCase)
 
 
 class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
+    DETAILS_URL = reverse('creme_config__customforms_brick_show_details')
+
     def test_portal(self):
         self.login()
 
@@ -1713,6 +1715,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         desc_data = brick.get_ctype_descriptors(
             user=user,
             expanded_ctype_id=get_ct(FakeActivity).id,
+            expanded_items_id=[cfci1_base.id],
         )
         self.assertIsList(desc_data, length=2)
 
@@ -1743,11 +1746,13 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             [g.name for g in act_item11.groups],
         )
         self.assertListEqual([], act_item11.errors)
+        self.assertFalse(act_item11.collapsed)
 
         act_item12 = act_creation_descriptor.items[1]
         self.assertEqual(cfci1_super.id,           act_item12.id)
         self.assertEqual(_('Form for super-user'), act_item12.verbose_name)
         self.assertListEqual(['General'], [g.name for g in act_item12.groups])
+        self.assertTrue(act_item12.collapsed)
 
         act_item13 = act_creation_descriptor.items[2]
         self.assertEqual(cfci1_role.id, act_item13.id)
@@ -1810,7 +1815,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick.registry = registry
 
         act_item1 = brick.get_ctype_descriptors(
-            user=user, expanded_ctype_id=None,
+            user=user, expanded_ctype_id=None, expanded_items_id=(),
         )[0].descriptors[0].items[0]
         self.assertEqual(cfci.id, act_item1.id)
 
@@ -1851,7 +1856,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick.registry = registry
 
         act_item1 = brick.get_ctype_descriptors(
-            user=user, expanded_ctype_id=None,
+            user=user, expanded_ctype_id=None, expanded_items_id=(),
         )[0].descriptors[0].items[0]
         self.assertEqual(cfci.id, act_item1.id)
         self.assertListEqual(
@@ -1892,7 +1897,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         brick.registry = registry
 
         act_item1 = brick.get_ctype_descriptors(
-            user=user, expanded_ctype_id=None,
+            user=user, expanded_ctype_id=None, expanded_items_id=(),
         )[0].descriptors[0].items[0]
         self.assertEqual(cfci.id, act_item1.id)
         self.assertListEqual(
@@ -1900,50 +1905,212 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             act_item1.errors,
         )
 
-    def test_brick_show_details(self):
+    # def test_brick_show_details(self):
+    #     user = self.login()
+    #
+    #     def get_state():
+    #         return BrickState.objects.get_for_brick_id(
+    #             user=user, brick_id=CustomFormsBrick.id_,
+    #         )
+    #
+    #     self.assertIsNone(get_state().pk)
+    #
+    #     url = reverse('creme_config__customforms_brick_show_details')
+    #     self.assertGET405(url)
+    #
+    #     # ---
+    #     key = 'ct_id'
+    #     get_ct = ContentType.objects.get_for_model
+    #     ct_id01 = get_ct(FakeActivity).id
+    #     self.assertPOST200(url, data={key: ct_id01})
+    #     state1 = get_state()
+    #     self.assertIsNotNone(state1.pk)
+    #     self.assertEqual(
+    #         state1.get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+    #         ct_id01,
+    #     )
+    #
+    #     # ---
+    #     ct_id02 = get_ct(FakeOrganisation).id
+    #     self.assertPOST200(url, data={key: ct_id02})
+    #     self.assertEqual(
+    #         get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+    #         ct_id02,
+    #     )
+    #
+    #     # Invalid ID
+    #     self.assertPOST404(url, data={key: 1024})
+    #
+    #     # ID==0 => clear
+    #     self.assertPOST200(url, data={key: '0'})
+    #     self.assertIsNone(
+    #         get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+    #     )
+    #
+    #     # Check does not crash
+    #     self.assertPOST200(url, data={key: '0'})
+    def get_brick_state(self):
+        state = BrickState.objects.get_for_brick_id(
+            user=self.user, brick_id=CustomFormsBrick.id_,
+        )
+        self.assertIsNotNone(state.pk)
+
+        return state
+
+    def get_brick_data(self):
+        return self.get_brick_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS)
+
+    def test_brick_show_details01(self):
+        "Show 2 different ContentTypes."
         user = self.login()
 
-        def get_state():
-            return BrickState.objects.get_for_brick_id(
-                user=user, brick_id=CustomFormsBrick.id_,
-            )
+        self.assertIsNone(
+            BrickState.objects.get_for_brick_id(user=user, brick_id=CustomFormsBrick.id_).pk
+        )
 
-        self.assertIsNone(get_state().pk)
-
-        url = reverse('creme_config__customforms_brick_show_details')
+        url = self.DETAILS_URL
         self.assertGET405(url)
 
         # ---
-        key = 'ct_id'
+        SHOW = 'show'
+        action_key = 'action'
+        ct_key = 'ct_id'
         get_ct = ContentType.objects.get_for_model
-        ct_id01 = get_ct(FakeActivity).id
-        self.assertPOST200(url, data={key: ct_id01})
-        state1 = get_state()
-        self.assertIsNotNone(state1.pk)
-        self.assertEqual(
+        ct_id1 = get_ct(FakeActivity).id
+        self.assertPOST200(url, data={action_key: SHOW, ct_key: ct_id1})
+        state1 = self.get_brick_state()
+        self.assertDictEqual(
+            {'ctype': ct_id1},
             state1.get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
-            ct_id01,
         )
 
         # ---
-        ct_id02 = get_ct(FakeOrganisation).id
-        self.assertPOST200(url, data={key: ct_id02})
-        self.assertEqual(
-            get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
-            ct_id02,
+        ct_id2 = get_ct(FakeOrganisation).id
+        self.assertPOST200(url, data={action_key: SHOW, ct_key: ct_id2})
+        self.assertDictEqual({'ctype': ct_id2}, self.get_brick_data())
+
+        # Invalid data
+        self.assertPOST404(url, data={action_key: SHOW})
+        self.assertPOST404(url, data={action_key: SHOW, ct_key: 1024})
+        self.assertPOST404(url, data={ct_key: ct_id1})
+        self.assertPOST404(url, data={action_key: 'invalid', ct_key: ct_id1})
+
+    def test_brick_show_details02(self):
+        "Show then hide a ContentType."
+        self.login()
+        url = self.DETAILS_URL
+
+        SHOW = 'show'
+        action_key = 'action'
+        ct_key = 'ct_id'
+        get_ct = ContentType.objects.get_for_model
+        ct_id1 = get_ct(FakeOrganisation).id
+        self.assertPOST200(url, data={action_key: SHOW, ct_key: ct_id1})
+
+        # Hide CType not shown => nothing happens
+        HIDE = 'hide'
+        ct_id2 = get_ct(FakeActivity).id
+        self.assertPOST200(url, data={action_key: HIDE, ct_key: ct_id2})
+        self.assertDictEqual({'ctype': ct_id1}, self.get_brick_data())
+
+        # Hide shown CType => CType is hidden
+        self.assertPOST200(url, data={action_key: HIDE, ct_key: ct_id1})
+        self.assertIsNone(self.get_brick_data())
+
+    def test_brick_show_details03(self):
+        "Show & hide item."
+        self.login()
+        url = self.DETAILS_URL
+
+        SHOW = 'show'
+        action_key = 'action'
+        item_key = 'item_id'
+        get_ct = ContentType.objects.get_for_model
+        ct_id1 = get_ct(FakeActivity).id
+        item1 = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEACTIVITY_CREATION_CFORM.id,
+            role=None, superuser=False,
+        )
+        self.assertPOST200(url, data={action_key: SHOW, item_key: item1.id})
+        self.assertDictEqual(
+            {'ctype': ct_id1, 'items': [item1.id]},
+            self.get_brick_data(),
         )
 
-        # Invalid ID
-        self.assertPOST404(url, data={key: 1024})
+        # Show a second item
+        item2 = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEACTIVITY_EDITION_CFORM.id,
+            role=None, superuser=False,
+        )
+        self.assertPOST200(url, data={action_key: SHOW, item_key: item2.id})
+        self.assertDictEqual(
+            {'ctype': ct_id1, 'items': [item1.id, item2.id]},
+            self.get_brick_data(),
+        )
 
-        # ID==0 => clear
-        self.assertPOST200(url, data={key: '0'})
-        # TODO: has_extra_data() ??
+        # Resend same ID => ID not duplicated
+        self.assertPOST200(url, data={action_key: SHOW, item_key: item1.id})
+        self.assertDictEqual(
+            {'ctype': ct_id1, 'items': [item1.id, item2.id]},
+            self.get_brick_data(),
+        )
+
+        # ---
+        HIDE = 'hide'
+        self.assertPOST200(url, data={action_key: HIDE, item_key: item1.id})
+        self.assertDictEqual(
+            {'ctype': ct_id1, 'items': [item2.id]}, self.get_brick_data(),
+        )
+
+        # Show item from another ContentType
+        item3 = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEORGANISATION_CREATION_CFORM.id,
+            role=None, superuser=False,
+        )
+        self.assertPOST200(url, data={action_key: SHOW, item_key: item3.id})
+        self.assertDictEqual(
+            {'ctype': get_ct(FakeOrganisation).id, 'items': [item3.id]},
+            self.get_brick_data(),
+        )
+
+    def test_brick_show_details04(self):
+        "Hide a whole ContentType with items."
+        self.login()
+        url = self.DETAILS_URL
+
+        action_key = 'action'
+        desc = FAKEACTIVITY_CREATION_CFORM
+        item = self.get_object_or_fail(
+            CustomFormConfigItem, descriptor_id=desc.id, role=None, superuser=False,
+        )
+        ct_id = ContentType.objects.get_for_model(desc.model).id
+        self.assertPOST200(url, data={action_key: 'show', 'item_id': item.id})
+        self.assertDictEqual(
+            {'ctype': ct_id, 'items': [item.id]},
+            self.get_brick_data(),
+        )
+
+        self.assertPOST200(url, data={action_key: 'hide', 'ct_id': ct_id})
+        self.assertIsNone(self.get_brick_data())
+
+    def test_brick_show_details05(self):
+        "Hide but configuration is empty."
+        user = self.login()
+        url = self.DETAILS_URL
+
+        action_key = 'action'
+        desc = FAKEACTIVITY_CREATION_CFORM
+        item = self.get_object_or_fail(
+            CustomFormConfigItem, descriptor_id=desc.id, role=None, superuser=False,
+        )
+        self.assertPOST200(url, data={action_key: 'hide', 'item_id': item.id})
         self.assertIsNone(
-            get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
+            BrickState.objects.get_for_brick_id(
+                user=user, brick_id=CustomFormsBrick.id_,
+            ).pk
         )
-
-        # Check does not crash
-        self.assertPOST200(url, data={key: '0'})
 
     # TODO: test credentials for views
