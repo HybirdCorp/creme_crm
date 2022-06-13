@@ -89,7 +89,7 @@ class MailingListAddCSVForm(CremeForm):
         label=_('Recipients'),
         help_text=_(
             'A file containing one e-mail address per line '
-            '(eg:creme@crm.com without quotation marks).'
+            '(e.g. "creme@crm.com" without quotation marks).'
         )
     )
 
