@@ -79,8 +79,8 @@ class MergeWidget(Widget):
 
         # NB: the classes 'merge_entity1'/'merge_entity2'/'merge_result' won't
         #     be used by complexes Widget
-        #     (eg: CalendarWidget) so the CSS 'width: 99%;' won't be used for them
-        # TODO: is it a good way to do this ? (eg: always wrap widget in <div>
+        #     (e.g. CalendarWidget) so the CSS 'width: 99%;' won't be used for them
+        # TODO: is it a good way to do this ? (e.g. always wrap widget in <div>
         #       for layout, & this layouts use the extra classes given in attrs).
         get_sub_context = self._original_widget.get_context
         widget_cxt['first'] = get_sub_context(

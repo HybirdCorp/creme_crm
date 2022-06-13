@@ -1,6 +1,6 @@
 Creme source code ('creme/' directory => *.py, *.js, *.html) is
 released under the GNU AFFERO GENERAL PUBLIC LICENSE version 3, except when another
-license is specified in the file (eg: JQuery library). You can see the complete
+license is specified in the file (e.g. JQuery library). You can see the complete
 license text in the 'AGPL-3.0.txt' file.
 
 In accordance with Section 7(b) of the GNU Affero General Public License version 3,

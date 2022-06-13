@@ -474,7 +474,7 @@ class QuerySorter:
         using the natural ordering of this model & the DB-indices.
 
         @param model: CremeEntity subclass.
-        @param cells: Sequence of displayed EntityCells (eg: columns of the list-view) ;
+        @param cells: Sequence of displayed EntityCells (e.g. columns of the list-view) ;
                 If the natural ordering fields of the model are not present within the
                 cells, they are not used in the result (excepted if it allows to use a
                 DB-index).

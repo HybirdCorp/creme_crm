@@ -133,7 +133,7 @@ class CategoriesExtractorWidget(BaseExtractorWidget):
         #     - not very visible.
         #     - which option must we choose ? (it's arbitrary/stupid).
         # Displaying a warning/error message causes problems too
-        # (eg: the message can be displayed twice -- python + js sides).
+        # (e.g. the message can be displayed twice -- python + js sides).
 
         value = value or {}
         context = super().get_context(name=name, value=value, attrs=attrs)

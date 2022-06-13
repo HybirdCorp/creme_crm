@@ -54,7 +54,7 @@ node-update:
 ## The package django-extensions is required and can be installed with "make install-dev")
 __media:
 ifeq (${DJANGO_SETTINGS_MODULE},)
-	$(error DJANGO_SETTINGS_MODULE is not defined. Hint: Set it with the settings module path (eg: 'my_project.settings') in the shell or '.env' file)
+	$(error DJANGO_SETTINGS_MODULE is not defined. Hint: Set it with the settings module path (e.g. 'my_project.settings') in the shell or '.env' file)
 endif
 	$(eval CREME_MEDIA ?= $(shell creme print_settings --settings=${DJANGO_SETTINGS_MODULE} --skip-checks --no-color STATIC_ROOT --format value))
 	creme generatemedia --settings=${DJANGO_SETTINGS_MODULE}

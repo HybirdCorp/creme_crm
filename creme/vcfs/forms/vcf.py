@@ -443,7 +443,7 @@ class VcfImportForm(CremeModelForm):
                 if param:
                     try:
                         fields[field_dict[param[0]]].initial = key.value
-                    except KeyError:  # eg: invalid type, hidden field
+                    except KeyError:  # e.g. invalid type, hidden field
                         pass
                 else:
                     self._generate_help_text(field_dict['HOME'], key.value)

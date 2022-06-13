@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -68,10 +68,10 @@ def check_activity_collisions(
 
         # Do collision request
         # TODO: can be done with less queries ?
-        #       eg:  Activity.objects.filter(
-        #                relations__object_entity=participant.id,
-        #                relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY,
-        #            ).filter(collision_test)
+        #           Activity.objects.filter(
+        #               relations__object_entity=participant.id,
+        #               relations__object_entity__type=REL_OBJ_PART_2_ACTIVITY,
+        #           ).filter(collision_test)
         busy_args = {} if busy else {'busy': True}
         # TODO: test is_deleted=True
         colliding_activity = get_activity_model().objects.filter(

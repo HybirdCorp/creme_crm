@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ def _checked_app_label(app_label, app_labels):
 
 
 class BasePopulator:
-    dependencies: List[str] = []  # eg: ['appname1', 'appname2']
+    dependencies: List[str] = []  # Example: ['appname1', 'appname2']
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -102,7 +102,7 @@ class Command(BaseCommand):
     def handle(self, *app_labels, **options):
         verbosity = options.get('verbosity')
 
-        # eg: 'persons', 'creme_core'...
+        # e.g. 'persons', 'creme_core'...
         all_apps = OrderedSet(app_config.label for app_config in creme_app_configs())
 
         apps_2_populate = (

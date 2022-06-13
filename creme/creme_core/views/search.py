@@ -54,7 +54,7 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.id_ = id or self.generate_id(
             'creme_core',
             # We generate an unique ID for each research, in order
-            # to avoid sharing state (eg: page number) between researches.
+            # to avoid sharing state (e.g. page number) between researches.
             f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
         )
 

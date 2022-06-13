@@ -19,7 +19,7 @@
             - An edition view for semi-fixed relationship types has been added.
             - The configurations of CustomForms are collapsed by default, & can be expanded separately.
         * Assistants :
-            - The trigger date of an Alert can now be relative to a date field of the linked entity (eg: "3 days before its birthday").
+            - The trigger date of an Alert can now be relative to a date field of the linked entity (e.g. "3 days before its birthday").
               Relative trigger dates are automatically updated when the date field changes.
         * Activities :
             - The relationships type "is subject of the activity" is now internal.
@@ -29,7 +29,7 @@
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch e-mails from some mailboxes to potentially create true Email entities
-              (eg: you sent a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
+              (e.g. you sent a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
                 - Now the mail servers are configured with a GUI (it was in 'settings.py').
                 - IMAP4 is supported (only POP3 was).
                 - Mails are in a sandbox, & entities are created only when you accept them (instead of using the status "Synchronized - Untreated").
@@ -267,7 +267,7 @@
 
   UPGRADE NOTE :
     - You should create a all new virtual environment based on Python 3.6+
-      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      (e.g. "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -e .[mysql|pgsql]" of course.
     - The layout of Creme projects has changed : Creme is a classical Python package
       installed in your virtualenv & your own data are stored in another place.
@@ -320,7 +320,7 @@
         - The package "rjsmin" is used to minify the JavaScript files.
     # The history has been improved :
         - The messages in the history block are prettier.
-        - Old & new values are stored now for TextFields (eg: description) ; they are shown in a popover dialog.
+        - Old & new values are stored now for TextFields (e.g. description) ; they are shown in a popover dialog.
         - Elements which are added & removed for ManyToManyFields are now stored.
         - CustomFields are now historized too.
     # The global search can now search in CustomFields.
@@ -585,7 +585,7 @@
         # The method 'creme_core.apps.CremeAppConfig.register_menu()' has been removed ;
           all apps have been reworked to use the new API (registration of entry classes in 'apps.py', base configuration of menu in 'populate.py').
         # The method 'get_tag()' injected in all model-fields takes now an argument named "tag" (it was named "tag_name") ;
-          notice that it's better to pass an enumeration value (eg: 'FieldTag.VIEWABLE').
+          notice that it's better to pass an enumeration value (e.g. 'FieldTag.VIEWABLE').
         # If you used the fields configuration on your own models (ie: they have fields tagged as "optional"),
           you must now register them in your 'apps.py' in the method 'CremeAppConfig.register_fields_config()'
           (use the method 'fields_config_registry.register_models()').
@@ -773,7 +773,7 @@
 
   UPGRADE NOTE :
     - You should create a all new virtual environment based on Python 3.6+
-      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      (e.g. "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -e .[mysql|pgsql]" of course.
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
     - If you used CommercialApproaches, edit the configuration of Activities' custom-forms to add
@@ -1473,7 +1473,7 @@
 
   UPGRADE NOTE :
     - You should create a all new virtual environment based on Python 3.5+
-      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      (e.g. "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -r creme/requirements.txt" of course.
     - If you override INSTALLED_DJANGO_APPS in you local settings, you should replace "django.contrib.contenttypes" by "creme.creme_core.apps.ContentTypesConfig" (see settings.py).
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
@@ -1929,7 +1929,7 @@
             - In 'entity_filter', the forms now use a registry to know available handlers & operators.
                 - The fields '*_conditions' have been removed & replaced by fields added in the constructor (with new names).
                 - The constructor has a new mandatory argument: "efilter_registry".
-                - The fields & widgets have now an attribute "efilter_registry" which should be filled to get a satisfactory behaviour (eg: classical operators are proposed).
+                - The fields & widgets have now an attribute "efilter_registry" which should be filled to get a satisfactory behaviour (e.g. classical operators are proposed).
             - In 'header_filter' :
                 - The class 'FieldConditionWidget' has been renamed 'FieldConditionSelector'.
                 - The class 'CustomFieldConditionWidget' has been renamed 'CustomFieldsConditionsWidget'.
@@ -2148,7 +2148,7 @@
 
   UPGRADE NOTE :
     - You should create a all new virtual environment based on Python 3.5+
-      (eg: "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
+      (e.g. "mkvirtualenv -p /usr/bin/python3XX" if you use 'mkvirtualenv')
       and populate it with "pip install -r creme/requirements.txt" of course.
     - Execute the well known commands "migrate", "generatemedia" & "creme_populate".
 
@@ -2198,7 +2198,7 @@
              https://docs.python.org/3/whatsnew/3.4.html
              https://docs.python.org/3/whatsnew/3.5.html
           The code has not been fixed to "just work" ; lots of changes have been done to be more consistent.
-            eg: several methods called 'itervalues()' have been deprecated because their name was referencing the old dictionary API.
+          For example, several methods called 'itervalues()' have been deprecated because their name was referencing the old dictionary API.
           Lots of <%s-format> string have been converted to <{}-format">.
         - Views are going to class :
             - Almost all generic views of 'creme_core' are now class-based (but not list-views yet) ; the generic function-views are now deprecated.
@@ -2345,7 +2345,8 @@
         # Two templatetags to store safely JSON data have been added : {% jsondata %} & {% blockjsondata %}.
         # A simple HTTP server has been added in unit tests to serve static files.
         # The command "i18n_empty" has been improved :
-            - The context is now used. eg: an empty entry with a context is not ignored because an entry with he same 'msgid' (but without context) is filled.
+            - The context is now used.
+              For example, an empty entry with a context is not ignored because an entry with he same 'msgid' (but without context) is filled.
             - The line numbers in the PO files are now displayed.
 
     Breaking changes :
@@ -2440,7 +2441,7 @@
             - The attribute 'CremeEntity.function_fields' has been removed ; use 'creme_core.core.function_fields.function_field_registry' instead.
             - The class 'entity._PrettyPropertiesField' has moved to 'creme_core.function_fields.PropertiesField'.
             - The model 'relation.Relation' has now a UNIQUE constraint on ('type', 'subject_entity', 'object_entity') ;
-              a data migration removes duplicated relations, so beware to custom code which (accidentally) relies on duplicated Relation (eg: with internal RelationType).
+              a data migration removes duplicated relations, so beware to custom code which (accidentally) relies on duplicated Relation (e.g. with internal RelationType).
             - The field 'creme_property.CremePropertyType.is_custom' is <editable=False> now.
             - These models of 'bricks' have been renamed :
                 - BlockDetailviewLocation => BrickDetailviewLocation
@@ -2531,9 +2532,9 @@
                 - All views/forms/bricks/templates about 'PreferedMenuItem' have been removed.
                 - The class 'brick.BlockPortalLocationsBrick' has been removed with its related template.
                 - In 'templates'
-                    - The template file "creme_config/portal.html" has changed (eg: suppression of {% block before_statistics %}).
-                    - The template "creme_config/generics/app_portal.html" has been replaced by "app-portal.html" to make some changes (eg: use the variable "bricks" instead of "app_config_bricks").
-                    - The template "creme_config/generics/model_portal.html" has been replaced by "model-portal.html" to make some changes (eg: use the variable "bricks" instead of "model_brick").
+                    - The template file "creme_config/portal.html" has changed (e.g. suppression of {% block before_statistics %}).
+                    - The template "creme_config/generics/app_portal.html" has been replaced by "app-portal.html" to make some changes (e.g. use the variable "bricks" instead of "app_config_bricks").
+                    - The template "creme_config/generics/model_portal.html" has been replaced by "model-portal.html" to make some changes (e.g. use the variable "bricks" instead of "model_brick").
                 - In 'bricks', these classes have been renamed :
                     - BlockDetailviewLocationsBrick    => BrickDetailviewLocationsBrick
                     - BlockHomeLocationsBrick          => BrickHomeLocationsBrick
@@ -2840,7 +2841,7 @@
           Now a FileRef, which references the file, is created at deletion (so it's creation is cancelled on a rollback) and the new file cleaner Job will delete these FileRef instance (& the related file).
           FileRef will be useful in the future for files created dynamically (like in export views).
         # Some template filters have been added in 'creme_core_tags' : lt, lte, gt, gte, eq.
-        # The test runner now creates a mock/temporary 'settings.MEDIA_ROOT' directory. So the files created in unit tests (eg: uploaded files) are not spoiling the real 'upload/' directory.
+        # The test runner now creates a mock/temporary 'settings.MEDIA_ROOT' directory. So the files created in unit tests (e.g. uploaded files) are not spoiling the real 'upload/' directory.
           This temporary directory is removed at the end of tests ; there is no need to take care about deleting only the tests files any more.
         # In JavaScript :
             - The option "validator" in 'creme.dialog.FormDialog' now accepts the value "innerpopup" to continue to handle old-styled-popup HTML (<div class="in-popup" ...>)
@@ -3023,7 +3024,7 @@
             - CharFields in forms strip their content by default.
             - The import of some models is done later (ie import in function code, not module root).
             - If you create your own model field inheriting ForeignKey/OneToOneField, you cannot set a model during migration for 'to' attribute.
-            - If you import the module 'creme_config.registry', the import should be done after all the app configs are ready (eg: importing within a view function) in order to avoid errors.
+            - If you import the module 'creme_config.registry', the import should be done after all the app configs are ready (e.g. importing within a view function) in order to avoid errors.
             - Django 1.9 does not like '/' at the beginning of URL regex (it says it's useless, but it can be useful in some rare cases).
             - The MIMEtype of e-mail attachments is now set.
         # Changes caused by Django 1.10 :
@@ -3246,7 +3247,7 @@
         - The UI for actions has been improved.
         - The ordering management has been improved :
             - The ordering is built by using the DB-indexes of the model in order to be as efficient as possible.
-            - When a model use several fields for its default ordering (eg: Contact uses last_name+first_name),
+            - When a model use several fields for its default ordering (e.g. Contact uses last_name+first_name),
               all related direction (ASC/DESC) are inverted together (it's more logic & queries are faster).
             - ManyToManyFields columns are not sortable anymore ; it was probably confusing, slow & annoying for some future performance improvements.
         - When there are too many entities in the current list, a fast mode is used (see settings.FAST_QUERY_MODE_THRESHOLD) :
@@ -3301,8 +3302,8 @@
               in order to improve the performances of the classical use.
         * Creme_config :
             - Several forms are wizards now :
-                - It allows smarter creation forms. Eg: no need to edit an empty custom block just after its creation.
-                - The UserRole forms is more friendly. Eg: it only proposes apps to administrate among the allowed apps.
+                - It allows smarter creation forms. For example, no need to edit an empty custom block just after its creation.
+                - The UserRole forms is more friendly. For example, it only proposes apps to administrate among the allowed apps.
             - The ContentTypes are now filtered in the credentials form (only entity types related to allowed apps are proposed) ; the credentials can now be edited.
         * Activities :
             - An EntityFilter for Activities has been added : "In which I participate".
@@ -3312,7 +3313,7 @@
                 - The fields for Alerts have been improved.
         * Billing :
             - Inline billing-line form has been improved (user & dev sides) ; errors in the form are better managed.
-              Eg: the name of the related item is checked (cannot be empty) on new line & the errors are detected as soon as inputs are modified, not leaved.
+              For example, the name of the related item is checked (cannot be empty) on new line & the errors are detected as soon as inputs are modified, not leaved.
             - The PDF generation has been improved ; the concurrent creation of temporary file has no more collision.
               The auxiliary files are now deleted when the PDF is OK.
             - Some small information leaking in FunctionFields have been fixed ; you could get the total of Invoices/Quote which you cannot view.
@@ -3754,7 +3755,7 @@
             - In 'generics/view_entity.html', if you override some {% block %} ('title', 'logo', 'entity_buttons'),
               you have now to use the header brick feature instead (by creating your own or override an existing one).
             - In 'generics/blockform/base.html', 'generics/blockformset/base.html' & 'generics/form/base.html',
-              the context variable 'logo' is replaced by 'icon_name' (eg: 'images/add_64.png' => 'add')
+              the context variable 'logo' is replaced by 'icon_name' (e.g. 'images/add_64.png' => 'add')
             - In form pages, the tags <table class="table_header" ...>  have been replaced by <div> tags.
             - Many changes in the HTML of list-views ; mostly in header & footer.
         # In 'creme_core.gui' :
@@ -4055,8 +4056,8 @@
     # The emptying of the trash works now better with trashed entities linked between them.
       We try to delete the remaining entities (which could not be deleted because of relationships) when there are errors,
       while the previous iteration managed to remove some entities. It will not work with cyclic references (but it is certainly very unusual).
-    # Model-fields as choices are now alphabetically ordered in forms (eg: search configuration, report-graphs forms...).
-    # Lots of labels in inner popups buttons have been improved. eg: 'Save' -> 'Save the alert'.
+    # Model-fields as choices are now alphabetically ordered in forms (e.g. search configuration, report-graphs forms...).
+    # Lots of labels in inner popups buttons have been improved(e.g. 'Save' -> 'Save the alert').
     # The display of History block has been improved (FK to CremeEntity, fields with choices).
     # DecimalFields are now displayed with a localised format.
     # The command 'creme_uninstall' has been heavily improved (more robust, clean more models, better display...).
@@ -4163,7 +4164,7 @@
         # The view decorator creme_core.auth.decorators.permission_required() can take a list of permissions.
         # A new method CremeEntity.get_html_attrs() has been added : you can customise the display of lines in listview.
         # The support of custom labels for default dialog buttons has been added.
-        # A file "project_settings.py" has been added ; it should contain the setting shared by all your team (eg: INSTALLED_APPS).
+        # A file "project_settings.py" has been added ; it should contain the setting shared by all your team (e.g. INSTALLED_APPS).
           The settings has been improved in order to add other JS/CSS bundles ; see CREME_OPT_MEDIA_BUNDLES.
         # Several blocks templatetags can now take an URL (in order to give them reversed URLs) :
             - get_line_adder
@@ -4197,7 +4198,7 @@
             - The forms' Meta should have a 'fields' attribute (or an 'exclude' one).
             - The session is now serialized as JSON, so stored objects must be serializable.
             - The test runner & the test files layout have changed.
-              Eg: the old command "python manage test persons" has become "python manage test creme.persons.tests".
+              For example, the old command "python manage test persons" has become "python manage test creme.persons.tests".
                 - The python files 'foo.py' must be renamed 'test_foo.py'.
                 - CSVImportBaseTestCaseMixin has moved to 'creme.creme_core.tests.views.base'.
                 - The command 'test_creme' has been removed ('test creme' is OK).
@@ -4243,7 +4244,7 @@
             - Some changes in the session implementation can make some low level tests fail.
             - Some changes in the DB management in unit tests can make some tests fail.
             - The settings for the templates configuration have changed.
-              The setting TEMPLATES replace the settings TEMPLATE_* (eg: TEMPLATE_LOADERS...) which are now deprecated.
+              The setting TEMPLATES replace the settings TEMPLATE_* (e.g. TEMPLATE_LOADERS...) which are now deprecated.
         # Upgrade of several JavaScript libraries :
             - "Jquery" (1.11.2).
                 - For 'checked' property use the prop() method instead of attr() (see jquery doc).
@@ -4439,18 +4440,18 @@
     # A detail view for the PropertyTypes, which shows the tagged entities, has been added.
     # The inner/bulk edition has been improved :
         - The widgets are the same the full form ones, and so :
-            - The creator widgets are now used with configurable models (eg: Invoice.status).
-            - The ForeignKeys to CremeEntities are now well managed (eg: Contact.image).
-            - The ManyToManyFields are now supported (eg: Image.categories).
+            - The creator widgets are now used with configurable models (e.g. Invoice.status).
+            - The ForeignKeys to CremeEntities are now well managed (e.g. Contact.image).
+            - The ManyToManyFields are now supported (e.g. Image.categories).
         - The form of a specific field can be customized in order to manage correctly its business logic (see 'Apps' section).
-        - The support of related sub-fields (eg: Contact.billing_address__city) has been added.
+        - The support of related sub-fields (e.g. Contact.billing_address__city) has been added.
     # List view :
         - The quick search on properties is now possible.
-        - The natural ordering of the models is now applied as default for listview (eg: Organisation are ordered by their name).
+        - The natural ordering of the models is now applied as default for listview (e.g. Organisation are ordered by their name).
           When a column is selected for ordering, both column order and default order are applied.
     # EntityFilters :
         - They can now be private ; it means that they can only be used by their owner.
-        - The conditions on FK fields (eg: Invoice.status) can now use a multi-selection.
+        - The conditions on FK fields (e.g. Invoice.status) can now use a multi-selection.
         - The Empty/NotEmpty operators are enabled only when a field can be null.
         - The Date fields (regular & custom ones) now supports the Empty/NotEmpty operators.
         - The EntityFilters created by the 'populate' scripts (ie: not custom) are now editable (but not deletable, and their name is not editable); their are versioned too.
@@ -4496,7 +4497,7 @@
         * Creme_config :
             - You can not link an existing Contact when you create a User anymore.
             - SettingKey & SettingValue :
-                - The values have a prettier display in their block (eg: 'True' is now a localized "Yes").
+                - The values have a prettier display in their block (e.g. 'True' is now a localized "Yes").
                 - The descriptions are correctly localized.
             - The permissions for the views which configure RelationTypes, PropertyTypes, Blocks... have changed from 'creme_config.can_admin' to 'creme_core.can_admin'.
               The related portals do not need specific permissions anymore.
@@ -4596,7 +4597,7 @@
             - The model SettingValue :
                 - It has moved to creme_core (creme_core.models.setting_value.py).
                 - The field  'key' (ForeignKey) has been replaced by a 'key_id' field (CharField) ;
-                  so you could have to change some of your queries (eg: '.filter(key=MY_KEY)' --> '.filter(key_id=MY_KEY)').
+                  so you could have to change some of your queries (e.g. '.filter(key=MY_KEY)' --> '.filter(key_id=MY_KEY)').
         # HeaderFilter.create() :
             - It does not modify an existing HeaderFilter anymore.
             - The owner cannot be a staff user.
@@ -4751,7 +4752,7 @@
                 - The flattened sub-reports (ie not expanded, see 'selected' attribute) in columns associated to ManyToManyField/ForeignKey/related fields are now used.
                 - The flattened sub-reports manage now all types of columns.
                 - The aggregates are computed in a scope (so result may be different with an aggregate in a sub-report).
-            * Invalid columns are automatically removed (eg: removed CustomField).
+            * Invalid columns are automatically removed (e.g. removed CustomField).
         * Activities, the calendar has been heavily improved :
             * The version of fullcalendar.js has been updated from 1.4.5 to 1.4.7.
             * A new menu has been created, with :
@@ -4900,7 +4901,7 @@
     # Apps :
         * Activities :
             - PhoneCall, Meeting & Tasks models has been removed, their data were moved in the Activity model.
-            - Activities can now have a SubType (eg: 'Incoming' for PhoneCalls).
+            - Activities can now have a SubType (e.g. 'Incoming' for PhoneCalls).
             - You can now omit the start & end dates (then, Activity is floating) or only give the dates but not the hours (floating time).
             - The Relationship "is subject of activity" is now only compatible with the following types :
               Contact, Organisation, Invoice, Quote, SalesOrder, Opportunity, Ticket.
@@ -4929,7 +4930,7 @@
   Developers side :
   -----------------
     # The project layout has changed with Django 1.4 :
-        - Apps are imported with namespace 'creme' (eg: 'creme.persons' instead of 'persons').
+        - Apps are imported with namespace 'creme' (e.g. 'creme.persons' instead of 'persons').
         - The script 'manage.py' is now at the root of the project.
     # Root 'urls.py' generates now automatically urls of all Creme apps : so you don't have to modify this file when you add an app anymore.
     # Credentials changes:
@@ -4937,7 +4938,7 @@
             - CremeEntity.can_*{_or_die} methods are deprecated : use User.has_perm_to_*{_or_die} methods instead.
             - CremeEntity.populate_credentials is deprecated (delete the uses, because they are now useless).
         * The view creme_core.views.generic.edit.edit_model_with_popup() checks now the CremeEntity edition credentials (when the given model is a CremeEntity of course).
-        * The credentials on models are now possible (eg: you can know if the user could link a Contact that is not created yet).
+        * The credentials on models are now possible (e.g. you can know if the user could link a Contact that is not created yet).
     # Lots of changes in creme_core.utils.meta :
         - New system of tags for models fields. Right now, 2 tags are available : 'viewable' & 'clonable'.
         - The following functions have been removed : get_flds_with_fk_flds(), get_flds_with_fk_flds_str().
@@ -5024,7 +5025,7 @@
     # Bug fixes :
         * Creme_config: only superusers can create/edit Users.
         * Activities: 'participates' relationship is now internal (to manage correctly Calendars).
-        * Internal relationships are no more automatically cloned (eg: it caused problems when cloning an Organisation targeted by an Invoice).
+        * Internal relationships are no more automatically cloned (e.g. it caused problems when cloning an Organisation targeted by an Invoice).
         * Some HTML escaping problems fixed.
         * ...
 
@@ -5063,7 +5064,7 @@
         * Improved scrolling for the side menu.
         * Portals have not yet the same name in the preferred menu.
         * Can delete all (allowed) relations on relation block in one click.
-        * Lots of choices are now smartly ordered (eg: predicates in relation creation popup).
+        * Lots of choices are now smartly ordered (e.g. predicates in relation creation popup).
     # Credentials improved :
         * Credentials by type of Entity (ContentType).
         * Exportable types credentials (to export a listview for these types as CSV files).

@@ -51,9 +51,9 @@ You can ask your questions in our forum: https://www.cremecrm.com/forum/index.ph
 ### Recommendations:
 
 It's recommended to use a database engine which supports transactions :
- - PostGreSQL is probably the best choice for data-bases with 100,000+ entities.
+ - PostGreSQL is probably the best choice for databases with 100,000+ entities.
  - SQLite support is principally done for developers, but it remains a solution
-   for small data-bases (eg: a use as mono-user app with the server running of your computer).
+   for small databases (e.g. a use as mono-user app with the server running of your computer).
 
 You probably should use 'virtualenv' (for an upgrade from Creme 2.2, you should create a new
 virtual env, in order to keep the old one working).
@@ -114,7 +114,7 @@ Installation with 'pip':
 Global remarks:
  - You should know how to install/deploy a Django application.
  - Upgrade note: if you already have a Creme installation, upgrade the version one by one
-   (eg: do not try to upgrade from 2.0 to 2.2, upgrade to 2.1 and then 2.2).
+   (e.g. do not try to upgrade from 2.0 to 2.2, upgrade to 2.1 and then 2.2).
 
 Database configuration:
 For a new installation, you have to create a new database & a new DB user
@@ -139,7 +139,7 @@ basic installation with the minimal information you must fill.
 For an upgrade from the previous version of Creme :
  - See the section "UPGRADE NOTE" corresponding to the new version in the file CHANGELOG.txt.
  - Do not remove apps in INSTALLED_APPS during the upgrade (because they are installed in your DB) ;
-   complete your installation & then un-install apps you do not want anymore (see below).
+   complete your installation & then uninstall apps you do not want anymore (see below).
 
 
 Filling the DB tables & creating the static asset:

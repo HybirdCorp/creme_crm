@@ -430,7 +430,7 @@ class UserRoleAdminAppsStep(_UserRoleWizardFormStep):
         help_text=_(
             'These applications can be configured. '
             'For example, the concerned users can create new choices '
-            'available in forms (eg: position for contacts).'
+            'available in forms (e.g. position for contacts).'
         ),
     )
 

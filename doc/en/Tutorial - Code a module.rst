@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-03-2022 for Creme 2.4
+:Version: 13-06-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix
@@ -1315,8 +1315,8 @@ types: ::
 
 So you have to write the creation and deletion codes for these types.
 Typically, for the creation, we create the relationship in the creation form
-of an entity fiche (eg: we assign a veterinary during the beaver creation), or
-in a specific view (eg: a brick which displays related veterinaries, and which
+of an entity fiche (e.g. we assign a veterinary during the beaver creation), or
+in a specific view (e.g. a brick which displays related veterinaries, and which
 allow to add/remove ones).
 
 
@@ -1339,7 +1339,7 @@ a specific view, this one will provide the list of bricks to use ; so the list
 will be defined by the code (unless you code customised configuration system
 for this view, of course).
 
-**Reloading view** : when a change happens in a brick (eg: the user opened from
+**Reloading view** : when a change happens in a brick (e.g. the user opened from
 this brick a *popup* and did a modification), this brick is reloaded, without
 reloading the whole page. If you use a generic view (detailed view or home),
 Creme set automatically the reloading URL (it is stored in HTML), which
@@ -1349,13 +1349,13 @@ specifi view with some bricks, you could have to code your own reloading view
 inject the URL in the template context of your page.
 
 **Dependencies** : when a brick is reloaded, there are often other bricks to
-reload in order to keep the page consistent (eg: when we add a product line in
+reload in order to keep the page consistent (e.g. when we add a product line in
 an invoice, we reload the total brick too). Creme uses a dependencies system,
 which is easy to use by developers, and which give good results.
 Each brick declares a list of dependencies. When a brick must be reloaded, all
 bricks in the page are inspected, and all briks which have at least one
 dependence in common are reloaded too. Most of the time, the dependencies are
-given as a list of model (eg: Contact, Organisation) ; these models the ones
+given as a list of model (e.g. Contact, Organisation) ; these models the ones
 containing the data displayed by the brick. But in some more complex use cases
 it's possible to generate more clever dependencies.
 
@@ -1990,7 +1990,7 @@ In ``creme/persons/apps.py``, we register the search field: ::
 Actions in the list-view
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-In list-views, there is a column to trigger some actions (eg: clone an entity).
+In list-views, there is a column to trigger some actions (e.g. clone an entity).
 On each line, we find a menu to make actions related to the entity
 corresponding to this line ; and in the list header there is a menu with
 actions that use several entities in the same time.
@@ -2480,7 +2480,7 @@ it immediately, you could have not enough time to code its views. The variables
 precaution, but force Creme to considerate these models as not customised ;
 so 'normal' views (and unit tests too) will be used anyway. Nevertheless, you
 must be careful and use only models which are identical to the base model
-(eg: just inherit from abstract models). Otherwise, the base views may work
+(e.g. just inherit from abstract models). Otherwise, the base views may work
 not correctly. So use these variables carefully.
 
 **How-to swap a model in a second time?** imagine you have a production
@@ -2495,7 +2495,7 @@ it's particularly true with the tricky following manipulations).
 
 #. Write a swapping model (in your own app of course), which must be
    **exactly identical** to the model used in DB. Indeed, you just have to
-   inherit the corresponding abstract model (eg: ``AbstractTicket``)
+   inherit the corresponding abstract model (e.g. ``AbstractTicket``)
    **with no new field** (yet).
 
 #. Edit the setting ``<APP>_<MODEL>_MODEL`` to reference your model.
@@ -3169,7 +3169,7 @@ Customising enumerations in filters and list-views
 
 It's possible to change the behaviour of enumerations related to instances
 referenced by a ``ForeignKey`` (or a ``ManyToManyField``), which are used in
-filter forms (eg: choices for the field ``Beaver.status``) and the quick search
+filter forms (e.g. choices for the field ``Beaver.status``) and the quick search
 of list-views. As seen previously, these ``ForeignKey`` must have their tag
 ``enumerable`` to ``True`` in order to return a choices list.
 

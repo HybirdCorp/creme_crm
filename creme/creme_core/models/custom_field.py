@@ -160,7 +160,7 @@ class CustomFieldValue(CremeModel):
     @classmethod
     def _get_4_entities(cls, entities, cfields):
         """Retrieve all custom values for a list of custom fields with the same type.
-        Trick: overload me to optimise the query (eg: use a select_related())
+        Trick: override me to optimise the query (e.g. use a select_related())
         """
         return cls.objects.filter(custom_field__in=cfields, entity__in=entities)
 

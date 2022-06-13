@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -106,7 +106,7 @@ def do_cell_4_regularfield(parser, token):
      - an instance of ContentType (ctype=...).
      - an instance of this model (instance=...).
 
-    The field is a string representing a 'chain' of fields; eg: 'book__author__name'.
+    The field is a string representing a 'chain' of fields, e.g. 'book__author__name'.
 
     Examples:
         {% cell_4_regularfield model=contact_cls field="phone" as phone_cell %}

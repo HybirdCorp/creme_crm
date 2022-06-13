@@ -129,7 +129,7 @@ class CustomFormExtraSubCell:
     verbose_name = '??'
 
     # Is the related form-field required
-    # (eg: for the config to warn about missing required field).
+    # (e.g. for the config to warn about missing required field).
     # NB: we do not use <formfield(...).required> to avoid potential heavy
     #     computing (SQL query to initialize) for a field which could be dropped.
     is_required = True

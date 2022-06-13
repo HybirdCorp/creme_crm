@@ -424,8 +424,8 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             registry.status(FakeContact).get_form('birthday'),
         )
 
-# NB: these 2 tests make some other test cases crash.
-#  eg: Problem with entity deletion: (1146, "Table '....creme_core_subcontact' doesn't exist")
+# NB: these 2 tests make some other test cases crash. Example:
+#     Problem with entity deletion: (1146, "Table '....creme_core_subcontact' doesn't exist")
 # We comment them because entity inheritance is not recommended anyway
 # TODO: uncomment them with a true SubContact model ??
 #    def test_innerforms_inherit01(self):

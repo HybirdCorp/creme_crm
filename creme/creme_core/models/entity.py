@@ -185,14 +185,14 @@ class CremeEntity(CremeModel):
     def get_create_absolute_url() -> str:
         """Returns the url of the creation view of this entity type.
         If '' (void string) is returned, the type can not be created directly.
-        eg: return "/my_app/my_model/add"
+        Example: return "/my_app/my_model/add"
         """
         return ''
 
     def get_edit_absolute_url(self) -> str:
         """Returns the url of the edition view for this instance.
         If '' (void string) is returned, the model can not be edited directly.
-        eg: return "/my_app/my_model/edit/%s" % self.id
+        Example: return "/my_app/my_model/edit/%s" % self.id
         """
         return ''
 

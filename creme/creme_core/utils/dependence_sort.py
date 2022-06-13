@@ -2,7 +2,7 @@
 
 ################################################################################
 #
-# Copyright (c) 2013-2021 Hybird
+# Copyright (c) 2013-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ class DependenciesLoopError(Exception):
 # TODO: can we recycle the temporary lists or do an 'in-place' implementation ?
 def dependence_sort(iterable, get_key, get_dependencies):
     """Sort a sequence of objects that have dependencies between them
-    eg: if A depends on B, B will be before A.
+    For example, if A depends on B, B will be before A.
     @param iterable: Sequence
     @param get_key: Callable that takes one element from 'l', and returns a
            unique key (in 'l') that identifies this element.

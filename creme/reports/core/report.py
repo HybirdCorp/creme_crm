@@ -228,7 +228,7 @@ class ReportHand:
         """
         value = None
 
-        if entity is None:  # eg: a FK column was NULL, or the instance did not pass a filter
+        if entity is None:  # e.g. a FK column was NULL, or the instance did not pass a filter
             if self._report_field.selected:
                 # selected=True => self._report_field.sub_report is not None
                 value = [self._handle_report_values(None, user, scope)]

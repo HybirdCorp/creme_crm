@@ -41,7 +41,7 @@ logger = logging.getLogger(__name__)
 class BricksReloading(generic.CheckedView):
     """This reloading view uses the attribute 'permissions' of the bricks,
     which contains the string(s) corresponding to the permissions to view a brick,
-    eg: permissions = "creme_config.can_admin"
+    e.g. <permissions = "creme_config.can_admin">
 
     Recall: the default value <permissions = ''> means 'no permission required' ;
             use with caution :)

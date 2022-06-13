@@ -284,7 +284,7 @@ class IconRegistry:
         self._icons_4_objects: Dict[Type[Model], _IconInfoFunc] = {}
 
     def register(self, model: Type[Model], path: str) -> IconRegistry:
-        """eg: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
+        """Example: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
         return self
@@ -293,7 +293,7 @@ class IconRegistry:
                             model: Type[Model],
                             info_function: _IconInfoFunc,
                             ) -> IconRegistry:
-        """Setup the registry in order to retrieve an Icon corresponding to an instance of a model.
+        """Set up the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.
 
         @param model: Class inheriting django.db.models.Model.

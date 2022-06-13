@@ -205,7 +205,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                     'No existing super-user found to assign the staff Contact '
                     '(creme_populate has not been run?!) ; you should create a '
                     'super-user & change the owner of this staff Contact in '
-                    'order to avoid some broken behaviours (eg: inner-edition '
+                    'order to avoid some broken behaviours (e.g. inner-edition '
                     'fails).'
                 )
             else:

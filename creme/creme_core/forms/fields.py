@@ -1143,7 +1143,7 @@ class CreatorEntityField(EntityCredsJSONField):
     def q_filter(self, q_filter):
         """
         @param q_filter: Allows to filter the selection. Same meaning than Model.limit_choices_to ;
-               so it can be dictionary (eg: {'user__is_staff': False}),
+               so it can be dictionary (e.g. {'user__is_staff': False}),
                a <django.db.models.query.Q instance>,
                or a callable which returns dictionary/Q.
                <None> means not filtering.
@@ -1645,7 +1645,7 @@ class MultiEmailField(fields.Field):
 
 
 class DatePeriodField(fields.MultiValueField):
-    """Field to choose a date period (eg: "3 weeks").
+    """Field to choose a date period (e.g. "3 weeks").
     Hint: see <creme_core.utils.date_period> too.
     """
     widget = core_widgets.DatePeriodWidget
@@ -1708,7 +1708,7 @@ class DatePeriodField(fields.MultiValueField):
 
 
 class RelativeDatePeriodField(fields.MultiValueField):
-    """Field to choose a relative date period (eg: "3 weeks before", "1 day after").
+    """Field to choose a relative date period (e.g. "3 weeks before", "1 day after").
     Hint: see DatePeriodField too.
     """
     widget = core_widgets.RelativeDatePeriodWidget
@@ -1785,7 +1785,7 @@ class RelativeDatePeriodField(fields.MultiValueField):
 class DateRangeField(fields.MultiValueField):
     """A field which returns a creme_core.utils.DateRange.
     Commonly used with a DateRangeWidget.
-    eg:
+    For example:
         # Use DateRangeWidget with defaults params
         DateRangeField(label=_('Date range'))
 
@@ -1858,7 +1858,7 @@ class ColorField(fields.CharField):
     default_validators = [validators.validate_color]
     widget = core_widgets.ColorPickerWidget
     default_error_messages = {
-        'invalid': _('Enter a valid value (eg: DF8177).'),
+        'invalid': _('Enter a valid value (e.g. DF8177).'),
     }
 
     def __init__(self, *, max_length=6, min_length=6, **kwargs):

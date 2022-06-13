@@ -45,7 +45,7 @@ if TYPE_CHECKING:
 class FunctionFieldResult:
     __slots__ = ('_data',)
 
-    # TODO: str_data => can be Any type (eg: Decimal) ??
+    # TODO: str_data => can be Any type (e.g. Decimal) ??
     def __init__(self, str_data: str):
         self._data: str = str_data
 
@@ -151,7 +151,7 @@ class _FunctionFieldRegistry:
     FunctionFields are registered relatively to a model.
     When retrieving the FunctionFields of a model, the FunctionFields of the
     parent models are returned too.
-     eg: a model inheriting CremeEntity inherits the FunctionFields of CremeEntity.
+    For example, a model inheriting CremeEntity inherits the FunctionFields of CremeEntity.
     """
 
     class RegistrationError(Exception):

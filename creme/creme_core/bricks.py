@@ -76,7 +76,7 @@ class RelationsBrick(QuerysetBrick):
         'A Relationship is: \n'
         '- typed (examples of types: «is a customer of», «has been sent by»)\n'
         '- has a symmetric relationship'
-        ' (eg: «is a customer of» & «is a supplier of» are symmetric)\n'
+        ' (e.g. «is a customer of» & «is a supplier of» are symmetric)\n'
         'App: Core'
     )
 
@@ -371,7 +371,7 @@ class StatisticsBrick(Brick):
     id_ = Brick.generate_id('creme_core', 'statistics')
     verbose_name = _('Statistics')
     description = _(
-        'Displays many statistics (eg: the numbers of customers), depending '
+        'Displays many statistics (e.g. the numbers of customers), depending '
         'on installed apps.\n'
         'App: Core'
     )

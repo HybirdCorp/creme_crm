@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -342,7 +342,7 @@ class DateRangeRegistry:
                   end: Optional[date] = None,
                   ) -> Optional[DateRange]:
         """Get a DateRange.
-        @param name: Name of a registered range (eg: "next_year"),
+        @param name: Name of a registered range (e.g. "next_year"),
                or None if you want a custom range.
         @param start: Start date of custom range.
                Instance of <datetime.date>, or None (named range, only end date).

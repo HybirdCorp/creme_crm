@@ -538,7 +538,7 @@ _PERMS_FUNCS = {
 @register.tag(name='has_perm_to')
 def do_has_perm_to(parser, token):
     """{% has_perm_to TYPE OBJECT as VAR %}
-    eg: {% has_perm_to change action.creme_entity as has_perm %}
+    Example: {% has_perm_to change action.creme_entity as has_perm %}
 
     TYPE: must be in ('create', 'view', 'change', 'delete', 'link', 'unlink',
           'export', 'access', 'admin')

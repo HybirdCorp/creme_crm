@@ -112,7 +112,7 @@ class EntityFilterManager(models.Manager):
             # We build a tuple which can easily compared with the other generated tuples.
             # Example of PKs: 'base_pk' 'base_pk[1.15]' 'base_pk[1.15 alpha]'
             #                 'base_pk[1.15 rc]' 'base_pk[1.15 rc11]' 'base_pk[1.15 rc11]2'
-            # eg: 'base_pk[1.15 rc11]2'
+            # e.g. 'base_pk[1.15 rc11]2'
             #   ==> we extract '1.15', 'aplha', '11' & '2' and build ((1, 15), 'rc', 11, 2)
             search = VERSION_RE.search(efilter.pk)
 
@@ -304,7 +304,7 @@ class EntityFilter(models.Model):  # CremeModel ???
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
     Conditions can be :
-     - On regular fields (eg: CharField, IntegerField) with a special behaviour for date fields.
+     - On regular fields (e.g. CharField, IntegerField) with a special behaviour for date fields.
      - On related fields (through ForeignKey or Many2Many).
      - On CustomFields (with a special behaviour for CustomFields with DATE type).
      - An other EntityFilter
@@ -720,7 +720,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
             if error:
                 # NB: we do not delete the instance of condition, because it can
-                #     be temporarily erroneous (eg: commented app which
+                #     be temporarily erroneous (e.g. commented app which
                 #     registers handler/operator)
                 logger.warning('%s => EntityFilterCondition instance is ignored', error)
             elif model != condition.handler.model:
@@ -788,7 +788,7 @@ class EntityFilterCondition(models.Model):
         - name: used to store the main data of the condition, like the
                 field's name or the RelationType's ID to use.
         - value: used to store other data of filtering (if needed), like the
-                 value of field and the operator (eg: equal, contains, <= ...).
+                 value of field and the operator (e.g. equal, contains, <= ...).
 
     Tip: use the helper methods 'build_condition()' in child-classes of
     'FilterConditionHandler' instead of calling directly the constructor.

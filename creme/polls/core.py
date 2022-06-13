@@ -416,8 +416,8 @@ class EnumOrStringPollLineType(EnumPollLineType):
         return super()._cast_answer_4_decoding(choice) if choice else gettext('Other')
 
     def encode_condition(self, cond_answer):
-        # NB: we use a (json) list, in order to encode complexier conditions later,
-        #     eg: [0, 'My user string']
+        # NB: we use a (json) list, in order to encode more complex conditions later,
+        #     Example: [0, 'My user string']
         return json_encode([cond_answer])
 
     def _formfield(self, initial):

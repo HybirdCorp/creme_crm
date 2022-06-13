@@ -344,7 +344,7 @@ class FieldsConfig(CremeModel):
         @return List of couples (field_name, attributes). 'attributes' is a dictionary
                 which keys are in {FieldsConfig.HIDDEN, FieldsConfig.REQUIRED},
                 and values are Booleans.
-                 eg:
+                Example:
                     [
                         ('phone',    {FieldsConfig.REQUIRED: True}),
                         ('birthday', {FieldsConfig.HIDDEN: True}),

@@ -733,7 +733,7 @@ def creme_app_configs():
 
 def extended_app_configs(app_labels):
     """Get the AppConfigs corresponding to given labels, & their extending AppConfigs.
-    @param app_labels: Iterable of app labels (eg: ['persons', documents']).
+    @param app_labels: Iterable of app labels (e.g. ['persons', documents']).
     @return: Set of AppConfig instances.
     """
     get_app_config = apps.get_app_config

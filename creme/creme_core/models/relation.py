@@ -290,7 +290,7 @@ class RelationType(CremeModel):
     """Type of Relations.
 
     When you want to link (see Relation) to 2 kinds of CremeEntities
-    (eg: Contact & Organisation) you define a type of relation with the
+    (e.g. Contact & Organisation) you define a type of relation with the
     following information :
       - The <predicate>, a string which describes the relation between the
         "subject" & the "object".
@@ -677,7 +677,7 @@ class Relation(CremeModel):
         @param relations: Iterable of Relation objects.
 
         Tips: better if object_entity attribute is already populated
-        -> (eg: use select_related('object_entity') on the queryset)
+        (e.g. by using select_related('object_entity') on the queryset).
         """
         warnings.warn(
             'Relation.populate_real_object_entities() is deprecated ; '

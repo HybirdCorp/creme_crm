@@ -330,8 +330,8 @@ class CremeModelEditionWizard(SingleObjectMixin, CremeWizardView):
 
     Notice that POST requests are managed within a SQL transaction,
     & the related instance is retrieved with a "SELECT ... FOR UPDATE",
-    in order to serialize modifications correctly (eg: 2 form submissions
-    at the same time won't causes some fields modifications of one form to
+    in order to serialize modifications correctly (e.g. 2 form submissions
+    at the same time won't cause some fields modifications of one form to
     be backed out by the 'initial' field value of the other form).
     """
     model = models.CremeModel  # TO BE OVERRIDDEN

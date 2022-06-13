@@ -108,11 +108,11 @@ class EntityCell:
 
         @param model: Related model.
         @param value: How to access to the instance's data
-               (eg: field's name, custom field's ID...).
+               (e.g. field's name, custom field's ID...).
         @param is_hidden: Should the cell be visible ? Notice that a hidden cell
                will be present in the list-views with a style <display: none;>.
         @param is_excluded: Should the cell be totally ignored.
-               (eg: field hidden by configuration).
+               (e.g. field hidden by configuration).
                Contrarily to 'is_hidden', the cell won't be present in the
                list-views for example.
 
@@ -437,7 +437,7 @@ class EntityCellRegularField(EntityCell):
         """ Helper function to build EntityCellRegularField instances.
 
         @param model: Class inheriting <django.db.models.Model>.
-        @param name: String representing a 'chain' of fields; eg: 'book__author__name'.
+        @param name: String representing a 'chain' of fields, e.g. 'book__author__name'.
         @param is_hidden: Boolean. See EntityCell.is_hidden.
         @return: An instance of EntityCellRegularField, or None (if an error occurred).
         """

@@ -131,7 +131,7 @@ class ModelRelativeDatePeriodWidget(widgets.MultiWidget):
 # TODO: in creme_core ?
 # TODO: manage CustomFields
 class ModelRelativeDatePeriodField(fields.MultiValueField):
-    """Field to choose a relative date period (eg: "3 weeks before", "1 day after")
+    """Field to choose a relative date period (e.g. "3 weeks before", "1 day after")
     & a (date) model field.
     Hint: see RelativeDatePeriodField too.
     """

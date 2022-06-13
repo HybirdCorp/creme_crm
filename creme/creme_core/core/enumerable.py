@@ -36,7 +36,7 @@ class Enumerator:
     def __init__(self, field: Field):
         """Constructor.
 
-        @param field: Instance of model field (eg: MyModel._meta.get_field('my_field')).
+        @param field: Instance of model field (e.g. MyModel._meta.get_field('my_field')).
         """
         self.field = field
 

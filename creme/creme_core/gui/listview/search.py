@@ -118,7 +118,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
 
     The returned search-field can be customised depending on the model class
     referenced by the ForeignKey/ManyToManyField/...
-    (eg: for ForeignKey(MyAuxiliaryModel, ...) )
+    (e.g. for ForeignKey(MyAuxiliaryModel, ...) )
     The default field can be customised too (used when the related model has
     no specific search-field).
     """
@@ -205,8 +205,8 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
     model fields (CharField, BooleanField, ForeignKey...).
 
     The returned search-field can be customised depending on (from greater priority to lesser):
-      - A model-field (eg: the field "name" of your model <Book>).
-      - The class of the model-field (eg: fields which have class inheriting CharField).
+      - A model-field (e.g. the field "name" of your model <Book>).
+      - The class of the model-field (e.g. fields which have class inheriting CharField).
 
     There is a special case for model-fields which have choices.
     """
