@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'EMAILS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i "tests/*" --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-17 00:03+0100\n"
+"POT-Creation-Date: 2022-06-13 16:19+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -269,11 +269,11 @@ msgid "Write a valid e-mail address per line."
 msgstr "Mettez une adresse e-mail par ligne."
 
 msgid ""
-"A file containing one e-mail address per line (eg:creme@crm.com without "
-"quotation marks)."
+"A file containing one e-mail address per line (e.g. \"creme@crm.com\" "
+"without quotation marks)."
 msgstr ""
-"Un fichier contenant une adresse e-mail par ligne (ex:creme@crm.com sans "
-"guillemets)."
+"Un fichier contenant une adresse e-mail par ligne (ex: \"creme@crm.com\" "
+"sans les guillemets)."
 
 msgid "CSV file"
 msgstr "Fichier CSV"

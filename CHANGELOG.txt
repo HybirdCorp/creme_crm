@@ -1,5 +1,7 @@
 == Version 2.3.5 Work in progress (not released -- this is a draft) ==
 
+  TODO: recompile .mo (creme_config, emails)
+
 
 == Version 2.3.4 ==
 
