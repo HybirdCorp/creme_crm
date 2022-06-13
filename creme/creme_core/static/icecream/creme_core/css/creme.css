@@ -387,9 +387,11 @@ button {
     padding-top: 3px;
 }
 
+/*
 .block_header tbody tr td:hover {
     background-color: transparent;
 }
+*/
 
 .help-sign {
     display: flex;
