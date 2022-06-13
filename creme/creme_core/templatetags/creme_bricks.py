@@ -53,18 +53,18 @@ def brick_header_title(context, title,
 
     @param context: Template context.
     @param title: Title of the brick. If you want to display a number of items
-           (eg: number of lines in this brick) & so pluralize the title, use a
+           (e.g. number of lines in this brick) & so pluralize the title, use a
            format variable '{count}' and the parameter 'plural'.
     @param plural: Title to use with a plural number of items. If you set it,
            it must use format variable '{count}' & the parameter 'title' too.
     @param empty: Title to use it there no items in the bricks.
-    @param icon: The string identifying an Icon (eg: 'add'), or an Icon instance
-           (see the templatetag {% widget_icon  %} of the lib creme_widget.
+    @param icon: The string identifying an Icon (e.g. 'add'), or an Icon instance
+           (see the templatetag {% widget_icon  %} of the lib creme_widget).
            Default is 'info' icon.
     @param count: Number of items in the bricks. If you don't set it, & the
            brick is paginated, the paginator's count is used.
     @param selection_title: Additional text displayed in title of bricks which
-           allows to select items. The related brick must have the class
+           allows selecting items. The related brick must have the class
            'brick-selectable' & a column with class 'data-selectable-selector-column'.
            Must use a format variable '%s'.
            If set, the parameter 'selection_plural' must be set too.
@@ -194,7 +194,7 @@ def brick_action(context, id, url='',
            Most of the actions need the URL to be given (see 'id' documentation).
     @param label: String. Default labels are available for some action IDs
            (see DEFAULT_ACTION_LABELS), if not, the placeholder 'Information' will be used.
-    @param icon: The string identifying an Icon (eg: 'add'), or an Icon instance
+    @param icon: The string identifying an Icon (e.g. 'add'), or an Icon instance
            (see the templatetag {% widget_icon  %} of the lib creme_widget).
            Default is None ; but when an icon is need (parameter 'display' is
            'icon or 'both') but no 'icon' is given, the parameter 'type' & 'id'
@@ -954,8 +954,8 @@ def brick_declare(context, *bricks):
 @register.simple_tag
 def brick_get_by_ids(*brick_ids, **kwargs):
     """ Get a list of instances of registered Brick, from a list of brick IDs.
-    It's useful to get information on a Brick when we only get it's ID
-    (eg: it's stored in an instance of BrickHomeLocation).
+    It's useful to get information on a Brick when we only get its ID
+    (e.g. it's stored in an instance of BrickHomeLocation).
 
         {% load creme_bricks %}
 

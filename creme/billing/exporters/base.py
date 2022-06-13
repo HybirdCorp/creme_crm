@@ -51,8 +51,8 @@ class ExporterFlavour:
     """Variation to use for a given engine."""
     def __init__(self, country='', language='', theme=''):
         """Constructor.
-        @param country: country code (eg: 'FR').
-        @param language: language code (eg: 'fr_FR').
+        @param country: country code (e.g. 'FR').
+        @param language: language code (e.g. 'fr_FR').
         @param theme: name of the theme
         """
         self.country = country

@@ -59,7 +59,7 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         self._addresses_to_delete: List[Address] = []
         # NB: str is an attribute name of a ForeignKey to Address
-        #     (eg: "billing_address") which have to be set.
+        #     (e.g. "billing_address") which have to be set.
         #     An empty string means no attribute to set.
         self._addresses_to_save: List[Tuple[Address, str]] = []
 

@@ -84,9 +84,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
        the list content.
 
     Other features :
-     - Single & multi UIActions (eg: 'view', 'edit', ...). See the method
+     - Single & multi UIActions (e.g. 'view', 'edit', ...). See the method
        'get_actions_registry()' to override the list of actions in a view inheriting this class.
-     - Buttons (eg: creation of an entity, CSV export...). See the method
+     - Buttons (e.g. creation of an entity, CSV export...). See the method
        'get_buttons(self)' to override the displayed button in a view inheriting this class.
      - Additional queries to filter the rows/content (ie: entities displayed):
         - from the HTTP request with the parameter "q_filter".
@@ -331,7 +331,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         arg_name = self.requested_q_arg
         json_q_filter = self.arguments.get(arg_name)
 
-        # TODO: better validation (eg: corresponding EntityCell allowed + searchable ?) ?
+        # TODO: better validation (e.g. corresponding EntityCell allowed + searchable ?) ?
         #  - limit the max depth of sub-fields chain ?
         #  - do no allow all fields ?
         if json_q_filter:

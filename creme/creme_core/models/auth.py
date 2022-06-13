@@ -263,7 +263,7 @@ class UserRole(models.Model):
         Beware, the model class must be a child class of CremeEntity,
         but cannot be CremeEntity itself.
 
-        @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser) ;
+        @param user: A <django.contrib.auth.get_user_model()> instance (e.g. CremeUser) ;
                      should be related to the UserRole instance.
         @param queryset: A Queryset on a child class of CremeEntity.
         @param perm: A combination of values in (EntityCredentials.{VIEW, CHANGE} etc...).
@@ -292,7 +292,7 @@ class UserRole(models.Model):
         Beware, model class must be CremeEntity ; it cannot be a child class
         of CremeEntity.
 
-        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser) ;
+        @param user: A django.contrib.auth.get_user_model() instance (e.g. CremeUser) ;
                should be related to the UserRole instance.
         @param queryset: A Queryset with model=CremeEntity.
         @param perm: A value in EntityCredentials.{VIEW, CHANGE, ...}.
@@ -582,7 +582,7 @@ class SetCredentials(models.Model):
         but cannot be CremeEntity itself.
 
         @param sc_sequence: A sequence of SetCredentials instances.
-        @param user: A <django.contrib.auth.get_user_model()> instance (eg: CremeUser).
+        @param user: A <django.contrib.auth.get_user_model()> instance (e.g. CremeUser).
         @param queryset: A Queryset on a child class of CremeEntity.
         @param perm: A combination of values in EntityCredentials.{VIEW, CHANGE, ...}.
                Eg: 'EntityCredentials.DELETE'
@@ -612,7 +612,7 @@ class SetCredentials(models.Model):
         of CremeEntity.
 
         @param sc_sequence: A sequence of SetCredentials instances.
-        @param user: A django.contrib.auth.get_user_model() instance (eg: CremeUser).
+        @param user: A django.contrib.auth.get_user_model() instance (e.g. CremeUser).
         @param queryset: Queryset with model=CremeEntity.
         @param perm: A value in EntityCredentials.{VIEW, CHANGE, ...}.
                If the argument "as_model" is not None, you can use a combination
@@ -1002,8 +1002,8 @@ class CremeUser(AbstractBaseUser):
     def settings(self) -> UserSettingValueManager:
         """Get a manager to read or write extra settings stored in the user instance.
 
-        eg:
-            # NB sk in an instance of <creme_core.core.setting_key.UserSettingKey>
+        Example:
+            # NB: 'sk' in an instance of <creme_core.core.setting_key.UserSettingKey>
 
             # Read
             value = my_user.settings.get(sk)
@@ -1162,7 +1162,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_create(self, model_or_entity: _EntityInstanceOrClass) -> bool:
         """Helper for has_perm() method.
-        eg: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
+        Example: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
         """
         meta = model_or_entity._meta
         return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
@@ -1194,7 +1194,7 @@ class CremeUser(AbstractBaseUser):
     # TODO: factorise with has_perm_to_create() ??
     def has_perm_to_export(self, model_or_entity: _EntityInstanceOrClass) -> bool:
         """Helper for has_perm() method.
-        eg: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
+        Example: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
         meta = model_or_entity._meta
         return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')

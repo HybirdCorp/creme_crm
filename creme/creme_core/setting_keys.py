@@ -18,7 +18,7 @@ block_showempty_key = SettingKey(
 currency_symbol_key = SettingKey(
     id=constants.DISPLAY_CURRENCY_LOCAL_SYMBOL,
     description=_(
-        'Display the currency local symbol (ex: €) ? '
+        'Display the currency local symbol (e.g. €)? '
         'If no the international symbol will be used (ex: EUR)'
     ),
     app_label='creme_core', type=SettingKey.BOOL,

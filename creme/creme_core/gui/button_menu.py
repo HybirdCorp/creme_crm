@@ -59,7 +59,7 @@ class Button:
 
     # permission: Optional[str] = None
     # Permission string(s) ; an empty value means no permission is needed.
-    #  eg: 'myapp.add_mymodel'
+    # Example: <'myapp.add_mymodel'>
     # BEWARE: you have to use the template context variable "has_perm"
     #         (computed from 'permissions' -- see 'has_perm()' ) yourself !!
     permissions: Union[str, Sequence[str]] = ''
@@ -74,9 +74,9 @@ class Button:
 
     def get_ctypes(self) -> Sequence[Type[CremeEntity]]:
         """
-        @return A sequence of CremeEntity class that can have this type of button.
+        @return A sequence of CremeEntity classes that can have this type of button.
                 Void sequence means that all types are ok.
-                eg: (Contact, Organisation)
+                For example: (Contact, Organisation)
         """
         return ()
 

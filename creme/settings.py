@@ -40,7 +40,7 @@ CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
 # NB: it's recommended to :
 #   - use a database engine that supports transactions
 #     (ie: not MyISAM for MySQL, which uses now INNODB by default).
-#   - configure your database to use utf8 (eg: with MySQL, 'utf8_general_ci' is OK).
+#   - configure your database to use utf8 (e.g. with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
         # Possible backends: 'postgresql', 'mysql', 'sqlite3'.
@@ -235,7 +235,7 @@ STATIC_ROOT = join(CREME_ROOT, 'media', 'static')
 
 # Make this unique, and don't share it with anybody.
 # Use the command 'build_secret_key' to generate it.
-# eg: SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
+# e.g. SECRET_KEY = '1&7rbnl7u#+j-2#@5=7@Z0^9v@y_Q!*y^krWS)r)39^M)9(+6('
 SECRET_KEY = ''
 
 # A list of strings representing the host/domain names that this Django site can serve.
@@ -369,7 +369,7 @@ INSTALLED_CREME_APPS = [
     #   - they can generate CSV/XLS files containing information about entities,
     #     generally filtered on a date range.
     #   - they can be used by special blocks to display some statistics
-    #     (eg: number of related Invoices per month in the current year) as
+    #     (e.g. number of related Invoices per month in the current year) as
     #     histograms/pie-charts...
     'creme.reports',
 
@@ -398,7 +398,7 @@ INSTALLED_CREME_APPS = [
 
     # Manages several types of entities related to salesmen :
     #   - Act (commercial actions), which are used to define some goals to reach
-    #     (eg: a minimum number of people met on a show).
+    #     (e.g. a minimum number of people met on a show).
     #   - Strategy to study market segments, assets & charms.
     # BEWARE: needs the apps "activities & "opportunities".
     'creme.commercial',
@@ -1179,28 +1179,28 @@ COPY_MEDIA_FILETYPES = {
 
 # APPS CONFIGURATION ###########################################################
 
-# If you change a <APP>_<MODEL>_MODEL setting (eg: PERSONS_CONTACT_MODEL) in order
-# to use your own model class (eg: 'my_persons.Contact') :
+# If you change a <APP>_<MODEL>_MODEL setting (e.g. PERSONS_CONTACT_MODEL) in order
+# to use your own model class (e.g. 'my_persons.Contact') :
 #   - It will be easier to inherit the corresponding abstract class
-#     (eg: persons.model.AbstractContact).
-#   - you should keep the same class name (eg: 'my_persons.Contact' replaces
+#     (e.g. persons.model.AbstractContact).
+#   - you should keep the same class name (e.g. 'my_persons.Contact' replaces
 #     'persons.Contact') in order to avoids problems (mainly with related_names).
 #   - You have to manage the migrations of your model
 #     (see the django command 'makemigrations').
 #   - In your file my_app.urls.py, you have to define the URLs which are only
 #     defined for vanilla models
-#     (eg: see persons.urls.py => 'if not contact_model_is_custom()' block).
+#     (e.g. see persons.urls.py => 'if not contact_model_is_custom()' block).
 #     You can use the vanilla views or define your own ones (by calling
 #     the abstract views or by writing them from scratch).
 #   - You probably should copy (in your 'tests' module) then modify the unit
 #     tests which are skipped for custom models, & make them pass.
 #
 # But if you set the related <APP>_<MODEL>_FORCE_NOT_CUSTOM setting
-# (eg: PERSONS_CONTACT_FORCE_NOT_CUSTOM for PERSONS_CONTACT_MODEL) to 'True'
+# (e.g. PERSONS_CONTACT_FORCE_NOT_CUSTOM for PERSONS_CONTACT_MODEL) to 'True'
 # when you use a custom model, the model will not be considered as custom.
 # So the vanilla URLs will be defined on the vanilla views (& tests will not
 # be skipped). YOU MUST USE THIS FEATURE WITH CAUTION ; it's OK if your model
-# is identical to the vanilla model (eg: he just inherits the abstract class)
+# is identical to the vanilla model (e.g. he just inherits the abstract class)
 # or it has some not required additional fields. In the other cases it is
 # probably a bad idea to set the *_FORCE_NOT_CUSTOM setting to 'True' (ie
 # you should define URLs etc...).
@@ -1352,9 +1352,9 @@ CREME_SAMOUSSA_PASSWORD = ''
 # CRUDITY -----------------------------------------------------------------------
 # EMail parameters to sync external emails in Creme
 # email address where to send the emails to sync (used in email templates)
-#  eg: creme@cremecrm.org
+# For example: creme@cremecrm.org
 CREME_GET_EMAIL              = ''
-# server URL (eg: pop.cremecrm.org)  -- only pop supported for now.
+# server URL (e.g. pop.cremecrm.org)  -- only pop supported for now.
 CREME_GET_EMAIL_SERVER       = ''
 CREME_GET_EMAIL_USERNAME     = ''
 CREME_GET_EMAIL_PASSWORD     = ''
@@ -1367,7 +1367,7 @@ CREME_GET_EMAIL_SSL_CERTFILE = ''
 
 # Path to a readable directory. Used by the fetcher 'filesystem'.
 # The contained files are used to create entity
-# (eg: the input 'ini' used .ini files) ; used files are deleted.
+# (e.g. the input 'ini' used .ini files) ; used files are deleted.
 CRUDITY_FILESYS_FETCHER_DIR = ''
 
 # CRUDITY_BACKENDS configures the backends (it's a list of dict)
@@ -1455,7 +1455,7 @@ POLLS_REPLY_FORCE_NOT_CUSTOM    = False
 
 # MOBILE -----------------------------------------------------------------------
 # Domain of the complete version (in order to go to it from the mobile version).
-# eg: 'http://mydomain' #No end slash!
+# For example: 'http://mydomain'  # No end slash!
 # '' means that there is only one domain for the complete & the mobile versions ;
 # so SITE_DOMAIN will be used.
 NON_MOBILE_SITE_DOMAIN = ''

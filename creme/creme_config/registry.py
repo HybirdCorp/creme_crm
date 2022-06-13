@@ -434,7 +434,7 @@ class _ConfigRegistry:
     def get_app_registry(self, app_label: str, create=False) -> _AppConfigRegistry:
         """ Get the instance of AppConfigRegistry related to a specific app.
 
-        @param app_label: String (eg: 'creme_core').
+        @param app_label: String (e.g. 'creme_core').
         @param create: If True, the AppConfigRegistry is created if needed.
         @return: Instance of <AppConfigRegistry>.
         @raise LookupError: If the app does not exist or does not have a registry.
@@ -463,7 +463,7 @@ class _ConfigRegistry:
         is the app_label of the extended app.
         So we get only one AppConfigRegistry for an app & all its extending apps.
 
-        @param app_label: String (eg: 'creme_core').
+        @param app_label: String (e.g. 'creme_core').
         @raise LookupError: If the app does not exist.
         @return String.
         """

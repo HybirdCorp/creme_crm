@@ -100,7 +100,7 @@ class CallbackMixin:
 
 
 # NB: we do not use 'django.contrib.auth.mixins.AccessMixin' because its API would
-#     be confusing with ours (eg: handle_no_permission() & get_permission_denied_message()
+#     be confusing with ours (e.g. handle_no_permission() & get_permission_denied_message()
 #     are only about logging-in, while we have check_view_permissions()...)
 class PermissionsMixin:
     """Mixin that helps checking the global permission of a view.
@@ -522,7 +522,7 @@ class CremeFormPopup(CremeFormView):
 
 class RelatedToEntityFormPopup(EntityRelatedMixin, CremeFormPopup):
     """ This is a specialisation of CremeFormPopup made for changes
-    related to a CremeEntity (eg: create several instances at once linked
+    related to a CremeEntity (e.g. create several instances at once linked
     to an entity).
     """
     title = '{entity}'

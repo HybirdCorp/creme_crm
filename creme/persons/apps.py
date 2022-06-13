@@ -305,7 +305,7 @@ class PersonsConfig(CremeAppConfig):
                 fields = this.fields
 
                 get_ct = ContentType.objects.get_for_model
-                # TODO: what if there is no choice (eg: all disabled)?
+                # TODO: what if there is no choice (e.g. all disabled)?
                 fields['relation'].queryset = RelationType.objects.filter(
                     subject_ctypes=get_ct(self.Contact),
                     symmetric_type__subject_ctypes=get_ct(self.Organisation),

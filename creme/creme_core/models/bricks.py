@@ -812,7 +812,7 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     @property
     def filtered_cells(self) -> Iterator['EntityCell']:
         """Generators which yields non excluded EntityCell instances.
-        (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
+        (e.g. fields not hidden with FieldsConfig, CustomFields not deleted).
         """
         for cell in self.cells:
             if not cell.is_excluded:

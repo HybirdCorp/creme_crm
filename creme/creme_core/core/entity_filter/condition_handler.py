@@ -459,7 +459,7 @@ class RegularFieldConditionHandler(OperatorConditionHandlerMixin,
             raise cls.ValueError(str(e)) from e
 
         try:
-            # TODO: cast more values (eg: integers instead of "digit" string)
+            # TODO: cast more values (e.g. integers instead of "digit" string)
             values = operator_obj.validate_field_values(
                 field=finfo[-1], values=values, user=user,
                 efilter_registry=cls.efilter_registry,

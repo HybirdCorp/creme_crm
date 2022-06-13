@@ -135,14 +135,14 @@ def persons_addresses_formblock_fields(form, address_fks, zip_fields=True):
     grouped_fields = []
 
     # NB: we expect that AddressesGroup injects corresponding fields in the
-    #     same order (eg: "city" as first for billing & shipping, then "zipcode"...)
+    #     same order (e.g. "city" as first for billing & shipping, then "zipcode"...)
     for fk in address_fks:
         prefix = f'{fk.name}-'
 
         meta.append({
             'title': fk.verbose_name,
             # 'prefix': prefix,
-            'prefix': fk.name,  # NB: JQuery |= filter already adds an hyphen
+            'prefix': fk.name,  # NB: JQuery |= filter already adds a hyphen
         })
         grouped_fields.append(
             [field for field in form if field.name.startswith(prefix)]

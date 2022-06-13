@@ -228,7 +228,7 @@ class Line(CremeEntity):
 
     @staticmethod
     def related_item_class():
-        """Returns the model-class of the related item (eg: Product, Service)
+        """Returns the model-class of the related item (e.g. Product, Service)
         for this class of line.
         """
         raise NotImplementedError

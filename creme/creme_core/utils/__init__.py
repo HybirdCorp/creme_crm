@@ -106,8 +106,8 @@ def replace_related_object(old_instance, new_instance):
 
 
 def _get_from_request_or_404(method, method_name, key, cast=None, **kwargs):
-    """@param cast: A function that cast the return value,
-                    and raise an Exception if it is not possible (eg: int).
+    """@param cast: A function that casts the return value, and raise an
+              Exception if it is not possible (e.g. int).
     """
     value = method.get(key)
 
@@ -330,10 +330,10 @@ def prefixed_truncate(s: str, prefix, length: int) -> str:
     """Truncates a string if it is too long ; when a truncation is done, the given prefix is added.
     The length of the result is always less than or equal than the given length.
 
-    @param s: A str instance.
-    @param prefix: An object which can be "stringified" ; eg: a string, a gettext_lazy instance.
+    @param s: A string instance.
+    @param prefix: An object which can be "stringified" (e.g. a string, a gettext_lazy instance).
     @param length: An integer.
-    @return: A str.
+    @return: A string.
     """
     if len(s) <= length:
         return s

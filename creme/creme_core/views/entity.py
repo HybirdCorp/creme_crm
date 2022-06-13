@@ -293,7 +293,7 @@ class SearchAndView(base.CheckedView):
 
 
 # TODO: remove when bulk_update_registry has been rework to manage different
-#       types of cells (eg: RelationType => LINK)
+#       types of cells (e.g. RelationType => LINK)
 def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model...
     # TODO: factorise
     owner = entity.get_related_entity() if hasattr(entity, 'get_related_entity') else entity

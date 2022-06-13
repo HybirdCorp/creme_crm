@@ -296,7 +296,7 @@ class Importer:
         Internal data are built using deserialized_data ; it can raise various
         exception types during this process (ValueError, KeyError) which
         indicates data error to the caller.
-        If an error is due to the user (eg: some imported data are colliding
+        If an error is due to the user (e.g. some imported data are colliding
         with existing data, & it can lead to tricky errors), a ValidationError
         with an human-readable message is raised.
 

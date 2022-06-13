@@ -325,7 +325,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
         # get also the sub-fields of ForeignKeys for example). We take care of
         # the FieldsConfig which can hide fields (ie: have to be removed from
-        # the choices) ; but if a field was already selected (eg: the field
+        # the choices) ; but if a field was already selected (e.g. the field
         # has been hidden _after_), it is not hidden, in order to not remove it
         # from the configuration (of HeaderFilter, CustomBlock...) silently
         # during its next edition.
@@ -341,8 +341,8 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
                 # field = field_info[-1]
                 # non_hiddable_fnames[field.model].add(field.name)
                 #
-                # # BEWARE: if a sub-field (eg: 'image__name') cannot be hidden,
-                # # the related field (eg: 'image') cannot be hidden.
+                # # BEWARE: if a sub-field (e.g. 'image__name') cannot be hidden,
+                # # the related field (e.g. 'image') cannot be hidden.
                 # if len(field_info) == 2:
                 #     non_hiddable_fnames[model].add(field_info[0].name)
                 length = len(field_info)
@@ -354,14 +354,14 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
 
                     root = field_info[0]
 
-                    # NB: not 'field.model' because of inheritance
-                    #     eg: ('image' is a FK to 'documents.models.Document')
-                    #         the field 'image__description' must reference
-                    #         Document, not CremeEntity.
+                    # NB: not 'field.model' because of inheritance.
+                    #     For example, (remember that 'image' is a FK to
+                    #     'documents.models.Document') the field
+                    #     'image__description' must reference Document, not CremeEntity.
                     non_hiddable_fnames[root.related_model].add(field_info[1].name)
 
-                    # NB: if a sub-field (eg: 'image__name') cannot be hidden,
-                    #     the related field (eg: 'image') cannot be hidden.
+                    # NB: if a sub-field (e.g. 'image__name') cannot be hidden,
+                    #     the related field (e.g. 'image') cannot be hidden.
                     non_hiddable_fnames[model].add(root.name)
 
         def field_excluder(*, model, field, depth):

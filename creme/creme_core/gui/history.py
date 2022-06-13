@@ -708,7 +708,7 @@ class HTMLMassExportExplainer(HistoryLineExplainer):
 # ------------------------------------------------------------------------------
 class HistoryRegistry:
     """Registry for HistoryLineExplainers & FieldChangeExplainers.
-    Each registry should be dedicated to one format (eg: HTML for the brick).
+    Each registry should be dedicated to one format (e.g. HTML for the brick).
     """
     def __init__(self, default_field_explainer_class=FieldChangeExplainer):
         self._line_explainer_classes = {}

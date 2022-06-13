@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -72,10 +72,10 @@ class CrudityBackend:
     # model = None
     model: Type[CremeEntity]     # OVERRIDE THIS IN on your own backend.
 
-    # These ones are set by the registry.dispatch()
-    fetcher_name: str = ''  # Name of the fetcher (eg: 'emails')
+    # These are set by the registry.dispatch()
+    fetcher_name: str = ''  # Name of the fetcher (e.g. 'emails')
     # TODO: useless with 'crud_input' attribute ?
-    input_name: str = ''  # Name of the CrudityInput (eg: 'raw')
+    input_name: str = ''  # Name of the CrudityInput (e.g. 'raw')
 
     password: str = ''   # Password to check permission
 

@@ -42,11 +42,11 @@ class JobProgress:
     def __init__(self, percentage: Optional[int], label: str = ''):
         """Constructor.
 
-        @param percentage: percentage of the progress (eg: 53 for '53%').
+        @param percentage: percentage of the progress (e.g. 53 for '53%').
                None means that we cannot precise a percentage
                (so an 'infinite' loop should be displayed).
         @param label: string corresponding to the progress
-               (eg: "53 entities have been processed").
+               (e.g. "53 entities have been processed").
                If the label is empty, the percentage will be used.
         """
         self.percentage = percentage
@@ -72,7 +72,7 @@ class JobType:
         - verbose_name: is used in the Job views, in order to have a user-friendly display.
         - periodic: must be in {NOT_PERIODIC, PSEUDO_PERIODIC, PERIODIC}
 
-    NOT_PERIODIC: one shot Job (eg: CSV import). Must be a User Job.
+    NOT_PERIODIC: one shot Job (e.g. CSV import). Must be a User Job.
     PERIODIC: these system Jobs are run every Job.periodicity.as_timedelta().
     PSEUDO_PERIODIC: these Jobs have a dynamic 'period' (so it is not really a period).
                      They can compute the next time they should be run.

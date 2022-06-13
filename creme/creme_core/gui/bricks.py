@@ -142,8 +142,8 @@ class Brick:
     # of its dependencies models.
     # (ie: the brick is only used to display these instances ;
     # there is no inner-popup to create/edit/delete/...)
-    #   ---> so when this brick is reloaded (eg: to change the pagination),
-    #   it does not causes the dependant bricks to be reloaded
+    #   ---> so when this brick is reloaded (e.g. to change the pagination),
+    #   it does not cause the dependant bricks to be reloaded
     #   (but it is still reloaded when the dependant bricks are reloaded of course).
     read_only: bool = False
 
@@ -168,9 +168,9 @@ class Brick:
     # permissions to avoid information leaking.
     # It can be:
     #  - a classical permission string
-    #     eg: permissions = 'my_app'
+    #    Example: <permissions = 'my_app'>
     #  - a sequence of permission strings
-    #     eg: permissions = ['my_app1', 'my_app2.can_admin']
+    #    Example: <permissions = ['my_app1', 'my_app2.can_admin']>
     # An empty value (like the default empty string) means "No special permission required".
     permissions: Union[str, Sequence[str]] = ''
 
@@ -398,7 +398,7 @@ class QuerysetBrick(PaginatedBrick):
     """
     context_class = _QuerysetBrickContext
 
-    # Default order_by value (eg: 'name', '-creation_date').
+    # Default order_by value (e.g. 'name', '-creation_date').
     # '' means that no order_by() command will be added by the brick (but the
     # natural ordering of the model is kept of course).
     # BEWARE: if you want to use columns with the 'sort' feature
@@ -836,7 +836,7 @@ class _BrickRegistry:
 
     def register_invalid_models(self, *models: Type[CremeEntity]) -> _BrickRegistry:
         """Register some models which cannot have a configuration for Bricks on
-        their detail-views (eg: they have no detail-view, or they are not 'classical' ones).
+        their detail-views (e.g. they have no detail-view, or they are not 'classical' ones).
         @param models: Classes inheriting CremeEntity.
         """
         add = self._invalid_models.add

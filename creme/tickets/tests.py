@@ -202,7 +202,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(numbers2))
 
     def test_get_resolving_duration01(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)."
+        "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
         user = self.login()
 
         get_status = Status.objects.get
@@ -228,7 +228,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
 
     def test_get_resolving_duration02(self):
-        "Resolving duration with CLOSED_PK + closing_date=None (eg: CSV import)."
+        "Resolving duration with CLOSED_PK + closing_date=None (e.g. CSV import)."
         user = self.login()
 
         ticket = Ticket.objects.create(

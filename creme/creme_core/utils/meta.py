@@ -74,7 +74,7 @@ class FieldInfo:
         """ Constructor.
 
         @param model: Class inheriting django.db.models.Model.
-        @param field_name: String representing a 'chain' of fields; eg: 'book__author__name'.
+        @param field_name: String representing a 'chain' of fields, e.g. 'book__author__name'.
         @throws FieldDoesNotExist
         """
         fields: List[Field] = []

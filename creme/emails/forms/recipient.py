@@ -34,7 +34,7 @@ from ..models import EmailRecipient
 def _detect_end_line(uploaded_file):
     """Returns the end of line sequence (Unix/Windows/Mac ar handled).
     @param uploaded_file: instance with a method chunks() which yields strings
-                          (like Django's UploadedFile)
+           (like Django's UploadedFile).
     """
     split_end = False  # '\r' at the end of a chunk, '\n' at the start of the next one.
 
@@ -89,7 +89,7 @@ class MailingListAddCSVForm(CremeForm):
         label=_('Recipients'),
         help_text=_(
             'A file containing one e-mail address per line '
-            '(eg:creme@crm.com without quotation marks).'
+            '(e.g. "creme@crm.com" without quotation marks).'
         )
     )
 

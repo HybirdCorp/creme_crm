@@ -279,7 +279,7 @@ class HeaderFilter(models.Model):  # CremeModel ???
     @property
     def filtered_cells(self) -> List['EntityCell']:
         """List of not excluded EntityCell instances.
-        (eg: fields not hidden with FieldsConfig, CustomFields not deleted).
+        (e.g. fields not hidden with FieldsConfig, CustomFields not deleted).
         """
         return [cell for cell in self.cells if not cell.is_excluded]
 

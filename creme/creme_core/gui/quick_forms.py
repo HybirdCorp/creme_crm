@@ -34,7 +34,7 @@ class QuickFormsRegistry:
 
     These forms are used :
       - in the main menu (entry "+Creation").
-      - in the form-fields to link to other entities (eg: CreatorEntityField).
+      - in the form-fields to link to other entities (e.g. CreatorEntityField).
 
     Each form-class is associated to a model (class inheriting CremeEntity).
     """

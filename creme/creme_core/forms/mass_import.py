@@ -120,7 +120,7 @@ class UploadForm(CremeForm):
         label=_('Header present ?'), required=False,
         help_text=_(
             'Does the first line of the line contain '
-            'the header of the columns (eg: "Last name","First name") ?'
+            'the header of the columns (e.g. "Last name","First name")?'
         ),
     )
 

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -92,7 +92,7 @@ FIELDTYPES_STRING = {
 class ConditionOperator:
     """Some child classes of
     <creme_core.core.entity_filter.condition_handler.FilterConditionHandler> can
-    use different operators (eg: "equal", greater than", "contains"...) when
+    use different operators (e.g. "equal", greater than", "contains"...) when
     performing the SQL query. These operator are modeled with <ConditionOperator>.
 
     The main feature is the method <get_q()> with provides a <Q> instance to
@@ -135,7 +135,7 @@ class ConditionOperator:
 
     def accept(self, *, field_value, values):
         """Check if when applying N times the operator to a value
-        (eg: corresponding to a field of an instance) and a value from a list
+        (e.g. corresponding to a field of an instance) and a value from a list
         of N values, one result at least is True.
 
         Eg: for an "EQUAL" operator:

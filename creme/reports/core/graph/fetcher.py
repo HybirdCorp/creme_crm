@@ -123,7 +123,7 @@ class GraphFetcher:
                        order: str = 'ASC') -> Tuple[List[str], list]:
         """
         Data of the AbstractReportGraph narrowed to the entities linked to one
-        entity (eg: the entity corresponding to the visited detail-view).
+        entity (e.g. the entity corresponding to the visited detail-view).
         @param entity: Entity used to narrow the results.
         @param user: logged user.
         @param order: 'ASC' or 'DESC'.
@@ -131,7 +131,7 @@ class GraphFetcher:
         @raise GraphFetcher.IncompatibleContentType if the ContentType of 'entity'
                is wrong (ie: the configuration should probably be fixed).
         @raise GraphFetcher.UselessResult if fetching data for 'entity' is useless
-               (eg: it does mean anything in the business logic).
+               (e.g. it does mean anything in the business logic).
         """
         return (
             [], []
