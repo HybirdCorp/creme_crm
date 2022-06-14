@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 class QSerializer:
     """A Q object serializer base class.
 
-    By default the class provides loads/dumps methods which wrap around
+    By default, the class provides loads/dumps methods which wrap around
     JSON serialization, but they may be easily overwritten to serialize
     into other formats (i.e XML, YAML, etc...).
     """
