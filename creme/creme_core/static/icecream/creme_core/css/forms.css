@@ -269,6 +269,14 @@ label,
 input,
 textarea {
     padding-left: 5px;
+
+    border-radius: 0;
+    border: 1px solid #a9a9a9;
+    background: white;
+}
+
+input[type="file"] {
+    border: 0;
 }
 
 select {
@@ -276,12 +284,14 @@ select {
     font-size: 12.5px;
 }
 
+/*
 input:not([type="submit"]):not([type="file"]),
 textarea {
     border-radius: 0;
     border: 1px solid #a9a9a9;
     background: white;
 }
+*/
 
 .is-field-invalid {
     box-shadow: 0px 0px 4px #cd0a0a;
@@ -294,10 +304,17 @@ input.is-form-submit {
 }
 
 input:disabled,
+input:read-only,
 textarea:disabled,
-textarea[readonly] {
+textarea:read-only {
+/*textarea[readonly] {*/
+    background: #f5f2f2;
+
     border-color: #dddddd;
-    color: #8c8c8c
+    color: #8c8c8c;
+
+    cursor: default;
+    cursor: not-allowed;
 }
 
 .help-text ul {

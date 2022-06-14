@@ -261,12 +261,17 @@ button {
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 }
 
-input:not([type="submit"]):not([type="file"]),
+input,
 textarea {
     border: 1px solid #6eaac4;
+
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
             border-radius: 4px;
+}
+
+input[type="file"] {
+    border: 0;
 }
 
 .is-field-invalid {
@@ -279,16 +284,17 @@ button.is-form-submit, input.is-form-submit {
 }
 
 input:disabled,
-input[readonly],
+/*input[readonly],*/
+input:read-only,
 textarea:disabled,
-textarea[readonly] {
-    color: #6eaac4;
-    background: #ffffff;
+textarea:read-only {
+/* textarea[readonly] { */
+    color: #96c0d3;
+    background: #effaff;
+    border-color: #dbeef7;
 
-    border: 0px;
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
+    cursor: default;
+    cursor: not-allowed;
 }
 
 .help-text ul {

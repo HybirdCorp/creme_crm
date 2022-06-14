@@ -1313,6 +1313,7 @@ class Label(widgets.TextInput):
 
 
 class ListEditionWidget(widgets.Widget):
+    # TODO: 'disabled' state is probably not working as expected...
     template_name = 'creme_core/forms/widgets/list-editor.html'
     content = ()
     only_delete = False
