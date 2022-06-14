@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2013-2022  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,8 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
         this.less(element, options.less || element.is('[less]'));
 
-        this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
+//        this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
+        this.disabled(element, creme.object.isTrue(options.disabled) || this._delegate(element).is('[disabled]'));
 
         this._initializeController(element, options);
 
@@ -288,10 +289,14 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
             return this._disabled;
         }
 
-        element.toggleAttr('disabled', disabled);
+        element.toggleAttr('disabled', disabled);  // TODO: remove (invalid attribute for div)
+        element.toggleClass('is-disabled', disabled);
         this._disabled = disabled;
 
-        $('.checklist-check-all, .checklist-check-none, .checklist-filter', element).toggleAttr('disabled', disabled);
+        $(
+            '.checklist-check-all, .checklist-check-none, .checklist-filter, .checklist-create',
+             element
+        ).toggleAttr('disabled', disabled);
 
         if (this._controller) {
             this._controller.renderer().disabled(disabled);

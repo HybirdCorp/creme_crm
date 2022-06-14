@@ -27,12 +27,14 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
             createUrl: 'mock/items/create',
             delegate: '<select class="ui-creme-input" multiple></select>',
             attrs: {},
-            auto: true,
-            disabled: false
+//            auto: true,
+//            disabled: false
+            auto: true
         }, options || {});
 
         var html = (
-                '<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget" ${disabled}>' +
+//                '<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget" ${disabled}>' +
+                '<div widget="ui-creme-checklistselect" class="ui-creme-checklistselect ui-creme-widget">' +
                     '${delegate}' +
                     '<div class="checklist-header">' +
                         '<a type="button" class="checklist-check-all">Select All</a>' +
@@ -46,8 +48,9 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
                 '</div>'
             ).template({
                 createUrl: options.createUrl,
-                delegate: options.delegate,
-                disabled: options.disabled ? 'disabled' : ''
+//                delegate: options.delegate,
+//                disabled: options.disabled ? 'disabled' : ''
+                delegate: options.delegate
             });
 
         var select = $(html);
@@ -158,7 +161,10 @@ QUnit.test('creme.widget.CheckListSelect.create (delegate)', function(assert) {
 });
 
 QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
-    var element = this.createCheckListSelectElement({disabled: true});
+//    var element = this.createCheckListSelectElement({disabled: true});
+    var element = this.createCheckListSelectElement({
+        delegate: '<select class="ui-creme-input" multiple disabled></select>'
+    });
     this.addCheckListSelectChoice(element, 'item1', 12);
     this.addCheckListSelectChoice(element, 'item2', 78);
     this.addCheckListSelectChoice(element, 'item3', 1);
@@ -167,6 +173,7 @@ QUnit.test('creme.widget.CheckListSelect.create (disabled)', function(assert) {
 
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
+    equal(element.hasClass('is-disabled'), true);
 
     equal(1, widget.delegate._delegate(element).length);
     equal(true, widget.disabled());
@@ -213,6 +220,7 @@ QUnit.test('creme.widget.CheckListSelect.create (initial value)', function(asser
     equal(element.hasClass('widget-active'), true);
     equal(element.hasClass('widget-ready'), true);
     equal(false, widget.disabled());
+    equal(element.hasClass('is-disabled'), false);
 
     deepEqual([{label: 'item1', value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: true},
                {label: 'item2', value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
