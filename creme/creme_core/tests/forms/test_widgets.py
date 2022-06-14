@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import difflib
+from datetime import date
 from json import loads as json_load
 from unittest.util import safe_repr
 
@@ -8,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models.query import Q, QuerySet
 from django.forms.widgets import Select
 from django.test.testcases import assert_and_parse_html
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
@@ -15,6 +17,7 @@ from django.utils.translation import pgettext
 
 from creme.creme_core.forms.widgets import (
     ActionButtonList,
+    CalendarWidget,
     CremeTextarea,
     DynamicSelect,
     EntityCreatorWidget,
@@ -26,6 +29,29 @@ from creme.creme_core.utils.url import TemplateURLBuilder
 
 from ..base import CremeTestCase
 from ..fake_models import FakeContact
+
+
+class CalendarWidgetTestCase(CremeTestCase):
+    maxDiff = None
+
+    @override_settings(
+        DATE_FORMAT='d-m-Y',
+        DATE_FORMAT_JS={
+            'd-m-Y': 'dd-mm-yy',
+        },
+    )
+    def test_render(self):
+        name = 'test_calendar'
+        help_text = _('Format: Day-Month-Year (Ex:31-12-2022)')
+        self.assertHTMLEqual(
+            f'<div class="creme-datepicker">'
+            f'  <div class="help-text-format">{help_text}</div>'
+            f'  <input type="text" widget="ui-creme-datepicker"'
+            f'         class="ui-creme-datepicker ui-creme-input ui-creme-widget widget-auto"'
+            f'         format="dd-mm-yy" name="{name}" value="25-02-2022">'
+            f'</div>',
+            CalendarWidget().render(name, value=date(2022, 2, 25)),
+        )
 
 
 class DynamicSelectTestCase(CremeTestCase):
