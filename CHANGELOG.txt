@@ -2,8 +2,19 @@
 
   TODO: recompile .mo (creme_config, emails)
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # The state 'disabled' for 'creme.forms.widgets.CalendarWidget' has been fixed
+     (indeed the Javascript component 'creme.widget.DatePicker').
+
 
 == Version 2.3.4 ==
+
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
