@@ -14,6 +14,7 @@
         - in 'SelectorList'.
         - In 'TinyMCEEditor'.
         - in 'UnorderedMultipleChoiceWidget' (indeed the JavaScript component 'creme.widget.CheckListSelect').
+    # Some improvements in the CSS.
 
 
   Developers side :

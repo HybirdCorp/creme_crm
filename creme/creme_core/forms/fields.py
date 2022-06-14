@@ -1921,7 +1921,7 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
         - Classical list of 2-tuples (value, label).
         - List of dict {'value': value, 'label': label}
           A key "help" is also available for the help text.
-        - A callable without argument which return one the the previous format.
+        - A callable without argument which returns one of the previous format.
     """
     widget = core_widgets.UnorderedMultipleChoiceWidget
     iterator = EnhancedChoiceIterator
