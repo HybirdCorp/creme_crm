@@ -410,7 +410,7 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
         '<input type="hidden" id="time_field" value="08:32:00">' +
         '<li class="hour"><input type="text"/></li>' +
         '<li class="minute"><input type="text"/></li>' +
-        '<li><button></button></li>' +
+        '<li><button>Now</button></li>' +
     '</ul>');
 
     var input = element.find('#time_field');
@@ -422,6 +422,10 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
     equal('08', element.find('.hour input').val());
     equal('32', element.find('.minute input').val());
     equal('08:32:00', creme.forms.TimePicker.val(element));
+
+    equal(element.find('.hour input').is('[disabled]'), false);
+    equal(element.find('.minute input').is('[disabled]'), false);
+    equal(element.find('button').is('[disabled]'), false);
 
     creme.forms.TimePicker.clear(element);
     equal("", input.val());
@@ -444,6 +448,26 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
         equal('16', element.find('.hour input').val());
         equal('30', element.find('.minute input').val());
     });
+});
+
+QUnit.test('creme.forms.TimePicker (disabled)', function(assert) {
+    var element = $('<ul>' +
+        '<input type="hidden" id="time_field" value="09:26:00" disabled>' +
+        '<li class="hour"><input type="text"/></li>' +
+        '<li class="minute"><input type="text"/></li>' +
+        '<li><button>Now</button></li>' +
+    '</ul>');
+
+    var input = element.find('#time_field');
+
+    creme.forms.TimePicker.init(element);
+    equal("09:26:00", input.val());
+    equal('09', element.find('.hour input').val());
+    equal('26', element.find('.minute input').val());
+
+    equal(element.find('.hour input').is('[disabled]'), true);
+    equal(element.find('.minute input').is('[disabled]'), true);
+    equal(element.find('button').is('[disabled]'), true);
 });
 
 QUnit.test('creme.forms.DateTimePicker', function(assert) {
