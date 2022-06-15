@@ -9,6 +9,7 @@
   ------------
     # In 'creme.forms.widgets', the state 'disabled' has been fixed :
         - in 'CalendarWidget' (indeed the Javascript component 'creme.widget.DatePicker').
+        - in 'TimeWidget' (indeed the JavaScript part 'creme.forms.TimePicker').
         - in 'SelectorList'.
         - in 'UnorderedMultipleChoiceWidget' (indeed the JavaScript component 'creme.widget.CheckListSelect').
 
