@@ -638,6 +638,28 @@ class TestUnionField(UnionField):
 
 
 class UnionFieldTestCase(FieldTestCase):
+    def test_fields_choices(self):
+        field = TestUnionField()
+
+        field_choices = [*field.fields_choices]
+        self.assertEqual(2, len(field_choices))
+
+        choice1 = field_choices[0]
+        self.assertIsTuple(choice1, length=2)
+        self.assertEqual('type_choice', choice1[0])
+        sub_field1 = choice1[1]
+        self.assertIsInstance(sub_field1, ChoiceField)
+        self.assertEqual('Fixed choices', sub_field1.label)
+        self.assertFalse(sub_field1.disabled)
+
+        choice2 = field_choices[1]
+        self.assertIsTuple(choice2, length=2)
+        self.assertEqual('type_int', choice2[0])
+        sub_field2 = choice2[1]
+        self.assertIsInstance(sub_field2, IntegerField)
+        self.assertEqual('Free size', sub_field2.label)
+        self.assertFalse(sub_field2.disabled)
+
     def test_ok01(self):
         "All filled => keep only selected alternative."
         sub_values = {
@@ -735,6 +757,28 @@ class UnionFieldTestCase(FieldTestCase):
         field1.required = False
         self.assertEqual(3, len([*field1.widget.widgets_choices]))
         self.assertEqual(2, len([*field2.widget.widgets_choices]))
+
+    def test_disabled(self):
+        field = TestUnionField(disabled=True)
+        self.assertTrue(field.disabled)
+
+        field_choices1 = [*field.fields_choices]
+
+        sub_field11 = field_choices1[0][1]
+        self.assertIsInstance(sub_field11, ChoiceField)
+        self.assertEqual('Fixed choices', sub_field11.label)
+        self.assertTrue(sub_field11.disabled)
+
+        sub_field12 = field_choices1[1][1]
+        self.assertIsInstance(sub_field12, IntegerField)
+        self.assertTrue(sub_field12.disabled)
+
+        # Property
+        field.disabled = False
+        field_choices2 = [*field.fields_choices]
+
+        self.assertFalse(field_choices2[0][1].disabled)
+        self.assertFalse(field_choices2[1][1].disabled)
 
 
 class ChoiceOrCharFieldTestCase(FieldTestCase):

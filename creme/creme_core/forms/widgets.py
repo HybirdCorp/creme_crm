@@ -1051,27 +1051,35 @@ class UnionWidget(widgets.Widget):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_type = 'ui-creme-union'
-        final_attrs = context['widget']['attrs']
+        w_context = context['widget']
+        final_attrs = w_context['attrs']
         base_css = (
-            'union-widget ui-creme-widget widget-auto '
+            'union-widget ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'union-widget ui-creme-widget '
+            'union-widget ui-creme-widget'
         )
-        final_attrs['class'] = f"{base_css} {final_attrs.get('class', '')} {widget_type}".strip()
+        disabled = final_attrs.pop('disabled', False)
+        final_attrs['class'] = (
+            f"{base_css} {widget_type}"
+            f"{' is-disabled' if disabled else ''}"
+            f" {final_attrs.get('class', '')}"
+        ).strip()
         final_attrs['widget'] = widget_type  # TODO: data-widget
 
+        sub_attrs = {'disabled': True} if disabled else {}
         selected_sub_name, sub_values = ('', {}) if value is None else value
         # TODO: factorise f'{name}_{sub_name}' ?
-        context['widget']['subwidget_choices'] = [
+        w_context['subwidget_choices'] = [
             {
                 'name': sub_name,
                 'label': sub_label,
                 'checked': selected_sub_name == sub_name,
                 'widget': sub_widget.get_context(
-                    name=f'{name}_{sub_name}', value=sub_values.get(sub_name), attrs={},
+                    name=f'{name}_{sub_name}', value=sub_values.get(sub_name), attrs=sub_attrs,
                 )['widget'],
             } for sub_name, sub_label, sub_widget in self.widgets_choices
         ]
+        w_context['disabled'] = disabled
 
         return context
 

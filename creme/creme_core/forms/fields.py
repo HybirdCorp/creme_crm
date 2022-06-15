@@ -1500,6 +1500,7 @@ class UnionField(fields.Field):
         @param empty_label: Label used when the field is not required to propose
                an additional empty choice.
         """
+        self._fields_choices = []
         super().__init__(**kwargs)
         self.empty_label = empty_label
         self.fields_choices = fields_choices
@@ -1513,14 +1514,30 @@ class UnionField(fields.Field):
         return result
 
     @property
+    def disabled(self):
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        self._disabled = value
+
+        for choice in self._fields_choices:
+            choice[1].disabled = value
+
+    @property
     def fields_choices(self):
+        # TODO: copy?
         return self._fields_choices
 
     @fields_choices.setter
     def fields_choices(self, value):
         "See constructor."
-        choices = list(value)
-        self._fields_choices = choices
+        choices = self._fields_choices
+        choices[:] = value
+
+        disabled = self.disabled
+        for choice in choices:
+            choice[1].disabled = disabled
 
         def _widget_choices():
             w_choices = []
