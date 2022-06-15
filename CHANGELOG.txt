@@ -58,6 +58,9 @@
     Non breaking changes :
     ----------------------
         # Deprecations :
+            - In 'creme_core.forms.fields.SelectorList', the constructor's parameter & attribute "enabled" are deprecated ;
+              use <attrs={"disabled": True}> to disable instead (backported to Creme 2.3).
+              The context variable "clonelast" is deprecated too.
             - In 'creme_core.gui' :
                 - In 'bricks.BricksManager' :
                     - The attribute '_dependencies_map' is deprecated.
