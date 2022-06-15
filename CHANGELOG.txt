@@ -7,8 +7,19 @@
 
   Users side :
   ------------
-    # The state 'disabled' for 'creme.forms.widgets.CalendarWidget' has been fixed
-     (indeed the Javascript component 'creme.widget.DatePicker').
+    # In 'creme.forms.widgets', the state 'disabled' has been fixed :
+        - in 'CalendarWidget' (indeed the Javascript component 'creme.widget.DatePicker').
+        - In 'SelectorList'.
+
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # In 'creme_core.forms.fields.SelectorList', the constructor's parameter & attribute "enabled" are deprecated ;
+          use <attrs={"disabled": True}> to disable instead (backported to Creme 2.3).
+          The context variable "clonelast" is deprecated too.
 
 
 == Version 2.3.4 ==
