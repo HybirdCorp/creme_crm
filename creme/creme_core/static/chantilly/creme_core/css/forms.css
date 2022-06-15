@@ -447,6 +447,10 @@ ul.union-widget .union-sub_widget label {
     color: #396b81;
 }
 
+ul.union-widget.is-disabled .union-sub_widget label {
+    color: #a2cfe3;
+}
+
 ul.union-widget .union-sub_widget_container {
     margin-left: 30px;
     margin-top: 3px
