@@ -162,6 +162,8 @@ ul.ui-creme-widget[readonly] li {
 .ui-creme-selectorlist img.delete:hover { cursor: pointer; }
 
 .ui-creme-selectorlist[disabled] img.delete { display: none; }
+
+.ui-creme-selectorlist.is-disabled button[type="button"].ui-creme-actionbutton,
 .ui-creme-selectorlist button[type="button"][disabled].ui-creme-actionbutton {
     opacity: .50;
     filter: Alpha(Opacity=50);

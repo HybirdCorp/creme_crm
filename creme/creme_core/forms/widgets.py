@@ -20,6 +20,7 @@
 
 import copy
 import logging
+import warnings
 from functools import partial
 from types import GeneratorType
 from typing import Optional
@@ -510,13 +511,38 @@ class SelectorList(widgets.TextInput):
     #         }
     action_class = WidgetAction
 
-    def __init__(self, selector, attrs=None, enabled=True):
+    # def __init__(self, selector, attrs=None, enabled=True):
+    def __init__(self, selector, attrs=None, **kwargs):
         super().__init__(attrs)
         self.selector = selector
-        self.enabled = enabled
+
+        # self.enabled = enabled
+        self._enabled = True  # DEPRECATED
+        if kwargs:
+            self.enabled = kwargs.pop('enabled')
+            assert not kwargs, 'Invalid attribute'
+
         # self.actions = [self.Action('add', gettext_lazy('Add'))]
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
+
+    @property
+    def enabled(self):
+        warnings.warn(
+            'SelectorList: the attribute <enabled> is deprecated ; '
+            'use <attrs={"disabled": True}> to disable instead.',
+            DeprecationWarning
+        )
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        warnings.warn(
+            'SelectorList: the attribute <enabled> is deprecated ; '
+            'use <attrs={"disabled": True}> to disable instead.',
+            DeprecationWarning
+        )
+        self._enabled = value
 
     # def add_action(self, name, label, enabled=True, **kwargs):
     def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
@@ -535,17 +561,42 @@ class SelectorList(widgets.TextInput):
 
         value = self.from_python(value) if self.from_python is not None else value
 
-        context = super().get_context(name=name, value=value, attrs=None)
+        # context = super().get_context(name=name, value=value, attrs=None)
+        # widget_cxt = context['widget']
+        # widget_cxt['class'] = f'ui-creme-widget widget-auto {widget_type}'
+        # widget_cxt['widget_type'] = widget_type
+        #
+        # final_attrs = widget_cxt['attrs']
+        # widget_cxt['clonelast'] = final_attrs.pop('clonelast', True)
+        # widget_cxt['enabled'] = self.enabled
+        context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
-        widget_cxt['class'] = f'ui-creme-widget widget-auto {widget_type}'
-        widget_cxt['widget_type'] = widget_type
-
         final_attrs = widget_cxt['attrs']
-        widget_cxt['clonelast'] = final_attrs.pop('clonelast', True)
-        widget_cxt['enabled'] = self.enabled
 
+        # DEPRECATED
+        if not self._enabled:
+            final_attrs['disabled'] = True
+        widget_cxt['enabled'] = self._enabled
+
+        widget_cxt['clonelast'] = 'clonelast' in final_attrs  # DEPRECATED
+
+        final_attrs['class'] = (
+            f"ui-creme-widget widget-auto {widget_type} "
+            f"{final_attrs.get('class', '')} "
+            f"{'is-disabled' if 'disabled' in final_attrs else ''}"
+        )
+        final_attrs['widget'] = widget_type  # TODO: data-widget
+        final_attrs.setdefault('clonelast', True)  # TODO: data-clonelast
+
+        widget_cxt['widget_type'] = widget_type  # TODO: deprecate?
         widget_cxt['input'] = widgets.HiddenInput().get_context(
-            name=name, value=value, attrs={'class': f'ui-creme-input {widget_type}'},
+            name=name, value=value,
+            # TODO: final_attrs.pop("disabled", False) to get it only here (& rework
+            #      the JavaScript component to inspect the input instead of the div)
+            attrs={
+                'class': f'ui-creme-input {widget_type}',
+                **({'disabled': True} if 'disabled' in final_attrs else {})
+            },
         )['widget']
         widget_cxt['actions'] = [action.context for action in self.actions]
         widget_cxt['selector'] = self.selector.get_context(
