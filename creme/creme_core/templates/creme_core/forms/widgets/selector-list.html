@@ -1,5 +1,6 @@
 {% load creme_widgets %}
-<div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.clonelast %} clonelast{% endif %}{% if not widget.enabled %} disabled{% endif %}>
+{# <div class="{{widget.class}}" widget="{{widget.widget_type}}"{% if widget.clonelast %} clonelast{% endif %}{% if not widget.enabled %} disabled{% endif %}> #}
+<div {% include "django/forms/widgets/attrs.html" %}>
     {% include widget.input.template_name with widget=widget.input %}
     <div class="inner-selector-model" style="display:none;">
         {% include widget.selector.template_name with widget=widget.selector %}
