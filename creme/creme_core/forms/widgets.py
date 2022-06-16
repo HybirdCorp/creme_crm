@@ -1100,18 +1100,19 @@ class UnionWidget(widgets.Widget):
 
 class TinyMCEEditor(widgets.Textarea):
     def get_context(self, name, value, attrs):
-        widget_type = 'ui-creme-editor'
         context = super().get_context(name=name, value=value, attrs=attrs)
+        if not attrs.get('disabled'):
+            widget_type = 'ui-creme-editor'
 
-        final_attrs = context['widget']['attrs']
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
-            if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
-        )
-        final_attrs['class'] = css_class + widget_type
-        final_attrs['widget'] = widget_type
-        final_attrs['basepath'] = 'tiny_mce'  # See root urls.py
+            final_attrs = context['widget']['attrs']
+            css_class = (
+                'ui-creme-input ui-creme-widget widget-auto '
+                if final_attrs.pop('auto', True) else
+                'ui-creme-input ui-creme-widget '
+            )
+            final_attrs['class'] = css_class + widget_type
+            final_attrs['widget'] = widget_type
+            final_attrs['basepath'] = 'tiny_mce'  # See root urls.py
 
         return context
 
