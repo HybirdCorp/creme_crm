@@ -735,6 +735,7 @@ CREME_CORE_CSS = [
     'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
     'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
     'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
+    'creme_core/css/select2/select2-4.0.13.css',
 
     'creme_core/css/creme.css',
     'creme_core/css/creme-ui.css',
@@ -820,6 +821,7 @@ CREME_LIB_JS = [
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
     'creme_core/js/lib/Sortable/Sortable.js',
+    'creme_core/js/lib/select2/select2-4.0.13.full.js',
 ]
 
 CREME_CORE_JS = [
@@ -856,7 +858,6 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/component/action.js',
     'creme_core/js/widgets/component/action-registry.js',
     'creme_core/js/widgets/component/action-link.js',
-    'creme_core/js/widgets/component/chosen.js',
 
     'creme_core/js/widgets/utils/template.js',
     'creme_core/js/widgets/utils/lambda.js',
@@ -894,6 +895,9 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/dialog/popover.js',
 
     'creme_core/js/widgets/list/pager.js',
+
+    'creme_core/js/widgets/form/chosen.js',
+    'creme_core/js/widgets/form/select2.js',
 
     'creme_core/js/widgets/frame.js',
     'creme_core/js/widgets/toggle.js',
@@ -1027,7 +1031,6 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/component/action.js',
     'creme_core/js/tests/component/actionregistry.js',
     'creme_core/js/tests/component/actionlink.js',
-    'creme_core/js/tests/component/chosen.js',
 
     'creme_core/js/tests/utils/template.js',
     'creme_core/js/tests/utils/lambda.js',
@@ -1083,6 +1086,8 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/datetimepicker.js',
 
     'creme_core/js/tests/form/forms.js',
+    'creme_core/js/tests/form/chosen.js',
+    'creme_core/js/tests/form/select2.js',
 
     'creme_core/js/tests/list/list-pager.js',
     'creme_core/js/tests/list/listview-actions.js',

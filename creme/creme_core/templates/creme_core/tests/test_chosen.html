@@ -50,7 +50,7 @@
             var mockbackend = new creme.ajax.MockAjaxBackend({sync: true});
             var urls = {
                 'mock/options': function() {
-                    return mockbackend.response(200, randomOptions(Math.random()));
+                    return mockbackend.responseJSON(200, randomOptions(Math.random()));
                 }
             };
 
@@ -74,7 +74,7 @@
                 <li class="chosen-test-item">
                     <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                             autocomplete
-                            autocomplete-options="{allow_single_deselect:false}"
+                            data-clearable="true"
                             data-placeholder="Choisissez un champ...">
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
@@ -90,9 +90,9 @@
                 <li class="chosen-test-item">
                     <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                             autocomplete
-                            autocomplete-options="{allow_single_deselect:false, no_results_text: 'Aucun résultat..'}"
+                            data-no-results="Aucun résultat..."
                             >
-                        <option></option>
+                        <option value="">&nbsp;</option>
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -108,9 +108,9 @@
                 <li class="chosen-test-item">
                     <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                             autocomplete
-                            autocomplete-options="{allow_single_deselect:true}"
+                            data-allow-clear="true"
                             data-placeholder="Choisissez un champ...">
-                        <option></option>
+                        <option>&nbsp;</option>
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -132,7 +132,8 @@
                     <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                             autocomplete
                             multiple
-                            data-placeholder="Choisissez un champ...">
+                            data-placeholder="Choisissez un champ..."
+                            data-placeholder-multiple="Choisissez un ou plusieurs champs...">
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -147,7 +148,9 @@
                 <li class="chosen-test-item">
                     <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
                             autocomplete
-                            multiple sortable
+                            multiple
+                            data-sortable
+                            data-placeholder-multiple="Choisissez un ou plusieurs champs..."
                             >
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>

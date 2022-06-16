@@ -19,7 +19,9 @@
 (function($) {
 "use strict";
 
-creme.component.Chosen = creme.component.Component.sub({
+creme.form = creme.form || {};
+
+creme.form.Chosen = creme.component.Component.sub({
     _init_: function(options) {
         this.options = $.extend({
             multiple: false,

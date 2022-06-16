@@ -19,6 +19,7 @@
 **/js/lib/leaflet*.js
 **/js/lib/editor/*
 **/js/lib/Sortable/*
+**/js/lib/Select2/*
 **/js/tests/qunit/qunit-*.js
 **/creme_core/js/datejs/*
 **/sketch/js/lib/d3-*.js
