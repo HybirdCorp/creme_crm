@@ -4,7 +4,7 @@ from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.forms import ChoiceField, IntegerField
+from django.forms import BooleanField, ChoiceField, IntegerField
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
@@ -425,6 +425,25 @@ class DurationFieldTestCase(FieldTestCase):
 class OptionalChoiceFieldTestCase(FieldTestCase):
     _team = ['Naruto', 'Sakura', 'Sasuke', 'Kakashi']
 
+    def test_sub_fields(self):
+        choices = [*enumerate(self._team, start=1)]
+        field = OptionalChoiceField(choices=choices)
+
+        sub_fields = field.fields
+        self.assertIsInstance(sub_fields, tuple)
+        self.assertEqual(2, len(sub_fields))
+
+        sub_field1 = sub_fields[0]
+        self.assertIsInstance(sub_field1, BooleanField)
+        self.assertFalse(sub_field1.required)
+        self.assertFalse(sub_field1.disabled)
+
+        sub_field2 = sub_fields[1]
+        self.assertIsInstance(sub_field2, ChoiceField)
+        self.assertListEqual(choices, sub_field2.choices)
+        self.assertTrue(sub_field2.required)
+        self.assertFalse(sub_field2.disabled)
+
     def test_ok_choice(self):
         field = OptionalChoiceField(choices=enumerate(self._team, start=1))
         self.assertEqual((True, '1'), field.clean([True, 1]))
@@ -471,6 +490,19 @@ class OptionalChoiceFieldTestCase(FieldTestCase):
             ],
             cm.exception.messages,
         )
+
+    def test_disabled(self):
+        field = OptionalChoiceField(choices=enumerate(self._team, start=1), disabled=True)
+        self.assertTrue(field.disabled)
+
+        sub_fields = field.fields
+        self.assertTrue(sub_fields[0].disabled)
+        self.assertTrue(sub_fields[1].disabled)
+
+        # ---
+        field.disabled = False
+        self.assertFalse(field.disabled)
+        self.assertFalse(field.fields[0].disabled)
 
 
 class ChoiceOrCharFieldTestCase(FieldTestCase):

@@ -1084,7 +1084,24 @@ class OptionalWidget(widgets.MultiWidget):
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
-        context['widget']['label'] = self.sub_label
+        w_context = context['widget']
+        w_context['label'] = self.sub_label
+
+        # TODO: factorise
+        widget_type = 'ui-creme-optional'
+        final_attrs = w_context['attrs']
+        disabled = final_attrs.pop('disabled', False)
+        base_css = (
+            'optional-widget ui-creme-widget widget-auto'
+            if final_attrs.pop('auto', True) else
+            'optional-widget ui-creme-widget'
+        )
+        final_attrs['class'] = (
+            f"{base_css} {widget_type}"
+            f"{' is-disabled' if disabled else ''}"
+            f" {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: data-widget
 
         return context
 
