@@ -28,10 +28,9 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         url: '',
         filter: '',
         dependencies: '',
-        multiple: undefined,
-        sortable: undefined,
-        autocomplete: undefined,
-        'autocomplete-options': ''
+        multiple: false,
+        sortable: false,
+        autocomplete: false
     },
 
     _create: function(element, options, cb, sync) {
@@ -40,12 +39,13 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
         this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
         this._multiple = creme.object.isTrue(options.multiple) && element.is('[multiple]');
+        this._autocomplete = creme.object.isTrue(options.autocomplete) && element.is('[autocomplete]');
         this._url = new creme.utils.Template(options.url);
         this._filter = new creme.utils.Template(options.filter);
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
 
-        this._init_model(element, options);
-        this._init_autocomplete(element, options);
+        this._initModel(element, options);
+        this._initAutocomplete(element, options);
 
         this.reload(element, {}, cb, cb, sync);
 
@@ -53,19 +53,15 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     _destroy: function(element) {
-        if (this._autocomplete) {
-            this._autocomplete.deactivate();
+        if (this._select2) {
+            this._select2.unbind();
         }
     },
 
-    _init_model: function(element, options) {
+    _initModel: function(element, options) {
         var self = this;
         var converter = this._converter = options.datatype === 'json' ? function(data) { return creme.widget.cleanval(data, null); } : undefined;
         var initial = creme.model.ChoiceGroupRenderer.parse(element, converter);
-
-        this._model_onchange_cb = function() {
-            self._onModelChange(element);
-        };
 
         this._model = new creme.model.AjaxArray(this._backend, initial);
         this._model.url(function() { return self.url(); })
@@ -73,33 +69,32 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                    .comparator(this._modelComparator);
 
         this._filtered = new creme.model.Filter(this._model);
-        this._filtered.bind(['remove', 'clear', 'reset', 'add'], this._model_onchange_cb);
+        this._filtered.bind('remove clear reset add', function() {
+                          self._onModelChange(element);
+                       })
+                      .bind('clear reset', function() {
+                          self._onModelReset(element);
+                       });
 
         this._renderer = new creme.model.ChoiceGroupRenderer(element, this._filtered);
     },
 
-    _init_autocomplete: function(element, options) {
-        if (Object.isNone(options.autocomplete)) {
-            return;
+    _initAutocomplete: function(element, options) {
+        if (this._autocomplete) {
+            this._select2 = new creme.form.Select2({
+                multiple: Boolean(this._multiple),
+                sortable: element.is('[data-sortable]'),
+                noResults: element.data('noResults'),
+                placeholder: element.data('placeholder'),
+                placeholderMultiple: element.data('placeholderMultiple')
+            }).bind(element);
         }
+    },
 
-        var chosen_options = {};
-
-        try {
-            chosen_options = options['autocomplete-options'] || '';
-            chosen_options = chosen_options.length ? creme.object.build_callback(chosen_options)() : {};
-        } catch (e) {
-            chosen_options = {};
+    _updateAutocomplete: function(element) {
+        if (this._select2) {
+            this._select2.choices(this._filtered.all());
         }
-
-        chosen_options = $.extend({
-            multiple: options.multiple !== undefined,
-            sortable: options.sortable !== undefined,
-            search_contains: true
-        }, chosen_options);
-
-        this._autocomplete = new creme.component.Chosen(chosen_options);
-        this._autocomplete.activate(element);
     },
 
     _updateDisabledState: function(element) {
@@ -111,18 +106,15 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         var readonly = (is_single && !this._multiple) || this._readonly;
 
         element.prop('disabled', disabled);
-        element.toggleAttr('readonly', readonly);
+        element.toggleClass('is-readonly', readonly);
     },
 
-    _updateAutocomplete: function() {
-        if (this._autocomplete) {
-            this._autocomplete.refresh();
-        }
-    },
-
-    _onModelChange: function(element, old) {
+    _onModelChange: function(element) {
         this._updateDisabledState(element);
-        this._updateAutocomplete();
+    },
+
+    _onModelReset: function(element) {
+        this._updateAutocomplete(element);
     },
 
     _modelConverter: function(rawdata) {
@@ -181,7 +173,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
                 creme.object.invoke(error_cb, element, error);
             },
             cancel: function(event, data) {
-                self.val(element, selected);
+                // self.val(element, selected);
             }
         });
     },
@@ -189,11 +181,11 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _updateFilter: function(element) {
         var self = this;
         var filter = this.filter(element);
-        var selected = this.val(element);
+        // var selected = this.val(element);
 
         if (this._previousFilter === filter) {
             this._filtered.fetch();
-            this.val(element, selected);
+            // this.val(element, selected);
             return;
         }
 
@@ -202,7 +194,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         var lambda = creme.utils.lambda(filter, 'item, context', null);
         this._filtered.filter(lambda !== null ? function(item) { return lambda(item, self._context); } : null);
 
-        this.val(element, selected);
+        // this.val(element, selected);
     },
 
     filter: function(element, filter) {
@@ -247,12 +239,12 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     update: function(element, data) {
         data = creme.widget.cleanval(data, {});
         var model = this._model;
-        var duplicates = function(item) {
+        var notInModel = function(item) {
             return model.indexOf(item) === -1;
         };
 
         model.patch({
-            add:    this._modelConverter(data.added).filter(duplicates),
+            add:    this._modelConverter(data.added).filter(notInModel),
             remove: this._modelConverter(data.removed)
         });
 
@@ -271,7 +263,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         element.trigger('change');
 
         this._updateDisabledState(element);
-        this._updateAutocomplete();
+        // this._updateAutocomplete();
     },
 
     // TODO : find a more generic way for this !
@@ -403,23 +395,15 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     },
 
     choices: function(element) {
-        var choices = [];
-
-        this._querychoices(element).each(function() {
-            choices.push([$(this).attr('value'), $(this).text()]);
+        return this._querychoices(element).get().map(function(item) {
+            return [$(item).attr('value'), $(item).text()];
         });
-
-        return choices;
     },
 
     groups: function(element) {
-        var groups = [];
-
-        this._querygroups(element).each(function() {
-            return groups.push($(this).attr('label'));
+        return this._querygroups(element).get().map(function(item) {
+            return $(item).attr('label');
         });
-
-        return groups;
     },
 
     selected: function(element) {

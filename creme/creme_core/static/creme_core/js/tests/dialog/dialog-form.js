@@ -429,7 +429,7 @@ QUnit.test('creme.dialog.FormDialog (submit)', function(assert) {
 QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
     var dialog = new creme.dialog.FormDialog({url: 'mock/submit/widget', backend: this.backend});
 
-    equal(0, $('.chzn-drop').length);
+    equal(0, $('.select2.select2-container').length);
 
     dialog.onFormSuccess(this.mockListener('form-success'));
     dialog.open();
@@ -447,7 +447,7 @@ QUnit.test('creme.dialog.FormDialog (submit, widget)', function(assert) {
     equal(false, dialog.form().find('[name="checkin"]').is(':invalid'));
 
     // checkin combobox is enabled and should have created a chosen droplist
-    equal(1, $('.chzn-drop').length);
+    equal(1, $('.select2.select2-container').length);
 
     deepEqual([
         ['GET', {}]
