@@ -1291,6 +1291,7 @@ class OptionalField(fields.MultiValueField):
             initial=None,
             help_text='',
             sub_label='',
+            disabled=False,
             **kwargs):
         super().__init__(
             fields=(
@@ -1300,6 +1301,7 @@ class OptionalField(fields.MultiValueField):
             required=False,
             require_all_fields=False,
             widget=widget, label=label, initial=initial, help_text=help_text,
+            disabled=disabled,
         )
         self.widget.sub_label = sub_label
 
@@ -1336,6 +1338,17 @@ class OptionalField(fields.MultiValueField):
             sub_value = None
 
         return use_value, sub_value
+
+    @property
+    def disabled(self):
+        return self._disabled
+
+    @disabled.setter
+    def disabled(self, value):
+        self._disabled = value
+
+        for field in getattr(self, 'fields', ()):
+            field.disabled = value
 
 
 class OptionalChoiceField(OptionalField):
