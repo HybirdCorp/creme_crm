@@ -12,6 +12,7 @@
         - in 'TimeWidget' (indeed the JavaScript part 'creme.forms.TimePicker').
         - In 'OptionalField'.
         - in 'SelectorList'.
+        - In 'TinyMCEEditor'.
         - in 'UnorderedMultipleChoiceWidget' (indeed the JavaScript component 'creme.widget.CheckListSelect').
 
 
