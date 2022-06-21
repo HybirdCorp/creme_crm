@@ -1,9 +1,9 @@
 {% load i18n %}
 <ul id="{{widget.attrs.id}}_timepicker" class="ui-creme-timepicker">
     {% include 'django/forms/widgets/input.html' %}
-    <li class="hour"><input {# class="ui-corner-all" #} type="text" maxlength="2"/></li>
+    <li class="hour"><input {# class="ui-corner-all" #} title="{% translate 'Hour' %}" type="number" min="0" max="23"/></li>
     <li>{% translate 'h' %}</li>
-    <li class="minute"><input {# class="ui-corner-all" #} type="text" maxlength="2"/></li>
+    <li class="minute"><input {# class="ui-corner-all" #} title="{% translate 'Minute' %}" type="number" min="0" max="59"/></li>
     <li>{# Minute label #}</li>
     <li><button type="button">{% translate 'Now' %}</button></li>
 </ul>

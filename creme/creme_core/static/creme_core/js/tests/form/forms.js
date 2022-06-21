@@ -412,8 +412,8 @@ QUnit.test('creme.forms.Select.fill (select)', function(assert) {
 QUnit.test('creme.forms.TimePicker', function(assert) {
     var element = $('<ul>' +
         '<input type="hidden" id="time_field" value="08:32:00">' +
-        '<li class="hour"><input type="text"/></li>' +
-        '<li class="minute"><input type="text"/></li>' +
+        '<li class="hour"><input type="number"/></li>' +
+        '<li class="minute"><input type="number"/></li>' +
         '<li><button>Now</button></li>' +
     '</ul>');
 
@@ -457,8 +457,8 @@ QUnit.test('creme.forms.TimePicker', function(assert) {
 QUnit.test('creme.forms.TimePicker (disabled)', function(assert) {
     var element = $('<ul>' +
         '<input type="hidden" id="time_field" value="09:26:00" disabled>' +
-        '<li class="hour"><input type="text"/></li>' +
-        '<li class="minute"><input type="text"/></li>' +
+        '<li class="hour"><input type="number"/></li>' +
+        '<li class="minute"><input type="number"/></li>' +
         '<li><button>Now</button></li>' +
     '</ul>');
 
@@ -478,8 +478,8 @@ QUnit.test('creme.forms.DateTimePicker', function(assert) {
     var element = $('<ul>' +
             '<input type="hidden" id="time_field" value="2020-10-12 08:32:00">' +
             '<li class="date"><input type="text"/></li>' +
-            '<li class="hour"><input type="text"/></li>' +
-            '<li class="minute"><input type="text"/></li>' +
+            '<li class="hour"><input type="number"/></li>' +
+            '<li class="minute"><input type="number"/></li>' +
             '<li class="now"><button></button></li>' +
             '<li class="clear"><button></button></li>' +
         '</ul>');

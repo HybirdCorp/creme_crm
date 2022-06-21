@@ -1,13 +1,13 @@
 {% load i18n %}
 {% with attrs=widget.attrs %}
-<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker" widget="ui-creme-datetimepicker" format="{{widget.date_format}}" {% if 'readonly' in attrs %}readonly{% endif%} {% if 'disabled' in attrs %}disabled{% endif%}>
+<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker" widget="ui-creme-datetimepicker" format="{{widget.date_format}}"{% if 'readonly' in attrs %} readonly{% endif%}{% if 'disabled' in attrs %} disabled{% endif%}>
     {% include 'django/forms/widgets/input.html' %}
     <li>{% translate 'On' %}</li>
-    <li class="date"><input {# class="ui-corner-all" #} type="text" maxlength="12"/></li>
+    <li class="date"><input {# class="ui-corner-all" #} title="{% translate 'Date' %}" type="text" maxlength="12"/></li>
     <li>{% translate 'at' %}</li>
-    <li class="hour"><input {# class="ui-corner-all" #} type="text" maxlength="2"/></li>
+    <li class="hour"><input {# class="ui-corner-all" #} title="{% translate 'Hour' %}" type="number" min="0" max="23"/></li>
     <li>{% translate 'h' %}</li>
-    <li class="minute"><input {# class="ui-corner-all" #} type="text" maxlength="2"/></li>
+    <li class="minute"><input {# class="ui-corner-all" #} title="{% translate 'Minute' %}" type="number" min="0" max="59"/></li>
     <li>{# Minute label #}</li>
     <li class="clear"><button type="button">{% translate 'Clean' %}</button></li>
     <li class="now"><button type="button">{% translate 'Now' %}</button></li>

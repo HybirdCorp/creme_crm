@@ -122,14 +122,14 @@ creme.forms.TimePicker.init = function(self) {
     var time = creme.forms.TimePicker.timeval(self);
     var disabled = $('input[type="hidden"]', self).is('[disabled]');
 
-    $('li.hour input[type="text"]', self).val(time.hour);
-    $('li.minute input[type="text"]', self).val(time.minute);
+    $('li.hour input[type="number"]', self).val(time.hour);
+    $('li.minute input[type="number"]', self).val(time.minute);
 
     if (disabled) {
-        $('li input[type="text"]', self).prop('disabled', true);
+        $('li input[type="number"]', self).prop('disabled', true);
         $('li button', self).prop('disabled', true);
     } else {
-        $('li input[type="text"]', self).on('change', function() {
+        $('li input[type="number"]', self).on('change', function() {
                 creme.forms.TimePicker.update(self);
         });
         $('li button', self).on('click', function() {
@@ -159,20 +159,20 @@ creme.forms.TimePicker.timeval = function(self) {
 };
 
 creme.forms.TimePicker.update = function(self) {
-    var hour = $('li.hour input[type="text"]', self).val();
-    var minute = $('li.minute input[type="text"]', self).val();
+    var hour = $('li.hour input[type="number"]', self).val();
+    var minute = $('li.minute input[type="number"]', self).val();
     $('input[type="hidden"]', self).val(hour + ':' + minute);
 };
 
 creme.forms.TimePicker.clear = function(self) {
-    $('li.hour input[type="text"]', self).val('');
-    $('li.minute input[type="text"]', self).val('');
+    $('li.hour input[type="number"]', self).val('');
+    $('li.minute input[type="number"]', self).val('');
     $('input[type="hidden"]', self).val('');
 };
 
 creme.forms.TimePicker.set = function(self, hour, minute) {
-    $('li.hour input[type="text"]', self).val(hour);
-    $('li.minute input[type="text"]', self).val(minute);
+    $('li.hour input[type="number"]', self).val(hour);
+    $('li.minute input[type="number"]', self).val(minute);
     $('input[type="hidden"]', self).val(hour + ':' + minute);
 };
 
@@ -186,8 +186,8 @@ creme.forms.DateTimePicker.init = function(self, format) {
     var datetime = creme.forms.DateTimePicker.datetimeval(self);
 
     $('li.date input[type="text"]', self).val(datetime.date);
-    $('li.hour input[type="text"]', self).val(datetime.hour);
-    $('li.minute input[type="text"]', self).val(datetime.minute);
+    $('li.hour input[type="number"]', self).val(datetime.hour);
+    $('li.minute input[type="number"]', self).val(datetime.minute);
 
     $('li input[type="text"]', self).on('change propertychange keyup input paste', function() {
             creme.forms.DateTimePicker.update(self);
@@ -229,15 +229,15 @@ creme.forms.DateTimePicker.parseDateTime = function(value) {
 
 creme.forms.DateTimePicker.update = function(self) {
     var date = $('li.date input[type="text"]', self).val();
-    var hour = $('li.hour input[type="text"]', self).val();
-    var minute = $('li.minute input[type="text"]', self).val();
+    var hour = $('li.hour input[type="number"]', self).val();
+    var minute = $('li.minute input[type="number"]', self).val();
     $('input[type="hidden"]', self).val(date + ' ' + hour + ':' + minute);
 };
 
 creme.forms.DateTimePicker.clear = function(self) {
     $('li.date input[type="text"]', self).val('');
-    $('li.hour input[type="text"]', self).val('');
-    $('li.minute input[type="text"]', self).val('');
+    $('li.hour input[type="number"]', self).val('');
+    $('li.minute input[type="number"]', self).val('');
     $('input[type="hidden"]', self).val('');
 };
 
@@ -246,8 +246,8 @@ creme.forms.DateTimePicker.setDate = function(self, date) {
     var minute = date.getMinutes();
 
     $('li.date input[type="text"]', self).datepicker('setDate', date);
-    $('li.hour input[type="text"]', self).val(hour);
-    $('li.minute input[type="text"]', self).val(minute);
+    $('li.hour input[type="number"]', self).val(hour);
+    $('li.minute input[type="number"]', self).val(minute);
 
     creme.forms.DateTimePicker.update(self);
 };

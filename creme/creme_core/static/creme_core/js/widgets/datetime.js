@@ -111,8 +111,8 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
             var datetime = creme.forms.DateTimePicker.parseDateTime($(this).val());
 
             $('li.date input[type="text"]', element).val(datetime.date);
-            $('li.hour input[type="text"]', element).val(datetime.hour);
-            $('li.minute input[type="text"]', element).val(datetime.minute);
+            $('li.hour input[type="number"]', element).val(datetime.hour);
+            $('li.minute input[type="number"]', element).val(datetime.minute);
         });
 
         this._datepicker = $('li.date input[type="text"]', element).datepicker();
@@ -126,7 +126,7 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
         var state = disabled || this._readonly;
         this._datepicker.datepicker('option', 'disabled', state);
         this._buttons.prop('disabled', state);
-        $('li input[type="text"]', element).toggleAttr('disabled', state);
+        $('li input[type="text"],li input[type="number"]', element).toggleAttr('disabled', state);
     },
 
     val: function(element, value) {
