@@ -128,17 +128,18 @@ class DynamicInput(widgets.TextInput):
     # TODO: factorise ?
     def get_context(self, name, value, attrs):
         widget_type = 'ui-creme-dinput'
-
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
+            'ui-creme-input ui-creme-widget'
         )
-        final_attrs['class'] = css_class + widget_type
-        final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: 'data-[creme-]widget'
 
         return context
 
@@ -202,14 +203,16 @@ class DynamicSelect(EnhancedSelectOptions, widgets.Select):
         widget_cxt['label'] = self.label
 
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
+            'ui-creme-input ui-creme-widget'
         )
-        final_attrs['class'] = css_class + widget_type
-        final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
-        final_attrs['url'] = self.url  # TODO 'data-url'  # TODO: only if set ?
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: 'data-[creme-]widget'
+        final_attrs['url'] = self.url  # TODO 'data-url' + only if value is set?
 
         return context
 
@@ -218,7 +221,7 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
     template_name = 'creme_core/forms/widgets/dyn-select.html'
 
     def __init__(self, attrs=None, options=None, url='', label=None):
-        super().__init__(attrs, ())  # TODO: options or ()
+        super().__init__(attrs=attrs, choices=())  # TODO: options or ()
         self.url = url
         self.label = label
         self.from_python = None
@@ -234,14 +237,16 @@ class DynamicSelectMultiple(EnhancedSelectOptions, widgets.SelectMultiple):
         widget_cxt['label'] = self.label
 
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
+            'ui-creme-input ui-creme-widget'
         )
-        final_attrs['class'] = css_class + widget_type
-        final_attrs['widget'] = widget_type  # TODO: 'data-creme-widget'
-        final_attrs['url'] = self.url  # TODO 'data-url'  # TODO: only if set ?
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: 'data-[creme-]widget'
+        final_attrs['url'] = self.url  # TODO 'data-url' + only if value is set?
 
         return context
 
@@ -279,6 +284,7 @@ class ActionButtonList(widgets.Widget):
 
         value = self.from_python(value) if self.from_python is not None else value
 
+        # TODO: what about attrs passed twice + cannot customise "class" of the wrapping <ul>?
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         widget_cxt['class'] = 'ui-creme-widget widget-auto ' + widget_type
@@ -333,12 +339,14 @@ class PolymorphicInput(widgets.TextInput):
         widget_cxt['key'] = self.key
 
         final_attrs = widget_cxt.pop('attrs')
-        css_class = (
-            'ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-widget '
+            'ui-creme-widget'
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         widget_cxt['widget_type'] = widget_type
 
         final_attrs['class'] = 'ui-creme-input ' + widget_type
@@ -382,12 +390,14 @@ class DateRangeSelect(DatePickerMixin, widgets.Widget):
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-widget '
+            'ui-creme-widget'
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         widget_cxt['widget_type'] = widget_type
         final_attrs['class'] = 'ui-creme-input ' + widget_type
 
@@ -453,12 +463,14 @@ class ChainedInput(widgets.TextInput):
         widget_cxt = context['widget']
         final_attrs = widget_cxt.pop('attrs')
 
-        css_class = (
+        base_css = (
             'ui-creme-widget widget-auto '
             if final_attrs.pop('auto', True) else
             'ui-creme-widget '
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         widget_cxt['widget_type'] = widget_type
 
         widget_cxt['direction'] = final_attrs.pop('direction', ChainedInput.HORIZONTAL)
@@ -610,12 +622,14 @@ class EntitySelector(widgets.Widget):
         widget_cxt['text_url'] = self.text_url
 
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-widget '
+            'ui-creme-widget'
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         widget_cxt['widget_type'] = widget_type
 
         widget_cxt['selection'] = 'multiple' if final_attrs.pop('multiple', False) else 'single'
@@ -979,13 +993,15 @@ class CalendarWidget(DatePickerMixin, widgets.TextInput):
 
         final_attrs = widget_cxt['attrs']
 
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
+            'ui-creme-input ui-creme-widget'
         )
-        final_attrs['class'] = css_class + widget_type
-        final_attrs['widget'] = widget_type  # TODO: data-widget-type
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
+        final_attrs['widget'] = widget_type  # TODO: data-widget[-type]
         # TODO: data-date-format
         # final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
         final_attrs['format'] = self.js_date_format(date_format)
@@ -1105,12 +1121,14 @@ class TinyMCEEditor(widgets.Textarea):
             widget_type = 'ui-creme-editor'
 
             final_attrs = context['widget']['attrs']
-            css_class = (
-                'ui-creme-input ui-creme-widget widget-auto '
+            base_css = (
+                'ui-creme-input ui-creme-widget widget-auto'
                 if final_attrs.pop('auto', True) else
-                'ui-creme-input ui-creme-widget '
+                'ui-creme-input ui-creme-widget'
             )
-            final_attrs['class'] = css_class + widget_type
+            final_attrs['class'] = (
+                f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+            ).strip()
             final_attrs['widget'] = widget_type
             final_attrs['basepath'] = 'tiny_mce'  # See root urls.py
 
@@ -1125,12 +1143,14 @@ class ColorPickerWidget(widgets.TextInput):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        css_class = (
-            'ui-creme-input ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-input ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget '
+            'ui-creme-input ui-creme-widget'
         )
-        final_attrs['class'] = css_class + widget_type
+        final_attrs['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         final_attrs['widget'] = widget_type
         final_attrs['plugin'] = 'gccolor'
 
@@ -1219,12 +1239,14 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
         widget_cxt = context['widget']
 
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-widget '
+            'ui-creme-widget'
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = (
+            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+        ).strip()
         final_attrs['class'] = 'ui-creme-input'
         widget_cxt['widget_type'] = widget_type
 
@@ -1495,12 +1517,12 @@ class DateRangeWidget(widgets.MultiWidget):
 
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
-        css_class = (
-            'ui-creme-widget widget-auto '
+        base_css = (
+            'ui-creme-widget widget-auto'
             if final_attrs.pop('auto', True) else
-            'ui-creme-widget '
+            'ui-creme-widget'
         )
-        widget_cxt['class'] = css_class + widget_type
+        widget_cxt['class'] = f"{base_css} {widget_type} {final_attrs.get('class', '')}".strip()
         widget_cxt['widget_type'] = widget_type
 
         return context
@@ -1510,8 +1532,7 @@ class DurationWidget(widgets.MultiWidget):
     template_name = 'creme_core/forms/widgets/duration.html'
 
     def __init__(self, attrs=None):
-        TextInput = widgets.TextInput
-        super().__init__(widgets=[TextInput] * 3, attrs=attrs)
+        super().__init__(widgets=[widgets.TextInput] * 3, attrs=attrs)
 
     def decompress(self, value):
         return value.split(':') if value else (None, None, None)
@@ -1553,10 +1574,8 @@ class CremeRadioSelect(widgets.RadioSelect):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         final_attrs = context['widget']['attrs']
-        final_attrs['class'] = '{} {}'.format(
-            final_attrs.get('class', ''),
-            'radio_select',
-        ).strip()
+        # TODO: radio_select => radio-select?
+        final_attrs['class'] = f"{final_attrs.get('class', '')} radio_select".strip()
 
         return context
 
