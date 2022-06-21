@@ -15,6 +15,9 @@
         - In 'TinyMCEEditor'.
         - in 'UnorderedMultipleChoiceWidget' (indeed the JavaScript component 'creme.widget.CheckListSelect').
     # Some improvements & fixes in the CSS.
+    # Apps:
+        * Activities :
+            - Two queries in bricks have been improved.
 
 
   Developers side :
