@@ -22,9 +22,11 @@
 
     Non breaking changes :
     ----------------------
-        # In 'creme_core.forms.fields.SelectorList', the constructor's parameter & attribute "enabled" are deprecated ;
-          use <attrs={"disabled": True}> to disable instead (backported to Creme 2.3).
-          The context variable "clonelast" is deprecated too.
+        # In 'creme_core.forms.widgets'
+            - In 'SelectorList', the constructor's parameter & attribute "enabled" are deprecated ;
+              use <attrs={"disabled": True}> to disable instead (backported to Creme 2.3).
+              The context variable "clonelast" is deprecated too.
+            - Many widgets does not ignore the <attrs['class']> you pass anymore.
 
 
 == Version 2.3.4 ==
