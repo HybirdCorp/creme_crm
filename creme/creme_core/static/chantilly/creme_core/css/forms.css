@@ -284,6 +284,7 @@ button.is-form-submit, input.is-form-submit {
 }
 
 input:disabled,
+input[type="radio"]:disabled,
 /*input[readonly],*/
 input:read-only,
 textarea:disabled,
@@ -295,6 +296,10 @@ textarea:read-only {
 
     cursor: default;
     cursor: not-allowed;
+}
+
+input[type="radio"] {
+    cursor: pointer;
 }
 
 .help-text ul {
