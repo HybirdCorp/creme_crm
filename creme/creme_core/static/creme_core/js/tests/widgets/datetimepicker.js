@@ -1,7 +1,7 @@
 /* globals QUnitWidgetMixin */
 (function($) {
 
-QUnit.module("creme.widgets.dinput.js", new QUnitMixin(QUnitAjaxMixin,
+QUnit.module("creme.widgets.datetime.js", new QUnitMixin(QUnitAjaxMixin,
                                                        QUnitEventMixin,
                                                        QUnitWidgetMixin, {
     afterEach: function(env) {
@@ -20,8 +20,8 @@ QUnit.module("creme.widgets.dinput.js", new QUnitMixin(QUnitAjaxMixin,
             '<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker" widget="ui-creme-datetimepicker" ${format} ${readonly} ${disabled}>' +
                 '<input type="hidden" name="${name}" value="${value}" />' +
                 '<li class="date"><input type="text" maxlength="12"/></li>' +
-                '<li class="hour"><input type="text" maxlength="2"/></li>' +
-                '<li class="minute"><input type="text" maxlength="2"/></li>' +
+                '<li class="hour"><input type="number"/></li>' +
+                '<li class="minute"><input type="number"/></li>' +
                 '<li class="clear"><button type="button">Clean</button></li>' +
                 '<li class="now"><button type="button">Now</button></li>' +
             '</ul>'
