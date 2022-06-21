@@ -55,7 +55,8 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 /*----------------------------------*/
-ul.ui-creme-widget[readonly] li {
+/* ul.ui-creme-widget[readonly] li { */
+ul.ui-creme-widget:read-only li {
     color: hsla(197, 15%, 55%, 1);
 }
 
@@ -760,12 +761,14 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*----------------------------------*/
-select[readonly] {
+/* select[readonly] { */
+select:read-only {
     color: gray;
 }
 
 /*----------------------------------*/
-.ui-creme-dselect[readonly] {
+/* .ui-creme-dselect[readonly] { */
+.ui-creme-dselect:read-only {
     color: gray;
 }
 
