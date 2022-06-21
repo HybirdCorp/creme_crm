@@ -293,7 +293,7 @@ def ellipsis(s: str, length: int) -> str:
 def ellipsis_multi(strings: Iterable[str], length: int) -> List[str]:
     """Return (potentially) shorter strings in order to the global length
     does not exceed a given value.
-    Strings are shorten in a way which tends to make them of the same length.
+    Strings are shortened in a way which tends to make them of the same length.
 
     @param strings: Iterable of str instances.
     @param length: Global (maximum) length (ie: integer).
