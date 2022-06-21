@@ -60,7 +60,7 @@ class ParticipantsBrick(QuerysetBrick):
         btc = self.get_template_context(
             context,
             activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
-                              .select_related('type', 'object_entity'),
+            #                  .select_related('type', 'object_entity'),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -113,7 +113,6 @@ class SubjectsBrick(QuerysetBrick):
             context,
             context['object'].relations
                              .filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-                             .select_related('type')
                              .prefetch_related('real_object'),
         ))
 

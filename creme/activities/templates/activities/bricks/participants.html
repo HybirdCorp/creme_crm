@@ -17,8 +17,8 @@
 
 {% block brick_table_rows %}
 {% has_perm_to unlink object as activity_unlink_perm %}{% url 'activities__remove_participant' as rm_part_url  %}
-    {% for relation in page.object_list %}
-        {% with relation.object_entity as participant %}
+ {% for relation in page.object_list %}
+  {% with participant=relation.object_entity %}
     <tr>
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink participant user %}</td>
         <td>{% if participant.is_user and participant.calendar_cache %}({{participant.is_user}} ➡ {{participant.calendar_cache}}){% endif %}</td>
@@ -26,8 +26,8 @@
             {% brick_table_action id='delete' url=rm_part_url __id=relation.pk label=_('Delete relationship') icon='unlink' enabled=activity_unlink_perm|and_op:participant_unlink_perm %}
         </td>
     </tr>
-        {% endwith %}
-    {% endfor %}
+  {% endwith %}
+ {% endfor %}
 {% endblock %}
 
 {% block brick_table_empty %}
