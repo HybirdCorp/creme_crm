@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -60,7 +60,7 @@ class ParticipantsBrick(QuerysetBrick):
         btc = self.get_template_context(
             context,
             activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
-                              .select_related('type', 'object_entity'),
+            #                  .select_related('type', 'object_entity'),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -103,7 +103,8 @@ class SubjectsBrick(QuerysetBrick):
         btc = self.get_template_context(
             context,
             activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-                    .select_related('type', 'object_entity'),
+                    .select_related('object_entity'),
+            #        .select_related('type', 'object_entity'),
         )
 
         Relation.populate_real_object_entities(btc['page'].object_list)
