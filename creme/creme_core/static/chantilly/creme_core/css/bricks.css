@@ -2,7 +2,11 @@
 
 /* Apply a natural box layout model to all elements */
 .brick * {
-    -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+/*
+    -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+*/
+            box-sizing: border-box;
 }
 
 .brick a img {

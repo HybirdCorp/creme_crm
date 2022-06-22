@@ -190,9 +190,11 @@ button {
 
     display: inline-block;
 
-            box-sizing: border-box;
-       -moz-box-sizing: border-box;
+/*
     -webkit-box-sizing: border-box;
+       -moz-box-sizing: border-box;
+*/
+            box-sizing: border-box;
 
     border: 1px solid #d7d7d7;
     border-bottom: 1px solid #bdbdbd;
