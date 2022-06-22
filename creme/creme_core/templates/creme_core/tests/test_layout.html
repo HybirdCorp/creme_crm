@@ -7,7 +7,11 @@
 {% block test_header %}
     <style type="text/css">
         * {
-            -moz-box-sizing: border-box; -webkit-box-sizing: border-box; box-sizing: border-box;
+/*
+            -webkit-box-sizing: border-box;
+               -moz-box-sizing: border-box;
+*/
+                    box-sizing: border-box;
         }
 
         .ui-layout.resizable {
@@ -27,7 +31,7 @@
             cursor: pointer;
             background: #ccffcc;
         }
-        
+
         ul[column] > ul.ui-layout.column {
             display: inline-block;
             vertical-align: top;
@@ -36,7 +40,7 @@
         ul[ui-layout-columns] > li {
             display: inline-block;
         }
-        
+
         ul[ui-layout-columns="1"] > li {width:100%}
         ul[ui-layout-columns="2"] > li {width:50%}
         ul[ui-layout-columns="3"] > li {width:33%}

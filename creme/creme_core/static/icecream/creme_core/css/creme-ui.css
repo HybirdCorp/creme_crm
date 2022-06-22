@@ -579,8 +579,10 @@ input:disabled + .ui-datepicker-trigger {
     padding: 0 0 5px 0;
     margin: 0;
 
+/*
     -webkit-box-sizing: border-box;
        -moz-box-sizing: border-box;
+*/
             box-sizing: border-box;
 
     -webkit-column-width: 200px;
