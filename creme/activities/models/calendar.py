@@ -129,13 +129,28 @@ class CalendarManager(models.Manager):
 
 
 class Calendar(CremeModel):
-    name       = models.CharField(_('Name'), max_length=100)
-    is_default = models.BooleanField(_('Is default?'), default=False)
+    name = models.CharField(_('Name'), max_length=100)
+    is_default = models.BooleanField(
+        _('Is default?'),
+        default=False,
+        help_text=_(
+            "When a user is set as an Activity's participant, this Activity is "
+            "added to its default calendar."
+        ),
+    )
+    is_public = models.BooleanField(
+        default=False,
+        verbose_name=_('Is public?'),
+        help_text=_('Public calendars can be seen by other users on the calendar view.'),
+    )
+    user = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
+    color = core_fields.ColorField(
+        _('Color'),
+        help_text=_('It is used on the calendar view to colorize Activities.'),
+    )
+
     # Used by creme_config
     is_custom  = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
-    is_public  = models.BooleanField(default=False, verbose_name=_('Is public?'))
-    user       = core_fields.CremeUserForeignKey(verbose_name=_('Calendar owner'))
-    color      = core_fields.ColorField(_('Color'))
 
     objects = CalendarManager()
 
