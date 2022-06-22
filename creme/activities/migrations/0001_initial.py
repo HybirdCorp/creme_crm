@@ -102,10 +102,31 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                (
+                    'is_default',
+                    models.BooleanField(
+                        default=False, verbose_name='Is default?',
+                        help_text=(
+                            "When a user is set as an Activity's participant, "
+                            "this Activity is added to its default calendar."
+                        ),
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('is_public', models.BooleanField(default=False, verbose_name='Is public?')),
-                ('color', creme_fields.ColorField(max_length=6, verbose_name='Color')),
+                (
+                    'is_public',
+                    models.BooleanField(
+                        default=False, verbose_name='Is public?',
+                        help_text='Public calendars can be seen by other users on the calendar view.',
+                    )
+                ),
+                (
+                    'color',
+                    creme_fields.ColorField(
+                        max_length=6, verbose_name='Color',
+                        help_text='It is used on the calendar view to colorize Activities.',
+                    )
+                ),
                 (
                     'user',
                     creme_fields.CremeUserForeignKey(
