@@ -89,8 +89,10 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
      - Buttons (eg: creation of an entity, CSV export...). See the method
        'get_buttons(self)' to override the displayed button in a view inheriting this class.
      - Additional queries to filter the rows/content (ie: entities displayed):
-        - from the HTTP request with the parameter "q_filter".
-        - customised by a view inheriting this class (see the method 'get_internal_q()')
+        - from the HTTP request with the parameter "q_filter" (see the class
+          attribute "requested_q_arg", & the method 'get_requested_q()' for examples).
+        - customised by a view inheriting this class (see the attribute 'internal_q'
+          & the method 'get_internal_q()').
     """
     model = CremeEntity  # TODO: CremeModel ??
     template_name = 'creme_core/generics/entities.html'
@@ -325,9 +327,21 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         )
 
     def get_internal_q(self) -> Q:
+        """Return a Q instance corresponding to an extra-filtering specific to the view."""
         return self.internal_q
 
     def get_requested_q(self) -> Q:
+        """Build a Q instance (used to filter the entities' Queryset) from GET data.
+
+        The name of the GET argument used is given by the attribute 'requested_q_arg'.
+        The value of the argument use the format of 'creme_core.utils.queries.QSerializer.dumps()'
+        Example:
+            my_uri = '{url}?{arg}={value}'.format(
+                url=Contact.get_lv_absolute_url(),
+                arg=EntitiesList.requested_q_arg,
+                value=QSerializer.dumps(Q(last_name='Smith')),
+            )
+        """
         arg_name = self.requested_q_arg
         json_q_filter = self.arguments.get(arg_name)
 
