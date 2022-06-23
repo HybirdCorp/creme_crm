@@ -745,11 +745,14 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-group-header {
+/*
     -webkit-column-break-inside: avoid;
        -moz-column-break-inside: avoid;
         -ms-column-break-inside: avoid;
          -o-column-break-inside: avoid;
             column-break-inside: avoid;
+*/
+    break-inside: avoid;
 
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;

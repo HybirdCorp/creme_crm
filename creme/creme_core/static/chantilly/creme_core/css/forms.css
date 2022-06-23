@@ -686,11 +686,14 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 }
 
 .hfilter_widget .underlay_selector_list .selector {
+/*
     -webkit-column-break-inside: avoid;
        -moz-column-break-inside: avoid;
         -ms-column-break-inside: avoid;
          -o-column-break-inside: avoid;
             column-break-inside: avoid;
+*/
+    break-inside: avoid;
 
     -webkit-transition: opacity 0.3s ease-in-out;
        -moz-transition: opacity 0.3s ease-in-out;
