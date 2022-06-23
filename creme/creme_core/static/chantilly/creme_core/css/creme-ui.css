@@ -604,16 +604,20 @@ input:disabled + .ui-datepicker-trigger {
 
     margin-right: 20px;
 
-    padding-top:2px;
-    padding-bottom:2px;
+    padding-top: 2px;
+    padding-bottom: 2px;
 
     -webkit-transform: translate3d(0,0,0); /* HACK : fix performance issues with some chrome versions */
 
+/*
     -webkit-column-break-inside: avoid;
        -moz-column-break-inside: avoid;
         -ms-column-break-inside: avoid;
          -o-column-break-inside: avoid;
             column-break-inside: avoid;
+*/
+    break-inside: avoid;
+    overflow: hidden; /* FireFox v101 breaks the columns even with "break-inside: avoid" (Chrome v102 is OK) */
 
     -webkit-transition: opacity 0.2s ease-in-out;
        -moz-transition: opacity 0.2s ease-in-out;
