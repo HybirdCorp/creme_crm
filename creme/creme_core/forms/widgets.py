@@ -510,7 +510,7 @@ class SelectorList(widgets.TextInput):
     @property
     def enabled(self):
         warnings.warn(
-            'SelectorList: the attribute <enabled> is deprecated ; '
+            'SelectorList: the attribute <enabled> is deprecated (read) ; '
             'use <attrs={"disabled": True}> to disable instead.',
             DeprecationWarning
         )
@@ -519,7 +519,7 @@ class SelectorList(widgets.TextInput):
     @enabled.setter
     def enabled(self, value):
         warnings.warn(
-            'SelectorList: the attribute <enabled> is deprecated ; '
+            'SelectorList: the attribute <enabled> is deprecated (write) ; '
             'use <attrs={"disabled": True}> to disable instead.',
             DeprecationWarning
         )
