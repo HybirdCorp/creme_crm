@@ -299,8 +299,10 @@ class RegularFieldsConditionsWidget(ConditionListWidget):
 
 
 class DateFieldsConditionsWidget(ConditionListWidget):
-    def __init__(self, fields=(), attrs=None, enabled=True):
-        super().__init__(None, enabled=enabled, attrs=attrs)
+    # def __init__(self, fields=(), attrs=None, enabled=True):
+    def __init__(self, fields=(), attrs=None):
+        # super().__init__(None, enabled=enabled, attrs=attrs)
+        super().__init__(None, attrs=attrs)
         self.fields = fields
 
     def _build_fieldchoice(self, name, data):
@@ -453,8 +455,10 @@ class CustomFieldsConditionsWidget(ConditionListWidget):
 class DateCustomFieldsConditionsWidget(ConditionListWidget):
     empty_selector_label = _('No date custom field at present.')
 
-    def __init__(self, date_fields_options=(), attrs=None, enabled=True):
-        super().__init__(selector=None, enabled=enabled, attrs=attrs)
+    # def __init__(self, date_fields_options=(), attrs=None, enabled=True):
+    def __init__(self, date_fields_options=(), attrs=None):
+        # super().__init__(selector=None, enabled=enabled, attrs=attrs)
+        super().__init__(selector=None, attrs=attrs)
         self.date_fields_options = date_fields_options
 
     def get_selector(self, name, value, attrs):
