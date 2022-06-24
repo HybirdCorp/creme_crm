@@ -199,8 +199,10 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 .ui-creme-navigation ul {
     transition: all 150ms ease-in;
 
+/*
     webkit-border-radius: 3px;
        moz-border-radius: 3px;
+*/
            border-radius: 3px;
 } /* animated transitions out of the hover state */
 

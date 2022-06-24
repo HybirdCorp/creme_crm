@@ -375,9 +375,11 @@ a img:hover {
     background : #E6F2F7 none repeat scroll 0 0;
 
     border : 2px solid #d7e2e7;
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .quickform_box {
@@ -392,9 +394,11 @@ a img:hover {
     background: #E6F2F7 none repeat scroll 0 0;
     border: 2px solid #d7e2e7;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 span.enumerator-item {

@@ -1241,8 +1241,10 @@
     background-color: transparent;
     border: 0px;
 
+/*
     -webkit-border-radius: 0;
        -moz-border-radius: 0;
+*/
             border-radius: 0;
 
     outline: 0px;
