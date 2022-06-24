@@ -28,9 +28,11 @@
 
     display: inline-block;
 
+/*
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
        -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+*/
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
     width: 100%;
 }
@@ -513,8 +515,8 @@
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
-    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+/*    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);
 }
@@ -1004,11 +1006,7 @@
 
 
     /* shadow: With or without you, I can't live © U2 1987 */
-/*
-    -webkit-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-       -moz-box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-            box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15);
-*/
+    /* box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15); */
 
     transition: width 0.3s ease-in-out;
 }
@@ -1229,9 +1227,11 @@
 
 .brick.brick-detailview-popup {
     border: 0;
+/*
     -webkit-box-shadow: none;
        -moz-box-shadow: none;
-            box-shadow: none;
+*/
+    box-shadow: none;
 }
 
 .brick .help {

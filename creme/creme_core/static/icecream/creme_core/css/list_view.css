@@ -124,8 +124,8 @@
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
-    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-            box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+/*    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
+    box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 }
 
 .ui-creme-listview-standalone .list-header-container {
@@ -187,8 +187,8 @@
     font-size: 11px !important;
     font-weight: 600;
 
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-            box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+/*    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 }
 
 .list-header-buttons a.with-icon,
@@ -1093,9 +1093,11 @@
     pointer-events: none;
     z-index: 1;
 
+/*
     -webkit-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
        -moz-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+*/
+    box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
 }
 
 .floatThead-container.floated + .floated-header-anchor {
