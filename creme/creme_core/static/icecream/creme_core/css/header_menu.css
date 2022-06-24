@@ -15,9 +15,11 @@
     background: white;
     top: 0;
 
+/*
     -webkit-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
        -moz-box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
-            box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
+*/
+    box-shadow: 0 1px 12px -3px rgba(0, 0, 0, 0.3);
 
     border-bottom: 1px #ddd;
     position: fixed;
@@ -142,9 +144,12 @@ div.search-box input[type="text"] {
     background: #414141;
     padding: 0 0 3px 0;
 
+/*
     -webkit-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
        -moz-box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+*/
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+
     /* todo: investigate shadow techniques - this one shows up over the dark menu item. Using one for each of the 3 sides make the corners unshadowed instead, etc. */
     z-index: 1; /* so it shows up over the search results */
 }

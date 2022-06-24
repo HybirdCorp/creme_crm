@@ -50,9 +50,11 @@ div.form-container {
     border-bottom: 1px solid #bdd3dc;
     border-right: 1px solid #bdd3dc;
 
+/*
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
        -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+*/
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-container .form-block-errors {
@@ -64,9 +66,11 @@ div.form-container {
     border: 2px solid #ffa3a3;
     border-radius: 3px;
 
+/*
     -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
        -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+*/
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .form-container .form-block + .form-block {
@@ -307,9 +311,11 @@ ul.multi-select {
     border-bottom: 1px solid #9db2bb;
     border-radius: 3px;
 
+/*
     -webkit-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
        -moz-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-            box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
+*/
+    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
 
     text-align: center;
     text-decoration: none;
@@ -350,10 +356,11 @@ ul.multi-select {
 
     border-radius: 3px;
 
+/*
     -webkit-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
        -moz-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-            box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-
+*/
+    box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
 
     text-align: left;
     text-decoration: none;
@@ -395,9 +402,11 @@ ul.multi-select {
     opacity: .50;
     filter: Alpha(Opacity=50);
 
+/*
     -webkit-box-shadow: none;
        -moz-box-shadow: none;
-            box-shadow: none;
+*/
+    box-shadow: none;
 
     cursor: default;
     cursor: not-allowed;
