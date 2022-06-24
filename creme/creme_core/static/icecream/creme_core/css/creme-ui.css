@@ -530,11 +530,13 @@ input:disabled + .ui-datepicker-trigger {
     vertical-align: middle;
     text-shadow: none;
 
+/*
     -webkit-transition: none;
        -moz-transition: none;
         -ms-transition: none;
          -o-transition: none;
-            transition: none;
+*/
+    transition: none;
 }
 
 .ui-creme-checklistselect .checklist-header a+a {
@@ -640,10 +642,12 @@ input:disabled + .ui-datepicker-trigger {
     */
     overflow: hidden;
 
+/*
     -webkit-transition: opacity 0.2s ease-in-out;
        -moz-transition: opacity 0.2s ease-in-out;
          -o-transition: opacity 0.2s ease-in-out;
-            transition: opacity 0.2s ease-in-out;
+*/
+    transition: opacity 0.2s ease-in-out;
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-field.hidden {
@@ -718,11 +722,13 @@ input:disabled + .ui-datepicker-trigger {
     vertical-align: middle;
     text-shadow: none;
 
+/*
     -webkit-transition: none;
        -moz-transition: none;
          -o-transition: none;
         -ms-transition: none;
-            transition: none;
+*/
+    transition: none;
 }
 
 .ui-creme-checklistselect .checklist-footer a:hover {

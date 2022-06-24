@@ -41,9 +41,11 @@
 
 .header-menu img,
 .header-menu a {
+/*
     -webkit-transition: none;
        -moz-transition: none;
-            transition: none;
+*/
+    transition: none;
 }
 .accessories-box {
     position: absolute;
@@ -400,8 +402,8 @@ span.create-group-entry {
     opacity: 0;
     visibility: hidden;
 
-    -webkit-transition: all 300ms ease-in;
-            transition: all 300ms ease-in;
+/*    -webkit-transition: all 300ms ease-in; */
+    transition: all 300ms ease-in;
 }
 
 .inline-search-results.showing {
@@ -409,8 +411,8 @@ span.create-group-entry {
     opacity: 1;
     visibility: visible;
 
-    -webkit-transition: all 180ms ease-out;
-            transition: all 180ms ease-out;
+/*    -webkit-transition: all 180ms ease-out; */
+    transition: all 180ms ease-out;
 }
 
 .search-results-group /* prefixed with Autoprefixer */ {
