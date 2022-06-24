@@ -348,8 +348,10 @@ ul.ui-creme-widget:read-only li {
     background-position: 50% 50%;
 
     border: 0;
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
+*/
             border-radius: 4px;
 }
 
@@ -768,9 +770,11 @@ input:disabled + .ui-datepicker-trigger {
 */
     break-inside: avoid;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 
     padding-left: 5px;
     padding-top: 2px;

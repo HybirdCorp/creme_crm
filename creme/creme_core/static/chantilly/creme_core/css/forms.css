@@ -238,9 +238,11 @@ input,
 textarea {
     border: 1px solid #6eaac4;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 input[type="file"] {
@@ -674,9 +676,11 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 
     background: #376e86;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .hfilter_widget .underlay_selector_list {
@@ -764,9 +768,11 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     /* bg color of the arrow needs to match underlay color */
     background: #376e86;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .hfilter_widget .inside-arrow:before {

@@ -697,9 +697,11 @@ form .table_detail_view .li_merge_entity1 textarea {
 
     background: #376e86;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .hfilter_widget .underlay_selector_list {
@@ -783,9 +785,11 @@ form .table_detail_view .li_merge_entity1 textarea {
     /* bg color of the arrow needs to match underlay color */
     background: #376e86;
 
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .hfilter_widget .inside-arrow:before {
@@ -955,9 +959,11 @@ table .dragtable-col-placeholder:first {
     min-width: 100px;
 
     border: 1px solid #6eaac4;
+/*
     -webkit-border-radius: 4px;
        -moz-border-radius: 4px;
-            border-radius: 4px;
+*/
+    border-radius: 4px;
 }
 
 .dcms_div table {
