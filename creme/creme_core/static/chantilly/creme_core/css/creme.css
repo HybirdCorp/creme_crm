@@ -26,11 +26,13 @@ a {
     background-color: transparent;
     cursor: pointer;
 
+/*
     -webkit-transition: color .4s linear;
        -moz-transition: color .4s linear;
         -ms-transition: color .4s linear;
          -o-transition: color .4s linear;
-            transition: color .4s linear;
+*/
+    transition: color .4s linear;
 }
 
 a:hover {
@@ -308,9 +310,11 @@ img {
 }
 
 a img {
+/*
     -webkit-transition: opacity 400ms ease-in;
        -moz-transition: opacity 400ms ease-in;
-            transition: opacity 400ms ease-in;
+*/
+    transition: opacity 400ms ease-in;
 }
 
 a img:hover {

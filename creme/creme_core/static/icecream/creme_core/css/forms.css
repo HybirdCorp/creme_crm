@@ -642,10 +642,12 @@ form .table_detail_view .li_merge_entity1 textarea {
     display: inline-block;
     margin-right: 20px;
 
+/*
     -webkit-transition: opacity 0.3s ease-in-out;
        -moz-transition: opacity 0.3s ease-in-out;
-         -o-transition: opacity 0.3s ease-in-out;
-            transition: opacity 0.3s ease-in-out;
+        -o-transition: opacity 0.3s ease-in-out;
+*/
+    transition: opacity 0.3s ease-in-out;
 }
 
 .hfilter_widget .selector_list > .selector:last-child {
@@ -733,10 +735,12 @@ form .table_detail_view .li_merge_entity1 textarea {
 */
     break-inside: avoid;
 
+/*
     -webkit-transition: opacity 0.3s ease-in-out;
        -moz-transition: opacity 0.3s ease-in-out;
          -o-transition: opacity 0.3s ease-in-out;
-            transition: opacity 0.3s ease-in-out;
+*/
+    transition: opacity 0.3s ease-in-out;
 }
 
 .hfilter_widget .underlay-container {

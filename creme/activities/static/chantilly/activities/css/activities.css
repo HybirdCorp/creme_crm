@@ -266,9 +266,11 @@
     background: none;
     text-shadow: none;
 
+/*
     -webkit-transition: none;
        -moz-transition: none;
-            transition: none;
+*/
+    transition: none;
 }
 
 .calendar .fc-event.fc-event-highlight {
