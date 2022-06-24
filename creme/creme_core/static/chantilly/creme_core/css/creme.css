@@ -65,10 +65,12 @@ body {
 }
 
 body.is_deleted {
+/*
     background: #ff7e7e;
     background: -webkit-linear-gradient(top, #ff7e7e 0%, #ffeded 30%);
     background:    -moz-linear-gradient(top, #ff7e7e 0%, #ffeded 30%);
-    background:         linear-gradient(to bottom, #ff7e7e 0%, #ffeded 30%);
+*/
+    background: linear-gradient(to bottom, #ff7e7e 0%, #ffeded 30%);
 }
 
 td p {
