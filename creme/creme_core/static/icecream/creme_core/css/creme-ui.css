@@ -617,9 +617,11 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-field {
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
+*/
     display: flex;
 
     margin-right: 20px;
@@ -672,16 +674,21 @@ input:disabled + .ui-datepicker-trigger {
     max-width: 180px;
     cursor: default;
 
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
+*/
     display: flex;
 
+/*
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;
         -ms-flex-direction: column;
-            flex-direction: column;
+*/
+    flex-direction: column;
+
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-label-help {

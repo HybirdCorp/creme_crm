@@ -354,28 +354,36 @@
 }
 
 .listview .lv-columns-header .lv-column button > div {
+/*
     display: -webkit-flex;
     display:  -ms-flexbox;
-    display:         flex;
+*/
+    display: flex;
 }
 
 .listview .lv-columns-header .lv-column .lv-sort-toggle-title {
+/*
     -ms-flex-item-align: center;
      -webkit-align-self: center;
-             align-self: center;
+*/
+    align-self: center;
 
+/*
     -webkit-flex-grow:     1;
         -ms-flex-positive: 1;
-            flex-grow:     1;
+*/
+    flex-grow: 1;
 }
 
 .listview .lv-columns-header .lv-column .lv-sort-toggle-flag {
     min-width: 16px;
     visibility: hidden;
 
+/*
     -ms-flex-item-align: center;
      -webkit-align-self: center;
-             align-self: center;
+*/
+    align-self: center;
 }
 
 .listview .lv-columns-header .lv-column.sorted .lv-sort-toggle-flag {
@@ -415,30 +423,40 @@
 }
 
 .listview .lv-search-header .lv-search-daterange {
+/*
 	display: -webkit-flex;
 	display: -ms-flexbox;
+*/
 	display: flex;
 
+/*
     -webkit-flex-direction: column;
         -ms-flex-direction: column;
-            flex-direction: column;
+*/
+    flex-direction: column;
 
     margin-right: -15px;
 }
 
 .listview .lv-search-header .lv-search-daterange .date-start,
 .listview .lv-search-header .lv-search-daterange .date-end {
+/*
     display: -webkit-flex;
     display:  -ms-flexbox;
-    display:         flex;
+*/
+    display: flex;
 
+/*
     -webkit-flex-direction: row;
         -ms-flex-direction: row;
-            flex-direction: row;
+*/
+    flex-direction: row;
 
+/*
     -ms-flex-item-align: stretch;
      -webkit-align-self: stretch;
-             align-self: stretch;
+*/
+    align-self: stretch;
 }
 
 .listview .lv-search-header .lv-search-daterange label {
@@ -452,18 +470,22 @@
     font-size: 11px;
     font-weight: 600;
 
+/*
     -ms-flex-item-align: center;
      -webkit-align-self: center;
-             align-self: center;
+*/
+    align-self: center;
 }
 
 .listview .lv-search-header .lv-search-daterange input {
     width: 70px;
     padding-right: 20px;
 
+/*
     -ms-flex-item-align: center;
      -webkit-align-self: center;
-             align-self: center;
+*/
+    align-self: center;
 }
 
 .listview .lv-search-header .lv-search-daterange .date-start + .date-end input {
@@ -482,9 +504,11 @@
     padding: 1px;
     padding-top: 2px;
 
+/*
     -ms-flex-item-align: center;
      -webkit-align-self: center;
-             align-self: center;
+*/
+    align-self: center;
 
     opacity: 1;
 }
