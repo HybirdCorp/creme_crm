@@ -761,14 +761,16 @@ form .table_detail_view .li_merge_entity1 textarea {
     height: 15px;
     overflow: hidden;
 
-    border: 2px solid rgba(255,255,255,0.0);
+    border: 2px solid rgba(255, 255, 255, 0.0);
     border-bottom: 0;
     border-right: 0;
 
+/*
     -webkit-transform: rotateZ(45deg);
        -moz-transform: rotateZ(45deg);
         -ms-transform: rotateZ(45deg);
-            transform: rotateZ(45deg);
+*/
+    transform: rotateZ(45deg);
 
     z-index: 1;
 }
@@ -781,10 +783,12 @@ form .table_detail_view .li_merge_entity1 textarea {
     width: 30px;
     height: 30px;
 
+/*
     -webkit-transform: rotateZ(-45deg);
        -moz-transform: rotateZ(-45deg);
         -ms-transform: rotateZ(-45deg);
-            transform: rotateZ(-45deg);
+*/
+    transform: rotateZ(-45deg);
 
     /* bg color of the arrow needs to match underlay color */
     background: #376e86;
@@ -807,10 +811,12 @@ form .table_detail_view .li_merge_entity1 textarea {
     width: 17px;
     height: 17px;
 
+/*
     -webkit-transform: rotateZ(45deg);
        -moz-transform: rotateZ(45deg);
         -ms-transform: rotateZ(45deg);
-            transform: rotateZ(45deg);
+*/
+    transform: rotateZ(45deg);
 
     background: none;
 }
