@@ -583,19 +583,23 @@ input:disabled + .ui-datepicker-trigger {
     -webkit-box-sizing: border-box;
        -moz-box-sizing: border-box;
 */
-            box-sizing: border-box;
+    box-sizing: border-box;
 
+/*
     -webkit-column-width: 200px;
        -moz-column-width: 200px;
         -ms-column-width: 200px;
-            column-width: 200px;
+*/
+    column-width: 200px;
 }
 
 .ui-creme-checklistselect .checklist-content.wide {
+/*
     -webkit-column-width: 370px;
        -moz-column-width: 370px;
         -ms-column-width: 370px;
-            column-width: 370px;
+*/
+    column-width: 370px;
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-field {

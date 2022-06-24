@@ -676,13 +676,17 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
 
     list-style: none;
 
+/*
     -webkit-column-width: 200px;
        -moz-column-width: 200px;
-            column-width: 200px;
+*/
+    column-width: 200px;
 
+/*
     -webkit-column-gap: 20px;
        -moz-column-gap: 20px;
-            column-gap: 20px;
+*/
+    column-gap: 20px;
 }
 
 .hfilter_widget .underlay_selector_list .selector {
