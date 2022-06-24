@@ -243,10 +243,12 @@
 
     width: 1px;
 
+/*
     background: -webkit-linear-gradient(transparent, #aaa);
     background:    -moz-linear-gradient(transparent, #aaa);
     background:      -o-linear-gradient(transparent, #aaa);
-    background:         linear-gradient(transparent, #aaa);
+*/
+    background: linear-gradient(transparent, #aaa);
 }
 
 .brick .brick-header-buttons img.brick-header-icon {

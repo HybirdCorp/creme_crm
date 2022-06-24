@@ -947,9 +947,11 @@ html .ui-button.ui-state-disabled:active {
     /* ---- creme theme ---- */
     border: 1px solid #6eaac4;
     border-radius: 6px;
-    background: #acd1e2; /* Old browsers */
-    background: -moz-linear-gradient(top, #acd1e2 0%, #acd1e2 50%, #89bfd7 51%, #bedbe9 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, #acd1e2 0%,#acd1e2 50%,#89bfd7 51%, #bedbe9 100%); /* Chrome10-25,Safari5.1-6 */
+/*
+    background: #acd1e2; // Old browsers
+    background: -moz-linear-gradient(top, #acd1e2 0%, #acd1e2 50%, #89bfd7 51%, #bedbe9 100%); // FF3.6-15
+    background: -webkit-linear-gradient(top, #acd1e2 0%,#acd1e2 50%,#89bfd7 51%, #bedbe9 100%); // Chrome10-25,Safari5.1-6
+*/
     background: linear-gradient(to bottom, #acd1e2 0%,#acd1e2 50%,#89bfd7 51%, #bedbe9 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
     font-weight: bold;
     color: #284b5a;
@@ -974,9 +976,11 @@ a:visited.ui-button,
 .ui-button:focus {
     /* ---- creme theme ---- */
     border: 1px solid #ff968d;
+/*
     background: #f7d6d2;
-    background: -moz-linear-gradient(top, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); /* FF3.6-15 */
-    background: -webkit-linear-gradient(top, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); /* Chrome10-25,Safari5.1-6 */
+    background: -moz-linear-gradient(top, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); // FF3.6-15
+    background: -webkit-linear-gradient(top, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); // Chrome10-25,Safari5.1-6
+*/
     background: linear-gradient(to bottom, #f9e2df 0%, #f9e2df 50%, #f7d6d2 51%, #fae8e6 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 
     font-weight: bold;

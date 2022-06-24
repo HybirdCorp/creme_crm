@@ -233,10 +233,12 @@
     left: 0px;
     top: -1px;
 
+/*
     background: -webkit-linear-gradient(transparent, #aaa);
     background:    -moz-linear-gradient(transparent, #aaa);
     background:      -o-linear-gradient(transparent, #aaa);
-    background:         linear-gradient(transparent, #aaa);
+*/
+    background: linear-gradient(transparent, #aaa);
 }
 
 .brick .brick-header-button-title {
