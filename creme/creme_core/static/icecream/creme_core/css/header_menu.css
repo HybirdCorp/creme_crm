@@ -416,14 +416,18 @@ span.create-group-entry {
 }
 
 .search-results-group /* prefixed with Autoprefixer */ {
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display: -ms-flexbox;
+*/
     display: flex;
 
+/*
     -webkit-box-align: stretch;
     -webkit-align-items: stretch;
     -ms-flex-align: stretch;
+*/
     align-items: stretch;
 }
 

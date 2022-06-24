@@ -1,8 +1,10 @@
 .brick-geoaddress-item {
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display:  -ms-flexbox;
-    display:         flex;
+*/
+    display: flex;
 
     padding-top: 2px;
     padding-bottom: 2px;
@@ -23,19 +25,23 @@
     margin-right: 4px;
     cursor: default;
 
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display:  -ms-flexbox;
-    display:         flex;
+*/
+    display: flex;
 
     align-self: top;
     flex-grow: 1;
 
+/*
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;
         -ms-flex-direction: column;
-            flex-direction: column;
+*/
+    flex-direction: column;
 }
 
 .brick-geoaddress-item .brick-geoaddress-title {
@@ -49,19 +55,23 @@
 }
 
 .brick-geoaddress-item .brick-geoaddress-action {
+/*
     display: -webkit-box;
     display: -webkit-flex;
     display:  -ms-flexbox;
-    display:         flex;
+*/
+    display: flex;
 
     margin-right: 4px;
     text-align: right;
 
+/*
     -webkit-box-orient: vertical;
     -webkit-box-direction: normal;
     -webkit-flex-direction: column;
         -ms-flex-direction: column;
-            flex-direction: column;
+*/
+    flex-direction: column;
 }
 
 .brick-geoaddress-item .brick-geoaddress-reset {
