@@ -269,9 +269,11 @@
 }
 
 .brick .brick-header-button:not(.is-disabled):hover .brick-header-icon {
+/*
     -webkit-filter: brightness(10);
        -moz-filter: brightness(10);
-            filter: brightness(10);
+*/
+    filter: brightness(10);
 }
 
 .brick .brick-menu-buttons {
