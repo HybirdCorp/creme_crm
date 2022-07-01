@@ -58,7 +58,8 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 
 /*----------------------------------*/
 /* ul.ui-creme-widget[readonly] li { */
-ul.ui-creme-widget:read-only li {
+ul.ui-creme-widget:read-only li,
+ul.ui-creme-widget.is-readonly li {
     color: hsla(197, 15%, 55%, 1);
 }
 
@@ -798,14 +799,8 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*----------------------------------*/
-/* select[readonly] { */
-select:read-only {
-    color: gray;
-}
-
-/*----------------------------------*/
 /* .ui-creme-dselect[readonly] { */
-.ui-creme-dselect:read-only {
+.ui-creme-dselect.is-readonly {
     color: gray;
 }
 
@@ -819,6 +814,8 @@ span.ack-errors {
     display: block;
     background-color: #f08080;
 }
+
+/* Jobs - end */
 
 img.entity-summary {
     height: 64px;

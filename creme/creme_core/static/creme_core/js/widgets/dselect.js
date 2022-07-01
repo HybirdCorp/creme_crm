@@ -36,8 +36,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _create: function(element, options, cb, sync) {
         this._context = {};
         this._backend = options.backend || creme.ajax.defaultCacheBackend();
-        this._enabled = creme.object.isFalse(options.disabled) && element.is(':not([disabled])');
-        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+        this._enabled = creme.object.isFalse(options.disabled) && !element.prop('disabled');
+        this._readonly = creme.object.isTrue(options.readonly) || element.is('.is-readonly');
         this._multiple = creme.object.isTrue(options.multiple) && element.is('[multiple]');
         this._autocomplete = creme.object.isTrue(options.autocomplete) && element.is('[autocomplete]');
         this._url = new creme.utils.Template(options.url);
@@ -46,6 +46,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         this._initModel(element, options);
         this._initAutocomplete(element, options);
+        this._updateDisabledState(element);
 
         this.reload(element, {}, cb, cb, sync);
 
@@ -93,7 +94,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _updateAutocomplete: function(element) {
         if (this._select2) {
-            this._select2.choices(this._filtered.all());
+            this._select2.refresh();
         }
     },
 

@@ -57,6 +57,46 @@ QUnit.test('creme.widget.DynamicSelect.create (static)', function(assert) {
     deepEqual([3, 'c'], widget.choice(3));
 });
 
+QUnit.test('creme.widget.DynamicSelect.create (static, readonly)', function(assert) {
+    var element = $(this.createSelectHtml({
+        readonly: true,
+        choices: [
+            {value: '1', label: 'a'},
+            {value: '2', label: 'b'}
+        ]
+    }));
+
+    var widget = creme.widget.create(element, {
+        backend: this.backend
+    });
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+    equal(element.hasClass('is-readonly'), true);
+
+    equal(widget.delegate._enabled, true);
+    equal(element.is(':disabled'), false);
+
+    element = $(this.createSelectHtml({
+        choices: [
+            {value: '1', label: 'a'},
+            {value: '2', label: 'b'}
+        ]
+    }));
+
+    widget = creme.widget.create(element, {
+        backend: this.backend,
+        readonly: true
+    });
+
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+    equal(element.hasClass('is-readonly'), true);
+
+    equal(widget.delegate._enabled, true);
+    equal(element.is(':disabled'), false);
+});
+
 QUnit.test('creme.widget.DynamicSelect.create (static, disabled)', function(assert) {
     var element = this.createDynamicSelectTag();
     this.appendOptionTag(element, 'a', 1);

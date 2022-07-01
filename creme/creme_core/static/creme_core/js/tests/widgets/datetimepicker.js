@@ -17,8 +17,8 @@ QUnit.module("creme.widgets.datetime.js", new QUnitMixin(QUnitAjaxMixin,
     createDateTimePickerHtml: function(options) {
         options = options || {};
         var html = (
-            '<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker" widget="ui-creme-datetimepicker" ${format} ${readonly} ${disabled}>' +
-                '<input type="hidden" name="${name}" value="${value}" />' +
+            '<ul class="ui-creme-widget widget-auto ui-creme-datetimepicker" widget="ui-creme-datetimepicker" ${format}>' +
+                '<input type="hidden" name="${name}" value="${value}" ${readonly} ${disabled}/>' +
                 '<li class="date"><input type="text" maxlength="12"/></li>' +
                 '<li class="hour"><input type="number"/></li>' +
                 '<li class="minute"><input type="number"/></li>' +
@@ -60,7 +60,7 @@ QUnit.test('creme.widget.DateTimePicker.create (disabled)', function(assert) {
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-ready'), true);
-    equal(element.is('[disabled]'), true);
+    equal(element.find('input').prop('disabled'), true);
     equal(widget.delegate._disabled, true);
 
     element = $(this.createDateTimePickerHtml());
@@ -69,7 +69,7 @@ QUnit.test('creme.widget.DateTimePicker.create (disabled)', function(assert) {
     });
 
     equal(element.hasClass('widget-ready'), true);
-    equal(element.is('[disabled]'), true);
+    equal(element.find('input').prop('disabled'), true);
     equal(widget.delegate._disabled, true);
 });
 
@@ -80,7 +80,8 @@ QUnit.test('creme.widget.DateTimePicker.create (readonly)', function(assert) {
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-ready'), true);
-    equal(element.is('[readonly]'), true);
+    equal(element.is('.is-readonly'), true);
+    equal(element.find('input').prop('readonly'), true);
     equal(widget.delegate._readonly, true);
 
     element = $(this.createDateTimePickerHtml());
@@ -89,7 +90,8 @@ QUnit.test('creme.widget.DateTimePicker.create (readonly)', function(assert) {
     });
 
     equal(element.hasClass('widget-ready'), true);
-    equal(element.is('[readonly]'), true);
+    equal(element.is('.is-readonly'), true);
+    equal(element.find('input').prop('readonly'), true);
     equal(widget.delegate._readonly, true);
 });
 

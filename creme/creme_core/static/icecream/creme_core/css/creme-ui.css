@@ -151,7 +151,8 @@ ul.ui-layout.vbox li {
 
 /*----------------------------------*/
 /* ul.ui-creme-widget[readonly] li { */
-ul.ui-creme-widget:read-only li {
+ul.ui-creme-widget:read-only li,
+ul.ui-creme-widget.is-readonly li {
     color: #888;
 }
 
@@ -953,7 +954,7 @@ input:disabled + .ui-datepicker-trigger {
 
 /*----------------------------------*/
 /* .ui-creme-dselect[readonly] { */
-.ui-creme-dselect:read-only {
+.ui-creme-dselect.is-readonly {
     color: gray;
 }
 
