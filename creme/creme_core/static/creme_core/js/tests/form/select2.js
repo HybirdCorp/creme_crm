@@ -148,6 +148,36 @@ QUnit.test('creme.form.Select2.refresh', function() {
     equal(5, $('.select2-dropdown .select2-results__option').length);
 });
 
+QUnit.test('creme.form.Select2.refresh (replace)', function() {
+    var select = this.createSelect([
+        {value: 5, label: 'E', selected: true},
+        {value: 1, label: 'A'}
+    ]);
+
+    var select2 = new creme.form.Select2();
+
+    select2.bind(select);
+
+    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+
+    select.select2('open');
+    equal(2, $('.select2-dropdown .select2-results__option').length);
+
+    select.select2('close');
+
+    select.find('option').remove();
+    this.addSelectOption(select, {value: 8, label: 'G'});
+    this.addSelectOption(select, {value: 2, label: 'B', selected: true});
+    this.addSelectOption(select, {value: 3, label: 'C'});
+
+    select2.refresh();
+
+    equal('B', select.next('.select2').find('.select2-selection__rendered').text());
+
+    select.select2('open');
+    equal(3, $('.select2-dropdown .select2-results__option').length);
+});
+
 QUnit.test('creme.form.Select2.unbind', function() {
     var select = this.createSelect([
         {value: 5, label: 'E', selected: true},

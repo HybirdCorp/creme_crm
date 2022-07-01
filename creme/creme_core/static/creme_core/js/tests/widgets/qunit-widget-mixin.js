@@ -16,6 +16,43 @@
             return select;
         },
 
+        createSelectHtml: function(options) {
+            options = $.extend({
+                auto: true,
+                choices: [],
+                disabled: false,
+                readonly: false,
+                datatype: 'string',
+                multiple: false,
+                sortable: false,
+                autocomplete: false
+            }, options || {});
+
+            return (
+                '<select widget="ui-creme-dselect"' +
+                       ' class="ui-creme-dselect ui-creme-widget ${auto} ${readonly}' +
+                       ' ${disabled} ${multiple} ${sortable} ${autocomplete} ${filter}>' +
+                    '${options}' +
+                '</select>'
+            ).template({
+                auto: options.auto ? 'widget-auto' : '',
+                readonly: options.readonly ? 'is-readonly' : '',
+                disabled: options.disabled ? 'disabled' : '',
+                multiple: options.multiple ? 'multiple' : '',
+                sortable: options.sortable ? 'sortable' : '',
+                autocomplete: options.autocomplete ? 'autocomplete' : '',
+                filter: options.filter ? 'filter="' + options.filter + '"' : '',
+                options: options.choices.map(function(item) {
+                    return '<option value="${value}" ${readonly} ${disabled}>${label}</option>'.template({
+                        value: item.id || item.value,
+                        label: String(item.text || item.label).replace(/\"/g, '&quot;'),
+                        readonly: item.readonly ? 'readonly' : '',
+                        disabled: item.disabled ? 'disabled' : ''
+                    });
+                }).join('\n')
+            });
+        },
+
         createDynamicSelectTag: function(url, noauto) {
             var select = $('<select widget="ui-creme-dselect" class="ui-creme-dselect ui-creme-widget"/>');
 

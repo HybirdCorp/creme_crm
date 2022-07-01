@@ -80,7 +80,9 @@ creme.form.Select2 = creme.component.Component.sub({
         return this;
     },
 
-    choices: function(data) {
+    refresh: function() {
+        var data = creme.model.ChoiceGroupRenderer.parse(this.element);
+
         var selectData = (data || []).filter(function(item) {
             return item.visible;
         }).map(function(item) {
@@ -96,10 +98,6 @@ creme.form.Select2 = creme.component.Component.sub({
             data: selectData
         });
 
-        return this.refresh();
-    },
-
-    refresh: function() {
         this.element.trigger('change.select2');
         return this;
     },

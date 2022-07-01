@@ -28,8 +28,11 @@ creme.widget.DatePicker = creme.widget.declare('ui-creme-datepicker', {
     },
 
     _create: function(element, options, cb, sync) {
-        this._disabled = creme.object.isTrue(options.disabled) && element.is('[disabled]');
-        this._readonly = creme.object.isTrue(options.readonly) && element.is('[readonly]');
+        this._disabled = creme.object.isTrue(options.disabled) && element.prop('disabled');
+        this._readonly = creme.object.isTrue(options.readonly) && element.prop('readonly');
+
+        element.prop('disabled', this._disabled);
+        element.prop('readonly', this._readonly);
 
         var parent = element.parent();
 
@@ -99,15 +102,19 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
     },
 
     _create: function(element, options, cb, sync) {
-        this._disabled = creme.object.isTrue(options.disabled) || element.is('[disabled]');
-        this._readonly = creme.object.isTrue(options.readonly) || element.is('[readonly]');
+        var input = $('input[type="hidden"]', element);
 
-        element.toggleAttr('disabled', this._disabled);
-        element.toggleAttr('readonly', this._readonly);
+        this._disabled = creme.object.isTrue(options.disabled) || input.prop('disabled');
+        this._readonly = creme.object.isTrue(options.readonly) || input.prop('readonly');
+
+        element.toggleClass('is-readonly', this._readonly);
+
+        input.prop('disabled', this._disabled);
+        input.prop('readonly', this._readonly);
 
         creme.forms.DateTimePicker.init(element, options.format);
 
-        $('input[type="hidden"]', element).on('change', function() {
+        input.on('change', function() {
             var datetime = creme.forms.DateTimePicker.parseDateTime($(this).val());
 
             $('li.date input[type="text"]', element).val(datetime.date);
@@ -126,7 +133,7 @@ creme.widget.DateTimePicker = creme.widget.declare('ui-creme-datetimepicker', {
         var state = disabled || this._readonly;
         this._datepicker.datepicker('option', 'disabled', state);
         this._buttons.prop('disabled', state);
-        $('li input[type="text"],li input[type="number"]', element).toggleAttr('disabled', state);
+        $('li input[type="text"],li input[type="number"]', element).prop('disabled', state);
     },
 
     val: function(element, value) {
