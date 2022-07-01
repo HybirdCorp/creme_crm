@@ -41,6 +41,19 @@ class AbstractActivityWorldSettings(CremeModel):
     menu_icon = models.ImageField(
         verbose_name=_('Menu icon'), upload_to='creme_core', blank=True,
     )
+    password_change_enabled = models.BooleanField(
+        verbose_name=_('Allow all users to change their own password?'),
+        default=True,
+    )
+    password_reset_enabled = models.BooleanField(
+        verbose_name=_('Enable the «Lost password» feature?'),
+        default=True,
+        help_text=_(
+            'This feature allows users to reset their password if they forgot '
+            'it. The login page proposes to receive an email to start the '
+            'reset process.'
+        ),
+    )
 
     objects = WorldSettingsManager()
 

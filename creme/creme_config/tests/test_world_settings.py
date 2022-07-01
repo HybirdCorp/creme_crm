@@ -222,3 +222,43 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         "Invalid field name."
         self.login()
         self.assertGET404(reverse('creme_config__edit_world_setting', args=('invalid',)))
+
+    def test_edit_password_features(self):
+        self.login()
+
+        url = reverse('creme_config__edit_world_setting', args=('password',))
+        response1 = self.assertGET200(url)
+        self.assertEqual(
+            _("Edit the instance's settings"), response1.context.get('title'),
+        )
+        self.assertEqual(
+            _('Save the modifications'), response1.context.get('submit_label'),
+        )
+
+        # POST #1
+        response2 = self.client.post(
+            url,
+            data={
+                'password_reset_enabled': 'on',
+                'password_change_enabled': '',
+            },
+        )
+        self.assertNoFormError(response2)
+
+        w_settings = WorldSettings.objects.get()
+        self.assertTrue(w_settings.password_reset_enabled)
+        self.assertFalse(w_settings.password_change_enabled)
+
+        # POST #2
+        response3 = self.client.post(
+            url,
+            data={
+                'password_reset_enabled': '',
+                'password_change_enabled': 'on',
+            },
+        )
+        self.assertNoFormError(response3)
+
+        w_settings = self.refresh(w_settings)
+        self.assertFalse(w_settings.password_reset_enabled)
+        self.assertTrue(w_settings.password_change_enabled)

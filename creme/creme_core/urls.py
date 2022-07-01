@@ -2,6 +2,7 @@ from django.conf import settings
 from django.urls import include, re_path
 
 from .views import (
+    auth,
     batch_process,
     bricks,
     creme_property,
@@ -19,6 +20,45 @@ from .views import (
     search,
     testjs,
 )
+
+auth_patterns = [
+    # Lost password
+    re_path(
+        r'^password/reset[/]?$',
+        auth.PasswordReset.as_view(),
+        name='creme_core__reset_password',
+    ),
+    re_path(
+        r'^password/reset/done[/]?$',
+        auth.PasswordResetDone.as_view(),
+        name='creme_core__password_reset_done',
+    ),
+    re_path(
+        r'^password/reset/'
+        r'(?P<uidb64>[0-9A-Za-z_\-]+)/'
+        # r'(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})[/]?$',  # TODO?
+        r'(?P<token>(.)+)[/]?$',
+        auth.PasswordResetConfirm.as_view(),
+        name='creme_core__password_reset_confirm',
+    ),
+    re_path(
+        r'^password/reset/complete[/]?$',
+        auth.PasswordResetComplete.as_view(),
+        name='creme_core__password_reset_complete',
+    ),
+
+    # Change password
+    re_path(
+        r'^password/own/change[/]?$',
+        auth.OwnPasswordChange.as_view(),
+        name='creme_core__change_own_password',
+    ),
+    re_path(
+        r'^creme_accounts/password_change/done$',
+        auth.OwnPasswordChangeDone.as_view(),
+        name='creme_core__own_password_change_done',
+    ),
+]
 
 entity_patterns = [
     re_path(
@@ -342,6 +382,7 @@ job_patterns = [
 ]
 
 creme_core_patterns = [
+    re_path(r'^auth/',          include(auth_patterns)),
     re_path(r'^entity/',        include(entity_patterns)),
     re_path(r'^relation/',      include(relation_patterns)),
     re_path(r'^property/',      include(property_patterns)),

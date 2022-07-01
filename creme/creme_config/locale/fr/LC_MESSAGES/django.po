@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-13 17:12+0200\n"
+"POT-Creation-Date: 2022-08-17 16:06+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -83,7 +83,6 @@ msgstr "Blocs personnalisés"
 msgid "Menu configuration"
 msgstr "Configuration du menu"
 
-#| msgid "Default form"
 msgid "Default menu"
 msgstr "Menu par défaut"
 
@@ -1800,6 +1799,21 @@ msgstr "Accueil"
 
 msgid "Default icon"
 msgstr "Icône par défaut"
+
+msgid "Password change"
+msgstr "Changement de mot de passe"
+
+msgid "Users can change their password"
+msgstr "Les utilisateurs peuvent modifier leur mot de passe"
+
+msgid "Users cannot change their password"
+msgstr "Les utilisateurs ne peuvent pas modifier leur mot de passe"
+
+msgid "Users can reset their lost password"
+msgstr "Les utilisateurs peuvent réinitialiser leur mot de passe perdu"
+
+msgid "Users cannot reset their lost password"
+msgstr "Les utilisateurs ne peuvent pas réinitialiser leur mot de passe perdu"
 
 #, python-format
 msgid "Configuration of «%(object)s»"
