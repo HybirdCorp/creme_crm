@@ -83,9 +83,13 @@ class MenuIconForm(WorldSettingsBaseForm):
 
                 img.save(absolute_path)
                 instance.menu_icon = str(relative_path)
-
         else:
             # TODO: instance.menu_icon.delete() ? (currently we keep the file)
             instance.menu_icon = None
 
         instance.save()
+
+
+class PasswordFeaturesForm(WorldSettingsBaseForm):
+    class Meta(WorldSettingsBaseForm.Meta):
+        fields = ('password_change_enabled', 'password_reset_enabled')

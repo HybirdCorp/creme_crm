@@ -140,6 +140,9 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                 raise ValidationError(
                     gettext('This Contact is related to a user and must have an e-mail address.')
                 )
+            # TODO: should we limit the edition of email? (it could be used to
+            #       reset the password -- but happily the History shows who
+            #       changed the field).
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)

@@ -1,0 +1,119 @@
+{% load i18n media %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html class="reset-password" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <style>
+    {% block style %}
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 400;
+          src: url('{% media_url "common/fonts/OpenSans-Regular-400.eot" %}'); /* IE9 Compat Modes */
+          src: url('{% media_url "common/fonts/OpenSans-Regular-400.woff" %}') format('woff'), /* Modern Browsers */
+               url('{% media_url "common/fonts/OpenSans-Regular.ttf" %}') format('truetype'); /* Safari, Android, iOS */
+        }
+
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 600;
+          src: url('{% media_url "common/fonts/OpenSans-Semibold-600.eot" %}'); /* IE9 Compat Modes */
+          src: url('{% media_url "common/fonts/OpenSans-Semibold-600.woff" %}') format('woff'), /* Modern Browsers */
+               url('{% media_url "common/fonts/OpenSans-Semibold.ttf" %}') format('truetype'); /* Safari, Android, iOS */
+        }
+
+        @font-face {
+          font-family: 'Open Sans';
+          font-style: normal;
+          font-weight: 700;
+          src: url('{% media_url "common/fonts/OpenSans-Bold-700.eot" %}'); /* IE9 Compat Modes */
+          src: url('{% media_url "common/fonts/OpenSans-Bold-700.woff" %}') format('woff'), /* Modern Browsers */
+               url('{% media_url "common/fonts/OpenSans-Bold.ttf" %}') format('truetype'); /* Safari, Android, iOS */
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #290d32;
+            background-image: url({% media_url 'common/images/creme-pattern.png' %});
+            background-repeat: repeat-x;
+        }
+
+        html, body, input, button {
+            font-family: 'Open Sans', 'Verdana', sans-serif;
+            font-size: 13px;
+        }
+
+        input {
+            padding-left: 5px;
+        }
+
+        .reset-password .frame-container {
+            background: linear-gradient(#fff, rgba(245, 245, 245, 0.8));
+
+            width: 500px;
+            min-height: 500px;
+            margin: 0 auto;
+            margin-top: 25px;
+            margin-bottom: 25px;
+
+            border: 1px solid #000;
+            border-radius: 2px;
+
+            box-sizing: border-box;
+
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .reset-password .frame-container .application-icon {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .reset-password .frame-container .application-icon img {
+            width: 200px;
+            height: 200px;
+            filter: saturate(0.4);
+        }
+
+        .reset-password .main-content {
+            width: 350px;
+            margin: 0 auto;
+            margin-top: 30px;
+        }
+
+        .reset-password .main-content .title {
+            padding-bottom: 10px;
+
+            border-bottom: 1px solid #999;
+
+            text-align: center;
+
+            font-weight: 600;
+            color: #444;
+            font-size: 14px;
+        }
+    {% endblock %}
+    </style>
+    <title>{% trans 'Reset your password' %} - Creme CRM</title>
+    <link rel="shortcut icon" href="{% media_url 'common/images/favicon.ico' %}" type="image/x-icon" />
+</head>
+<body>
+  {% block container %}
+    <div class="frame-container">
+        <div class="application-icon">{% block icon %}<img src="{% media_url 'common/images/creme_200.png' %}"/>{% endblock %}</div>
+        <div class="main-content">
+            <div class="title">{{title|default:'Reset your password'}}</div>
+            {% block main %}{% endblock %}
+        </div>
+    </div>
+  {% endblock %}
+</body>
+</html>

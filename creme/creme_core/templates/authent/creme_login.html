@@ -1,0 +1,30 @@
+{% extends 'authent/base.html' %}
+{% load i18n %}
+
+{% block style %}
+    {{block.super}}
+
+    div.lost-password {
+        text-align: center;
+    }
+
+    div.lost-password a {
+        color: #2d2d2d;
+        text-decoration: none;
+    }
+
+    div.lost-password a:hover {
+        color: #086dd2;
+        text-decoration: underline;
+    }
+{% endblock %}
+
+{% block form_submit %}
+    {{block.super}}
+
+    {% if world_settings.password_reset_enabled %}
+    <div class="lost-password">
+        <a href="{% url 'creme_core__reset_password' %}">{% trans 'You lost your password?' %}</a>
+    </div>
+    {% endif %}
+{% endblock %}

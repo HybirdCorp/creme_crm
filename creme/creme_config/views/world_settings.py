@@ -32,11 +32,13 @@ class Portal(generic.BricksView):
 
 class WorldSettingEdition(generic.CremeModelEditionPopup):
     # model = WorldSettings
+    # TODO: change the title dynamically?
     title = _("Edit the instance's settings")
     permissions = SUPERUSER_PERM
 
     form_classes = {
         'menu_icon': world_forms.MenuIconForm,
+        'password':  world_forms.PasswordFeaturesForm,
     }
 
     def get_object(self, *args, **kwargs):

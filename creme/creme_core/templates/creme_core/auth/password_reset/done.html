@@ -1,0 +1,15 @@
+{% extends 'creme_core/auth/password_reset/base.html' %}
+{% load i18n %}
+
+{% block style %}
+    {{block.super}}
+
+    .reset-password .main-content p {
+        text-align: center;
+    }
+{% endblock %}
+
+{% block main %}
+    <p>{% trans 'If the given email address exists in Creme CRM database then instructions to reset your password has been sent.' %}</p>
+    <p>{% trans 'They should not be long!' %}</p>
+{% endblock %}

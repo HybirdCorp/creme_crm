@@ -1,0 +1,35 @@
+{% extends 'creme_core/auth/password_reset/base.html' %}
+{% load i18n %}
+
+{% block style %}
+    {{block.super}}
+
+    .reset-password .main-content p {
+        text-align: center;
+    }
+
+    .reset-password .main-content div.login {
+        margin-top: 50px;
+
+        text-align: center;
+        font-size: 20px;
+    }
+
+    .reset-password .main-content div.login a,
+    .reset-password .main-content div.login a:active {
+        color: #3bab07;
+        text-decoration: none;
+    }
+
+    .reset-password .main-content div.login a:hover {
+        color: #4cc713;
+        text-decoration: underline;
+    }
+{% endblock %}
+
+{% block main %}
+    <p>{% trans 'Your new password has been saved.' %}</p>
+    <div class="login">
+        <a href="{% url 'creme_login' %}">{% trans 'Log in' %}</a>
+    </div>
+{% endblock %}

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 17:01+0200\n"
+"POT-Creation-Date: 2022-08-17 18:28+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -950,11 +950,11 @@ msgstr "Personnalisé"
 msgid "Enter a valid value (e.g. DF8177)."
 msgstr "Saisissez une valeur valide (ex: DF8177)."
 
-#  Translated in Django ; leave untranslated here...
+# Translated in Django ; leave untranslated here...
 msgid "Enter a whole number."
 msgstr ""
 
-#  Translated in Django ; leave untranslated here...
+# Translated in Django ; leave untranslated here...
 #, python-format
 msgid "Ensure this value is greater than or equal to %(limit_value)s."
 msgstr ""
@@ -1607,6 +1607,9 @@ msgid "{count} entity"
 msgid_plural "{count} entities"
 msgstr[0] "{count} Fiche"
 msgstr[1] "{count} Fiches"
+
+msgid "Change password"
+msgstr "Changer de mot de passe"
 
 msgid "User"
 msgstr "Utilisateur"
@@ -2482,6 +2485,20 @@ msgstr "Créer une valeur de TVA"
 msgid "Menu icon"
 msgstr "Icône du menu"
 
+msgid "Allow all users to change their own password?"
+msgstr "Autoriser tous les utilisateurs à changer leur propre mot de passe ?"
+
+msgid "Enable the «Lost password» feature?"
+msgstr "Activer la fonctionnalité «Mot de passe perdu» ?"
+
+msgid ""
+"This feature allows users to reset their password if they forgot it. The "
+"login page proposes to receive an email to start the reset process."
+msgstr ""
+"Cette fonctionnalité permet aux utilisateurs de réinitialiser leur mot de "
+"passe s'ils l'ont perdu. La page de connexion propose de recevoir un e-mail "
+"pour démarrer le processus de réinitialisation."
+
 msgid "owns"
 msgstr "possède"
 
@@ -2570,6 +2587,60 @@ msgstr "Revenir à l'accueil"
 #, python-format
 msgid "Changeset: %(id)s (%(date)s)"
 msgstr "Changeset: %(id)s (%(date)s)"
+
+msgid "You lost your password?"
+msgstr "Yous avez perdu votre mot de passe ?"
+
+msgid "Reset your password"
+msgstr "Réinitialisez votre mot de passe"
+
+msgid "Your new password has been saved."
+msgstr "Votre nouveau mot de passe a été enregistré."
+
+msgid "Log in"
+msgstr "Se connecter"
+
+msgid ""
+"If the given email address exists in Creme CRM database then instructions to "
+"reset your password has been sent."
+msgstr ""
+"Si l'adresse e-mail fournie est connue de Crème CRM alors des instructions "
+"vont vous être envoyées."
+
+msgid "They should not be long!"
+msgstr "Elles ne devraient pas tarder à arriver !"
+
+#, python-format
+msgid ""
+"Hi,\n"
+"\n"
+"You receive this email because a reset of your password for Crème CRM has "
+"been requested.\n"
+"\n"
+"Click on the following link to choose a new password: %(url)s\n"
+"\n"
+"Here your username in case you forgot it too: %(username)s\n"
+"\n"
+"Thanks for show an interest in Crème CRM.\n"
+"\n"
+"Your Crème administrator\n"
+msgstr ""
+"Bonjour,\n"
+"\n"
+"Vous recevez cet e-mail parce qu'une réinitialisation de votre mot de passe "
+"Crème CRM a été demandée.\n"
+"\n"
+"Cliquez sur le lien suivant pour choisir un nouveau not de passe : %(url)s\n"
+"\n"
+"Voici votre identifiant au cas où vous l'auriez également oublié : "
+"%(username)s\n"
+"\n"
+"Merci de votre intérêt pour Crème CRM.\n"
+"\n"
+"Votre administrateur Crème\n"
+
+msgid "Creme CRM > Reinitialisation of your password"
+msgstr "Creme CRM > Réinitialisation de votre mot de passe"
 
 msgid "Strategic summary"
 msgstr "Résumé stratégique"
@@ -3441,6 +3512,42 @@ msgstr "France"
 
 msgid "(truncated cell)"
 msgstr "(cellule tronquée)"
+
+msgid "Reset your password (Step 1/4)"
+msgstr "Réinitialiser votre mot de passe (Étape 1/4)"
+
+msgid "Send me instructions"
+msgstr "Envoyez moi les instructions"
+
+msgid "You are not allowed to use the «Lost password» feature."
+msgstr ""
+"Vous n'êtes pas autorisé à utiliser la fonctionnalité «Mot de passe perdu»."
+
+msgid "Reset your password (Step 2/4)"
+msgstr "Réinitialiser votre mot de passe (Étape 2/4)"
+
+msgid "Reset your password (Step 3/4)"
+msgstr "Réinitialiser votre mot de passe (Étape 3/4)"
+
+msgid "Save the new password"
+msgstr "Enregistrer le nouveau mot de passe"
+
+msgid "Change your password"
+msgstr "Modifier votre mot de passe"
+
+msgid "You are not allowed to change your password."
+msgstr "Vous n'êtes autorisé à modifier votre mot de passe."
+
+#, python-brace-format
+msgid "You lost your password? <a href=\"{url}\">You can reset it</a>"
+msgstr ""
+"Vous avez perdu votre mot de passe ? <a href=\"{url}\">Vous pouvez le "
+"réinitialiser</a>"
+
+msgid "Use your new password the next time you want to login."
+msgstr ""
+"Utilisez votre nouveau mot de passe la prochaine fois que vous vous "
+"connectez."
 
 msgid "Run"
 msgstr "Exécuter"

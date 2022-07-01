@@ -1,0 +1,97 @@
+{% extends 'creme_core/auth/password_reset/base.html' %}
+
+{% block style %}
+    {{block.super}}
+
+    .form-row {
+        margin-top: 20px;
+        margin-left: 25px;
+    }
+
+    .submit-row {
+        margin: 0 auto;
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .submit-row input {
+        display: inline-block;
+
+        box-sizing: border-box;
+
+        margin-right: 10px;
+        margin-bottom: 10px;
+
+        padding: 10px 30px;
+
+        border: 1px solid #d7d7d7;
+        border-bottom: 1px solid #bdbdbd;
+        border-radius: 3px;
+
+        box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
+        background: linear-gradient(#fcfcfc, #f0f0f0);
+
+        text-align: center;
+        text-decoration: none;
+        color: #333;
+        text-transform: uppercase;
+        font-size: 11px !important;
+        font-weight: 600;
+    }
+
+    .submit-row input:enabled:hover {
+        background: linear-gradient(#ffffff, #f3f3f3);
+        color: #4d4d4d;
+
+        cursor: pointer;
+    }
+
+    .submit-row input:enabled:active {
+        background: linear-gradient(#f9f9f9, #ededed);
+
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
+
+        border-bottom-color: #d7d7d7;
+        border-top-color: #bdbdbd;
+
+        color: #1a1a1a;
+    }
+
+    label {
+        display: inline-block;
+        width: 150px;
+        margin-bottom: 5px;
+
+        font-size: 12px;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    ul.errorlist {
+        margin: 5px 0 0 0;
+        padding-left: 25px;
+
+        color: #eb1d1d;
+        font-size: 13px;
+        font-weight: 600;
+    }
+{% endblock %}
+
+{% block main %}
+    <form method="post">{% csrf_token %}
+        {# NB: should not be useful with the vanilla forms #}
+        {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
+        {% if form.non_field_errors %}<div class="non-field-errors">{{form.non_field_errors}}</div>{% endif %}
+
+        {% for field in form.visible_fields %}
+          <div class="form-row">
+             <label for="{{field.auto_id}}">{{field.label}}</label>{{field}}
+          </div>
+          <div>{{field.errors}}</div>
+        {% endfor %}
+
+        <div class="submit-row">
+            <input type="submit" value="{{submit_label|default:'Validate'}}" />
+        </div>
+    </form>
+{% endblock %}

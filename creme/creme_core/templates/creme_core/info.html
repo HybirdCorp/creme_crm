@@ -1,0 +1,29 @@
+{% extends 'creme_core/base.html' %}
+{% load i18n creme_widgets %}
+
+{% block page_title %}{{title}} - {% endblock %}
+
+{% block content %}
+  {% block view_title %}
+    <div>
+        <div class="hat-bar-container">
+            <div class="hat-bar">
+                <div class="bar-icon">{% widget_icon name='info' size='brick-hat-bar' %}</div>
+                <div class="bar-title">
+                    <h1>{{title}}</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+  {% endblock %}
+
+  {% block main_content %}
+    <div class="information-messages">
+      {% if information_messages|length == 1 %}
+        <span>{{information_messages.0}}</span>
+      {% else %}
+        <ul>{% for message in information_messages %}<li>{{message}}</li>{% endfor %}</ul>
+      {% endif %}
+    </div>
+  {% endblock %}
+{% endblock %}
