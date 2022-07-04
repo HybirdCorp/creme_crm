@@ -6,7 +6,7 @@
 
     window.QUnitDialogMixin = {
         beforeEach: function() {
-            $('<div class="ui-dialog-within-container"></div>').appendTo('body');
+            $('<div class="ui-dialog-within-container" style="height: 1024px;"></div>').appendTo('body');
         },
 
         afterEach: function() {
