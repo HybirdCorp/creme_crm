@@ -734,7 +734,7 @@ CREME_CORE_CSS = [
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
     'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
     'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
-    'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
+    # 'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
     'creme_core/css/select2/select2-4.0.13.css',
 
     'creme_core/css/creme.css',
@@ -814,7 +814,7 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
-    'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
+    # 'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.24.0.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
@@ -896,7 +896,8 @@ CREME_CORE_JS = [
 
     'creme_core/js/widgets/list/pager.js',
 
-    'creme_core/js/widgets/form/chosen.js',
+    # DEPRECATED: to be removed in Creme 2.5
+    # 'creme_core/js/widgets/form/chosen.js',
     'creme_core/js/widgets/form/select2.js',
 
     'creme_core/js/widgets/frame.js',
@@ -1086,7 +1087,8 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/datetimepicker.js',
 
     'creme_core/js/tests/form/forms.js',
-    'creme_core/js/tests/form/chosen.js',
+    # DEPRECATED: to be removed in Creme 2.5
+    # 'creme_core/js/tests/form/chosen.js',
     'creme_core/js/tests/form/select2.js',
 
     'creme_core/js/tests/list/list-pager.js',

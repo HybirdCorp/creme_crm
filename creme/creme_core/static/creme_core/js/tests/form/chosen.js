@@ -29,7 +29,7 @@ QUnit.module("creme.chosen.js", new QUnitMixin({
     }
 }));
 
-QUnit.test('creme.form.Chosen.activate (empty)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.activate (empty)', function() {
     var select = this.createSelect();
     var chosen = new creme.form.Chosen();
 
@@ -44,7 +44,7 @@ QUnit.test('creme.form.Chosen.activate (empty)', function() {
     equal(select, chosen.element);
 });
 
-QUnit.test('creme.form.Chosen.activate (already activated)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.activate (already activated)', function() {
     var select = this.createSelect([{value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen();
 
@@ -56,7 +56,7 @@ QUnit.test('creme.form.Chosen.activate (already activated)', function() {
 });
 
 
-QUnit.test('creme.form.Chosen.activate (single)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.activate (single)', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen();
 
@@ -64,7 +64,7 @@ QUnit.test('creme.form.Chosen.activate (single)', function() {
     equal('E', select.parent().find('.chzn-single span').text());
 });
 
-QUnit.test('creme.form.Chosen.activate (multiple)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.activate (multiple)', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A', selected: true}]);
     var chosen = new creme.form.Chosen({multiple: true});
 
@@ -76,7 +76,7 @@ QUnit.test('creme.form.Chosen.activate (multiple)', function() {
     equal(0, select.parent().find('ul.chzn-choices.ui-sortable').length); // not sortable
 });
 
-QUnit.test('creme.form.Chosen.activate (multiple, sortable)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.activate (multiple, sortable)', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A', selected: true}]);
     var chosen = new creme.form.Chosen({multiple: true, sortable: true});
 
@@ -89,7 +89,7 @@ QUnit.test('creme.form.Chosen.activate (multiple, sortable)', function() {
     equal(1, select.parent().find('ul.chzn-choices.ui-sortable').length); // sortable
 });
 
-QUnit.test('creme.form.Chosen.refresh', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.refresh', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen();
 
@@ -105,7 +105,7 @@ QUnit.test('creme.form.Chosen.refresh', function() {
     equal(5, $('.chzn-drop .chzn-results li').length);
 });
 
-QUnit.test('creme.form.Chosen.deactivate', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.deactivate', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen();
 
@@ -124,7 +124,7 @@ QUnit.test('creme.form.Chosen.deactivate', function() {
     equal(0, select.parent().find('.chzn-single span').length);
 });
 
-QUnit.test('creme.form.Chosen.deactivate (sortable)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.deactivate (sortable)', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen({multiple: true, sortable: true});
 
@@ -147,7 +147,7 @@ QUnit.test('creme.form.Chosen.deactivate (sortable)', function() {
     equal(0, select.parent().find('ul.chzn-choices').length);
 });
 
-QUnit.test('creme.form.Chosen.deactivate (already deactivated)', function() {
+QUnit.skipIf(Object.isNone(creme.form.Chosen), 'creme.form.Chosen.deactivate (already deactivated)', function() {
     var select = this.createSelect([{value: 5, label: 'E', selected: true}, {value: 1, label: 'A'}]);
     var chosen = new creme.form.Chosen();
 
