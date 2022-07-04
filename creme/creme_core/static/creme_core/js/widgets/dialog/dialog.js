@@ -23,12 +23,20 @@ creme.dialog = creme.dialog || {};
 
 var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
+// TODO : factorize
+var clamp = function(value, min, max) {
+    value = !isNaN(max) ? Math.min(max, value) : value;
+    return !isNaN(min) ? Math.max(min, value) : value;
+};
 
 creme.dialog.Dialog = creme.component.Component.sub({
     _init_: function(options) {
         this._events = new creme.component.EventHandler();
         this._isClosing = false;
         this._deferFrameActivation = false;
+
+        var within = $('.ui-dialog-within-container');
+        var maxHeight = within.length > 0 ? within.innerHeight() : null;
 
         options = this.options = $.extend({
             url:        undefined,
@@ -38,6 +46,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             draggable:  true,
             width:      640,
             height:     350,
+            maxHeight:  maxHeight,
             scroll:     'frame',
             within:     $('.ui-dialog-within-container'),
             fitFrame:   true,
@@ -566,30 +575,32 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var resizable = is_framescroll ? options.resizable : false;
         var draggable = is_framescroll ? options.draggable : false;
-        var width = options.minWidth > 0 ? Math.max(options.minWidth, options.width) : options.width;
-        var height = options.minHeight > 0 ? Math.max(options.minHeight, options.height) : options.height;
+        var width = clamp(options.width, options.minWidth, options.maxWidth);
+        var height = clamp(options.height, options.minHeight, options.maxHeight);
         var title = options.title ? String(options.title).decodeHTMLEntities() : options.title;
 
-        this._dialog = content.dialog({buttons:   Object.values(buttons),
-                                       title:     title,
-                                       modal:     true,
-                                       resizable: resizable,
-                                       draggable: draggable,
-                                       width:     width,
-                                       height:    height,
-                                       maxHeight: is_framescroll ? options.maxHeight : false,
-                                       maxWidth:  options.maxWidth,
-                                       minHeight: options.minHeight,
-                                       minWidth:  options.minWidth,
-                                       position:  position,
-                                       closeOnEscape: options.closeOnEscape,
-                                       open:      function() { self._onOpen($(this), frame, options); },
-                                       resize:    function() { self._onResize($(this), frame); },
-                                       close:     function() { self._onClose($(this), frame, options); },
-                                       dragStop:  function() { self._onDragStop($(this)); },
-                                       resizeStop: function() { self._onResizeStop($(this)); }
-                                      });
+        var dialogOptions = {
+            buttons:   Object.values(buttons),
+            title:     title,
+            modal:     true,
+            resizable: resizable,
+            draggable: draggable,
+            width:     width,
+            height:    height,
+            maxHeight: options.maxHeight,
+            maxWidth:  options.maxWidth,
+            minHeight: options.minHeight,
+            minWidth:  options.minWidth,
+            position:  position,
+            closeOnEscape: options.closeOnEscape,
+            open:      function() { self._onOpen($(this), frame, options); },
+            resize:    function() { self._onResize($(this), frame); },
+            close:     function() { self._onClose($(this), frame, options); },
+            dragStop:  function() { self._onDragStop($(this)); },
+            resizeStop: function() { self._onResizeStop($(this)); }
+        };
 
+        this._dialog = content.dialog(dialogOptions);
         return this;
     },
 

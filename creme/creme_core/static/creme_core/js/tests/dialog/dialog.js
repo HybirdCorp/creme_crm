@@ -675,7 +675,7 @@ QUnit.test('creme.dialog.Dialog (max size)', function(assert) {
     dialog.open();
 
     equal(true, dialog.isOpened());
-    deepEqual({width: null, height: null}, dialog.maxSize());
+    deepEqual({width: null, height: 1024}, dialog.maxSize());
 
     dialog.maxSize({width: 800, height: 600});
 
