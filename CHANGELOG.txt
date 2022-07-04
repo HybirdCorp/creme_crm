@@ -10,6 +10,7 @@
     # The setting 'USE_L10N' is now set to 'True' by default (previously only 'False' was working).
       So, by default, the formats for dates & times depend on the user's language.
     # In the History's block, lines related to entities from apps you cannot view are excluded.
+    # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # Apps :
         * Creme_config :
             - The menu icon can now be customised.
@@ -51,6 +52,8 @@
         - New dependency 'underscorejs 1.13.2'
         - The version of 'floathead' is now "2.2.4".
         - The version of 'jquery-ui' is now "1.13.1".
+    - Chosen to Select2 migration :
+        - New dependency 'Select2 4.0.13'
     - New application Sketch :
         - New dependency 'd3js 5.16.0'
         - New dependency 'filesaver 2.0.4' (customized)
@@ -216,6 +219,8 @@
         # In JavaScript :
             - The function 'creme.forms._toDualColumnMultiSelect' & 'creme.forms.toOrderedMultiSelect' have been removed ;
               the new component 'creme.widget.SelectOrInputWidget' is used instead.
+            - 'creme.form.Chosen' is now deprecated; It has been renamed as 'creme.form.Chosen'.
+              No longer used in media generation but still exist to ease migrations.
         # Apps :
             * Creme_config :
                 - The extra data stored in the BrickStates related to 'bricks.CustomFormsBrick' has changed from <ctype_id> to <{'ctype': ctype_id, items: [...]}>.
@@ -274,6 +279,8 @@
         # In 'creme_core.gui.last_viewed.LastViewedItem', the key "ctype_id" is now mandatory.
         # In 'creme_core.management.commands.i18n_overload.Command._get_catalog_paths()', the return
           values are now instances of 'pathlib.Path'.
+        # In Javascript:
+            - 'creme.widget.DynamicSelect' is using the new wrapper 'creme.form.Select2' instead of 'creme.form.Chosen'.
         # Apps :
             * Billing :
                 - In 'models.AbstractTemplateBase', the protected attribute '_verbose_status_cache' has been removed (was useless since years).

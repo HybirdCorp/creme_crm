@@ -23,6 +23,7 @@ creme.form = creme.form || {};
 
 creme.form.Chosen = creme.component.Component.sub({
     _init_: function(options) {
+        console.warn('creme.form.Chosen is deprecated. Use creme.form.Select2 instead');
         this.options = $.extend({
             multiple: false,
             sortable: false,
