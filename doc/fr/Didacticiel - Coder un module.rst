@@ -3,10 +3,10 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 16-03-2022 pour la version 2.4 de Creme
+:Version: 06-07-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
-:Errata: Hugo Smett, Patix
+:Errata: Hugo Smett, Patix, Morgane Alonso
 
 .. contents:: Sommaire
 
@@ -732,7 +732,7 @@ Puis créons un fichier : ``my_project/beavers/populate.py``. ::
         dependencies = ['creme_core', 'persons']
 
         def populate(self):
-            HeaderFilter.create(
+            HeaderFilter.objects.create_if_needed(
                 pk=DEFAULT_HFILTER_BEAVER, name=_('Beaver view'), model=Beaver,
                 cells_desc=[
                     (EntityCellRegularField, {'name': 'name'}),
@@ -740,7 +740,7 @@ Puis créons un fichier : ``my_project/beavers/populate.py``. ::
                 ],
             )
 
-            SearchConfigItem.create_if_needed(Beaver, ['name'])
+            SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 
             if not MenuConfigItem.objects.filter(entry_id__startswith='beavers-').exists():
                 directory = MenuConfigItem.objects.filter(
@@ -870,9 +870,6 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgid "Beavers management"
     msgstr ""
 
-    msgid "All beavers"
-    msgstr ""
-
     msgid "Create a beaver"
     msgstr ""
 
@@ -889,6 +886,12 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
 
     msgid "Beavers"
+    msgstr ""
+
+    msgid "Directory"
+    msgstr ""
+
+    msgid "Save the beaver"
     msgstr ""
 
 Éditez ce fichier en mettant les traductions adéquates dans les chaînes "msgstr" : ::
@@ -915,9 +918,6 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgid "Beavers management"
     msgstr "Gestion des castors"
 
-    msgid "All beavers"
-    msgstr "Lister les castors"
-
     msgid "Create a beaver"
     msgstr "Créer un castor"
 
@@ -936,6 +936,11 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgid "Beavers"
     msgstr "Castors"
 
+    msgid "Directory"
+    msgstr "Annuaire"
+
+    msgid "Save the beaver"
+    msgstr "Sauvegarder le castor"
 
 Il suffit maintenant de compiler notre fichier de traduction avec la commande
 suivante : ::
@@ -1077,7 +1082,7 @@ Puis ajoutons un champ 'status' dans notre modèle ``Beaver`` : ::
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.models import CremeEntity, CREME_REPLACE
+    from creme.creme_core.models import CremeEntity, CREME_REPLACE  # <- NEW
 
     from .status import Status  # <- NEW
 
@@ -1520,11 +1525,10 @@ Si on veut que le bloc soit présent dans la configuration de base pour les cast
 l'installation, il faut s'en occuper dans notre fichier ``beavers/populate.py`` : ::
 
     [...]
-    from creme.creme_core.bricks as core_bricks
+    import creme.creme_core.bricks as core_bricks
     from creme.creme_core.models import BrickDetailviewLocation
 
     from .bricks import BeaverAgeBrick
-    from .models import Beaver
 
     def populate(self):
         [...]
@@ -1624,9 +1628,9 @@ une convention) : ::
 
     class CreateTicketButton(Button):
         id = Button.generate_id('beavers', 'create_ticket')
-        verbose_name = _('Create a ticket to notify that a beaver is sick.')
+        verbose_name = _('Create a ticket for sick beaver')
         template_name = 'beavers/buttons/ticket.html'
-        permission = 'tickets.add_ticket'
+        permissions = 'tickets.add_ticket'
 
         def get_ctypes(self):
             return (Beaver,)
@@ -1641,8 +1645,9 @@ une convention) : ::
 
 Quelques explications :
 
-- L'attribut ``permission`` est une string dans la pure tradition Django pour les
-  permissions, de la forme : 'APP-ACTION'.
+- L'attribut ``permissions`` est une string ou une liste de strings dans la pure
+  tradition Django pour les permissions, de la forme : 'APP-ACTION' ou
+  ['APP-ACTION', …].
 - La méthode ``get_ctypes()`` peut préciser, si elle existe, les types d'entités
   avec lesquels le bouton est compatible : le bouton ne sera proposé à la
   configuration que pour ces types là.
@@ -1730,7 +1735,12 @@ de la classe ``CremeEntityQuickForm`` : ::
     class BeaverQuickForm(CremeEntityQuickForm):  # <== NEW
         class Meta(CremeEntityQuickForm.Meta):
             model = Beaver
+            fields = ('name', 'birthday')
 
+
+Contrairement au ``CremeEntityForm`` qui par défaut crée des champs pour tous
+les attributs du modèle, le ``CremeEntityQuickForm`` n'utilise aucun attribut, il
+faut donc préciser nos champs explicitement dans la création de notre formulaire.
 
 Puis dans votre ``apps.py``, ajoutez la méthode ``register_quickforms()``
 telle que : ::
@@ -1791,7 +1801,7 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
     from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
     from creme.creme_core.models import CustomFormConfigItem
 
-    from . import custom forms
+    from . import custom_forms
 
 
     class Populator(BasePopulator):
@@ -1801,7 +1811,7 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
             [...]
 
             CustomFormConfigItem.objects.create_if_needed(
-                descriptor=custom_forms.TICKET_CREATION_CFORM,
+                descriptor=custom_forms.BEAVER_CREATION_CFORM,
                 groups_desc=[
                     {
                         'name': _('General information'),
@@ -1831,7 +1841,7 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
                         ],
                     },
                 ],
-        )
+            )
 
 Déclarons ensuite notre descripteur de formulaire ; dans notre fichier
 ``beavers/apps.py``, ajoutons une nouvelle méthode : ::
@@ -1942,6 +1952,7 @@ Puis dans votre ``beavers/apps.py``, ajoutez la méthode
 
         def register_function_fields(self, function_field_registry):  # <- NEW
             from . import function_fields
+            from .models import Beaver
 
             function_field_registry.register(Beaver, function_fields.BeaverAgeField)
 
