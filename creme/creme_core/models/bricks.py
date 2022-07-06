@@ -22,19 +22,7 @@ import logging
 import warnings
 from functools import partial
 # from json import loads as json_load
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Iterable, Iterator, Sequence
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType

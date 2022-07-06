@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable, Iterator, List, Tuple, Type
+from typing import Iterable, Iterator
 
 from django.db.models import Field, Model
 

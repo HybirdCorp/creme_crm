@@ -25,11 +25,6 @@ from json import loads as json_load
 from typing import (  # DefaultDict
     TYPE_CHECKING,
     Iterable,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
 )
 
 from django.contrib.contenttypes.models import ContentType

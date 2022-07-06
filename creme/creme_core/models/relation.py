@@ -19,10 +19,9 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 import warnings
 from collections import defaultdict
-from typing import Iterable, Tuple, Type, Union
+from typing import Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError

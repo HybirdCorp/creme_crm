@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Dict, Iterator, Optional, Tuple, Type
+from typing import Iterator
 
 from django.db import models
 from django.db.models.aggregates import Aggregate

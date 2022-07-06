@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import warnings
 from os.path import splitext
-from typing import Any, Callable, Iterator, Type
+from typing import Any, Callable, Iterator
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType

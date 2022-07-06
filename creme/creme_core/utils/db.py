@@ -26,18 +26,7 @@ from __future__ import annotations
 from collections import defaultdict
 from fnmatch import fnmatch
 from functools import lru_cache
-from typing import (
-    Any,
-    DefaultDict,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-)
+from typing import Any, DefaultDict, Iterable, Iterator, Sequence
 
 from django.db import DEFAULT_DB_ALIAS, connections
 from django.db.models import ForeignKey, Model

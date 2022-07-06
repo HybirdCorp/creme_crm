@@ -19,16 +19,7 @@
 from __future__ import annotations
 
 import re
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.apps import apps
 from django.core.exceptions import FieldDoesNotExist

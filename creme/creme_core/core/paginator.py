@@ -29,7 +29,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from functools import lru_cache
 from math import ceil
-from typing import Iterable, Iterator, List, Optional
+from typing import Iterable, Iterator
 
 from django.core.exceptions import ValidationError
 from django.core.paginator import InvalidPage

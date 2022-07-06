@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
-from typing import DefaultDict, Iterator, Set, Type
+from typing import DefaultDict, Iterator
 
 from django.apps import AppConfig, apps
 from django.db.models import Model

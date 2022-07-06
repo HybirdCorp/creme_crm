@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import uuid
 from collections import OrderedDict, defaultdict
-from typing import Any, DefaultDict, Dict, Iterable, Sequence, Type
+from typing import Any, DefaultDict, Iterable, Sequence
 
 from django import forms
 from django.core.validators import EMPTY_VALUES

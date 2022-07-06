@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Dict, KeysView, Optional, Type
+from typing import TYPE_CHECKING, Callable, KeysView, Type
 
 from creme.creme_core.models import CremeEntity
 

@@ -23,20 +23,7 @@ import uuid
 from collections import OrderedDict, defaultdict
 from functools import reduce
 from operator import or_ as or_op
-from typing import (
-    TYPE_CHECKING,
-    DefaultDict,
-    Dict,
-    FrozenSet,
-    Iterable,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, DefaultDict, Iterable, Sequence, Type, Union
 
 import pytz
 from django.apps import apps

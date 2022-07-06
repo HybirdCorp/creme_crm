@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable, Dict, Optional, Tuple, Type
+from typing import Callable, Tuple
 
 from django.db.models import Model
 from django.utils.html import format_html

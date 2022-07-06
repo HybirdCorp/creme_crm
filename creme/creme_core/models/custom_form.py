@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 # from json import loads as json_load
-from typing import TYPE_CHECKING, List, Union
+from typing import TYPE_CHECKING
 
 from django.db import models
 from django.db.models import F, Q

@@ -62,5 +62,5 @@ def sparsezip(full_collection, sparse_collection, default_value):
     latter using expand_sparse_iterator()
     """
     yield from zip_longest(full_collection,
-                             expand_sparse_iterator(iter(sparse_collection), default_value),
-                             fillvalue=default_value)
+                           expand_sparse_iterator(iter(sparse_collection), default_value),
+                           fillvalue=default_value)

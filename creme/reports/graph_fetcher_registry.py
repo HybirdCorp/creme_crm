@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Dict, Iterator, Type
+from typing import TYPE_CHECKING, Iterator
 
 from django.utils.translation import gettext_lazy as _
 

@@ -22,13 +22,8 @@ import logging
 from collections import defaultdict
 from typing import (  # Callable
     DefaultDict,
-    Dict,
     Iterable,
-    List,
-    Optional,
     Sequence,
-    Tuple,
-    Type,
 )
 
 from django.core.exceptions import FieldDoesNotExist

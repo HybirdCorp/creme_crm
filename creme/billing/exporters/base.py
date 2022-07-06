@@ -24,9 +24,6 @@ from typing import (
     Iterable,
     Iterator,
     NewType,
-    Optional,
-    Type,
-    Union,
 )
 
 from django.conf import settings

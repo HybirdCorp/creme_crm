@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from functools import partial
-from typing import Dict, Iterable, List, Optional, Tuple, Type
+from typing import Iterable
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models

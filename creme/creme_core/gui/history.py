@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from functools import partial
-from typing import Iterable, Iterator, List, Sequence, Tuple, Type, Union
+from typing import Iterable, Iterator, Sequence
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
