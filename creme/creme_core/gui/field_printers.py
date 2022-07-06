@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -286,7 +284,7 @@ class FKPrinter:
 
         return sub_printer(entity, fval, user, field)
 
-    def register(self, model: Type[Model], printer: FieldPrinter) -> FKPrinter:
+    def register(self, model: type[Model], printer: FieldPrinter) -> FKPrinter:
         self._sub_printers[model] = printer
         return self
 
@@ -336,7 +334,7 @@ class BaseM2MPrinter:
         raise NotImplementedError
 
     def register(self,
-                 model: Type[Model],
+                 model: type[Model],
                  printer: M2MInstancePrinter,
                  enumerator: M2MEnumerator,
                  ) -> BaseM2MPrinter:
@@ -581,7 +579,7 @@ class _FieldPrintersRegistry:
     # TODO: rename register_printer
     def register(
             self,
-            field: Type[models.Field],
+            field: type[models.Field],
             printer: FieldPrinter,
             output: str = 'html') -> _FieldPrintersRegistry:
         """Register a field printer.
@@ -607,7 +605,7 @@ class _FieldPrintersRegistry:
 
     def register_listview_css_class(
             self,
-            field: Type[models.Field],
+            field: type[models.Field],
             css_class: str,
             header_css_class: str) -> _FieldPrintersRegistry:
         """Register CSS classes used in list-views to display field's value and column header.
@@ -622,10 +620,10 @@ class _FieldPrintersRegistry:
         return self
 
     # NB: see EntityCell._get_listview_css_class()
-    def get_listview_css_class_for_field(self, field_class: Type[models.Field]) -> str:
+    def get_listview_css_class_for_field(self, field_class: type[models.Field]) -> str:
         return self._listview_css_printers[field_class]
 
-    def get_header_listview_css_class_for_field(self, field_class: Type[models.Field]) -> str:
+    def get_header_listview_css_class_for_field(self, field_class: type[models.Field]) -> str:
         return self._header_listview_css_printers[field_class]
 
     def _build_field_printer(
@@ -716,7 +714,7 @@ class _FieldPrintersRegistry:
 
     def build_field_printer(
             self,
-            model: Type[models.Model],
+            model: type[models.Model],
             field_name: str,
             output: str = 'html') -> ReducedPrinter:
         return self._build_field_printer(FieldInfo(model, field_name), output=output)

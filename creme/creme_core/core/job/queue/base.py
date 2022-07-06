@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2016-2022  Hybird
@@ -135,7 +133,7 @@ class BaseJobSchedulerQueue:
         """
         raise NotImplementedError
 
-    def ping(self) -> Optional[str]:
+    def ping(self) -> str | None:
         """ Check if the queue & the job manager are running.
         @return Returns an error string, or 'None'.
         """

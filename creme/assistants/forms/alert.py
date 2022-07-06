@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -405,4 +403,4 @@ class AlertForm(CremeModelForm):
                 'period': period.as_dict(),
             }
 
-        return super(AlertForm, self).save(*args, **kwargs)
+        return super().save(*args, **kwargs)

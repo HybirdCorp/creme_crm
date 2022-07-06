@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -36,7 +34,7 @@ class CrudityQuerysetBrick(QuerysetBrick):
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
             raise PermissionDenied(
-                gettext('Error: you are not allowed to view this block: {}'.format(self.id_))
+                gettext(f'Error: you are not allowed to view this block: {self.id_}')
             )
 
 

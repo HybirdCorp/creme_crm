@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -41,7 +39,7 @@ logger = logging.getLogger(__name__)
 
 
 class CremePropertyTypeManager(models.Manager):
-    def compatible(self, ct_or_model: Union[ContentType, Type[CremeEntity]]):
+    def compatible(self, ct_or_model: ContentType | type[CremeEntity]):
         return self.filter(
             Q(subject_ctypes=as_ctype(ct_or_model))
             | Q(subject_ctypes__isnull=True)
@@ -55,7 +53,7 @@ class CremePropertyTypeManager(models.Manager):
         str_pk: str,
         generate_pk: bool = False,
         text: str,
-        subject_ctypes: Iterable[Union[ContentType, CremeEntity]] = (),
+        subject_ctypes: Iterable[ContentType | CremeEntity] = (),
         is_custom: bool = False,
         is_copiable: bool = True,
     ) -> CremePropertyType:

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from os.path import join
 from unittest import skipIf
 

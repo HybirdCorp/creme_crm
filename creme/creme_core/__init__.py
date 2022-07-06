@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -63,7 +61,7 @@ def get_concrete_model(model_setting: str) -> Type[Model]:
         return apps.get_model(model_str)
     except ValueError as e:
         raise ImproperlyConfigured(
-            "{} must be of the form 'app_label.model_name'".format(model_setting)
+            f"{model_setting} must be of the form 'app_label.model_name'"
         ) from e
     except LookupError as e:
         raise ImproperlyConfigured(

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from os import path as os_path
 
 from django.core.management import CommandError, call_command

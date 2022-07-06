@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -33,10 +31,10 @@ FormFactory = Callable[[], Type['MergeEntitiesBaseForm']]
 class _MergeFormRegistry:
     """Registry for forms uses to merge entities."""
     def __init__(self):
-        self._form_factories: Dict[Type[CremeEntity], FormFactory] = {}
+        self._form_factories: dict[type[CremeEntity], FormFactory] = {}
 
     def register(self,
-                 model: Type[CremeEntity],
+                 model: type[CremeEntity],
                  form_factory: FormFactory) -> _MergeFormRegistry:
         """Register a form factory for a model.
         @param model: Class inheriting CremeEntity.
@@ -48,11 +46,11 @@ class _MergeFormRegistry:
 
         return self
 
-    def get(self, model: Type[CremeEntity]) -> Optional[FormFactory]:
+    def get(self, model: type[CremeEntity]) -> FormFactory | None:
         return self._form_factories.get(model)
 
     @property
-    def models(self) -> KeysView[Type[CremeEntity]]:
+    def models(self) -> KeysView[type[CremeEntity]]:
         return self._form_factories.keys()
 
 

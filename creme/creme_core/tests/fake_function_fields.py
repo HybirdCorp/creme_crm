@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..core.function_field import (
     FunctionField,
     FunctionFieldResult,

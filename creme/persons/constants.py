@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 REL_SUB_EMPLOYED_BY = 'persons-subject_employed_by'
 REL_OBJ_EMPLOYED_BY = 'persons-object_employed_by'
 

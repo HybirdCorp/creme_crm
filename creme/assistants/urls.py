@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import include, re_path
 
 from .views import action, alert, memo, todo, user_message

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.test import RequestFactory
 
 from creme.creme_core.gui.listview import ListViewButton, ListViewButtonList

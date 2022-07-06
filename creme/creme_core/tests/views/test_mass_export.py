@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date
 from functools import partial
 from pathlib import Path
@@ -129,7 +127,7 @@ class MassExportViewsTestCase(ViewsTestCase):
         )
 
         if kwargs:
-            parameters += '&{}'.format(urlencode(kwargs, doseq=True))
+            parameters += f'&{urlencode(kwargs, doseq=True)}'
 
         return reverse('creme_core__mass_export') + parameters
 

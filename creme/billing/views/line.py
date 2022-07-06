@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -102,7 +100,7 @@ class AddingToCatalog(generic.RelatedToEntityFormPopup):
         user.has_perm_to_view_or_die(entity)  # TODO: test
 
     def get_form_kwargs(self):
-        kwargs = super(AddingToCatalog, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['related_item_class'] = self.get_item_class()
 
         return kwargs

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.core.entity_filter import (
     _EntityFilterRegistry,
     _EntityFilterSuperRegistry,

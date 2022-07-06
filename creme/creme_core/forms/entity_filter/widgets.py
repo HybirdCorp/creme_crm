@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -97,7 +95,7 @@ class FieldConditionSelector(ChainedInput):
         EQUALS_OPS = f'{operators.EQUALS}|{operators.EQUALS_NOT}'
         add_input = pinput.add_input
         add_input(
-            '^enum(__null)?.({})$'.format(EQUALS_OPS),
+            f'^enum(__null)?.({EQUALS_OPS})$',
             widget=DynamicSelectMultiple, attrs=field_attrs,
             # TODO: use a GET arg instead of using a TemplateURLBuilder ?
             # TODO: remove "field.ctype" ?
@@ -110,7 +108,7 @@ class FieldConditionSelector(ChainedInput):
         )
 
         pinput.add_dselect(
-            '^user(__null)?.({})$'.format(EQUALS_OPS),
+            f'^user(__null)?.({EQUALS_OPS})$',
             '{}?filter_type={}'.format(
                 reverse('creme_core__efilter_user_choices'),
                 self.filter_type,
@@ -118,16 +116,16 @@ class FieldConditionSelector(ChainedInput):
             attrs=field_attrs,
         )
         add_input(
-            '^fk(__null)?.({})$'.format(EQUALS_OPS),
+            f'^fk(__null)?.({EQUALS_OPS})$',
             widget=EntitySelector, attrs={'auto': False},
             content_type='${field.ctype}',
         )
         add_input(
-            '^date(__null)?.{}$'.format(operators.RANGE),
+            f'^date(__null)?.{operators.RANGE}$',
             widget=NullableDateRangeSelect, attrs={'auto': False},
         )
         add_input(
-            '^date(__null)?.({})$'.format(EQUALS_OPS),
+            f'^date(__null)?.({EQUALS_OPS})$',
             widget=DynamicInput, type='date', attrs={'auto': False},
         )
         add_input(
@@ -135,7 +133,7 @@ class FieldConditionSelector(ChainedInput):
             options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         add_input(
-            '(string|.*__null).({})$'.format(operators.ISEMPTY),
+            f'(string|.*__null).({operators.ISEMPTY})$',
             widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -378,7 +376,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(key='${field.type}.${operator.id}', attrs={'auto': False})
         pinput.add_input(
-            '^enum(__null)?.({}|{})$'.format(operators.EQUALS, operators.EQUALS_NOT),
+            f'^enum(__null)?.({operators.EQUALS}|{operators.EQUALS_NOT})$',
             widget=DynamicSelectMultiple,
             # TODO: use a GET arg instead of using a TemplateURLBuilder ?
             url=TemplateURLBuilder(
@@ -387,7 +385,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
             attrs=field_attrs,
         )
         pinput.add_input(
-            '^date(__null)?.{}$'.format(operators.RANGE),
+            f'^date(__null)?.{operators.RANGE}$',
             NullableDateRangeSelect, attrs={'auto': False},
         )
         pinput.add_input(
@@ -395,7 +393,7 @@ class CustomFieldConditionSelector(FieldConditionSelector):
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.add_input(
-            '(string|.*__null)?.({})$'.format(operators.ISEMPTY),
+            f'(string|.*__null)?.({operators.ISEMPTY})$',
             DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})

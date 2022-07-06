@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -96,22 +94,22 @@ class UserRole(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._allowed_apps: Optional[Set[str]] = None
-        self._extended_allowed_apps: Optional[Set[str]] = None
+        self._allowed_apps: set[str] | None = None
+        self._extended_allowed_apps: set[str] | None = None
 
-        self._admin_4_apps: Optional[Set[str]] = None
-        self._extended_admin_4_apps: Optional[Set[str]] = None
+        self._admin_4_apps: set[str] | None = None
+        self._extended_admin_4_apps: set[str] | None = None
 
-        self._creatable_ctypes_set: Optional[FrozenSet[int]] = None
-        self._exportable_ctypes_set: Optional[FrozenSet[int]] = None
+        self._creatable_ctypes_set: frozenset[int] | None = None
+        self._exportable_ctypes_set: frozenset[int] | None = None
 
-        self._setcredentials: Optional[List[SetCredentials]] = None
+        self._setcredentials: list[SetCredentials] | None = None
 
     def __str__(self):
         return self.name
 
     @property
-    def admin_4_apps(self) -> Set[str]:
+    def admin_4_apps(self) -> set[str]:
         if self._admin_4_apps is None:
             self._admin_4_apps = {
                 app_name
@@ -128,7 +126,7 @@ class UserRole(models.Model):
         self.raw_admin_4_apps = '\n'.join(apps)
 
     @property
-    def allowed_apps(self) -> Set[str]:
+    def allowed_apps(self) -> set[str]:
         if self._allowed_apps is None:
             self._allowed_apps = {
                 app_name
@@ -146,20 +144,20 @@ class UserRole(models.Model):
         self.raw_allowed_apps = '\n'.join(apps)
 
     @staticmethod
-    def _build_extended_apps(apps: Iterable[str]) -> Set[str]:
+    def _build_extended_apps(apps: Iterable[str]) -> set[str]:
         from ..apps import extended_app_configs
 
         return {app_config.label for app_config in extended_app_configs(apps)}
 
     @property
-    def extended_admin_4_apps(self) -> Set[str]:
+    def extended_admin_4_apps(self) -> set[str]:
         if self._extended_admin_4_apps is None:
             self._extended_admin_4_apps = self._build_extended_apps(self.admin_4_apps)
 
         return self._extended_admin_4_apps
 
     @property
-    def extended_allowed_apps(self) -> Set[str]:
+    def extended_allowed_apps(self) -> set[str]:
         if self._extended_allowed_apps is None:
             self._extended_allowed_apps = self._build_extended_apps(self.allowed_apps)
 
@@ -173,7 +171,7 @@ class UserRole(models.Model):
         return (app_name in self.extended_allowed_apps) or self.is_app_administrable(app_name)
 
     # TODO: rename app_labels
-    def _build_apps_verbose(self, app_names: Iterable[str]) -> List[str]:
+    def _build_apps_verbose(self, app_names: Iterable[str]) -> list[str]:
         verbose_names = []
         get_app = apps.get_app_config
 
@@ -192,10 +190,10 @@ class UserRole(models.Model):
 
         return verbose_names
 
-    def get_admin_4_apps_verbose(self) -> List[str]:  # For templates
+    def get_admin_4_apps_verbose(self) -> list[str]:  # For templates
         return self._build_apps_verbose(self.admin_4_apps)
 
-    def get_allowed_apps_verbose(self) -> List[str]:  # For templates
+    def get_allowed_apps_verbose(self) -> list[str]:  # For templates
         return self._build_apps_verbose(self.allowed_apps)
 
     def can_create(self, app_name: str, model_name: str) -> bool:
@@ -221,7 +219,7 @@ class UserRole(models.Model):
 
         return ct.id in self._exportable_ctypes_set
 
-    def can_do_on_model(self, user, model: 'CremeEntity', owner, perm: int) -> bool:
+    def can_do_on_model(self, user, model: CremeEntity, owner, perm: int) -> bool:
         """Can the given user execute an action (VIEW, CHANGE etc..) on this model.
         @param user: User instance ; user that try to do something.
         @param model: Class inheriting CremeEntity
@@ -231,7 +229,7 @@ class UserRole(models.Model):
         """
         return SetCredentials._can_do(self._get_setcredentials(), user, model, owner, perm)
 
-    def _get_setcredentials(self) -> List[SetCredentials]:
+    def _get_setcredentials(self) -> list[SetCredentials]:
         setcredentials = self._setcredentials
 
         if setcredentials is None:
@@ -242,7 +240,7 @@ class UserRole(models.Model):
 
         return setcredentials
 
-    def get_perms(self, user, entity: 'CremeEntity') -> int:
+    def get_perms(self, user, entity: CremeEntity) -> int:
         """@return (can_view, can_change, can_delete, can_link, can_unlink) 5 boolean tuple."""
         real_entity_class = entity.entity_type.model_class()
 
@@ -286,7 +284,7 @@ class UserRole(models.Model):
                         user,
                         queryset: QuerySet,
                         perm: int,
-                        as_model: Optional[Type['CremeEntity']] = None,
+                        as_model: type[CremeEntity] | None = None,
                         ) -> QuerySet:
         """Filter a QuerySet of CremeEntities by the credentials related to this role.
         Beware, model class must be CremeEntity ; it cannot be a child class
@@ -430,7 +428,7 @@ class SetCredentials(models.Model):
 
         return format_str.format(**args)
 
-    def _get_perms(self, user, entity: 'CremeEntity') -> int:
+    def _get_perms(self, user, entity: CremeEntity) -> int:
         """@return An integer with binary flags for permissions."""
         ctype_id = self.ctype_id
 
@@ -452,7 +450,7 @@ class SetCredentials(models.Model):
     @staticmethod
     def get_perms(sc_sequence: Sequence[SetCredentials],
                   user,
-                  entity: 'CremeEntity',
+                  entity: CremeEntity,
                   ) -> int:
         """@param sc_sequence: Sequence of SetCredentials instances."""
         perms = reduce(
@@ -471,7 +469,7 @@ class SetCredentials(models.Model):
     def _can_do(cls,
                 sc_sequence: Sequence[SetCredentials],
                 user,
-                model: Type['CremeEntity'],
+                model: type[CremeEntity],
                 owner=None,
                 perm: int = EntityCredentials.VIEW,
                 ) -> bool:
@@ -504,7 +502,7 @@ class SetCredentials(models.Model):
 
     @classmethod
     def _aux_filter(cls,
-                    model: Type['CremeEntity'],
+                    model: type[CremeEntity],
                     sc_sequence: Sequence[SetCredentials],
                     user,
                     queryset: QuerySet,
@@ -604,7 +602,7 @@ class SetCredentials(models.Model):
                         user,
                         queryset: QuerySet,
                         perm: int,
-                        models: Iterable[Type['CremeEntity']],
+                        models: Iterable[type[CremeEntity]],
                         as_model=None,
                         ) -> QuerySet:
         """Filter a queryset of entities with the given credentials.
@@ -699,7 +697,7 @@ class SetCredentials(models.Model):
         #  Note: special values for EntityFilter ID:
         #    None: means ESET_ALL (no filtering)
         #    OWN_FILTER_ID: means ESET_OWN (a virtual EntityFilter on "user" field).
-        ctypes_filtering: DefaultDict[tuple, List[int]] = defaultdict(list)
+        ctypes_filtering: DefaultDict[tuple, list[int]] = defaultdict(list)
 
         efilters_per_id = {sc.efilter_id: sc.efilter for sc in sc_sequence}
 
@@ -963,9 +961,9 @@ class CremeUser(AbstractBaseUser):
     creation_label = _('Create a user')
     save_label     = _('Save the user')
 
-    _settings: Optional[UserSettingValueManager] = None
-    _teams: Optional[List['CremeUser']] = None
-    _teammates: Optional[Dict[int, 'CremeUser']] = None
+    _settings: UserSettingValueManager | None = None
+    _teams: list[CremeUser] | None = None
+    _teammates: dict[int, CremeUser] | None = None
 
     class Meta:
         # abstract = True TODO: class AbstractCremeUser ?
@@ -1024,7 +1022,7 @@ class CremeUser(AbstractBaseUser):
         return settings
 
     @property
-    def theme_info(self) -> Tuple[str, str]:
+    def theme_info(self) -> tuple[str, str]:
         THEMES = settings.THEMES
         theme_name = self.theme
 
@@ -1035,7 +1033,7 @@ class CremeUser(AbstractBaseUser):
         return THEMES[0]
 
     @property  # NB notice that a cache is built
-    def teams(self) -> List['CremeUser']:
+    def teams(self) -> list[CremeUser]:
         assert not self.is_team
 
         teams = self._teams
@@ -1045,7 +1043,7 @@ class CremeUser(AbstractBaseUser):
         return teams
 
     @property  # NB notice that cache and credentials are well updated when using this property
-    def teammates(self) -> Dict[int, 'CremeUser']:
+    def teammates(self) -> dict[int, CremeUser]:
         """Dictionary of teammates users
             key: user ID.
             value CremeUser instance.
@@ -1063,14 +1061,14 @@ class CremeUser(AbstractBaseUser):
         return teammates
 
     @teammates.setter
-    def teammates(self, users: Sequence['CremeUser']):
+    def teammates(self, users: Sequence[CremeUser]):
         assert self.is_team
         assert not any(user.is_team for user in users)
 
         self.teammates_set.set(users)
         self._teammates = None  # Clear cache (we could rebuild it but ...)
 
-    def _get_credentials(self, entity: 'CremeEntity') -> EntityCredentials:
+    def _get_credentials(self, entity: CremeEntity) -> EntityCredentials:
         creds_map = getattr(entity, '_credentials_map', None)
 
         if creds_map is None:
@@ -1140,7 +1138,7 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_change(self, entity: 'CremeEntity') -> bool:
+    def has_perm_to_change(self, entity: CremeEntity) -> bool:
         if entity.is_deleted:
             return False
 
@@ -1152,7 +1150,7 @@ class CremeUser(AbstractBaseUser):
 
         return self._get_credentials(main_entity).can_change()
 
-    def has_perm_to_change_or_die(self, entity: 'CremeEntity') -> None:
+    def has_perm_to_change_or_die(self, entity: CremeEntity) -> None:
         if not self.has_perm_to_change(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to edit this entity: {}').format(
@@ -1175,7 +1173,7 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_delete(self, entity: 'CremeEntity') -> bool:
+    def has_perm_to_delete(self, entity: CremeEntity) -> bool:
         if hasattr(entity.entity_type.model_class(), 'get_related_entity'):  # TODO: factorise
             return self._get_credentials(
                 entity.get_real_entity().get_related_entity(),
@@ -1183,7 +1181,7 @@ class CremeUser(AbstractBaseUser):
 
         return self._get_credentials(entity).can_delete()
 
-    def has_perm_to_delete_or_die(self, entity: 'CremeEntity') -> None:
+    def has_perm_to_delete_or_die(self, entity: CremeEntity) -> None:
         if not self.has_perm_to_delete(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to delete this entity: {}').format(
@@ -1200,7 +1198,7 @@ class CremeUser(AbstractBaseUser):
         return self.has_perm(f'{meta.app_label}.export_{meta.object_name.lower()}')
 
     def has_perm_to_export_or_die(self,
-                                  model_or_entity: Union[Type['CremeEntity'], 'CremeEntity'],
+                                  model_or_entity: type[CremeEntity] | CremeEntity,
                                   ) -> None:
         if not self.has_perm_to_export(model_or_entity):
             raise PermissionDenied(
@@ -1211,7 +1209,7 @@ class CremeUser(AbstractBaseUser):
 
     def has_perm_to_link(self,
                          entity_or_model: _EntityInstanceOrClass,
-                         owner: Optional[CremeUser] = None,
+                         owner: CremeUser | None = None,
                          ) -> bool:
         """Can the user link a future entity of a given class ?
         @param entity_or_model: {Instance of} class inheriting CremeEntity.
@@ -1238,7 +1236,7 @@ class CremeUser(AbstractBaseUser):
     # TODO: factorise ??
     def has_perm_to_link_or_die(self,
                                 entity_or_model: _EntityInstanceOrClass,
-                                owner: Optional['CremeUser'] = None,
+                                owner: CremeUser | None = None,
                                 ) -> None:
         if not self.has_perm_to_link(entity_or_model, owner):
             if isinstance(entity_or_model, CremeEntity):
@@ -1252,11 +1250,11 @@ class CremeUser(AbstractBaseUser):
 
             raise PermissionDenied(msg)
 
-    def has_perm_to_unlink(self, entity: 'CremeEntity') -> bool:
+    def has_perm_to_unlink(self, entity: CremeEntity) -> bool:
         # TODO: what about related_entity ?
         return self._get_credentials(entity).can_unlink()
 
-    def has_perm_to_unlink_or_die(self, entity: 'CremeEntity') -> None:
+    def has_perm_to_unlink_or_die(self, entity: CremeEntity) -> None:
         if not self.has_perm_to_unlink(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to unlink this entity: {}').format(
@@ -1264,11 +1262,11 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_view(self, entity: 'CremeEntity') -> bool:
+    def has_perm_to_view(self, entity: CremeEntity) -> bool:
         # TODO: what about related_entity ?
         return self._get_credentials(entity).can_view()
 
-    def has_perm_to_view_or_die(self, entity: 'CremeEntity') -> None:
+    def has_perm_to_view_or_die(self, entity: CremeEntity) -> None:
         if not self.has_perm_to_view(entity):
             raise PermissionDenied(
                 gettext('You are not allowed to view this entity: {}').format(
@@ -1310,7 +1308,7 @@ class Sandbox(models.Model):
         app_label = 'creme_core'
 
     @property
-    def type(self) -> Optional['SandboxType']:
+    def type(self) -> SandboxType | None:
         # TODO: pass registry as argument
         from ..core.sandbox import sandbox_type_registry
 

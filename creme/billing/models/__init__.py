@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .algo import ConfigBillingAlgo, SimpleBillingAlgo  # NOQA
 from .base import Base  # NOQA
 from .credit_note import AbstractCreditNote, CreditNote  # NOQA

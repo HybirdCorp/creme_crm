@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -280,17 +278,17 @@ _IconInfoFunc = Callable[[Model], Tuple[str, str]]
 
 class IconRegistry:
     def __init__(self):
-        self._icons: Dict[Type[Model], str] = {}
-        self._icons_4_objects: Dict[Type[Model], _IconInfoFunc] = {}
+        self._icons: dict[type[Model], str] = {}
+        self._icons_4_objects: dict[type[Model], _IconInfoFunc] = {}
 
-    def register(self, model: Type[Model], path: str) -> IconRegistry:
+    def register(self, model: type[Model], path: str) -> IconRegistry:
         """Example: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
         self._icons[model] = path
 
         return self
 
     def register_4_instance(self,
-                            model: Type[Model],
+                            model: type[Model],
                             info_function: _IconInfoFunc,
                             ) -> IconRegistry:
         """Set up the registry in order to retrieve an Icon corresponding to an instance of a model.
@@ -310,7 +308,7 @@ class IconRegistry:
         return self
 
     def get_4_model(self,
-                    model: Type[Model],
+                    model: type[Model],
                     theme: str,
                     size_px: int,
                     ) -> Icon:
@@ -330,7 +328,7 @@ class IconRegistry:
     def get_4_instance(self, instance: Model, theme: str, size_px: int) -> Icon:
         url = ''
         label = ''
-        path_fmt: Optional[str] = ''
+        path_fmt: str | None = ''
         model = instance.__class__
         icon_info_function = self._icons_4_objects.get(model)
 

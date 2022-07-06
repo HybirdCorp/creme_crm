@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date
 from decimal import Decimal
 from functools import partial
@@ -1024,7 +1022,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         line = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         label = _('Percent')
         self.assertEqual(
-            '<em>{}</em>'.format(label),
+            f'<em>{label}</em>',
             registry.get_html_field_value(line, 'discount_unit', user)
         )
         self.assertEqual(

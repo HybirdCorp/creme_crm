@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -39,7 +37,7 @@ FIRST_REMINDER = 1
 
 class Reminder:
     id: str = ''  # Override with generate_id()
-    model: Type[CremeModel]  # Override with a CremeModel sub-class
+    model: type[CremeModel]  # Override with a CremeModel sub-class
 
     def __init__(self):
         pass
@@ -48,7 +46,7 @@ class Reminder:
     def generate_id(app_name: str, name: str) -> str:
         return f'reminder_{app_name}-{name}'
 
-    def get_emails(self, object) -> List[str]:
+    def get_emails(self, object) -> list[str]:
         addresses = []
         default_addr = getattr(settings, 'DEFAULT_USER_EMAIL', None)
 
@@ -122,7 +120,7 @@ class Reminder:
                 instance.reminded = True
                 instance.save()
 
-    def next_wakeup(self, now_value: datetime) -> Optional[datetime]:
+    def next_wakeup(self, now_value: datetime) -> datetime | None:
         """Returns the next time when the job manager should wake up in order
         to send the related e-mails.
         @param now_value: datetime object representing 'now'.
@@ -139,10 +137,10 @@ class ReminderRegistry:
         pass
 
     def __init__(self):
-        self._reminders: Dict[str, Reminder] = {}
+        self._reminders: dict[str, Reminder] = {}
 
     # def register(self, reminder: Type[Reminder]) -> ReminderRegistry:
-    def register(self, reminder_class: Type[Reminder]) -> ReminderRegistry:
+    def register(self, reminder_class: type[Reminder]) -> ReminderRegistry:
         """Register a class of Reminder.
         @type reminder_class: Class "inheriting" <creme_core.core.reminder.Reminder>.
         """
@@ -167,7 +165,7 @@ class ReminderRegistry:
         return self
 
     # def unregister(self, reminder: Type[Reminder]) -> None:
-    def unregister(self, reminder_class: Type[Reminder]) -> None:
+    def unregister(self, reminder_class: type[Reminder]) -> None:
         # if self._reminders.pop(reminder.id, None) is None:
         if self._reminders.pop(reminder_class.id, None) is None:
             raise self.RegistrationError(

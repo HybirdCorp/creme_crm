@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.reminder import Reminder, ReminderRegistry

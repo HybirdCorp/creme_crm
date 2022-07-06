@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 #    This file comes from Werkzeug.
 #
 #    Werkzeug is the Swiss Army knife of Python web development.

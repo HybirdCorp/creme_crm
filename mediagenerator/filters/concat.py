@@ -31,8 +31,7 @@ class Concat(Filter):
 
     def get_dev_output_names(self, variation):
         if not self.concat_dev_output:
-            for data in super().get_dev_output_names(variation):
-                yield data
+            yield from super().get_dev_output_names(variation)
 
             return
 

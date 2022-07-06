@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # from os.path import basename
 from pathlib import Path
 

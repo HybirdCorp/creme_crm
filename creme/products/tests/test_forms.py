@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 from json import dumps as json_dump
 

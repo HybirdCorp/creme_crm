@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2021  Hybird
@@ -104,7 +102,7 @@ class Sending(CremeModel):
             for status, status_name in MESSAGE_STATUS.items()
         )
         return ', '.join(
-            '{} {}'.format(count, label[1] if count > 1 else label[0])
+            f'{count} {label[1] if count > 1 else label[0]}'
             for count, label in items if count > 0
         )
 

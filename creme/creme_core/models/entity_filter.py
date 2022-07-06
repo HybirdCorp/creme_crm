@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -74,13 +72,13 @@ class EntityFilterList(list):
         super().__init__(
             EntityFilter.objects.filter_by_user(user).filter(entity_type=content_type)
         )
-        self._selected: Optional[EntityFilter] = None
+        self._selected: EntityFilter | None = None
 
     @property
-    def selected(self) -> Optional[EntityFilter]:
+    def selected(self) -> EntityFilter | None:
         return self._selected
 
-    def select_by_id(self, *ids: str) -> Optional[EntityFilter]:
+    def select_by_id(self, *ids: str) -> EntityFilter | None:
         """Try several EntityFilter ids."""
         # Linear search but with few items after all...
         for efilter_id in ids:
@@ -166,7 +164,7 @@ class EntityFilterManager(models.Manager):
     def smart_update_or_create(self,
                                pk: str,
                                name: str,
-                               model: Type[CremeEntity],
+                               model: type[CremeEntity],
                                is_custom: bool = False,
                                user=None,
                                use_or: bool = False,
@@ -399,13 +397,13 @@ class EntityFilter(models.Model):  # CremeModel ???
         """
         return all(c.handler.applicable_on_entity_base for c in self.get_conditions())
 
-    def can_delete(self, user) -> Tuple[bool, str]:
+    def can_delete(self, user) -> tuple[bool, str]:
         if not self.is_custom:
             return False, gettext("This filter can't be edited/deleted")
 
         return self.can_edit(user)
 
-    def can_edit(self, user) -> Tuple[bool, str]:
+    def can_edit(self, user) -> tuple[bool, str]:
         assert not user.is_team
 
         if self.filter_type != EF_USER:
@@ -432,7 +430,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         return False, gettext('You are not allowed to view/edit/delete this filter')
 
-    def can_view(self, user, content_type: Optional[ContentType] = None) -> Tuple[bool, str]:
+    def can_view(self, user, content_type: ContentType | None = None) -> tuple[bool, str]:
         if content_type and content_type != self.entity_type:
             return False, 'Invalid entity type'
 
@@ -662,7 +660,7 @@ class EntityFilter(models.Model):  # CremeModel ???
             if cond._get_subfilter_id() == pk:
                 yield cond
 
-    def get_connected_filter_ids(self) -> Set[str]:
+    def get_connected_filter_ids(self) -> set[str]:
         # NB: 'level' means a level of filters connected to this filter :
         #  - 1rst level is 'self'.
         #  - 2rst level is filters with a sub-filter conditions relative to 'self'.
@@ -709,7 +707,7 @@ class EntityFilter(models.Model):  # CremeModel ???
         return query
 
     def _build_conditions_cache(self, conditions) -> None:
-        checked_conds: List[EntityFilterCondition] = []
+        checked_conds: list[EntityFilterCondition] = []
         append = checked_conds.append
 
         model = self.entity_type.model_class()
@@ -733,7 +731,7 @@ class EntityFilter(models.Model):  # CremeModel ???
 
         self._conditions_cache = checked_conds
 
-    def get_conditions(self) -> List[EntityFilterCondition]:
+    def get_conditions(self) -> list[EntityFilterCondition]:
         if self._conditions_cache is None:
             self._build_conditions_cache(self.conditions.all())
 
@@ -875,7 +873,7 @@ class EntityFilterCondition(models.Model):
         return self.handler.description(user)
 
     @property
-    def handler(self) -> 'FilterConditionHandler':
+    def handler(self) -> FilterConditionHandler:
         _handler = self._handler
 
         if _handler is None:
@@ -894,14 +892,14 @@ class EntityFilterCondition(models.Model):
         return _handler
 
     @handler.setter
-    def handler(self, value: 'FilterConditionHandler'):
+    def handler(self, value: FilterConditionHandler):
         self._handler = value
 
     def entities_are_distinct(self) -> bool:  # TODO: argument "all_conditions" ?
         return self.handler.entities_are_distinct()
 
     @property
-    def error(self) -> Optional[str]:
+    def error(self) -> str | None:
         handler = self.handler
         if handler is None:
             return 'Invalid data, cannot build a handler'
@@ -911,11 +909,11 @@ class EntityFilterCondition(models.Model):
     def get_q(self, user=None) -> Q:
         return self.handler.get_q(user)
 
-    def _get_subfilter_id(self) -> Optional[str]:
+    def _get_subfilter_id(self) -> str | None:
         return self.handler.subfilter_id
 
     @property
-    def model(self) -> Type[CremeEntity]:  # TODO: test
+    def model(self) -> type[CremeEntity]:  # TODO: test
         return self._model or self.filter.entity_type.model_class()
 
     def update(self, other_condition: EntityFilterCondition) -> bool:

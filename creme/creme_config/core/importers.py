@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2017-2022  Hybird
@@ -1023,7 +1021,7 @@ class ConditionProxySubFilter(ConditionProxy):
     type_id = SubFilterConditionHandler.type_id
 
     def __init__(self, *args, **kwargs):
-        super(ConditionProxySubFilter, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.sub_filter = None
 
     def build_condition(self):
@@ -1250,7 +1248,7 @@ class ConditionProxyCustomField(BaseConditionProxyCustomField):
         self.operator = value['operator']
         self.values = value['values']
 
-        super(ConditionProxyCustomField, self)._validate(validated_data)
+        super()._validate(validated_data)
 
     def build_condition(self):
         return CustomFieldConditionHandler.build_condition(

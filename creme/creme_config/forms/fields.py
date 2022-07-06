@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -322,7 +320,7 @@ class MenuEntriesField(fields.JSONField):
 
                 data = entry_dict.get('data', None) or {}
                 if not isinstance(data, dict):
-                    self._raise_invalid_data('"{}" is not a dictionary'.format(data))
+                    self._raise_invalid_data(f'"{data}" is not a dictionary')
 
                 entry_class = registry.get_class(entry_id)
                 if (

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 from io import StringIO
 
@@ -194,8 +192,7 @@ class MailingListsTestCase(_EmailsTestCase):
                 self._chunks = chunks
 
             def chunks(self):
-                for chunk in self._chunks:
-                    yield chunk
+                yield from self._chunks
 
         def detect(chunks):
             return _detect_end_line(FakeUploadedFile(chunks))

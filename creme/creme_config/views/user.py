@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -106,7 +104,7 @@ class UserDeletion(BaseUserEdition):
         if int(self.kwargs[self.pk_url_kwarg]) == self.request.user.id:
             raise ConflictError(gettext("You can't delete the current user."))
 
-        return super(UserDeletion, self).get_object(*args, **kwargs)
+        return super().get_object(*args, **kwargs)
 
     def post(self, *args, **kwargs):
         try:

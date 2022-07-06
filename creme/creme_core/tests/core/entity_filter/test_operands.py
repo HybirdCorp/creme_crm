@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.core.exceptions import ValidationError
 
 from creme.creme_core.core.entity_filter import (

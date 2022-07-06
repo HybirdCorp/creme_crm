@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .campaign import AbstractEmailCampaign, EmailCampaign  # NOQA
 from .mail import AbstractEntityEmail, EntityEmail, _Email  # NOQA
 from .mailing_list import AbstractMailingList, MailingList  # NOQA

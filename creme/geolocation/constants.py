@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 DEFAULT_SEPARATING_NEIGHBOURS = 10000  # in meters
 
 DEFAULT_OSM_NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'

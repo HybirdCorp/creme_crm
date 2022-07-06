@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2015-2022  Hybird
@@ -33,7 +31,7 @@ class FieldsConfigRegistry:
     """Registry related to model fields configuration.
     See <creme_core.models.FieldsConfig>.
     """
-    _needed_fields: DefaultDict[Type[Model], DefaultDict[str, Set[str]]]
+    _needed_fields: DefaultDict[type[Model], DefaultDict[str, set[str]]]
 
     def __init__(self):
         self._models = set()
@@ -41,22 +39,22 @@ class FieldsConfigRegistry:
         self._needed_fields = defaultdict(lambda: defaultdict(set))
 
     def get_needing_apps(self,
-                         model: Type[CremeModel],
+                         model: type[CremeModel],
                          field_name: str,
                          ) -> Iterator[AppConfig]:
         """Get the apps which need a given field."""
         for app_label in self._needed_fields[model][field_name]:
             yield apps.get_app_config(app_label)
 
-    def is_model_registered(self, model: Type[Model]) -> bool:
+    def is_model_registered(self, model: type[Model]) -> bool:
         return model in self._models
 
     @property
-    def models(self) -> Iterator[Type[CremeModel]]:
+    def models(self) -> Iterator[type[CremeModel]]:
         "Get the registered models."
         return iter(self._models)
 
-    def register_models(self, *models: Type[CremeModel]):
+    def register_models(self, *models: type[CremeModel]):
         """Register models which can have a fields configuration.
         Models must inherit CremeModel in order to get a correct 'full_clean()'
         implementation.
@@ -66,7 +64,7 @@ class FieldsConfigRegistry:
 
     def register_needed_fields(self,
                                app_label: str,
-                               model: Type[CremeModel],
+                               model: type[CremeModel],
                                *field_names: str,
                                ) -> FieldsConfigRegistry:
         """Register the fields of other apps which are required."""

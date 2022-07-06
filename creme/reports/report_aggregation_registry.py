@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -29,7 +27,7 @@ from creme.creme_core.models import CustomField
 
 
 class FieldAggregation:
-    def __init__(self, name: str, func: Type[Aggregate], pattern: str, title: str):
+    def __init__(self, name: str, func: type[Aggregate], pattern: str, title: str):
         self.name = name
         self.func = func
         self.pattern = pattern
@@ -39,14 +37,14 @@ class FieldAggregation:
 class FieldAggregationRegistry:
     __slots__ = ('_aggregations',)
 
-    authorized_fields: Tuple[Type[models.Field], ...] = (
+    authorized_fields: tuple[type[models.Field], ...] = (
         models.IntegerField,
         models.DecimalField,
         models.FloatField,
     )
 
     def __init__(self):
-        self._aggregations: Dict[str, FieldAggregation] = {}
+        self._aggregations: dict[str, FieldAggregation] = {}
 
     def register(self, field_aggregation: FieldAggregation) -> FieldAggregationRegistry:
         """Register a type of aggregation for reports.
@@ -56,7 +54,7 @@ class FieldAggregationRegistry:
         self._aggregations[field_aggregation.name] = field_aggregation
         return self
 
-    def get(self, name: str) -> Optional[FieldAggregation]:
+    def get(self, name: str) -> FieldAggregation | None:
         return self._aggregations.get(name)
 
     @property

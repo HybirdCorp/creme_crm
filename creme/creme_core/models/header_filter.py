@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -61,13 +59,13 @@ class HeaderFilterList(list):
             HeaderFilter.objects.filter_by_user(user)
                                 .filter(entity_type=content_type)
         )
-        self._selected: Optional[HeaderFilter] = None
+        self._selected: HeaderFilter | None = None
 
     @property
-    def selected(self) -> Optional[HeaderFilter]:
+    def selected(self) -> HeaderFilter | None:
         return self._selected
 
-    def select_by_id(self, *ids: str) -> Optional[HeaderFilter]:
+    def select_by_id(self, *ids: str) -> HeaderFilter | None:
         """Try several HeaderFilter ids"""
         # Linear search but with few items after all...
         for hf_id in ids:
@@ -107,11 +105,11 @@ class HeaderFilterManager(models.Manager):
             self,
             pk: str,
             name: str,
-            model: Type[CremeEntity],
+            model: type[CremeEntity],
             is_custom: bool = False,
             user=None,
             is_private: bool = False,
-            cells_desc: Iterable[Union['EntityCell', Tuple[Type['EntityCell'], dict]]] = (),
+            cells_desc: Iterable[EntityCell | tuple[type[EntityCell], dict]] = (),
     ) -> HeaderFilter:
         """Creation helper ; useful for populate.py scripts.
         @param cells_desc: List of objects where each one can other:
@@ -207,14 +205,14 @@ class HeaderFilter(models.Model):  # CremeModel ???
     def __str__(self):
         return self.name
 
-    def can_delete(self, user) -> Tuple[bool, str]:
+    def can_delete(self, user) -> tuple[bool, str]:
         if not self.is_custom:
             return False, gettext("This view can't be deleted")
 
         return self.can_edit(user)
 
     # TODO: factorise with EntityFilter.can_edit ???
-    def can_edit(self, user) -> Tuple[bool, str]:
+    def can_edit(self, user) -> tuple[bool, str]:
         if not self.user_id:  # All users allowed
             return True, 'OK'
 
@@ -237,18 +235,18 @@ class HeaderFilter(models.Model):  # CremeModel ???
 
     def can_view(self,
                  user,
-                 content_type: Optional[ContentType] = None,
-                 ) -> Tuple[bool, str]:
+                 content_type: ContentType | None = None,
+                 ) -> tuple[bool, str]:
         if content_type and content_type != self.entity_type:
             return False, 'Invalid entity type'
 
         return self.can_edit(user)
 
-    def _dump_cells(self, cells: Iterable['EntityCell']):
+    def _dump_cells(self, cells: Iterable[EntityCell]):
         self.json_cells = json_encode([cell.to_dict() for cell in cells])
 
     @property
-    def cells(self) -> List['EntityCell']:
+    def cells(self) -> list[EntityCell]:
         cells = self._cells
 
         if cells is None:
@@ -272,12 +270,12 @@ class HeaderFilter(models.Model):  # CremeModel ???
         return cells
 
     @cells.setter
-    def cells(self, cells: Iterable['EntityCell']) -> None:
+    def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self) -> List['EntityCell']:
+    def filtered_cells(self) -> list[EntityCell]:
         """List of not excluded EntityCell instances.
         (e.g. fields not hidden with FieldsConfig, CustomFields not deleted).
         """

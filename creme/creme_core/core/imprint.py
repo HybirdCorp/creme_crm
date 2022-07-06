@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2018-2022  Hybird
@@ -34,9 +32,9 @@ class _ImprintManager:
         pass
 
     def __init__(self):
-        self._granularities: Dict[Type[CremeEntity], timedelta] = {}
+        self._granularities: dict[type[CremeEntity], timedelta] = {}
 
-    def register(self, model: Type[CremeEntity], **timedelta_kwargs) -> _ImprintManager:
+    def register(self, model: type[CremeEntity], **timedelta_kwargs) -> _ImprintManager:
         granularity = timedelta(**timedelta_kwargs)
 
         if self._granularities.setdefault(model, granularity) is not granularity:
@@ -44,10 +42,10 @@ class _ImprintManager:
 
         return self
 
-    def get_granularity(self, model: Type[CremeEntity]) -> Optional[timedelta]:
+    def get_granularity(self, model: type[CremeEntity]) -> timedelta | None:
         return self._granularities.get(model)
 
-    def create_imprint(self, entity: CremeEntity, user) -> Optional[Imprint]:
+    def create_imprint(self, entity: CremeEntity, user) -> Imprint | None:
         # NB: there can be some data race, & so create 2 lines when only 1
         #     should be better, but it's not a real issue (we could fix the data
         #     it in the brick, to avoid additional query here).

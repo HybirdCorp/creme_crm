@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -38,10 +36,10 @@ class FormRegistry:
         pass
 
     def __init__(self):
-        self._form_factories: Dict[Type[CremeEntity], FormFactory] = {}
+        self._form_factories: dict[type[CremeEntity], FormFactory] = {}
 
     def register(self,
-                 model: Type[CremeEntity],
+                 model: type[CremeEntity],
                  factory: FormFactory = None,
                  ) -> FormRegistry:
         """Register a form factory for a model.

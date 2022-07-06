@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -99,7 +97,7 @@ class LastViewedItem:
         self._serialize_all(session, last_viewed_items)
 
     @classmethod
-    def _deserialize_all(cls, session) -> List[LastViewedItem]:
+    def _deserialize_all(cls, session) -> list[LastViewedItem]:
         from_dict = cls.from_dict
         return [from_dict(data) for data in session.get('last_viewed_items', ())]
 
@@ -109,7 +107,7 @@ class LastViewedItem:
 
     # TODO: use the future entity representation table
     @classmethod
-    def get_all(cls, request) -> List[LastViewedItem]:
+    def get_all(cls, request) -> list[LastViewedItem]:
         items = []
         session = request.session
         old_items = cls._deserialize_all(session)

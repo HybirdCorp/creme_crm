@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2020-2022  Hybird
@@ -134,7 +132,7 @@ class CustomFormExtraSubCell:
     #     computing (SQL query to initialize) for a field which could be dropped.
     is_required = True
 
-    def __init__(self, model: Type[Model]):
+    def __init__(self, model: type[Model]):
         self.model = model
 
     def __eq__(self, other):
@@ -175,7 +173,7 @@ class EntityCellCustomFormExtra(EntityCell):
     You probably do not have to create one by hand.
     """
     type_id = 'cform_extra'
-    allowed_sub_cell_classes: Sequence[Type[CustomFormExtraSubCell]] = ()
+    allowed_sub_cell_classes: Sequence[type[CustomFormExtraSubCell]] = ()
 
     def __init__(self, sub_cell: CustomFormExtraSubCell):
         super().__init__(model=sub_cell.model, value=sub_cell.sub_type_id)
@@ -214,9 +212,9 @@ class EntityCellCustomFormExtra(EntityCell):
 
 class AbstractFieldGroup:
     """Base class to describe group of field in a custom-form."""
-    template_name: Optional[str] = None
+    template_name: str | None = None
 
-    def __init__(self, layout: Optional[LayoutType] = None):
+    def __init__(self, layout: LayoutType | None = None):
         self._layout = layout or LAYOUT_REGULAR
 
     def as_dict(self) -> dict:
@@ -249,7 +247,7 @@ class ExtraFieldGroup(ABC, AbstractFieldGroup):
     name = 'PLACE HOLDER'
     # TODO: is_required ?
 
-    def __init__(self, model: Type[Model], *args, **kwargs):
+    def __init__(self, model: type[Model], *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._model = model
 
@@ -338,7 +336,7 @@ class FieldGroupList:
     }
 
     def __init__(self,
-                 model: Type[Model],
+                 model: type[Model],
                  groups: Iterable[AbstractFieldGroup],
                  cell_registry: EntityCellsRegistry,
                  ):
@@ -368,15 +366,15 @@ class FieldGroupList:
         return self._cell_registry
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self._model
 
     @classmethod
     def from_cells(cls,
-                   model: Type[Model],
-                   data: List[Union[dict, ExtraFieldGroup]],
+                   model: type[Model],
+                   data: list[dict | ExtraFieldGroup],
                    cell_registry: EntityCellsRegistry,
-                   allowed_extra_group_classes: Iterable[Type[ExtraFieldGroup]] = (),
+                   allowed_extra_group_classes: Iterable[type[ExtraFieldGroup]] = (),
                    ) -> FieldGroupList:
         """High level builder of FieldGroupList and contained AbstractFieldGroups.
         @param model: related model (hint: EntityCells use it).
@@ -445,10 +443,10 @@ class FieldGroupList:
 
     @classmethod
     def from_dicts(cls,
-                   model: Type[Model],
-                   data: List[dict],
+                   model: type[Model],
+                   data: list[dict],
                    cell_registry: EntityCellsRegistry,
-                   allowed_extra_group_classes: Sequence[Type[ExtraFieldGroup]] = (),
+                   allowed_extra_group_classes: Sequence[type[ExtraFieldGroup]] = (),
                    ) -> FieldGroupList:
         """Builder of FieldGroupList and contained AbstractFieldGroups
         from de-serialized dicts.
@@ -499,12 +497,12 @@ class FieldGroupList:
     def form_class(self, *,
                    base_form_class=CremeEntityForm,
                    exclude_fields: Container[str] = (),
-                   ) -> Type[CremeEntityForm]:
+                   ) -> type[CremeEntityForm]:
         """Main method of the custom-form system: it generate our final form class."""
         model = self.model
 
-        cells_groups: List[FieldGroup] = []
-        extra_groups: List[ExtraFieldGroup] = []
+        cells_groups: list[FieldGroup] = []
+        extra_groups: list[ExtraFieldGroup] = []
         for group in self._groups:
             if isinstance(group, ExtraFieldGroup):
                 extra_groups.append(group)
@@ -730,8 +728,7 @@ class FieldGroupList:
                 if isinstance(cell, EntityCellCustomFormSpecial):
                     cvalue = cell.value
                     if cvalue == EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS:
-                        for field_name in remaining_field_names:
-                            yield field_name
+                        yield from remaining_field_names
                     elif cvalue == EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS:
                         for cfield in remaining_cfields:
                             yield EntityCellCustomField(cfield)
@@ -813,21 +810,21 @@ class CustomFormDescriptor:
     EDITION_FORM = 1
     FORM_TYPES = {CREATION_FORM, EDITION_FORM}
 
-    _excluded_fields: List[str]
-    _extra_cells: List[CustomFormExtraSubCell]
+    _excluded_fields: list[str]
+    _extra_cells: list[CustomFormExtraSubCell]
     _form_type: int  # TODO: Literal ?
 
     base_cell_registry = base_cell_registry
 
     def __init__(self, *,
                  id: str,
-                 model: Type[Model],
+                 model: type[Model],
                  verbose_name: str,
                  form_type: int = CREATION_FORM,
                  base_form_class=CremeEntityForm,
                  excluded_fields: Sequence[str] = (),
                  extra_sub_cells: Sequence[CustomFormExtraSubCell] = (),
-                 extra_group_classes: Iterable[Type[ExtraFieldGroup]] = (),
+                 extra_group_classes: Iterable[type[ExtraFieldGroup]] = (),
                  ):
         """Constructor.
         @param id: Unique ID (in the registry) ; name like
@@ -877,11 +874,11 @@ class CustomFormDescriptor:
         ]
 
     @property
-    def extra_group_classes(self) -> Iterator[Type[ExtraFieldGroup]]:
+    def extra_group_classes(self) -> Iterator[type[ExtraFieldGroup]]:
         yield from self._extra_groups
 
     @extra_group_classes.setter
-    def extra_group_classes(self, groups: Iterable[Type[ExtraFieldGroup]]) -> None:
+    def extra_group_classes(self, groups: Iterable[type[ExtraFieldGroup]]) -> None:
         # TODO: check validity/type ?
         self._extra_groups = [*groups]
 
@@ -924,7 +921,7 @@ class CustomFormDescriptor:
         return self._id
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self._model
 
     def groups(self, item: CustomFormConfigItem) -> FieldGroupList:
@@ -938,7 +935,7 @@ class CustomFormDescriptor:
             allowed_extra_group_classes=self._extra_groups,
         )
 
-    def build_form_class(self, item: CustomFormConfigItem) -> Type[CremeEntityForm]:
+    def build_form_class(self, item: CustomFormConfigItem) -> type[CremeEntityForm]:
         """Return a form class built from the data stored in the related
         CustomFormConfigItem.
         """
@@ -956,12 +953,12 @@ class CustomFormDescriptorRegistry:
         pass
 
     def __init__(self):
-        self._descriptors: Dict[str, CustomFormDescriptor] = {}
+        self._descriptors: dict[str, CustomFormDescriptor] = {}
 
     def __iter__(self) -> Iterator[CustomFormDescriptor]:
         return iter(self._descriptors.values())
 
-    def get(self, id: str) -> Optional[CustomFormDescriptor]:
+    def get(self, id: str) -> CustomFormDescriptor | None:
         return self._descriptors.get(id)
 
     def register(self, *descriptors: CustomFormDescriptor) -> CustomFormDescriptorRegistry:

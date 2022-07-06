@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #
 # Copyright (c) 2022 Hybird
@@ -52,7 +50,7 @@ class MailBox:
             self._email_id = email_id
             self._retrieved = False
 
-        def __enter__(self) -> Optional[Message]:
+        def __enter__(self) -> Message | None:
             if self._box._client is None:
                 raise RuntimeError(
                     'The manager returned by "fetch_mail" must be used within '
@@ -93,7 +91,7 @@ class MailBox:
 
     def __init__(self, *,
                  host: str,
-                 port: Optional[int] = None,
+                 port: int | None = None,
                  use_ssl: bool,
                  username: str,
                  password: str,

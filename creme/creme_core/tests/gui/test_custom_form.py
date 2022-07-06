@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from copy import deepcopy
 from decimal import Decimal
 from functools import partial

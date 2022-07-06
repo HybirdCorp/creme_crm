@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 
 from django.core.checks.security.base import SECRET_KEY_INSECURE_PREFIX

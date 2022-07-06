@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -125,7 +123,7 @@ class UploadForm(CremeForm):
     )
 
     def __init__(self, *args, **kwargs):
-        super(UploadForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._header = None
         document_f = self.fields['document']
         document_f.user = self.user
@@ -567,10 +565,10 @@ class EntityExtractorWidget(BaseExtractorWidget):
         return model._meta.app_label, model.__name__.lower()
 
     def _build_colselect_id(self, name, model_id):
-        return '{0}_{1}_{2}_colselect'.format(name, *model_id)
+        return '{}_{}_{}_colselect'.format(name, *model_id)
 
     def _build_create_id(self, name, model_id):
-        return '{0}_{1}_{2}_create'.format(name, *model_id)
+        return '{}_{}_{}_create'.format(name, *model_id)
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 from itertools import chain
 
@@ -372,7 +370,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         self.assertListEqual(
             sorted(regular_names),
-            sorted([field.name for field in regular_fields])
+            sorted(field.name for field in regular_fields)
         )
         self.assertListEqual(
             sorted(custom_names),
@@ -389,7 +387,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         self.assertListEqual(
             sorted(regular_names),
-            sorted([field.name for field in regular_fields]),
+            sorted(field.name for field in regular_fields),
         )
         self.assertListEqual(
             sorted(custom_names),

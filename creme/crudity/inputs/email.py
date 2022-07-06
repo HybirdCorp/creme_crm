@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -116,7 +114,7 @@ class CreateEmailInput(EmailInput):
                 for key in data.keys():
                     for i, line in enumerate(split_body):
                         r = re.search(
-                            r"""[\t ]*%s[\t ]*=(?P<%s>['"/@ \t.;?!-\\\w&]+)""" % (key, key),
+                            fr"""[\t ]*{key}[\t ]*=(?P<{key}>['"/@ \t.;?!-\\\w&]+)""",
                             line,
                             flags=re.UNICODE,
                         )

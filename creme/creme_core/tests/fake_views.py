@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.views import generic
 
 from ..tests import fake_forms, fake_models

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from email.mime.image import MIMEImage
 
 from django.core import mail as django_mail

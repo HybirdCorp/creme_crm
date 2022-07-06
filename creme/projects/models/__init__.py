@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .project import Project  # NOQA
 from .projectstatus import ProjectStatus  # NOQA
 from .resource import Resource  # NOQA

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -603,7 +601,7 @@ class EntitySelector(widgets.Widget):
         self.from_python = None
 
     def _build_listview_url(self, content_type):
-        return '%s?ct_id=%s&selection=${selection}&q_filter=${qfilter}' % (
+        return '{}?ct_id={}&selection=${{selection}}&q_filter=${{qfilter}}'.format(
             reverse('creme_core__listview_popup'),
             content_type or '${ctype}',
         )

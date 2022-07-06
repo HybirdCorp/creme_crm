@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -54,9 +52,9 @@ logger = logging.getLogger(__name__)
 
 class SearchConfigItemManager(models.Manager):
     def create_if_needed(self,
-                         model: Type[CremeEntity],
+                         model: type[CremeEntity],
                          fields: Iterable[str],
-                         role: Union[UserRole, str, None] = None,
+                         role: UserRole | str | None = None,
                          disabled: bool = False,
                          ) -> SearchConfigItem:
         """Create a config item & its fields if one does not already exists.
@@ -90,7 +88,7 @@ class SearchConfigItemManager(models.Manager):
         )[0]
 
     def iter_for_models(self,
-                        models: Iterable[Type[CremeEntity]],
+                        models: Iterable[type[CremeEntity]],
                         user,
                         ) -> Iterator[SearchConfigItem]:
         "Get the SearchConfigItem instances corresponding to the given models (generator)."
@@ -160,9 +158,9 @@ class SearchConfigItem(CremeModel):
     creation_label = _('Create a search configuration')
     save_label     = _('Save the configuration')
 
-    _cells: Optional[List['EntityCell']] = None
+    _cells: list[EntityCell] | None = None
 
-    EXCLUDED_FIELDS_TYPES: List[Type[models.Field]] = [
+    EXCLUDED_FIELDS_TYPES: list[type[models.Field]] = [
         models.DateTimeField, models.DateField,
         models.FileField, models.ImageField,
         models.BooleanField, models.NullBooleanField,
@@ -204,7 +202,7 @@ class SearchConfigItem(CremeModel):
         return self.role_id is None and not self.superuser
 
     @property
-    def cells(self) -> Iterator['EntityCell']:
+    def cells(self) -> Iterator[EntityCell]:
         "Return the stored EntityCell instance."
         cells = self._cells
 
@@ -227,12 +225,12 @@ class SearchConfigItem(CremeModel):
         yield from cells
 
     @cells.setter
-    def cells(self, cells: Iterable['EntityCell']) -> None:
+    def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self.json_cells = [cell.to_dict() for cell in cells]
 
     @property
-    def refined_cells(self) -> Iterator['EntityCell']:
+    def refined_cells(self) -> Iterator[EntityCell]:
         """Yield the EntityCell instances which should be used to search.
         It avoids fields hidden with FieldsConfig & deleted CustomFields.
         It builds the cells to use when no specific cell have been configured.

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Code derived from https://github.com/millerdev/WorQ/blob/master/worq/pool/process.py
 
 ################################################################################

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #
 # Copyright (c) 2016-2020 Hybird
@@ -56,21 +54,21 @@ class RandomFileNameSuffixGenerator(FileNameSuffixGenerator):
         max_v = 16**8
 
         while True:
-            yield '_{:08x}'.format(randint(0, max_v))
+            yield f'_{randint(0, max_v):08x}'
 
 
 class DateFileNameSuffixGenerator(FileNameSuffixGenerator):
     format = '%d%m%Y'
 
     def __iter__(self):
-        yield '_{}'.format(date.today().strftime(self.format))
+        yield f'_{date.today().strftime(self.format)}'
 
 
 class DatetimeFileNameSuffixGenerator(FileNameSuffixGenerator):
     format = '%d%m%Y_%H%M%S'
 
     def __iter__(self):
-        yield '_{}'.format(datetime.now().strftime(self.format))
+        yield f'_{datetime.now().strftime(self.format)}'
 
 
 # TODO: i18n for error messages ?
@@ -160,7 +158,7 @@ class FileCreator:
                 final_path = join(dir_path, current_name_root + name_ext)
 
                 try:
-                    f = io.open(final_path, 'x')
+                    f = open(final_path, 'x')
                 except FileExistsError as e:
                     if trials >= max_trials:
                         raise self.Error(

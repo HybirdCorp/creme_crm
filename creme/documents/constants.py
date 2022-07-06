@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.utils.translation import gettext_lazy as _
 
 REL_SUB_RELATED_2_DOC = 'documents-subject_related_2_doc'

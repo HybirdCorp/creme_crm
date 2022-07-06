@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import json
 from functools import partial
 
@@ -371,7 +369,7 @@ class SettingValueTestCase(CremeTestCase):
 class SettingValueHelpersTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(SettingValueHelpersTestCase, cls).setUpClass()
+        super().setUpClass()
         cls.SETTING_KEY = SettingKey(
             id='creme_core-test_setting',
             description='',
@@ -389,7 +387,7 @@ class SettingValueHelpersTestCase(CremeTestCase):
 
     @classmethod
     def tearDownClass(cls):
-        super(SettingValueHelpersTestCase, cls).tearDownClass()
+        super().tearDownClass()
 
         setting_key_registry.unregister(cls.SETTING_KEY)
         setting_key_registry.unregister(cls.INTEGER_SETTING_KEY)

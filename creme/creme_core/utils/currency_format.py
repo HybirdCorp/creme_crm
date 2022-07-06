@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #   This code is derived from the 'currency' function of the module 'locale.py'
 #   of the Python standard library.

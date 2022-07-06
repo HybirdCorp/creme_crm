@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date
 from functools import partial
 from json import dumps as dump_json
@@ -551,7 +549,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(response)
 
         for i in range(1, reply_number + 1):
-            preply = self.get_object_or_fail(PollReply, name='{}#{}'.format(name, i))
+            preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
             self.assertFalse(preply.is_complete)
             self.assertListEqual(
                 [1, 2, 3], [*preply.lines.values_list('order', flat=True)],

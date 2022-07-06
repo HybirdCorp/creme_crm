@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.tests.base import CremeTestCase
 from creme.sms.encoding import gsm_encoded_content
 

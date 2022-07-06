@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.tests.base import CremeTestCase
 
 from ..utils import expand_sparse_iterator, sparsezip

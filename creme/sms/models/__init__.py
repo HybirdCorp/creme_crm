@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .account import SMSAccount  # NOQA
 from .campaign import AbstractSMSCampaign, SMSCampaign  # NOQA
 from .message import Message, Sending  # NOQA

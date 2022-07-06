@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.template import Context, RequestContext, Template
 from django.utils.translation import gettext as _
 

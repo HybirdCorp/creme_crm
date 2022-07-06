@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -61,15 +59,15 @@ class _ModelConfigAction:
     __slots__ = ('_model', '_model_name', '_form_class', 'url_name')
 
     def __init__(self, *,
-                 model: Type[Model],
+                 model: type[Model],
                  model_name: str,
                  ):
         self._model = model
         self._model_name = model_name
-        self._form_class: Optional[Type[ModelForm]] = None
-        self.url_name: Optional[str] = None
+        self._form_class: type[ModelForm] | None = None
+        self.url_name: str | None = None
 
-    def _default_form_class(self) -> Type[ModelForm]:
+    def _default_form_class(self) -> type[ModelForm]:
         model = self._model
         get_field = model._meta.get_field
 
@@ -84,16 +82,16 @@ class _ModelConfigAction:
         return modelform_factory(model, form=CremeModelForm, exclude=exclude)
 
     @property
-    def form_class(self) -> Type[ModelForm]:
+    def form_class(self) -> type[ModelForm]:
         form_class = self._form_class
         return self._default_form_class() if form_class is None else form_class
 
     @form_class.setter
-    def form_class(self, form_cls: Optional[Type[ModelForm]]) -> None:
+    def form_class(self, form_cls: type[ModelForm] | None) -> None:
         self._form_class = form_cls
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self._model
 
     @property
@@ -105,14 +103,14 @@ class _ModelConfigCreator(_ModelConfigAction):
     __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
-                 model: Type[Model],
+                 model: type[Model],
                  model_name: str,
                  ):
         super().__init__(model=model, model_name=model_name)
         # TODO: type when Callable can indicate keyword argument...
         self.enable_func = lambda user: True
 
-    def get_url(self, user) -> Optional[str]:
+    def get_url(self, user) -> str | None:
         if self.enable_func(user=user):
             url_name = self.url_name
 
@@ -131,13 +129,13 @@ class _ModelConfigEditor(_ModelConfigAction):
     __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
-                 model: Type[Model],
+                 model: type[Model],
                  model_name: str,
                  ):
         super().__init__(model=model, model_name=model_name)
         self.enable_func = lambda instance, user: True
 
-    def get_url(self, instance: Model, user) -> Optional[str]:
+    def get_url(self, instance: Model, user) -> str | None:
         if self.enable_func(instance=instance, user=user):
             url_name = self.url_name
 
@@ -160,7 +158,7 @@ class _ModelConfigDeletor(_ModelConfigAction):
     __slots__ = (*_ModelConfigAction.__slots__, 'enable_func')
 
     def __init__(self, *,
-                 model: Type[Model],
+                 model: type[Model],
                  model_name: str,
                  ):
         super().__init__(model=model, model_name=model_name)
@@ -171,7 +169,7 @@ class _ModelConfigDeletor(_ModelConfigAction):
 
         return DeletionForm
 
-    def get_url(self, instance, user) -> Optional[str]:
+    def get_url(self, instance, user) -> str | None:
         if self.enable_func(instance=instance, user=user):
             url_name = self.url_name
 
@@ -200,7 +198,7 @@ class _ModelConfig:
 
     _SHORT_NAME_RE = re.compile(r'^\w+$')
 
-    def __init__(self, model: Type[Model], model_name: str):
+    def __init__(self, model: type[Model], model_name: str):
         """ Constructor.
 
         @param model: Class inheriting django.db.Model
@@ -214,9 +212,9 @@ class _ModelConfig:
         self.creator = _ModelConfigCreator(model=model, model_name=model_name)
         self.editor  = _ModelConfigEditor(model=model, model_name=model_name)
         self.deletor = _ModelConfigDeletor(model=model, model_name=model_name)
-        self.brick_cls: Type[GenericModelBrick] = GenericModelBrick
+        self.brick_cls: type[GenericModelBrick] = GenericModelBrick
 
-    def brick_class(self, brick_cls: Type[GenericModelBrick]) -> _ModelConfig:
+    def brick_class(self, brick_cls: type[GenericModelBrick]) -> _ModelConfig:
         """ Set the Brick class to use ; can be used in a fluent way.
 
         @param brick_cls: Class inheriting GenericModelBrick.
@@ -233,8 +231,8 @@ class _ModelConfig:
         return self.brick_cls(app_name=model._meta.app_label, model_config=self)
 
     def creation(self, *,
-                 form_class: Optional[Type[ModelForm]] = None,
-                 url_name: Optional[str] = None,
+                 form_class: type[ModelForm] | None = None,
+                 url_name: str | None = None,
                  enable_func=None,
                  ) -> _ModelConfig:
         """ Set the creation behaviour ; can be used in a fluent way.
@@ -260,8 +258,8 @@ class _ModelConfig:
 
     # TODO: factorise with creation()
     def edition(self, *,
-                form_class: Optional[Type[ModelForm]] = None,
-                url_name: Optional[str] = None,
+                form_class: type[ModelForm] | None = None,
+                url_name: str | None = None,
                 enable_func=None,
                 ) -> _ModelConfig:
         """ Set the edition behaviour ; can be used in a fluent way.
@@ -288,8 +286,8 @@ class _ModelConfig:
 
     # TODO: factorise
     def deletion(self, *,
-                 form_class: Optional[Type['DeletionForm']] = None,
-                 url_name: Optional[str] = None,
+                 form_class: type[DeletionForm] | None = None,
+                 url_name: str | None = None,
                  enable_func=None,
                  ) -> _ModelConfig:
         """ Set the deletion behaviour ; can be used in a fluent way.
@@ -314,7 +312,7 @@ class _ModelConfig:
         return self
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self.creator.model
 
     @property
@@ -346,16 +344,16 @@ class _AppConfigRegistry:
                  ):
         self.name = name
         self.verbose_name = verbose_name
-        self._models: Dict[Type[Model], _ModelConfig] = {}
+        self._models: dict[type[Model], _ModelConfig] = {}
         self._config_registry = config_registry
-        self._brick_ids: List[str] = []
+        self._brick_ids: list[str] = []
 
     @property
     def portal_url(self) -> str:
         return reverse('creme_config__app_portal', args=(self.name,))
 
     def _register_model(self,
-                        model: Type[Model],
+                        model: type[Model],
                         model_name: str,
                         ) -> _ModelConfig:
         # NB: the key is the model & not the ContentType.id, because these IDs
@@ -369,7 +367,7 @@ class _AppConfigRegistry:
 
         return conf
 
-    def get_model_conf(self, model: Type[Model]) -> _ModelConfig:
+    def get_model_conf(self, model: type[Model]) -> _ModelConfig:
         """ Get the ModelConfig related to a model.
 
         @param model: Class inheriting <django.db.Model>.
@@ -389,7 +387,7 @@ class _AppConfigRegistry:
     def _register_bricks(self, brick_ids: Iterable[str]) -> None:
         self._brick_ids.extend(brick_ids)
 
-    def _unregister_model(self, model: Type[Model]) -> None:
+    def _unregister_model(self, model: type[Model]) -> None:
         self._models.pop(model, None)
 
     @property
@@ -427,9 +425,9 @@ class _ConfigRegistry:
                  ):
         self._brick_registry = brick_registry
         self._skey_registry = setting_key_registry
-        self._apps: Dict[str, _AppConfigRegistry] = {}
-        self._user_brick_ids: List[str] = []
-        self._portal_brick_ids: List[str] = []
+        self._apps: dict[str, _AppConfigRegistry] = {}
+        self._user_brick_ids: list[str] = []
+        self._portal_brick_ids: list[str] = []
 
     def get_app_registry(self, app_label: str, create=False) -> _AppConfigRegistry:
         """ Get the instance of AppConfigRegistry related to a specific app.
@@ -477,8 +475,8 @@ class _ConfigRegistry:
         return app_label
 
     def register_model(self,
-                       model: Type[Model],
-                       model_name: Optional[str] = None,
+                       model: type[Model],
+                       model_name: str | None = None,
                        ) -> _ModelConfig:
         """ Register a model in order to make it available in the configuration.
         @param model: Class inheriting <django.db.Model>.
@@ -500,7 +498,7 @@ class _ConfigRegistry:
         """Iterator on all AppConfigRegistries."""
         return iter(self._apps.values())
 
-    def _get_brick_id(self, brick_cls: Type[Brick]) -> str:
+    def _get_brick_id(self, brick_cls: type[Brick]) -> str:
         brick_id = brick_cls.id_
 
         if not hasattr(brick_cls, 'detailview_display'):
@@ -514,7 +512,7 @@ class _ConfigRegistry:
     # TODO: prototype for detailview_display() ?
     def register_app_bricks(self,
                             app_label: str,
-                            *brick_classes: Type[Brick],
+                            *brick_classes: type[Brick],
                             ) -> None:
         """ Register some Brick classes which will be used in the configuration
         portal of a specific app.
@@ -530,7 +528,7 @@ class _ConfigRegistry:
             map(self._get_brick_id, brick_classes)
         )
 
-    def register_portal_bricks(self, *brick_classes: Type[Brick]) -> None:
+    def register_portal_bricks(self, *brick_classes: type[Brick]) -> None:
         """Register the extra Brick classes to display of the portal of
         creme_config ("General configuration").
 
@@ -539,7 +537,7 @@ class _ConfigRegistry:
         """
         self._portal_brick_ids.extend(map(self._get_brick_id, brick_classes))
 
-    def register_user_bricks(self, *brick_classes: Type[Brick]) -> None:
+    def register_user_bricks(self, *brick_classes: type[Brick]) -> None:
         """Register the extra Brick classes to display of the configuration page
         of each user ("My configuration").
 
@@ -548,7 +546,7 @@ class _ConfigRegistry:
         """
         self._user_brick_ids.extend(map(self._get_brick_id, brick_classes))
 
-    def unregister_models(self, *models: Type[Model]) -> None:
+    def unregister_models(self, *models: type[Model]) -> None:
         """Un-register some models which have been registered.
 
         @param models: Classes inheriting django.db.Model
@@ -578,9 +576,9 @@ class _ConfigRegistry:
 
     # TODO: find a better name ?
     def get_model_creation_info(self,
-                                model: Type[Model],
+                                model: type[Model],
                                 user,
-                                ) -> Tuple[Optional[str], bool]:
+                                ) -> tuple[str | None, bool]:
         """ Get the following information about the on-the-fly creation of instances :
          - URL of the creation view.
          - Is the user allowed to create ?

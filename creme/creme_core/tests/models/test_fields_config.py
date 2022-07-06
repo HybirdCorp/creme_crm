@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from io import StringIO
 # from json import dumps as json_dump
 from json import loads as json_load

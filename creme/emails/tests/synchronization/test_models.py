@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.emails.models import EmailSyncConfigItem
 from creme.emails.tests.base import _EmailsTestCase
 

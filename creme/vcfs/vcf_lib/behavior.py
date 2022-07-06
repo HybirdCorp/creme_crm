@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 """Behavior (validation, encoding, and transformations) for vobjects."""
 
 from .base import (

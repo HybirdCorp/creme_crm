@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -36,7 +34,7 @@ class CremeRegistry:
     def __init__(self):
         self._entity_models = OrderedSet()
 
-    def register_entity_models(self, *models: Type['CremeEntity']) -> CremeRegistry:
+    def register_entity_models(self, *models: type[CremeEntity]) -> CremeRegistry:
         """Register CremeEntity models."""
         from .models import CremeEntity
 
@@ -54,12 +52,12 @@ class CremeRegistry:
 
         return self
 
-    def is_entity_model_registered(self, model: Type['CremeEntity']) -> bool:
+    def is_entity_model_registered(self, model: type[CremeEntity]) -> bool:
         return model in self._entity_models
 
     def iter_entity_models(self,
-                           app_labels: Optional[Container[str]] = None,
-                           ) -> Iterator[Type['CremeEntity']]:
+                           app_labels: Container[str] | None = None,
+                           ) -> Iterator[type[CremeEntity]]:
         """Iterate on the registered models.
         @param app_labels: If None is given, all the registered models are yielded.
                If a container of app labels is given, only models related to

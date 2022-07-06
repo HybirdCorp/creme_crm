@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date, datetime, timedelta
 from functools import partial
 from json import dumps as json_dump

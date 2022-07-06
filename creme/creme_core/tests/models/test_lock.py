@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db.transaction import atomic
 
 from creme.creme_core.models.lock import (
@@ -109,7 +107,7 @@ class MutexTestCase(CremeTransactionTestCase):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func(5)
 
-        self.assertEqual('invalid result {}'.format(5), str(context.exception))
+        self.assertEqual(f'invalid result {5}', str(context.exception))
 
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 

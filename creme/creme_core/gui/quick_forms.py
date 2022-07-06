@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -42,12 +40,12 @@ class QuickFormsRegistry:
         pass
 
     def __init__(self):
-        self._forms: Dict[Type[CremeEntity], Type['CremeEntityQuickForm']] = {}
+        self._forms: dict[type[CremeEntity], type[CremeEntityQuickForm]] = {}
 
     # TODO: rename form=>form_class
     def register(self,
-                 model: Type[CremeEntity],
-                 form: Type['CremeEntityQuickForm'],
+                 model: type[CremeEntity],
+                 form: type[CremeEntityQuickForm],
                  ) -> QuickFormsRegistry:
         """Register a form for a given model.
         @raise RegistrationError if a form is already registered.
@@ -71,7 +69,7 @@ class QuickFormsRegistry:
 
         return self
 
-    def unregister(self, model: Type[CremeEntity]) -> None:
+    def unregister(self, model: type[CremeEntity]) -> None:
         """Un-register the form related to a given model.
         @raise RegistrationError if no form is registered.
         """
@@ -84,11 +82,11 @@ class QuickFormsRegistry:
 
     def get_form_class(
             self,
-            model: Type[CremeEntity]) -> Optional[Type['CremeEntityQuickForm']]:
+            model: type[CremeEntity]) -> type[CremeEntityQuickForm] | None:
         return self._forms.get(model)
 
     @property
-    def models(self) -> Iterator[Type[CremeEntity]]:
+    def models(self) -> Iterator[type[CremeEntity]]:
         "All the models which get a quick-form."
         return iter(self._forms.keys())
 

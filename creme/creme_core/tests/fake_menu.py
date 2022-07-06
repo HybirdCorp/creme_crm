@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.gui.menu import CreationEntry, ListviewEntry
 from creme.creme_core.models import FakeContact, FakeOrganisation
 

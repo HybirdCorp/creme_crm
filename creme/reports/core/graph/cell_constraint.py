@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2020-2022  Hybird
@@ -57,9 +55,9 @@ from creme.reports.constants import AbscissaGroup, OrdinateAggregator
 
 class GraphHandCellConstraint:
     type_id: str = ''
-    cell_class: Type[EntityCell] = EntityCell
+    cell_class: type[EntityCell] = EntityCell
 
-    def __init__(self, model: Type[CremeEntity]):
+    def __init__(self, model: type[CremeEntity]):
         self.model = model
 
     def cells(self,
@@ -76,7 +74,7 @@ class GraphHandCellConstraint:
     def get_cell(self,
                  cell_key: str,
                  not_hiddable_cell_keys: Container[str] = (),
-                 ) -> Optional[EntityCell]:
+                 ) -> EntityCell | None:
         try:
             cell_type_id, cell_value = cell_key.split('-', 1)
         except ValueError:
@@ -215,32 +213,32 @@ class GraphHandConstraintsRegistry:
         pass
 
     def __init__(self):
-        self._constraints_by_type_id: Dict[str, Type[GraphHandCellConstraint]] = {}
-        self._constraints_by_rgtype:  Dict[int, Type[GraphHandCellConstraint]] = {}
-        self._param_validators: Dict[int, forms.Field] = {}
+        self._constraints_by_type_id: dict[str, type[GraphHandCellConstraint]] = {}
+        self._constraints_by_rgtype:  dict[int, type[GraphHandCellConstraint]] = {}
+        self._param_validators: dict[int, forms.Field] = {}
 
     def cell_constraints(self,
-                         model: Type[CremeEntity],
+                         model: type[CremeEntity],
                          ) -> Iterator[GraphHandCellConstraint]:
         for constraint_class in self._constraints_by_type_id.values():
             yield constraint_class(model)
 
     def get_constraint_by_rgraph_type(self,
-                                      model: Type[CremeEntity],
+                                      model: type[CremeEntity],
                                       rgraph_type: int,
-                                      ) -> Optional[GraphHandCellConstraint]:
+                                      ) -> GraphHandCellConstraint | None:
         constraint_class = self._constraints_by_rgtype.get(rgraph_type)
         return constraint_class(model) if constraint_class else None
 
-    def get_parameter_validator(self, rgraph_type: int) -> Optional[forms.Field]:
+    def get_parameter_validator(self, rgraph_type: int) -> forms.Field | None:
         return self._param_validators.get(rgraph_type)
 
     @property
-    def parameter_validators(self) -> Iterator[Tuple[int, forms.Field]]:
+    def parameter_validators(self) -> Iterator[tuple[int, forms.Field]]:
         return iter(self._param_validators.items())
 
     def register_cell_constraint(self, *,
-                                 constraint_class: Type[GraphHandCellConstraint],
+                                 constraint_class: type[GraphHandCellConstraint],
                                  rgraph_types: Iterable[int],
                                  ) -> GraphHandConstraintsRegistry:
         set_constraint_by_type_id = self._constraints_by_type_id.setdefault
@@ -324,9 +322,9 @@ abscissa_constraints = GraphHandConstraintsRegistry(
 class AggregatorCellConstraint:
     type_id: str = ''
     aggregator_ids: Collection[str] = []
-    cell_classes: Collection[Type[EntityCell]] = []
+    cell_classes: Collection[type[EntityCell]] = []
 
-    def __init__(self, model: Type[CremeEntity]):
+    def __init__(self, model: type[CremeEntity]):
         self.model = model
 
     def cells(self,
@@ -344,7 +342,7 @@ class AggregatorCellConstraint:
                  cell_key: str,
                  not_hiddable_cell_keys: Container[str] = (),
                  check: bool = True,
-                 ) -> Optional[EntityCell]:
+                 ) -> EntityCell | None:
         try:
             cell_type_id, cell_value = cell_key.split('-', 1)
         except ValueError:
@@ -382,17 +380,17 @@ class ACCFieldAggregation(AggregatorCellConstraint):
         OrdinateAggregator.MIN,
         OrdinateAggregator.SUM,
     ]
-    cell_classes: List[Type[EntityCell]] = [
+    cell_classes: list[type[EntityCell]] = [
         EntityCellRegularField,
         EntityCellCustomField,
     ]
 
-    model_field_classes: Tuple[models.Field, ...] = (
+    model_field_classes: tuple[models.Field, ...] = (
         models.IntegerField,
         models.DecimalField,
         models.FloatField,
     )
-    custom_field_types: Tuple[int, ...] = (
+    custom_field_types: tuple[int, ...] = (
         CustomField.INT,
         CustomField.FLOAT,
     )
@@ -473,18 +471,18 @@ class AggregatorConstraintsRegistry:
         pass
 
     def __init__(self):
-        self._constraints_by_type_id: Dict[str, Type[AggregatorCellConstraint]] = {}
+        self._constraints_by_type_id: dict[str, type[AggregatorCellConstraint]] = {}
 
     def cell_constraints(self,
-                         model: Type[CremeEntity],
+                         model: type[CremeEntity],
                          ) -> Iterator[AggregatorCellConstraint]:
         for constraint_class in self._constraints_by_type_id.values():
             yield constraint_class(model)
 
     def get_constraint_by_aggr_id(self,
-                                  model: Type[CremeEntity],
+                                  model: type[CremeEntity],
                                   aggr_id: str,
-                                  ) -> Optional[AggregatorCellConstraint]:
+                                  ) -> AggregatorCellConstraint | None:
         for constraint_cls in self._constraints_by_type_id.values():
             if aggr_id in constraint_cls.aggregator_ids:
                 return constraint_cls(model)
@@ -493,7 +491,7 @@ class AggregatorConstraintsRegistry:
 
     def register_cell_constraints(
             self,
-            *constraint_classes: Type[AggregatorCellConstraint],
+            *constraint_classes: type[AggregatorCellConstraint],
     ) -> AggregatorConstraintsRegistry:
         for constraint_cls in constraint_classes:
             if self._constraints_by_type_id.setdefault(

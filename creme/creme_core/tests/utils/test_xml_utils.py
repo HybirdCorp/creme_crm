@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from xml.etree.ElementTree import XML
 
 from creme.creme_core.utils.xml_utils import _element_iterator, xml_diff

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # from json import loads as json_load
 from functools import partial
 
@@ -741,9 +739,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             )
             self.assertFormError(
                 response, 'form', 'cells',
-                'The type of cell in invalid: %(type_id)s.' % {
-                    'type_id': extra_cell.type_id,
-                },
+                'The type of cell in invalid: {type_id}.'.format(
+                    type_id=extra_cell.type_id,
+                ),
             )
 
         post(EntityCellFunctionField.build(FakeActivity, 'get_pretty_properties'))

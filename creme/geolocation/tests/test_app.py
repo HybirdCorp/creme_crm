@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import reverse
 
 from ..models import Town

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.template import Context, Template
 
 from ..base import CremeTestCase

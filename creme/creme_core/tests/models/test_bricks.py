@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # from json import loads as jsonloads
 from functools import partial
 

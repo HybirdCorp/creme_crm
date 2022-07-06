@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.apps import apps
 from django.test.utils import override_settings
 from django.urls import reverse

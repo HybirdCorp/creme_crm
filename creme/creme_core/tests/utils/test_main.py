@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import string
 from datetime import date, datetime, timedelta
 from functools import partial

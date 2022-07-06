@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #
 # Copyright (c) 2009-2020 Hybird
@@ -368,7 +366,7 @@ class OrderedSet(MutableSet):
         if not self:
             return f'{self.__class__.__name__}()'
 
-        return '{}({!r})'.format(self.__class__.__name__, [*self])
+        return f'{self.__class__.__name__}({[*self]!r})'
 
     def __eq__(self, other):
         if isinstance(other, OrderedSet):

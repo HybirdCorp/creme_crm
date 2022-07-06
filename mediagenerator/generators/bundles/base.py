@@ -72,8 +72,7 @@ class Filter:
     def get_input(self, variation):
         """Yields contents for each input item."""
         for filter in self.get_input_filters():
-            for input in filter.get_output(variation):
-                yield input
+            yield from filter.get_output(variation)
 
     def get_input_filters(self):
         """Returns a Filter instance for each input item."""

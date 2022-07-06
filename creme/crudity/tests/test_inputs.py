@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date
 from os.path import dirname, exists, join
 from shutil import copy, rmtree

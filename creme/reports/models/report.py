@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -69,7 +67,7 @@ class AbstractReport(CremeEntity):
     creation_label = _('Create a report')
     save_label     = _('Save the report')
 
-    _columns: Optional[List['Field']] = None
+    _columns: list[Field] | None = None
 
     class Meta:
         abstract = True
@@ -95,7 +93,7 @@ class AbstractReport(CremeEntity):
     def get_lv_absolute_url():
         return reverse('reports__list_reports')
 
-    def _build_columns(self, allow_selected: bool) -> List['Field']:
+    def _build_columns(self, allow_selected: bool) -> list[Field]:
         """@param allow_selected: Boolean, 'True' allows columns to be 'selected'
                   (ie: expanded sub-report).
         """
@@ -118,7 +116,7 @@ class AbstractReport(CremeEntity):
         return columns
 
     @property
-    def columns(self) -> List['Field']:
+    def columns(self) -> list[Field]:
         columns = self._columns
 
         if columns is None:  # root report
@@ -132,11 +130,11 @@ class AbstractReport(CremeEntity):
         return FieldsConfig.LocalCache()
 
     @cached_property
-    def filtered_columns(self) -> List['Field']:
+    def filtered_columns(self) -> list[Field]:
         # TODO: avoid case of hand which is None (RAII) => remove <if column.hand>
         return [column for column in self.columns if column.hand and not column.hand.hidden]
 
-    def get_ascendants_reports(self) -> Set['AbstractReport']:
+    def get_ascendants_reports(self) -> set[AbstractReport]:
         asc_reports = [
             *type(self).objects.filter(
                 pk__in=Field.objects
@@ -152,8 +150,8 @@ class AbstractReport(CremeEntity):
 
     # TODO: move 'user' as first argument + no default value ?
     def _fetch(self,
-               limit_to: Optional[int] = None,
-               extra_q: Optional[models.Q] = None,
+               limit_to: int | None = None,
+               extra_q: models.Q | None = None,
                user=None) -> Iterator[list]:
         user = user or get_user_model()(is_superuser=True)
         entities = EntityCredentials.filter(
@@ -180,9 +178,9 @@ class AbstractReport(CremeEntity):
 
     # TODO: transform into generator (--> StreamResponse)
     def fetch_all_lines(self,
-                        limit_to: Optional[int] = None,
-                        extra_q: Optional[models.Q] = None,
-                        user=None) -> List[List[str]]:
+                        limit_to: int | None = None,
+                        extra_q: models.Q | None = None,
+                        user=None) -> list[list[str]]:
         from ..core.report import ExpandableLine  # Lazy loading
 
         lines = []
@@ -195,7 +193,7 @@ class AbstractReport(CremeEntity):
 
         return lines
 
-    def get_children_fields_flat(self) -> Iterator['Field']:
+    def get_children_fields_flat(self) -> Iterator[Field]:
         return chain.from_iterable(
             f.get_children_fields_flat()
             for f in self.filtered_columns
@@ -264,7 +262,7 @@ class Field(CremeModel):
         if sub_report:
             sub_report._build_columns(self.selected)
 
-    def clone(self, report: Optional['AbstractReport'] = None) -> Field:
+    def clone(self, report: AbstractReport | None = None) -> Field:
         fields_kv = {}
 
         for field in self._meta.fields:
@@ -278,7 +276,7 @@ class Field(CremeModel):
         return Field.objects.create(**fields_kv)
 
     @property
-    def hand(self) -> Optional['ReportHand']:
+    def hand(self) -> ReportHand | None:
         from ..core.report import REPORT_HANDS_MAP, ReportHand  # Lazy loading
 
         hand = self._hand
@@ -292,8 +290,8 @@ class Field(CremeModel):
 
         return hand
 
-    def get_children_fields_flat(self) -> List['Field']:
-        children: List['Field'] = []
+    def get_children_fields_flat(self) -> list[Field]:
+        children: list[Field] = []
 
         if self.selected:
             for child in self.sub_report.columns:
@@ -304,9 +302,9 @@ class Field(CremeModel):
         return children
 
     def get_value(self,
-                  entity: Optional[CremeEntity],
+                  entity: CremeEntity | None,
                   user,
-                  scope: models.QuerySet) -> Union[str, list]:
+                  scope: models.QuerySet) -> str | list:
         """Return the value of the cell for this entity.
         @param entity: CremeEntity instance, or None.
         @param user: User instance, used to check credentials.
@@ -317,7 +315,7 @@ class Field(CremeModel):
         return hand.get_value(entity, user, scope) if hand else '??'
 
     @property
-    def model(self) -> Type[CremeEntity]:
+    def model(self) -> type[CremeEntity]:
         return self.report.ct.model_class()
 
     @property

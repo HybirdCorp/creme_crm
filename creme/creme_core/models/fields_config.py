@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2015-2022  Hybird
@@ -82,7 +80,7 @@ FieldsDescriptions = List[Tuple[str, Dict[str, bool]]]
 
 
 class FieldsConfigManager(models.Manager):
-    def configurable_fields(self, model: Type['Model']) -> Iterator[Tuple['Field', List[str]]]:
+    def configurable_fields(self, model: type[Model]) -> Iterator[tuple[Field, list[str]]]:
         conf_model = self.model
         REQUIRED = conf_model.REQUIRED
         HIDDEN = conf_model.HIDDEN
@@ -115,12 +113,12 @@ class FieldsConfigManager(models.Manager):
         ct = ContentType.objects.get_by_natural_key(app_label, model)
         return self.get_for_model(ct.model_class())
 
-    def get_for_model(self, model: Type['Model']) -> FieldsConfig:
+    def get_for_model(self, model: type[Model]) -> FieldsConfig:
         return self.get_for_models((model,))[model]
 
     def get_for_models(self,
-                       models: Sequence[Type['Model']],
-                       ) -> Dict[Type['Model'], FieldsConfig]:
+                       models: Sequence[type[Model]],
+                       ) -> dict[type[Model], FieldsConfig]:
         result = {}
         get_ct = ContentType.objects.get_for_model
         cache_key_fmt = 'creme_core-fields_config-{}'.format
@@ -155,7 +153,7 @@ class FieldsConfigManager(models.Manager):
 
         return result
 
-    def has_configurable_fields(self, model: Type['Model']) -> bool:
+    def has_configurable_fields(self, model: type[Model]) -> bool:
         return any(self.configurable_fields(model))
 
     # def is_model_valid(self, model: Type['Model']) -> bool:
@@ -181,8 +179,8 @@ class FieldsConfig(CremeModel):
     HIDDEN = 'hidden'
     REQUIRED = 'required'
 
-    _excluded_fnames: Optional[Set[str]] = None  # TODO: FrozenSet
-    _required_fnames: Optional[FrozenSet[str]] = None
+    _excluded_fnames: set[str] | None = None  # TODO: FrozenSet
+    _required_fnames: frozenset[str] | None = None
 
     class Meta:
         app_label = 'creme_core'
@@ -208,7 +206,7 @@ class FieldsConfig(CremeModel):
         #
         #     return self.get_for_model(model)
 
-        def get_for_model(self, model: Type['Model']) -> FieldsConfig:
+        def get_for_model(self, model: type[Model]) -> FieldsConfig:
             return self.get_for_models((model,))[model]
 
         # def get_4_models(self,
@@ -223,8 +221,8 @@ class FieldsConfig(CremeModel):
         #     return self.get_for_models(models)
 
         def get_for_models(self,
-                           models: Iterable[Type['Model']],
-                           ) -> Dict[Type['Model'], FieldsConfig]:
+                           models: Iterable[type[Model]],
+                           ) -> dict[type[Model], FieldsConfig]:
             result = {}
             configs = self._configs
             missing_models = []
@@ -270,7 +268,7 @@ class FieldsConfig(CremeModel):
         return gettext('Configuration of {model}').format(model=self.content_type)
 
     @classmethod
-    def _check_descriptions(cls, model: Type['Model'], descriptions):
+    def _check_descriptions(cls, model: type[Model], descriptions):
         safe_descriptions = []
         errors = False
         get_field = model._meta.get_field
@@ -381,7 +379,7 @@ class FieldsConfig(CremeModel):
         self.raw_descriptions = self._check_descriptions(model, value)[1]
 
     @property
-    def errors_on_hidden(self) -> List[str]:
+    def errors_on_hidden(self) -> list[str]:
         """Are some hidden fields needed ?
         @return List of strings.
         """
@@ -402,7 +400,7 @@ class FieldsConfig(CremeModel):
         ]
 
     # TODO: frozenset + property (see 'required_field_names()')
-    def _get_hidden_field_names(self) -> Set[str]:
+    def _get_hidden_field_names(self) -> set[str]:
         excluded = self._excluded_fnames
 
         if excluded is None:
@@ -416,7 +414,7 @@ class FieldsConfig(CremeModel):
 
     # TODO: factorise with _get_hidden_field_names
     @property
-    def required_field_names(self) -> FrozenSet[str]:
+    def required_field_names(self) -> frozenset[str]:
         """Get the names of fields which are required by configuration.
         Notice that fields which are "naturally" required are ignored, only the
         configured ones are returned.
@@ -433,7 +431,7 @@ class FieldsConfig(CremeModel):
         return required
 
     @property
-    def hidden_fields(self) -> Iterator['Field']:
+    def hidden_fields(self) -> Iterator[Field]:
         get_field = self.content_type.model_class()._meta.get_field
 
         for field_name in self._get_hidden_field_names():
@@ -441,16 +439,16 @@ class FieldsConfig(CremeModel):
 
     # TODO: factorise
     @property
-    def required_fields(self) -> Iterator['Field']:
+    def required_fields(self) -> Iterator[Field]:
         get_field = self.content_type.model_class()._meta.get_field
 
         for field_name in self.required_field_names:
             yield get_field(field_name)
 
-    def is_field_hidden(self, field: 'Field') -> bool:
+    def is_field_hidden(self, field: Field) -> bool:
         return field.name in self._get_hidden_field_names()
 
-    def is_field_required(self, field: 'Field') -> bool:
+    def is_field_required(self, field: Field) -> bool:
         "Is a field required (naturally or by configuration)?"
         return (
             not isinstance(field, BooleanField)

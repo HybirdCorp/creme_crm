@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core import models
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 
