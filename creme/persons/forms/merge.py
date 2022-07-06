@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import List, Tuple
+from __future__ import annotations
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
@@ -55,11 +55,11 @@ class _PersonMergeForm(MergeEntitiesBaseForm):
 
         super().__init__(entity1, entity2, *args, **kwargs)
 
-        self._addresses_to_delete: List[Address] = []
+        self._addresses_to_delete: list[Address] = []
         # NB: str is an attribute name of a ForeignKey to Address
         #     (e.g. "billing_address") which have to be set.
         #     An empty string means no attribute to set.
-        self._addresses_to_save: List[Tuple[Address, str]] = []
+        self._addresses_to_save: list[tuple[Address, str]] = []
 
     def _build_initial_address_dict(self, address, initial, prefix):
         getter = (

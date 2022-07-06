@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import List, Type, Union
+from __future__ import annotations
 
 from django.core.exceptions import ValidationError
 from django.forms.forms import BaseForm
@@ -64,7 +64,7 @@ class EntityEmailCreation(generic.AddingInstanceToEntityPopup):
 
 class EntityEmailWizard(EntityRelatedMixin, generic.EntityCreationWizardPopup):
     model = EntityEmail
-    form_list: List[Union[Type[BaseForm], CustomFormDescriptor]] = [
+    form_list: list[type[BaseForm] | CustomFormDescriptor] = [
         mail_forms.TemplateSelectionFormStep,
         mail_forms.EntityEmailForm,
     ]

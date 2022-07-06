@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
 from json import dumps as json_dump
-from typing import Any, Dict
+from typing import Any
 
 from django.http import HttpResponse
 from django.utils.formats import date_format
@@ -41,7 +43,7 @@ class ConfigExport(generic.CheckedView):
         # NB: we use an OrderedDict to kept this global order in our output file
         #     (it seems better to be sure that 'version' is at the beginning,
         #     like a in a file header).
-        info: Dict[str, Any] = OrderedDict()
+        info: dict[str, Any] = OrderedDict()
         # 2.2: 1.0
         # 2.3: 1.1/1.2 the models for search & custom-forms have changed
         # 2.4: 1.3 RelationBrickItem.brick_id has been removed (use 'id' now)

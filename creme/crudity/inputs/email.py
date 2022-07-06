@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import re
-from typing import Iterable, Optional
+from typing import Iterable
 
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
@@ -165,7 +167,7 @@ class CreateEmailInput(EmailInput):
         return backend
 
     @staticmethod
-    def get_owner(is_sandbox_by_user: bool, sender: Optional[str] = None):
+    def get_owner(is_sandbox_by_user: bool, sender: str | None = None):
         """Returns the owner to assign to waiting actions and history"""
         owner = None
 

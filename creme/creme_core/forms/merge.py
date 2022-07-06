@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from functools import partial
-from typing import Optional, Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
@@ -264,7 +265,7 @@ class MergeEntitiesBaseForm(CremeForm):
 
 
 def mergefield_factory(modelfield: models.Field,
-                       fields_config: Optional[FieldsConfig] = None,
+                       fields_config: FieldsConfig | None = None,
                        ):
     formfield = modelfield.formfield()
 
@@ -285,7 +286,7 @@ def mergefield_factory(modelfield: models.Field,
     )
 
 
-def form_factory(model: Type[models.Model],
+def form_factory(model: type[models.Model],
                  merge_form_registry=merge.merge_form_registry,
                  ):
     # TODO: use a cache ??

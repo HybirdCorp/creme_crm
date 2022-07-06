@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from base64 import b64encode
 from os.path import splitext
-from typing import Dict, Tuple, Type
 
 from django.conf import settings
 from django.template import Library
@@ -152,12 +153,12 @@ class DataIconNode(IconNode):
         return InlinedIcon(path, size=size_px, label=label)
 
 
-__ICON_ARGS_MAP: Dict[str, str] = {
+__ICON_ARGS_MAP: dict[str, str] = {
     'size':  'size_var',
     'label': 'label_var',
     'class': 'class_var',
 }
-_WIDGET_ICON_NODES: Dict[str, Tuple[str, Type[IconNode]]] = {
+_WIDGET_ICON_NODES: dict[str, tuple[str, type[IconNode]]] = {
     'name':     ('name_var',     NamedIconNode),
     'ctype':    ('ctype_var',    ContentTypeIconNode),
     'instance': ('instance_var', InstanceIconNode),

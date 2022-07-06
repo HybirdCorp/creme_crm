@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
-from typing import Dict, Optional, Type
 
 from dateutil.relativedelta import relativedelta
 from dateutil.rrule import (
@@ -152,8 +153,8 @@ class DatePeriodRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, *periods: Type[DatePeriod]):
-        self._periods: Dict[str, Type[DatePeriod]] = OrderedDict()
+    def __init__(self, *periods: type[DatePeriod]):
+        self._periods: dict[str, type[DatePeriod]] = OrderedDict()
         self.register(*periods)
 
     def choices(self, choices=None):
@@ -172,7 +173,7 @@ class DatePeriodRegistry:
             if is_allowed(name):
                 yield name, period_klass.verbose_name
 
-    def get_period(self, name: str, *args) -> Optional[DatePeriod]:
+    def get_period(self, name: str, *args) -> DatePeriod | None:
         klass = self._periods.get(name)
 
         if not klass:
@@ -180,10 +181,10 @@ class DatePeriodRegistry:
 
         return klass(*args)
 
-    def deserialize(self, dict_value: dict) -> Optional[DatePeriod]:
+    def deserialize(self, dict_value: dict) -> DatePeriod | None:
         return self.get_period(dict_value['type'], dict_value['value'])
 
-    def register(self, *periods: Type[DatePeriod]):
+    def register(self, *periods: type[DatePeriod]):
         periods_map = self._periods
 
         for period in periods:
@@ -191,7 +192,7 @@ class DatePeriodRegistry:
 
             if name in periods_map:
                 raise self.RegistrationError(
-                    f"Duplicate date period's id or period registered twice : {name}"
+                    f"Duplicate date period's id or period registered twice: {name}"
                 )
 
             periods_map[name] = period

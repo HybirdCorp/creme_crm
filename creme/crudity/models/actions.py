@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from pickle import dumps, loads
-from typing import Tuple
 
 from django.db import models
 from django.utils.translation import gettext
@@ -61,7 +62,7 @@ class WaitingAction(CremeModel):
     def data(self, data: dict):
         self.raw_data = dumps(data)
 
-    def can_validate_or_delete(self, user) -> Tuple[bool, str]:
+    def can_validate_or_delete(self, user) -> tuple[bool, str]:
         """self.user not None means that sandbox is by user"""
         if self.user is not None and self.user != user and not user.is_superuser:
             return (

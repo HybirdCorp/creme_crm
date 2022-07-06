@@ -16,10 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import sys
 from importlib import import_module
 from traceback import format_exception
-from typing import List, Optional
 
 from django.apps import apps
 from django.core.management.base import BaseCommand, CommandError
@@ -42,7 +43,7 @@ def _checked_app_label(app_label, app_labels):
 
 
 class BasePopulator:
-    dependencies: List[str] = []  # Example: ['appname1', 'appname2']
+    dependencies: list[str] = []  # Example: ['appname1', 'appname2']
 
     def __init__(self, verbosity, app, all_apps, options, stdout, style):
         self.verbosity = verbosity
@@ -75,7 +76,7 @@ class BasePopulator:
     def get_app(self):
         return self.app
 
-    def get_dependencies(self) -> List[str]:
+    def get_dependencies(self) -> list[str]:
         return self.dependencies
 
 
@@ -210,12 +211,12 @@ class Command(BaseCommand):
         if verbosity >= 1:
             self.stdout.write(self.style.SUCCESS('Populate is OK.'))
 
-    def _get_populator(
-            self,
-            app_label,
-            verbosity,
-            all_apps,
-            options) -> Optional[BasePopulator]:
+    def _get_populator(self,
+                       app_label,
+                       verbosity,
+                       all_apps,
+                       options,
+                       ) -> BasePopulator | None:
         try:
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
         except ImportError:

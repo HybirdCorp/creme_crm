@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Iterable, List, Optional, Sequence, Type, Union
+from typing import Iterable, Sequence
 from urllib.parse import urlencode
 
 from django.conf import settings
@@ -57,7 +59,7 @@ class CancellableMixin:
     # NB: for linters only
     request: HttpRequest
 
-    def get_cancel_url(self) -> Optional[str]:
+    def get_cancel_url(self) -> str | None:
         request = self.request
 
         return (
@@ -76,7 +78,7 @@ class CallbackMixin:
     # NB: for linters only
     request: HttpRequest
 
-    def get_callback_url(self) -> Optional[str]:
+    def get_callback_url(self) -> str | None:
         request = self.request
 
         if request.method == 'POST':
@@ -109,9 +111,9 @@ class PermissionsMixin:
           permissions = ['my_app1', 'my_app2.can_admin']
       - an empty value (like '', the default value) means no permission is checked.
     """
-    login_url_name: Optional[str] = None
+    login_url_name: str | None = None
     login_redirect_arg_name: str = REDIRECT_FIELD_NAME
-    permissions: Union[str, Sequence[str]] = ''
+    permissions: str | Sequence[str] = ''
 
     # NB: for linters only
     request: HttpRequest
@@ -179,15 +181,15 @@ class EntityRelatedMixin:
     LINK permission instead of CHANGE.
     """
     entity_id_url_kwarg: str = 'entity_id'
-    entity_classes: Union[Type[CremeEntity], Sequence[Type[CremeEntity]], None] = None
-    entity_form_kwarg: Optional[str] = 'entity'
+    entity_classes: type[CremeEntity] | Sequence[type[CremeEntity]] | None = None
+    entity_form_kwarg: str | None = 'entity'
     entity_select_for_update: bool = False
 
     # NB: for linters only
     request: HttpRequest
     kwargs: dict
 
-    def build_related_entity_queryset(self, model: Type[CremeEntity]) -> QuerySet:
+    def build_related_entity_queryset(self, model: type[CremeEntity]) -> QuerySet:
         qs = model._default_manager.all()
         return qs if not self.get_entity_select_for_update() else qs.select_for_update()
 
@@ -392,7 +394,7 @@ class BricksMixin:
     def get_brick_ids(self) -> Iterable[str]:
         return ()
 
-    def get_bricks(self) -> List[Brick]:
+    def get_bricks(self) -> list[Brick]:
         return [*self.brick_registry.get_bricks(
             [id_ for id_ in self.get_brick_ids() if id_]
         )]
@@ -463,7 +465,7 @@ class CremeFormView(CancellableMixin,
       - atomic_POST: <True> (default value means that POST requests are
                      managed within a SQL transaction.
     """
-    form_class: Type[CremeForm] = CremeForm
+    form_class: type[CremeForm] = CremeForm
     template_name = 'creme_core/generics/blockform/add.html'
     success_url = reverse_lazy('creme_core__home')
     atomic_POST: bool = True

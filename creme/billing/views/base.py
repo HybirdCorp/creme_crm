@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Sequence, Union
+from __future__ import annotations
+
+from typing import Sequence
 
 import creme.billing.forms.base as base_forms
 from creme import persons
@@ -38,7 +40,7 @@ class BaseCreation(generic.EntityCreation):
 
 class RelatedBaseCreation(generic.AddingInstanceToEntityPopup):
     model = Base
-    permissions: Union[str, Sequence[str]] = 'billing'  # Need creation perm too
+    permissions: str | Sequence[str] = 'billing'  # Need creation perm too
     initial_status = 1
     entity_id_url_kwarg = 'target_id'
     entity_classes = [

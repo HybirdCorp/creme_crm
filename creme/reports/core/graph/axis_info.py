@@ -16,16 +16,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Any, Optional
+from __future__ import annotations
+
+from typing import Any
 
 from creme.creme_core.core.entity_cell import EntityCell
 
 
 class AbscissaInfo:
     def __init__(self,
-                 cell: Optional[EntityCell],
+                 cell: EntityCell | None,
                  graph_type: int,
-                 parameter: Optional[Any] = None,
+                 parameter: Any | None = None,
                  ):
         self.cell = cell
         self.graph_type = graph_type
@@ -44,7 +46,7 @@ class AbscissaInfo:
 class OrdinateInfo:
     def __init__(self,
                  aggr_id: str,
-                 cell: Optional[EntityCell] = None,
+                 cell: EntityCell | None = None,
                  ):
         self.aggr_id = aggr_id
         self.cell = cell

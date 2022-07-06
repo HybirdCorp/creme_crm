@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
-from typing import Tuple
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -381,7 +382,7 @@ class UserRoleDeletionForm(CremeModelForm):
 class _UserRoleWizardFormStep(CremeModelForm):
     class Meta:
         model = UserRole
-        fields: Tuple[str, ...] = ()
+        fields: tuple[str, ...] = ()
 
     @staticmethod
     def app_choices(apps):

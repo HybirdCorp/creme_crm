@@ -19,9 +19,10 @@
 # TODO: improve operators code and remove lots of hard-coded stuffs here
 #       (& in widgets)
 
+from __future__ import annotations
+
 from datetime import date
 from functools import partial
-from typing import Type
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
@@ -317,7 +318,7 @@ class RegularFieldsConditionsField(_ConditionsField):
 
 
 class DateFieldsConditionsField(_ConditionsField):
-    widget: Type[widgets.ConditionListWidget] = widgets.DateFieldsConditionsWidget
+    widget: type[widgets.ConditionListWidget] = widgets.DateFieldsConditionsWidget
     default_error_messages = {
         'invalidfield':     _('This field is not a date field for this model.'),
         'invaliddaterange': _('This date range is invalid.'),
@@ -646,7 +647,7 @@ class CustomFieldsConditionsField(_ConditionsField):
 
 
 class DateCustomFieldsConditionsField(CustomFieldsConditionsField, DateFieldsConditionsField):
-    widget: Type[widgets.ConditionListWidget] = widgets.DateCustomFieldsConditionsWidget
+    widget: type[widgets.ConditionListWidget] = widgets.DateCustomFieldsConditionsWidget
     default_error_messages = {
         'invalidcustomfield': _('This date custom field is invalid with this model.'),
     }

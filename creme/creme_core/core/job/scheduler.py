@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import deque
 from datetime import MAXYEAR, datetime, timedelta
 from heapq import heapify, heappop, heappush
-from typing import Optional, Set
 
 from django.conf import settings
 from django.db.models import Q
@@ -72,7 +73,7 @@ class JobScheduler:
 
         self._system_jobs_starts = {}
         self._users_jobs = deque()
-        self._running_userjob_ids: Set[int] = set()
+        self._running_userjob_ids: set[int] = set()
 
     class _DeferredJob:
         """
@@ -142,7 +143,7 @@ class JobScheduler:
 
     def _next_wakeup(self,
                      job: Job,
-                     reference_run: Optional[datetime] = None,
+                     reference_run: datetime | None = None,
                      ) -> datetime:
         """Computes the next valid wake up, which must be on the form of
         reference_run + N * period, & be > now_value.

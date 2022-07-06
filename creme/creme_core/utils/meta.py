@@ -21,9 +21,11 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 from functools import partial
 from itertools import chain
-from typing import Callable, List, Optional, Tuple, Type, Union
+from typing import Callable, Type
 
 from django.core.exceptions import FieldDoesNotExist
 from django.core.validators import EMPTY_VALUES
@@ -68,17 +70,17 @@ class FieldInfo:
     """
     __slots__ = ('_model', '__fields')
 
-    def __init__(self, model: Type[Model], field_name: str):
+    def __init__(self, model: type[Model], field_name: str):
         """ Constructor.
 
         @param model: Class inheriting django.db.models.Model.
         @param field_name: String representing a 'chain' of fields, e.g. 'book__author__name'.
         @throws FieldDoesNotExist
         """
-        fields: List[Field] = []
+        fields: list[Field] = []
 
         self.__fields = fields
-        self._model: Type[Model] = model
+        self._model: type[Model] = model
         subfield_names = field_name.split('__')
 
         for subfield_name in subfield_names[:-1]:
@@ -96,7 +98,7 @@ class FieldInfo:
 
         fields.append(model._meta.get_field(subfield_names[-1]))
 
-    def __getitem__(self, idx: Union[int, slice]):
+    def __getitem__(self, idx: int | slice):
         if isinstance(idx, slice):
             step = idx.step
             if step is not None and step != 1:
@@ -133,7 +135,7 @@ class FieldInfo:
         )
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self._model
 
     @property
@@ -180,8 +182,8 @@ FieldFilterFunctionType = Callable[[Type[Model], Field, int], bool]
 
 
 class _FilterModelFieldQuery:
-    def __init__(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
-        conditions: List[FieldFilterFunctionType] = []
+    def __init__(self, function: FieldFilterFunctionType | None = None, **kwargs):
+        conditions: list[FieldFilterFunctionType] = []
 
         if function:
             conditions.append(function)
@@ -235,7 +237,7 @@ class ModelFieldEnumerator:
         self._depth = depth
         self._only_leaves = only_leaves
         self._fields = None
-        self._ffilters: List[FieldFilterFunctionType] = []
+        self._ffilters: list[FieldFilterFunctionType] = []
 
     def __iter__(self):
         if self._fields is None:
@@ -270,25 +272,25 @@ class ModelFieldEnumerator:
 
         return fields_info
 
-    def filter(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
+    def filter(self, function: FieldFilterFunctionType | None = None, **kwargs):
         """Filter the field sequence.
         @param function: (optional) Callable which takes 3 keyword arguments
                ("model", "field" & "depth"), and returns a boolean
                ('True' means 'the field is accepted').
-        @param kwargs: Keywords can be a true field attribute name, or a creme tag.
+        @param kwargs: Keywords can be a true field attribute name, or a Creme tag.
                Eg: ModelFieldEnumerator(Contact).filter(editable=True, viewable=True)
         """
         self._ffilters.append(_FilterModelFieldQuery(function, **kwargs))
         return self
 
-    def exclude(self, function: Optional[FieldFilterFunctionType] = None, **kwargs):
+    def exclude(self, function: FieldFilterFunctionType | None = None, **kwargs):
         """Exclude some fields from the sequence.
         @see ModelFieldEnumerator.filter()
         """
         self._ffilters.append(_ExcludeModelFieldQuery(function, **kwargs))
         return self
 
-    def choices(self, printer=lambda field: str(field.verbose_name)) -> List[Tuple[str, str]]:
+    def choices(self, printer=lambda field: str(field.verbose_name)) -> list[tuple[str, str]]:
         """@return A list of tuple (field_name, field_verbose_name)."""
         sort_key = collator.sort_key
         sortable_choices = []

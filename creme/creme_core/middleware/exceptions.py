@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Optional, Type
 
 from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponse
@@ -32,9 +33,9 @@ logger = logging.getLogger(__name__)
 
 
 class _AlternativeErrorMiddleware(MiddlewareMixin):
-    error: Optional[Type[Exception]] = None
+    error: type[Exception] | None = None
     status = 400
-    template: Optional[str] = None
+    template: str | None = None
     log_ajax = True
 
     def process_exception(self, request, exception):

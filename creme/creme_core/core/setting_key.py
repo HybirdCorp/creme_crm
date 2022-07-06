@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from json import loads as json_load
-from typing import Any, Callable, Dict, Iterator, Type
+from typing import Any, Callable, Iterator
 
 from django.db.models import Model, TextField
 from django.utils.html import escape
@@ -43,7 +45,7 @@ class _SettingKey:
     HOUR   = 10
     EMAIL  = 20
 
-    _CASTORS: Dict[int, Callable[[str], Any]] = {
+    _CASTORS: dict[int, Callable[[str], Any]] = {
         STRING: str,
         INT:    int,
         BOOL:   bool_from_str,
@@ -51,7 +53,7 @@ class _SettingKey:
         EMAIL:  str,
     }
 
-    HTML_PRINTERS: Dict[int, Callable[[Any], str]] = {
+    HTML_PRINTERS: dict[int, Callable[[Any], str]] = {
         BOOL:   bool_as_html,
         HOUR:   print_hour,
     }
@@ -134,9 +136,9 @@ class _SettingKeyRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, key_class: Type[_SettingKey] = SettingKey):
-        self._skeys: Dict[str, _SettingKey] = {}
-        self._key_class: Type[_SettingKey] = key_class
+    def __init__(self, key_class: type[_SettingKey] = SettingKey):
+        self._skeys: dict[str, _SettingKey] = {}
+        self._key_class: type[_SettingKey] = key_class
 
     def __getitem__(self, key_id: str) -> _SettingKey:
         return self._skeys[key_id]
@@ -181,7 +183,7 @@ class UserSettingValueManager:
     class ReadOnlyError(Exception):
         pass
 
-    def __init__(self, user_class: Type[Model], user_id, json_settings: TextField):
+    def __init__(self, user_class: type[Model], user_id, json_settings: TextField):
         self._user_class = user_class
         self._user_id = user_id
         self._values = json_load(json_settings)
@@ -199,7 +201,7 @@ class UserSettingValueManager:
             # TODO: do we need a non-atomic mode which saves anyway ?
             logger.warning(
                 'UserSettingValueManager: an exception has been raised, '
-                'changes will not be saved !'
+                'changes will not be saved!'
             )
             raise exc_value
 

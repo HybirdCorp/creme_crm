@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import sys
 import warnings
 from contextlib import ContextDecorator
@@ -5,7 +7,6 @@ from datetime import date, datetime, timedelta
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
-from typing import List, Union
 from unittest import skipIf
 from unittest.util import safe_repr
 
@@ -602,7 +603,7 @@ class _CremeTestCase:
     def create_uploaded_file(*,
                              file_name: str,
                              dir_name: str,
-                             content: Union[str, List[str]] = 'I am the content'):
+                             content: str | list[str] = 'I am the content'):
         from os import path as os_path
         from shutil import copy
 

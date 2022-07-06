@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import TYPE_CHECKING, Dict, Optional, Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.db.models import Q, QuerySet
 
@@ -41,7 +43,7 @@ class EntityCredentials:
 
     _ALL_CREDS = 63
 
-    _PERMS_MAP: Dict[str, int] = {
+    _PERMS_MAP: dict[str, int] = {
         VIEW_PERM:   VIEW,
         CHANGE_PERM: CHANGE,
         DELETE_PERM: DELETE,
@@ -65,7 +67,7 @@ class EntityCredentials:
 
         return False
 
-    def __init__(self, user, entity: 'CremeEntity'):
+    def __init__(self, user, entity: CremeEntity):
         """Constructor.
         @param user: <django.contrib.auth.get_user_model()> instance.
         @param entity: CremeEntity (or child class) instance.
@@ -160,7 +162,8 @@ class EntityCredentials:
                         user,
                         queryset: QuerySet,
                         perm: int = VIEW,
-                        as_model: Optional[Type['CremeEntity']] = None) -> QuerySet:
+                        as_model: type[CremeEntity] | None = None,
+                        ) -> QuerySet:
         """Filter a Queryset of CremeEntities by the credentials of a given user.
         Beware, model class must be CremeEntity ; it cannot be a child class of
         CremeEntity.

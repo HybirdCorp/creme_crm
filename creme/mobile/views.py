@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from copy import deepcopy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
-from typing import Optional
 
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
@@ -239,7 +240,7 @@ def persons_portal(request):
 
 
 class MobileBase:
-    login_url_name: Optional[str] = 'mobile__login'
+    login_url_name: str | None = 'mobile__login'
 
 
 class MobilePersonBase(MobileBase):

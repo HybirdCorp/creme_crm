@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Dict, Iterable, List, Optional, Type
+from typing import Iterable
 
 from django.db.models import Model
 from django.db.models.query import Q, QuerySet
@@ -80,7 +82,7 @@ class Searcher:
         entity_cell.EntityCellCustomField.type_id: _q_for_customfield,
     }
 
-    def __init__(self, models: Iterable[Type[Model]], user):
+    def __init__(self, models: Iterable[type[Model]], user):
         """Constructor.
 
         @param models: Iterable of classes inheriting <django.db.models.Model>.
@@ -88,7 +90,7 @@ class Searcher:
         """
         self.user = user
 
-        search_map: Dict[Type[Model], List[entity_cell.EntityCell]] = {}
+        search_map: dict[type[Model], list[entity_cell.EntityCell]] = {}
         models = [*models]  # Several iterations
         # TODO: move in iter_for_models() ?
         FieldsConfig.objects.get_for_models(models)  # Fill cache
@@ -128,7 +130,7 @@ class Searcher:
 
         return result_q
 
-    def get_cells(self, model: Type[Model]) -> List[entity_cell.EntityCell]:
+    def get_cells(self, model: type[Model]) -> list[entity_cell.EntityCell]:
         """Get the list of EntityCells instances used to search in 'model'."""
         return self._search_map[model]
 
@@ -137,7 +139,7 @@ class Searcher:
         "View on the models this Searcher use."
         return self._search_map.keys()
 
-    def search(self, model: Type[Model], research: str) -> Optional[QuerySet]:
+    def search(self, model: type[Model], research: str) -> QuerySet | None:
         """Return a query with the models which fields contain the wanted value.
         @param model: Class inheriting django.db.Model (CremeEntity)
         @param research: Searched string ; it's split in words (see utils.string.smart_split()).

@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from json import loads as json_load
-from typing import Dict, List, Tuple, Type
 
 from django.core.exceptions import PermissionDenied
 from django.db import IntegrityError
@@ -44,7 +45,7 @@ class BricksReloading(generic.CheckedView):
     Recall: the default value <permissions = ''> means 'no permission required' ;
             use with caution :)
     """
-    response_class: Type[HttpResponseBase] = CremeJsonResponse
+    response_class: type[HttpResponseBase] = CremeJsonResponse
     brick_registry: _BrickRegistry = global_brick_registry
     # Name of the Brick's render method to use ;
     # classically: "detailview_display" or "home_display".
@@ -53,7 +54,7 @@ class BricksReloading(generic.CheckedView):
     # instances has to be checked.
     check_bricks_permission: bool = True
 
-    def get_brick_ids(self) -> List[str]:
+    def get_brick_ids(self) -> list[str]:
         # TODO: filter empty IDs ??
         brick_ids = self.request.GET.getlist('brick_id')
 
@@ -62,10 +63,10 @@ class BricksReloading(generic.CheckedView):
 
         return brick_ids
 
-    def get_bricks(self) -> List[Brick]:
+    def get_bricks(self) -> list[Brick]:
         return [*self.brick_registry.get_bricks(self.get_brick_ids())]
 
-    def get_bricks_contents(self) -> List[Tuple[str, str]]:
+    def get_bricks_contents(self) -> list[tuple[str, str]]:
         """Build a list of tuples (brick_ID, brick_HTML) which can be serialised to JSON.
 
         @return A JSON-friendly list of tuples.
@@ -174,13 +175,13 @@ class HomeBricksReloading(BricksReloading):
 
 class BrickStateSetting(generic.CheckedView):
     brick_id_arg: str = 'id'
-    FIELDS: List[Tuple[str, str]] = [
+    FIELDS: list[tuple[str, str]] = [
         # MODEL FIELD         POST ARGUMENT
         ('is_open',           'is_open'),
         ('show_empty_fields', 'show_empty_fields'),
     ]
 
-    def get_fields_to_update(self, request) -> Dict[str, bool]:
+    def get_fields_to_update(self, request) -> dict[str, bool]:
         fields_2_update = {}
         get = request.POST.get
 
@@ -226,7 +227,7 @@ class BrickStateExtraDataSetting(generic.CheckedView):
      "brick_cls" & "data_key".
      """
     value_arg: str = 'value'
-    brick_cls: Type[Brick] = Brick
+    brick_cls: type[Brick] = Brick
     data_key: str = ''
 
     @staticmethod

@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional
+from __future__ import annotations
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -48,7 +48,7 @@ class History(CremeModel):
         verbose_name = _('History')
         verbose_name_plural = _('History')
 
-    def get_entity(self) -> Optional[CremeEntity]:
+    def get_entity(self) -> CremeEntity | None:
         entity = self.entity
 
         if entity:

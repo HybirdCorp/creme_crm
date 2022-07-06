@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,20 +22,18 @@
 #
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
 from collections.abc import MutableSet
 from sys import maxsize
 from typing import (
     Callable,
-    Dict,
     Generic,
     ItemsView,
     Iterable,
     Iterator,
     KeysView,
-    Optional,
-    Tuple,
-    Type,
     TypeVar,
     ValuesView,
 )
@@ -124,10 +122,11 @@ class ClassKeyedMap(Generic[T]):
     No get() method because there is no 'default' argument.
     """
     def __init__(self,
-                 items: Iterable[Tuple[Type, T]] = (),
-                 default: Optional[T] = None):
+                 items: Iterable[tuple[type, T]] = (),
+                 default: T | None = None,
+                 ):
         # self._data = dict(items)  # TODO: when order is kept (py3.7)
-        self._data: Dict[Type, Optional[T]] = OrderedDict(items)
+        self._data: dict[type, T | None] = OrderedDict(items)
         self._default = default
 
     @staticmethod
@@ -140,13 +139,13 @@ class ClassKeyedMap(Generic[T]):
 
         return sorted(classes, key=lambda cls: get_order(cls, maxsize))[0]
 
-    def __getitem__(self, key_class: Type) -> Optional[T]:
+    def __getitem__(self, key_class: type) -> T | None:
         """There is no default argument, because it is given at construction ;
         the default value is used to fill the cache (so there are side effects),
         and a different default value could lead to strange behaviours.
         """
         data = self._data
-        key_class_value: Optional[T]
+        key_class_value: T | None
 
         try:
             key_class_value = data[key_class]
@@ -165,7 +164,7 @@ class ClassKeyedMap(Generic[T]):
 
         return key_class_value
 
-    def __setitem__(self, key_class: Type, value: T):
+    def __setitem__(self, key_class: type, value: T):
         data = self._data
 
         for cls in data:
@@ -176,7 +175,7 @@ class ClassKeyedMap(Generic[T]):
 
         # return value  # NB: useless, python does it for us
 
-    def __contains__(self, key: Type):
+    def __contains__(self, key: type):
         return key in self._data
 
     # def __eq__(self, other): # Would be an heavy operation....
@@ -197,16 +196,16 @@ class ClassKeyedMap(Generic[T]):
         )
 
     @property
-    def default(self) -> Optional[T]:
+    def default(self) -> T | None:
         return self._default
 
     def items(self) -> ItemsView:
         return self._data.items()
 
-    def keys(self) -> KeysView[Type]:
+    def keys(self) -> KeysView[type]:
         return self._data.keys()
 
-    def values(self) -> ValuesView[Optional[T]]:
+    def values(self) -> ValuesView[T | None]:
         return self._data.values()
 
 
@@ -224,20 +223,20 @@ class InheritedDataChain(Generic[T]):
     def __init__(self, default_factory: Callable[[], T]):
         """@param default_factory: A callable which returns an instance (typically a class)."""
         self._default_factory = default_factory
-        self._data: Dict[Type, T] = {}
+        self._data: dict[type, T] = {}
 
-    def __contains__(self, key_class: Type) -> bool:
+    def __contains__(self, key_class: type) -> bool:
         """@param key_class: A class."""
         return key_class in self._data
 
-    def __delitem__(self, key_class: Type) -> None:
+    def __delitem__(self, key_class: type) -> None:
         """
         @param key_class: A class.
         @raise: KeyError.
         """
         del self._data[key_class]
 
-    def __getitem__(self, key_class: Type) -> T:
+    def __getitem__(self, key_class: type) -> T:
         """
         @param key_class: A class.
         @return: An instance of 'default_factory' (see __init__) ;
@@ -253,7 +252,7 @@ class InheritedDataChain(Generic[T]):
 
             return value
 
-    def chain(self, key_class: Type, parent_first: bool = True) -> Iterator[T]:
+    def chain(self, key_class: type, parent_first: bool = True) -> Iterator[T]:
         """A generator which yields the data related to the key-class (if they exist)
         and the data of the parent classes (if they exist), then data of the grand parent etc...
 
@@ -276,7 +275,7 @@ class InheritedDataChain(Generic[T]):
         for __order, value in pondered_values:
             yield value
 
-    def get(self, key_class: Type, default=None):
+    def get(self, key_class: type, default=None):
         """Retrieve the value associated to a key-class if it exists.
         @param key_class: A class (the key).
         @param default: An object returned if the key is not found ; <None> by default.

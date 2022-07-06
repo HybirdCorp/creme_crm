@@ -22,11 +22,13 @@
 #
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import sys
 import traceback
 import warnings
-from typing import Callable, Iterable, List, Tuple, TypeVar
+from typing import Callable, Iterable, TypeVar
 
 from django.http import Http404
 from django.utils.safestring import mark_safe
@@ -158,7 +160,7 @@ def find_first(iterable, function, *default):
 
 def split_filter(predicate: Callable[[T], bool],
                  iterable: Iterable[T],
-                 ) -> Tuple[List[T], List[T]]:
+                 ) -> tuple[list[T], list[T]]:
     """Split an iterable into 2 lists : accepted elements & rejected elements
     @param predicate: A callable which takes one argument (an element from "iterable")
            & returns a value used as a boolean ('True' to accept the element).
@@ -288,7 +290,7 @@ def ellipsis(s: str, length: int) -> str:
     return s
 
 
-def ellipsis_multi(strings: Iterable[str], length: int) -> List[str]:
+def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     """Return (potentially) shorter strings in order to the global length
     does not exceed a given value.
     Strings are shortened in a way which tends to make them of the same length.

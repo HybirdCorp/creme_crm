@@ -16,19 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from copy import deepcopy
-from typing import (
-    Any,
-    DefaultDict,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-)
+from typing import Any, DefaultDict, Iterable, Iterator
 
 from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
@@ -55,9 +48,9 @@ class FetcherInterface:
     be registered with the same key in CRUDityRegistry.
     FetcherInterface abstract those to act like one fetcher.
     """
-    fetchers: List[CrudityFetcher]
-    _inputs: DefaultDict[str, Dict[str, CrudityInput]]
-    _default_backend: Optional[CrudityBackend]
+    fetchers: list[CrudityFetcher]
+    _inputs: DefaultDict[str, dict[str, CrudityInput]]
+    _default_backend: CrudityBackend | None
 
     def __init__(self, fetchers: Iterable[CrudityFetcher]):
         self.fetchers = [*fetchers]
@@ -71,14 +64,14 @@ class FetcherInterface:
         for crud_input in inputs:
             self._inputs[crud_input.name][crud_input.method] = crud_input
 
-    def get_input(self, name: str, method: str) -> Optional[CrudityInput]:
+    def get_input(self, name: str, method: str) -> CrudityInput | None:
         input_name = self._inputs.get(name)
         if input_name is not None:
             return input_name.get(method)
 
         return None
 
-    def get_inputs(self) -> Iterator[Dict[str, CrudityInput]]:
+    def get_inputs(self) -> Iterator[dict[str, CrudityInput]]:
         return iter(self._inputs.values())
 
     def fetch(self) -> list:
@@ -89,7 +82,7 @@ class FetcherInterface:
 
         return data
 
-    def get_default_backend(self) -> Optional[CrudityBackend]:
+    def get_default_backend(self) -> CrudityBackend | None:
         """Special case, for retrieving the backend defined as the default one.
         The backend should be aware in his fetcher_fallback method that the input
         is not a dict of data but the raw data
@@ -107,8 +100,8 @@ class CRUDityRegistry:
         pass
 
     def __init__(self):
-        self._fetchers: Dict[str, FetcherInterface] = {}
-        self._backends: Dict[Type[CremeEntity], Type[CrudityBackend]] = {}
+        self._fetchers: dict[str, FetcherInterface] = {}
+        self._backends: dict[type[CremeEntity], type[CrudityBackend]] = {}
 
     def __str__(self):
         res = 'CRUDityRegistry:'
@@ -175,7 +168,7 @@ class CRUDityRegistry:
             backends = getattr(crud_import, 'backends', [])
             self.register_backends(backends)
 
-    def register_fetchers(self, source: str, fetchers: List[CrudityFetcher]) -> None:
+    def register_fetchers(self, source: str, fetchers: list[CrudityFetcher]) -> None:
         fetcher_multiplex = self._fetchers.get(source)
 
         # TODO: defaultdict...
@@ -184,15 +177,15 @@ class CRUDityRegistry:
         else:
             fetcher_multiplex.add_fetchers(fetchers)
 
-    def get_fetchers(self) -> List[FetcherInterface]:  # TODO: iterator instead
+    def get_fetchers(self) -> list[FetcherInterface]:  # TODO: iterator instead
         return [*self._fetchers.values()]
 
-    def get_fetcher(self, source: str) -> Optional[FetcherInterface]:
+    def get_fetcher(self, source: str) -> FetcherInterface | None:
         return self._fetchers.get(source)
 
     def register_inputs(self,
                         source: str,
-                        inputs: List[CrudityInput],
+                        inputs: list[CrudityInput],
                         ) -> None:
         fetcher = self.get_fetcher(source)
 
@@ -204,19 +197,19 @@ class CRUDityRegistry:
                 source, inputs,
             )
 
-    def register_backends(self, backends: Iterable[Type[CrudityBackend]]) -> None:
+    def register_backends(self, backends: Iterable[type[CrudityBackend]]) -> None:
         for backend in backends:
             # TODO: error if model is already associated with the model ?
             #       (or a log in order to override cleanly)
             self._backends[backend.model] = backend
 
-    def get_backends(self) -> Iterator[Type[CrudityBackend]]:  # TODO: rename ?
+    def get_backends(self) -> Iterator[type[CrudityBackend]]:  # TODO: rename ?
         """Get all registered backend
          @returns: An iterator of backend classes.
         """
         return iter(self._backends.values())
 
-    def get_backend(self, model: Type[CremeEntity]) -> Type[CrudityBackend]:  # TODO: remove ?
+    def get_backend(self, model: type[CremeEntity]) -> type[CrudityBackend]:  # TODO: remove ?
         """Get the registered backend class for the model"""
         try:
             return self._backends[model]
@@ -225,7 +218,7 @@ class CRUDityRegistry:
                 f'No backend is registered for the model "{model}"'
             ) from e
 
-    def get_configured_backends(self) -> List[CrudityBackend]:
+    def get_configured_backends(self) -> list[CrudityBackend]:
         """Get backends instances which are configured and associated to an input
         (which is itself linked to a fetcher).
         @return: A list of configured backend instances
@@ -278,7 +271,7 @@ class CRUDityRegistry:
 
         return backend
 
-    def dispatch(self, backend_configs: List[Dict[str, Any]]) -> None:
+    def dispatch(self, backend_configs: list[dict[str, Any]]) -> None:
         for backend_cfg in backend_configs:
             backend_cfg = deepcopy(backend_cfg)
 
@@ -372,10 +365,10 @@ class CRUDityRegistry:
 
                     crud_input.add_backend(backend_instance)
 
-    def fetch(self, user) -> List[CrudityBackend]:
+    def fetch(self, user) -> list[CrudityBackend]:
         used_backends = []
 
-        def _handle_data(multi_fetcher: FetcherInterface, data) -> Optional[CrudityBackend]:
+        def _handle_data(multi_fetcher: FetcherInterface, data) -> CrudityBackend | None:
             for inputs_per_method in multi_fetcher.get_inputs():
                 for crud_input in inputs_per_method.values():
                     handling_backend = crud_input.handle(data)

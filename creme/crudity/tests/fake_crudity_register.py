@@ -1,4 +1,6 @@
-from typing import Any, List, Tuple
+from __future__ import annotations
+
+from typing import Any
 
 from creme.creme_core.tests.fake_models import (
     FakeContact,
@@ -57,7 +59,7 @@ class SwallowInput(CrudityInput):
 
 class FakeContactBackend(CrudityBackend):
     model = FakeContact
-    calls_args: List[Tuple[Any, Any]] = []
+    calls_args: list[tuple[Any, Any]] = []
 
     def fetcher_fallback(self, swallow, current_user):
         self.calls_args.append((swallow, current_user))

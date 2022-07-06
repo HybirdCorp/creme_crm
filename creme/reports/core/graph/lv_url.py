@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2020  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional, Type
+from __future__ import annotations
 
 from django.db.models.query_utils import Q
 
@@ -31,9 +31,9 @@ class ListViewURLBuilder:
     requested_q_arg      = EntitiesList.requested_q_arg
 
     def __init__(self,
-                 model: Type[CremeEntity],
-                 filter: Optional[EntityFilter] = None,
-                 common_q: Optional[Q] = None):
+                 model: type[CremeEntity],
+                 filter: EntityFilter | None = None,
+                 common_q: Q | None = None):
         fmt = getattr(model, 'get_lv_absolute_url', None)
 
         if fmt:
@@ -49,7 +49,7 @@ class ListViewURLBuilder:
         self._fmt = fmt
         self._common_q = common_q or Q()
 
-    def __call__(self, q_filter: Optional[dict] = None) -> Optional[str]:
+    def __call__(self, q_filter: dict | None = None) -> str | None:
         fmt = self._fmt
 
         if not fmt:

@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from calendar import monthrange
 from collections import OrderedDict
 from datetime import date, datetime, timedelta
-from typing import Dict, Optional
 
 from django.utils.translation import gettext_lazy as _
 
@@ -307,7 +308,7 @@ class DateRangeRegistry:
         pass
 
     def __init__(self, *dranges: DateRange):
-        self._ranges: Dict[str, DateRange] = OrderedDict()
+        self._ranges: dict[str, DateRange] = OrderedDict()
         self.register(*dranges)
 
     def choices(self, exclude_empty=True):
@@ -335,10 +336,10 @@ class DateRangeRegistry:
             ranges_map[name] = drange
 
     def get_range(self,
-                  name: Optional[str] = None,
-                  start: Optional[date] = None,
-                  end: Optional[date] = None,
-                  ) -> Optional[DateRange]:
+                  name: str | None = None,
+                  start: date | None = None,
+                  end: date | None = None,
+                  ) -> DateRange | None:
         """Get a DateRange.
         @param name: Name of a registered range (e.g. "next_year"),
                or None if you want a custom range.

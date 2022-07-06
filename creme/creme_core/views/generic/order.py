@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import Sequence
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Model, QuerySet
@@ -48,14 +50,14 @@ class ReorderInstances(View):
     (so even if the global ordering of an instance has not changed, the value
     of its order-field could change).
     """
-    model: Optional[Model] = None
-    queryset: Optional[QuerySet] = None
+    model: Model | None = None
+    queryset: QuerySet | None = None
     pk_url_kwarg: str = 'object_id'
     target_order_post_argument: str = 'target'
     order_field_name: str = 'order'
     use_select_for_update = True
 
-    def get_moved_instance_index(self, instances: Sequence[Model]) -> Optional[int]:
+    def get_moved_instance_index(self, instances: Sequence[Model]) -> int | None:
         """Returns the index of the instance we want to move.
 
         @param instances: List of instances we will re-order.

@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Type
+from typing import TYPE_CHECKING, Any
 
 from django.apps import apps
 from django.template.loader import get_template
@@ -37,7 +39,7 @@ logger = logging.getLogger(__name__)
 class JobProgress:
     template_name: str = 'creme_core/job/progress.html'
 
-    def __init__(self, percentage: Optional[int], label: str = ''):
+    def __init__(self, percentage: int | None, label: str = ''):
         """Constructor.
 
         @param percentage: percentage of the progress (e.g. 53 for '53%').
@@ -51,7 +53,7 @@ class JobProgress:
         self.label = label
 
     @property
-    def data(self) -> Dict[str, Any]:
+    def data(self) -> dict[str, Any]:
         """Data stored a 'JSONifiable' dictionary."""
         return {
             'percentage': self.percentage,
@@ -99,7 +101,7 @@ class JobType:
         return apps.get_app_config(self.id[:self.id.find('-')])
 
     @property
-    def results_bricks(self) -> List['JobErrorsBrick']:
+    def results_bricks(self) -> list[JobErrorsBrick]:
         from ..bricks import JobErrorsBrick
         return [JobErrorsBrick()]
 
@@ -134,17 +136,17 @@ class JobType:
     def generate_id(app_label: str, name: str) -> str:
         return f'{app_label}-{name}'
 
-    def get_description(self, job: Job) -> List[str]:
+    def get_description(self, job: Job) -> list[str]:
         """Get a humanized description, as a list of strings.
         To be overloaded by child classes.
         """
         return []
 
-    def get_config_form_class(self, job: Job) -> Optional[Type['JobForm']]:
+    def get_config_form_class(self, job: Job) -> type[JobForm] | None:
         """Get the configuration form for this job.
 
         Overload this method if you want a custom form.
-        If your job is PERIODIC, your form should inherit creme_core.forms.job.JobForm
+        If your job is PERIODIC, your form should inherit <creme_core.forms.job.JobForm>.
 
         @return A class of form, or None if the job is not configurable.
         """
@@ -155,16 +157,16 @@ class JobType:
 
         return None
 
-    def get_stats(self, job: Job) -> List[str]:
+    def get_stats(self, job: Job) -> list[str]:
         "Get stats as a list of strings. To be overloaded by child classes."
         return []
 
-    def next_wakeup(self, job: Job, now_value: datetime) -> Optional[datetime]:
+    def next_wakeup(self, job: Job, now_value: datetime) -> datetime | None:
         """Returns the next time when the job manager should wake up the related
         job. It is only meaningful for PSEUDO_PERIODIC type.
         @param job: <creme_core.models.Job> instance (related to this type).
         @param now_value: <datetime> object representing 'now'.
-        @return <None> -> the job has not to be woke up.
+        @return <None> -> the job has not to be woken up.
                 A <datetime> instance -> the job should be woke up at this time.
                 If it's in the past, it means the job should be run immediately
                 (tip: you can simply return 'now_value').

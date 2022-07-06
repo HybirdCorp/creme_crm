@@ -16,10 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from functools import partial
-from typing import TYPE_CHECKING, Iterator, List, Optional, Tuple, Type, Union
+from typing import TYPE_CHECKING, Iterator
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import ForeignKey, Q
@@ -55,7 +57,7 @@ class GraphFetcher:
     type_id = ''
     verbose_name = ''
     choices_group_name = ''
-    error: Optional[str] = None
+    error: str | None = None
 
     DICT_KEY_TYPE  = 'type'
     DICT_KEY_VALUE = 'value'
@@ -68,8 +70,9 @@ class GraphFetcher:
         pass
 
     def __init__(self,
-                 graph: 'AbstractReportGraph',
-                 value: Optional[str] = None):
+                 graph: AbstractReportGraph,
+                 value: str | None = None,
+                 ):
         self.graph = graph
         self.value = value
 
@@ -80,14 +83,14 @@ class GraphFetcher:
             yield self.DICT_KEY_VALUE, self.value
 
     @classmethod
-    def choices(
-            cls,
-            model: Type[CremeEntity]) -> Iterator[Tuple[str, Union[str, List[Tuple[str, str]]]]]:
+    def choices(cls,
+                model: type[CremeEntity],
+                ) -> Iterator[tuple[str, str | list[tuple[str, str]]]]:
         raise NotImplementedError()
 
-    def create_brick_config_item(
-            self,
-            brick_class: Optional[Type['InstanceBrick']] = None) -> InstanceBrickConfigItem:
+    def create_brick_config_item(self,
+                                 brick_class: type[InstanceBrick] | None = None,
+                                 ) -> InstanceBrickConfigItem:
         if brick_class is None:
             from creme.reports.bricks import ReportGraphBrick
             brick_class = ReportGraphBrick
@@ -105,7 +108,7 @@ class GraphFetcher:
 
         return ibci
 
-    def fetch(self, user, order: str = 'ASC') -> Tuple[List[str], list]:
+    def fetch(self, user, order: str = 'ASC') -> tuple[list[str], list]:
         return self.graph.fetch(user=user, order=order)
 
     def _aux_fetch_4_entity(self,
@@ -118,7 +121,8 @@ class GraphFetcher:
     def fetch_4_entity(self,
                        entity: CremeEntity,
                        user,
-                       order: str = 'ASC') -> Tuple[List[str], list]:
+                       order: str = 'ASC',
+                       ) -> tuple[list[str], list]:
         """
         Data of the AbstractReportGraph narrowed to the entities linked to one
         entity (e.g. the entity corresponding to the visited detail-view).
@@ -138,7 +142,7 @@ class GraphFetcher:
         )
 
     @property
-    def linked_models(self) -> List[Type[CremeEntity]]:
+    def linked_models(self) -> list[type[CremeEntity]]:
         """List of models which are compatible for the volatile link.
         (ie: the argument 'entity' of 'fetch_4_entity()' should be an instance
         of one of this model).
@@ -169,7 +173,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         model = self.graph.model
-        self._field: Optional['Field'] = None
+        self._field: Field | None = None
         self.verbose_name = '??'
 
         field_name = self.value
@@ -201,7 +205,7 @@ class RegularFieldLinkedGraphFetcher(GraphFetcher):
                     self._field = field
 
     @staticmethod
-    def _check_field(field, fields_configs: FieldsConfig.LocalCache) -> Optional[str]:
+    def _check_field(field, fields_configs: FieldsConfig.LocalCache) -> str | None:
         if not isinstance(field, ForeignKey):
             return _('The field is invalid (not a foreign key).')
 
@@ -254,7 +258,7 @@ class RelationLinkedGraphFetcher(GraphFetcher):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.verbose_name = '??'
-        self._rtype: Optional[RelationType] = None
+        self._rtype: RelationType | None = None
         rtype_id = self.value
 
         if not rtype_id:

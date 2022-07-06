@@ -16,12 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from enum import Enum
 from functools import partial
 from json import JSONDecodeError
 from json import loads as json_load
-from typing import List, Optional, Tuple, Type
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -98,7 +99,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     title = _('List of {models}')
 
-    mode: Optional[SelectionMode] = None
+    mode: SelectionMode | None = None
     default_selection_mode: SelectionMode = SelectionMode.MULTIPLE
 
     # GET/POST parameters
@@ -116,19 +117,19 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     is_popup_view: bool = False
     actions_registry: ActionsRegistry = global_actions_registry
 
-    state_class: Type[lv_gui.ListViewState] = lv_gui.ListViewState
+    state_class: type[lv_gui.ListViewState] = lv_gui.ListViewState
 
     cell_sorter_registry: sorter.CellSorterRegistry = sorter.cell_sorter_registry
-    query_sorter_class: Type[sorter.QuerySorter] = sorter.QuerySorter
+    query_sorter_class: type[sorter.QuerySorter] = sorter.QuerySorter
 
     search_field_registry: lv_gui.ListViewSearchFieldRegistry = lv_gui.search_field_registry
-    search_form_class: Type[ListViewSearchForm] = ListViewSearchForm
+    search_form_class: type[ListViewSearchForm] = ListViewSearchForm
 
-    default_headerfilter_id: Optional[str] = None
-    default_entityfilter_id: Optional[str] = None
+    default_headerfilter_id: str | None = None
+    default_entityfilter_id: str | None = None
 
     # NB: see get_buttons()
-    button_classes: List[Type[lv_gui.ListViewButton]] = [
+    button_classes: list[type[lv_gui.ListViewButton]] = [
         lv_gui.CreationButton,
         lv_gui.MassExportButton,
         lv_gui.MassExportHeaderButton,
@@ -261,7 +262,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         """
         return self.actions_registry
 
-    def get_cells(self, hfilter: HeaderFilter) -> List[EntityCell]:
+    def get_cells(self, hfilter: HeaderFilter) -> list[EntityCell]:
         cells = hfilter.cells
 
         if self.get_show_actions():
@@ -387,7 +388,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     def get_cell_sorter_registry(self) -> sorter.CellSorterRegistry:
         return self.cell_sorter_registry
 
-    def get_query_sorter_class(self) -> Type[sorter.QuerySorter]:
+    def get_query_sorter_class(self) -> type[sorter.QuerySorter]:
         return self.query_sorter_class
 
     def get_query_sorter(self) -> sorter.QuerySorter:
@@ -395,7 +396,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return cls(self.get_cell_sorter_registry())
 
-    def get_ordering(self) -> Tuple[str, ...]:
+    def get_ordering(self) -> tuple[str, ...]:
         state = self.state
         get = self.arguments.get
         sort_info = self.get_query_sorter().get(
@@ -452,7 +453,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
         # assert self.queryset is not None TODO ?
         return self.queryset
 
-    def get_unordered_queryset_n_count(self) -> Tuple[QuerySet, int]:
+    def get_unordered_queryset_n_count(self) -> tuple[QuerySet, int]:
         # Cannot use this because it uses get_ordering() too early
         qs = self.model._default_manager.filter(is_deleted=False)
         state = self.state
@@ -562,21 +563,22 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         return form
 
-    def get_search_form_class(self) -> Type[ListViewSearchForm]:
+    def get_search_form_class(self) -> type[ListViewSearchForm]:
         return self.search_form_class
 
     def get_show_actions(self) -> bool:
         return not self.is_popup_view
 
-    def get_state_class(self) -> Type[lv_gui.ListViewState]:
+    def get_state_class(self) -> type[lv_gui.ListViewState]:
         return self.state_class
 
     def get_state_id(self) -> str:
         return self.request.path
 
     def get_state(self) -> lv_gui.ListViewState:
-        return self.get_state_class()\
-                   .get_or_create_state(self.request, url=self.get_state_id())
+        return self.get_state_class().get_or_create_state(
+            self.request, url=self.get_state_id(),
+        )
 
     def get_sub_title(self):
         return ''

@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import decimal
 import logging
 # import unicodedata
@@ -23,7 +25,6 @@ from collections import OrderedDict  # defaultdict
 from datetime import datetime
 from functools import partial
 from re import compile as compile_re
-from typing import Type
 
 # from django.conf import settings
 from django.db.models.query_utils import Q
@@ -232,7 +233,7 @@ class ListViewSearchField(Field):
      - the widget class generally inherits <ListViewSearch>.
      - the method "to_python()" returns an instance of <django.db.models.query_utils.Q>.
     """
-    widget: Type[ListViewSearchWidget] = ListViewSearchWidget
+    widget: type[ListViewSearchWidget] = ListViewSearchWidget
 
     def __init__(self, *, cell, user, **kwargs):
         super().__init__(**kwargs)

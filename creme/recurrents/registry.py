@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 # import warnings
-from typing import Iterator, Optional, Type
+from typing import Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model
@@ -67,7 +69,7 @@ class RecurrentRegistry:
         """Get the models which can be generated recurrently."""
         yield from self._template_forms.keys()
 
-    def get_template_form_class(self, *, model: Type[Model], user) -> Optional[Type[ModelForm]]:
+    def get_template_form_class(self, *, model: type[Model], user) -> type[ModelForm] | None:
         """Get the form class (for a template model) related to a given model."""
         form_class = self._template_forms.get(model)
         if form_class:

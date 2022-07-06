@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import TYPE_CHECKING, Dict, Optional, Type
+from typing import TYPE_CHECKING
 
 from django.db.models import Q, QuerySet, aggregates
 from django.utils.translation import gettext_lazy as _
@@ -40,10 +42,10 @@ class ReportGraphAggregator:
     aggr_id: str = ''  # Set by ReportGraphAggregratorRegistry decorator
 
     def __init__(self, *,
-                 cell: Optional[EntityCell] = None,
-                 error: Optional[str] = None):
+                 cell: EntityCell | None = None,
+                 error: str | None = None):
         self._cell = cell
-        self._error: Optional[str] = error
+        self._error: str | None = error
 
     def annotate(self):
         raise NotImplementedError()
@@ -57,11 +59,11 @@ class ReportGraphAggregator:
         return 0
 
     @property
-    def cell(self) -> Optional[EntityCell]:
+    def cell(self) -> EntityCell | None:
         return self._cell
 
     @property
-    def error(self) -> Optional[str]:
+    def error(self) -> str | None:
         return self._error
 
     @property
@@ -74,19 +76,19 @@ class ReportGraphAggregator:
 
 class ReportGraphAggregatorRegistry:
     def __init__(self):
-        self._aggregator_classes: Dict[str, Type[ReportGraphAggregator]] = {}
+        self._aggregator_classes: dict[str, type[ReportGraphAggregator]] = {}
 
     def __call__(self, aggr_id: str):
         assert aggr_id not in self._aggregator_classes, 'ID collision'
 
-        def _aux(cls: Type[ReportGraphAggregator]):
+        def _aux(cls: type[ReportGraphAggregator]):
             self._aggregator_classes[aggr_id] = cls
             cls.aggr_id = aggr_id
             return cls
 
         return _aux
 
-    def __getitem__(self, rgraph: 'AbstractReportGraph') -> ReportGraphAggregator:
+    def __getitem__(self, rgraph: AbstractReportGraph) -> ReportGraphAggregator:
         agg_cls = self._aggregator_classes.get(rgraph.ordinate_type)
         if agg_cls is None:
             logger.warning(

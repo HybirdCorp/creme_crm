@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Dict, Iterable, Iterator, List, Optional, Sequence
+from __future__ import annotations
+
+from typing import Iterable, Iterator, Sequence
 
 from ..backends.gui import BrickHeaderAction, TemplateBrickHeaderAction
 from ..backends.models import CrudityBackend
@@ -32,8 +34,8 @@ class CrudityInput:
     brickheader_action_templates: Sequence[str] = ()
 
     def __init__(self):
-        self._backends: Dict[str, CrudityBackend] = {}
-        self._brickheader_actions: List[BrickHeaderAction] = [
+        self._backends: dict[str, CrudityBackend] = {}
+        self._brickheader_actions: list[BrickHeaderAction] = [
             TemplateBrickHeaderAction(template_name=tn)
             for tn in self.brickheader_action_templates
         ]
@@ -42,17 +44,17 @@ class CrudityInput:
         self._backends[backend.subject] = backend
 
     # TODO: rename 'backends' + property + generator ?
-    def get_backends(self) -> List[CrudityBackend]:
+    def get_backends(self) -> list[CrudityBackend]:
         return [*self._backends.values()]
 
-    def get_backend(self, subject: str) -> Optional[CrudityBackend]:
+    def get_backend(self, subject: str) -> CrudityBackend | None:
         return self._backends.get(subject)
 
     @property
     def has_backends(self) -> bool:
         return bool(self._backends)
 
-    def handle(self, data) -> Optional[CrudityBackend]:
+    def handle(self, data) -> CrudityBackend | None:
         """Call the method of the Input defined in subclasses.
         @return: The backend used if data were used else None.
         """

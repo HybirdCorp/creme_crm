@@ -16,12 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
 from json import loads as json_load
-from typing import Collection, Dict, Optional, Sequence, Type
+from typing import Collection, Sequence
 
 from django.apps import apps
 from django.contrib.auth import get_user_model
@@ -144,7 +146,7 @@ class JSONField(fields.CharField):
         'ctyperequired':    _('The content type is required.'),
         'ctypenotallowed':  _('This content type is not allowed.'),
     }
-    value_type: Optional[Type] = None  # Overload this: type of the value returned by the field.
+    value_type: type | None = None  # Overload this: type of the value returned by the field.
 
     def __init__(self, *, user=None, **kwargs):
         super().__init__(**kwargs)
@@ -425,8 +427,8 @@ class EntityCredsJSONField(JSONField):
 
 
 class GenericEntityField(EntityCredsJSONField):
-    widget: Type[widgets.TextInput] = core_widgets.CTEntitySelector
-    value_type: Type = dict
+    widget: type[widgets.TextInput] = core_widgets.CTEntitySelector
+    value_type: type = dict
 
     def __init__(self, *, models=(), autocomplete=False, creator=True, user=None, **kwargs):
         super().__init__(**kwargs)
@@ -570,7 +572,7 @@ class GenericEntityField(EntityCredsJSONField):
 # TODO: propose to allow duplicates ???
 class MultiGenericEntityField(GenericEntityField):
     widget = core_widgets.MultiCTEntitySelector
-    value_type: Type = list
+    value_type: type = list
 
     def __init__(self, *, models=(), autocomplete=False, unique=True,
                  creator=True, user=None, **kwargs):
@@ -689,7 +691,7 @@ class RelationEntityField(EntityCredsJSONField):
         #     'type of relationship.'
         # ),
     }
-    value_type: Type = dict
+    value_type: type = dict
 
     def __init__(self, *,
                  allowed_rtypes=RelationType.objects.none(),
@@ -827,8 +829,8 @@ class RelationEntityField(EntityCredsJSONField):
 
 
 class MultiRelationEntityField(RelationEntityField):
-    widget: Type[widgets.TextInput] = core_widgets.MultiRelationSelector
-    value_type: Type = list
+    widget: type[widgets.TextInput] = core_widgets.MultiRelationSelector
+    value_type: type = list
 
     def _value_to_jsonifiable(self, value):
         return [*map(super()._value_to_jsonifiable, value)]
@@ -848,7 +850,7 @@ class MultiRelationEntityField(RelationEntityField):
     def _clean_entities(self,
                         ctype: ContentType,
                         entity_ids: Sequence[int],
-                        ) -> Dict[int, CremeEntity]:
+                        ) -> dict[int, CremeEntity]:
         entities = {
             entity.id: entity
             for entity in ctype.get_all_objects_for_this_type(pk__in=entity_ids)
@@ -871,7 +873,7 @@ class MultiRelationEntityField(RelationEntityField):
 
         return entities
 
-    def _clean_rtypes(self, rtype_ids: Collection[str]) -> Dict[str, RelationType]:
+    def _clean_rtypes(self, rtype_ids: Collection[str]) -> dict[str, RelationType]:
         rtypes_by_ids = self._allowed_rtypes.select_related('symmetric_type').in_bulk(rtype_ids)
 
         for rtype_id in rtype_ids:
@@ -1095,7 +1097,7 @@ class CreatorEntityField(EntityCredsJSONField):
     # The following attributes are set: model, q_filter, creation_url, creation_allowed
     widget = core_widgets.EntityCreatorWidget
 
-    value_type: Type = int
+    value_type: type = int
 
     def __init__(self, *,
                  model=None,
@@ -1248,7 +1250,7 @@ class CreatorEntityField(EntityCredsJSONField):
 
 class MultiCreatorEntityField(CreatorEntityField):
     widget = core_widgets.MultiEntityCreatorWidget  # See CreatorEntityField.widget comment
-    value_type: Type = list
+    value_type: type = list
 
     def _value_to_jsonifiable(self, value):
         if not value:
@@ -1408,7 +1410,7 @@ class OptionalField(fields.MultiValueField):
           'OptionalWidget'.
     """
     sub_field = fields.Field
-    widget: Type[core_widgets.OptionalWidget] = core_widgets.OptionalWidget
+    widget: type[core_widgets.OptionalWidget] = core_widgets.OptionalWidget
 
     default_error_messages = {
         'subfield_required': _('Enter a value if you check the box.'),

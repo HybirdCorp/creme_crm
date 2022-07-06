@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from datetime import timedelta
-from typing import List, Type  # Tuple
 
 from django.apps import apps
 from django.core.paginator import Paginator
@@ -351,7 +352,7 @@ class OppTargetBrick(Brick):
 
 
 # bricks_list: Tuple[Type[Brick], ...] = (
-brick_classes: List[Type[Brick]] = [
+brick_classes: list[type[Brick]] = [
     LinkedContactsBrick,
     LinkedProductsBrick,
     LinkedServicesBrick,

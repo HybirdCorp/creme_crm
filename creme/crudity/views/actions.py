@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Iterator, List
+from __future__ import annotations
+
+from typing import Iterator
 
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
@@ -42,7 +44,7 @@ class RegistryMixin:
 class ActionsMixin:
     action_ids_arg = 'ids'
 
-    def get_action_ids(self, request) -> List[int]:
+    def get_action_ids(self, request) -> list[int]:
         try:
             ids = [int(i) for i in request.POST.getlist(self.action_ids_arg)]
         except ValueError as e:
@@ -58,7 +60,7 @@ class ActionsMixin:
 
 
 class PortalBricksMixin(RegistryMixin):
-    def get_portal_bricks(self) -> List[Brick]:
+    def get_portal_bricks(self) -> list[Brick]:
         return [
             brick_class(backend)
             for backend in self.crudity_registry.get_configured_backends()
@@ -80,7 +82,7 @@ class ActionsRefreshing(RegistryMixin, generic.CheckedView):
     permissions = 'crudity'
     response_class = CremeJsonResponse
 
-    def refresh(self, user) -> List[CrudityBackend]:
+    def refresh(self, user) -> list[CrudityBackend]:
         return self.crudity_registry.fetch(user)
 
     def post(self, request, *args, **kwargs):
@@ -118,7 +120,7 @@ class ActionsValidation(RegistryMixin, ActionsMixin, generic.CheckedView):
     permissions = 'crudity'
 
     def get_backend(self, action: WaitingAction) -> CrudityBackend:
-        source_parts: List[str] = action.source.split(' - ', 1)
+        source_parts: list[str] = action.source.split(' - ', 1)
 
         try:
             if len(source_parts) == 1:

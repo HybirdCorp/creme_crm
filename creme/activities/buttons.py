@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional
+from __future__ import annotations
 
 from django.utils.translation import gettext_lazy as _
 
@@ -41,7 +41,7 @@ class AddRelatedActivityButton(Button):
         'The current entity is pre-selected to be linked to the created activity.\n'
         'App: Activities'
     )
-    activity_type: Optional[str] = None  # None means type is not fixed
+    activity_type: str | None = None  # None means type is not fixed
 
     def render(self, context):
         context['activity_type'] = self.activity_type

@@ -16,18 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -68,7 +60,7 @@ class ReportHand:
         pass
 
     def __init__(self,
-                 report_field: 'ReportField',
+                 report_field: ReportField,
                  title: str = '??',
                  support_subreport: bool = False,
                  ):
@@ -76,7 +68,7 @@ class ReportHand:
         self._title = title
         self._support_subreport = support_subreport
 
-    def _generate_flattened_report(self, entities, user, scope: 'QuerySet') -> str:
+    def _generate_flattened_report(self, entities, user, scope: QuerySet) -> str:
         columns = self._report_field.sub_report.columns
 
         return ', '.join(
@@ -87,10 +79,10 @@ class ReportHand:
         )
 
     # TODO: scope ??
-    def _get_related_instances(self, entity: CremeEntity, user) -> 'QuerySet':
+    def _get_related_instances(self, entity: CremeEntity, user) -> QuerySet:
         raise NotImplementedError
 
-    def _get_filtered_related_entities(self, entity: CremeEntity, user) -> 'QuerySet':
+    def _get_filtered_related_entities(self, entity: CremeEntity, user) -> QuerySet:
         related_entities = EntityCredentials.filter(
             user=user,
             queryset=self._get_related_instances(entity, user),
@@ -105,7 +97,8 @@ class ReportHand:
     def _get_value(self,
                    entity: CremeEntity,
                    user,
-                   scope: 'QuerySet'):
+                   scope: QuerySet,
+                   ):
         # NB: we are not building 'self._get_value' in __init__() because the
         #     value of 'report_field.selected' can change after the Hand building.
         if self._support_subreport:
@@ -130,8 +123,8 @@ class ReportHand:
     def _get_value_extended_subreport(self,
                                       entity: CremeEntity,
                                       user,
-                                      scope: 'QuerySet',
-                                      ) -> List[List[str]]:
+                                      scope: QuerySet,
+                                      ) -> list[list[str]]:
         """Used as _get_value() method by subclasses which manage
         sub-reports (extended sub-report case).
         """
@@ -144,7 +137,7 @@ class ReportHand:
     def _get_value_flattened_subreport(self,
                                        entity: CremeEntity,
                                        user,
-                                       scope: 'QuerySet',
+                                       scope: QuerySet,
                                        ) -> str:
         """Used as _get_value() method by subclasses which manage
         sub-reports (flattened sub-report case).
@@ -156,7 +149,7 @@ class ReportHand:
     def _get_value_no_subreport(self,
                                 entity: CremeEntity,
                                 user,
-                                scope: 'QuerySet',
+                                scope: QuerySet,
                                 ) -> str:
         """Used as _get_value() method by subclasses which manage
         sub-reports (no sub-report case).
@@ -172,7 +165,7 @@ class ReportHand:
     def _get_value_single(self,
                           entity: CremeEntity,
                           user,
-                          scope: 'QuerySet',
+                          scope: QuerySet,
                           ) -> str:
         """Used as _get_value() method by subclasses which does not manage
         sub-reports.
@@ -186,28 +179,28 @@ class ReportHand:
     def _get_value_single_on_allowed(self,
                                      entity: CremeEntity,
                                      user,
-                                     scope: 'QuerySet',
+                                     scope: QuerySet,
                                      ) -> str:
         """Overload this in sub-class when you compute the hand value (entity is viewable)."""
         # return
         raise NotImplementedError()
 
     def _handle_report_values(self,
-                              entity: Optional[CremeEntity],
+                              entity: CremeEntity | None,
                               user,
-                              scope: 'QuerySet',
-                              ) -> List[str]:
+                              scope: QuerySet,
+                              ) -> list[str]:
         """@param entity: CremeEntity instance, or None."""
         return [
             rfield.get_value(entity, user, scope)
             for rfield in self._report_field.sub_report.columns
         ]
 
-    def _related_model_value_extractor(self, instance: 'Model'):
+    def _related_model_value_extractor(self, instance: Model):
         return instance
 
     # TODO: property ??
-    def get_linkable_ctypes(self) -> Optional[Iterable[ContentType]]:
+    def get_linkable_ctypes(self) -> Iterable[ContentType] | None:
         """Return the ContentTypes which are compatible, in order to link a sub-report.
         @return A sequence of ContentTypes instances, or None (that means "can not link") ;
                 an empty sequence means "All kind of CremeEntities are linkable".
@@ -215,10 +208,10 @@ class ReportHand:
         return None
 
     def get_value(self,
-                  entity: Optional[CremeEntity],
+                  entity: CremeEntity | None,
                   user,
-                  scope: 'QuerySet',
-                  ) -> Union[str, list]:
+                  scope: QuerySet,
+                  ) -> str | list:
         """Extract the value from entity for a Report cell.
         @param entity: CremeEntity instance, or None.
         @param user: User instance ; used to compute credentials.
@@ -253,7 +246,7 @@ class ReportHandRegistry:
     __slots__ = ('_hands', )
 
     def __init__(self):
-        self._hands: Dict[int, Type[ReportHand]] = {}
+        self._hands: dict[int, type[ReportHand]] = {}
 
     def __call__(self, hand_id: int):
         assert hand_id not in self._hands, 'ID collision'
@@ -265,13 +258,13 @@ class ReportHandRegistry:
 
         return _aux
 
-    def __getitem__(self, i: int) -> Type[ReportHand]:
+    def __getitem__(self, i: int) -> type[ReportHand]:
         return self._hands[i]
 
     def __iter__(self) -> Iterator[int]:
         return iter(self._hands)
 
-    def get(self, i: int) -> Optional[Type[ReportHand]]:
+    def get(self, i: int) -> type[ReportHand] | None:
         return self._hands.get(i)
 
 
@@ -284,7 +277,7 @@ class RHRegularField(ReportHand):
 
     _field_info: FieldInfo
 
-    def __new__(cls, report_field: 'ReportField'):
+    def __new__(cls, report_field: ReportField):
         try:
             field_info = FieldInfo(report_field.model, report_field.name)
         except FieldDoesNotExist as e:
@@ -382,7 +375,7 @@ class RHForeignKey(RHRegularField):
 
     # NB: cannot rename to _get_related_instances() because forbidden entities
     #     are filtered instead of outputting '??'
-    def _get_fk_instance(self, entity: CremeEntity) -> Optional[CremeEntity]:
+    def _get_fk_instance(self, entity: CremeEntity) -> CremeEntity | None:
         try:
             rel_entity = self._qs.get(pk=getattr(entity, self._fk_attr_name))
         except ObjectDoesNotExist:
@@ -566,10 +559,10 @@ class RHAggregate(ReportHand):
         )
 
     def _build_query_n_vname(self,
-                             report_field: 'ReportField',
+                             report_field: ReportField,
                              field_name: str,
                              aggregation: FieldAggregation,
-                             ) -> Tuple['Aggregate', str]:
+                             ) -> tuple[Aggregate, str]:
         raise NotImplementedError
 
     def _get_value_single(self, entity, user, scope):
@@ -678,9 +671,9 @@ class RHRelated(ReportHand):
         )
 
     @staticmethod
-    def _get_related_field(model: Type[CremeEntity],
+    def _get_related_field(model: type[CremeEntity],
                            related_field_name: str,
-                           ) -> Optional['Field']:
+                           ) -> Field | None:
         try:
             field = model._meta.get_field(related_field_name)
         except FieldDoesNotExist as e:
@@ -719,11 +712,11 @@ class ExpandableLine:
     """Store a line of report values that can be expanded in several lines if
     there are selected sub-reports.
     """
-    def __init__(self, values: List[Union[str, list]]):
+    def __init__(self, values: list[str | list]):
         self._cvalues = values
 
     def _visit(self, lines: list, current_line: list) -> None:
-        values: List[Optional[str]] = []
+        values: list[str | None] = []
         values_to_build = None
 
         for col_value in self._cvalues:
@@ -747,8 +740,8 @@ class ExpandableLine:
         else:
             lines.append(current_line)
 
-    def get_lines(self) -> List[List[str]]:
-        lines: List[List[str]] = []
+    def get_lines(self) -> list[list[str]]:
+        lines: list[list[str]] = []
         self._visit(lines, [])
 
         return lines
