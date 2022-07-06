@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2019-2021  Hybird
@@ -43,7 +41,7 @@ class AddContactsButton(ListViewButton):
 
 class RelatedContactsActionsRegistry(ActionsRegistry):
     def __init__(self, event, *args, **kwargs):
-        super(RelatedContactsActionsRegistry, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.event = event
 
     def _instance_actions_kwargs(self, *args, **kwargs):

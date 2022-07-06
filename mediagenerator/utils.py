@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import re
 from importlib import import_module
 from os import path as os_path
@@ -124,7 +122,7 @@ def find_file(name, media_dirs=None):
 
 # TODO: remove & use "with" directly ?
 def read_text_file(path):
-    with open(path, 'r', encoding='utf-8') as fp:
+    with open(path, encoding='utf-8') as fp:
         return fp.read()
 
 

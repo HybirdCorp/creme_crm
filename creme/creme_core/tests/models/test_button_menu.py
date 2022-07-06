@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.contrib.contenttypes.models import ContentType
 
 from creme.creme_core.gui.button_menu import Button

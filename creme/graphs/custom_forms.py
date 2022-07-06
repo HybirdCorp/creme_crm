@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.utils.translation import pgettext_lazy
 
 from creme import graphs

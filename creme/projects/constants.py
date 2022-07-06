@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.utils.translation import gettext_lazy as _
 
 NOT_STARTED_PK  = 1

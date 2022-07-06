@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -149,7 +147,7 @@ class AbscissaWidget(ChainedInput):
     def build_parameter_input(self):
         sub_attrs = {'auto': False}
         pinput = PolymorphicInput(
-            key='${%s.%s}' % (self.gtype_data_name, self.gtype_id_data_name),
+            key=f'${{{self.gtype_data_name}.{self.gtype_id_data_name}}}',
             attrs=sub_attrs,
         )
 

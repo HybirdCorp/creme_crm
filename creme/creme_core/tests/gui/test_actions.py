@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.contrib.contenttypes.models import ContentType
 from django.urls.base import reverse
 from django.utils.translation import gettext
@@ -75,7 +73,7 @@ class MockOrganisationBulkAction(MockBulkAction):
 class ActionsTestCase(CremeTestCase):
     @classmethod
     def setUpClass(cls):
-        super(ActionsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.user = CremeUser(
             username='yui', email='kawa.yui@kimengumi.jp',
@@ -866,7 +864,7 @@ class BuiltinActionsTestCase(CremeTestCase):
 
     @classmethod
     def setUpClass(cls):
-        super(BuiltinActionsTestCase, cls).setUpClass()
+        super().setUpClass()
 
         cls.user = user = CremeUser(
             username='yui', email='kawa.yui@kimengumi.jp',

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2021-2022  Hybird
@@ -72,7 +70,7 @@ class FieldChangeExplainer:
     old_value_decorator = new_value_decorator = _('“{value}”')
 
     def __init__(self, *,
-                 field: Union[Field, CustomField],
+                 field: Field | CustomField,
                  values: Sequence,
                  prefetcher: PreFetcher,
                  ):
@@ -88,7 +86,7 @@ class FieldChangeExplainer:
         self._values = values
         self._prefetcher = prefetcher
 
-    def decorate_field(self, field: Union[Field, CustomField]) -> str:
+    def decorate_field(self, field: Field | CustomField) -> str:
         return self.field_decorator.format(
             field=field if isinstance(field, CustomField) else field.verbose_name,
         )
@@ -256,7 +254,7 @@ class ForeignKeyExplainerMixin:
     deleted_value = _('{pk} (deleted)')
 
     def __init__(self, *,
-                 field: Union[Field, CustomField],
+                 field: Field | CustomField,
                  values,
                  prefetcher: PreFetcher,
                  ):
@@ -421,8 +419,8 @@ class HistoryLineExplainer:
         }
 
     def _explainers_for_custom_fields(self,
-                                      model_class: Type[models.Model],
-                                      modifications: List[tuple],
+                                      model_class: type[models.Model],
+                                      modifications: list[tuple],
                                       ) -> Iterator[FieldChangeExplainer]:
         get_cfield = CustomField.objects.get_for_model(model_class).get
 
@@ -454,8 +452,8 @@ class HistoryLineExplainer:
             yield explainer
 
     def _explainers_for_fields(self,
-                               model_class: Type[models.Model],
-                               modifications: List[tuple],
+                               model_class: type[models.Model],
+                               modifications: list[tuple],
                                ) -> Iterator[FieldChangeExplainer]:
         get_field = model_class._meta.get_field
         field_explainers = self._field_explainers
@@ -716,7 +714,7 @@ class HistoryRegistry:
 
     def register_line_explainer(self,
                                 htype: int,
-                                explainer_class: Type[HistoryLineExplainer],
+                                explainer_class: type[HistoryLineExplainer],
                                 ) -> HistoryRegistry:
         self._line_explainer_classes[htype] = explainer_class
 
@@ -725,7 +723,7 @@ class HistoryRegistry:
     # TODO: unit test
     def register_field_explainers(
         self,
-        *explainer_classes: Tuple[Type[Field], Type[FieldChangeExplainer]],
+        *explainer_classes: tuple[type[Field], type[FieldChangeExplainer]],
     ):
         existing_classes = self._field_explainer_classes
         for field_cls, explainer_cls in explainer_classes:
@@ -739,7 +737,7 @@ class HistoryRegistry:
     def line_explainers(self,
                         hlines: Iterable[HistoryLine],
                         user,
-                        ) -> List[HistoryLineExplainer]:
+                        ) -> list[HistoryLineExplainer]:
         """Get the explainers corresponding to a sequence of HistoryLines
         Notice that the order is kept (ie: you can zip()).
         """

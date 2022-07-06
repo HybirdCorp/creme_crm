@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 
 from django.conf import settings
@@ -586,7 +584,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         explore_action = explore_actions[0]
         self.assertEqual('redirect', explore_action.type)
         self.assertEqual(
-            '{}?parent_id={}'.format(folder.get_lv_absolute_url(), folder.id),
+            f'{folder.get_lv_absolute_url()}?parent_id={folder.id}',
             explore_action.url
         )
         self.assertTrue(explore_action.is_enabled)

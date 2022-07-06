@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import reverse
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials

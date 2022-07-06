@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from parameterized import parameterized
 
 from creme.creme_core.models import Relation

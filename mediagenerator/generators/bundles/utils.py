@@ -87,6 +87,6 @@ def _render_include_media(bundle, variation):
     elif filetype == 'js':
         tag = '<script type="text/javascript" src="{url}"></script>'
     else:
-        raise ValueError("""Don't know how to include file type "{}".""".format(filetype))
+        raise ValueError(f"""Don't know how to include file type "{filetype}".""")
 
     return '\n'.join(tag.format(url=url, **ctxt) for url in urls)

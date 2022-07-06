@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -421,7 +419,7 @@ def do_templatize(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '"{}" tag requires arguments'.format(token.contents.split()[0])
+            f'"{token.contents.split()[0]}" tag requires arguments'
         ) from e
 
     match = _templatize_re.search(arg)
@@ -466,7 +464,7 @@ def do_print_field(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '"{}" tag requires arguments.'.format(token.contents.split()[0])
+            f'"{token.contents.split()[0]}" tag requires arguments.'
         ) from e
 
     match = _PRINT_FIELD_RE.search(arg)
@@ -553,7 +551,7 @@ def do_has_perm_to(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '"{}" tag requires arguments'.format(token.contents.split()[0])
+            f'"{token.contents.split()[0]}" tag requires arguments'
         ) from e
 
     match = _haspermto_re.search(arg)
@@ -601,7 +599,7 @@ def do_include_creme_media(parser, token):
         tag_name, arg = token.contents.split(None, 1)
     except ValueError as e:
         raise TemplateSyntaxError(
-            '{!r} tag requires arguments'.format(token.contents.split()[0])
+            f'{token.contents.split()[0]!r} tag requires arguments'
         ) from e
 
     return MediaNode(TemplateLiteral(parser.compile_filter(arg), arg))

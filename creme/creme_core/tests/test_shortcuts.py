@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.http import Http404
 
 from creme.creme_core.models import (

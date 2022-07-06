@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2012-2022  Hybird
@@ -318,7 +316,7 @@ class LineEdition(generic.EntityEditionPopup):
     line_id_url_kwarg = 'line_id'
 
     def __init__(self, *args, **kwargs):
-        super(LineEdition, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.tree = None
         self.line_node = None
 

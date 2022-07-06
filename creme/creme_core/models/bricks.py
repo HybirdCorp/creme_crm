@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -77,11 +75,11 @@ class BrickDetailviewLocationManager(models.Manager):
     # TODO: Enum for zone
     def create_if_needed(
             self,
-            brick: Union[Type['Brick'], str],
+            brick: type[Brick] | str,
             order: int,
             zone: int,
-            model: Union[Type[CremeEntity], ContentType, None] = None,
-            role: Union[None, UserRole, str] = None) -> BrickDetailviewLocation:
+            model: type[CremeEntity] | ContentType | None = None,
+            role: None | UserRole | str = None) -> BrickDetailviewLocation:
         """Create an instance of BrickDetailviewLocation, but if only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
@@ -95,7 +93,7 @@ class BrickDetailviewLocationManager(models.Manager):
                      or the string 'superuser'.
         """
         # TODO: typing TypedDict in py 3.8
-        kwargs: Dict[str, Any] = {'role': None, 'superuser': False}
+        kwargs: dict[str, Any] = {'role': None, 'superuser': False}
 
         if role:
             if model is None:
@@ -120,23 +118,23 @@ class BrickDetailviewLocationManager(models.Manager):
     def create_for_model_brick(self,
                                order: int,
                                zone: int,
-                               model: Union[Type[CremeEntity], ContentType, None] = None,
-                               role: Union[None, UserRole, str] = None,
+                               model: type[CremeEntity] | ContentType | None = None,
+                               role: None | UserRole | str = None,
                                ) -> BrickDetailviewLocation:
         return self.create_if_needed(
             brick=MODELBRICK_ID, order=order,
             zone=zone, model=model, role=role,
         )
 
-    def filter_for_model(self, model: Type[CremeEntity]) -> models.QuerySet:
+    def filter_for_model(self, model: type[CremeEntity]) -> models.QuerySet:
         return self.filter(
             content_type=ContentType.objects.get_for_model(model),
         )
 
     def multi_create(self, *,
-                     defaults: Optional[dict] = None,
+                     defaults: dict | None = None,
                      data: Iterable[dict],
-                     ) -> List[BrickDetailviewLocation]:
+                     ) -> list[BrickDetailviewLocation]:
         """Create several instances at once.
         Each instance is created only if related brick is not already on the
         configuration.
@@ -432,7 +430,7 @@ class StoredBrickClassMixin:
 
 
 class RelationBrickItemManager(models.Manager):
-    def create_if_needed(self, relation_type: Union[RelationType, str]) -> RelationBrickItem:
+    def create_if_needed(self, relation_type: RelationType | str) -> RelationBrickItem:
         """Create an instance of RelationBrickItem corresponding to a RelationType
         or return the existing one.
 
@@ -529,7 +527,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         return f'{self._brick_id_prefix}-{my_id}'
 
     @classmethod
-    def id_from_brick_id(cls, brick_id: str) -> Optional[int]:
+    def id_from_brick_id(cls, brick_id: str) -> int | None:
         try:
             prefix, rbi_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
@@ -592,10 +590,10 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
         self._dump_cells_map()
 
     # TODO: accept model too ?
-    def get_cells(self, ctype: ContentType) -> List['EntityCell']:
+    def get_cells(self, ctype: ContentType) -> list[EntityCell]:
         return self._cells_by_ct().get(ctype.id)
 
-    def iter_cells(self) -> Iterator[Tuple[ContentType, List['EntityCell']]]:
+    def iter_cells(self) -> Iterator[tuple[ContentType, list[EntityCell]]]:
         "Beware: do not modify the returned objects."
         get_ct = ContentType.objects.get_for_id
 
@@ -603,7 +601,7 @@ class RelationBrickItem(StoredBrickClassMixin, CremeModel):
             yield get_ct(ct_id), cells  # TODO: copy dicts ?? (if 'yes' -> iter_ctypes() too)
 
     # TODO: accept model too ?
-    def set_cells(self, ctype: ContentType, cells: List['EntityCell']) -> RelationBrickItem:
+    def set_cells(self, ctype: ContentType, cells: list[EntityCell]) -> RelationBrickItem:
         self._cells_by_ct()[ctype.id] = cells
         self._dump_cells_map()
 
@@ -634,7 +632,7 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     creation_label = _('Create a block')
     save_label     = _('Save the block')
 
-    _brick: Optional['InstanceBrick'] = None
+    _brick: InstanceBrick | None = None
     # TODO: 'instance_brick'
     _brick_id_prefix = 'instanceblock'
 
@@ -662,7 +660,7 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def brick(self) -> 'InstanceBrick':
+    def brick(self) -> InstanceBrick:
         brick = self._brick
 
         if brick is None:
@@ -700,7 +698,7 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return iter(self._extra_data.items())
 
     @classmethod
-    def id_from_brick_id(cls, brick_id: str) -> Optional[int]:
+    def id_from_brick_id(cls, brick_id: str) -> int | None:
         try:
             prefix, ibci_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
@@ -764,7 +762,7 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     # @staticmethod
     @classmethod
     # def id_from_brick_id(brick_id: str) -> Optional[str]:
-    def id_from_brick_id(cls, brick_id: str) -> Optional[str]:
+    def id_from_brick_id(cls, brick_id: str) -> str | None:
         try:
             prefix, cbci_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
@@ -773,14 +771,14 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
         # return None if prefix != 'customblock' else cbci_id
         return None if prefix != cls._brick_id_prefix else cbci_id
 
-    def _dump_cells(self, cells: Iterable['EntityCell']) -> None:
+    def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
         # self.json_cells = json_encode([cell.to_dict() for cell in cells])
         # TODO: custom encoder instead?
         self.json_cells = [cell.to_dict() for cell in cells]
 
     # TODO: factorise with HeaderFilter.cells
     @property
-    def cells(self) -> List['EntityCell']:
+    def cells(self) -> list[EntityCell]:
         cells = self._cells
 
         if cells is None:
@@ -805,12 +803,12 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return cells
 
     @cells.setter
-    def cells(self, cells: Iterable['EntityCell']) -> None:
+    def cells(self, cells: Iterable[EntityCell]) -> None:
         self._cells = cells = [cell for cell in cells if cell]
         self._dump_cells(cells)
 
     @property
-    def filtered_cells(self) -> Iterator['EntityCell']:
+    def filtered_cells(self) -> Iterator[EntityCell]:
         """Generators which yields non excluded EntityCell instances.
         (e.g. fields not hidden with FieldsConfig, CustomFields not deleted).
         """
@@ -820,7 +818,7 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
 
 class BrickStateManager(models.Manager):
-    FIELDS: Dict[str, str] = {
+    FIELDS: dict[str, str] = {
         # SettingKey ID                                 BrickState field-name
         SETTING_BRICK_DEFAULT_STATE_IS_OPEN:           'is_open',  # TODO: constants....
         SETTING_BRICK_DEFAULT_STATE_SHOW_EMPTY_FIELDS: 'show_empty_fields',
@@ -845,7 +843,7 @@ class BrickStateManager(models.Manager):
         except self.model.DoesNotExist:
             return self.model(brick_id=brick_id, user=user, **self._get_fields_values())
 
-    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> Dict[str, BrickState]:
+    def get_for_brick_ids(self, *, brick_ids: Sequence[str], user) -> dict[str, BrickState]:
         """Get current states of several bricks.
         @param brick_ids: a list of brick IDs.
         @param user: owner of the BrickStates.

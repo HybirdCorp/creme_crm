@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.backends import _BackendRegistry, base
 from creme.creme_core.backends.csv_import import CSVImportBackend
 from creme.creme_core.backends.xls_import import XLSImportBackend

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -65,19 +63,19 @@ def decode_b64binary(blob_b64: bytes) -> Tuple[str, bytes]:
     blob_str_len = len(blob_str)
 
     header, filesize, filename_len, rest = struct.unpack(
-        '16sII{}s'.format(blob_str_len - 16 - 2 * 4),
+        f'16sII{blob_str_len - 16 - 2 * 4}s',
         blob_str,
     )
     filename_len *= 2
 
     header, filesize, filename_len, filename, blob = struct.unpack(
-        '16sII{}s{}s'.format(filename_len, (blob_str_len - 16 - 2 * 4 - filename_len)),
+        f'16sII{filename_len}s{(blob_str_len - 16 - 2 * 4 - filename_len)}s',
         blob_str,
     )
 
     filename = ''.join(
         chr(i)
-        for i in struct.unpack('{}h'.format(len(filename) // 2), filename)
+        for i in struct.unpack(f'{len(filename) // 2}h', filename)
         if i > 0
     )
     filename = str(filename.encode('utf8'))

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -69,7 +67,7 @@ def get_mime_image(image_entity):
                 mime_image.add_header(
                     'Content-Disposition', 'inline', filename=basename(image_file.name),
                 )
-        except IOError as e:
+        except OSError as e:
             logger.error('Exception when reading image : %s', e)
             mime_image = None
 

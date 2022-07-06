@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # EXAMPLE OF COMMAND INHERITING <creme.creme_core.management.base.CSVImportCommand>
 
 from django.contrib.auth import get_user_model

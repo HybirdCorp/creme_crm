@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -49,7 +47,7 @@ logger = logging.getLogger(__name__)
 
 class RelationTypeManager(models.Manager):
     def compatible(self,
-                   ct_or_model: Union[ContentType, Type[CremeEntity]],
+                   ct_or_model: ContentType | type[CremeEntity],
                    include_internals: bool = False,
                    ) -> models.QuerySet:
         types = self.filter(
@@ -71,9 +69,9 @@ class RelationTypeManager(models.Manager):
         generate_pk: bool = False,
         is_custom: bool = False,
         is_internal: bool = False,
-        is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
-        minimal_display: Tuple[bool, bool] = (False, False),
-    ) -> Tuple[RelationType, RelationType]:
+        is_copiable: bool | tuple[bool, bool] = (True, True),
+        minimal_display: tuple[bool, bool] = (False, False),
+    ) -> tuple[RelationType, RelationType]:
         """Create or update 2 symmetric RelationTypes, with their constraints.
         @param subject_desc: Tuple describing the subject RelationType instance
                (
@@ -364,7 +362,7 @@ class RelationType(CremeModel):
 
         return f'{self.predicate} — {symmetric_pred}'  # NB: — == "\xE2\x80\x94" == &mdash;
 
-    def add_subject_ctypes(self, *models: Type[CremeEntity]) -> None:
+    def add_subject_ctypes(self, *models: type[CremeEntity]) -> None:
         get_ct = ContentType.objects.get_for_model
         cts = [get_ct(model) for model in models]
         self.subject_ctypes.add(*cts)

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date, timedelta
 from functools import partial
 from io import StringIO
@@ -1037,7 +1035,7 @@ class CalendarTestCase(_ActivitiesTestCase):
             expected_ids, retrieved_ids,
             '{} != {} (id map: {})'.format(
                 expected_ids, retrieved_ids,
-                ['{} -> {}'.format(act.id, act.title) for act in expected],
+                [f'{act.id} -> {act.title}' for act in expected],
             ),
         )
 

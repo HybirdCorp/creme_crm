@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import filecmp
 from functools import partial
 from os.path import exists, join

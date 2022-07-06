@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import imaplib
 import poplib
 import socket

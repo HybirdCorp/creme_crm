@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from typing import Any, List, Tuple
 
 from creme.creme_core.tests.fake_models import (

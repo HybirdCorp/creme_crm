@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2020-2022  Hybird
@@ -93,15 +91,15 @@ class BillingExporter:
 
     def __init__(self, *,
                  verbose_name: str,
-                 engine: 'BillingExportEngine',
+                 engine: BillingExportEngine,
                  flavour: ExporterFlavour):
         self.verbose_name = verbose_name
         self.engine = engine
         self.flavour = flavour
 
     def export(self, *,
-               entity: 'CremeEntity',
-               user) -> Union['FileRef', 'HttpResponse']:
+               entity: CremeEntity,
+               user) -> FileRef | HttpResponse:
         raise NotImplementedError()
 
     @property
@@ -124,7 +122,7 @@ class BillingExportEngine:
     """
     id: EngineId = EngineId('')  # Use generate_id()
 
-    def __init__(self, model: Type['CremeEntity']):
+    def __init__(self, model: type[CremeEntity]):
         self.model = model
 
     def exporter(self, flavour: ExporterFlavour) -> BillingExporter:
@@ -152,7 +150,7 @@ class BillingExportEngineManager:
     class InvalidEngineClass(Exception):
         pass
 
-    def __init__(self, engine_paths: Optional[Iterable[str]] = None):
+    def __init__(self, engine_paths: Iterable[str] | None = None):
         """Constructor.
         @param engine_paths: paths to Python classes inheriting
                <BillingExportEngine>. If <None>, the setting "BILLING_EXPORTERS"
@@ -165,7 +163,7 @@ class BillingExportEngineManager:
         )
 
     @property
-    def engine_classes(self) -> Iterator[Type[BillingExportEngine]]:
+    def engine_classes(self) -> Iterator[type[BillingExportEngine]]:
         for path in self.engine_paths:
             cls = safe_import_object(path)
 
@@ -183,7 +181,7 @@ class BillingExportEngineManager:
 
     def engine(self, *,
                engine_id: EngineId,
-               model: Type['CremeEntity']) -> Optional[BillingExportEngine]:
+               model: type[CremeEntity]) -> BillingExportEngine | None:
         for cls in self.engine_classes:
             if cls.id == engine_id:
                 return cls(model)
@@ -193,7 +191,7 @@ class BillingExportEngineManager:
     def exporter(self, *,
                  engine_id: EngineId,
                  flavour_id: FlavourId,
-                 model: Type['CremeEntity']) -> Optional[BillingExporter]:
+                 model: type[CremeEntity]) -> BillingExporter | None:
         engine = self.engine(engine_id=engine_id, model=model)
 
         return None if engine is None else engine.exporter(

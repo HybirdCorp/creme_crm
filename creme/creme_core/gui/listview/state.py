@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -76,7 +74,7 @@ class ListViewState:
         request.session[self.url] = serialized
 
     @classmethod
-    def get_state(cls, request, url=None) -> Optional[ListViewState]:
+    def get_state(cls, request, url=None) -> ListViewState | None:
         lvs = None
         data = request.session.get(url or request.path)
 
@@ -132,7 +130,7 @@ class ListViewState:
                          entity_filters: EntityFilterList,
                          filter_id: str,
                          default_id: str = '',
-                         ) -> Optional[EntityFilter]:
+                         ) -> EntityFilter | None:
         """Select an EntityFilter & store it.
 
         @param entity_filters: EntityFilterList instance

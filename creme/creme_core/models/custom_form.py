@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2020-2022  Hybird
@@ -67,7 +65,7 @@ class CustomFormConfigItemManager(models.Manager):
         return item
 
     def get_for_user(self, *,
-                     descriptor: Union[str, 'CustomFormDescriptor'],
+                     descriptor: str | CustomFormDescriptor,
                      user,
                      ) -> CustomFormConfigItem:
         no_user_qs = self.filter(
@@ -141,7 +139,7 @@ class CustomFormConfigItem(models.Model):
         )
 
     # TODO: deprecate?
-    def groups_as_dicts(self) -> List[dict]:
+    def groups_as_dicts(self) -> list[dict]:
         # return json_load(self.json_groups)
         return self.json_groups
 

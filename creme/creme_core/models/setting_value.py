@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -49,7 +47,7 @@ class SettingValueManager(models.Manager):
         super().__init__(**kwargs)
         self.key_registry = skey_registry
 
-    def exists_4_key(self, key: Union[SettingKey, str]):
+    def exists_4_key(self, key: SettingKey | str):
         """Check if a SettingValue exists
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -57,7 +55,7 @@ class SettingValueManager(models.Manager):
         key_id = key if isinstance(key, str) else key.id
         return self.filter(key_id=key_id).exists()
 
-    def set_4_key(self, key: Union[SettingKey, str], value):
+    def set_4_key(self, key: SettingKey | str, value):
         """Set the SettingValue corresponding to a SettingKey. The cache will be cleared.
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -82,7 +80,7 @@ class SettingValueManager(models.Manager):
         cache_key = self.cache_key_fmt.format(key_id)
         cache.pop(cache_key, None)
 
-    def value_4_key(self, key: Union[SettingKey, str], default=None):
+    def value_4_key(self, key: SettingKey | str, default=None):
         """Get the SettingValue value or default if not filled.
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -93,7 +91,7 @@ class SettingValueManager(models.Manager):
         except KeyError:
             return default
 
-    def get_4_key(self, key: Union[SettingKey, str], **kwargs) -> SettingValue:
+    def get_4_key(self, key: SettingKey | str, **kwargs) -> SettingValue:
         """Get the SettingValue corresponding to a SettingKey. Results are cached (per request).
 
         @param key: A SettingKey instance, or an ID of SettingKey (string).
@@ -107,7 +105,7 @@ class SettingValueManager(models.Manager):
         """
         return next(iter(self.get_4_keys({'key': key, **kwargs}).values()))
 
-    def get_4_keys(self, *values_info: dict) -> Dict[str, SettingValue]:
+    def get_4_keys(self, *values_info: dict) -> dict[str, SettingValue]:
         """Get several SettingValue corresponding to several SettingKeys at once.
          It's faster than calling 'get_4_key()' several times, because only one
          SQL query is performed (in the worst case)

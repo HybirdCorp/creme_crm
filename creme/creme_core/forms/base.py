@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -102,16 +100,16 @@ class _FieldBlock:
     )
 
     default_template_name = 'creme_core/generics/blockform/field-block.html'
-    field_names: Union[str, List[str]]
+    field_names: str | list[str]
 
     def __init__(self,
                  *,
                  id: str,
                  label: str,
                  field_names: FieldNamesOrWildcard,
-                 layout: Optional[LayoutType] = None,
-                 template_name: Optional[str] = None,
-                 template_context: Optional[dict] = None,
+                 layout: LayoutType | None = None,
+                 template_name: str | None = None,
+                 template_context: dict | None = None,
                  ):
         """Constructor.
         @param id: String identifying this block among the group.
@@ -167,10 +165,10 @@ class BoundFieldBlocks:
                      *,
                      id: str,
                      label: str,
-                     bound_fields: List[BoundField],
+                     bound_fields: list[BoundField],
                      layout: LayoutType,
                      template_name: str,
-                     template_context: Optional[dict],
+                     template_context: dict | None,
                      ):
             self.id = id
             self.label = label
@@ -179,18 +177,18 @@ class BoundFieldBlocks:
             self.template_name = template_name
             self.template_context = template_context
 
-    _blocks_data: Dict[
+    _blocks_data: dict[
         str,  # Block ID
         BoundFieldBlock
     ]
 
     def __init__(self,
                  form: forms.BaseForm,
-                 blocks_items: Iterable[Tuple[str, _FieldBlock]],
+                 blocks_items: Iterable[tuple[str, _FieldBlock]],
                  ):
         blocks_data = self._blocks_data = OrderedDict()
-        wildcard_id: Optional[str] = None
-        field_set: Set[str] = set()
+        wildcard_id: str | None = None
+        field_set: set[str] = set()
 
         BFB = self.BoundFieldBlock
 
@@ -262,9 +260,9 @@ class BoundFieldBlocks:
 class FieldBlockManager:
     __slots__ = ('__blocks',)
 
-    __blocks: Dict[str, _FieldBlock]
+    __blocks: dict[str, _FieldBlock]
 
-    def __init__(self, *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict]):
+    def __init__(self, *blocks: tuple[str, str, FieldNamesOrWildcard] | dict):
         """Constructor.
         @param blocks: Each block info can be either
                 - a tuple with 3 elements:
@@ -317,7 +315,7 @@ class FieldBlockManager:
         ])
 
     def new(self,
-            *blocks: Union[Tuple[str, str, FieldNamesOrWildcard], dict],
+            *blocks: tuple[str, str, FieldNamesOrWildcard] | dict,
             ) -> FieldBlockManager:
         """Create a clone of self, updated with new blocks.
         @param blocks: see __init__(). New blocks are merged with self's blocks.
@@ -329,8 +327,8 @@ class FieldBlockManager:
             (block_id, copy(block))
             for block_id, block in self.__blocks.items()
         ])
-        blocks_to_add: List[_FieldBlock] = []
-        blocks_to_insert: List[Tuple[int, _FieldBlock]] = []
+        blocks_to_add: list[_FieldBlock] = []
+        blocks_to_insert: list[tuple[int, _FieldBlock]] = []
 
         for e in blocks:
             if isinstance(e, tuple):
@@ -385,7 +383,7 @@ class FieldBlockManager:
                 else:
                     blocks_to_insert.append((block_order, field_block))
 
-        final_blocks: Dict[str, _FieldBlock] = OrderedDict()
+        final_blocks: dict[str, _FieldBlock] = OrderedDict()
 
         blocks_to_insert.sort(key=lambda t: t[0], reverse=True)
 
@@ -426,20 +424,20 @@ class HookableFormMixin:
     _creme_post_save_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
-    def __add_callback(cls, attrname: str, callback: _FormCallback) -> Type[HookableFormMixin]:
+    def __add_callback(cls, attrname: str, callback: _FormCallback) -> type[HookableFormMixin]:
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
         return cls
 
     @classmethod
-    def add_post_clean_callback(cls, callback: _FormCallback) -> Type[HookableFormMixin]:
+    def add_post_clean_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
-    def add_post_init_callback(cls, callback: _FormCallback) -> Type[HookableFormMixin]:
+    def add_post_init_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
-    def add_post_save_callback(cls, callback: _FormCallback) -> Type['HookableFormMixin']:
+    def add_post_save_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_save_callbacks', callback)
 
     def _creme_post_clean(self) -> None:
@@ -505,7 +503,7 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
     })
 
     class Meta:
-        fields: Union[str, Tuple[str, ...]] = '__all__'
+        fields: str | tuple[str, ...] = '__all__'
 
     def __init__(self, user, *args, **kwargs):
         """Constructor.
@@ -624,15 +622,15 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     )
 
     class Meta:
-        exclude: Tuple[str, ...] = ()
+        exclude: tuple[str, ...] = ()
         fields = '__all__'
 
-    forced_ptype_ids: List[str]
-    forced_relations_info: List[Tuple[RelationType, CremeEntity]]
-    _customs: List[Tuple[CustomField, Any]]
+    forced_ptype_ids: list[str]
+    forced_relations_info: list[tuple[RelationType, CremeEntity]]
+    _customs: list[tuple[CustomField, Any]]
 
     def __init__(self,
-                 forced_ptypes: Iterable[Union[CremePropertyType, str]] = (),
+                 forced_ptypes: Iterable[CremePropertyType | str] = (),
                  forced_relations: Iterable[Relation] = (),
                  *args, **kwargs):
         """Constructor.
@@ -676,11 +674,11 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
     def _build_relations_fields(
         self,
-        forced_relations_info: List[Tuple[RelationType, CremeEntity]],
+        forced_relations_info: list[tuple[RelationType, CremeEntity]],
     ) -> None:
         fields = self.fields
         instance = self.instance
-        info: Optional[str] = None
+        info: str | None = None
 
         if self._use_relations_fields() and not instance.pk:
             if forced_relations_info:
@@ -896,7 +894,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
         return instance
 
-    def subcell_key(self, subcell_cls: Type['CustomFormExtraSubCell']) -> str:
+    def subcell_key(self, subcell_cls: type[CustomFormExtraSubCell]) -> str:
         "Helper method when writing base class for Custom forms."
         return subcell_cls(model=self._meta.model).into_cell().key
 
@@ -909,7 +907,7 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
 
 class CremeEntityQuickForm(CustomFieldsMixin, CremeModelForm):
     class Meta:
-        fields: Union[str, Tuple[str, ...]] = ()
+        fields: str | tuple[str, ...] = ()
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

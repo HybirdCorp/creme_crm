@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType

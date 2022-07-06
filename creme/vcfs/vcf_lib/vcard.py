@@ -150,7 +150,7 @@ class Photo(VCardTextBehavior):
 
     @classmethod
     def valueRepr(cls, line):
-        return " (BINARY PHOTO DATA at 0x{}) ".format(id(line.value))
+        return f" (BINARY PHOTO DATA at 0x{id(line.value)}) "
 
     @classmethod
     def serialize(cls, obj, buf, lineLength, validate):

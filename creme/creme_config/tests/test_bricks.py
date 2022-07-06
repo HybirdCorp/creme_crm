@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from copy import deepcopy
 from functools import partial
 from json import dumps as json_dump
@@ -739,7 +737,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         modelbrick = self.brick_registry.get_brick_4_object(model)
 
         with self.assertNoException():
-            evil_brick = next((b for b in bricks if not b.id_ != modelbrick.id_))
+            evil_brick = next(b for b in bricks if not b.id_ != modelbrick.id_)
 
         post(evil_brick)
         post(modelbrick)

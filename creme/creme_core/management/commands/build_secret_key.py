@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
 # All rights reserved.
@@ -65,7 +63,7 @@ class Command(BaseCommand):
 
             random.seed(
                 sha256(
-                    f'{random.getstate()}{time()}{force_str(kb_seed)}'.encode('utf-8')
+                    f'{random.getstate()}{time()}{force_str(kb_seed)}'.encode()
                 ).digest()
             )
 

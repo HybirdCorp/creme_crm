@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme import billing
 
 from .custom_forms import BTEMPLATE_CREATION_CFORM

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -102,7 +100,7 @@ class Dummy:
         self.datetime = mark_safe(print_datetime(self, now(), user, None))
         self.date = mark_safe(print_date(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(
-            self, '{}:{}:{}'.format(randint(0, 23), randint(0, 59), randint(0, 59)), user, None
+            self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
         ))
         self.foreignkey = (
             None
@@ -145,7 +143,7 @@ class DummyListBrick(PaginatedBrick):
         for item_id in range(item_count):
             image_name, image_url = images[random_choice(image_ids)]
             data.append(Dummy(
-                'Dummy ({}) - {}'.format(item_id + 1, image_name),
+                f'Dummy ({item_id + 1}) - {image_name}',
                 user,
                 media_url(image_url),
             ))

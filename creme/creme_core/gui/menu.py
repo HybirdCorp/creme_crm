@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -85,7 +83,7 @@ class MenuEntry:
 
     # Classical permissions strings used by the method render(), to avoid
     # redirecting to a forbidden view for example.
-    permissions: Union[str, Sequence[str]] = ''
+    permissions: str | Sequence[str] = ''
 
     # These attribute is used by 'creme_config', mainly for special level-1
     # entries which need extra data.
@@ -103,8 +101,8 @@ class MenuEntry:
     accepts_children = False
 
     def __init__(self, *,
-                 config_item_id: Optional[int] = None,
-                 data: Optional[dict] = None,
+                 config_item_id: int | None = None,
+                 data: dict | None = None,
                  ):
         """ Constructor.
         @param config_item_id: ID of the related instance of MenuConfigItem ;
@@ -211,7 +209,7 @@ class FixedURLEntry(MenuEntry):
 class CreationEntry(FixedURLEntry):
     """Specialization of FixedURLEntry to redirect to the creation view of an entity class."""
     # Notice that the label, URL & permissions are automatically computed from the model.
-    model: Type[CremeEntity] = CremeEntity
+    model: type[CremeEntity] = CremeEntity
     label = 'Creation entry'
 
     def __init__(self, **kwargs):
@@ -387,7 +385,7 @@ class MenuRegistry:
     def __init__(self):
         self._entry_classes = {}
 
-    def register(self, *entry_classes: Type[MenuEntry]) -> MenuRegistry:
+    def register(self, *entry_classes: type[MenuEntry]) -> MenuRegistry:
         setdefault = self._entry_classes.setdefault
 
         for entry_cls in entry_classes:
@@ -406,14 +404,14 @@ class MenuRegistry:
 
         return self
 
-    def get_class(self, entry_id: str) -> Optional[Type[MenuEntry]]:
+    def get_class(self, entry_id: str) -> type[MenuEntry] | None:
         return self._entry_classes.get(entry_id)
 
     @property
-    def entry_classes(self) -> Iterator[Type[MenuEntry]]:
+    def entry_classes(self) -> Iterator[type[MenuEntry]]:
         yield from self._entry_classes.values()
 
-    def get_entries(self, config_items: Iterable[MenuConfigItem]) -> List[MenuEntry]:
+    def get_entries(self, config_items: Iterable[MenuConfigItem]) -> list[MenuEntry]:
         """Get instances corresponding some MenuConfigItems.
         Parenting is managed ; and attributes 'config_item_id' are filled.
         """
@@ -472,7 +470,7 @@ class _PriorityList:
 
     def __init__(self):
         self._items = []
-        self._ids: Set[str] = set()  # IDs of _items, for fast existence checking.
+        self._ids: set[str] = set()  # IDs of _items, for fast existence checking.
 
     def __iter__(self):
         return iter(self._items)
@@ -591,7 +589,7 @@ class _PriorityList:
 
 
 class _CreationViewLink:
-    def __init__(self, id, model: Optional[Type[CremeEntity]] = None, **kwargs):
+    def __init__(self, id, model: type[CremeEntity] | None = None, **kwargs):
         """Constructor.
         @param id: unique (in this group) string, which allows to do queries
                (change property, remove...).
@@ -644,7 +642,7 @@ class _CreationViewLink:
 
         return url
 
-    def to_dict(self, user) -> Dict[str, str]:
+    def to_dict(self, user) -> dict[str, str]:
         d = {'label': str(self.label)}
 
         if user.has_perm(self.perm):  # TODO: accept callable too ?

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.models.utils import assign_2_charfield
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import FakeAddress

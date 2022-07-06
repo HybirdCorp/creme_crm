@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db.models.query_utils import Q
 from django.template import Context, Template
 

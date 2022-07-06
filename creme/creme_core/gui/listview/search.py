@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2019-2022  Hybird
@@ -135,7 +133,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         for model, builder in models_to_register:
             self.register_related_model(model=model, sfield_builder=builder)
 
-    def builder_4_related_model(self, model: Type[models.Model]):
+    def builder_4_related_model(self, model: type[models.Model]):
         return self._builders_4_models[model]
 
     @property
@@ -183,7 +181,7 @@ class RegularRelatedFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self
 
     def register_related_model(self, *,
-                               model: Type[models.Model],
+                               model: type[models.Model],
                                sfield_builder,
                                ) -> RegularRelatedFieldSearchRegistry:
         self._builders_4_models[model] = self._instantiate_builder(sfield_builder)
@@ -253,11 +251,11 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         for model_field_cls, builder in to_register:
             self.register_model_field_type(type=model_field_cls, sfield_builder=builder)
 
-    def builder_4_model_field(self, *, model: Type[models.Model], field_name: str):
+    def builder_4_model_field(self, *, model: type[models.Model], field_name: str):
         field = model._meta.get_field(field_name)
         return self._builders_4_modelfields.get(field)
 
-    def builder_4_model_field_type(self, model_field: Type[models.Field]):
+    def builder_4_model_field_type(self, model_field: type[models.Field]):
         return self._builders_4_modelfieldtypes[model_field]
 
     @property
@@ -318,7 +316,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self
 
     def register_model_field(self, *,
-                             model: Type[models.Model],
+                             model: type[models.Model],
                              field_name: str,
                              sfield_builder,
                              ) -> RegularFieldSearchRegistry:
@@ -336,7 +334,7 @@ class RegularFieldSearchRegistry(AbstractListViewSearchFieldRegistry):
         return self
 
     def register_model_field_type(self, *,
-                                  type: Type[models.Field],
+                                  type: type[models.Field],
                                   sfield_builder,
                                   ) -> RegularFieldSearchRegistry:
         self._builders_4_modelfieldtypes[type] = self._instantiate_builder(sfield_builder)

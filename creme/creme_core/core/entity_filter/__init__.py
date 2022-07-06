@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2019-2022  Hybird
@@ -53,14 +51,14 @@ class _EntityFilterRegistry:
         self.verbose_name = verbose_name
 
         # We keep the registration order for the form.
-        self._handler_classes: Dict[int, Type['FilterConditionHandler']] = OrderedDict()
+        self._handler_classes: dict[int, type[FilterConditionHandler]] = OrderedDict()
 
-        self._operator_classes: Dict[int, Type['ConditionOperator']] = {}
-        self._operand_classes: Dict[str, Type['ConditionDynamicOperand']] = {}
+        self._operator_classes: dict[int, type[ConditionOperator]] = {}
+        self._operand_classes: dict[str, type[ConditionDynamicOperand]] = {}
 
     def register_condition_handlers(
             self,
-            *classes: Type['FilterConditionHandler']) -> _EntityFilterRegistry:
+            *classes: type[FilterConditionHandler]) -> _EntityFilterRegistry:
         """Register classes of handlers.
 
         @param classes: Classes inheriting
@@ -80,7 +78,7 @@ class _EntityFilterRegistry:
 
     def register_operands(
             self,
-            *classes: Type['ConditionDynamicOperand']) -> _EntityFilterRegistry:
+            *classes: type[ConditionDynamicOperand]) -> _EntityFilterRegistry:
         """Register classes of operand.
 
         @param classes: Classes inheriting
@@ -100,7 +98,7 @@ class _EntityFilterRegistry:
 
     def register_operators(
             self,
-            *classes: Type['ConditionOperator']) -> _EntityFilterRegistry:
+            *classes: type[ConditionOperator]) -> _EntityFilterRegistry:
         """Register classes of operator.
 
         @param classes: Classes inheriting
@@ -122,9 +120,9 @@ class _EntityFilterRegistry:
     def get_handler(
             self, *,
             type_id: int,
-            model: Type['CremeEntity'],
+            model: type[CremeEntity],
             name: str,
-            data: Optional[dict]) -> Optional['FilterConditionHandler']:
+            data: dict | None) -> FilterConditionHandler | None:
         """Get an instance of handler from its ID.
 
         @param type_id: Id of the handler's class
@@ -149,7 +147,7 @@ class _EntityFilterRegistry:
         except cls.DataError:
             return None
 
-    def get_operand(self, *, type_id: str, user) -> Optional['ConditionDynamicOperand']:
+    def get_operand(self, *, type_id: str, user) -> ConditionDynamicOperand | None:
         """Get an instance of operand from its ID.
 
         @param type_id: Id of the operand's class
@@ -161,7 +159,7 @@ class _EntityFilterRegistry:
         cls = self._operand_classes.get(type_id) if isinstance(type_id, str) else None
         return None if cls is None else cls(user)
 
-    def get_operator(self, type_id: int) -> Optional['ConditionOperator']:
+    def get_operator(self, type_id: int) -> ConditionOperator | None:
         """Get an instance of operator from its ID.
 
         @param type_id: Id of the operator's class
@@ -173,17 +171,17 @@ class _EntityFilterRegistry:
         return None if cls is None else cls()
 
     @property
-    def handler_classes(self) -> Iterator[Type['FilterConditionHandler']]:
+    def handler_classes(self) -> Iterator[type[FilterConditionHandler]]:
         """Iterator on registered handler classes."""
         return iter(self._handler_classes.values())
 
-    def operands(self, user) -> Iterator['ConditionDynamicOperand']:
+    def operands(self, user) -> Iterator[ConditionDynamicOperand]:
         """Generator of operand instances."""
         for op_cls in self._operand_classes.values():
             yield op_cls(user)
 
     @property
-    def operators(self) -> Iterator['ConditionOperator']:
+    def operators(self) -> Iterator[ConditionOperator]:
         """Generator of operator instances."""
         for op_cls in self._operator_classes.values():
             yield op_cls()

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from io import BytesIO
 
 from django.conf import settings

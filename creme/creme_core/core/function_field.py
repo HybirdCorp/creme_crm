@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -99,23 +97,23 @@ class FunctionField:
     is_hidden: bool = False  # See EntityCell.is_hidden
     # TODO: what about FunctionFieldResultsList([FunctionFieldDecimal(...), ...])
     #         ==> FunctionFieldResultsList or FunctionFieldDecimal ??
-    result_type: Type[FunctionFieldResult] = FunctionFieldResult
+    result_type: type[FunctionFieldResult] = FunctionFieldResult
 
     # Builder for the search-field (used to quick-search in list-views) ; in can be :
     #  - None (no quick-search for this FunctionField) (default value).
     #  - A class of field (should inherit <creme_core.forms.listview.ListViewSearchField>).
     #  - A class of field-registry
     #    (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
-    search_field_builder: Union[
-        None,
-        Type['ListViewSearchField'],
-        Type['AbstractListViewSearchFieldRegistry'],
-    ] = None
+    search_field_builder: (
+        None |
+        type[ListViewSearchField] |
+        type[AbstractListViewSearchFieldRegistry]
+    ) = None
 
     # Class inheriting <creme_core.core.sorter.AbstractCellSorter>. Used to
     # order a QuerySet with the function field as sorting key.
     # <None> means no sorting.
-    sorter_class: Optional[Type['AbstractCellSorter']] = None
+    sorter_class: type[AbstractCellSorter] | None = None
 
     def __call__(self, entity, user):
         """"@return An instance of FunctionField object
@@ -130,7 +128,7 @@ class FunctionField:
 
 class FunctionFieldResultsList(FunctionFieldResult):
     def __init__(self, iterable: Iterable[FunctionFieldResult]):
-        self._data: List[FunctionFieldResult] = [*iterable]  # type: ignore
+        self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
     def for_html(self) -> str:
         return format_html(
@@ -160,7 +158,7 @@ class _FunctionFieldRegistry:
     def __init__(self):
         self._func_fields_classes = InheritedDataChain(dict)
 
-    def fields(self, model: Type[Model]) -> Iterator[FunctionField]:
+    def fields(self, model: type[Model]) -> Iterator[FunctionField]:
         """Generator which yield the instances of all the FunctionFields related to a model.
 
         @param model: A model class.
@@ -178,8 +176,8 @@ class _FunctionFieldRegistry:
     # TODO: accept instance too ?
     # TODO: 'default' argument ?
     def get(self,
-            model: Type[Model],
-            name: str) -> Optional[FunctionField]:
+            model: type[Model],
+            name: str) -> FunctionField | None:
         """Get an instance of FunctionField related to a model, and by its name, if it exists.
         The function field if searched in the parent model too.
 
@@ -196,8 +194,8 @@ class _FunctionFieldRegistry:
         return None
 
     def register(self,
-                 model: Type[Model],
-                 *function_field_classes: Type[FunctionField],
+                 model: type[Model],
+                 *function_field_classes: type[FunctionField],
                  ) -> _FunctionFieldRegistry:
         """Register some FunctionField classes related to a model.
 
@@ -219,8 +217,8 @@ class _FunctionFieldRegistry:
 
     # TODO: accept FunctionField names too ?
     def unregister(self,
-                   model: Type[Model],
-                   *function_field_classes: Type[FunctionField],
+                   model: type[Model],
+                   *function_field_classes: type[FunctionField],
                    ) -> None:
         """Register some FunctionField classes related to a model.
 

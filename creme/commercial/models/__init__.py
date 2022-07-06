@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .act import (  # NOQA
     AbstractAct,
     AbstractActObjectivePattern,

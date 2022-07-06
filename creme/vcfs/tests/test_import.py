@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import base64
 from functools import partial
 from os import path as os_path

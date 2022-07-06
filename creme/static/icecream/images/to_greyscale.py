@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Convert all PNG images of a folder into greyscale PNG.
 
 from argparse import ArgumentParser

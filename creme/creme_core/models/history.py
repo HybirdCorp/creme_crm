@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -243,7 +241,7 @@ class _HistoryLineTypeRegistry:
     __slots__ = ('_hltypes', )
 
     def __init__(self):
-        self._hltypes: Dict[int, Type[_HistoryLineType]] = {}
+        self._hltypes: dict[int, type[_HistoryLineType]] = {}
 
     def __call__(self, type_id: int):
         assert type_id not in self._hltypes, 'ID collision'
@@ -255,10 +253,10 @@ class _HistoryLineTypeRegistry:
 
         return _aux
 
-    def __getitem__(self, i: int) -> Type[_HistoryLineType]:
+    def __getitem__(self, i: int) -> type[_HistoryLineType]:
         return self._hltypes[i]
 
-    def __iter__(self) -> Iterator[Type[_HistoryLineType]]:
+    def __iter__(self) -> Iterator[type[_HistoryLineType]]:
         return iter(self._hltypes.values())
 
 
@@ -289,7 +287,7 @@ class _HistoryLineType:
     is_about_relation: bool = False
 
     @classmethod
-    def _build_fields_modifs(cls, instance) -> List[tuple]:
+    def _build_fields_modifs(cls, instance) -> list[tuple]:
         modifs = []
         backup = getattr(instance, '_instance_backup', None)
 
@@ -864,7 +862,7 @@ class _HLTRelation(_HistoryLineType):
     @classmethod
     def _create_lines(cls,
                       relation: Relation,
-                      sym_cls: Type[_HistoryLineType],
+                      sym_cls: type[_HistoryLineType],
                       date=None,
                       ) -> None:
         create_line = partial(HistoryLine._create_line_4_instance, date=date)
@@ -1090,7 +1088,7 @@ class _HLTEntityExport(_HistoryLineType):
                     user,
                     count: int,
                     hfilter: HeaderFilter,
-                    efilter: Optional[EntityFilter] = None,
+                    efilter: EntityFilter | None = None,
                     ) -> HistoryLine:
         """Builder of HistoryLine representing a CSV/XLS/... massive export.
 
@@ -1153,11 +1151,11 @@ class HistoryLine(Model):
 
     ENABLED: bool = True  # False means that no new HistoryLines are created.
 
-    _line_type: Optional[_HistoryLineType] = None
-    _entity_repr: Optional[str] = None
-    _modifications: Optional[list] = None
-    _related_line_id: Optional[int] = None
-    _related_line: Union['HistoryLine', bool, None] = False
+    _line_type: _HistoryLineType | None = None
+    _entity_repr: str | None = None
+    _modifications: list | None = None
+    _related_line_id: int | None = None
+    _related_line: HistoryLine | bool | None = False
 
     class Meta:
         app_label = 'creme_core'
@@ -1251,7 +1249,7 @@ class HistoryLine(Model):
     def _encode_attrs(cls,
                       instance,
                       modifs=(),
-                      related_line_id: Optional[int] = None,
+                      related_line_id: int | None = None,
                       ) -> str:
         value: list = [str(instance)]
         if related_line_id:
@@ -1316,7 +1314,7 @@ class HistoryLine(Model):
     #         logger.exception('Error in %s', self.__class__.__name__)
     #         return ['??']
 
-    def _get_related_line_id(self) -> Optional[int]:
+    def _get_related_line_id(self) -> int | None:
         if self._related_line_id is None:
             self._read_attrs()
 
@@ -1366,7 +1364,7 @@ class HistoryLine(Model):
             hline._related_line = pool.get(hline._get_related_line_id())
 
     @property
-    def related_line(self) -> Optional[HistoryLine]:
+    def related_line(self) -> HistoryLine | None:
         if self._related_line is False:
             self._related_line = None
             line_id = self._get_related_line_id()

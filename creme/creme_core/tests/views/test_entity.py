@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
@@ -522,7 +520,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertPOST404(
             self.DEL_ENTITIES_URL,
-            data={'ids': '{},{},'.format(entity01.id, entity02.id + 1)},
+            data={'ids': f'{entity01.id},{entity02.id + 1},'},
         )
 
         self.assertDictEqual(

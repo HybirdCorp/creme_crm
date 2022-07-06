@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.core.setting_key import SettingKey, _SettingKeyRegistry
 
 from ..base import CremeTestCase

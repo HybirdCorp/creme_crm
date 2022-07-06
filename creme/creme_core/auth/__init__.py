@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .entity_credentials import EntityCredentials  # NOQA
 
 # NB: with '*' there cannot be collision with app label

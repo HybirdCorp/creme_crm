@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -59,7 +57,7 @@ CharmId = NewType('CharmId', int)
 Score = NewType('Score', int)
 Category = NewType('Category', int)  # NB: 1 ⩽ category ⩽ 4
 
-_CATEGORY_MAP: Dict[int, Category] = {
+_CATEGORY_MAP: dict[int, Category] = {
     0:  Category(4),  # Weak charms   & weak assets
     1:  Category(2),  # Strong charms & weak assets
     10: Category(3),  # Weak charms   & strong assets
@@ -78,20 +76,20 @@ class AbstractStrategy(CremeEntity):
     creation_label = _('Create a strategy')
     save_label     = _('Save the strategy')
 
-    _segments_list: Optional[List['MarketSegmentDescription']]
-    _assets_list: Optional[List['CommercialAsset']]
-    _assets_scores_map: Dict[
+    _segments_list: list[MarketSegmentDescription] | None
+    _assets_list: list[CommercialAsset] | None
+    _assets_scores_map: dict[
         OrganisationId,
-        Dict[SegmentDescId, Dict[AssetId, 'CommercialAsset']]
+        dict[SegmentDescId, dict[AssetId, CommercialAsset]]
     ]
-    _charms_list: Optional[List['MarketSegmentCharm']]
-    _charms_scores_map: Dict[
+    _charms_list: list[MarketSegmentCharm] | None
+    _charms_scores_map: dict[
         OrganisationId,
-        Dict[SegmentDescId, Dict[CharmId, 'MarketSegmentCharm']]
+        dict[SegmentDescId, dict[CharmId, MarketSegmentCharm]]
     ]
-    _segments_categories: Dict[
+    _segments_categories: dict[
         OrganisationId,
-        Dict[Category, List['MarketSegmentDescription']]
+        dict[Category, list[MarketSegmentDescription]]
     ]
 
     class Meta:
@@ -114,7 +112,7 @@ class AbstractStrategy(CremeEntity):
         self._assets_list = None
         self._assets_scores_map = {}
 
-        self._charms_list: Optional[List[MarketSegmentCharm]] = None
+        self._charms_list: list[MarketSegmentCharm] | None = None
         self._charms_scores_map = {}
 
         self._segments_categories = {}
@@ -133,9 +131,9 @@ class AbstractStrategy(CremeEntity):
     def get_lv_absolute_url():
         return reverse('commercial__list_strategies')
 
-    def _get_assets_scores_objects(self, orga: 'Organisation') -> Dict[
+    def _get_assets_scores_objects(self, orga: Organisation) -> dict[
         SegmentDescId,
-        Dict[AssetId, 'CommercialAssetScore']
+        dict[AssetId, CommercialAssetScore]
     ]:
         scores = self._assets_scores_map.get(orga.id)
 
@@ -163,9 +161,9 @@ class AbstractStrategy(CremeEntity):
         return scores
 
     # TODO: factorise with _get_assets_scores_objects() ???
-    def _get_charms_scores_objects(self, orga: 'Organisation') -> Dict[
+    def _get_charms_scores_objects(self, orga: Organisation) -> dict[
         SegmentDescId,
-        Dict[CharmId, 'MarketSegmentCharmScore']
+        dict[CharmId, MarketSegmentCharmScore]
     ]:
         scores = self._charms_scores_map.get(orga.id)
 
@@ -193,54 +191,54 @@ class AbstractStrategy(CremeEntity):
         return scores
 
     def _get_asset_score_object(self,
-                                orga: 'Organisation',
+                                orga: Organisation,
                                 asset_id: AssetId,
                                 segment_desc_id: SegmentDescId,
                                 ) -> CommercialAssetScore:
         return self._get_assets_scores_objects(orga)[segment_desc_id][asset_id]
 
     def get_asset_score(self,
-                        orga: 'Organisation',
+                        orga: Organisation,
                         asset: CommercialAsset,
                         segment_desc: MarketSegmentDescription,
                         ) -> Score:
         return self._get_asset_score_object(orga, asset.id, segment_desc.id).score
 
-    def get_assets_list(self) -> List[CommercialAsset]:
+    def get_assets_list(self) -> list[CommercialAsset]:
         if self._assets_list is None:
             self._assets_list = [*self.assets.all()]
 
         return self._assets_list
 
     def _get_charm_score_object(self,
-                                orga: 'Organisation',
+                                orga: Organisation,
                                 charm_id: CharmId,
                                 segment_desc_id: SegmentDescId,
                                 ) -> MarketSegmentCharmScore:
         return self._get_charms_scores_objects(orga)[segment_desc_id][charm_id]
 
     def get_charm_score(self,
-                        orga: 'Organisation',
+                        orga: Organisation,
                         charm: MarketSegmentCharm,
                         segment_desc: MarketSegmentDescription,
                         ) -> Score:
         return self._get_charm_score_object(orga, charm.id, segment_desc.id).score
 
-    def get_charms_list(self) -> List[MarketSegmentCharm]:
+    def get_charms_list(self) -> list[MarketSegmentCharm]:
         if self._charms_list is None:
             self._charms_list = [*self.charms.all()]
 
         return self._charms_list
 
     # TODO: type for total_category (Strength?)
-    def _get_totals(self, orga_scores: Dict[SegmentDescId, dict]) -> List[Tuple[Score, int]]:
+    def _get_totals(self, orga_scores: dict[SegmentDescId, dict]) -> list[tuple[Score, int]]:
         """@return a list of tuple (total_for_segment, total_category)
         with 1 <= total_category <= 3  (1 is weak, 3 strong)
         """
         if not orga_scores:
             return []
 
-        scores: List[Score] = [
+        scores: list[Score] = [
             Score(sum(score_obj.score for score_obj in orga_scores[segment_desc.id].values()))
             for segment_desc in self.get_segment_descriptions_list()
         ]
@@ -258,10 +256,10 @@ class AbstractStrategy(CremeEntity):
 
         return [(score, _compute_category(score)) for score in scores]
 
-    def get_assets_totals(self, orga: 'Organisation') -> List[Tuple[Score, int]]:
+    def get_assets_totals(self, orga: Organisation) -> list[tuple[Score, int]]:
         return self._get_totals(self._get_assets_scores_objects(orga))
 
-    def get_charms_totals(self, orga: 'Organisation') -> List[Tuple[Score, int]]:
+    def get_charms_totals(self, orga: Organisation) -> list[tuple[Score, int]]:
         return self._get_totals(self._get_charms_scores_objects(orga))
 
     # def get_segment_category(self, orga, segment):
@@ -279,8 +277,8 @@ class AbstractStrategy(CremeEntity):
     #     raise KeyError(f'Strategy.get_segment_category() for segment: {segment}')
 
     def _get_segments_categories(self,
-                                 orga: 'Organisation',
-                                 ) -> Dict[Category, List[MarketSegmentDescription]]:
+                                 orga: Organisation,
+                                 ) -> dict[Category, list[MarketSegmentDescription]]:
         """@return A dictionary with key=Category (int, between 1 & 4) and
                    value=list of MarketSegmentDescription.
         """
@@ -331,17 +329,17 @@ class AbstractStrategy(CremeEntity):
 
         return categories
 
-    def get_segments_for_category(self, orga: 'Organisation', category):
+    def get_segments_for_category(self, orga: Organisation, category):
         return self._get_segments_categories(orga)[category]
 
-    def get_segment_descriptions_list(self) -> List[MarketSegmentDescription]:
+    def get_segment_descriptions_list(self) -> list[MarketSegmentDescription]:
         if self._segments_list is None:
             self._segments_list = [*self.segment_info.select_related('segment')]
 
         return self._segments_list
 
     def _set_score(self,
-                   model_id: Union[AssetId, CharmId],
+                   model_id: AssetId | CharmId,
                    segment_desc_id: SegmentDescId,
                    orga_id: OrganisationId,
                    score: Score,

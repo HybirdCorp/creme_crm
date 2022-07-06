@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .campaign import AbstractPollCampaign, PollCampaign  # NOQA
 from .poll_form import (  # NOQA
     AbstractPollForm,

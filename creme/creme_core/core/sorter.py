@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -52,11 +50,11 @@ class QuerySortInfo:
         - main_order: instance of <creme_core.utils.meta.Order>. Order of the main ordering field.
         - field_names: tuple of strings. Can be used as order_by() arguments.
     """
-    main_cell_key: Optional[str]
+    main_cell_key: str | None
     main_order: Order
-    field_names: Tuple[str, ...]
+    field_names: tuple[str, ...]
 
-    def __init__(self, cell_key: Optional[str], order: Order, field_names: Tuple[str, ...] = ()):
+    def __init__(self, cell_key: str | None, order: Order, field_names: tuple[str, ...] = ()):
         self.main_cell_key = cell_key
         self.main_order = order
         self.field_names = field_names
@@ -68,7 +66,7 @@ class AbstractCellSorter:
     A QuerySorter returns the name of the DB-column to use for ordering a Query
     for a given EntityCell.
     """
-    def get_field_name(self, cell: EntityCell) -> Optional[str]:
+    def get_field_name(self, cell: EntityCell) -> str | None:
         """Get the name of the column for a given cell.
 
         @param cell: Instance of EntityCell.
@@ -119,7 +117,7 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
     def __init__(
             self,
             models_to_register: Iterable[
-                Tuple[Type[Model], Type[AbstractCellSorter]]
+                tuple[type[Model], type[AbstractCellSorter]]
             ] = DEFAULT_MODELS):
         self._sorters: ClassKeyedMap = ClassKeyedMap(default=None)
 
@@ -170,14 +168,14 @@ class ForeignKeySorterRegistry(AbstractCellSorter):
         return res
 
     def register(self, *,
-                 model: Type[Model],
-                 sorter_cls: Type[AbstractCellSorter],
+                 model: type[Model],
+                 sorter_cls: type[AbstractCellSorter],
                  ) -> ForeignKeySorterRegistry:
         self._sorters[model] = sorter_cls()
 
         return self
 
-    def sorter(self, model: Type[Model]) -> Optional[AbstractCellSorter]:
+    def sorter(self, model: type[Model]) -> AbstractCellSorter | None:
         return self._sorters[model]
 
 
@@ -225,16 +223,16 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
     def __init__(
             self,
             to_register: Iterable[
-                Tuple[Type[Field], Type[AbstractCellSorter]]
+                tuple[type[Field], type[AbstractCellSorter]]
             ] = DEFAULT_SORTERS):
         # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.7)
-        self._sorters_4_modelfields: Dict[Field, AbstractCellSorter] = OrderedDict()
+        self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = OrderedDict()
         self._sorters_4_modelfieldtypes: ClassKeyedMap = ClassKeyedMap(default=None)
 
         for model_field_cls, sorter_cls in to_register:
             self.register_model_field_type(type=model_field_cls, sorter_cls=sorter_cls)
 
-    def get_field_name(self, cell) -> Optional[str]:
+    def get_field_name(self, cell) -> str | None:
         assert isinstance(cell, EntityCellRegularField)
 
         field = cell.field_info[-1]
@@ -272,9 +270,9 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         return res
 
     def register_model_field(self, *,
-                             model: Type[Model],
+                             model: type[Model],
                              field_name: str,
-                             sorter_cls: Type[AbstractCellSorter],
+                             sorter_cls: type[AbstractCellSorter],
                              ):
         field = model._meta.get_field(field_name)
         self._sorters_4_modelfields[field] = sorter_cls()
@@ -290,22 +288,22 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
         return self
 
     def register_model_field_type(self, *,
-                                  type: Type[Field],
-                                  sorter_cls: Type[AbstractCellSorter],
+                                  type: type[Field],
+                                  sorter_cls: type[AbstractCellSorter],
                                   ):
         self._sorters_4_modelfieldtypes[type] = sorter_cls()
 
         return self
 
     def sorter_4_model_field(self, *,
-                             model: Type[Model],
-                             field_name: str) -> Optional[AbstractCellSorter]:
+                             model: type[Model],
+                             field_name: str) -> AbstractCellSorter | None:
         field = model._meta.get_field(field_name)
         return self._sorters_4_modelfields.get(field)
 
     def sorter_4_model_field_type(self,
-                                  model_field: Type[Field],
-                                  ) -> Optional[AbstractCellSorter]:
+                                  model_field: type[Field],
+                                  ) -> AbstractCellSorter | None:
         return self._sorters_4_modelfieldtypes[model_field]
 
 
@@ -316,14 +314,14 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
     customise the behaviour for specific FunctionFields.
     """
     def __init__(self,
-                 to_register: Iterable[Tuple[FunctionField, Type[AbstractCellSorter]]] = (),
+                 to_register: Iterable[tuple[FunctionField, type[AbstractCellSorter]]] = (),
                  ):
-        self._sorters: Dict[str, AbstractCellSorter] = {}
+        self._sorters: dict[str, AbstractCellSorter] = {}
 
         for ffield, sorter_cls in to_register:
             self.register(ffield=ffield, sorter_cls=sorter_cls)
 
-    def get_field_name(self, cell) -> Optional[str]:
+    def get_field_name(self, cell) -> str | None:
         assert isinstance(cell, EntityCellFunctionField)
 
         ffield = cell.function_field
@@ -337,12 +335,12 @@ class FunctionFieldSorterRegistry(AbstractCellSorter):
 
         return None if sorter is None else sorter.get_field_name(cell=cell)
 
-    def register(self, *, ffield: FunctionField, sorter_cls: Type[AbstractCellSorter]):
+    def register(self, *, ffield: FunctionField, sorter_cls: type[AbstractCellSorter]):
         self._sorters[ffield.name] = sorter_cls()
 
         return self
 
-    def sorter(self, ffield: FunctionField) -> Optional[AbstractCellSorter]:
+    def sorter(self, ffield: FunctionField) -> AbstractCellSorter | None:
         return self._sorters.get(ffield.name)
 
 
@@ -409,7 +407,7 @@ class CellSorterRegistry(AbstractCellSorter):
 
 class QuerySorter:
     """Builds a QuerySortInfo (see the main method 'get()')."""
-    def __init__(self, cell_sorter_registry: Optional[CellSorterRegistry] = None):
+    def __init__(self, cell_sorter_registry: CellSorterRegistry | None = None):
         """Constructor.
 
         @param cell_sorter_registry: Instance of CellSorterRegistry ; by default
@@ -418,9 +416,9 @@ class QuerySorter:
         self._registry = cell_sorter_registry or CellSorterRegistry()
 
     def _get_field_name(self,
-                        cells_dict: Dict[str, EntityCell],
-                        cell_key: Optional[str],
-                        ) -> Optional[str]:
+                        cells_dict: dict[str, EntityCell],
+                        cell_key: str | None,
+                        ) -> str | None:
         if cell_key is None:
             return None
 
@@ -434,9 +432,9 @@ class QuerySorter:
 
     @classmethod
     def _default_key_n_order(cls,
-                             model: Type[Model],
-                             ordering: List[str],
-                             ) -> Tuple[Optional[str], Order]:
+                             model: type[Model],
+                             ordering: list[str],
+                             ) -> tuple[str | None, Order]:
         if not ordering:
             return None, Order()
 
@@ -447,7 +445,7 @@ class QuerySorter:
     # TODO: what about unique_together ??
     # TODO: move to utils.meta ?
     @staticmethod
-    def _get_local_id_field(model: Type[Model]) -> Field:
+    def _get_local_id_field(model: type[Model]) -> Field:
         for field in model._meta.local_concrete_fields:
             if field.unique:
                 return field
@@ -455,7 +453,7 @@ class QuerySorter:
         raise LookupError('No local unique field found')
 
     @staticmethod
-    def _is_field_unique(model: Type[Model], field_name: str) -> bool:
+    def _is_field_unique(model: type[Model], field_name: str) -> bool:
         try:
             field = model._meta.get_field(field_name)
         except FieldDoesNotExist:
@@ -464,10 +462,10 @@ class QuerySorter:
         return field.unique
 
     def get(self,
-            model: Type[CremeEntity],
+            model: type[CremeEntity],
             cells: Iterable[EntityCell],
             cell_key: str,
-            order: Optional[Order] = None,
+            order: Order | None = None,
             fast_mode: bool = False,
             ) -> QuerySortInfo:
         """Get a QuerySortInfo instance for a model & a main ordering cell,
@@ -499,7 +497,7 @@ class QuerySorter:
         # Name of the main model-field used to perform the "ORDER BY" instruction.
         sort_field = self._get_field_name(cells_dict, cell_key)
 
-        final_cell_key: Optional[str]
+        final_cell_key: str | None
 
         if sort_field:
             final_cell_key = cell_key

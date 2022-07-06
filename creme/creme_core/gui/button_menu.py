@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -62,7 +60,7 @@ class Button:
     # Example: <'myapp.add_mymodel'>
     # BEWARE: you have to use the template context variable "has_perm"
     #         (computed from 'permissions' -- see 'has_perm()' ) yourself !!
-    permissions: Union[str, Sequence[str]] = ''
+    permissions: str | Sequence[str] = ''
 
     def __eq__(self, other):
         # return other.id_ == self.id_
@@ -72,7 +70,7 @@ class Button:
     def generate_id(app_name: str, name: str) -> str:
         return f'button_{app_name}-{name}'
 
-    def get_ctypes(self) -> Sequence[Type[CremeEntity]]:
+    def get_ctypes(self) -> Sequence[type[CremeEntity]]:
         """
         @return A sequence of CremeEntity classes that can have this type of button.
                 Void sequence means that all types are ok.
@@ -110,9 +108,9 @@ class ButtonsRegistry:
         pass
 
     def __init__(self):
-        self._button_classes: Dict[str, Type[Button]] = {}
+        self._button_classes: dict[str, type[Button]] = {}
 
-    def register(self, *button_classes: Type[Button]) -> ButtonsRegistry:
+    def register(self, *button_classes: type[Button]) -> ButtonsRegistry:
         """
         @type button_classes: creme_core.gui.menu_buttons.Button child classes.
         """
@@ -154,7 +152,7 @@ class ButtonsRegistry:
 
         return self
 
-    def get_button(self, button_id: str) -> Optional[Button]:
+    def get_button(self, button_id: str) -> Button | None:
         cls = self._button_classes.get(button_id)
 
         return cls() if cls else None
@@ -180,7 +178,7 @@ class ButtonsRegistry:
                 if button.ok_4_display(entity):
                     yield button
 
-    def __iter__(self) -> Iterator[Tuple[str, Button]]:
+    def __iter__(self) -> Iterator[tuple[str, Button]]:
         for b_id, b_cls in self._button_classes.items():
             yield b_id, b_cls()
 

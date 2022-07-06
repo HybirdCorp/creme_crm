@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2016-2022  Hybird
@@ -45,7 +43,7 @@ class _StatisticsRegistry:
             self.perm = perm
             self._priority: int = 1
 
-    _items: List[_StatisticsItem]
+    _items: list[_StatisticsItem]
 
     def __init__(self):
         self._items = []
@@ -55,7 +53,7 @@ class _StatisticsRegistry:
 
     def _add_item(self,
                   new_item: _StatisticsItem,
-                  priority: Optional[int],
+                  priority: int | None,
                   ) -> _StatisticsRegistry:
         items = self._items
 
@@ -74,7 +72,7 @@ class _StatisticsRegistry:
 
         return self
 
-    def _pop_item(self, item_id: str) -> Optional[_StatisticsItem]:
+    def _pop_item(self, item_id: str) -> _StatisticsItem | None:
         items = self._items
         for i, item in enumerate(items):
             if item.id == item_id:
@@ -100,7 +98,7 @@ class _StatisticsRegistry:
                  label: str,
                  func: StatisticsFunc,
                  perm: str = '',
-                 priority: Optional[int] = None,
+                 priority: int | None = None,
                  ) -> _StatisticsRegistry:
         if any(id == item.id for item in self._items):
             # TODO: self.RegistrationError ?

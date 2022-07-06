@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from ..core.entity_cell import EntityCellRegularField
 from ..forms import base as base_forms
 from ..gui.custom_form import EntityCellCustomFormSpecial

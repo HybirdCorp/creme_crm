@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 PROP_IS_A_SALESMAN = 'commercial-is_a_salesman'
 
 REL_SUB_SOLD = 'commercial-subject_sold_by'  # NB: keep the value (wrong "_by") for compatibility

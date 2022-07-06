@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -177,7 +175,7 @@ class RelatedActivityCreation(ActivityCreation):
         return super().post(request, *args, **kwargs)
 
     def get_initial(self):
-        initial = super(RelatedActivityCreation, self).get_initial()
+        initial = super().get_initial()
 
         related_entity = self.related_entity
         rtype_id = self.rtype_id

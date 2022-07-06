@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -53,7 +51,7 @@ class CustomFieldManager(models.Manager):
         return self.filter(content_type=as_ctype(ct_or_model))
 
     # TODO: python 3.8 '/' argument ?
-    def get_for_model(self, ct_or_model) -> Dict[int, CustomField]:
+    def get_for_model(self, ct_or_model) -> dict[int, CustomField]:
         ct = as_ctype(ct_or_model)
         cache = get_per_request_cache()
         key = f'creme_core-custom_fields-{ct.id}'
@@ -118,7 +116,7 @@ class CustomField(CremeModel):
         super().delete(*args, **kwargs)
 
     @property
-    def value_class(self) -> Type[CustomFieldValue]:
+    def value_class(self) -> type[CustomFieldValue]:
         return _TABLES[self.field_type]
 
     def get_formfield(self, custom_value, user=None):
@@ -127,7 +125,7 @@ class CustomField(CremeModel):
     @staticmethod
     def get_custom_values_map(entities: Iterable[CremeEntity],
                               custom_fields: Iterable[CustomField],
-                              ) -> DefaultDict[int, Dict[int, Any]]:
+                              ) -> DefaultDict[int, dict[int, Any]]:
         """
         @return { Entity's id -> { CustomField's id -> CustomValue } }
         """
@@ -135,7 +133,7 @@ class CustomField(CremeModel):
         for cfield in custom_fields:
             cfield_map[cfield.field_type].append(cfield)
 
-        cvalues_map: DefaultDict[int, Dict[int, Any]] = defaultdict(dict)
+        cvalues_map: DefaultDict[int, dict[int, Any]] = defaultdict(dict)
         # NB: 'list(entities)' ==> made strangely a query for every entity ;(
         entities = [e.id for e in entities]
 
@@ -493,7 +491,7 @@ class CustomFieldMultiEnum(CustomFieldValue):
         self.value.set(value)
 
 
-_TABLES: Dict[int, Type[CustomFieldValue]] = OrderedDict([
+_TABLES: dict[int, type[CustomFieldValue]] = OrderedDict([
     (CustomField.INT,        CustomFieldInteger),
     (CustomField.FLOAT,      CustomFieldFloat),
     (CustomField.BOOL,       CustomFieldBoolean),

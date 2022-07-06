@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from dateutil.rrule import (
     DAILY,
     HOURLY,

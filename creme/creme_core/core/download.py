@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2016-2022  Hybird
@@ -94,12 +92,12 @@ class FileFieldDownLoadRegistry:
     def __init__(
             self, *,
             default_permission_checker: PermissionChecker = check_app_permission,
-            permission_checkers: Iterable[Tuple[Model, PermissionChecker]] = (
+            permission_checkers: Iterable[tuple[Model, PermissionChecker]] = (
                 (CremeEntity, check_entity_permission),
                 (FileRef,     check_fileref_permission),
             )):
         self._models_fields: \
-            DefaultDict[Type[Model], Dict[str, FileFieldDownLoadRegistry._Info]] \
+            DefaultDict[type[Model], dict[str, FileFieldDownLoadRegistry._Info]] \
             = defaultdict(dict)
         self.permission_checkers = ClassKeyedMap(
             permission_checkers,
@@ -143,10 +141,10 @@ class FileFieldDownLoadRegistry:
 
     def register(
             self, *,
-            model: Type[Model],
+            model: type[Model],
             field_name: str,
-            permission_checker: Optional[PermissionChecker] = None,
-            basename_builder: Optional[BasenameBuilder] = None,
+            permission_checker: PermissionChecker | None = None,
+            basename_builder: BasenameBuilder | None = None,
     ) -> FileFieldDownLoadRegistry:
         """Register FileField which can be downloaded.
         @param model: Class inheriting django.db.models.
@@ -188,7 +186,7 @@ class FileFieldDownLoadRegistry:
 
     def unregister(
             self,
-            model: Type[Model],
+            model: type[Model],
             *field_names: str) -> FileFieldDownLoadRegistry:
         registered_fnames = self._models_fields.get(model)
 

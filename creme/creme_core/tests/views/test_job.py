@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from collections import Counter
 
 from django.contrib.contenttypes.models import ContentType

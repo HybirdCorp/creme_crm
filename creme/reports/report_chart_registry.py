@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -24,7 +22,7 @@ from typing import Dict, Iterator, List, Optional, Tuple
 
 
 class ReportChart:
-    def __init__(self, name: str, label: str, template: Optional[str] = None):
+    def __init__(self, name: str, label: str, template: str | None = None):
         self.name = name
         self.label = label
         self.template: str = template or f'reports/plot/{name}.json'
@@ -34,19 +32,19 @@ class ReportChartRegistry:
     __slots__ = ('_charts',)
 
     def __init__(self):
-        self._charts: Dict[str, ReportChart] = {}
+        self._charts: dict[str, ReportChart] = {}
 
     def register(self, chart: ReportChart) -> ReportChartRegistry:
         self._charts[chart.name] = chart
         return self
 
-    def get(self, name: str) -> Optional[ReportChart]:
+    def get(self, name: str) -> ReportChart | None:
         return self._charts.get(name)
 
-    def __iter__(self) -> Iterator[Tuple[str, ReportChart]]:
+    def __iter__(self) -> Iterator[tuple[str, ReportChart]]:
         return iter(self._charts.items())
 
-    def choices(self) -> List[Tuple[str, str]]:
+    def choices(self) -> list[tuple[str, str]]:
         return [(chart.name, chart.label) for chart in self._charts.values()]
 
 

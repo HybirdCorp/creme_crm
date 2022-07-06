@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -52,7 +50,7 @@ def handle_uploaded_file(f: File,
         elif hasattr(file, '_name'):
             name = file._name
         else:
-            name = 'file_{:08x}'.format(randint(0, MAXINT))
+            name = f'file_{randint(0, MAXINT):08x}'
 
         # if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
         if name.rpartition('.')[2].lower() not in settings.ALLOWED_EXTENSIONS:

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.utils.translation import gettext_lazy as _
 
 REL_SUB_LINKED_2_ACTIVITY = 'activities-subject_linked_2_activity'

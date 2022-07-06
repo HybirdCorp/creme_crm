@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from tempfile import NamedTemporaryFile
 
 from django.contrib.contenttypes.models import ContentType

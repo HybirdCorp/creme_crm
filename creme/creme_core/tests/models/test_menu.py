@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.models import MenuConfigItem
 
 from ..base import CremeTestCase

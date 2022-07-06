@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date, datetime
 from os import listdir, makedirs
 from os import remove as delete_file

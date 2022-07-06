@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from json import dumps as json_dump
 from unittest import skipIf
 

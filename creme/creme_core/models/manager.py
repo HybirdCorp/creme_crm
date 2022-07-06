@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Code derived from http://stackoverflow.com/questions/15121093/django-adding-nulls-last-to-query
 
 ################################################################################

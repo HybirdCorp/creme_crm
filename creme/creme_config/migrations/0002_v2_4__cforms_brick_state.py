@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.db import migrations
 
 BRICK_STATE_SHOW_CFORMS_DETAILS  = 'creme_config-show_customforms_details'

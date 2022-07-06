@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2021  Hybird
@@ -203,7 +201,7 @@ class UnixSocketQueue(BaseJobSchedulerQueue):
 
                 try:
                     client.connect(socket_path)
-                    client.send(f'{Command.PING}-{value}'.encode('utf-8'))
+                    client.send(f'{Command.PING}-{value}'.encode())
                     pong_result = client.recv(len(value))
                 except socket.timeout:
                     logger.warning('Job scheduler queue: time out on ping')

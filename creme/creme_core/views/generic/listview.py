@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -194,7 +192,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         self._build()
 
-        return super(EntitiesList, self).get(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         self.arguments = POST = request.POST
@@ -202,7 +200,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         self._build()
 
-        response = super(EntitiesList, self).get(request, *args, **kwargs)
+        response = super().get(request, *args, **kwargs)
 
         if not transient:
             self.state.register_in_session(request)

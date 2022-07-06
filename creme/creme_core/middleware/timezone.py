@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Based on the official django doc:
 # https://docs.djangoproject.com/en/1.4/topics/i18n/timezones/#selecting-the-current-time-zone
 

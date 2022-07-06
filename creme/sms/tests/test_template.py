@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import reverse
 from django.utils.lorem_ipsum import COMMON_P
 from django.utils.translation import gettext as _

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 FAKE_REL_SUB_EMPLOYED_BY = 'creme_core-subject_fake_employed_by'
 FAKE_REL_OBJ_EMPLOYED_BY = 'creme_core-object_fake_employed_by'
 

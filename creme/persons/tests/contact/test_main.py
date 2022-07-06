@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 
 from django.core.exceptions import ValidationError
@@ -960,7 +958,7 @@ class ContactTestCase(_BaseTestCase):
         naruto.save()
 
         for i in range(5):
-            create_address(name=f'Secret Cave #{i}', address='Cave #{}'.format(i), po_box='XXX')
+            create_address(name=f'Secret Cave #{i}', address=f'Cave #{i}', po_box='XXX')
 
         kage_bunshin = naruto.clone()
 

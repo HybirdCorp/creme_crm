@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2013-2022  Hybird
@@ -39,11 +37,11 @@ class _ModelSmartColumnsRegistry:
     __slots__ = ('_cells', '_relationtype')
 
     def __init__(self):
-        self._cells: List[Tuple[Type[EntityCell], str]] = []
+        self._cells: list[tuple[type[EntityCell], str]] = []
         self._relationtype = None  # Cache
 
     # TODO: factorise with json deserialization of EntityCells
-    def _get_cells(self, model: Type[CremeEntity]) -> List[EntityCell]:
+    def _get_cells(self, model: type[CremeEntity]) -> list[EntityCell]:
         cells = []
 
         for cell_cls, data in self._cells:
@@ -73,7 +71,7 @@ class _ModelSmartColumnsRegistry:
         return cells
 
     # TODO: Literal[False] ? (py 3.8)
-    def _get_relationtype(self, rtype_id: str) -> Union[RelationType, bool]:
+    def _get_relationtype(self, rtype_id: str) -> RelationType | bool:
         rtype = self._relationtype
 
         if rtype is None:  # Means: not retrieved yet
@@ -102,13 +100,13 @@ class _ModelSmartColumnsRegistry:
 class SmartColumnsRegistry:
     def __init__(self):
         self._model_registries: \
-            DefaultDict[Type[CremeEntity], _ModelSmartColumnsRegistry] \
+            DefaultDict[type[CremeEntity], _ModelSmartColumnsRegistry] \
             = defaultdict(_ModelSmartColumnsRegistry)
 
-    def get_cells(self, model: Type[CremeEntity]) -> List[EntityCell]:
+    def get_cells(self, model: type[CremeEntity]) -> list[EntityCell]:
         return self._model_registries[model]._get_cells(model)
 
-    def register_model(self, model: Type[CremeEntity]) -> _ModelSmartColumnsRegistry:
+    def register_model(self, model: type[CremeEntity]) -> _ModelSmartColumnsRegistry:
         return self._model_registries[model]
 
 

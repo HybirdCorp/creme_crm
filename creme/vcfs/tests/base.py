@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme import documents, persons
 from creme.persons.tests.base import (  # NOQA
     skipIfCustomAddress,

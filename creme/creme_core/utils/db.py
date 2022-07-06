@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #
 # Copyright (c) 2016-2022 Hybird
@@ -48,7 +46,7 @@ from ..models import CaseSensitivity
 from .meta import FieldInfo
 
 
-def get_indexes_columns(model: Type[Model]) -> Iterator[List[str]]:
+def get_indexes_columns(model: type[Model]) -> Iterator[list[str]]:
     """Generator which yields the columns corresponding to a model-s indexes.
     @param model: A class inheriting DjangoModel.
     @yield Lists of strings (field/columns names).
@@ -82,7 +80,7 @@ def build_columns_key(columns: Iterable[str]) -> str:
 
 # NB: 'maxsize=None' => avoid locking (number of models is small)
 @lru_cache(maxsize=None)
-def get_keyed_indexes_columns(model: Type[Model]) -> Tuple[Tuple[str, Tuple[str, ...]], ...]:
+def get_keyed_indexes_columns(model: type[Model]) -> tuple[tuple[str, tuple[str, ...]], ...]:
     """Build a cached structure which contains information about indexes of a model
     @param model: A class inheriting DjangoModel.
     @return A tuple of tuples (string_key, field_names_tuple).
@@ -96,9 +94,9 @@ def get_keyed_indexes_columns(model: Type[Model]) -> Tuple[Tuple[str, Tuple[str,
     )
 
 
-def get_indexed_ordering(model: Type[Model],
+def get_indexed_ordering(model: type[Model],
                          fields_pattern: Iterable[str],
-                         ) -> Optional[Tuple[str, ...]]:
+                         ) -> tuple[str, ...] | None:
     """Search in the model's DB-indexes an ordering corresponding to a pattern,
     in order to have an efficient ordering.
 
@@ -192,7 +190,7 @@ def populate_related(instances: Sequence[Model],
         return
 
     # Model/ID/Instances => big_instances_cache[my_model].get(my_id)
-    global_cache: DefaultDict[Type[Model], Dict[Any, Model]] = defaultdict(dict)
+    global_cache: DefaultDict[type[Model], dict[Any, Model]] = defaultdict(dict)
 
     def _iter_works(works):
         for instances, fields_info in works:
@@ -303,16 +301,16 @@ class PreFetcher:
     """
     def __init__(self):
         self._orders = defaultdict(set)
-        self._prefetched: Optional[Dict[Type[Model], Dict[Any, Model]]] = None
+        self._prefetched: dict[type[Model], dict[Any, Model]] | None = None
 
-    def get(self, model: Type[Model], pk) -> Optional[Model]:
+    def get(self, model: type[Model], pk) -> Model | None:
         prefetched = self._prefetched
         if prefetched is None:
             raise RuntimeError('PreFetcher not filled (hint: call proceed())')
 
         return prefetched[model].get(pk)
 
-    def order(self, model: Type[Model], pks: Iterable) -> PreFetcher:
+    def order(self, model: type[Model], pks: Iterable) -> PreFetcher:
         if self._prefetched is not None:
             raise RuntimeError('PreFetcher already (hint: call order() before proceed() only)')
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import datetime, timezone
 from decimal import Decimal
 from functools import partial
@@ -677,7 +675,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
             render = template.render(Context({'url_name': url_name}))
 
         self.assertEqual(
-            '<a href="{}">Link</a>'.format(reverse(url_name)),
+            f'<a href="{reverse(url_name)}">Link</a>',
             render.strip(),
         )
 

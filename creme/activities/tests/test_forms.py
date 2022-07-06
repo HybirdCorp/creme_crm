@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date, time
 from json import dumps as json_dump
 

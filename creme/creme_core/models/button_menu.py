@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -37,8 +35,8 @@ if TYPE_CHECKING:
 
 class ButtonMenuItemManager(models.Manager):
     def create_if_needed(self, *,
-                         model: Optional[Type[CremeEntity]] = None,
-                         button: Union[Type['Button'], str],
+                         model: type[CremeEntity] | None = None,
+                         button: type[Button] | str,
                          order: int,
                          ) -> ButtonMenuItem:
         """Creation helper ; useful for populate.py scripts.

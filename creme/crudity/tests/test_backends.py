@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from creme.creme_core.tests.fake_models import FakeContact
 
 from .. import registry

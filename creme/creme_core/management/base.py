@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2021  Hybird
@@ -41,7 +39,7 @@ class CSVImportCommand(BaseCommand):
         )
 
     def _read(self, filename, callback, delimiter=','):
-        with open(filename, 'r') as csvfile:
+        with open(filename) as csvfile:
             it = csv.reader(csvfile, delimiter=delimiter)
 
             try:

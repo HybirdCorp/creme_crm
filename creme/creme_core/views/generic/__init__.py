@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .add import (  # NOQA
     AddingInstanceToEntityPopup,
     CremeModelCreation,

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # The following code is an heavy modification of:
 #  https://djangosnippets.org/snippets/3003/
 

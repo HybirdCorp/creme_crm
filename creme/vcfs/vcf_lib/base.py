@@ -422,8 +422,7 @@ class Component(VBase):
     def getChildren(self):
         """Return an iterable of all children."""
         for objList in self.contents.values():
-            for obj in objList:
-                yield obj
+            yield from objList
 
     def sortChildKeys(self):
         try:

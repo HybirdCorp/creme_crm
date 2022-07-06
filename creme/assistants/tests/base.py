@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from functools import partial
 
 from creme.creme_core.creme_jobs import reminder_type

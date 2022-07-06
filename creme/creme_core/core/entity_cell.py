@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2013-2022  Hybird
@@ -99,7 +97,7 @@ class EntityCell:
     _header_listview_css_class = None
 
     def __init__(self,
-                 model: Type[Model],
+                 model: type[Model],
                  value: str = '',
                  is_hidden: bool = False,
                  is_excluded: bool = False,
@@ -146,7 +144,7 @@ class EntityCell:
     def __str__(self):
         return self.title
 
-    def _get_field_class(self) -> Type[Field]:
+    def _get_field_class(self) -> type[Field]:
         return Field
 
     def _get_listview_css_class(self, attr_name: str):
@@ -162,15 +160,15 @@ class EntityCell:
         return listview_css_class
 
     @classmethod
-    def build(cls, model: Type[Model], name: str) -> Optional[EntityCell]:
+    def build(cls, model: type[Model], name: str) -> EntityCell | None:
         raise NotImplementedError
 
     @property
-    def data_type(self) -> Optional[str]:
+    def data_type(self) -> str | None:
         return FIELDS_DATA_TYPES[self._get_field_class()]
 
     @property
-    def model(self) -> Type[Model]:
+    def model(self) -> type[Model]:
         return self._model
 
     @property
@@ -203,7 +201,7 @@ class EntityCell:
         @param entities: Instances of CremeEntities (or subclass).
         @param user: Instance of <contrib.auth.get_user_model()>.
         """
-        cell_groups: DefaultDict[Type[EntityCell], List[EntityCell]] = defaultdict(list)
+        cell_groups: DefaultDict[type[EntityCell], list[EntityCell]] = defaultdict(list)
 
         for cell in cells:
             cell_groups[cell.__class__].append(cell)
@@ -248,9 +246,9 @@ class EntityCellsRegistry:
         pass
 
     def __init__(self):
-        self._cell_classes: Dict[str, Type[EntityCell]] = {}
+        self._cell_classes: dict[str, type[EntityCell]] = {}
 
-    def __call__(self, cls: Type[EntityCell]):
+    def __call__(self, cls: type[EntityCell]):
         self.register(cls)
 
         return cls
@@ -262,9 +260,9 @@ class EntityCellsRegistry:
         return self._cell_classes[type_id]
 
     def build_cell_from_dict(self,
-                             model: Type[Model],
-                             dict_cell: Dict,
-                             ) -> Optional[EntityCell]:
+                             model: type[Model],
+                             dict_cell: dict,
+                             ) -> EntityCell | None:
         try:
             type_id = dict_cell['type']
             value = dict_cell['value']
@@ -286,9 +284,9 @@ class EntityCellsRegistry:
         return None
 
     def build_cells_from_dicts(self,
-                               model: Type[Model],
-                               dicts: Iterable[Dict],
-                               ) -> Tuple[List[EntityCell], bool]:
+                               model: type[Model],
+                               dicts: Iterable[dict],
+                               ) -> tuple[list[EntityCell], bool]:
         """Build some EntityCells instance from an iterable of dictionaries.
 
         @param model: Class inheriting <django.db.model.Model> related to the cells.
@@ -334,7 +332,7 @@ class EntityCellsRegistry:
     def cell_classes(self):
         return iter(self._cell_classes.values())
 
-    def register(self, *cell_classes: Type[EntityCell]):
+    def register(self, *cell_classes: type[EntityCell]):
         store = self._cell_classes.setdefault
 
         for cls in cell_classes:
@@ -430,7 +428,7 @@ class EntityCellRegularField(EntityCell):
 
     @classmethod
     def build(cls,
-              model: Type[Model],
+              model: type[Model],
               name: str,
               is_hidden: bool = False,
               ):
@@ -564,8 +562,8 @@ class EntityCellCustomField(EntityCell):
 
     @classmethod
     def build(cls,
-              model: Type[Model],
-              customfield_id: str) -> Optional[EntityCellCustomField]:
+              model: type[Model],
+              customfield_id: str) -> EntityCellCustomField | None:
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
         try:
@@ -652,9 +650,9 @@ class EntityCellFunctionField(EntityCell):
 
     @classmethod
     def build(cls,
-              model: Type[Model],
+              model: type[Model],
               func_field_name: str,
-              ) -> Optional[EntityCellFunctionField]:
+              ) -> EntityCellFunctionField | None:
         func_field = cls.field_registry.get(model, func_field_name)
 
         if func_field is None:
@@ -699,7 +697,7 @@ class EntityCellRelation(EntityCell):
     verbose_name = _('Relationships')
 
     def __init__(self,
-                 model: Type[Model],
+                 model: type[Model],
                  rtype: RelationType,
                  is_hidden: bool = False,
                  ):
@@ -713,10 +711,10 @@ class EntityCellRelation(EntityCell):
 
     @classmethod
     def build(cls,
-              model: Type[Model],
+              model: type[Model],
               rtype_id: str,
               is_hidden: bool = False,
-              ) -> Optional[EntityCellRelation]:
+              ) -> EntityCellRelation | None:
         try:
             rtype = RelationType.objects.get(pk=rtype_id)
         except RelationType.DoesNotExist:

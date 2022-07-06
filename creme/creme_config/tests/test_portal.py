@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from django.urls import reverse
 
 from creme.creme_config.registry import _AppConfigRegistry

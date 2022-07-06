@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2020-2022  Hybird
@@ -37,8 +35,8 @@ class GraphFetcherRegistry:
     class RegistrationError(Exception):
         pass
 
-    def __init__(self, default_class: Type[GraphFetcher]):
-        self._fetcher_classes: Dict[str, Type[GraphFetcher]] = {}
+    def __init__(self, default_class: type[GraphFetcher]):
+        self._fetcher_classes: dict[str, type[GraphFetcher]] = {}
         self.default_class = default_class
 
     def _build_default_fetcher(self, graph):
@@ -47,7 +45,7 @@ class GraphFetcherRegistry:
 
         return fetcher
 
-    def register(self, *fetcher_classes: Type[GraphFetcher]) -> GraphFetcherRegistry:
+    def register(self, *fetcher_classes: type[GraphFetcher]) -> GraphFetcherRegistry:
         set_default = self._fetcher_classes.setdefault
 
         for fetcher_cls in fetcher_classes:
@@ -61,8 +59,8 @@ class GraphFetcherRegistry:
         return self
 
     def get(self,
-            graph: 'AbstractReportGraph',
-            fetcher_dict: Dict[str, str]) -> GraphFetcher:
+            graph: AbstractReportGraph,
+            fetcher_dict: dict[str, str]) -> GraphFetcher:
         try:
             fetcher_type_id = fetcher_dict[GraphFetcher.DICT_KEY_TYPE]
         except KeyError:
@@ -89,7 +87,7 @@ class GraphFetcherRegistry:
         )
 
     @property
-    def fetcher_classes(self) -> Iterator[Type[GraphFetcher]]:
+    def fetcher_classes(self) -> Iterator[type[GraphFetcher]]:
         return iter(self._fetcher_classes.values())
 
 

@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from copy import copy, deepcopy
 from functools import partial
 from json import dumps as json_dump

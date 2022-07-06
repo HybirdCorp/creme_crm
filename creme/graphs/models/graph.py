@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -200,7 +198,7 @@ class AbstractGraph(CremeEntity):
         try:
             # graph.draw(join(dir_path, filename), format='png')  # Format: pdf svg
             graph.draw(path, format=img_format)  # Format: pdf svg
-        except IOError as e:
+        except OSError as e:
             delete_file(path)
 
             raise self.GraphException(str(e)) from e

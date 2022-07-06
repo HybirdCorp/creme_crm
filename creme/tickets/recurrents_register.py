@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from . import custom_forms, get_ticket_model, get_tickettemplate_model
 
 to_register = (

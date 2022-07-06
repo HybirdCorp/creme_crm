@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2019-2022  Hybird
@@ -34,9 +32,9 @@ class ListViewButton:
     """Base class for the buttons displayed in list-views."""
     # Name/path of the template used to render the button.
     template_name: str = 'creme_core/listview/buttons/place-holder.html'
-    context: Dict[str, Any]
+    context: dict[str, Any]
 
-    def __init__(self, context: Optional[Dict[str, Any]] = None):
+    def __init__(self, context: dict[str, Any] | None = None):
         """Constructor.
 
         @param context: A dictionary which should be passed to the template for
@@ -45,7 +43,7 @@ class ListViewButton:
         """
         self.context = context or {}
 
-    def get_context(self, request, lv_context) -> Dict[str, Any]:
+    def get_context(self, request, lv_context) -> dict[str, Any]:
         """ Get the specific part of the context of the template.
         This context should be inserted in the context with the key "button"
         (see the template-tag "creme_listview.listview_buttons")
@@ -70,16 +68,16 @@ class CreationButton(ListViewButton):
 
         return context
 
-    def get_label(self, request, model: Type[CremeEntity]) -> str:
+    def get_label(self, request, model: type[CremeEntity]) -> str:
         return model.creation_label
 
-    def get_model(self, lv_context) -> Type[CremeEntity]:
+    def get_model(self, lv_context) -> type[CremeEntity]:
         return lv_context['model']
 
-    def get_url(self, request, model: Type[CremeEntity]) -> str:
+    def get_url(self, request, model: type[CremeEntity]) -> str:
         return model.get_create_absolute_url()
 
-    def is_allowed(self, request, model: Type[CremeEntity]) -> bool:
+    def is_allowed(self, request, model: type[CremeEntity]) -> bool:
         return request.user.has_perm_to_create(model)
 
 
@@ -132,7 +130,7 @@ class BatchProcessButton(MassExportButton):
 class ListViewButtonList(FluentList):
     """List of classes inheriting ListViewButton."""
     def __init__(self, *args, **kwargs):
-        super(ListViewButtonList, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._context = {}
 
     def update_context(self, **kwargs) -> ListViewButtonList:

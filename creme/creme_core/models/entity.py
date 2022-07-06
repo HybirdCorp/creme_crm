@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
 #    Copyright (C) 2009-2022  Hybird
@@ -202,7 +200,7 @@ class CremeEntity(CremeModel):
         """
         return reverse('creme_core__delete_entity', args=(self.id,))
 
-    def get_html_attrs(self, context) -> Dict[str, str]:
+    def get_html_attrs(self, context) -> dict[str, str]:
         """Extra HTMl attributes for this entity.
         @param context: Context of the template (useful to stores re-usable values).
         @return A dictionary.
@@ -218,7 +216,7 @@ class CremeEntity(CremeModel):
     def get_related_entities(self,
                              relation_type_id: str,
                              real_entities: bool = True,
-                             ) -> List[CremeEntity]:
+                             ) -> list[CremeEntity]:
         return [
             # relation.object_entity.get_real_entity()
             relation.real_object
@@ -228,7 +226,7 @@ class CremeEntity(CremeModel):
     def get_relations(self,
                       relation_type_id: str,
                       real_obj_entities: bool = False,
-                      ) -> List['Relation']:
+                      ) -> list[Relation]:
         # from . import Relation
 
         relations = self._relations_map.get(relation_type_id)
@@ -266,7 +264,7 @@ class CremeEntity(CremeModel):
         for entity in entities:
             entities_by_ct[entity.entity_type_id].append(entity.id)
 
-        entities_map: Dict[int, CremeModel] = {}
+        entities_map: dict[int, CremeModel] = {}
         get_ct = ContentType.objects.get_for_id
 
         for ct_id, entity_ids in entities_by_ct.items():
@@ -305,7 +303,7 @@ class CremeEntity(CremeModel):
                     relations_map[entity.id][relation_type_id]
                 logger.debug('Fill relations cache id=%s type=%s', entity.id, relation_type_id)
 
-    def get_custom_value(self, custom_field: 'CustomField'):
+    def get_custom_value(self, custom_field: CustomField):
         cvalue = None
 
         try:
@@ -318,7 +316,7 @@ class CremeEntity(CremeModel):
 
     @staticmethod
     def populate_custom_values(entities: Sequence[CremeEntity],
-                               custom_fields: Sequence['CustomField'],
+                               custom_fields: Sequence[CustomField],
                                ) -> None:
         from . import CustomField
 
@@ -335,7 +333,7 @@ class CremeEntity(CremeModel):
 
     def get_custom_fields_n_values(self,
                                    only_required: bool = False,
-                                   ) -> List[Tuple['CustomField', Any]]:
+                                   ) -> list[tuple[CustomField, Any]]:
         from . import CustomField
 
         # NB: we do not use <CustomField.objects.get_for_model()> because this method
@@ -352,7 +350,7 @@ class CremeEntity(CremeModel):
 
         return [(cfield, self.get_custom_value(cfield)) for cfield in cfields]
 
-    def get_properties(self) -> List['CremeProperty']:
+    def get_properties(self) -> list[CremeProperty]:
         if self._properties is None:
             logger.debug('CremeEntity.get_properties(): Cache MISS for id=%s', self.id)
             self._properties = [*self.properties.all().select_related('type')]

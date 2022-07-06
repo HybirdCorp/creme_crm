@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import difflib
 from json import loads as json_load
 from unittest.util import safe_repr

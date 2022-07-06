@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 ################################################################################
 #
 # Copyright (c) 2016-2022 Hybird
@@ -96,7 +94,7 @@ class FlowPaginator:
         self.queryset = queryset
         self.per_page = per_page
         self.count = count
-        self._num_pages: Optional[int] = None
+        self._num_pages: int | None = None
 
         self._attr_name: str = ''
         self._reverse_order: bool = False
@@ -233,7 +231,7 @@ class FlowPaginator:
 
         return page_obj
 
-    def page(self, page_info: Optional[dict] = None) -> FlowPage:
+    def page(self, page_info: dict | None = None) -> FlowPage:
         """Get the wanted page.
         @param page_info: A dictionary returned by the methods
                           info()/next_page_info()/previous_page_info() of a page,
@@ -337,7 +335,7 @@ class FlowPage(Sequence):
                  forward: bool,
                  key: str, key_field_info: FieldInfo, attr_name: str,
                  offset: int, max_size: int,
-                 next_item: Optional[Model],
+                 next_item: Model | None,
                  first_page: bool,
                  ):
         """Constructor.
@@ -357,7 +355,7 @@ class FlowPage(Sequence):
         @param first_page: Indicates if it's the first page (so there is no previous page).
         """
         # QuerySets do not manage negative indexing, so we build a list.
-        self.object_list: List[Model] = [*object_list]
+        self.object_list: list[Model] = [*object_list]
         self.paginator = paginator
         self._key = key
         self._key_field_info = key_field_info
@@ -479,7 +477,7 @@ class FlowPage(Sequence):
 
         return offset
 
-    def next_page_info(self) -> Optional[dict]:
+    def next_page_info(self) -> dict | None:
         """Returns a dictionary which can be given to FlowPaginator.page() to get the next page.
 
         @see info()
@@ -509,7 +507,7 @@ class FlowPage(Sequence):
 
         return None
 
-    def previous_page_info(self) -> Optional[dict]:
+    def previous_page_info(self) -> dict | None:
         """Returns a dictionary which can be given to FlowPaginator.page()
         to get the previous page.
 
