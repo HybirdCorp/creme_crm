@@ -26,12 +26,7 @@ from decimal import Decimal
 from functools import partial
 from json import JSONEncoder
 from json import loads as json_load
-from typing import (  # Any Callable
-    Container,
-    Iterable,
-    Iterator,
-    Sequence,
-)
+from typing import Container, Iterable, Iterator, Sequence  # Any Callable
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType

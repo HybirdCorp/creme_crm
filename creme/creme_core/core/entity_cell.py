@@ -20,11 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import (  # Callable
-    DefaultDict,
-    Iterable,
-    Sequence,
-)
+from typing import DefaultDict, Iterable, Sequence  # Callable
 
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models

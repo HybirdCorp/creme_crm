@@ -19,12 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import (
-    TYPE_CHECKING,
-    Iterable,
-    Iterator,
-    NewType,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator, NewType
 
 from django.conf import settings
 
