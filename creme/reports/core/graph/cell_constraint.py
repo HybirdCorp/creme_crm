@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-from typing import Container, Iterable, Iterator
+from typing import Collection, Container, Iterable, Iterator
 
 from django import forms
 from django.db import models
