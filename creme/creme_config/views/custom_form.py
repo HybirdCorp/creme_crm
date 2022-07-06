@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from abc import ABC
 from dataclasses import dataclass
-from typing import Optional
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
@@ -371,7 +372,7 @@ class CustomFormShowDetails(EntityCTypeRelatedMixin,
     class Action:
         show: bool
         ctype: ContentType
-        item: Optional[CustomFormConfigItem]
+        item: CustomFormConfigItem | None
 
     def get_show(self) -> bool:
         action = get_from_POST_or_404(self.request.POST, key=self.action_arg)

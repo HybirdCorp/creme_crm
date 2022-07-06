@@ -21,9 +21,10 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 from datetime import date, datetime, timedelta
 from time import strptime as time_strptime
-from typing import Optional
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
@@ -78,7 +79,7 @@ def date_to_ISO8601(d: date) -> str:
     return d.strftime(DATE_ISO8601_FMT)
 
 
-def dt_from_str(dt_str: str) -> Optional[datetime]:
+def dt_from_str(dt_str: str) -> datetime | None:
     """Returns a datetime from filled formats in settings, or None.
     Doesn't handle microseconds.
     """
@@ -106,7 +107,7 @@ def dt_from_str(dt_str: str) -> Optional[datetime]:
     return None
 
 
-def date_from_str(d_str: str) -> Optional[date]:
+def date_from_str(d_str: str) -> date | None:
     "Returns a datetime.date from filled formats in settings, or None."
     for fmt in formats.get_format('DATE_INPUT_FORMATS'):
         try:
@@ -119,13 +120,13 @@ def date_from_str(d_str: str) -> Optional[date]:
     return None
 
 
-def make_aware_dt(dt: datetime, is_dst: Optional[bool] = False) -> datetime:
+def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
     """Returns an aware datetime in the current time-zone.
     @param dt: A (naive) datetime instance.
     @param is_dst: If there is an ambiguity on DST transition
-                    False => force the post-DST side of the DST transition [default].
-                    True => force the pre-DST side.
-                    None => raise an exception.
+           False => force the post-DST side of the DST transition [default].
+           True => force the pre-DST side.
+           None => raise an exception.
     @return A (aware) datetime.
     """
     return make_aware(dt, is_dst=is_dst)

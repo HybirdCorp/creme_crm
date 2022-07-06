@@ -16,10 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import defaultdict
 from functools import partial
 from json import dumps as json_dump
-from typing import List, Optional, Set, Type
 
 from django import forms
 from django.forms.utils import ValidationError
@@ -58,7 +59,7 @@ from ..report_chart_registry import report_chart_registry
 
 # Abscissa ---------------------------------------------------------------------
 class AbscissaWidget(ChainedInput):
-    cell_groups: List[Type[EntityCell]] = [
+    cell_groups: list[type[EntityCell]] = [
         EntityCellRegularField,
         EntityCellRelation,
         EntityCellCustomField,
@@ -75,13 +76,13 @@ class AbscissaWidget(ChainedInput):
     def __init__(self,
                  attrs=None,
                  model=CremeEntity,
-                 constraint_registry: Optional[GraphHandConstraintsRegistry] = None,
+                 constraint_registry: GraphHandConstraintsRegistry | None = None,
                  ):
         super().__init__(attrs=attrs)
-        self.model: Type[CremeEntity] = model
+        self.model: type[CremeEntity] = model
         self.constraint_registry: GraphHandConstraintsRegistry = \
             constraint_registry or GraphHandConstraintsRegistry()
-        self.not_hiddable_cell_keys: Set[str] = set()
+        self.not_hiddable_cell_keys: set[str] = set()
 
     def build_cell_choices(self):
         constraints_by_cell_cls = defaultdict(list)
@@ -225,9 +226,9 @@ class AbscissaField(JSONField):
     constraint_data_name = AbscissaWidget.constraint_data_name
     parameter_data_name  = AbscissaWidget.parameter_data_name
 
-    _model: Type[CremeEntity]
+    _model: type[CremeEntity]
     _constraint_registry: GraphHandConstraintsRegistry
-    not_hiddable_cell_keys: Set[str]
+    not_hiddable_cell_keys: set[str]
 
     def __init__(self, *, model=CremeEntity, abscissa_constraints=None, **kwargs):
         self._initial = None
@@ -271,7 +272,7 @@ class AbscissaField(JSONField):
     def model(self, model):
         self._model = self.widget.model = model
 
-    def _clean_cell(self, data, constraint: GraphHandCellConstraint) -> Optional[EntityCell]:
+    def _clean_cell(self, data, constraint: GraphHandCellConstraint) -> EntityCell | None:
         clean_value = self.clean_value
         required = self.required
 
@@ -301,7 +302,7 @@ class AbscissaField(JSONField):
 
         return cell
 
-    def _clean_graph_type(self, data) -> Optional[int]:
+    def _clean_graph_type(self, data) -> int | None:
         clean_value = self.clean_value
         required = self.required
 
@@ -381,7 +382,7 @@ class AbscissaField(JSONField):
 
 # Ordinate ---------------------------------------------------------------------
 class OrdinateWidget(ChainedInput):
-    cell_groups: List[Type[EntityCell]] = [
+    cell_groups: list[type[EntityCell]] = [
         EntityCellRegularField,
         EntityCellRelation,
         EntityCellCustomField,
@@ -398,14 +399,14 @@ class OrdinateWidget(ChainedInput):
     def __init__(self,
                  attrs=None,
                  model=CremeEntity,
-                 constraint_registry: Optional[AggregatorConstraintsRegistry] = None,
+                 constraint_registry: AggregatorConstraintsRegistry | None = None,
                  ):
         super().__init__(attrs=attrs)
-        self.model: Type[CremeEntity] = model
+        self.model: type[CremeEntity] = model
         self.constraint_registry: AggregatorConstraintsRegistry = (
             constraint_registry or AggregatorConstraintsRegistry()
         )
-        self.not_hiddable_cell_keys: Set[str] = set()
+        self.not_hiddable_cell_keys: set[str] = set()
 
     def build_aggr_choices(self, cells_per_aggr_category):
         aggr_choices = []
@@ -518,9 +519,9 @@ class OrdinateField(JSONField):
     cell_key_data_name   = OrdinateWidget.cell_key_data_name
     constraint_data_name = OrdinateWidget.constraint_data_name
 
-    _model: Type[CremeEntity]
+    _model: type[CremeEntity]
     _constraint_registry: AggregatorConstraintsRegistry
-    not_hiddable_cell_keys: Set[str]
+    not_hiddable_cell_keys: set[str]
 
     def __init__(self, *,
                  model=CremeEntity,
@@ -568,7 +569,7 @@ class OrdinateField(JSONField):
     def model(self, model):
         self._model = self.widget.model = model
 
-    def _clean_aggr_id(self, data) -> Optional[str]:
+    def _clean_aggr_id(self, data) -> str | None:
         clean_value = self.clean_value
 
         aggr_info = clean_value(data, self.aggr_data_name, dict, True, 'aggridrequired')
@@ -578,9 +579,13 @@ class OrdinateField(JSONField):
                 code='aggridrequired',
             )
 
-        return clean_value(aggr_info, self.aggr_id_data_name, str, self.required, 'aggridrequired')
+        return clean_value(
+            aggr_info, self.aggr_id_data_name, str, self.required, 'aggridrequired',
+        )
 
-    def _clean_cell(self, data, constraint: AggregatorCellConstraint) -> Optional[EntityCell]:
+    def _clean_cell(self,
+                    data, constraint: AggregatorCellConstraint,
+                    ) -> EntityCell | None:
         clean_value = self.clean_value
 
         cell_info = clean_value(data, self.cell_data_name, dict, False, 'ecellrequired')

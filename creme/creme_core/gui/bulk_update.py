@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,21 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from functools import partial
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Iterable, Mapping, Sequence
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
@@ -64,16 +54,16 @@ class _BulkUpdateRegistry:
     your creme_core_register.py with the global 'bulk_update_registry' instance.
     """
     class ModelBulkStatus:
-        _model: Type[Model]
+        _model: type[Model]
         ignore: bool
 
-        excludes: Set[str]
-        expandables: Set[str]
+        excludes: set[str]
+        expandables: set[str]
 
-        _innerforms: Dict[str, Type['BulkForm']]
-        _regularfields: Dict[str, Field]
+        _innerforms: dict[str, type[BulkForm]]
+        _regularfields: dict[str, Field]
 
-        def __init__(self, model: Type[Model], ignore: bool = False):
+        def __init__(self, model: type[Model], ignore: bool = False):
             self._model = model
             self.ignore = ignore
 
@@ -97,7 +87,7 @@ class _BulkUpdateRegistry:
                 or field.name in self.expandables
             )
 
-        def is_updatable(self, field: Union[Field, CustomField]) -> bool:
+        def is_updatable(self, field: Field | CustomField) -> bool:
             return (
                 isinstance(field, CustomField)
                 or (
@@ -110,7 +100,7 @@ class _BulkUpdateRegistry:
             )
 
         @property
-        def regular_fields(self) -> Dict[str, Field]:
+        def regular_fields(self) -> dict[str, Field]:
             if self.ignore:
                 return {}
 
@@ -127,7 +117,7 @@ class _BulkUpdateRegistry:
             return rfields
 
         @property
-        def updatable_regular_fields(self) -> Dict[str, Field]:
+        def updatable_regular_fields(self) -> dict[str, Field]:
             # TODO: FieldsConfig.LocalCache ??
             is_updatable = self.is_updatable
 
@@ -138,7 +128,7 @@ class _BulkUpdateRegistry:
             }
 
         @property
-        def expandable_regular_fields(self) -> Dict[str, Field]:
+        def expandable_regular_fields(self) -> dict[str, Field]:
             is_expandable = self.is_expandable
 
             return {
@@ -148,7 +138,7 @@ class _BulkUpdateRegistry:
             }
 
         @property
-        def custom_fields(self) -> Dict[str, CustomField]:
+        def custom_fields(self) -> dict[str, CustomField]:
             if self.ignore:
                 return {}
 
@@ -163,7 +153,7 @@ class _BulkUpdateRegistry:
 
             return custom_fields
 
-        def get_field(self, name: str) -> Union[Field, CustomField]:
+        def get_field(self, name: str) -> Field | CustomField:
             if name.startswith('customfield-'):
                 field = self.custom_fields.get(name)
             else:
@@ -198,14 +188,14 @@ class _BulkUpdateRegistry:
 
         def get_form(self,
                      name: str,
-                     default: Optional[Type['BulkForm']] = None,
-                     ) -> Optional[Type['BulkForm']]:
+                     default: type[BulkForm] | None = None,
+                     ) -> type[BulkForm] | None:
             return self._innerforms.get(name, default)
 
     def __init__(self):
-        self._status: Dict[Type[Model], _BulkUpdateRegistry.ModelBulkStatus] = {}
+        self._status: dict[type[Model], _BulkUpdateRegistry.ModelBulkStatus] = {}
 
-    def _get_or_create_status(self, model: Type[Model]) -> ModelBulkStatus:
+    def _get_or_create_status(self, model: type[Model]) -> ModelBulkStatus:
         bulk_status = self._status.get(model)
 
         if bulk_status is None:
@@ -223,10 +213,10 @@ class _BulkUpdateRegistry:
         }
 
     def register(self,
-                 model: Type[Model],
+                 model: type[Model],
                  exclude: Sequence[str] = (),
                  expandables: Sequence[str] = (),
-                 innerforms: Optional[Mapping[str, Type['BulkForm']]] = None,
+                 innerforms: Mapping[str, type[BulkForm]] | None = None,
                  ) -> ModelBulkStatus:
         """Register a CremeEntity class.
         @param model: Class inheriting CremeEntity.
@@ -238,7 +228,7 @@ class _BulkUpdateRegistry:
                FK related to models which are not inheriting CremeModel.
         @param innerforms: A dict with items (field_name, form_class) which provides
                some specific forms to use. The form_class should inherit
-               from creme.creme_core.forms.bulk.BulkForm
+               <creme.creme_core.forms.bulk.BulkForm>
                (generally BulkDefaultEditForm is a good choice).
         """
         bulk_status = self._get_or_create_status(model)
@@ -270,13 +260,13 @@ class _BulkUpdateRegistry:
 
         return bulk_status
 
-    def ignore(self, model: Type[Model]) -> ModelBulkStatus:
+    def ignore(self, model: type[Model]) -> ModelBulkStatus:
         bulk_status = self._get_or_create_status(model)
         bulk_status.ignore = True
 
         return bulk_status
 
-    def status(self, model: Type[Model]) -> ModelBulkStatus:
+    def status(self, model: type[Model]) -> ModelBulkStatus:
         bulk_status = self._status.get(model)
 
         # Get excluded field by inheritance in case of working model is not registered yet
@@ -285,14 +275,14 @@ class _BulkUpdateRegistry:
 
         return bulk_status
 
-    def get_default_field(self, model: Type[Model]) -> Field:
+    def get_default_field(self, model: type[Model]) -> Field:
         fields = self.regular_fields(model)
         return fields[0]
 
     def get_field(self,
-                  model: Type[Model],
+                  model: type[Model],
                   field_name: str,
-                  ) -> Union[Field, CustomField]:
+                  ) -> Field | CustomField:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -306,10 +296,10 @@ class _BulkUpdateRegistry:
 
     # TODO: rename "(get_)form_class"
     def get_form(self,
-                 model: Type[Model],
+                 model: type[Model],
                  field_name: str,
-                 default: Optional[Type['BulkForm']] = None,
-                 ) -> Optional[Type['BulkForm']]:
+                 default: type[BulkForm] | None = None,
+                 ) -> type[BulkForm] | None:
         status = self.status(model)
         field_basename, _sep_, subfield_name = field_name.partition('__')
 
@@ -326,7 +316,7 @@ class _BulkUpdateRegistry:
         return partial(form, model=model, field=field) if form else None
 
     def is_updatable(self,
-                     model: Type[Model],
+                     model: type[Model],
                      field_name: str,
                      exclude_unique: bool = True,
                      ) -> bool:
@@ -338,7 +328,7 @@ class _BulkUpdateRegistry:
         return not (exclude_unique and field.unique)
 
     def is_expandable(self,
-                      model: Type[Model],
+                      model: type[Model],
                       field_name: str,
                       exclude_unique: bool = True,
                       ) -> bool:
@@ -350,10 +340,10 @@ class _BulkUpdateRegistry:
         return not (exclude_unique and field.unique)
 
     def regular_fields(self,
-                       model: Type[Model],
+                       model: type[Model],
                        expand: bool = False,
                        exclude_unique: bool = True,
-                       ) -> Union[List[Field], List[Tuple[Field, List[Field]]]]:
+                       ) -> list[Field] | list[tuple[Field, list[Field]]]:
         sort_key = collator.sort_key
 
         status = self.status(model)
@@ -393,7 +383,7 @@ class _BulkUpdateRegistry:
             key=lambda f: sort_key(f.verbose_name)
         )
 
-    def custom_fields(self, model: Type[Model]) -> List[CustomField]:
+    def custom_fields(self, model: type[Model]) -> list[CustomField]:
         sort_key = collator.sort_key
         return sorted(
             self.status(model).custom_fields.values(),
@@ -402,7 +392,7 @@ class _BulkUpdateRegistry:
 
     # TODO: better system which allow inner edit other type of cells?
     # TODO: remove "user" arg
-    def inner_uri(self, cell: EntityCell, instance: Model, user) -> Optional[str]:
+    def inner_uri(self, cell: EntityCell, instance: Model, user) -> str | None:
         uri = None
 
         if isinstance(cell, EntityCellRegularField):

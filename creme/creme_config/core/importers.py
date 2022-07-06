@@ -16,10 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import OrderedDict
 from datetime import date
-from typing import Any, Dict, Iterable, List, Optional, Set, Tuple, Type, Union
+from typing import Any, Dict, Iterable, List, Set, Union
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -110,12 +112,12 @@ class CellProxy:
     importation data).
     """
     # Override this in child classes
-    cell_cls: Type[entity_cell.EntityCell] = entity_cell.EntityCell
+    cell_cls: type[entity_cell.EntityCell] = entity_cell.EntityCell
 
     def __init__(
             self,
             container_label: str,
-            model: Type[CremeEntity],
+            model: type[CremeEntity],
             value: str,
             validated_data: ValidatedData):
         """Constructor.
@@ -141,7 +143,7 @@ class CellProxy:
         """
         raise NotImplementedError
 
-    def build_cell(self) -> Optional[entity_cell.EntityCell]:
+    def build_cell(self) -> entity_cell.EntityCell | None:
         """
         @return: an EntityCell instance.
         """
@@ -154,13 +156,13 @@ class CellProxiesRegistry:
     Can be used as a decorator (see __call__() ).
     """
     def __init__(self):
-        self._proxies_classes: Dict[str, Type[CellProxy]] = {}
+        self._proxies_classes: dict[str, type[CellProxy]] = {}
 
-    def __call__(self, proxy_cls: Type[CellProxy]) -> Type[CellProxy]:
+    def __call__(self, proxy_cls: type[CellProxy]) -> type[CellProxy]:
         self._proxies_classes[proxy_cls.cell_cls.type_id] = proxy_cls
         return proxy_cls
 
-    def get(self, type_id: str) -> Optional[Type[CellProxy]]:
+    def get(self, type_id: str) -> type[CellProxy] | None:
         "@param type_id: see EntityCell.type_id."
         return self._proxies_classes.get(type_id)
 
@@ -296,7 +298,7 @@ class Importer:
         indicates data error to the caller.
         If an error is due to the user (e.g. some imported data are colliding
         with existing data, & it can lead to tricky errors), a ValidationError
-        with an human-readable message is raised.
+        with a human-readable message is raised.
 
         @param deserialized_data: dictionary.
         @param validated_data: dictionary <model_class: set of strings>,
@@ -343,10 +345,10 @@ class ImportersRegistry:
         pass
 
     def __init__(self):
-        self._registered: Dict[str, Tuple[int, Type[Importer]]] = OrderedDict()
-        self._unregistered: Set[str] = set()
+        self._registered: dict[str, tuple[int, type[Importer]]] = OrderedDict()
+        self._unregistered: set[str] = set()
 
-    def build_importers(self) -> List[Importer]:
+    def build_importers(self) -> list[Importer]:
         importers = [
             importer_cls(data_id)
             for data_id, (__, importer_cls) in self._registered.items()
@@ -380,7 +382,7 @@ class ImportersRegistry:
         @raises: ImportersRegistry.Collision if an importer class with the same
                  data_id & priority is already registered.
         """
-        def _aux(importer_cls: Type[Importer]) -> Type[Importer]:
+        def _aux(importer_cls: type[Importer]) -> type[Importer]:
             if data_id not in self._unregistered:
                 data = self._registered
                 existing_item = data.get(data_id)
@@ -925,7 +927,7 @@ class ConditionProxy:
 
     def __init__(self,
                  efilter_id: str,
-                 model: Type[CremeEntity],
+                 model: type[CremeEntity],
                  name: str,
                  value: Any,
                  validated_data: ValidatedData,
@@ -1003,13 +1005,13 @@ class ConditionProxiesRegistry:
     Can be used as a decorator (see __call__() ).
     """
     def __init__(self):
-        self._proxies_classes: Dict[int, Type[ConditionProxy]] = {}
+        self._proxies_classes: dict[int, type[ConditionProxy]] = {}
 
-    def __call__(self, proxy_cls: Type[ConditionProxy]) -> Type[ConditionProxy]:
+    def __call__(self, proxy_cls: type[ConditionProxy]) -> type[ConditionProxy]:
         self._proxies_classes[proxy_cls.type_id] = proxy_cls
         return proxy_cls
 
-    def get(self, type_id: int) -> Optional[Type[ConditionProxy]]:
+    def get(self, type_id: int) -> type[ConditionProxy] | None:
         return self._proxies_classes.get(type_id)
 
 
@@ -1141,7 +1143,7 @@ class ConditionProxyRelation(ConditionProxy):
 class ConditionProxyRelationSubFilter(ConditionProxy):
     type_id = RelationSubFilterConditionHandler.type_id
 
-    sub_filter: Optional[EntityFilter] = None
+    sub_filter: EntityFilter | None = None
 
     def _validate(self, validated_data):
         value = self.value

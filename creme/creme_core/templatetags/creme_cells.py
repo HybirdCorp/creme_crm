@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Dict, Tuple, Type
 
 from django.template import Library
 from django.template import Node as TemplateNode
@@ -88,7 +89,7 @@ class InstanceRFieldCellNode(RFieldCellNode):
         return self.instance_var.resolve(context).__class__
 
 
-_RFIELD_CELL_NODES: Dict[str, Tuple[str, Type[RFieldCellNode]]] = {
+_RFIELD_CELL_NODES: dict[str, tuple[str, type[RFieldCellNode]]] = {
     'model':    ('model_var',    ModelRFieldCellNode),
     'ctype':    ('ctype_var',    CTypeRFieldCellNode),
     'instance': ('instance_var', InstanceRFieldCellNode),

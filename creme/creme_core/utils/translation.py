@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 # SOFTWARE.
 ################################################################################
 
-from typing import Type
+from __future__ import annotations
 
 from django.conf import settings
 from django.db.models import Model
@@ -38,5 +38,5 @@ else:
 
 # TODO: automatise the creation of plural form for models verbose names
 #       (& so use ngettext() instead) ?
-def get_model_verbose_name(model: Type[Model], count: int):
+def get_model_verbose_name(model: type[Model], count: int):
     return model._meta.verbose_name_plural if plural(count) else model._meta.verbose_name

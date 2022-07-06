@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import List, Optional
 
 from django.conf import settings
 from django.db import models
@@ -85,7 +86,10 @@ class DeletionCommand(CremeModel):
 
     replacers_registry: ReplacersRegistry
 
-    def __init__(self, *args, replacers_registry: Optional[ReplacersRegistry] = None, **kwargs):
+    def __init__(self,
+                 *args,
+                 replacers_registry: ReplacersRegistry | None = None,
+                 **kwargs):
         self.replacers_registry = replacers_registry or REPLACERS_MAP
         super().__init__(*args, **kwargs)
 
@@ -100,12 +104,12 @@ class DeletionCommand(CremeModel):
         self.deleted_repr = str(instance)
 
     @property
-    def replacers(self) -> List[Replacer]:
+    def replacers(self) -> list[Replacer]:
         "@return List of <creme_core.core.deletion.Replacer> instances."
         return self.replacers_registry.deserialize(self.json_replacers)
 
     @replacers.setter
-    def replacers(self, values: List[Replacer]):
+    def replacers(self, values: list[Replacer]):
         "@param: List of <creme_core.core.deletion.Replacer> instances."
         self.json_replacers = self.replacers_registry.serialize(values)
 

@@ -16,11 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import base64
 import struct
 import uuid
-# import warnings
-from typing import Tuple, Type
 
 from django.db.models import Model
 
@@ -45,15 +45,16 @@ def is_sandbox_by_user() -> bool:
 
 
 def generate_guid_for_field(urn: str,
-                            model: Type[Model],
-                            field_name: str) -> str:
+                            model: type[Model],
+                            field_name: str,
+                            ) -> str:
     return '{%s}' % str(uuid.uuid5(
         uuid.NAMESPACE_X500,
         f'{urn}.{model._meta.object_name}.{field_name}'
     )).upper()
 
 
-def decode_b64binary(blob_b64: bytes) -> Tuple[str, bytes]:
+def decode_b64binary(blob_b64: bytes) -> tuple[str, bytes]:
     """Decode base64binary encoded files
     (Usually found in xsd:base64Binary http://www.w3.org/TR/xmlschema-2/#base64Binary)
     @param blob_b64: <bytes> data encoded in base64.

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,12 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import email
 import logging
 import poplib
 import re
 from datetime import datetime
-from typing import Iterable, List, Tuple
+from typing import Iterable
 
 from django.conf import settings
 from django.core.files.uploadedfile import SimpleUploadedFile, UploadedFile
@@ -43,19 +45,19 @@ class PopEmail:
                  ccs: Iterable[str] = (),
                  subject: str = '',
                  dates: Iterable[datetime] = (),
-                 attachments: Iterable[Tuple[str, UploadedFile]] = (),
+                 attachments: Iterable[tuple[str, UploadedFile]] = (),
                  ):
         self.subject   = subject
         self.body      = body
         self.body_html = body_html
 
-        self.senders: List[str] = [*senders]
-        self.tos: List[str]     = [*tos]
-        self.ccs: List[str]     = [*ccs]
+        self.senders: list[str] = [*senders]
+        self.tos: list[str]     = [*tos]
+        self.ccs: list[str]     = [*ccs]
 
-        self.dates: List[datetime] = [*dates]
+        self.dates: list[datetime] = [*dates]
 
-        self.attachments: List[Tuple[str, UploadedFile]] = [*attachments]
+        self.attachments: list[tuple[str, UploadedFile]] = [*attachments]
 
 
 class PopFetcher(CrudityFetcher):

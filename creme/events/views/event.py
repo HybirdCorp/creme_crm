@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type
+from __future__ import annotations
 
 from django.db.models import Q
 from django.forms import BaseForm, ModelChoiceField
@@ -185,7 +185,7 @@ class RelatedContactsList(EntityRelatedMixin, ContactsList):
 
 class AddContactsToEvent(generic.EntityEdition):
     model = Event
-    form_class: Type[BaseForm] = event_forms.AddContactsToEventForm
+    form_class: type[BaseForm] = event_forms.AddContactsToEventForm
     template_name = 'creme_core/generics/blockform/link.html'
     pk_url_kwarg = 'event_id'
     title = _('Link some contacts to «{object}»')

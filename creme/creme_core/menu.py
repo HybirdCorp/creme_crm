@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import math
-from typing import List
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
@@ -183,7 +184,7 @@ class EntitiesCreationEntry(menu.MenuEntry):
 
     creation_menu_registry = menu.creation_menu_registry
 
-    def as_grid(self, user) -> List[List[dict]]:
+    def as_grid(self, user) -> list[list[dict]]:
         """ Build JSON-ifiable information  used by JavaScript to render the grid of links.
 
         @param user: Current user (CremeUser instance).

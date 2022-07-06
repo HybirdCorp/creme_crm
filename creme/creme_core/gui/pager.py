@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2020  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import List, Optional
+from __future__ import annotations
 
 from django.utils.translation import gettext as _
 
@@ -26,13 +26,13 @@ class PagerLink:
     PREVIOUS: str = 'previous'
     NEXT: str = 'next'
 
-    page: Optional[int]
-    group: Optional[str]
+    page: int | None
+    group: str | None
     enabled: bool
     is_current: bool
 
     def __init__(self,
-                 page: Optional[int],
+                 page: int | None,
                  label=None,
                  help=None,
                  group: str = None,
@@ -84,8 +84,8 @@ class PagerContext:
 
     count: int
     current: int
-    previous: Optional[int]
-    next: Optional[int]
+    previous: int | None
+    next: int | None
     first: int
     last: int
 
@@ -102,7 +102,7 @@ class PagerContext:
         self._links = None
 
     @property
-    def links(self) -> List[PagerLink]:
+    def links(self) -> list[PagerLink]:
         links = self._links
 
         if links is None:
@@ -113,7 +113,7 @@ class PagerContext:
     def is_current(self, index: int) -> bool:
         return self.current == index
 
-    def _build_links(self) -> List[PagerLink]:
+    def _build_links(self) -> list[PagerLink]:
         page_count = self.count
         page_current = self.current
         page_next = self.next

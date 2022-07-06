@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from datetime import time
 from functools import partial
-from typing import Type, Union
 
 from dateutil.parser import isoparse
 from django.db.models import Q
@@ -55,7 +56,7 @@ _CREATION_PERM_STR = cperm(Activity)
 
 class ActivityCreation(generic.EntityCreation):
     model = Activity
-    form_class: Union[Type[BaseForm], CustomFormDescriptor] = custom_forms.ACTIVITY_CREATION_CFORM
+    form_class: type[BaseForm] | CustomFormDescriptor = custom_forms.ACTIVITY_CREATION_CFORM
     type_name_url_kwarg = 'act_type'
 
     allowed_activity_types = {

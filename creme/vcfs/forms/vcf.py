@@ -16,10 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import base64
 import logging
 from itertools import chain
-from typing import Optional, Tuple
 from urllib.error import URLError
 from urllib.request import urlopen
 
@@ -240,7 +241,7 @@ class VcfImportForm(CremeModelForm):
         self.contact_address = self.organisation_address = None
 
         # Cleaned data about image embedded/linked in the file
-        self._vcf_image_info: Optional[Tuple[ContentFile, str]] = None
+        self._vcf_image_info: tuple[ContentFile, str] | None = None
 
         # Organisation chosen/created by the user (filled by clean())
         self.organisation = None

@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import operator
 from functools import partial
-from typing import Collection, Type
+from typing import Collection
 
 from django.core.exceptions import ValidationError
 from django.db import models
@@ -177,7 +179,7 @@ class ConditionOperator:
     def __str__(self):
         return str(self.verbose_name)
 
-    def get_q(self, *, model: Type[models.Model], field_name: str, values) -> Q:
+    def get_q(self, *, model: type[models.Model], field_name: str, values) -> Q:
         """Get the query to filter instance.
 
         @param model: Class inheriting <django.db.model>.

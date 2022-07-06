@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import copy
 import json
 import logging
@@ -23,7 +25,6 @@ import warnings
 from datetime import date
 from functools import partial
 from types import GeneratorType
-from typing import Optional
 
 # from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -268,7 +269,7 @@ class ActionButtonList(widgets.Widget):
         obj.actions = copy.deepcopy(self.actions)
         return obj
 
-    def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
+    def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon,
             enabled=enabled,
@@ -526,7 +527,7 @@ class SelectorList(widgets.TextInput):
         )
         self._enabled = value
 
-    def add_action(self, name, label, enabled=True, icon: Optional[str] = None, **attrs):
+    def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
         self.actions.append(self.action_class(
             name=name, label=label, icon=icon, enabled=enabled, **attrs
         ))

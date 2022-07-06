@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import List, Type, Union
 
 from django.core.exceptions import ImproperlyConfigured
 from django.db.transaction import atomic
@@ -72,7 +73,7 @@ class CremeWizardView(base.PermissionsMixin,
     If they contain a non-empty value, their value override the corresponding
     general attribute of the view.
     """
-    form_list: List[Union[Type[BaseForm], CustomFormDescriptor]]  # = [...]  # TO BE OVERRIDDEN
+    form_list: list[type[BaseForm] | CustomFormDescriptor]  # = [...]  # TO BE OVERRIDDEN
     template_name = 'creme_core/generics/blockform/add-wizard.html'
     atomic_POST = True
     success_url = None

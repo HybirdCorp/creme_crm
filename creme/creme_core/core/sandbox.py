@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Dict, Optional, Type
 
 from creme.creme_core.models import Sandbox
 
@@ -47,9 +48,9 @@ class _SandboxTypeRegistry:
         pass
 
     def __init__(self):
-        self._sandbox_types: Dict[str, Type[SandboxType]] = {}
+        self._sandbox_types: dict[str, type[SandboxType]] = {}
 
-    def register(self, sandbox_type: Type[SandboxType]):
+    def register(self, sandbox_type: type[SandboxType]):
         sandbox_id = sandbox_type.id
 
         if not sandbox_id:
@@ -58,7 +59,7 @@ class _SandboxTypeRegistry:
         if self._sandbox_types.setdefault(sandbox_id, sandbox_type) is not sandbox_type:
             raise self.Error(f'Duplicated sandbox type id: {sandbox_id}')
 
-    def get(self, sandbox: Sandbox) -> Optional[SandboxType]:
+    def get(self, sandbox: Sandbox) -> SandboxType | None:
         try:
             cls = self._sandbox_types[sandbox.type_id]
         except KeyError:

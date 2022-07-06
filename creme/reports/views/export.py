@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Type
 
 from django.forms.forms import BaseForm
 from django.urls import reverse
@@ -92,7 +93,7 @@ class Preview(generic.EntityDetail):
 
 class ExportFilterURL(generic.EntityEditionPopup):
     model = Report
-    form_class: Type[BaseForm] = report_forms.ReportExportFilterForm
+    form_class: type[BaseForm] = report_forms.ReportExportFilterForm
     template_name = 'reports/forms/report-export-filter.html'
     pk_url_kwarg = 'report_id'
     title = pgettext_lazy('reports-report', 'Export «{object}»')

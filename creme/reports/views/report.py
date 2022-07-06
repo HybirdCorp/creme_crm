@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Type
 
 from django.db.transaction import atomic
 from django.forms.forms import BaseForm
@@ -112,7 +113,7 @@ class ReportLinking(generic.CremeModelEditionPopup):
 
 class FieldsEdition(generic.EntityEditionPopup):
     model = Report
-    form_class: Type[BaseForm] = report_forms.ReportFieldsForm
+    form_class: type[BaseForm] = report_forms.ReportFieldsForm
     pk_url_kwarg = 'report_id'
     title = _('Edit columns of «{object}»')
 

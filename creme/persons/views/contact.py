@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Optional, Type, Union
+from __future__ import annotations
 
 from django import forms
 from django.contrib.contenttypes.models import ContentType
@@ -43,7 +43,7 @@ Organisation = persons.get_organisation_model()
 
 class _ContactBaseCreation(generic.EntityCreation):
     model = Contact
-    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+    form_class: type[forms.BaseForm] | CustomFormDescriptor = \
         custom_forms.CONTACT_CREATION_CFORM
 
 
@@ -200,7 +200,7 @@ class RelatedContactCreation(_ContactBaseCreation):
 
         return orga
 
-    def get_rtype(self) -> Optional[RelationType]:
+    def get_rtype(self) -> RelationType | None:
         rtype_id = self.kwargs.get(self.rtype_id_url_kwarg)
 
         if rtype_id:
@@ -237,14 +237,14 @@ class ContactDetail(generic.EntityDetail):
 
 class ContactEdition(generic.EntityEdition):
     model = Contact
-    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+    form_class: type[forms.BaseForm] | CustomFormDescriptor = \
         custom_forms.CONTACT_EDITION_CFORM
     pk_url_kwarg = 'contact_id'
 
 
 class ContactNamesEdition(generic.EntityEditionPopup):
     model = Contact
-    form_class: Type[c_forms.ContactNamesForm] = c_forms.ContactNamesForm
+    form_class: type[c_forms.ContactNamesForm] = c_forms.ContactNamesForm
     pk_url_kwarg = 'contact_id'
 
 

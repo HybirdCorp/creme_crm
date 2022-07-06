@@ -16,18 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime, timedelta
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Iterator
 
 from django.db import connection
 from django.db.models import Max, Min, Q, QuerySet
@@ -100,13 +93,13 @@ class ReportGraphHand:
     verbose_name: str = 'OVERRIDE_ME'
     hand_id: int  # Set by ReportGraphHandRegistry decorator
 
-    def __init__(self, graph: 'AbstractReportGraph'):
+    def __init__(self, graph: AbstractReportGraph):
         self._graph = graph
         self._y_calculator = y_calculator = AGGREGATORS_MAP[graph]
-        self.abscissa_error: Optional[str] = None
-        self.ordinate_error: Optional[str] = y_calculator.error
+        self.abscissa_error: str | None = None
+        self.ordinate_error: str | None = y_calculator.error
 
-    def _listview_url_builder(self, extra_q: Optional[Q] = None):
+    def _listview_url_builder(self, extra_q: Q | None = None):
         graph = self._graph
         return ListViewURLBuilder(
             model=graph.model,
@@ -119,16 +112,16 @@ class ReportGraphHand:
                entities: QuerySet,
                order: str,
                user,
-               extra_q: Optional[Q],
-               ) -> Iterator[Tuple[str, Any]]:
+               extra_q: Q | None,
+               ) -> Iterator[tuple[str, Any]]:
         yield from ()
 
     def fetch(self,
               entities: QuerySet,
               order: str,
               user,
-              extra_q: Optional[Q] = None,
-              ) -> Tuple[List[str], list]:
+              extra_q: Q | None = None,
+              ) -> tuple[list[str], list]:
         """Returns the X & Y values.
         @param entities: Queryset of CremeEntities.
         @param order: 'ASC' or 'DESC'.
@@ -136,7 +129,7 @@ class ReportGraphHand:
         @return A tuple (X, Y). X is a list of string labels.
                 Y is a list of numerics, or of tuple (numeric, URL).
         """
-        x_values: List[str] = []
+        x_values: list[str] = []
         y_values: list = []
 
         if extra_q is not None:
@@ -185,25 +178,25 @@ class ReportGraphHandRegistry:
     __slots__ = ('_hands', )
 
     def __init__(self):
-        self._hands: Dict[int, Type[ReportGraphHand]] = {}
+        self._hands: dict[int, type[ReportGraphHand]] = {}
 
     def __call__(self, hand_id: int):
         assert hand_id not in self._hands, 'ID collision'
 
-        def _aux(cls: Type[ReportGraphHand]):
+        def _aux(cls: type[ReportGraphHand]):
             self._hands[hand_id] = cls
             cls.hand_id = hand_id
             return cls
 
         return _aux
 
-    def __getitem__(self, i: int) -> Type[ReportGraphHand]:
+    def __getitem__(self, i: int) -> type[ReportGraphHand]:
         return self._hands[i]
 
     def __iter__(self) -> Iterator[int]:
         return iter(self._hands)
 
-    def get(self, i: int) -> Optional[Type[ReportGraphHand]]:
+    def get(self, i: int) -> type[ReportGraphHand] | None:
         return self._hands.get(i)
 
 

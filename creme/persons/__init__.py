@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import TYPE_CHECKING, Type
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 
@@ -47,16 +49,16 @@ def organisation_model_is_custom() -> bool:
     )
 
 
-def get_address_model() -> Type['AbstractAddress']:
+def get_address_model() -> type[AbstractAddress]:
     """Returns the Address model that is active in this project."""
     return get_concrete_model('PERSONS_ADDRESS_MODEL')
 
 
-def get_contact_model() -> Type['AbstractContact']:
+def get_contact_model() -> type[AbstractContact]:
     """Returns the Contact model that is active in this project."""
     return get_concrete_model('PERSONS_CONTACT_MODEL')
 
 
-def get_organisation_model() -> Type['AbstractOrganisation']:
+def get_organisation_model() -> type[AbstractOrganisation]:
     """Returns the Organisation model that is active in this project."""
     return get_concrete_model('PERSONS_ORGANISATION_MODEL')

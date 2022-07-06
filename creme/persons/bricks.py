@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
 from functools import partial
-from typing import List, Sequence, Type  # Tuple
+from typing import Sequence
 
 from django.apps import apps
 from django.db.models.query_utils import FilteredRelation, Q
@@ -113,8 +115,8 @@ else:
             return ''
 
     class Activities4Card:
-        dependencies: List[Type[CremeEntity]] = []
-        relation_type_deps: List[str] = []
+        dependencies: list[type[CremeEntity]] = []
+        relation_type_deps: list[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -146,8 +148,8 @@ if apps.is_installed('creme.opportunities'):
             )
 else:
     class Opportunities4Card:
-        dependencies: List[Type[CremeEntity]] = []
-        relation_type_deps: List[str] = []
+        dependencies: list[type[CremeEntity]] = []
+        relation_type_deps: list[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -180,8 +182,8 @@ if apps.is_installed('creme.commercial'):
             )
 else:
     class CommercialActs4Card:
-        dependencies: List[Type[CremeEntity]] = []
-        relation_type_deps: List[str] = []
+        dependencies: list[type[CremeEntity]] = []
+        relation_type_deps: list[str] = []
 
         @staticmethod
         def get(context, entity):
@@ -362,7 +364,7 @@ def _get_address_field_names():
 class _AddressesBrick(Brick):
     dependencies = (Address,)
     verbose_name = 'Addresses'
-    target_ctypes: Sequence[Type[CremeEntity]] = (Contact, Organisation)
+    target_ctypes: Sequence[type[CremeEntity]] = (Contact, Organisation)
 
     def get_template_context(self, context, **kwargs):
         person = context['object']
@@ -501,7 +503,7 @@ class ManagedOrganisationsBrick(PaginatedBrick):
 
 
 # bricks_list: Tuple[Type[Brick], ...] = (
-brick_classes: List[Type[Brick]] = [
+brick_classes: list[type[Brick]] = [
     DetailedAddressesBrick,
     PrettyAddressesBrick,
     DetailedOtherAddressesBrick,

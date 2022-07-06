@@ -16,11 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from functools import partial
 from itertools import zip_longest
 from os.path import splitext
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type
+from typing import Any, Callable, Optional, Sequence, Tuple
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -464,7 +466,7 @@ class RegularFieldExtractorField(forms.Field):
 
 class EntityExtractionCommand:
     def __init__(self,
-                 model: Type[CremeEntity],
+                 model: type[CremeEntity],
                  field_name: str,
                  column_index: int,
                  create: bool):
@@ -480,7 +482,7 @@ class EntityExtractionCommand:
 
 
 class EntityExtractor(BaseExtractor):
-    def __init__(self, extraction_cmds: List[EntityExtractionCommand]):
+    def __init__(self, extraction_cmds: list[EntityExtractionCommand]):
         "@params extraction_cmds: List of EntityExtractionCommands."
         self._commands = extraction_cmds
 
@@ -964,7 +966,7 @@ class RelationExtractorField(MultiRelationEntityField):
 # Extractors (and related field/widget) for custom fields ----------------------
 
 class CustomFieldExtractor(SingleColumnExtractor):
-    _manage_enum: Optional[Callable]
+    _manage_enum: Callable | None
 
     def __init__(
             self,
@@ -1179,7 +1181,7 @@ class ImportForm(CremeModelForm):
         (0, 'Not in the file'),
         *((i, f'Column {i}') for i in range(1, 21)),
     ]  # Overloaded by factory
-    header_dict: Dict[str, int] = {}  # Idem
+    header_dict: dict[str, int] = {}  # Idem
 
     blocks = FieldBlockManager(
         {
@@ -1219,7 +1221,7 @@ class ImportForm(CremeModelForm):
             field_excluder,
         ).choices()
 
-    def append_error(self, err_msg: Optional[str]) -> None:
+    def append_error(self, err_msg: str | None) -> None:
         if err_msg:
             self.import_errors.append(str(err_msg))
 
@@ -1267,10 +1269,10 @@ class ImportForm(CremeModelForm):
         exclude = frozenset(self._meta.exclude or ())
 
         # Contains tuples (field_name, cleaned_field_value)
-        regular_fields: List[Tuple[str, Any]] = []
+        regular_fields: list[tuple[str, Any]] = []
 
         # Contains tuples (field_name, extractor)
-        extractor_fields: List[Tuple[str, RegularFieldExtractor]] = []
+        extractor_fields: list[tuple[str, RegularFieldExtractor]] = []
 
         for field in model_class._meta.fields:
             fname = field.name

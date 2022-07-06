@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,9 @@
 #
 ################################################################################
 
-from typing import Callable, Iterable, Iterator, List, Optional, TypeVar
+from __future__ import annotations
+
+from typing import Callable, Iterable, Iterator, TypeVar
 
 T = TypeVar('T')
 
@@ -31,13 +33,14 @@ T = TypeVar('T')
 def iter_splitchunks(chunks: Iterable,
                      sep: str,
                      parser: Callable = None,
-                     limit: Optional[int] = None) -> Iterator[str]:
+                     limit: int | None = None,
+                     ) -> Iterator[str]:
     """Iterator through chunks as split single stream.
 
     @param chunks: iterator of list of strings.
     @param sep: split separator.
     @param parser: function that returns a parsed result from each entry.
-                   if returns None, False or empty string, the entry will be ignored.
+           if returns None, False or empty string, the entry will be ignored.
     @param limit: single line length limit. Throws a ValueError if reached.
     """
     overflow = ''
@@ -61,12 +64,12 @@ def iter_splitchunks(chunks: Iterable,
         yield last
 
 
-def iter_as_chunk(iterable: Iterable[T], step: int) -> Iterator[List[T]]:
+def iter_as_chunk(iterable: Iterable[T], step: int) -> Iterator[list[T]]:
     """Iterator which returns chunks from an iterable.
     @param iterable: iterator.
     @param step: chunks size.
     """
-    chunk: List[T] = []
+    chunk: list[T] = []
 
     for index, item in enumerate(iterable):
         if not index % step and chunk:

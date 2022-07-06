@@ -16,9 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from os.path import basename, join
 from random import randint
-from typing import List, Optional
 
 from django.conf import settings
 from django.core.files.base import File
@@ -37,13 +38,11 @@ MAXINT = 100000
 
 
 def handle_uploaded_file(f: File,
-                         path: Optional[List[str]] = None,
-                         name: Optional[str] = None,
-                         max_length: Optional[int] = None,
+                         path: list[str] | None = None,
+                         name: str | None = None,
+                         max_length: int | None = None,
                          ) -> str:
-    """Handle an uploaded file by a form and return the complete file's path
-    path has to be iterable
-    """
+    """Handle an uploaded file by a form and return the complete file's path."""
     def get_name(file: File) -> str:
         if hasattr(file, 'name'):
             name = file.name

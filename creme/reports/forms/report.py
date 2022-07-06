@@ -16,12 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from copy import deepcopy
 # from functools import partial
 from itertools import chain
-from typing import Optional, Type
 
 from django import forms
 from django.core.exceptions import FieldDoesNotExist, ValidationError
@@ -127,9 +128,9 @@ class ReportEntityCellRelated(_ReportOnlyEntityCell):
 
     @classmethod
     def build(cls,
-              model: Type[CremeEntity],
+              model: type[CremeEntity],
               related_name: str,
-              ) -> Optional['ReportEntityCellRelated']:
+              ) -> ReportEntityCellRelated | None:
         rel_field = RHRelated._get_related_field(model, related_name)  # TODO: make public ?
 
         if rel_field is None:
@@ -456,7 +457,7 @@ class ReportEntityCellCustomAggregatesField(hf_forms.UniformEntityCellsField):
 
 
 class ReportHandsField(hf_forms.EntityCellsField):
-    widget: Type[ReportHandsWidget] = ReportHandsWidget
+    widget: type[ReportHandsWidget] = ReportHandsWidget
 
     field_classes = {
         ReportEntityCellRegularFieldsField,

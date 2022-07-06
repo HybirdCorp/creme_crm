@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
-from typing import TYPE_CHECKING, List
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
@@ -149,7 +151,7 @@ class Job(models.Model):
         return reverse('creme_core__edit_job', args=(self.id,))
 
     @property
-    def description(self) -> List[str]:  # TODO: cache ?
+    def description(self) -> list[str]:  # TODO: cache ?
         try:
             return self.type.get_description(self)
         except Exception:
@@ -304,17 +306,17 @@ class Job(models.Model):
             self._update_ack_errors(1)
 
     @property
-    def stats(self) -> List[str]:
+    def stats(self) -> list[str]:
         jtype = self.type
         return jtype.get_stats(self) if jtype is not None else []
 
     @property
-    def type(self) -> 'JobType':
+    def type(self) -> JobType:
         from ..core.job import job_type_registry
         return job_type_registry.get(self.type_id)
 
     @type.setter
-    def type(self, value: 'JobType'):
+    def type(self, value: JobType):
         # TODO: check that it is in job_type_registry ?
         self.type_id = value.id
 

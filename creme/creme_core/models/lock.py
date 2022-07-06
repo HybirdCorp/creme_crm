@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2020 Hybird
+# Copyright (c) 2009-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,9 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 from contextlib import ContextDecorator
-from typing import Type
 
 from django.db import models
 from django.db.transaction import atomic
@@ -83,7 +84,7 @@ class Mutex(models.Model):
 class MutexAutoLock(ContextDecorator):
     lock_name: str
     locked: bool
-    mutex_class: Type[Mutex]
+    mutex_class: type[Mutex]
 
     def __init__(self, lock_name: str, mutex_class=Mutex):
         self.lock_name = lock_name

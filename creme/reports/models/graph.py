@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
-from typing import TYPE_CHECKING, List, Optional, Tuple, Type
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
@@ -89,7 +91,7 @@ class AbstractReportGraph(CremeEntity):
     abscissa_constraints = abscissa_constraints
     ordinate_constraints = ordinate_constraints
     fetcher_registry = graph_fetcher_registry
-    _hand: Optional['ReportGraphHand'] = None
+    _hand: ReportGraphHand | None = None
 
     class Meta:
         abstract = True
@@ -116,7 +118,7 @@ class AbstractReportGraph(CremeEntity):
         super().delete(*args, **kwargs)
 
     @property
-    def abscissa_info(self) -> Optional[AbscissaInfo]:
+    def abscissa_info(self) -> AbscissaInfo | None:
         report = self.linked_report
         assert report is not None
 
@@ -151,7 +153,7 @@ class AbstractReportGraph(CremeEntity):
         self.abscissa_parameter = abs_info.parameter
 
     @property
-    def ordinate_info(self) -> Optional[OrdinateInfo]:
+    def ordinate_info(self) -> OrdinateInfo | None:
         report = self.linked_report
         assert report is not None
 
@@ -183,8 +185,9 @@ class AbstractReportGraph(CremeEntity):
     # TODO: use creme_core.utils.meta.Order
     def fetch(self,
               user,
-              extra_q: Optional[models.Q] = None,
-              order: str = 'ASC') -> Tuple[List[str], list]:
+              extra_q: models.Q | None = None,
+              order: str = 'ASC',
+              ) -> tuple[list[str], list]:
         assert order == 'ASC' or order == 'DESC'
 
         report = self.linked_report
@@ -199,7 +202,7 @@ class AbstractReportGraph(CremeEntity):
         return self.hand.fetch(entities=entities, order=order, user=user, extra_q=extra_q)
 
     @property
-    def hand(self) -> 'ReportGraphHand':
+    def hand(self) -> ReportGraphHand:
         from ..core.graph import RGRAPH_HANDS_MAP  # Lazy loading
 
         hand = self._hand
@@ -210,7 +213,7 @@ class AbstractReportGraph(CremeEntity):
         return hand
 
     @property
-    def model(self) -> Type[CremeEntity]:
+    def model(self) -> type[CremeEntity]:
         return self.linked_report.ct.model_class()
 
 

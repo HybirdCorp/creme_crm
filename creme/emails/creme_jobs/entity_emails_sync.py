@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import defaultdict
 from email.message import Message
 from os.path import basename, join
-from typing import Optional
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -104,7 +105,7 @@ class _EntityEmailsSyncType(JobType):
                               email_id,
                               email_message: Message,
                               cache: _EmailAsKeyDict,
-                              ) -> Optional[EmailToSync]:
+                              ) -> EmailToSync | None:
         sender_container = email_message['from']
         if sender_container is None:
             logger.info(

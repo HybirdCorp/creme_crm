@@ -1,7 +1,8 @@
+from __future__ import annotations
+
 import configparser
 import io
 import poplib
-from typing import List
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -53,7 +54,7 @@ FAKE_CRUDITY_BACKENDS = [
 
 
 class FakePOP3:
-    instances: List['FakePOP3'] = []
+    instances: list['FakePOP3'] = []
 
     def __init__(self, host, port=None, timeout=None):
         self._host = host

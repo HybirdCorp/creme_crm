@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from collections import OrderedDict
 from itertools import chain
-from typing import Any, Callable, Optional, Type
+from typing import Any, Callable
 
 from django.db import models
 from django.utils.translation import gettext
@@ -152,14 +154,14 @@ class BatchOperatorManager:
         models.IntegerField:    _CAT_INT,
     }
 
-    def _get_category(self, model_field_type) -> Optional[str]:
+    def _get_category(self, model_field_type) -> str | None:
         for field_cls, cat in self._OPERATOR_FIELD_MATRIX.items():
             if issubclass(model_field_type, field_cls):
                 return cat
 
         return None
 
-    def get(self, model_field_type, operator_name: str) -> Optional[BatchOperator]:
+    def get(self, model_field_type, operator_name: str) -> BatchOperator | None:
         """Get the wanted BatchOperator object.
         @param model_field_type: Class inheriting <django.db.model.Field>.
         """
@@ -200,7 +202,7 @@ class BatchAction:
     class ValueError(Exception):
         pass
 
-    def __init__(self, model: Type[CremeEntity], field_name: str, operator_name: str, value):
+    def __init__(self, model: type[CremeEntity], field_name: str, operator_name: str, value):
         self._field_name = field_name
         self._model = model
         field = model._meta.get_field(field_name)

@@ -16,8 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from copy import deepcopy
-from typing import Tuple
 
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
@@ -40,7 +41,7 @@ class CreatorChoiceMixin:
     creation_label = 'Create'
 
     @property
-    def creation_url_n_allowed(self) -> Tuple[str, bool]:
+    def creation_url_n_allowed(self) -> tuple[str, bool]:
         """Get the creation URL & if the creation is allowed."""
         return self._create_action_url, False
 

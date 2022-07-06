@@ -22,7 +22,9 @@
 #
 ################################################################################
 
-from typing import Container, Iterable, Iterator, List, Optional, Tuple, Union
+from __future__ import annotations
+
+from typing import Container, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.http import Http404
@@ -37,7 +39,7 @@ def as_ctype(ct_or_model_or_instance) -> ContentType:
     )
 
 
-def entity_ctypes(app_labels: Optional[Container[str]] = None) -> Iterator[ContentType]:
+def entity_ctypes(app_labels: Container[str] | None = None) -> Iterator[ContentType]:
     """Generator which yields ContentType instances corresponding to registered
      entity models.
     @param app_labels: If None is given, all the registered models are yielded.
@@ -51,7 +53,7 @@ def entity_ctypes(app_labels: Optional[Container[str]] = None) -> Iterator[Conte
     )
 
 
-def get_ctype_or_404(ct_id: Union[int, str]) -> ContentType:
+def get_ctype_or_404(ct_id: int | str) -> ContentType:
     """Retrieve a ContentType by its ID.
     @param ct_id: ID of the wanted ContentType instance (int or string).
     @return: ContentType instance.
@@ -65,7 +67,7 @@ def get_ctype_or_404(ct_id: Union[int, str]) -> ContentType:
     return ct
 
 
-def ctype_choices(ctypes: Iterable[ContentType]) -> List[Tuple[int, str]]:
+def ctype_choices(ctypes: Iterable[ContentType]) -> list[tuple[int, str]]:
     """ Build a choices list (useful for form ChoiceField for example) for ContentTypes.
     Labels are localized, & choices are sorted by labels.
     @param ctypes: Iterable of ContentTypes.

@@ -16,11 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from decimal import Decimal
 from functools import partial
-from typing import Optional, Tuple, Type, Union
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
@@ -85,10 +86,10 @@ class FilterConditionHandler:
     class ValueError(Exception):
         pass
 
-    _model: Type[CremeEntity]
-    _subfilter: Union[EntityFilter, None, bool]
+    _model: type[CremeEntity]
+    _subfilter: EntityFilter | None | bool
 
-    def __init__(self, model: Type[CremeEntity]):
+    def __init__(self, model: type[CremeEntity]):
         """Constructor.
 
         @param model: class inheriting <creme_core.models.CremeEntity>.
@@ -118,7 +119,7 @@ class FilterConditionHandler:
         return False
 
     @classmethod
-    def build(cls, *, model: Type[CremeEntity], name: str, data: Optional[dict]):
+    def build(cls, *, model: type[CremeEntity], name: str, data: dict | None):
         "Get an instance of FilterConditionHandler from serialized data."
         raise NotImplementedError
 
@@ -130,7 +131,7 @@ class FilterConditionHandler:
         return True
 
     @property
-    def error(self) -> Optional[str]:
+    def error(self) -> str | None:
         """Get error corresponding to invalid data contained in the condition.
         @return: A string if there is an error, or None.
         """
@@ -150,7 +151,7 @@ class FilterConditionHandler:
         raise NotImplementedError
 
     @property
-    def model(self) -> Type[CremeEntity]:
+    def model(self) -> type[CremeEntity]:
         return self._model
 
     @classmethod
@@ -170,7 +171,7 @@ class FilterConditionHandler:
         return Q()
 
     @property
-    def subfilter(self) -> Union[EntityFilter, bool]:
+    def subfilter(self) -> EntityFilter | bool:
         "@return: An EntityFilter instance or 'False' is there is no valid sub-filter."
         subfilter = self._subfilter
 
@@ -187,7 +188,7 @@ class FilterConditionHandler:
         return subfilter
 
     @property
-    def subfilter_id(self) -> Optional[str]:
+    def subfilter_id(self) -> str | None:
         "@return: An ID of an EntityFilter, or None."
         return None
 
@@ -199,8 +200,8 @@ class SubFilterConditionHandler(FilterConditionHandler):
     DESCRIPTION_FORMAT = _('Entities are accepted by the filter «{}»')
 
     def __init__(self, *,
-                 model: Optional[Type[CremeEntity]] = None,
-                 subfilter: Union[EntityFilter, str],
+                 model: type[CremeEntity] | None = None,
+                 subfilter: EntityFilter | str,
                  ):
         """Constructor.
 
@@ -296,11 +297,11 @@ class OperatorConditionHandlerMixin:
             return f"Operator ID '{operator_id}' is invalid"
 
     @classmethod
-    def get_operand(cls, value, user) -> Optional[operands.ConditionDynamicOperand]:
+    def get_operand(cls, value, user) -> operands.ConditionDynamicOperand | None:
         return cls.efilter_registry.get_operand(type_id=value, user=user)
 
     @classmethod
-    def get_operator(cls, operator_id: int) -> Optional[operators.ConditionOperator]:
+    def get_operator(cls, operator_id: int) -> operators.ConditionOperator | None:
         return cls.efilter_registry.get_operator(operator_id)
 
     @classmethod
@@ -790,7 +791,7 @@ class BaseCustomFieldConditionHandler(FilterConditionHandler):
         return True
 
     @property
-    def custom_field(self) -> Union[CustomField, bool]:
+    def custom_field(self) -> CustomField | bool:
         cfield = self._custom_field
         if cfield is None:
             self._custom_field = cfield = CustomField.objects.get_for_model(
@@ -1172,7 +1173,7 @@ class BaseRelationConditionHandler(FilterConditionHandler):
         ) if isinstance(instance, RelationType) else Q()
 
     @property
-    def relation_type(self) -> Union[RelationType, bool]:
+    def relation_type(self) -> RelationType | bool:
         rtype = self._rtype
         if rtype is None:
             self._rtype = rtype = (
@@ -1297,7 +1298,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         )
 
     @property
-    def content_type(self) -> Union[ContentType, None, bool]:
+    def content_type(self) -> ContentType | None | bool:
         ct_id = self._ct_id
         try:
             return ContentType.objects.get_for_id(ct_id) if ct_id else None
@@ -1331,7 +1332,7 @@ class RelationConditionHandler(BaseRelationConditionHandler):
         return self.DESCRIPTION_FORMATS[str_key][self._exclude].format(**fmt_kwargs)
 
     @property
-    def entity(self) -> Union[CremeEntity, None, bool]:
+    def entity(self) -> CremeEntity | None | bool:
         if self._entity_id is None:
             return None
 
@@ -1601,7 +1602,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         return query
 
     @property
-    def property_type(self) -> Union[CremePropertyType, bool]:
+    def property_type(self) -> CremePropertyType | bool:
         ptype = self._ptype
         if ptype is None:
             self._ptype = ptype = CremePropertyType.objects.filter(
@@ -1618,7 +1619,7 @@ class PropertyConditionHandler(FilterConditionHandler):
         ) if isinstance(instance, CremePropertyType) else Q()
 
 
-all_handlers: Tuple[Type[FilterConditionHandler], ...] = (
+all_handlers: tuple[type[FilterConditionHandler], ...] = (
     RegularFieldConditionHandler,
     DateRegularFieldConditionHandler,
 

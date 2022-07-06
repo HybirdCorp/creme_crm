@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Tuple
+from __future__ import annotations
 
 from django.forms import ModelChoiceField
 from django.utils.translation import gettext
@@ -69,7 +69,7 @@ class _SearchConfigForm(CremeModelForm):
 
     class Meta:
         model = SearchConfigItem
-        exclude: Tuple[str, ...] = ('content_type', 'role')
+        exclude: tuple[str, ...] = ('content_type', 'role')
 
     blocks = CremeModelForm.blocks.new(
         {

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2019-2020 Hybird
+# Copyright (c) 2019-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,10 +21,10 @@
 # SOFTWARE.
 ################################################################################
 
-from typing import List
+from __future__ import annotations
 
 
-def smart_split(s: str) -> List[str]:
+def smart_split(s: str) -> list[str]:
     """Split a string using " character to keep words grouped.
 
     @param s: Input string.

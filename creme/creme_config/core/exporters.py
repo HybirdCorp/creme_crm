@@ -16,9 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 from collections import OrderedDict
-from typing import Callable, Dict, Iterator, List, Set, Tuple, Type
+from typing import Callable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Model, QuerySet
@@ -63,7 +65,7 @@ class CellsExporterMixin:
 
 
 class Exporter:
-    model: Type[Model] = models.CremeModel
+    model: type[Model] = models.CremeModel
 
     def get_queryset(self) -> QuerySet:
         return self.model._default_manager.all()
@@ -71,7 +73,7 @@ class Exporter:
     def dump_instance(self, instance: Model) -> dict:
         raise NotImplementedError()
 
-    def __call__(self) -> List[dict]:
+    def __call__(self) -> list[dict]:
         return [*map(self.dump_instance, self.get_queryset())]
 
 
@@ -94,10 +96,10 @@ class ExportersRegistry:
         pass
 
     def __init__(self):
-        self._registered: Dict[str, Tuple[int, Type[Exporter]]] = OrderedDict()
-        self._unregistered: Set[str] = set()
+        self._registered: dict[str, tuple[int, type[Exporter]]] = OrderedDict()
+        self._unregistered: set[str] = set()
 
-    def __iter__(self) -> Iterator[Tuple[str, Exporter]]:
+    def __iter__(self) -> Iterator[tuple[str, Exporter]]:
         for data_id, (__, exporter_cls) in self._registered.items():
             yield data_id, exporter_cls()
 
@@ -122,7 +124,7 @@ class ExportersRegistry:
         @raises: ExportersRegistry.Collision if an exporter with the same
                  data_id & priority is already registered.
         """
-        def _aux(exporter: Type[Exporter]) -> Type[Exporter]:
+        def _aux(exporter: type[Exporter]) -> type[Exporter]:
             if data_id not in self._unregistered:
                 registered = self._registered
                 existing_item = registered.get(data_id)
@@ -671,7 +673,7 @@ def _export_efc_datecustomfield(cond: models.EntityFilterCondition) -> dict:
 class EntityFilterExporter(Exporter):
     model = models.EntityFilter
 
-    condition_exporters: Dict[int, Callable[[models.EntityFilterCondition], dict]] = {
+    condition_exporters: dict[int, Callable[[models.EntityFilterCondition], dict]] = {
         condition_handler.RelationConditionHandler.type_id:        _export_efc_relation,
         condition_handler.CustomFieldConditionHandler.type_id:     _export_efc_customfield,
         condition_handler.DateCustomFieldConditionHandler.type_id: _export_efc_datecustomfield,

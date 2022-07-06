@@ -16,22 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 # import warnings
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -77,7 +69,7 @@ class UniformEntityCellsWidget(Widget):
     type_id: str
 
     def __init__(self,
-                 choices: Iterable[Tuple[str, EntityCell]] = (),
+                 choices: Iterable[tuple[str, EntityCell]] = (),
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.choices = choices
@@ -90,7 +82,7 @@ class UniformEntityCellsWidget(Widget):
 
         return context
 
-    def _refine_choices(self, choices: Iterable[Tuple[str, EntityCell]]) -> list:
+    def _refine_choices(self, choices: Iterable[tuple[str, EntityCell]]) -> list:
         sort_key = collator.sort_key
 
         return sorted(
@@ -163,12 +155,12 @@ class EntityCellsWidget(Widget):
 
     def __init__(self,
                  user=None,
-                 model: Type[CremeEntity] = CremeEntity,
+                 model: type[CremeEntity] = CremeEntity,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.user = user
         self.model = model
-        self._sub_widgets: List[UniformEntityCellsWidget] = []
+        self._sub_widgets: list[UniformEntityCellsWidget] = []
 
     def __deepcopy__(self, memo):
         result = super().__deepcopy__(memo)
@@ -184,7 +176,7 @@ class EntityCellsWidget(Widget):
     def sub_widgets(self, widgets: Iterable[UniformEntityCellsWidget]):
         self._sub_widgets[:] = widgets
 
-    def _build_samples(self) -> List[Dict[str, str]]:
+    def _build_samples(self) -> list[dict[str, str]]:
         user = self.user
         samples = []
         cells = [*chain.from_iterable(sub_w.choices for sub_w in self._sub_widgets)]
@@ -233,14 +225,14 @@ class EntityCellsWidget(Widget):
 
 
 class UniformEntityCellsField(Field):
-    widget: Type[UniformEntityCellsWidget] = UniformEntityCellsWidget
+    widget: type[UniformEntityCellsWidget] = UniformEntityCellsWidget
     default_error_messages = {
         'invalid_value': _('This value is invalid: %(value)s'),
     }
-    cell_class: Type[EntityCell] = EntityCell
+    cell_class: type[EntityCell] = EntityCell
 
     def __init__(self, *,
-                 model: Type[CremeEntity] = CremeEntity,
+                 model: type[CremeEntity] = CremeEntity,
                  non_hiddable_cells: Iterable[EntityCell] = (),
                  **kwargs):
         super().__init__(**kwargs)
@@ -255,18 +247,18 @@ class UniformEntityCellsField(Field):
         return result
 
     @property
-    def choices(self) -> Iterable[Tuple[str, EntityCell]]:
+    def choices(self) -> Iterable[tuple[str, EntityCell]]:
         return CallableChoiceIterator(self._get_options)
 
-    def _get_options(self) -> Iterator[Tuple[str, EntityCell]]:
+    def _get_options(self) -> Iterator[tuple[str, EntityCell]]:
         raise NotImplementedError
 
     @property
-    def model(self) -> Type[CremeEntity]:
+    def model(self) -> type[CremeEntity]:
         return self._model
 
     @model.setter
-    def model(self, model: Type[CremeEntity]):
+    def model(self, model: type[CremeEntity]):
         self._model = model
         self._update_choices()
 
@@ -319,7 +311,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
     }
 
     # This separated method makes overriding easier
-    def _regular_fields_enum(self, model: Type[CremeEntity]) -> ModelFieldEnumerator:
+    def _regular_fields_enum(self, model: type[CremeEntity]) -> ModelFieldEnumerator:
         # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
         # get also the sub-fields of ForeignKeys for example). We take care of
         # the FieldsConfig which can hide fields (ie: have to be removed from
@@ -331,7 +323,7 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         # TODO: manage FieldsConfig in ModelFieldEnumerator ??
         get_fconf = FieldsConfig.LocalCache().get_for_model
 
-        non_hiddable_fnames: Dict[Type[CremeEntity], Set[str]] = defaultdict(set)
+        non_hiddable_fnames: dict[type[CremeEntity], set[str]] = defaultdict(set)
         cell_class = self.cell_class
         for cell in self._non_hiddable_cells:
             if isinstance(cell, cell_class):
@@ -485,7 +477,7 @@ class EntityCellsField(Field):
         'invalid_type': 'The type of cell in invalid: %(type_id)s.',
     }
 
-    field_classes: Set[Type[UniformEntityCellsField]] = {
+    field_classes: set[type[UniformEntityCellsField]] = {
         EntityCellRegularFieldsField,
         EntityCellCustomFieldsField,
         EntityCellFunctionFieldsField,
@@ -497,7 +489,7 @@ class EntityCellsField(Field):
         self._model = model
         self._non_hiddable_cells = []
         self._user = None
-        self._sub_fields: List[UniformEntityCellsField] = []
+        self._sub_fields: list[UniformEntityCellsField] = []
         self.cell_registry = cell_registry or CELLS_MAP
 
     def __deepcopy__(self, memo):
@@ -543,18 +535,18 @@ class EntityCellsField(Field):
         self.widget.sub_widgets = sub_widgets
 
     @property
-    def model(self) -> Type[CremeEntity]:
+    def model(self) -> type[CremeEntity]:
         return self._model
 
     @model.setter
-    def model(self, model: Type[CremeEntity]):
+    def model(self, model: type[CremeEntity]):
         self._model = self.widget.model = model
 
         for sub_field in self._sub_fields:
             sub_field.model = model
 
     @property
-    def non_hiddable_cells(self) -> List[EntityCell]:
+    def non_hiddable_cells(self) -> list[EntityCell]:
         return self._non_hiddable_cells
 
     @non_hiddable_cells.setter
@@ -673,7 +665,7 @@ class _HeaderFilterForm(CremeModelForm):
 class HeaderFilterCreateForm(_HeaderFilterForm):
     def __init__(self,
                  ctype: 'ContentType',
-                 smart_columns_registry: Optional['SmartColumnsRegistry'] = None,
+                 smart_columns_registry: SmartColumnsRegistry | None = None,
                  *args, **kwargs):
         super().__init__(*args, **kwargs)
 

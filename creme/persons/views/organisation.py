@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type, Union
+from __future__ import annotations
 
 from django import forms
 from django.db.models.query_utils import Q
@@ -44,7 +44,7 @@ Organisation = get_organisation_model()
 
 class OrganisationCreation(generic.EntityCreation):
     model = Organisation
-    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+    form_class: type[forms.BaseForm] | CustomFormDescriptor = \
         custom_forms.ORGANISATION_CREATION_CFORM
 
 
@@ -176,7 +176,7 @@ class OrganisationDetail(generic.EntityDetail):
 
 class OrganisationEdition(generic.EntityEdition):
     model = Organisation
-    form_class: Union[Type[forms.BaseForm], CustomFormDescriptor] = \
+    form_class: type[forms.BaseForm] | CustomFormDescriptor = \
         custom_forms.ORGANISATION_EDITION_CFORM
     pk_url_kwarg = 'orga_id'
 

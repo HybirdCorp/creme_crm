@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 from functools import partial
-from typing import TYPE_CHECKING, Type
+from typing import TYPE_CHECKING
 
 from django.forms import Field, ValidationError
 from django.utils.translation import gettext_lazy as _
@@ -35,11 +37,11 @@ if TYPE_CHECKING:
 
 
 class FetcherChoiceIterator:
-    def __init__(self, graph: 'AbstractReportGraph', separator='|'):
+    def __init__(self, graph: AbstractReportGraph, separator='|'):
         self.graph = graph
         self.separator = separator
 
-    def build_fetcher_choices(self, fetcher_cls: Type[GraphFetcher], model):
+    def build_fetcher_choices(self, fetcher_cls: type[GraphFetcher], model):
         type_id = fetcher_cls.type_id
         sep = self.separator
 
@@ -90,7 +92,7 @@ class GraphFetcherField(Field):
         ),
     }
 
-    _graph: 'AbstractReportGraph'
+    _graph: AbstractReportGraph
     choice_iterator_class = FetcherChoiceIterator
     _choice_separator: str  # Separate the type & the value of each fetcher choice
 
@@ -176,7 +178,7 @@ class GraphInstanceBrickForm(CremeModelForm):
         self.fields['fetcher'].graph = graph
 
     def clean_fetcher(self):
-        fetcher: 'GraphFetcher' = self.cleaned_data['fetcher']
+        fetcher: GraphFetcher = self.cleaned_data['fetcher']
         graph = self.graph
         extra_items = dict(fetcher.as_dict_items())
 

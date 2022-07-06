@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2020 Hybird
+# Copyright (c) 2020-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,8 +21,9 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
-from typing import Optional, Tuple
 
 from django import template
 from PIL.Image import open as open_img
@@ -32,7 +33,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def image_size(*, path: str) -> Tuple[int, int]:
+def image_size(*, path: str) -> tuple[int, int]:
     """Get the size of a image from it's file path."""
     with open_img(path) as img:
         size = img.size
@@ -41,9 +42,10 @@ def image_size(*, path: str) -> Tuple[int, int]:
 
 
 @register.simple_tag
-def image_scale_to_frame(size: Tuple[int, int],
-                         width: Optional[int] = None,
-                         height: Optional[int] = None) -> Tuple[int, int]:
+def image_scale_to_frame(size: tuple[int, int],
+                         width: int | None = None,
+                         height: int | None = None,
+                         ) -> tuple[int, int]:
     """Scale up/down an image's size to a given frame."""
     i_width, i_height = size
 

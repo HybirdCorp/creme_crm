@@ -16,7 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Any, Iterator, List, Tuple
+from __future__ import annotations
+
+from typing import Any, Iterator
 
 from django.db import models
 from django.urls import reverse
@@ -60,7 +62,7 @@ class AbstractAddress(CremeModel):
     creation_label = _('Create an address')
     save_label     = _('Save the address')
 
-    STR_FIELD_NAMES: List[List[str]] = [
+    STR_FIELD_NAMES: list[list[str]] = [
         ['address', 'zipcode', 'city', 'department'],
         ['po_box', 'state', 'country'],
     ]
@@ -103,7 +105,7 @@ class AbstractAddress(CremeModel):
         return type(self).objects.create(owner=entity, **dict(self.info_fields))
 
     @classmethod
-    def info_field_names(cls) -> Tuple[str, ...]:
+    def info_field_names(cls) -> tuple[str, ...]:
         is_field_hidden = FieldsConfig.objects.get_for_model(cls).is_field_hidden
         excluded = {'id', 'content_type', 'object'}  # TODO: just exclude not viewable ?
         return tuple(
@@ -113,7 +115,7 @@ class AbstractAddress(CremeModel):
         )
 
     @property
-    def info_fields(self) -> Iterator[Tuple[str, Any]]:
+    def info_fields(self) -> Iterator[tuple[str, Any]]:
         for fname in self.info_field_names():
             yield fname, getattr(self, fname)
 

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2018-2020 Hybird
+# Copyright (c) 2018-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,9 @@
 # SOFTWARE.
 ################################################################################
 
-from typing import Callable, Iterator, List
+from __future__ import annotations
+
+from typing import Callable, Iterator
 
 
 class Swappable:
@@ -127,7 +129,7 @@ class _PatternSwapManager:
             if self.func():
                 yield from self
 
-    groups: List[_SwappableGroup]
+    groups: list[_SwappableGroup]
 
     def __init__(self):
         self.groups = []
@@ -139,7 +141,7 @@ class _PatternSwapManager:
         """Add several Swappable instances which are swapped on the same condition.
 
         @param swapping_func: Callable which takes no argument and return a boolean ;
-                              <True> result means all these URL must swapped/ignored.
+                              <True> result means all these URLs must bz swapped/ignored.
         @param patterns: Instances of <Swappable(url(..))>.
         @param app_name: Name of the app where the file urls.py stands.
         @return: An instance of <_SwappableGroup>.

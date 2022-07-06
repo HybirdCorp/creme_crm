@@ -1,8 +1,8 @@
-from typing import Tuple
+from __future__ import annotations
 
 from django.conf import settings
 
-__all__: Tuple[str, ...]
+__all__: tuple[str, ...]
 
 if not settings.TESTS_ON:
     __all__ = ()

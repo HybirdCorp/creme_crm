@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +21,15 @@
 # SOFTWARE.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import os
 import sys
 from datetime import date, datetime
 from os.path import exists, join, splitext
 from random import randint
-from typing import Iterable, List, Optional, Type
+from typing import Iterable
 
 from ..utils.secure_filename import secure_filename
 
@@ -91,29 +93,30 @@ class FileCreator:
     def __init__(self,
                  dir_path: str,
                  name: str,
-                 generators: Iterable[Type[FileNameSuffixGenerator]] = (
+                 generators: Iterable[type[FileNameSuffixGenerator]] = (
                      DatetimeFileNameSuffixGenerator,
                      IncrFileNameSuffixGenerator,
                  ),
                  max_trials: int = 1000,
-                 max_length: Optional[int] = None):
+                 max_length: int | None = None,
+                 ):
         """Constructor.
         @param dir_path: Path of the directory where to create the files (string).
-                         The path must be valid on the current system.
-                         The directory is created (if it does not exist) by create().
+               The path must be valid on the current system.
+               The directory is created (if it does not exist) by create().
         @param name: Base name of the future files. Eg: "foobar.txt"
         @param generators: iterable of FileNameSuffixGenerator instances.
         @param max_trials: number of file names trials before aborting.
-                           It's useful to avoid infinite (or very long) loops.
+               It's useful to avoid infinite (or very long) loops.
         @param max_length: Maximum length of the base name of the new file.
-                           It includes the extension, but not the directory.
-                           None means 'no max length'.
+               It includes the extension, but not the directory.
+               None means 'no max length'.
         """
         self.dir_path = dir_path
         self.name = name
         self.max_trials = max_trials
         self.max_length = max_length or sys.maxsize
-        self._generators_classes: List[Type[FileNameSuffixGenerator]] = [
+        self._generators_classes: list[type[FileNameSuffixGenerator]] = [
             FileNameSuffixGenerator,
             *generators,
         ]

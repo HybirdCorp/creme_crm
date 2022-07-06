@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2019-2020 Hybird
+# Copyright (c) 2019-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,14 @@
 #
 ################################################################################
 
-from typing import Optional
+from __future__ import annotations
 
 from django.http import Http404
 from django.shortcuts import _get_queryset
 
 
 def get_bulk_or_404(klass,
-                    id_list: Optional[list] = None,
+                    id_list: list | None = None,
                     *,
                     field_name: str = 'pk') -> dict:
     """Returns a dictionary of objects for a given list of IDs.

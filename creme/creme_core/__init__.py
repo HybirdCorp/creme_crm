@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from typing import Type
+from __future__ import annotations
 
 from django.db.models import ForeignKey, Model
 
@@ -44,7 +44,7 @@ ForeignKey.set_null_label = _set_null_label
 
 # ------------------------------------------------------------------------------
 
-def get_concrete_model(model_setting: str) -> Type[Model]:
+def get_concrete_model(model_setting: str) -> type[Model]:
     """Returns the concrete model that is active in this project corresponding
     to the setting value.
     @param model_setting: A string corresponding to an entry of setting.py,

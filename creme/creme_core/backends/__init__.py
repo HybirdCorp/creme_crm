@@ -18,16 +18,9 @@
 
 # TODO: move to 'core/' ??
 
-from typing import (
-    Dict,
-    Generic,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-    TypeVar,
-)
+from __future__ import annotations
+
+from typing import Generic, Iterable, Iterator, TypeVar
 
 from django.conf import settings
 
@@ -46,16 +39,16 @@ class _BackendRegistry(Generic[BackendBaseClass]):
         pass
 
     def __init__(self,
-                 base_backend_class: Type[BackendBaseClass],
+                 base_backend_class: type[BackendBaseClass],
                  settings: Iterable[str],
                  ):
-        self._backend_classes: Optional[Dict[str, Type[BackendBaseClass]]] = None
-        self._settings: List[str] = [*settings]
+        self._backend_classes: dict[str, type[BackendBaseClass]] | None = None
+        self._settings: list[str] = [*settings]
         self._base_backend_class = base_backend_class
 
-    def _get_backend_classes(self) -> Dict[str, Type[BackendBaseClass]]:
+    def _get_backend_classes(self) -> dict[str, type[BackendBaseClass]]:
         if self._backend_classes is None:
-            backends: Dict[str, Type[BackendBaseClass]] = {}
+            backends: dict[str, type[BackendBaseClass]] = {}
             base_cls = self._base_backend_class
 
             for backend in self._settings:
@@ -83,14 +76,14 @@ class _BackendRegistry(Generic[BackendBaseClass]):
         return self._backend_classes
 
     @property
-    def backend_classes(self) -> Iterator[Type[BackendBaseClass]]:
+    def backend_classes(self) -> Iterator[type[BackendBaseClass]]:
         return iter(self._get_backend_classes().values())
 
     @property
     def extensions(self) -> Iterator[str]:
         return iter(self._get_backend_classes().keys())
 
-    def get_backend_class(self, backend_id: str) -> Optional[Type[BackendBaseClass]]:
+    def get_backend_class(self, backend_id: str) -> type[BackendBaseClass] | None:
         return self._get_backend_classes().get(backend_id)
 
 

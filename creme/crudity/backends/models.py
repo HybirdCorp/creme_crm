@@ -16,18 +16,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import logging
 import re
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Collection,
-    Dict,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Any, Collection, Sequence
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import FieldDoesNotExist
@@ -68,7 +61,7 @@ Document = get_document_model()
 
 class CrudityBackend:
     # model = None
-    model: Type[CremeEntity]     # OVERRIDE THIS IN on your own backend.
+    model: type[CremeEntity]     # OVERRIDE THIS IN on your own backend.
 
     # These are set by the registry.dispatch()
     fetcher_name: str = ''  # Name of the fetcher (e.g. 'emails')
@@ -81,16 +74,16 @@ class CrudityBackend:
     in_sandbox: bool = True
 
     # Mapping email/sms/... body's key <==> model's key, value in the dict is the default value
-    body_map: Dict[str, Any] = {}
+    body_map: dict[str, Any] = {}
 
     limit_froms: Collection[str] = ()  # If not empty, it lists the allowed senders.
     subject: str = ''  # Matched subject
 
-    brick_classes: Sequence[Type[BaseWaitingActionsBrick]] = (WaitingActionsBrick,)
+    brick_classes: Sequence[type[BaseWaitingActionsBrick]] = (WaitingActionsBrick,)
 
     def __init__(self,
-                 config: Dict[str, Any],
-                 crud_input: Optional['CrudityInput'] = None,
+                 config: dict[str, Any],
+                 crud_input: CrudityInput | None = None,
                  *args, **kwargs):
         config_get = config.get
         self.crud_input = crud_input
@@ -138,7 +131,7 @@ class CrudityBackend:
         """Normalize the subject for an easier retrieve by the input."""
         return re.sub(r'\s', '', subject or '').upper()
 
-    def create(self, action: WaitingAction) -> Tuple[bool, CremeEntity]:
+    def create(self, action: WaitingAction) -> tuple[bool, CremeEntity]:
         return self._create_instance_n_history(
             action.data, action.user, action.source, action.action,
         )
@@ -146,11 +139,11 @@ class CrudityBackend:
     def _create_instance_before_save(
             self,
             instance: CremeEntity,
-            data: Dict[str, Any]) -> CremeEntity:
+            data: dict[str, Any]) -> CremeEntity:
         """Called before the instance is saved"""
         return instance
 
-    def _create_instance_after_save(self, instance: CremeEntity, data: Dict[str, Any]) -> bool:
+    def _create_instance_after_save(self, instance: CremeEntity, data: dict[str, Any]) -> bool:
         """Called after the instance was saved
         @returns a boolean to check if a re-save is needed
         """
@@ -172,10 +165,11 @@ class CrudityBackend:
         return need_new_save
 
     def _create_instance_n_history(self,
-                                   data: Dict[str, Any],
+                                   data: dict[str, Any],
                                    user=None,
                                    source: str = '',
-                                   action='') -> Tuple[bool, CremeEntity]:  # TODO: remove 'action'
+                                   action='',
+                                   ) -> tuple[bool, CremeEntity]:  # TODO: remove 'action'
         is_created = True
         instance = self.model()
         model_get_field = self.model._meta.get_field
