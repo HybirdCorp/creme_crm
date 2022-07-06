@@ -26,15 +26,11 @@ from itertools import chain
 from typing import (
     TYPE_CHECKING,
     Dict,
-    FrozenSet,
     Iterable,
     Iterator,
     List,
-    Optional,
     Sequence,
-    Set,
     Tuple,
-    Type,
 )
 
 from django.contrib.contenttypes.models import ContentType

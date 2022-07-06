@@ -18,15 +18,7 @@
 
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.db.models import Model
 from django.utils.formats import number_format

@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Optional
 
 from creme.creme_core.models.entity_filter import (
     EntityFilter,

@@ -18,8 +18,6 @@
 
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Type
-
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.base import Model
 from django.urls.base import reverse

@@ -23,13 +23,10 @@ import warnings
 from collections import defaultdict
 from typing import (
     DefaultDict,
-    Dict,
     Iterable,
     Iterator,
     List,
-    Optional,
     Sequence,
-    Set,
     Tuple,
     Type,
     Union,

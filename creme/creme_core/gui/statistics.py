@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable, List, Optional
+from typing import Callable
 
 StatisticsFunc = Callable[[], list]
 logger = logging.getLogger(__name__)

@@ -28,14 +28,9 @@ from json import JSONEncoder
 from json import loads as json_load
 from typing import (  # Any Callable
     Container,
-    Dict,
     Iterable,
     Iterator,
-    List,
-    Optional,
     Sequence,
-    Type,
-    Union,
 )
 
 from django.contrib.auth import get_user_model

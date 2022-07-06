@@ -29,7 +29,7 @@ import poplib
 import socket
 from email import message_from_bytes, policy
 from email.message import Message
-from typing import Iterator, Optional, Union
+from typing import Iterator, Union
 
 from django.utils.translation import gettext
 

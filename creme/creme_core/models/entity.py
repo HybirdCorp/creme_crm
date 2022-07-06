@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 import uuid
 from collections import defaultdict
-from typing import TYPE_CHECKING, Any, DefaultDict, Dict, List, Sequence, Tuple
+from typing import TYPE_CHECKING, Any, DefaultDict, Sequence
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models

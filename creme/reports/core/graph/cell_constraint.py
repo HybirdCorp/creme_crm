@@ -18,17 +18,7 @@
 
 from __future__ import annotations
 
-from typing import (
-    Collection,
-    Container,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Tuple,
-    Type,
-)
+from typing import Container, Iterable, Iterator
 
 from django import forms
 from django.db import models

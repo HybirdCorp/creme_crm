@@ -23,17 +23,7 @@ from abc import ABC
 from collections import OrderedDict
 from copy import deepcopy
 from itertools import chain
-from typing import (
-    Container,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Type,
-    Union,
-)
+from typing import Container, Iterable, Iterator, Sequence
 
 from django import forms
 from django.core.exceptions import ValidationError

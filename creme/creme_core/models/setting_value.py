@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-from typing import Dict, Union
 
 from django.db import models, transaction
 

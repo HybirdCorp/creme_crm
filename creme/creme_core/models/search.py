@@ -20,16 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import (
-    TYPE_CHECKING,
-    DefaultDict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, DefaultDict, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models

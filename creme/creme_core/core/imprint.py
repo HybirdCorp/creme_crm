@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 from datetime import timedelta
-from typing import Dict, Optional, Type
 
 # from django.db.models.functions import Now
 from django.utils.timezone import now

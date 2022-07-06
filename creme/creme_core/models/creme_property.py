@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 # import warnings
-from typing import Iterable, Type, Union
+from typing import Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import IntegrityError, models

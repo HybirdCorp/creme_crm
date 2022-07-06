@@ -21,16 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from os.path import basename
-from typing import (
-    Any,
-    Callable,
-    DefaultDict,
-    Dict,
-    Iterable,
-    Optional,
-    Tuple,
-    Type,
-)
+from typing import Any, Callable, DefaultDict, Iterable
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model

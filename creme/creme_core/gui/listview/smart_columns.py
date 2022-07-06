@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import DefaultDict, List, Tuple, Type, Union
+from typing import DefaultDict
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,

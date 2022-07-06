@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 from json import loads as json_load
-from typing import Optional
 
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _

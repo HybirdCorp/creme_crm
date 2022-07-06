@@ -19,16 +19,7 @@
 from __future__ import annotations
 
 # import warnings
-from typing import (
-    TYPE_CHECKING,
-    Callable,
-    Dict,
-    List,
-    NewType,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import TYPE_CHECKING, Callable, NewType
 
 from django.conf import settings
 from django.db import models

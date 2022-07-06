@@ -19,16 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    Optional,
-    Sequence,
-    Tuple,
-    Type,
-    Union,
-)
+from typing import Iterable, Iterator, Sequence
 
 from django.template.loader import get_template
 

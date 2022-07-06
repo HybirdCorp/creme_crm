@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Container, Iterator, Optional, Type
+from typing import TYPE_CHECKING, Container, Iterator
 
 from django.utils.datastructures import OrderedSet
 

@@ -20,17 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import (
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Type,
-    Union,
-)
+from typing import Iterable, Iterator, Sequence
 
 from django.core.exceptions import ValidationError
 from django.urls import reverse_lazy as reverse

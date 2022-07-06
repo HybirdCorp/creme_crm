@@ -21,15 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from itertools import chain
-from typing import (  # Tuple
-    TYPE_CHECKING,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Type,
-    Union,
-)
+from typing import TYPE_CHECKING, Iterator
 
 from django.conf import settings
 from django.contrib.auth import get_user_model

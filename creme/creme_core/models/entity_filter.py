@@ -22,16 +22,7 @@ import logging
 from itertools import zip_longest
 from json import loads as json_load
 from re import compile as compile_re
-from typing import (
-    TYPE_CHECKING,
-    Iterable,
-    Iterator,
-    List,
-    Optional,
-    Set,
-    Tuple,
-    Type,
-)
+from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType

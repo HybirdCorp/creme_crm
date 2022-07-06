@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import OrderedDict
-from typing import TYPE_CHECKING, Dict, Iterator, Optional, Type
+from typing import TYPE_CHECKING, Iterator
 
 if TYPE_CHECKING:
     from creme.creme_core.models import CremeEntity

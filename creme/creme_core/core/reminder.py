@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Dict, Iterator, List, Optional, Type
+from typing import Iterator
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
