@@ -97,9 +97,9 @@ class FunctionField:
     #  - A class of field-registry
     #    (should inherit <creme_core.gui.listview.search.AbstractListViewSearchFieldRegistry>).
     search_field_builder: (
-        None |
-        type[ListViewSearchField] |
-        type[AbstractListViewSearchFieldRegistry]
+        None
+        | type[ListViewSearchField]
+        | type[AbstractListViewSearchFieldRegistry]
     ) = None
 
     # Class inheriting <creme_core.core.sorter.AbstractCellSorter>. Used to
