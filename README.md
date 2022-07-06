@@ -65,7 +65,7 @@ virtual env, in order to keep the old one working).
  - MySQL 5.7+ (or MariaDB 10.2+) or PostGreSQL 9.6+ (or SQLite which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
- - These python packages :
+ - These Python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
      - Django 3.2
@@ -88,7 +88,7 @@ virtual env, in order to keep the old one working).
        - pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
 
 Installation with 'pip':
- - You should probably use "virtualenv" (on a Python >= 3.6).
+ - You should probably use "virtualenv".
  - To install Creme itself :
    - You can just install from pyPI: 'pip install creme-crm==2.3'
    - If you retrieved the source, you can use the following command at the source's root: 'pip install -e .'
@@ -98,7 +98,7 @@ Installation with 'pip':
    - For PostGreSQL,  you must add the 'pgsql' flag :
      'pip install creme-crm[pgsql]==2.3' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
- - Notice some of these python packages need system libraries to be installed.
+ - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
    - python-dev
    - mysql_config & libmysqlclient-dev (or libpq-dev if you want to use PostGreSQL)
@@ -199,7 +199,7 @@ Or create symlink in '.git/hooks/'. Make sure the old one are moved or removed.
 ```
 
 In order to run the JavaScript linter locally, you can install a NodeJS environment within your virtualenv thanks to the
-python package nodeenv. In your virtualenv (named "mycremeenv"):
+Python package nodeenv. In your virtualenv (named "mycremeenv"):
 ```sh
 >> pip install nodeenv
 >> nodeenv -n 12.16.3 -p    # to install nodejs 12.16.3 with "mycremeenv"
