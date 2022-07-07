@@ -1,5 +1,4 @@
-{% load i18n media %}
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{% load i18n media %}<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html class="login" xmlns="http://www.w3.org/1999/xhtml" lang="{{LANGUAGE_CODE}}" xml:lang="{{LANGUAGE_CODE}}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
     <meta http-equiv="Content-type" content="text/html; charset=utf-8" />
@@ -56,10 +55,13 @@
         }
 
         .login .form-container {
+{% comment %}
             background: #fcfcfc;
             background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(rgba(245, 245, 245, 0.8)));
             background: -moz-linear-gradient(top, #fff 0%, rgba(245, 245, 245, 0.8) 100%);
             background-repeat: repeat-x;
+{% endcomment %}
+            background: linear-gradient(#fff, rgba(245, 245, 245, 0.8));
 
             width: 500px;
             min-height: 500px;
@@ -74,7 +76,7 @@
             -webkit-box-sizing: border-box;
                -moz-box-sizing: border-box;
 {% endcomment %}
-                    box-sizing: border-box;
+            box-sizing: border-box;
 
             padding-top: 20px;
             padding-bottom: 20px;
@@ -294,10 +296,13 @@
             color: #000;
             font-weight: 600;
 
+{% comment %}
             background-color: #414141;
             background: -webkit-gradient(linear, 0% 0%, 0% 80%, from(rgba(245, 245, 245, 0.7)), to(rgba(245, 245, 245, 0.9)));
             background: -moz-linear-gradient(top, rgba(245, 245, 245, 0.7) 0%, rgba(245, 245, 245, 0.9) 80%);
             background-repeat: repeat-x;
+{% endcomment %}
+            background: linear-gradient(#f5f5f5b3, #f5f5f5e6);
         }
 
         .footer .footer-baseline strong {
@@ -414,18 +419,19 @@
 </head>
 <body>
     <div class="form-container">
-        {% block container %}
+      {% block container %}
         <div class="application-icon">{% block icon %}<img src="{% media_url 'common/images/creme_200.png' %}"/>{% endblock %}</div>
         <p class="errornote">{% if error_message %}{{error_message}}{% endif %}</p>
         <div class="main-content">
-            {% block container_title %}
+          {% block container_title %}
             <div class="title">
                 {% blocktranslate %}Log to <span class="app-label">Crème CRM</span>{% endblocktranslate %}
             </div>
-            {% endblock %}
-            {% block form %}
-            <form method="post" id="login-form">
-                {% csrf_token %}
+          {% endblock %}
+
+          {% block form %}
+            <form method="post" id="login-form">{% csrf_token %}
+{% comment %}
                 {% block form_username %}
                 <div class="form-row">
                     <label for="id_username">{% translate 'Username' %}</label>{{form.username}}
@@ -439,16 +445,31 @@
                 </div>
                 <div>{{form.errors.password}}</div>
                 {% endblock %}
-                {% block form_submit %}
+{% endcomment %}
+
+              {% block form_fields %}
+                {# NB: should not be useful with the vanilla form #}
+                {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
+                {% if form.non_field_errors %}<div class="non-field-errors">{{form.non_field_errors}}</div>{% endif %}
+
+                {% for field in form.visible_fields %}
+                  <div class="form-row">
+                     <label for="{{field.auto_id}}">{{field.label}}</label>{{field}}
+                  </div>
+                  <div>{{field.errors}}</div>
+                {% endfor %}
+              {% endblock %}
+
+              {% block form_submit %}
                 <div class="submit-row">
                     <input type="submit" value="{% translate 'Log in' %}" />
                 </div>
-                {% endblock %}
-                <div>{{form.non_field_errors}}</div>
+              {% endblock %}
+{#                <div>{{form.non_field_errors}}</div> #}
             </form>
-            {% endblock %}
+          {% endblock %}
         </div>
-        {% endblock %}
+      {% endblock %}
     </div>
 
     {% include 'footer/footer.html' %}
