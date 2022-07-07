@@ -209,8 +209,10 @@
             - The field 'CustomFormConfigItem.json_groups' is now a JSONField.
             - A mandatory field "entity_ctype" has been added to 'Imprint'.
         # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
-        # In the template file "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
-          (use {% block lv_hidden_buttons %} + {{block.super}} instead).
+        # In templates:
+            - In "creme/templates/authent/base.html", {% block form_username %} & {% block form_password %} have been replaced by {% block form_fields %}.
+            - In "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
+              (use {% block lv_hidden_buttons %} + {{block.super}} instead).
         # In JavaScript :
             - The function 'creme.forms._toDualColumnMultiSelect' & 'creme.forms.toOrderedMultiSelect' have been removed ;
               the new component 'creme.widget.SelectOrInputWidget' is used instead.
