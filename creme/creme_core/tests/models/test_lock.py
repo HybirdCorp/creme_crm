@@ -107,8 +107,7 @@ class MutexTestCase(CremeTransactionTestCase):
         with self.assertRaises(Exception) as context:
             self.invalid_locked_func(5)
 
-        self.assertEqual(f'invalid result {5}', str(context.exception))
-
+        self.assertEqual('invalid result 5', str(context.exception))
         self.assertEqual(0, Mutex.objects.filter(id='dummy_lock').count())
 
     def test_MutexAutoLock(self):
