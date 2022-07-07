@@ -3,8 +3,8 @@ from hashlib import sha1
 from django.apps import apps
 from django.conf import settings
 from django.http import HttpRequest
-from django.utils.encoding import smart_str
 from django.utils import translation
+from django.utils.encoding import smart_str
 from django.views.i18n import JavaScriptCatalog  # javascript_catalog
 
 from mediagenerator.generators.bundles.base import Filter
@@ -65,14 +65,21 @@ class I18N(Filter):
         #             ).content
         # Hybird FIX - Django1.10 version
         translation.activate(language)
-        # content += JavaScriptCatalog(packages=[app_config.name for app_config in apps.app_configs.values()]) \
-        #                             .get(HttpRequest()).content
-        content += JavaScriptCatalog(packages=[app_config.name for app_config in apps.app_configs.values()]) \
-                                    .get(HttpRequest()).content.decode()
+        # content += JavaScriptCatalog(
+        #     packages=[app_config.name for app_config in apps.app_configs.values()]
+        # ).get(HttpRequest()).content
+        content += JavaScriptCatalog(
+            packages=[app_config.name for app_config in apps.app_configs.values()]
+        ).get(HttpRequest()).content.decode()
 
-        # The hgettext() function just calls gettext() internally, but it won't get indexed by makemessages.
+        # The hgettext() function just calls gettext() internally,
+        # but it won't get indexed by makemessages.
         content += '\nwindow.hgettext = function(text) { return gettext(text); };\n'
         # Add a similar hngettext() function
-        content += 'window.hngettext = function(singular, plural, count) { return ngettext(singular, plural, count); };\n'
+        content += (
+            'window.hngettext = function(singular, plural, count) {'
+            ' return ngettext(singular, plural, count); '
+            '};\n'
+        )
 
         return content
