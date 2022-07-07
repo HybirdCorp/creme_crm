@@ -1,33 +1,37 @@
+Morgane ALONSO
+    Developer
+    malonso AT hybird DOT org
+
 Jean-Michel ARMAND:
-    Developper / Documentation writer
+    Developer / Documentation writer
     jmarmand AT hybird DOT org
 
 Raphaël BECK:
-    Developper / Documentation writer
+    Developer / Documentation writer
     rbeck AT hybird DOT org
 
 Jonathan CARUANA
-    Developper
+    Developer
     jcaruana AT hybird DOT org
 
 Guillaume ENGLERT
-    Developper / Artist / Documentation writer
+    Developer / Artist / Documentation writer
     genglert AT hybird DOT org
 
 Florian FABRE
-    Developper
+    Developer
     ffabre AT hybird DOT org
 
 Régis MONTOYA
-    Developper
+    Developer
     r3gis AT r3gis DOT fr
 
 Yann PRIME
-    Developper
+    Developer
 
 Rémy RAKIC
-    Developper / Designer
+    Developer / Designer
     rrakic AT hybird DOT org
 
 Hugo SMETT
-    Developper
+    Developer

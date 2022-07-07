@@ -3,10 +3,10 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 10-02-2022 for Creme 2.3
+:Version: 06-07-2022 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
-:Errata: Hugo Smett, Patix
+:Errata: Hugo Smett, Patix, Morgane Alonso
 
 .. contents:: Summary
 
@@ -712,7 +712,7 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
         dependencies = ['creme_core', 'persons']
 
         def populate(self):
-            HeaderFilter.create(
+            HeaderFilter.objects.create_if_needed(
                 pk=DEFAULT_HFILTER_BEAVER, name=_('Beaver view'), model=Beaver,
                 cells_desc=[
                     (EntityCellRegularField, {'name': 'name'}),
@@ -720,7 +720,7 @@ Then we create a file : ``my_project/beavers/populate.py``. ::
                 ],
             )
 
-            SearchConfigItem.create_if_needed(Beaver, ['name'])
+            SearchConfigItem.objects.create_if_needed(Beaver, ['name'])
 
             if not MenuConfigItem.objects.filter(entry_id__startswith='beavers-').exists():
                 directory = MenuConfigItem.objects.filter(
@@ -845,9 +845,6 @@ The file ``django.po`` looks like (dates will be different of course): ::
     msgid "Beavers management"
     msgstr ""
 
-    msgid "All beavers"
-    msgstr ""
-
     msgid "Create a beaver"
     msgstr ""
 
@@ -864,6 +861,12 @@ The file ``django.po`` looks like (dates will be different of course): ::
     msgstr ""
 
     msgid "Beavers"
+    msgstr ""
+
+    msgid "Directory"
+    msgstr ""
+
+    msgid "Save the beaver"
     msgstr ""
 
 Edit this file by filling the translations in strings "msgstr": ::
@@ -890,9 +893,6 @@ Edit this file by filling the translations in strings "msgstr": ::
     msgid "Beavers management"
     msgstr "Gestion des castors"
 
-    msgid "All beavers"
-    msgstr "Lister les castors"
-
     msgid "Create a beaver"
     msgstr "Créer un castor"
 
@@ -911,6 +911,11 @@ Edit this file by filling the translations in strings "msgstr": ::
     msgid "Beavers"
     msgstr "Castors"
 
+    msgid "Directory"
+    msgstr "Annuaire"
+
+    msgid "Save the beaver"
+    msgstr "Sauvegarder le castor"
 
 Now, you just have to compile our translation file with the following command: ::
 
@@ -1046,7 +1051,7 @@ Then add a field 'status' in our model ``Beaver``: ::
     from django.urls import reverse
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.models import CremeEntity, CREME_REPLACE
+    from creme.creme_core.models import CremeEntity, CREME_REPLACE  # <- NEW
 
     from .status import Status  # <- NEW
 
@@ -1582,9 +1587,9 @@ it's a convention): ::
 
     class CreateTicketButton(Button):
         id_ = Button.generate_id('beavers', 'create_ticket')
-        verbose_name = _('Create a ticket to notify that a beaver is sick.')
+        verbose_name = _('Create a ticket for sick beaver')
         template_name = 'beavers/buttons/ticket.html'
-        permission = 'tickets.add_ticket'
+        permissions = 'tickets.add_ticket'
 
         def get_ctypes(self):
             return (Beaver,)
@@ -1599,8 +1604,9 @@ it's a convention): ::
 
 Some explanations :
 
-- The attribute ``permission`` is a string using Django's conventions for
-  permissions, with a shape : 'APP-ACTION'.
+- The attribute ``permissions`` is a string or a list of strings using
+  Django's conventions for permissions, with a shape : 'APP-ACTION' or
+  ['APP-ACTION', …].
 - The method ``get_ctypes()`` can precise, if it exists, the entity types which
   are compatible with the button : the button will only be proposed in the
   configuration for these types.
@@ -1687,7 +1693,11 @@ In ``forms/beaver.py``, add a form class ; it must inherit the class
     class BeaverQuickForm(CremeEntityQuickForm):  # <== NEW
         class Meta(CremeEntityQuickForm.Meta):
             model = Beaver
+            fields = ('name', 'birthday')
 
+Unlike the ``CremeEntityForm`` which by default creates fields for all the
+attributes of the model, the ``CremeEntityQuickForm`` does not use any attribute,
+so we must specify our fields explicitly when creating our form.
 
 Then in our ``apps.py``, add the method ``register_quickforms()`` like
 that: ::
@@ -1743,7 +1753,7 @@ the default configuration of our CustomForm: ::
     from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
     from creme.creme_core.models import CustomFormConfigItem
 
-    from . import custom forms
+    from . import custom_forms
 
 
     class Populator(BasePopulator):
@@ -1753,7 +1763,7 @@ the default configuration of our CustomForm: ::
             [...]
 
             CustomFormConfigItem.objects.create_if_needed(
-                descriptor=custom_forms.TICKET_CREATION_CFORM,
+                descriptor=custom_forms.BEAVER_CREATION_CFORM,
                 groups_desc=[
                     {
                         'name': _('General information'),
@@ -1783,7 +1793,7 @@ the default configuration of our CustomForm: ::
                         ],
                     },
                 ],
-        )
+            )
 
 Then, we declare our form descriptor ; in our file ``beavers/apps.py``, we add
 a new method: ::
@@ -1890,6 +1900,7 @@ like this: ::
 
         def register_function_fields(self, function_field_registry):  # <- NEW
             from . import function_fields
+            from .models import Beaver
 
             function_field_registry.register(Beaver, function_fields.BeaverAgeField)
 
