@@ -1,3 +1,4 @@
+from functools import partial
 from json import dumps as json_dump
 from unittest import skipIf
 
@@ -16,7 +17,8 @@ from creme.creme_core.gui.menu import (
     menu_registry,
 )
 from creme.creme_core.menu import CremeEntry, LogoutEntry, RecentEntitiesEntry
-from creme.creme_core.models import FakeContact, MenuConfigItem
+from creme.creme_core.models import FakeContact, MenuConfigItem, UserRole
+from creme.creme_core.tests import fake_menu
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
 from creme.creme_core.tests.fake_menu import (
     FakeContactCreationEntry,
@@ -348,7 +350,7 @@ class MenuEntriesTestCase(CremeTestCase):
 
 class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     PORTAL_URL = reverse('creme_config__menu')
-    ADD_URL = reverse('creme_config__add_menu_container')
+    # ADD_URL = reverse('creme_config__add_menu_container')
     DELETE_URL = reverse('creme_config__delete_menu_level0')
 
     @classmethod
@@ -380,16 +382,80 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         except Exception as e:
             print(f'{cls.__name__}: test-data backup problem ({e})')
 
+    def _assert_item_in(self, entry_id, items, **kwargs):
+        for item in items:
+            if item.entry_id == entry_id:
+                for attr_name, attr_value in kwargs.items():
+                    value = getattr(item, attr_name)
+
+                    if attr_value != value:
+                        self.fail(
+                            f'The entry with entry_id="{entry_id}" has been found, '
+                            f'but attribute "{attr_name}" is {value!r} '
+                            f'(expected {attr_value!r}).'
+                        )
+
+                return item
+
+        self.fail(f'Item not found with entry_id="{entry_id}"')
+
+    @staticmethod
+    def _build_add_container_url(role=None, superuser=False):
+        return reverse(
+            'creme_config__add_menu_container',
+            args=(
+                'superuser' if superuser else role.id if role else 'default',
+            ),
+        )
+
     @staticmethod
     def _build_edit_container_url(item):
         return reverse('creme_config__edit_menu_container', args=(item.id,))
 
     @staticmethod
+    def _build_special_level0_url(role=None, superuser=False):
+        return reverse(
+            'creme_config__add_menu_special_level0',
+            args=(
+                'superuser' if superuser else role.id if role else 'default',
+            ),
+        )
+
+    @staticmethod
     def _build_special_level1_url(entry_id):
         return reverse('creme_config__add_menu_special_level1', args=(entry_id,))
 
-    def test_portal(self):
+    @staticmethod
+    def _build_reorder_level0_url(item):
+        return reverse(
+            'creme_config__reorder_menu_level0',
+            args=(
+                'superuser' if item.superuser else (item.role_id or 'default'),
+                item.id,
+            ),
+        )
+
+    def _build_simple_menu(self, role=None, superuser=False):
+        create_mitem = partial(
+            MenuConfigItem.objects.create, role=role, superuser=superuser,
+        )
+        create_mitem(entry_id=CremeEntry.id,      order=1)
+        create_mitem(entry_id=Separator0Entry.id, order=2)
+
+        container = create_mitem(
+            entry_id=ContainerEntry.id, entry_data={'label': 'Directory'}, order=3,
+        )
+        create_mitem(
+            entry_id=fake_menu.FakeContactsEntry.id,      order=1, parent=container,
+        )
+        create_mitem(
+            entry_id=fake_menu.FakeOrganisationsEntry.id, order=2, parent=container,
+        )
+
+    def test_portal01(self):
+        "Only default menu."
         self.login()
+        self._build_simple_menu()
 
         response = self.assertGET200(self.PORTAL_URL)
         self.assertTemplateUsed(response, 'creme_config/portals/menu.html')
@@ -399,7 +465,34 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-        self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
+        self.assertEqual(
+            _('{count} Configured menu').format(count=1),
+            self.get_brick_title(brick_node),
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(brick_node),
+            url=reverse('creme_config__clone_menu'), label=_('New menu for a role'),
+        )
+
+    def test_portal02(self):
+        self.login()
+        role1 = self.role
+
+        self._build_simple_menu()
+        self._build_simple_menu(role=role1)
+        self._build_simple_menu(superuser=True)
+
+        response = self.assertGET200(self.PORTAL_URL)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
+        self.assertEqual(
+            _('{count} Configured menus').format(count=3),
+            self.get_brick_title(brick_node),
+        )
+        self.assertBrickHeaderHasNoButton(
+            self.get_brick_header_buttons(brick_node),
+            url=reverse('creme_config__clone_menu'),
+        )
 
     def test_add_special_level1_entry01(self):
         "Separator1."
@@ -481,9 +574,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET404(build_url(FakeContactCreationEntry.id))
 
     def test_add_container01(self):
+        "Default configuration."
         self.login()
 
-        url = self.ADD_URL
+        # url = self.ADD_URL
+        url = self._build_add_container_url()
         response1 = self.assertGET200(url)
         ctxt1 = response1.context
         self.assertEqual(_('Add a container of entries'), ctxt1.get('title'))
@@ -522,12 +617,16 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0,                      container01.order)
         self.assertDictEqual({'label': label01}, container01.entry_data)
         self.assertIsNone(container01.parent)
+        self.assertIsNone(container01.role)
+        self.assertFalse(container01.superuser)
 
         sub_item11 = items01[1]
         self.assertEqual(FakeContactsEntry.id, sub_item11.entry_id)
         self.assertEqual(0,                    sub_item11.order)
         self.assertEqual(container01.id,       sub_item11.parent_id)
         self.assertDictEqual({}, sub_item11.entry_data)
+        self.assertIsNone(sub_item11.role)
+        self.assertFalse(sub_item11.superuser)
 
         sub_item12 = items01[2]
         self.assertEqual(FakeContactCreationEntry.id, sub_item12.entry_id)
@@ -538,6 +637,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_add_container02(self):
         "There are already containers."
         self.login()
+        role = self.role
 
         create_item = MenuConfigItem.objects.create
         creme_item = create_item(entry_id=CremeEntry.id, order=0)
@@ -550,7 +650,30 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         sub_item11 = create_item(entry_id=FakeContactsEntry.id,        order=0, parent=container1)
         sub_item12 = create_item(entry_id=FakeContactCreationEntry.id, order=1, parent=container1)
 
-        url = self.ADD_URL
+        # Should be ignored
+        super_container = create_item(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': 'My super organisations'},
+            order=1,
+            superuser=True,
+        )
+        super_item = create_item(
+            entry_id=FakeOrganisationCreationEntry.id, order=0, parent=super_container,
+            superuser=True,
+        )
+        role_container = create_item(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': 'My role organisations'},
+            order=1,
+            role=role,
+        )
+        role_item = create_item(
+            entry_id=FakeOrganisationCreationEntry.id, order=0, parent=role_container,
+            role=role,
+        )
+
+        # url = self.ADD_URL
+        url = self._build_add_container_url()
         response1 = self.assertGET200(url)
 
         with self.assertNoException():
@@ -572,11 +695,16 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertNoFormError(response2)
-        self.assertEqual(6, MenuConfigItem.objects.count())
+        # self.assertEqual(6, MenuConfigItem.objects.count())
+        self.assertEqual(
+            6, MenuConfigItem.objects.filter(superuser=False, role=None).count(),
+        )
 
         items = [
             *MenuConfigItem.objects.exclude(id__in=[
                 creme_item.id, container1.id, sub_item11.id, sub_item12.id,
+                super_container.id, super_item.id,
+                role_container.id, role_item.id,
             ]),
         ]
         self.assertEqual(2, len(items))
@@ -594,30 +722,98 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(container2.id,                    sub_item21.parent_id)
         self.assertDictEqual({}, sub_item21.entry_data)
 
+    def test_add_container03(self):
+        "Superuser configuration."
+        self.login()
+
+        label = 'Fake Directory'
+        response = self.client.post(
+            self._build_add_container_url(superuser=True),
+            data={
+                'label': label,
+                'entries': json_dump([{'id': FakeContactsEntry.id}]),
+            },
+        )
+        self.assertNoFormError(response)
+
+        items = [*MenuConfigItem.objects.order_by('id')]
+        self.assertEqual(2, len(items))
+
+        container = items[0]
+        self.assertEqual('creme_core-container', container.entry_id)
+        self.assertEqual(0,                      container.order)
+        self.assertDictEqual({'label': label}, container.entry_data)
+        self.assertIsNone(container.parent)
+        self.assertIsNone(container.role)
+        self.assertTrue(container.superuser)
+
+        sub_item = items[1]
+        self.assertEqual(FakeContactsEntry.id, sub_item.entry_id)
+        self.assertEqual(0,                    sub_item.order)
+        self.assertEqual(container.id,         sub_item.parent_id)
+        self.assertDictEqual({}, sub_item.entry_data)
+        self.assertIsNone(sub_item.role)
+        self.assertTrue(sub_item.superuser)
+
+    def test_add_container04(self):
+        "Role configuration."
+        self.login()
+
+        role = self.role
+        label = 'Fake Directory'
+        response = self.client.post(
+            self._build_add_container_url(role=role),
+            data={
+                'label': label,
+                'entries': json_dump([{'id': FakeContactsEntry.id}]),
+            },
+        )
+        self.assertNoFormError(response)
+
+        items = [*MenuConfigItem.objects.order_by('id')]
+        self.assertEqual(2, len(items))
+
+        container = items[0]
+        self.assertEqual('creme_core-container', container.entry_id)
+        self.assertEqual(0,                      container.order)
+        self.assertDictEqual({'label': label}, container.entry_data)
+        self.assertIsNone(container.parent)
+        self.assertFalse(container.superuser)
+        self.assertEqual(role, container.role)
+
+        sub_item = items[1]
+        self.assertEqual(FakeContactsEntry.id, sub_item.entry_id)
+        self.assertEqual(0,                    sub_item.order)
+        self.assertEqual(container.id,         sub_item.parent_id)
+        self.assertDictEqual({}, sub_item.entry_data)
+        self.assertFalse(sub_item.superuser)
+        self.assertEqual(role, sub_item.role)
+
     def test_add_special_level0_entry01(self):
         "Add CremeEntry (one instance max)."
         self.login()
 
-        url = reverse('creme_config__add_menu_special_level0')
+        # url = reverse('creme_config__add_menu_special_level0')
+        url = self._build_special_level0_url()
         ctxt1 = self.assertGET200(url).context
         self.assertEqual(_('Add a special root entry'), ctxt1['title'])
 
         with self.assertNoException():
-            choices01 = ctxt1['form'].fields['entry_id'].choices
+            choices1 = ctxt1['form'].fields['entry_id'].choices
 
         self.assertInChoices(
-            value=CremeEntry.id, label=CremeEntry.label, choices=choices01,
+            value=CremeEntry.id, label=CremeEntry.label, choices=choices1,
         )
         self.assertInChoices(
             value=RecentEntitiesEntry.id, label=RecentEntitiesEntry.label,
-            choices=choices01,
+            choices=choices1,
         )
         self.assertInChoices(
             value=Separator0Entry.id, label=Separator0Entry.label,
-            choices=choices01,
+            choices=choices1,
         )
-        self.assertNotInChoices(value=ContainerEntry.id, choices=choices01)
-        self.assertNotInChoices(value=LogoutEntry.id,    choices=choices01)
+        self.assertNotInChoices(value=ContainerEntry.id, choices=choices1)
+        self.assertNotInChoices(value=LogoutEntry.id,    choices=choices1)
 
         entry_id = CremeEntry.id
         response2 = self.client.post(url, data={'entry_id': entry_id})
@@ -631,6 +827,8 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(0,                  special_item.order)
         self.assertDictEqual({}, special_item.entry_data)
         self.assertIsNone(special_item.parent)
+        self.assertFalse(special_item.superuser)
+        self.assertIsNone(special_item.role)
 
         # ---
         response3 = self.assertGET200(url)
@@ -641,9 +839,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=CremeEntry.id, choices=choices02)
 
     def test_add_special_level0_entry02(self):
+        "With existing items."
         self.login()
 
-        url = reverse('creme_config__add_menu_special_level0')
+        # url = reverse('creme_config__add_menu_special_level0')
+        url = self._build_special_level0_url()
 
         # Order of next container should be 21
         create_item = MenuConfigItem.objects.create
@@ -683,7 +883,8 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
         MenuConfigItem.objects.create(entry_id=Separator0Entry.id, order=1)
 
-        response = self.assertGET200(reverse('creme_config__add_menu_special_level0'))
+        # response = self.assertGET200(reverse('creme_config__add_menu_special_level0'))
+        response = self.assertGET200(self._build_special_level0_url())
 
         with self.assertNoException():
             choices = response.context['form'].fields['entry_id'].choices
@@ -693,9 +894,86 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             choices=choices,
         )
 
+    def test_add_special_level0_entry04(self):
+        "Superuser configuration."
+        self.login()
+
+        url = self._build_special_level0_url(superuser=True)
+
+        entry_id = CremeEntry.id
+        self.assertNoFormError(self.client.post(url, data={'entry_id': entry_id}))
+
+        items = [*MenuConfigItem.objects.all()]
+        self.assertEqual(1, len(items))
+
+        special_item = items[0]
+        self.assertEqual('creme_core-creme', special_item.entry_id)
+        self.assertEqual(0,                  special_item.order)
+        self.assertDictEqual({}, special_item.entry_data)
+        self.assertIsNone(special_item.parent)
+        self.assertIsNone(special_item.role)
+        self.assertTrue(special_item.superuser)
+
+        # ---
+        response2 = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices2 = response2.context['form'].fields['entry_id'].choices
+
+        self.assertNotInChoices(value=CremeEntry.id, choices=choices2)
+
+        # ---
+        response3 = self.assertGET200(self._build_special_level0_url())
+
+        with self.assertNoException():
+            choices3 = response3.context['form'].fields['entry_id'].choices
+
+        self.assertInChoices(
+            value=CremeEntry.id, label=CremeEntry.label, choices=choices3,
+        )
+
+    def test_add_special_level0_entry05(self):
+        "Superuser configuration."
+        self.login()
+        role = self.role
+        url = self._build_special_level0_url(role=role)
+
+        entry_id = CremeEntry.id
+        self.assertNoFormError(self.client.post(url, data={'entry_id': entry_id}))
+
+        items = [*MenuConfigItem.objects.all()]
+        self.assertEqual(1, len(items))
+
+        special_item = items[0]
+        self.assertEqual('creme_core-creme', special_item.entry_id)
+        self.assertEqual(0,                  special_item.order)
+        self.assertDictEqual({}, special_item.entry_data)
+        self.assertIsNone(special_item.parent)
+        self.assertFalse(special_item.superuser)
+        self.assertEqual(role, special_item.role)
+
+        # ---
+        response2 = self.assertGET200(url)
+
+        with self.assertNoException():
+            choices2 = response2.context['form'].fields['entry_id'].choices
+
+        self.assertNotInChoices(value=CremeEntry.id, choices=choices2)
+
+        # ---
+        response3 = self.assertGET200(self._build_special_level0_url())
+
+        with self.assertNoException():
+            choices3 = response3.context['form'].fields['entry_id'].choices
+
+        self.assertInChoices(
+            value=CremeEntry.id, label=CremeEntry.label, choices=choices3,
+        )
+
     def test_edit_container01(self):
         "New items added."
         self.login()
+        role = self.role
 
         label = 'my contacts'
         create_item = MenuConfigItem.objects.create
@@ -711,6 +989,28 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         create_item(entry_id=FakeOrganisationCreationEntry.id, order=0, parent=container1)
         sub_item21 = create_item(entry_id=FakeContactsEntry.id, order=0, parent=container2)
+
+        # Should be ignored
+        super_container = create_item(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': 'My super contact'},
+            order=1,
+            superuser=True,
+        )
+        create_item(
+            entry_id=FakeContactsEntry.id, order=0, parent=super_container,
+            superuser=True,
+        )
+        role_container = create_item(
+            entry_id=ContainerEntry.id,
+            entry_data={'label': 'My role organisations'},
+            order=1,
+            role=role,
+        )
+        create_item(
+            entry_id=FakeContactsEntry.id, order=0, parent=role_container,
+            role=role,
+        )
 
         url = self._build_edit_container_url(container2)
         context = self.assertGET200(url).context
@@ -889,6 +1189,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST409(url, data={'id': item02.id})
 
     def test_reorder_level0_entry01(self):
+        "Default configuration."
         self.login(is_superuser=False, admin_4_apps=['creme_core'])
 
         create_item = MenuConfigItem.objects.create
@@ -903,7 +1204,18 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         sub_item21 = create_item(entry_id=FakeContactsEntry.id,        parent=item02, order=1)
         sub_item22 = create_item(entry_id=FakeContactCreationEntry.id, parent=item02, order=2)
 
-        url = reverse('creme_config__reorder_menu_level0', args=(item01.id,))
+        # Should be ignored
+        super_item = create_item(
+            entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Super directory'},
+            superuser=True,
+        )
+        role_item = create_item(
+            entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Role directory'},
+            role=self.role,
+        )
+
+        # url = reverse('creme_config__reorder_menu_level0', args=(item01.id,))
+        url = self._build_reorder_level0_url(item01)
         self.assertGET405(url)
 
         self.assertPOST200(url, data={'target': 2})
@@ -914,6 +1226,9 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1, self.refresh(sub_item21).order)
         self.assertEqual(2, self.refresh(sub_item22).order)
 
+        self.assertEqual(2, self.refresh(super_item).order)
+        self.assertEqual(2, self.refresh(role_item).order)
+
     def test_reorder_level0_entry02(self):
         "Not allowed."
         self.login(is_superuser=False)  # admin_4_apps=['creme_core']
@@ -923,6 +1238,177 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         create_item(entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Misc'})
 
         self.assertPOST403(
-            reverse('creme_config__reorder_menu_level0', args=(item01.id,)),
+            # reverse('creme_config__reorder_menu_level0', args=(item01.id,)),
+            self._build_reorder_level0_url(item01),
             data={'target': 2},
         )
+
+    def test_reorder_level0_entry03(self):
+        "Superuser configuration."
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+
+        create_item = partial(MenuConfigItem.objects.create, superuser=True)
+        item01 = create_item(entry_id=CremeEntry.id, order=1)
+        item02 = create_item(
+            entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Directory'},
+        )
+        item03 = create_item(
+            entry_id=ContainerEntry.id, order=3, entry_data={'label': 'Activities'},
+        )
+
+        url = self._build_reorder_level0_url(item01)
+        self.assertPOST200(url, data={'target': 2})
+        self.assertEqual(2, self.refresh(item01).order)
+        self.assertEqual(1, self.refresh(item02).order)
+        self.assertEqual(3, self.refresh(item03).order)
+
+    def test_reorder_level0_entry04(self):
+        "Role configuration."
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        role = self.role
+
+        create_item = partial(MenuConfigItem.objects.create, role=role)
+        item01 = create_item(entry_id=CremeEntry.id, order=1)
+        item02 = create_item(
+            entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Directory'},
+        )
+        item03 = create_item(
+            entry_id=ContainerEntry.id, order=3, entry_data={'label': 'Activities'},
+        )
+
+        url = self._build_reorder_level0_url(item01)
+        self.assertPOST200(url, data={'target': 2})
+        self.assertEqual(2, self.refresh(item01).order)
+        self.assertEqual(1, self.refresh(item02).order)
+        self.assertEqual(3, self.refresh(item03).order)
+
+    def test_clone01(self):
+        "For super-user."
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        role1 = self.role
+        role2 = UserRole.objects.create(name='Salesman')
+
+        self._build_simple_menu()
+
+        url = reverse('creme_config__clone_menu')
+        response1 = self.assertGET200(url)
+        ctxt1 = response1.context
+        self.assertEqual(_('Create the menu'), ctxt1.get('submit_label'))
+
+        with self.assertNoException():
+            role_f1 = ctxt1['form'].fields['role']
+            choices1 = role_f1.choices
+
+        self.assertInChoices(value=role1.id, label=role1.name, choices=choices1)
+        self.assertInChoices(value=role2.id, label=role2.name, choices=choices1)
+        self.assertEqual('*{}*'.format(_('Superuser')), role_f1.empty_label)
+
+        # ---
+        response2 = self.client.post(url, data={'role': ''})
+        self.assertNoFormError(response2)
+        self.assertEqual(10, MenuConfigItem.objects.count())
+
+        new_items = MenuConfigItem.objects.filter(superuser=True, role=None)
+        self.assertEqual(5, len(new_items))
+
+        self._assert_item_in(entry_id=CremeEntry.id,      items=new_items, order=1, parent=None)
+        self._assert_item_in(entry_id=Separator0Entry.id, items=new_items, order=2, parent=None)
+
+        new_container = self._assert_item_in(
+            entry_id=ContainerEntry.id, items=new_items,
+            order=3, parent=None, entry_data={'label': 'Directory'},
+        )
+        self._assert_item_in(
+            entry_id=fake_menu.FakeContactsEntry.id, items=new_items,
+            order=1, parent_id=new_container.id,
+        )
+        self._assert_item_in(
+            entry_id=fake_menu.FakeOrganisationsEntry.id, items=new_items,
+            order=2, parent_id=new_container.id,
+        )
+
+        # ---
+        response3 = self.assertGET200(url)
+
+        with self.assertNoException():
+            role_f2 = response3.context['form'].fields['role']
+            choices2 = role_f2.choices
+
+        self.assertInChoices(value=role1.id, label=role1.name, choices=choices2)
+        self.assertInChoices(value=role2.id, label=role2.name, choices=choices2)
+        self.assertIsNone(role_f2.empty_label)
+
+    def test_clone02(self):
+        "For role."
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        role1 = self.role
+
+        self._build_simple_menu()
+
+        url = reverse('creme_config__clone_menu')
+        self.assertNoFormError(self.client.post(url, data={'role': role1.id}))
+        self.assertEqual(10, MenuConfigItem.objects.count())
+
+        new_items = MenuConfigItem.objects.filter(role=role1, superuser=False)
+        self.assertEqual(5, len(new_items))
+
+        self._assert_item_in(entry_id=CremeEntry.id,      items=new_items, order=1, parent=None)
+        self._assert_item_in(entry_id=Separator0Entry.id, items=new_items, order=2, parent=None)
+
+        new_container = self._assert_item_in(
+            entry_id=ContainerEntry.id, items=new_items,
+            order=3, parent=None, entry_data={'label': 'Directory'},
+        )
+        self._assert_item_in(
+            entry_id=fake_menu.FakeContactsEntry.id, items=new_items,
+            order=1, parent_id=new_container.id,
+        )
+        self._assert_item_in(
+            entry_id=fake_menu.FakeOrganisationsEntry.id, items=new_items,
+            order=2, parent_id=new_container.id,
+        )
+
+        # ---
+        role2 = UserRole.objects.create(name='Salesman')
+        response2 = self.assertGET200(url)
+
+        with self.assertNoException():
+            role_f = response2.context['form'].fields['role']
+            choices = role_f.choices
+
+        self.assertInChoices(value=role2.id, label=role2.name, choices=choices)
+        self.assertNotInChoices(value=role1.id, choices=choices)
+        self.assertTrue(role_f.empty_label)
+
+        self.assertNoFormError(self.client.post(url, data={'role': role2.id}))
+        self.assertEqual(15, MenuConfigItem.objects.count())
+        self.assertEqual(
+            5, MenuConfigItem.objects.filter(role=role2, superuser=False).count(),
+        )
+
+    def test_delete_menu(self):
+        self.login(is_superuser=False, admin_4_apps=['creme_core'])
+        role1 = self.role
+        role2 = UserRole.objects.create(name='Salesman')
+
+        self._build_simple_menu()
+        self._build_simple_menu(role=role1)
+        self._build_simple_menu(role=role2)
+        self._build_simple_menu(superuser=True)
+
+        url = reverse('creme_config__delete_menu')
+        self.assertGET405(url)
+
+        # ---
+        self.assertPOST200(url, data={'role': 'superuser'})
+        self.assertFalse(MenuConfigItem.objects.filter(superuser=True))
+        self.assertEqual(15, MenuConfigItem.objects.count())
+
+        # ---
+        self.assertPOST200(url, data={'role': role1.id})
+        self.assertFalse(MenuConfigItem.objects.filter(role=role1))
+        self.assertEqual(10, MenuConfigItem.objects.count())
+
+        # ---
+        self.assertPOST404(url, data={'role': 'not_an_int'})
+        self.assertPOST404(url, data={})

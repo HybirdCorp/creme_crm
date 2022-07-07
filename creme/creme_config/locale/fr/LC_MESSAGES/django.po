@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-29 21:43+0200\n"
+"POT-Creation-Date: 2022-07-13 17:12+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -82,6 +82,17 @@ msgstr "Blocs personnalisés"
 
 msgid "Menu configuration"
 msgstr "Configuration du menu"
+
+#| msgid "Default form"
+msgid "Default menu"
+msgstr "Menu par défaut"
+
+msgid "Menu for superusers"
+msgstr "Menu pour super-utilisateurs"
+
+#, python-brace-format
+msgid "Menu for role «{role}»"
+msgstr "Menu pour le rôle «{role}»"
 
 msgid "Roles"
 msgstr "Rôles"
@@ -1343,6 +1354,17 @@ msgstr "{count} types de fiche"
 msgid "No type of instance block created for the moment"
 msgstr "Aucun bloc d'instance créé pour le moment"
 
+#, python-brace-format
+msgid "{count} Configured menu"
+msgstr "{count} Menu configuré"
+
+#, python-brace-format
+msgid "{count} Configured menus"
+msgstr "{count} Menus configurés"
+
+msgid "New menu for a role"
+msgstr "Nouveau menu pour un rôle"
+
 msgid "Drag and drop the containers (columns) to order them."
 msgstr "Glissez-déposez les conteneurs (colonnes) pour les réordonner."
 
@@ -1357,6 +1379,9 @@ msgstr "Ajouter un conteneur"
 
 msgid "Add a special root entry"
 msgstr "Ajouter un entrée racine spéciale"
+
+msgid "Delete this menu"
+msgstr "Supprimer ce menu"
 
 #, python-brace-format
 msgid "{count} Type of property"
@@ -2304,6 +2329,12 @@ msgstr "Ajouter cette entrée"
 #, python-brace-format
 msgid "Edit the container «{object}»"
 msgstr "Modifier le conteneur «{object}»"
+
+msgid "Clone the menu for a role"
+msgstr "Cloner le menu pour un rôle"
+
+msgid "Create the menu"
+msgstr "Créer le menu"
 
 #, python-brace-format
 msgctxt "creme_config-relationship"

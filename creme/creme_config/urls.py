@@ -515,12 +515,14 @@ menu_patterns = [
         name='creme_config__menu',
     ),
     re_path(
-        r'^add/container[/]?$',
+        # r'^add/container[/]?$',
+        r'^add/container/(?P<role>\w+)[/]?$',
         menu.ContainerAdding.as_view(),
         name='creme_config__add_menu_container',
     ),
     re_path(
-        r'^add/special_level0[/]?$',
+        # r'^add/special_level0[/]?$',
+        r'^add/special_level0/(?P<role>\w+)[/]?$',
         menu.SpecialLevel0Adding.as_view(),
         name='creme_config__add_menu_special_level0',
     ),
@@ -540,9 +542,20 @@ menu_patterns = [
         name='creme_config__delete_menu_level0',
     ),
     re_path(
-        r'^reorder/level0/(?P<item_id>\d+)[/]?$',
+        # r'^reorder/level0/(?P<item_id>\d+)[/]?$',
+        r'^reorder/level0/(?P<role>\w+)/(?P<item_id>\d+)[/]?$',
         menu.Level0Reordering.as_view(),
         name='creme_config__reorder_menu_level0',
+    ),
+    re_path(
+        r'^clone[/]?$',
+        menu.MenuCloning.as_view(),
+        name='creme_config__clone_menu',
+    ),
+    re_path(
+        r'^delete[/]?$',
+        menu.MenuDeletion.as_view(),
+        name='creme_config__delete_menu',
     ),
 ]
 

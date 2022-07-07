@@ -498,24 +498,55 @@ class UserRolesImporter(Importer):
 
 @IMPORTERS.register(data_id=constants.ID_MENU)
 class MenuConfigImporter(Importer):
-    def load_mci(self, mci_info: dict) -> dict:
+    dependencies = [constants.ID_ROLES]
+
+    # def load_mci(self, mci_info: dict) -> dict:
+    #     def info_as_kwargs(info):
+    #         return {
+    #             'entry_id': info['id'],
+    #             'order': int(info['order']),
+    #             'entry_data': info.get('data') or {},
+    #         }
+    #
+    #     data = info_as_kwargs(mci_info)
+    #     data['children'] = [
+    #         info_as_kwargs(child_info)
+    #         for child_info in mci_info.get('children', ())
+    #     ]
+    #
+    #     return data
+
+    def _validate_section(self, deserialized_section, validated_data):
+        # self._data = [*map(self.load_mci, deserialized_section)]
+
         def info_as_kwargs(info):
-            return {
+            data = {
                 'entry_id': info['id'],
                 'order': int(info['order']),
                 'entry_data': info.get('data') or {},
             }
 
-        data = info_as_kwargs(mci_info)
-        data['children'] = [
-            info_as_kwargs(child_info)
-            for child_info in mci_info.get('children', ())
-        ]
+            role_name = info.get('role')
+            if role_name:
+                if role_name in validated_data[UserRole]:
+                    data['role_name'] = role_name
+                else:
+                    data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+            elif info.get('superuser'):
+                data['superuser'] = True
 
-        return data
+            return data
 
-    def _validate_section(self, deserialized_section, validated_data):
-        self._data = [*map(self.load_mci, deserialized_section)]
+        def load_mci(mci_info):
+            data = info_as_kwargs(mci_info)
+            data['children'] = [
+                info_as_kwargs(child_info)
+                for child_info in mci_info.get('children', ())
+            ]
+
+            return data
+
+        self._data = [*map(load_mci, deserialized_section)]
 
     def save(self):
         MenuConfigItem.objects.all().delete()  # TODO: recycle instances
@@ -524,10 +555,22 @@ class MenuConfigImporter(Importer):
 
         for data in self._data:
             children = data.pop('children')
+
+            role_name = data.pop('role_name', None)
+            if role_name:
+                data['role'] = UserRole.objects.get(name=role_name)  # TODO: cache
+
             parent = create_item(**data)
 
             for child_data in children:
-                create_item(parent=parent, **child_data)
+                create_item(
+                    parent=parent,
+                    **{
+                        **child_data,
+                        'superuser': parent.superuser,
+                        'role': parent.role,
+                    }
+                )
 
 
 @IMPORTERS.register(data_id=constants.ID_BUTTONS)

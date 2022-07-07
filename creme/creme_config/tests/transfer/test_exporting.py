@@ -37,7 +37,11 @@ from creme.creme_core.forms import (
 from creme.creme_core.gui.bricks import InstanceBrick, brick_registry
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
-from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
+from creme.creme_core.gui.menu import (
+    ContainerEntry,
+    Separator0Entry,
+    Separator1Entry,
+)
 from creme.creme_core.menu import CremeEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -921,6 +925,7 @@ class ExportingTestCase(CremeTestCase):
 
     def test_menu(self):
         self.login(is_staff=True)
+        role = self.role
 
         creme_item = MenuConfigItem.objects.get(entry_id=CremeEntry.id)
 
@@ -938,13 +943,34 @@ class ExportingTestCase(CremeTestCase):
             entry_data={'label': sep_label},
         )
 
+        def _build_simple_menu(role=None, superuser=False):
+            create_mitem = partial(
+                MenuConfigItem.objects.create, role=role, superuser=superuser,
+            )
+            create_mitem(entry_id=CremeEntry.id, order=1)
+            create_mitem(entry_id=Separator0Entry.id, order=2)
+
+            container = create_mitem(
+                entry_id=ContainerEntry.id, entry_data={'label': 'Directory'}, order=3,
+            )
+            create_mitem(
+                entry_id=FakeContactsEntry.id, order=1, parent=container,
+            )
+
+        _build_simple_menu(superuser=True)
+        _build_simple_menu(role=role)
+
         response = self.assertGET200(self.URL)
         content = response.json()
 
         loaded_items = content.get('menu')
         self.assertListEqual(
             [{'id': CremeEntry.id, 'order': creme_item.order}],
-            [i for i in loaded_items if CremeEntry.id == i.get('id')],
+            [
+                i
+                for i in loaded_items
+                if CremeEntry.id == i.get('id') and 'role' not in i and 'superuser' not in i
+            ],
         )
         self.assertFalse([i for i in loaded_items if FakeContactsEntry.id == i.get('id')])
         self.assertListEqual(
@@ -966,6 +992,34 @@ class ExportingTestCase(CremeTestCase):
                 },
             ],
             [i for i in loaded_items if 8000 == i.get('order')],
+        )
+        self.assertListEqual(
+            [
+                {'id': 'creme_core-creme',      'order': 1, 'superuser': True},
+                {'id': 'creme_core-separator0', 'order': 2, 'superuser': True},
+                {
+                    'id': 'creme_core-container', 'order': 3, 'superuser': True,
+                    'data': {'label': 'Directory'},
+                    'children': [
+                        {'id': 'creme_core-list_contact', 'order': 1},  # 'superuser': True
+                    ],
+                },
+            ],
+            [i for i in loaded_items if 'superuser' in i],
+        )
+        self.assertListEqual(
+            [
+                {'id': 'creme_core-creme',      'order': 1, 'role': role.name},
+                {'id': 'creme_core-separator0', 'order': 2, 'role': role.name},
+                {
+                    'id': 'creme_core-container', 'order': 3, 'role': role.name,
+                    'data': {'label': 'Directory'},
+                    'children': [
+                        {'id': 'creme_core-list_contact', 'order': 1},  # 'role': role.name
+                    ],
+                },
+            ],
+            [i for i in loaded_items if 'role' in i],
         )
 
     def test_buttons(self):

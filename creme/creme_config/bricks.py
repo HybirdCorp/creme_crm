@@ -23,7 +23,7 @@ from django.apps import apps
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -714,8 +714,8 @@ class BrickHomeLocationsBrick(_ConfigAdminBrick):
 
         paginator = btc['page'].paginator
         btc['show_add_button'] = (
-            (UserRole.objects.count() > paginator.count)
-            or (superuser_count == 0)
+            not superuser_count
+            or UserRole.objects.count() > paginator.count
         )
 
         # NB: the UserRole queryset count does not use the default & superuser configuration
@@ -828,7 +828,8 @@ class CustomBricksConfigBrick(PaginatedBrick):
         return self._render(btc)
 
 
-class MenuBrick(Brick):
+# class MenuBrick(Brick):
+class MenuBrick(_ConfigAdminBrick):
     id_ = Brick.generate_id('creme_config', 'menu')
     verbose_name = _('Menu configuration')
     dependencies = (MenuConfigItem,)
@@ -838,11 +839,78 @@ class MenuBrick(Brick):
     menu_registry = menu_registry
 
     def detailview_display(self, context):
-        return self._render(self.get_template_context(
+        # return self._render(self.get_template_context(
+        #     context,
+        #     entries=self.menu_registry.get_entries(MenuConfigItem.objects.all()),
+        #     container_id=ContainerEntry.id,
+        # ))
+        btc = self.get_template_context(
             context,
-            entries=self.menu_registry.get_entries(MenuConfigItem.objects.all()),
+            UserRole.objects.exclude(menuconfigitem=None).order_by('name'),
             container_id=ContainerEntry.id,
-        ))
+        )
+
+        page = btc['page']
+
+        # NB: we always retrieve the superusers' items to get the correct count
+        #     of configured menus.
+        items_q = Q(
+            superuser=False,
+            # NB: <role__in=page.object_list> does not work with some version of MySQL
+            role__in=[*page.object_list],
+        ) | Q(superuser=True, role=None)
+        if page.number < 2:
+            items_q |= Q(superuser=False, role=None)
+
+        roles_items = defaultdict(list)
+        superuser_items = []
+        default_items = []
+
+        for item in MenuConfigItem.objects.filter(items_q):
+            if item.role_id:
+                roles_items[item.role_id].append(item)
+            elif item.superuser:
+                superuser_items.append(item)
+            else:
+                default_items.append(item)
+
+        get_entries = self.menu_registry.get_entries
+        btc['entries_per_role'] = entries = []
+
+        if page.number < 2:
+            entries.append({
+                'label':   gettext('Default menu'),
+                'entries': get_entries(default_items),
+                'role_arg': 'default',
+                'deletable': False,
+            })
+            if superuser_items:
+                entries.append({
+                    'label':   gettext('Menu for superusers'),
+                    'entries': get_entries(superuser_items),
+                    'role_arg': 'superuser',
+                    'deletable': True,
+                })
+
+        entries.extend(
+            {
+                'label':   gettext('Menu for role «{role}»').format(role=role),
+                'entries': get_entries(roles_items[role.id]),
+                'role_arg': role.id,
+                'deletable': True,
+            } for role in page.object_list
+        )
+
+        paginator = page.paginator
+        btc['show_add_button'] = (
+            not superuser_items
+            or UserRole.objects.count() > paginator.count
+        )
+
+        # NB: the UserRole queryset count does not use the default & superuser configuration
+        paginator.count += 2 if superuser_items else 1
+
+        return self._render(btc)
 
 
 class ButtonMenuBrick(Brick):

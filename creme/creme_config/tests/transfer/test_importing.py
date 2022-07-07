@@ -42,7 +42,7 @@ from creme.creme_core.function_fields import PropertiesField
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry, Separator1Entry
-from creme.creme_core.menu import CremeEntry
+from creme.creme_core.menu import CremeEntry, RecentEntitiesEntry
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -72,7 +72,10 @@ from creme.creme_core.tests import fake_custom_forms
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import DEFAULT_HFILTER_FAKE_CONTACT
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
-from creme.creme_core.tests.fake_menu import FakeContactsEntry
+from creme.creme_core.tests.fake_menu import (
+    FakeContactsEntry,
+    FakeOrganisationsEntry,
+)
 
 
 class ImportingTestCase(CremeTestCase):
@@ -566,14 +569,22 @@ class ImportingTestCase(CremeTestCase):
 
     def test_menu(self):
         self.login(is_staff=True)
+        role1 = self.role
 
-        container_label = 'My entries'
+        role_name2 = 'Super-hero'
+
+        container_label1 = 'My entries'
+        container_label2 = 'My super entries'
+        container_label3 = 'My role entries #1'
+        container_label4 = 'My role entries #2'
+
         sep_label = 'Misc'
         menu_data = [
+            # Default
             {
                 'order': 1,
                 'id': ContainerEntry.id,
-                'data': {'label': container_label},
+                'data': {'label': container_label1},
                 'children': [
                     {
                         'order': 1,
@@ -589,39 +600,159 @@ class ImportingTestCase(CremeTestCase):
                 'order': 3,
                 'id': CremeEntry.id,
             },
+
+            # Superuser
+            {
+                'order': 1,
+                'id': CremeEntry.id,
+                'superuser': True,
+            }, {
+                'order': 2,
+                'id': ContainerEntry.id,
+                'superuser': True,
+                'data': {'label': container_label2},
+                'children': [
+                    {'order': 1, 'id': FakeContactsEntry.id},
+                ],
+            },
+
+            # Existing Role
+            {
+                'order': 1,
+                'id': RecentEntitiesEntry.id,
+                'role': role1.name,
+            }, {
+                'order': 2,
+                'id': ContainerEntry.id,
+                'role': role1.name,
+                'data': {'label': container_label3},
+                'children': [
+                    {'order': 1, 'id': FakeContactsEntry.id},
+                ],
+            },
+
+            # New Role
+            {
+                'order': 2,
+                'id': RecentEntitiesEntry.id,
+                'role': role_name2,
+            }, {
+                'order': 3,
+                'id': ContainerEntry.id,
+                'role': role_name2,
+                'data': {'label': container_label4},
+                'children': [
+                    {'order': 1, 'id': FakeOrganisationsEntry.id},
+                ],
+            },
         ]
 
-        json_file = StringIO(json_dump({'version': self.VERSION, 'menu': menu_data}))
+        json_file = StringIO(json_dump({
+            'version': self.VERSION,
+            'menu': menu_data,
+            'roles': [{
+                'name': role_name2,
+                'allowed_apps': ['persons'],
+                'creatable_ctypes': ['creme_core.fakecontact'],
+
+                'credentials': [
+                    {'value': EntityCredentials.VIEW, 'type': SetCredentials.ESET_ALL},
+                ],
+            }],
+        }))
         json_file.name = 'config-26-04-2021.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertNoFormError(response)
 
-        items = MenuConfigItem.objects.filter(parent=None)
-        self.assertEqual(2, len(items))
+        # ---
+        default_items = MenuConfigItem.objects.filter(parent=None, superuser=False, role=None)
+        self.assertEqual(2, len(default_items))
 
-        item1 = items[0]
-        self.assertEqual(ContainerEntry.id, item1.entry_id)
-        self.assertEqual(1,                 item1.order)
-        self.assertDictEqual({'label': container_label}, item1.entry_data)
+        default_item1 = default_items[0]
+        self.assertEqual(ContainerEntry.id, default_item1.entry_id)
+        self.assertEqual(1,                 default_item1.order)
+        self.assertDictEqual({'label': container_label1}, default_item1.entry_data)
 
-        children = item1.children.all()
-        self.assertEqual(2, len(children))
+        default_children = default_item1.children.all()
+        self.assertEqual(2, len(default_children))
 
-        child1 = children[0]
-        self.assertEqual(FakeContactsEntry.id, child1.entry_id)
-        self.assertEqual(1,                    child1.order)
-        self.assertDictEqual({}, child1.entry_data)
+        default_child1 = default_children[0]
+        self.assertEqual(FakeContactsEntry.id, default_child1.entry_id)
+        self.assertEqual(1, default_child1.order)
+        self.assertFalse(default_child1.superuser)
+        self.assertIsNone(default_child1.role)
+        self.assertDictEqual({}, default_child1.entry_data)
 
-        child2 = children[1]
-        self.assertEqual(Separator1Entry.id, child2.entry_id)
-        self.assertEqual(20,                 child2.order)
-        self.assertDictEqual({'label': sep_label}, child2.entry_data)
+        default_child2 = default_children[1]
+        self.assertEqual(Separator1Entry.id, default_child2.entry_id)
+        self.assertEqual(20,                 default_child2.order)
+        self.assertDictEqual({'label': sep_label}, default_child2.entry_data)
 
-        item2 = items[1]
-        self.assertEqual(CremeEntry.id, item2.entry_id)
-        self.assertEqual(3,             item2.order)
-        self.assertDictEqual({}, item2.entry_data)
+        default_item2 = default_items[1]
+        self.assertEqual(CremeEntry.id, default_item2.entry_id)
+        self.assertEqual(3,             default_item2.order)
+        self.assertDictEqual({}, default_item2.entry_data)
+
+        # ---
+        super_items = MenuConfigItem.objects.filter(parent=None, superuser=True)
+        self.assertEqual(2, len(super_items))
+
+        super_item1 = super_items[0]
+        self.assertEqual(CremeEntry.id, super_item1.entry_id)
+        self.assertEqual(1,             super_item1.order)
+        self.assertDictEqual({}, super_item1.entry_data)
+
+        super_item2 = super_items[1]
+        self.assertEqual(ContainerEntry.id, super_item2.entry_id)
+        self.assertEqual(2,                 super_item2.order)
+        self.assertDictEqual({'label': container_label2}, super_item2.entry_data)
+
+        super_children = super_item2.children.all()
+        self.assertEqual(1, len(super_children))
+
+        super_child1 = super_children[0]
+        self.assertEqual(FakeContactsEntry.id, super_child1.entry_id)
+        self.assertEqual(1,                    super_child1.order)
+        self.assertTrue(super_child1.superuser)
+        self.assertIsNone(super_child1.role)
+        self.assertDictEqual({}, super_child1.entry_data)
+
+        # ---
+        role1_items = MenuConfigItem.objects.filter(parent=None, role=role1)
+        self.assertEqual(2, len(role1_items))
+
+        self.assertEqual(RecentEntitiesEntry.id, role1_items[0].entry_id)
+
+        role1_item2 = role1_items[1]
+        self.assertEqual(ContainerEntry.id, role1_item2.entry_id)
+
+        role1_children = role1_item2.children.all()
+        self.assertEqual(1, len(role1_children))
+
+        role1_child1 = role1_children[0]
+        self.assertEqual(FakeContactsEntry.id, role1_child1.entry_id)
+        self.assertFalse(role1_child1.superuser)
+        self.assertEqual(role1, role1_child1.role)
+
+        # ---
+        role2 = UserRole.objects.get(name=role_name2)
+
+        role2_items = MenuConfigItem.objects.filter(parent=None, role=role2)
+        self.assertEqual(2, len(role2_items))
+
+        self.assertEqual(RecentEntitiesEntry.id, role2_items[0].entry_id)
+
+        role2_item2 = role2_items[1]
+        self.assertEqual(ContainerEntry.id, role2_item2.entry_id)
+
+        role2_children = role2_item2.children.all()
+        self.assertEqual(1, len(role2_children))
+
+        role2_child1 = role2_children[0]
+        self.assertEqual(FakeOrganisationsEntry.id, role2_child1.entry_id)
+        self.assertFalse(role2_child1.superuser)
+        self.assertEqual(role2, role2_child1.role)
 
     def test_buttons(self):
         self.login(is_staff=True)

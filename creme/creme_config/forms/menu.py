@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,15 +17,18 @@
 ################################################################################
 
 import logging
+from functools import partial
 
 from django import forms
 from django.db.models.aggregates import Max
+from django.db.transaction import atomic
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_config.forms.fields import MenuEntriesField
-from creme.creme_core.forms import CremeModelForm
+from creme.creme_core.forms import CremeForm, CremeModelForm
 from creme.creme_core.gui.menu import ContainerEntry, menu_registry
-from creme.creme_core.models import MenuConfigItem
+from creme.creme_core.models import MenuConfigItem, UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +55,13 @@ class ContainerForm(CremeModelForm):
 
         registry = self.menu_registry
         entries_f.menu_registry = registry
-        entries_f.excluded_entry_ids = MenuConfigItem.objects.exclude(
+        # entries_f.excluded_entry_ids = MenuConfigItem.objects.exclude(
+        #     id__in=[child.id for child in children],
+        # ).values_list('entry_id', flat=True)
+        entries_f.excluded_entry_ids = MenuConfigItem.objects.filter(
+            superuser=instance.superuser,
+            role_id=instance.role_id,
+        ).exclude(
             id__in=[child.id for child in children],
         ).values_list('entry_id', flat=True)
 
@@ -116,6 +125,8 @@ class ContainerForm(CremeModelForm):
         # TODO: bulk_create/update
         for order, entry in enumerate(entries):
             item = next(store_it)
+            item.role = instance.role
+            item.superuser = instance.superuser
             item.entry_id = entry.id
             item.order = order
             item.entry_data = entry.data
@@ -123,6 +134,14 @@ class ContainerForm(CremeModelForm):
             item.save()
 
         return instance
+
+
+class ContainerCreationForm(ContainerForm):
+    def __init__(self, role=None, superuser=False, *args, **kwargs):
+        super(ContainerCreationForm, self).__init__(*args, **kwargs)
+        instance = self.instance
+        instance.role = role
+        instance.superuser = superuser
 
 
 # TODO: factorise
@@ -134,11 +153,20 @@ class SpecialContainerAddingForm(CremeModelForm):
 
     excluded_entry_ids = {ContainerEntry.id}
 
-    def __init__(self, *args, **kwargs):
+    # def __init__(self, *args, **kwargs):
+    def __init__(self, role=None, superuser=False, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        instance = self.instance
+        instance.role = role
+        instance.superuser = superuser
+
         excluded_entry_ids = self.excluded_entry_ids
         used_entry_ids = {
-            *MenuConfigItem.objects.values_list('entry_id', flat=True),
+            # *MenuConfigItem.objects.values_list('entry_id', flat=True),
+            *MenuConfigItem.objects
+                           .filter(superuser=superuser, role=role)
+                           .values_list('entry_id', flat=True),
         }
         self.fields['entry_id'].choices = [
             (entry_class.id, entry_class.label)
@@ -167,3 +195,53 @@ class SpecialContainerAddingForm(CremeModelForm):
         instance.entry_id = self.cleaned_data['entry_id']
 
         return super().save(*args, **kwargs)
+
+
+class MenuCloningForm(CremeForm):
+    role = forms.ModelChoiceField(
+        label=_('Role'),
+        queryset=UserRole.objects.none(),
+        empty_label=None, required=False,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        role_f = self.fields['role']
+        used_role_ids = {
+            *MenuConfigItem.objects
+                           .exclude(role__isnull=True, superuser=False)
+                           .values_list('role', flat=True),
+        }
+
+        # TODO: factorise (see bricks) ?
+        try:
+            used_role_ids.remove(None)
+        except KeyError:
+            # NB: browser can ignore <em> tag in <option>...
+            role_f.empty_label = '*{}*'.format(gettext('Superuser'))
+
+        role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
+
+    @atomic
+    def save(self, *args, **kwargs):
+        role = self.cleaned_data['role']
+        create_item = partial(
+            MenuConfigItem.objects.create, role=role, superuser=role is None,
+        )
+        # We must translate the parent<->children relation in cloned menu
+        ids_translation = {}
+
+        # We order by ID to get parents first (so the cloned parents exists
+        # when we clone the children)
+        for item in MenuConfigItem.objects.filter(
+            role=None, superuser=False,
+        ).order_by('id'):
+            cloned = create_item(
+                entry_id=item.entry_id,
+                entry_data=item.entry_data,
+
+                parent=ids_translation.get(item.parent_id),
+                order=item.order,
+            )
+            ids_translation[item.id] = cloned

@@ -74,7 +74,7 @@ class ReorderInstances(View):
         return None
 
     def get_queryset(self) -> QuerySet:
-        """Returns all the instances which will been re-ordered.
+        """Returns all the instances which will be re-ordered.
 
         Notice: no need to order this queryset (it's done automatically).
         """
