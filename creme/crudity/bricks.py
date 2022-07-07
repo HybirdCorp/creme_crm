@@ -34,7 +34,9 @@ class CrudityQuerysetBrick(QuerysetBrick):
     def detailview_display(self, context):
         if not context['user'].has_perm('crudity'):
             raise PermissionDenied(
-                gettext(f'Error: you are not allowed to view this block: {self.id_}')
+                gettext(
+                    'Error: you are not allowed to view this block: {}'
+                ).format(self.id_)
             )
 
 
