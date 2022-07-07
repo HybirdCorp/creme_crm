@@ -5,19 +5,22 @@ from django.utils.safestring import mark_safe
 
 from creme.creme_core.gui import button_menu
 from creme.creme_core.gui.button_menu import Button
+from creme.creme_core.gui.menu import ContainerEntry, CustomURLEntry
 from creme.creme_core.models import (
     ButtonMenuItem,
     FakeContact,
     FakeOrganisation,
+    MenuConfigItem,
+    UserRole,
 )
 
 from ..base import CremeTestCase
 
 
 class MenuDisplayTestCase(CremeTestCase):
-    def test_menu_display(self):
-        user = self.login()
+    css_class_prefix = 'ui-creme-navigation-item'
 
+    def _render(self, user):
         with self.assertNoException():
             template = Template(
                 r'{% load creme_menu %}'
@@ -29,10 +32,13 @@ class MenuDisplayTestCase(CremeTestCase):
                 'TIME_ZONE': 'Groland/Mufflin',
             }))
 
-        tree = self.get_html_tree(render)
+        return render
+
+    def _assert_vanilla_menu(self, tree):
         # import xml.etree.ElementTree as ET
         # ET.dump(tree)
-        class_prefix = 'ui-creme-navigation-item'
+
+        class_prefix = self.css_class_prefix
         creme_li_node = tree.find(
             f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
         )
@@ -43,6 +49,150 @@ class MenuDisplayTestCase(CremeTestCase):
             f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
         )
         self.assertIsNotNone(home_li_node)
+
+    def _assert_no_vanilla_config(self, tree):
+        class_prefix = self.css_class_prefix
+        self.assertIsNone(tree.find(
+            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
+        ))
+
+    def _assert_custom_url_entry(self, container_node, url):
+        class_prefix = self.css_class_prefix
+        url_li_node = container_node.find(
+            f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-custom_url']"
+        )
+        self.assertIsNotNone(url_li_node)
+
+        url_anchor_node = url_li_node.find('.//a')
+        self.assertIsNotNone(url_anchor_node)
+        self.assertEqual(url, url_anchor_node.attrib.get('href'))
+
+    def _assert_no_container(self, tree, label):
+        class_prefix = self.css_class_prefix
+        for container in tree.findall(
+            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        ):
+            if container.text == label:
+                self.fail(f'A container named "{label}" has been unexpectedly found.')
+
+    def _create_role_config(self, role, container_label, url):
+        create_mitem = MenuConfigItem.objects.create
+        container = create_mitem(
+            role=role,
+            entry_id=ContainerEntry.id,
+            entry_data={'label': container_label},
+            order=1,
+        )
+        create_mitem(
+            role=role,
+            entry_id=CustomURLEntry.id,
+            order=1,
+            parent=container,
+            entry_data={'label': f'Mastodon ({role})', 'url': url},
+        )
+
+    def _create_superuser_config(self, container_label, url):
+        create_mitem = MenuConfigItem.objects.create
+        container = create_mitem(
+            superuser=True,
+            entry_id=ContainerEntry.id,
+            entry_data={'label': container_label},
+            order=1,
+        )
+        create_mitem(
+            superuser=True,
+            entry_id=CustomURLEntry.id,
+            order=1,
+            parent=container,
+            entry_data={'label': 'Micro-blog', 'url': url},
+        )
+
+    def _get_containers(self, tree, length):
+        class_prefix = self.css_class_prefix
+        containers = tree.findall(
+            f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-container']"
+        )
+        self.assertEqual(length, len(containers))
+
+        return containers
+
+    def test_regular_config01(self):
+        "Logged as superuser."
+        user = self.create_user()
+        render = self._render(user)
+        self._assert_vanilla_menu(self.get_html_tree(render))
+
+    def test_regular_config02(self):
+        "Logged as not super-user."
+        create_role = UserRole.objects.create
+        role1 = create_role(name='Developer')
+        role2 = create_role(name='Salesman')
+
+        user = self.create_user(role=role1)
+
+        super_container_label = 'My super directory'
+        self._create_superuser_config(  # Should not be used
+            container_label=super_container_label,
+            url='https://mastodon.mycompagny.org',
+        )
+
+        role2_container_label = f'Directory ({role2})'
+        self._create_role_config(  # Should not be used
+            role=role2,
+            container_label=f'Directory ({role2})',
+            url='https://mastodon2.mycompagny.com',
+        )
+
+        render = self._render(user)
+        tree = self.get_html_tree(render)
+        self._assert_vanilla_menu(tree)
+        self._assert_no_container(tree, label=role2_container_label)
+        self._assert_no_container(tree, label=super_container_label)
+
+    def test_superuser_config(self):
+        user = self.create_user()
+
+        container_label = 'My super directory'
+        url = 'https://mastodon.mycompagny.org'
+        self._create_superuser_config(container_label=container_label, url=url)
+
+        render = self._render(user)
+        tree = self.get_html_tree(render)
+        self._assert_no_vanilla_config(tree)
+
+        containers = self._get_containers(tree, length=1)
+        container_li_node = containers[0]
+        self.assertEqual(container_label, container_li_node.text)
+        self._assert_custom_url_entry(container_node=container_li_node, url=url)
+
+    def test_role_config(self):
+        create_role = UserRole.objects.create
+        role1 = create_role(name='Developer')
+        role2 = create_role(name='Salesman')
+
+        user = self.create_user(role=role1)
+
+        container_label = f'My directory ({role1})'
+        url = 'https://mastodon1.mycompagny.com'
+        self._create_role_config(
+            role=role1,
+            container_label=container_label,
+            url=url,
+        )
+        self._create_role_config(
+            role=role2,
+            container_label=f'Directory ({role2})',
+            url='https://mastodon2.mycompagny.com',
+        )
+
+        render = self._render(user)
+        tree = self.get_html_tree(render)
+        self._assert_no_vanilla_config(tree)
+
+        containers = self._get_containers(tree, length=1)
+        container_li_node = containers[0]
+        self.assertEqual(container_label, container_li_node.text)
+        self._assert_custom_url_entry(container_node=container_li_node, url=url)
 
 
 class _TestButton(Button):

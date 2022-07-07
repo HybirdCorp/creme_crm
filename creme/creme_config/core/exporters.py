@@ -400,10 +400,10 @@ class MenuItemExporter(Exporter):
 
     def get_queryset(self):
         # TODO: prefetch children
-        return super().get_queryset().filter(parent=None)
+        return super().get_queryset().filter(parent=None).select_related('role')
 
     @staticmethod
-    def dump_instance_simple(instance):
+    def dump_instance_simple(instance, dump_role=True):
         data = {
             'id':    instance.entry_id,
             'order': instance.order,
@@ -412,6 +412,13 @@ class MenuItemExporter(Exporter):
         entry_data = instance.entry_data
         if entry_data:
             data['data'] = entry_data
+
+        if dump_role:
+            role = instance.role
+            if role:
+                data['role'] = role.name
+            elif instance.superuser:
+                data['superuser'] = True
 
         return data
 
@@ -423,7 +430,7 @@ class MenuItemExporter(Exporter):
 
         children = [*instance.children.all()]
         if children:
-            data['children'] = [dump_simple(child) for child in children]
+            data['children'] = [dump_simple(child, dump_role=False) for child in children]
 
         return data
 

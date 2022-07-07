@@ -6,12 +6,14 @@ from ..fake_menu import FakeContactsEntry
 
 class MenuConfigItemTestCase(CremeTestCase):
     def test_entry_data01(self):
-        "Empty"
+        "Empty."
         item = MenuConfigItem.objects.create(order=0, entry_id=FakeContactsEntry.id)
 
         item = self.refresh(item)
         self.assertEqual(0, item.order)
         self.assertDictEqual({}, self.refresh(item).entry_data)
+        self.assertIsNone(item.role)
+        self.assertIs(item.superuser, False)
 
     def test_entry_data02(self):
         "Set with attribute."

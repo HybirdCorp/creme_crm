@@ -14,6 +14,7 @@
     # Apps :
         * Creme_config :
             - The menu icon can now be customised.
+            - The menu can be customised per role.
             - The relationship types have been improved :
                 - Non-internal types can now be disabled.
                 - A new kind of constraints has been added : forbidden properties (on subject & object of course).
@@ -223,8 +224,15 @@
               No longer used in media generation but still exist to ease migrations.
         # Apps :
             * Creme_config :
+                - The brick 'MenuBrick' has been reworked (to manage menu per role) ; the template variable "entries" is now a list of dictionaries.
+                  In the related JavaScript component 'creme.creme_config.MenuContainersController', the attribute '_containers' is now an 'Array' of 'Sortable' instances.
                 - The extra data stored in the BrickStates related to 'bricks.CustomFormsBrick' has changed from <ctype_id> to <{'ctype': ctype_id, items: [...]}>.
                   The view 'custom_form.CustomFormShowDetails' & the JavaScript component 'creme.FormGroupsController' have been adapted.
+                - The following URLs/views have been modified to take a UserRole as parameter :
+                    - "creme_config__add_menu_container"
+                    - "creme_config__add_menu_special_level0"
+                    - "creme_config__reorder_menu_level0"
+                - The method 'core.importers.MenuConfigImporter.load_mci()' has been removed.
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
                 - The form 'AlertForm' has been heavily modified (the fields "trigger_date" & trigger_time" have been removed...).

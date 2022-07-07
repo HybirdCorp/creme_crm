@@ -1,3 +1,66 @@
+{% extends 'creme_core/bricks/base/paginated-list.html' %}
+{% load i18n creme_bricks %}
+{% load has_perm_to url from creme_core_tags %}
+
+{% block brick_extra_class %}{{block.super}} creme_config-menu-brick{% endblock %}
+
+{% block brick_script %}
+<script type="text/javascript">
+    $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick) {
+        new creme.creme_config.MenuContainersController().bind(brick);
+    });
+ </script>
+{% endblock %}
+
+{% block brick_header_title %}
+    {% brick_header_title title=_('{count} Configured menu') plural=_('{count} Configured menus') empty=verbose_name icon='config' %}
+{% endblock %}
+
+{% block brick_header_actions %}
+    {% if show_add_button %}{% has_perm_to admin 'creme_core' as admin_perm %}
+        {% brick_header_action id='add' url='creme_config__clone_menu'|url label=_('New menu for a role') enabled=admin_perm %}
+    {% endif %}
+{% endblock %}
+
+{% block brick_content %}
+{% has_perm_to admin 'creme_core' as admin_perm %}{% url 'creme_config__delete_menu_level0' as delete_url %}
+    <p class="help-instructions">{% translate 'Drag and drop the containers (columns) to order them.' %}</p>
+
+  {% for entries_info in entries_per_role %}
+    <div class="menu-config-item">
+        <div class="menu-config-item-title">{{entries_info.label}}</div>
+
+        <div class="menu-config-container">
+          {% for entry in entries_info.entries %}
+            <div class="menu-config-entry0" data-reorderable-menu-container-url="{% url 'creme_config__reorder_menu_level0' entries_info.role_arg entry.config_item_id %}" >
+                <div class="menu-config-entry0-header">
+                    <span class="menu-config-entry0-header-title">{{entry.label}}</span>
+                    {% if entry.id == container_id %}
+                        {% brick_action id='edit' url='creme_config__edit_menu_container'|url:entry.config_item_id label=_('Edit this container') enabled=admin_perm %}
+                    {% endif %}
+                    {% if not entry.is_required %}
+                        {% brick_action id='delete' url=delete_url __id=entry.config_item_id label=_('Delete this container') enabled=admin_perm %}
+                    {% endif %}
+                </div>
+                <div class="menu-config-entry0-content">
+                    <ul>{% for child in entry.children %}<li class="menu-config-entry0-id_{{child.id}}{% if child.type %} menu-config-entry0-type_{{child.type}}{% endif %}">{{child.label}}</li>{% empty %}<li>…</li>{% endfor %}</ul>
+                </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="menu-config-actions">
+            {% url 'creme_config__add_menu_container'      entries_info.role_arg as add_container_url %}{% brick_action id='add' url=add_container_url label=_('Add a container')          display='both' enabled=admin_perm %}
+            {% url 'creme_config__add_menu_special_level0' entries_info.role_arg as add_special_url   %}{% brick_action id='add' url=add_special_url   label=_('Add a special root entry') display='both' enabled=admin_perm %}
+            {% if entries_info.deletable %}
+              {% brick_action id='delete' url='creme_config__delete_menu'|url __role=entries_info.role_arg label=_('Delete this menu') display='both' enabled=admin_perm %}
+            {% endif %}
+        </div>
+    </div>
+  {% endfor %}
+{% endblock %}
+
+{% comment %}
 {% extends 'creme_core/bricks/base/base.html' %}
 {% load i18n creme_bricks %}
 {% load has_perm_to url from creme_core_tags %}
@@ -44,3 +107,4 @@
         {% brick_action id='add' url='creme_config__add_menu_special_level0'|url label=_('Add a special root entry') display='both' enabled=admin_perm %}
     </div>
 {% endblock %}
+{% endcomment %}

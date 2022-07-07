@@ -391,6 +391,11 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 /* Menu brick */
 
+.creme_config-menu-brick .brick-content {
+    padding-left: 10px;
+    padding-bottom: 5px;
+}
+
 /* TODO: factorise ?? */
 .creme_config-menu-brick .brick-content .help-instructions {
     margin-bottom: 15px;
@@ -398,8 +403,21 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: rgb(119, 119, 119);
 }
 
+.creme_config-menu-brick .brick-content .menu-config-item + .menu-config-item {
+    border-top: 1px solid #bdd3dc;
+    margin-top: 15px;
+}
+
+.creme_config-menu-brick .menu-config-item-title {
+    padding-top: 12px;
+
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
 .creme_config-menu-brick .menu-config-container {
     display: flex;
+    margin-left: 10px;
 }
 
 .creme_config-menu-brick .menu-config-entry0 {
@@ -407,11 +425,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-right: 2px;
 }
 
-.menu-config-entry0-header {
+.creme_config-menu-brick .menu-config-entry0-header {
     display: flex;
     align-items: center;
 
     height: 35px;
+
+    cursor: grab;
 }
 
 .creme_config-menu-brick .menu-config-entry0-header-title {
@@ -424,6 +444,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     padding: 3px;
 
     background: #2a414b;
+
+    cursor: grab;
 
     color: #ebebeb;
     font-size: 13px;

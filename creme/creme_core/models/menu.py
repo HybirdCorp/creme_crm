@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,11 +18,22 @@
 
 from django.db import models
 
+from .auth import UserRole
 from .base import CremeModel
 
 
 class MenuConfigItem(CremeModel):
     """Stores information about a <gui.menu.MenuEntry>."""
+    role = models.ForeignKey(
+        UserRole,
+        # verbose_name='Related role',
+        null=True, default=None, on_delete=models.CASCADE, editable=False,
+    )
+    # TODO: a UserRole for superusers instead ??
+    superuser = models.BooleanField(
+        'related to superusers', default=False, editable=False,
+    )
+
     # NB: id of gui.menu.MenuEntry
     entry_id = models.CharField(max_length=100, editable=False)
 

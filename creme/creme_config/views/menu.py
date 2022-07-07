@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2021  Hybird
+#    Copyright (C) 2021-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.db.transaction import atomic
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -31,6 +31,7 @@ from creme.creme_core.views.generic.order import ReorderInstances
 
 from ..forms import menu as menu_forms
 from . import base
+from .bricks import RoleRelatedMixin
 
 
 class Portal(generic.BricksView):
@@ -38,14 +39,29 @@ class Portal(generic.BricksView):
 
 
 # TODO: 409 if ContainerEntry is not registered ?
-class ContainerAdding(base.ConfigModelCreation):
-    form_class = menu_forms.ContainerForm
+# class ContainerAdding(base.ConfigModelCreation):
+class ContainerAdding(RoleRelatedMixin, base.ConfigModelCreation):
+    # form_class = menu_forms.ContainerForm
+    form_class = menu_forms.ContainerCreationForm
     title = _('Add a container of entries')
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['role'], kwargs['superuser'] = self.get_role_info()
 
-class SpecialLevel0Adding(base.ConfigModelCreation):
+        return kwargs
+
+
+# class SpecialLevel0Adding(base.ConfigModelCreation):
+class SpecialLevel0Adding(RoleRelatedMixin, base.ConfigModelCreation):
     form_class = menu_forms.SpecialContainerAddingForm
     title = _('Add a special root entry')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['role'], kwargs['superuser'] = self.get_role_info()
+
+        return kwargs
 
 
 class SpecialLevel1Adding(base.ConfigCreation):
@@ -106,7 +122,7 @@ class SpecialLevel1Adding(base.ConfigCreation):
 class ContainerEdition(base.ConfigModelEdition):
     model = MenuConfigItem
     pk_url_kwarg = 'item_id'
-    form_class = menu_forms.ContainerForm
+    form_class = menu_forms.ContainerForm  # TODO ContainerEditionForm ?
     title = _('Edit the container «{object}»')
 
     def get_queryset(self):
@@ -132,7 +148,8 @@ class Level0Deletion(base.ConfigDeletion):
         item.delete()
 
 
-class Level0Reordering(PermissionsMixin, ReorderInstances):
+# class Level0Reordering(PermissionsMixin, ReorderInstances):
+class Level0Reordering(PermissionsMixin, RoleRelatedMixin, ReorderInstances):
     permissions = 'creme_core.can_admin'
     model = MenuConfigItem
     pk_url_kwarg = 'item_id'
@@ -148,4 +165,36 @@ class Level0Reordering(PermissionsMixin, ReorderInstances):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        return self.model._default_manager.filter(parent=None)
+        # return self.model._default_manager.filter(parent=None)
+        role, superuser = self.get_role_info()
+        return self.model._default_manager.filter(parent=None, superuser=superuser, role=role)
+
+
+class MenuCloning(base.ConfigCreation):
+    form_class = menu_forms.MenuCloningForm
+    title = _('Clone the menu for a role')
+    submit_label = _('Create the menu')
+
+
+class MenuDeletion(base.ConfigDeletion):
+    role_arg = 'role'
+
+    @atomic
+    def perform_deletion(self, request):
+        role_id = None
+        superuser = False
+
+        role_str = get_from_POST_or_404(request.POST, self.role_arg)
+        if role_str == 'superuser':
+            superuser = True
+        else:
+            try:
+                role_id = int(role_str)
+            except ValueError:
+                raise Http404(
+                    f'"{self.role_arg}" argument must be "superuser" or an integer'
+                )
+
+        MenuConfigItem.objects.filter(
+            role=role_id, superuser=superuser,
+        ).delete()

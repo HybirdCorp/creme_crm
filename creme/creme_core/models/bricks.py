@@ -68,7 +68,7 @@ class BrickDetailviewLocationManager(models.Manager):
             zone: int,
             model: type[CremeEntity] | ContentType | None = None,
             role: None | UserRole | str = None) -> BrickDetailviewLocation:
-        """Create an instance of BrickDetailviewLocation, but if only if the
+        """Create an instance of BrickDetailviewLocation, but only if the
         related brick is not already on the configuration.
         @param brick: Brick ID (string) or Brick class.
         @param order: Integer (see 'BrickDetailviewLocation.order').
