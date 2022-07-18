@@ -18,16 +18,18 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, Optional
+from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 
 from ..models import CremeEntity
 
 if TYPE_CHECKING:
+    from typing import Callable, Optional
+
     from ..forms.mass_import import ImportForm
 
-FormFactory = Optional[Callable[[dict, list], 'ImportForm']]
+    FormFactory = Optional[Callable[[dict, list], ImportForm]]
 
 
 class FormRegistry:

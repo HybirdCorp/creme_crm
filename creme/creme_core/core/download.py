@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import defaultdict
 from os.path import basename
-from typing import Any, Callable, DefaultDict, Iterable
+from typing import TYPE_CHECKING
 
 from django.core.exceptions import PermissionDenied
 from django.db.models import Model
@@ -30,11 +30,14 @@ from django.db.models.fields.files import FieldFile, FileField
 from ..models import CremeEntity, FieldsConfig, FileRef
 from ..utils.collections import ClassKeyedMap
 
-logger = logging.getLogger(__name__)
+if TYPE_CHECKING:
+    from typing import Any, Callable, DefaultDict, Iterable
 
-# Any is user ; PermissionDenied can be raised
-PermissionChecker = Callable[[Any, Model], None]
-BasenameBuilder = Callable[[Model, FileField, FieldFile], str]
+    # Any is user ; PermissionDenied can be raised
+    PermissionChecker = Callable[[Any, Model], None]
+    BasenameBuilder = Callable[[Model, FileField, FieldFile], str]
+
+logger = logging.getLogger(__name__)
 
 
 def check_entity_permission(user, instance: Model) -> None:

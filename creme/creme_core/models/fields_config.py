@@ -23,15 +23,7 @@ import logging
 from functools import partial
 from itertools import chain
 # from json import loads as json_load
-from typing import (
-    TYPE_CHECKING,
-    Dict,
-    Iterable,
-    Iterator,
-    List,
-    Sequence,
-    Tuple,
-)
+from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
@@ -48,12 +40,13 @@ from .base import CremeModel
 from .fields import CTypeOneToOneField
 
 if TYPE_CHECKING:
+    from typing import Dict, Iterable, Iterator, List, Sequence, Tuple
+
     from django.db.models import Field, Model
 
+    FieldsDescriptions = List[Tuple[str, Dict[str, bool]]]
 
 logger = logging.getLogger(__name__)
-FieldsDescriptions = List[Tuple[str, Dict[str, bool]]]
-
 
 # TODO ?
 # from enum import Enum

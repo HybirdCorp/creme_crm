@@ -19,12 +19,20 @@
 from __future__ import annotations
 
 import logging
-from typing import Callable, Tuple
+from typing import TYPE_CHECKING
 
 from django.db.models import Model
 from django.utils.html import format_html
 
 from ..utils.media import get_creme_media_url
+
+if TYPE_CHECKING:
+    from typing import Callable, Tuple
+
+    # A callable which
+    #  - takes 1 argument 'instance'.
+    #  - returns a tuple (icon_base_name, label).
+    IconInfoFunc = Callable[[Model], Tuple[str, str]]
 
 logger = logging.getLogger(__name__)
 
@@ -270,16 +278,10 @@ def get_icon_by_name(name: str,
     return Icon(url=_get_image_url(), size=size_px, label=label, css_class=css_class)
 
 
-# A callable which
-#  - takes 1 argument 'instance'.
-#  - returns a tuple (icon_base_name, label).
-_IconInfoFunc = Callable[[Model], Tuple[str, str]]
-
-
 class IconRegistry:
     def __init__(self):
         self._icons: dict[type[Model], str] = {}
-        self._icons_4_objects: dict[type[Model], _IconInfoFunc] = {}
+        self._icons_4_objects: dict[type[Model], IconInfoFunc] = {}
 
     def register(self, model: type[Model], path: str) -> IconRegistry:
         """Example: icon_registry.register(Ticket, 'images/ticket_%(size)s.png')"""
@@ -289,7 +291,7 @@ class IconRegistry:
 
     def register_4_instance(self,
                             model: type[Model],
-                            info_function: _IconInfoFunc,
+                            info_function: IconInfoFunc,
                             ) -> IconRegistry:
         """Set up the registry in order to retrieve an Icon corresponding to an instance of a model.
         Ie: instances of a same type can have different Icons.

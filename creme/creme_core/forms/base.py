@@ -22,16 +22,7 @@ import logging
 from collections import OrderedDict
 from copy import copy
 from functools import partial
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Collection,
-    Iterable,
-    Iterator,
-    Sequence,
-    Union,
-)
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.conf import settings
@@ -58,7 +49,21 @@ from . import widgets
 from .validators import validate_linkable_model
 
 if TYPE_CHECKING:
+    from typing import (
+        Any,
+        Callable,
+        Collection,
+        Iterable,
+        Iterator,
+        Sequence,
+        Union,
+    )
+
     from ..gui.custom_form import CustomFormExtraSubCell
+
+    # TODO: use Literal for '*' case?
+    FieldNamesOrWildcard = Union[Sequence[str], str]
+    FormCallback = Callable[[forms.Form], None]
 
 __all__ = (
     'LayoutType',
@@ -69,13 +74,10 @@ __all__ = (
 
 logger = logging.getLogger(__name__)
 
-# TODO: use Literal for '*' case ?
-FieldNamesOrWildcard = Union[Sequence[str], str]
-
 # NB: we use a '-' to be sure that collision with a regular field is not possible
 _CUSTOM_NAME = 'custom_field-{}'
 
-LayoutType = str
+LayoutType = str  # TODO: Literal?
 LAYOUT_REGULAR: LayoutType = 'regular'
 LAYOUT_DUAL_FIRST: LayoutType = 'dual_first'
 LAYOUT_DUAL_SECOND: LayoutType = 'dual_second'
@@ -408,30 +410,27 @@ class FieldBlockManager:
         return BoundFieldBlocks(form, self.__blocks.items())
 
 
-_FormCallback = Callable[[forms.Form], None]
-
-
 class HookableFormMixin:
     # Beware: use related method to manipulate
-    _creme_post_clean_callbacks: Sequence[_FormCallback] = ()  # ==> add_post_clean_callback()
-    _creme_post_init_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_init_callback()
-    _creme_post_save_callbacks: Sequence[_FormCallback]  = ()  # ==> add_post_save_callback()
+    _creme_post_clean_callbacks: Sequence[FormCallback] = ()  # ==> add_post_clean_callback()
+    _creme_post_init_callbacks: Sequence[FormCallback]  = ()  # ==> add_post_init_callback()
+    _creme_post_save_callbacks: Sequence[FormCallback]  = ()  # ==> add_post_save_callback()
 
     @classmethod
-    def __add_callback(cls, attrname: str, callback: _FormCallback) -> type[HookableFormMixin]:
+    def __add_callback(cls, attrname: str, callback: FormCallback) -> type[HookableFormMixin]:
         setattr(cls, attrname, [*getattr(cls, attrname), callback])
         return cls
 
     @classmethod
-    def add_post_clean_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
+    def add_post_clean_callback(cls, callback: FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_clean_callbacks', callback)
 
     @classmethod
-    def add_post_init_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
+    def add_post_init_callback(cls, callback: FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_init_callbacks', callback)
 
     @classmethod
-    def add_post_save_callback(cls, callback: _FormCallback) -> type[HookableFormMixin]:
+    def add_post_save_callback(cls, callback: FormCallback) -> type[HookableFormMixin]:
         return cls.__add_callback('_creme_post_save_callbacks', callback)
 
     def _creme_post_clean(self) -> None:

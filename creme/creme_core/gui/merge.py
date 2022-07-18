@@ -18,14 +18,16 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Callable, KeysView, Type
+from typing import TYPE_CHECKING
 
 from creme.creme_core.models import CremeEntity
 
 if TYPE_CHECKING:
+    from typing import Callable, KeysView, Type
+
     from creme.creme_core.forms.merge import MergeEntitiesBaseForm
 
-FormFactory = Callable[[], Type['MergeEntitiesBaseForm']]
+    FormFactory = Callable[[], Type[MergeEntitiesBaseForm]]
 
 
 class _MergeFormRegistry:

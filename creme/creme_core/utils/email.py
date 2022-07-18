@@ -38,7 +38,7 @@ EmailID = Union[int, bytes]
 
 
 class MailBox:
-    """Retrieve all the emails of a box (abstract base class."""
+    """Retrieve all the emails of a box (abstract base class)."""
     class Error(Exception):
         pass
 

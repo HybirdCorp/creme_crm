@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 from collections import OrderedDict
 from datetime import date
-from typing import Any, Dict, Iterable, List, Set, Union
+from typing import TYPE_CHECKING
 
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
@@ -81,13 +81,16 @@ from creme.creme_core.utils.meta import FieldInfo
 
 from .. import constants
 
+if TYPE_CHECKING:
+    from typing import Any, Dict, Iterable, List, Set, Union
+
+    ValidatedData = Dict[Model, Set[str]]
+    DeserializedInstance = Dict[str, Any]
+    DeserializedInstances = List[DeserializedInstance]
+    DeserializedData = Dict[str, Union[str, DeserializedInstances]]
+
 logger = logging.getLogger(__name__)
 get_ct = ContentType.objects.get_by_natural_key
-
-ValidatedData = Dict[Model, Set[str]]
-DeserializedInstance = Dict[str, Any]
-DeserializedInstances = List[DeserializedInstance]
-DeserializedData = Dict[str, Union[str, DeserializedInstances]]
 
 
 def load_ct(ct_str: str) -> ContentType:

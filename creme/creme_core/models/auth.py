@@ -23,7 +23,7 @@ import uuid
 from collections import OrderedDict, defaultdict
 from functools import reduce
 from operator import or_ as or_op
-from typing import TYPE_CHECKING, DefaultDict, Iterable, Sequence, Type, Union
+from typing import TYPE_CHECKING
 
 import pytz
 from django.apps import apps
@@ -51,7 +51,11 @@ from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
 
 if TYPE_CHECKING:
+    from typing import DefaultDict, Iterable, Sequence, Type, Union
+
     from ..core.sandbox import SandboxType
+
+    EntityInstanceOrClass = Union[Type[CremeEntity], CremeEntity]
 
 logger = logging.getLogger(__name__)
 
@@ -871,9 +875,6 @@ class CremeUserManager(BaseUserManager):
         )
 
 
-_EntityInstanceOrClass = Union[Type['CremeEntity'], 'CremeEntity']
-
-
 class CremeUser(AbstractBaseUser):
     username_validator = UnicodeUsernameValidator()
 
@@ -1145,14 +1146,14 @@ class CremeUser(AbstractBaseUser):
                 )
             )
 
-    def has_perm_to_create(self, model_or_entity: _EntityInstanceOrClass) -> bool:
+    def has_perm_to_create(self, model_or_entity: EntityInstanceOrClass) -> bool:
         """Helper for has_perm() method.
         Example: user.has_perm('myapp.add_mymodel') => user.has_perm_to_create(MyModel)
         """
         meta = model_or_entity._meta
         return self.has_perm(f'{meta.app_label}.add_{meta.object_name.lower()}')
 
-    def has_perm_to_create_or_die(self, model_or_entity: _EntityInstanceOrClass) -> None:
+    def has_perm_to_create_or_die(self, model_or_entity: EntityInstanceOrClass) -> None:
         if not self.has_perm_to_create(model_or_entity):
             raise PermissionDenied(
                 gettext('You are not allowed to create: {}').format(
@@ -1177,7 +1178,7 @@ class CremeUser(AbstractBaseUser):
             )
 
     # TODO: factorise with has_perm_to_create() ??
-    def has_perm_to_export(self, model_or_entity: _EntityInstanceOrClass) -> bool:
+    def has_perm_to_export(self, model_or_entity: EntityInstanceOrClass) -> bool:
         """Helper for has_perm() method.
         Example: user.has_perm('myapp.export_mymodel') => user.has_perm_to_export(MyModel)
         """
@@ -1195,7 +1196,7 @@ class CremeUser(AbstractBaseUser):
             )
 
     def has_perm_to_link(self,
-                         entity_or_model: _EntityInstanceOrClass,
+                         entity_or_model: EntityInstanceOrClass,
                          owner: CremeUser | None = None,
                          ) -> bool:
         """Can the user link a future entity of a given class ?
@@ -1222,7 +1223,7 @@ class CremeUser(AbstractBaseUser):
 
     # TODO: factorise ??
     def has_perm_to_link_or_die(self,
-                                entity_or_model: _EntityInstanceOrClass,
+                                entity_or_model: EntityInstanceOrClass,
                                 owner: CremeUser | None = None,
                                 ) -> None:
         if not self.has_perm_to_link(entity_or_model, owner):
