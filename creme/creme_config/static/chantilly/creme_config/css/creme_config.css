@@ -435,11 +435,13 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-right: 2px;
 }
 
-.menu-config-entry0-header {
+.creme_config-menu-brick .menu-config-entry0-header {
     display: flex;
     align-items: center;
 
     height: 35px;
+
+    cursor: grab;
 }
 
 .creme_config-menu-brick .menu-config-entry0-header-title {
@@ -452,6 +454,8 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     padding: 3px;
 
     background: #2a414b;
+
+    cursor: grab;
 
     color: #ebebeb;
     font-size: 13px;
