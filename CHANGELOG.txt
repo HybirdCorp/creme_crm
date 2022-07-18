@@ -1,5 +1,12 @@
 == Version 2.3.6 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # The style of the mouse cursor for checkboxes has been fixed.
+
 
 == Version 2.3.5 ==
 
