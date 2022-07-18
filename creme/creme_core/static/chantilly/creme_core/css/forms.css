@@ -263,8 +263,7 @@ button.is-form-submit, input.is-form-submit {
 
 input:disabled,
 input[type="radio"]:disabled,
-/*input[readonly],*/
-input:read-only,
+input[readonly], /* "input:read-only" includes types "checkbox", "radio" */
 textarea:disabled,
 textarea:read-only {
 /* textarea[readonly] { */
