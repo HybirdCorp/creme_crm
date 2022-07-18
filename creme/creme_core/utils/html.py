@@ -16,19 +16,24 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
 import re
 from html.entities import entitydefs as html_entities
-from typing import Callable, Dict, Sequence, Union
+from typing import TYPE_CHECKING
 
 import bleach
 from django.conf import settings
 from django.utils.encoding import force_str
 from django.utils.html import mark_safe
 
-_AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
+if TYPE_CHECKING:
+    from typing import Callable, Dict, Sequence, Union
+
+    AllowedAttributesDict = Dict[str, Union[Sequence[str], Callable[[str, str, str], bool]]]
 
 IMG_SAFE_ATTRIBUTES = {'title', 'alt', 'width', 'height'}
-ALLOWED_ATTRIBUTES: _AllowedAttributesDict = {
+ALLOWED_ATTRIBUTES: AllowedAttributesDict = {
     **bleach.ALLOWED_ATTRIBUTES,
     '*': ['style', 'class'],
     'a': ['href', 'rel'],
@@ -88,7 +93,7 @@ def filter_img_src(tag, attr, value):
 
 
 def sanitize_html(html: str, allow_external_img: bool = False) -> str:
-    attributes: _AllowedAttributesDict = (
+    attributes: AllowedAttributesDict = (
         ALLOWED_ATTRIBUTES
         if allow_external_img else
         {**ALLOWED_ATTRIBUTES, 'img': filter_img_src}

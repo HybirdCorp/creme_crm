@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import warnings
 from os.path import splitext
-from typing import Any, Callable, Iterator
+from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -46,26 +46,29 @@ from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
 from ..utils.meta import FieldInfo
 
+if TYPE_CHECKING:
+    from typing import Any, Callable, Iterator
+
+    # NB: 2nd argument is "user".
+    #     3rd argument is "value" (value of the field for the instance -- ie 1rst argument).
+    FieldPrinter = Callable[[Model, Any, Any, Field], str]
+    # NB: 2nd argument is "user".
+    NonePrinter = Callable[[Model, Any, Field], str]
+    # NB: 2nd argument is "user".
+    ReducedPrinter = Callable[[Model, Any], str]
+    # NB: 2nd argument is M2M value of the related instance.
+    #     3rd argument is "user".
+    M2MEnumerator = Callable[[Model, Manager, Any, Field], Iterator[Model]]
+    # NB: 1st argument is the instance to print
+    #     2nd argument is the related instance, the one with the ManyToManyField
+    #                  (so 1st argument is one of the instances related to it)
+    #     3rd argument M2M value of the related instance.
+    #     4th argument is "user".
+    M2MInstancePrinter = Callable[[Model, Model, Manager, Any, Field], str]
+
 # TODO: in settings
 MAX_HEIGHT: int = 200
 MAX_WIDTH: int = 200
-
-# NB: 2nd argument is "user".
-#     3rd argument is "value" (value of the field for the instance -- ie 1rst argument).
-FieldPrinter = Callable[[Model, Any, Any, Field], str]
-# NB: 2nd argument is "user".
-NonePrinter = Callable[[Model, Any, Field], str]
-# NB: 2nd argument is "user".
-ReducedPrinter = Callable[[Model, Any], str]
-# NB: 2nd argument is M2M value of the related instance.
-#     3rd argument is "user".
-M2MEnumerator = Callable[[Model, Manager, Any, Field], Iterator[Model]]
-# NB: 1st argument is the instance to print
-#     2nd argument is the related instance, the one with the ManyToManyField
-#                  (so 1st argument is one the instance related to it)
-#     3rd argument M2M value of the related instance.
-#     4th argument is "user".
-M2MInstancePrinter = Callable[[Model, Model, Manager, Any, Field], str]
 
 
 def image_size(image, max_h: int = MAX_HEIGHT, max_w: int = MAX_WIDTH) -> str:

@@ -22,7 +22,7 @@ import logging
 from functools import partial
 from itertools import zip_longest
 from os.path import splitext
-from typing import Any, Callable, Optional, Sequence, Tuple
+from typing import TYPE_CHECKING
 
 from django import forms
 from django.contrib.auth import get_user_model
@@ -66,11 +66,15 @@ from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
 from .fields import CreatorEntityField, MultiRelationEntityField
 from .widgets import ChainedInput, SelectorList, UnorderedMultipleChoiceWidget
 
+if TYPE_CHECKING:
+    from typing import Any, Callable, Optional, Sequence, Tuple
+
+    Line = Sequence[str]
+    ExtractedTuple = Tuple[Any, Optional[str]]
+    ValueCastor = Callable[[str], Any]
+
 logger = logging.getLogger(__name__)
 Document = get_document_model()
-Line = Sequence[str]
-ExtractedTuple = Tuple[Any, Optional[str]]
-ValueCastor = Callable[[str], Any]
 
 
 def get_import_backend_class(filedata):
