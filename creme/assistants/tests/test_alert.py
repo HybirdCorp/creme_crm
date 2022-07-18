@@ -360,6 +360,10 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create_with_absolute_date(self):
         self.assertFalse(Alert.objects.exists())
 
+        entity = self.entity
+        entity.user = self.other_user
+        entity.save()
+
         queue = get_queue()
         queue.clear()
 
@@ -372,7 +376,15 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(_('Save the alert'), context.get('submit_label'))
 
         with self.assertNoException():
-            trigger_f = context['form'].fields['trigger']
+            fields = context['form'].fields
+            user_f = fields['user']
+            trigger_f = fields['trigger']
+
+        self.assertFalse(user_f.required)
+        self.assertEqual(
+            _('Same owner than the entity (currently «{user}»)').format(user=self.other_user),
+            user_f.empty_label,
+        )
 
         self.assertTupleEqual(
             (AbsoluteOrRelativeDatetimeField.ABSOLUTE, {}),
@@ -408,7 +420,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(self.get_reminder_job(), jobs[0][0])
 
     def test_create_with_relative_datetime(self):
-        "DatetimeField."
+        "DatetimeField + dynamic user."
         entity = self.entity
 
         RELATIVE = AbsoluteOrRelativeDatetimeField.RELATIVE
@@ -418,7 +430,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response = self.client.post(
             self._build_add_url(entity),
             data={
-                'user':         self.user.pk,
+                # 'user':         self.user.pk,
                 'title':        title,
                 'description':  '',
 
@@ -432,6 +444,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertNoFormError(response)
 
         alert = self.get_object_or_fail(Alert, title=title, description='')
+        self.assertIsNone(alert.user)
         self.assertEqual(alert.trigger_date, entity.created + timedelta(days=days))
         self.assertDictEqual(
             {
@@ -956,6 +969,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(1, len(mail.outbox))
 
     def test_reminder2(self):
+        "With null trigger date."
         job = self.get_reminder_job()
         reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
 
@@ -974,6 +988,26 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.execute_reminder_job(job)
         self.assertFalse(DateReminder.objects.exclude(id__in=reminder_ids))
         self.assertFalse(mail.outbox)
+
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
+    def test_reminder3(self):
+        "Dynamic user."
+        entity = self.entity
+        entity.user = self.other_user
+        entity.save()
+
+        reminder_ids = [*DateReminder.objects.values_list('id', flat=True)]
+        Alert.objects.create(
+            # user=user
+            real_entity=entity, trigger_date=now(),
+        )
+
+        self.execute_reminder_job(self.get_reminder_job())
+        self.assertEqual(1, DateReminder.objects.exclude(id__in=reminder_ids).count())
+
+        messages = mail.outbox
+        self.assertEqual(1, len(messages))
+        self.assertEqual([self.other_user.email], messages[0].to)
 
     @override_settings(DEFAULT_TIME_ALERT_REMIND=30)
     def test_next_wakeup1(self):

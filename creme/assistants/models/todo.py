@@ -19,6 +19,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
 import creme.creme_core.models.fields as creme_fields
@@ -30,7 +31,9 @@ class ToDoManager(models.Manager):
 
 
 class ToDo(core_models.CremeModel):
-    user = creme_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    user = creme_fields.CremeUserForeignKey(
+        verbose_name=_('Owner user'), null=True, blank=True,
+    ).set_null_label(pgettext_lazy('assistants-owner', '*auto*'))
     title = models.CharField(_('Title'), max_length=200)
     is_ok = models.BooleanField(_('Done?'), editable=False, default=False)
 

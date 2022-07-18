@@ -35,8 +35,8 @@ TODO_REMINDER_DAYS_BEFORE = 1
 
 class AssistantReminder(Reminder):
     def get_emails(self, object):
-        user = object.user
-
+        # TODO: can we prefetch 'entity'?
+        user = object.user or object.entity.user
         return [
             teammate.email
             for teammate in user.teammates.values()

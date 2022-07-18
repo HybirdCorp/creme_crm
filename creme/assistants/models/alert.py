@@ -21,6 +21,7 @@ from datetime import datetime, time
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
 import creme.creme_core.models.fields as core_fields
@@ -33,7 +34,9 @@ class AlertManager(models.Manager):
 
 
 class Alert(core_models.CremeModel):
-    user = core_fields.CremeUserForeignKey(verbose_name=_('Owner user'))
+    user = core_fields.CremeUserForeignKey(
+        verbose_name=_('Owner user'), null=True, blank=True,
+    ).set_null_label(pgettext_lazy('assistants-owner', '*auto*'))
     title = models.CharField(_('Title'), max_length=200)
     description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
