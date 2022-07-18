@@ -20,6 +20,7 @@ from datetime import datetime, time
 
 from django.forms import TypedChoiceField
 from django.utils.timezone import localtime
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeModelForm
@@ -40,15 +41,33 @@ class ToDoForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = ToDo
         widgets = {'deadline': CalendarWidget}
+        help_texts = {
+            'user': _(
+                'The owner is only used to send emails (a deadline is required).\n'
+                'Hint: the choice «Same owner than the entity» allows to always '
+                'send the email to the owner of the entity, even if it is changed.'
+            ),
+            'deadline': _(
+                'If you set a deadline, an email is sent to the owner of the ToDo '
+                'when it is about to expire (the job «Reminders» must be enabled), '
+                'if the ToDO is not marked as done before.\n'
+                'Hint: if the owner is a team, every teammate receives an email.'
+            ),
+        }
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # self.instance.creme_entity = entity
         self.instance.real_entity = entity
 
+        fields = self.fields
+        fields['user'].empty_label = gettext(
+            'Same owner than the entity (currently «{user}»)'
+        ).format(user=entity.user)
+
         deadline = self.instance.deadline
         if deadline:
-            self.fields['deadline_hour'].initial = localtime(deadline).hour
+            fields['deadline_hour'].initial = localtime(deadline).hour
 
     def clean(self):
         cdata = super().clean()

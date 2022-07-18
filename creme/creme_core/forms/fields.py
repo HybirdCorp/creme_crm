@@ -73,9 +73,6 @@ class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
     """"Groups the teams & the inactive users in specific groups."""
     def __iter__(self):
         regular_choices = []
-        if self.field.empty_label is not None:
-            regular_choices.append(('', self.field.empty_label))
-
         sort_key = collator.sort_key
 
         def user_key(c):
@@ -87,6 +84,9 @@ class CremeUserChoiceIterator(mforms.ModelChoiceIterator):
             choice(u) for u in queryset if u.is_active and not u.is_team
         )
         regular_choices.sort(key=user_key)
+
+        if self.field.empty_label is not None:
+            regular_choices.insert(0, ('', self.field.empty_label))
 
         yield '', regular_choices
         del regular_choices

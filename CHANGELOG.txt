@@ -23,6 +23,7 @@
         * Assistants :
             - The trigger date of an Alert can now be relative to a date field of the linked entity (e.g. "3 days before its birthday").
               Relative trigger dates are automatically updated when the date field changes.
+            - The owner of Alerts & ToDos can now be dynamic, to always send e-mails to the entity's owner.
         * Activities :
             - The relationships type "is subject of the activity" is now internal.
             - In creation form, when an Alert with a trigger date relative to the Activity's start is created,

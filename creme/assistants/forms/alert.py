@@ -23,6 +23,7 @@ from django.core.exceptions import ValidationError
 from django.forms import fields, widgets
 # from django.forms.fields import TimeField
 from django.utils.timezone import localtime
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.entity_cell import CELLS_MAP, EntityCellRegularField
@@ -322,6 +323,13 @@ class AlertForm(CremeModelForm):
     class Meta(CremeModelForm.Meta):
         model = Alert
         # widgets = {'trigger_date': CalendarWidget}
+        help_texts = {
+            'user': _(
+                'The owner is only used to send emails (a deadline is required).\n'
+                'Hint: the choice «Same owner than the entity» allows to always '
+                'send the email to the owner of the entity, even if it is changed.'
+            ),
+        }
 
     # def __init__(self, entity, *args, **kwargs):
     #     super().__init__(*args, **kwargs)
@@ -341,7 +349,12 @@ class AlertForm(CremeModelForm):
         instance = self.instance
         instance.real_entity = entity
 
-        trigger_f = self.fields['trigger']
+        fields = self.fields
+        fields['user'].empty_label = gettext(
+            'Same owner than the entity (currently «{user}»)'
+        ).format(user=entity.user)
+
+        trigger_f = fields['trigger']
         trigger_f.model = type(entity)
 
         if instance.pk is None:  # Creation

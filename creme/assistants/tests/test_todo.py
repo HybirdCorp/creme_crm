@@ -99,6 +99,10 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_create01(self):
         self.assertFalse(ToDo.objects.exists())
 
+        entity = self.entity
+        entity.user = self.other_user
+        entity.save()
+
         queue = get_queue()
         queue.clear()
 
@@ -111,7 +115,15 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(_('Save the todo'), context.get('submit_label'))
 
         with self.assertNoException():
-            hours = context['form'].fields['deadline_hour'].choices
+            fields = context['form'].fields
+            user_f = fields['user']
+            hours = fields['deadline_hour'].choices
+
+        self.assertFalse(user_f.required)
+        self.assertEqual(
+            _('Same owner than the entity (currently «{user}»)').format(user=self.other_user),
+            user_f.empty_label,
+        )
 
         self.assertInChoices(value=0, label='0h', choices=hours)
         self.assertInChoices(value=23, label='23h', choices=hours)
@@ -121,6 +133,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'Title'
         todo = self._create_todo(title, 'Description')
         self.assertEqual(1, ToDo.objects.count())
+        self.assertEqual(self.user,             todo.user)
         self.assertEqual(entity.id,             todo.entity_id)
         self.assertEqual(entity.entity_type_id, todo.entity_content_type_id)
         self.assertDatetimesAlmostEqual(now(), todo.creation_date)
@@ -132,14 +145,14 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(title, str(todo))
 
     def test_create02(self):
-        "Deadline."
+        "Deadline + dynamic user."
         queue = get_queue()
         queue.clear()
 
         url = self._build_add_url(self.entity)
         title = 'my Todo'
         data = {
-            'user':        self.user.pk,
+            # 'user':        self.user.pk,
             'title':       title,
             'description': '',
             # 'deadline':    '2013-6-7',
@@ -154,6 +167,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertNoFormError(self.client.post(url, data={**data, 'deadline_hour': 9}))
 
         todo = self.get_object_or_fail(ToDo, title=title)
+        self.assertIsNone(todo.user)
         self.assertEqual(
             self.create_datetime(year=2013, month=6, day=7, hour=9),
             todo.deadline,
@@ -649,6 +663,21 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertSetEqual(
             {(teammate.email,), (user.email,)}, {tuple(m.to) for m in messages}
         )
+
+    def test_reminder05(self):
+        "Dynamic user."
+        entity = self.entity
+        entity.user = self.other_user
+        entity.save()
+
+        ToDo.objects.create(real_entity=entity, title='Todo#1', deadline=now())
+
+        self.execute_reminder_job(self.get_reminder_job())
+        self.assertEqual(1, DateReminder.objects.count())
+
+        messages = mail.outbox
+        self.assertEqual(1, len(messages))
+        self.assertEqual([self.other_user.email], messages[0].to)
 
     def test_next_wakeup01(self):
         "Next wake is one day later + minimum hour."
