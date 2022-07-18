@@ -83,6 +83,8 @@
 
     background: #414141;
 
+    cursor: grab;
+
     color: #ebebeb;
     font-size: 13px;
     font-weight: 600;
