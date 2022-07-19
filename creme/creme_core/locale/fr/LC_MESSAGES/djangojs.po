@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-02-23 17:00+0100\n"
+"POT-Creation-Date: 2022-07-20 13:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -90,8 +90,8 @@ msgstr ""
 msgid "Error"
 msgstr "Erreur"
 
-msgid "Finished"
-msgstr "Terminé"
+msgid "Completed successfully"
+msgstr "Terminé avec succès"
 
 msgid "HTTP server error"
 msgstr "Erreur du serveur HTTP"
@@ -132,9 +132,6 @@ msgstr[1] "%d entités n'ont pu être supprimées."
 msgid "Please select at least one entity."
 msgstr "Veuillez sélectionner au moins une fiche."
 
-msgid "Close"
-msgstr "Fermer"
-
 msgid "Please select 2 entities."
 msgstr "Veuillez sélectionner 2 fiches."
 
@@ -146,6 +143,9 @@ msgstr "Valider la sélection"
 
 msgid "Cancel"
 msgstr "Annuler"
+
+msgid "Close"
+msgstr "Fermer"
 
 msgid "Are you sure ?"
 msgstr "Êtes-vous sûr ?"
@@ -281,6 +281,9 @@ msgstr "Capturer une image du graphique"
 
 msgid "Delete"
 msgstr "Supprimer"
+
+#~ msgid "Finished"
+#~ msgstr "Terminé"
 
 #~ msgid "Error during loading the page."
 #~ msgstr "Le chargement de la page a échoué"
