@@ -153,7 +153,7 @@ QUnit.test('creme.JobsMonitor (fetch http error)', function(assert) {
     deepEqual([], this.mockListenerCalls('jobs-finished'));
 
     equal(element.find('.global-error').is('.hidden'), false);
-    equal(element.find('.global-error').text(), 'HTTP server error');
+    equal(element.find('.global-error').text(), gettext('HTTP server error'));
 });
 
 QUnit.test('creme.JobsMonitor (fetch invalid data)', function(assert) {
@@ -225,7 +225,8 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
         controller.fetch();
 
-        equal(controller.jobItems('job-a').text(), gettext('Finished'));
+//        equal(controller.jobItems('job-a').text(), gettext('Finished'));
+        equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
         this.assertJobItemState(controller, 'job-b', {label: 'Job B', percentage: '72', status: 1});
 
@@ -234,9 +235,11 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
         controller.fetch();
 
-        equal(controller.jobItems('job-a').text(), gettext('Finished'));
+//        equal(controller.jobItems('job-a').text(), gettext('Finished'));
+        equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
-        equal(controller.jobItems('job-b').text(), gettext('Finished'));
+//        equal(controller.jobItems('job-b').text(), gettext('Finished'));
+        equal(controller.jobItems('job-b').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
 
         deepEqual([['finished']], this.mockListenerCalls('jobs-finished'));
