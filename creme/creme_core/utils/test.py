@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import pathlib
 import unittest
 from os.path import dirname
 from shutil import rmtree
@@ -71,14 +72,21 @@ class CremeTestLoader(unittest.TestLoader):
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
         self._ignored_dir_paths = set()
 
+    def is_path_relative_to(self, path, parent_path):
+        try:
+            path.relative_to(parent_path)
+            return True
+        except ValueError:
+            return False
+
     def _match_path(self, path, full_path, pattern):
         match = super()._match_path(path, full_path, pattern)
 
         if match:
-            dir_path = dirname(full_path)
-            path_is_ok = dir_path.startswith
+            dir_path = pathlib.Path(dirname(full_path))
+            path_is_ok = self.is_path_relative_to
 
-            if not any(path_is_ok(allowed_path) for allowed_path in self._allowed_paths):
+            if not any(path_is_ok(dir_path, allowed_path) for allowed_path in self._allowed_paths):
                 if dir_path not in self._ignored_dir_paths:
                     self._ignored_dir_paths.add(dir_path)
                     print(f'"{dir_path}" is ignored because app seems not installed.')
