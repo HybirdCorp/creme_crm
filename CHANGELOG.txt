@@ -7,6 +7,8 @@
 
   Users side :
   ------------
+    # The periodic jobs were not working correctly with Unix socket as broker
+      (not timeout was set so the manager had to be pinged to execute them).
     # In 'creme.forms.widgets', the state 'disabled' has been fixed :
         - in 'CalendarWidget' (indeed the Javascript component 'creme.widget.DatePicker').
         - in 'TimeWidget' (indeed the JavaScript part 'creme.forms.TimePicker').
