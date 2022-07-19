@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-06-29 21:42+0200\n"
+"POT-Creation-Date: 2022-07-19 17:13+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -63,8 +63,8 @@ msgstr ""
 msgid "Error"
 msgstr "Erreur"
 
-msgid "Finished"
-msgstr "Terminé"
+msgid "Completed successfully"
+msgstr "Terminé avec succès"
 
 msgid "HTTP server error"
 msgstr "Erreur du serveur HTTP"
@@ -211,12 +211,6 @@ msgid_plural "Collapse %d items"
 msgstr[0] "Masquer %d élément"
 msgstr[1] "Masquer %d éléments"
 
-msgid "Select some options"
-msgstr "Sélectionnez un ou plusieurs choix"
-
-msgid "Select one option"
-msgstr "Sélectionnez un choix"
-
 msgid "Confirm"
 msgstr "Confirmation"
 
@@ -252,6 +246,12 @@ msgstr "Sélectionner"
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
+msgid "Select some options"
+msgstr "Sélectionnez un ou plusieurs choix"
+
+msgid "Select one option"
+msgstr "Sélectionnez un choix"
+
 msgid "De-select"
 msgstr "Dé-sélectionner"
 
@@ -263,6 +263,9 @@ msgstr "Capturer une image du graphique"
 
 msgid "Delete"
 msgstr "Supprimer"
+
+#~ msgid "Finished"
+#~ msgstr "Terminé"
 
 #~ msgid "Remove"
 #~ msgstr "Enlever"

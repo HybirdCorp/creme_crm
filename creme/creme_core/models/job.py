@@ -69,7 +69,7 @@ class Job(models.Model):
 
     Not periodic Jobs are user Jobs:
         - they are dynamically created by a view.
-        - they must have their 'user' filled; it correspond to the User which
+        - they must have their 'user' filled; it corresponds to the User which
           have created the Job, & who owns it. The Job should act with the
           credentials of this User.
         - A view which creates a Job should check settings.MAX_JOBS_PER_USER
@@ -79,7 +79,7 @@ class Job(models.Model):
           other user Jobs.
 
     The 'reference_run' field is always filled (in an automatic way at least),
-    but does not means anything for not periodic Jobs ; in this case it is only
+    but does not mean anything for not periodic Jobs ; in this case it is only
     the creation date, which is not very useful. The 'reference_run' is used to
     compute the time of each execution, which must be something like:
         reference_run + N * periodicity

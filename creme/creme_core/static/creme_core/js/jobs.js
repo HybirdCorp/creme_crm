@@ -117,7 +117,8 @@ creme.jobs.BaseJobsMonitor = creme.component.Component.sub({
                 break;
 
             case __JOB_STATUS.OK: // STATUS_OK
-                jobs.text(gettext('Finished'));
+//                jobs.text(gettext('Finished'));
+                jobs.text(gettext('Completed successfully'));  // TODO: keep synchronized with python code...
                 break;
         }
 
