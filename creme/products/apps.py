@@ -44,23 +44,25 @@ class ProductsConfig(CremeAppConfig):
 
     def register_bulk_update(self, bulk_update_registry):
         # from .forms.product import ProductInnerEditCategory
-        from .forms.bulk_update import ProductInnerEditCategory
+        from .forms.bulk_update import CategoryOverrider
 
         register = bulk_update_registry.register
-        register(
-            self.Product,
-            innerforms={
-                'category':     ProductInnerEditCategory,
-                'sub_category': ProductInnerEditCategory,
-            },
-        )
-        register(
-            self.Service,
-            innerforms={
-                'category':     ProductInnerEditCategory,
-                'sub_category': ProductInnerEditCategory,
-            },
-        )
+        # register(
+        #     self.Product,
+        #     innerforms={
+        #         'category':     ProductInnerEditCategory,
+        #         'sub_category': ProductInnerEditCategory,
+        #     },
+        # )
+        register(self.Product).add_overriders(CategoryOverrider)
+        # register(
+        #     self.Service,
+        #     innerforms={
+        #         'category':     ProductInnerEditCategory,
+        #         'sub_category': ProductInnerEditCategory,
+        #     },
+        # )
+        register(self.Service).add_overriders(CategoryOverrider)
 
     def register_creme_config(self, config_registry):
         from . import models

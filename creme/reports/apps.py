@@ -64,18 +64,23 @@ class ReportsConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from .forms.bulk import ReportFilterBulkForm
+        # from .forms.bulk import ReportFilterBulkForm
+        from .forms import bulk
 
-        register = bulk_update_registry.register
-        register(
-            self.Report,
-            exclude=['ct'],
-            innerforms={'filter': ReportFilterBulkForm},
-        )
-        register(
-            self.ReportGraph,
-            exclude=['chart'],
-        )  # TODO: chart -> innerform
+        # register = bulk_update_registry.register
+        # register(
+        #     self.Report,
+        #     exclude=['ct'],
+        #     innerforms={'filter': ReportFilterBulkForm},
+        # )
+        bulk_update_registry.register(
+            self.Report
+        ).exclude('ct').add_overriders(bulk.ReportFilterOverrider)
+        # TODO: self.ReportGraph? (beware to 'chart')
+        # register(
+        #     self.ReportGraph,
+        #     exclude=['chart'],
+        # )  # todo: chart -> innerform
 
     def register_custom_forms(self, cform_registry):
         from . import custom_forms

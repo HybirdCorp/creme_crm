@@ -454,11 +454,10 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.MyJobsBrick,
         )
 
-    def register_bulk_update(self, bulk_update_registry):
-        from .models import CremeProperty
-
-        # TODO: tags modifiable=False ??
-        bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))
+    # def register_bulk_update(self, bulk_update_registry):
+    #     from .models import CremeProperty
+    #
+    #     bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))
 
     def register_buttons(self, button_registry):
         from . import buttons

@@ -35,6 +35,8 @@ from django.utils.safestring import mark_safe
 
 from mediagenerator.generators.bundles.utils import _render_include_media
 
+from ..core.entity_cell import EntityCell
+from ..gui.bulk_update import bulk_update_registry
 from ..gui.field_printers import field_printers_registry
 from ..http import is_ajax
 from ..models import CremeEntity, Relation
@@ -369,6 +371,20 @@ def get_entity_html_attrs(context, entity):
 def grouper(value, n):
     args = [iter(value)] * n
     return zip_longest(fillvalue=None, *args)
+
+
+@register.simple_tag
+def inner_edition_uri(instance, cells, callback_url=None):
+    # TODO: pass the registry in context? accept it as argument?
+    uri = bulk_update_registry.inner_uri(
+        instance=instance,
+        cells=[cells] if isinstance(cells, EntityCell) else cells,
+    )
+
+    if callback_url:
+        uri += f'&callback_url={callback_url}'
+
+    return uri
 
 
 @register.filter

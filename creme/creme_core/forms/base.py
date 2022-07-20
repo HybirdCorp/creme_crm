@@ -510,10 +510,17 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
         for fn, field in self.fields.items():
             field.user = user  # Used by CreatorModelChoiceField for example
 
-        self.fields_configs = fc = FieldsConfig.LocalCache()
-        fc.get_for_model(self.instance.__class__).update_form_fields(self.fields)
+        # self.fields_configs = fc = FieldsConfig.LocalCache()
+        # fc.get_for_model(self.instance.__class__).update_form_fields(self.fields)
+        self.fields_configs = FieldsConfig.LocalCache()
+        self._build_required_fields()
 
         self._creme_post_init()
+
+    def _build_required_fields(self):
+        # NB: not <type(self.instance)> because it returns an instance of
+        #     SimpleLazyObject for User, which causes an error.
+        self.fields_configs.get_for_model(self.instance.__class__).update_form_fields(self.fields)
 
     def clean(self):
         res = super().clean()

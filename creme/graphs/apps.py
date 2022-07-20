@@ -49,6 +49,9 @@ class GraphsConfig(CremeAppConfig):
             main_brick_cls=bricks.GraphBarHatBrick,
         )
 
+    def register_bulk_update(self, bulk_update_registry):
+        bulk_update_registry.register(self.Graph)
+
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 

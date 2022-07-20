@@ -11,6 +11,9 @@
       These 2 features can be disabled in the new page "Configuration of the instance".
     # The setting 'USE_L10N' is now set to 'True' by default (previously only 'False' was working).
       So, by default, the formats for dates & times depend on the user's language.
+    # The inner-edition (i.e. edition of one field directly in the detail-view) can now handles several fields at once.
+      It's used for example in the relationships-blocks (the blocks displaying the entities linked by a specific relationship type)
+      when you configure the fields to display: all displayed fields are edited with one form (so you avoid many clicks).
     # In the History's block, lines related to entities from apps you cannot view are excluded.
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
@@ -180,6 +183,8 @@
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
         # In 'creme_core.forms' :
+            - The module 'bulk' has been removed
+              (the class 'BulkDefaultEditForm' is useless now, use 'creme_core.gui.bulk_update.FieldOverrider' instead).
             - In 'base.CremeEntityForm', the error messages with the following keys have been removed :
               "missing_property_single", "missing_property_multi".
             - In 'fields' :
@@ -211,6 +216,19 @@
         # In 'creme_core.gui' :
             - The class attribute 'button_menu.Button.id_' has been renamed "id" ;
               you have to rename this attribute in your child classes.
+            - The class 'bulk_update._BulkUpdateRegistry' has been heavily reworked to manage several fields at once ;
+              the inner class 'ModelBulkStatus' has been replaced by a new class '_ModelConfig', many methods have been removed...
+              More important items :
+                - The registration of the models is now required to get inner-edition on your entity models.
+                  It means you must write in your 'apps.py' :
+                    def register_bulk_update(self, bulk_update_registry):
+                        bulk_update_registry.register(MyEntityModel)
+                - Only models which inherit 'CremeEntity' can be registered.
+                - If you excluded some fields, the new way to do is :
+                    def register_bulk_update(self, bulk_update_registry):
+                        bulk_update_registry.register(MyEntityModel).exclude('field1', 'field2')
+                - If you customised the form for some of your fields (old argument "innerforms" of 'register()'),
+                  you must use the method 'add_overriders()'. You can see examples of use in the app 'documents', 'activities', 'products' for example.
             - The method 'bricks.SpecificRelationsBrick.id_is_specific()' has been removed.
         # In 'creme_core.models' :
             - In 'bricks' :
@@ -230,17 +248,23 @@
             - The field 'FieldsConfig.raw_descriptions' is now a JSONField.
             - The field 'CustomFormConfigItem.json_groups' is now a JSONField.
             - A mandatory field "entity_ctype" has been added to 'Imprint'.
-        # In the class 'creme_core.views.search.FoundEntitiesBrick', the attribute "ctype" has been removed.
+        # In 'creme_core.views' :
+            - In 'entity', the class-views 'InnerEdition' & 'BulkUpdate' have been heavily reworked (the URLs changed too).
+            - In the class 'search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # In templates:
             - In "creme/templates/authent/base.html", {% block form_username %} & {% block form_password %} have been replaced by {% block form_fields %}.
             - In "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
               (use {% block lv_hidden_buttons %} + {{block.super}} instead).
+            - The template "creme_core/frags/bulk_process_report.html" has been removed ("creme_core/bulk-update-results.html" is used instead).
         # In JavaScript :
             - The function 'creme.forms._toDualColumnMultiSelect' & 'creme.forms.toOrderedMultiSelect' have been removed ;
               the new component 'creme.widget.SelectOrInputWidget' is used instead.
             - 'creme.form.Chosen' is now deprecated; It has been renamed as 'creme.form.Chosen'.
               No longer used in media generation but still exist to ease migrations.
-            - The jQuery extension 'gccolor' has been removed. 
+            - The jQuery extension 'gccolor' has been removed.
+        # In 'creme_core.tests.base._CremeTestCase' :
+            - the method 'build_inneredit_url()' has been replaced by 'build_inneredit_uri()'.
+            - the method 'build_bulkupdate_url()' has been replaced by 'build_bulkupdate_uri()'.
         # Apps :
             * Creme_config :
                 - The brick 'MenuBrick' has been reworked (to manage menu per role) ; the template variable "entries" is now a list of dictionaries.
@@ -260,18 +284,24 @@
                     - the field 'Alert.trigger' can now be NULL.
             * Documents :
                 - In 'bricks.LinkedDocsBrick', the template variable "predicate_id" is not injected anymore.
+                - The class 'forms.folder.ParentFolderBulkForm' has been removed.
             * Persons :
                 - In 'bricks' :
                     - In the class 'ManagersBrick' (& so 'EmployeesBrick'), the template variable "rtype_id" is not injected anymore.
                     - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
+            * Activities :
+                - The class 'forms.activity_type.BulkEditTypeForm' has been removed.
             * Products :
-                - The module 'forms.product' has been renamed 'forms.bulk_update'.
+                - The module 'forms.product' has been renamed 'forms.bulk_update'
+                  & the class 'ProductInnerEditCategory' has been removed.
             * Opportunities :
                 - In 'bricks' :
                     - In the base class '_LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
                     - In the mixin class '_RelatedToOpportunity', the method 'get_related_contacts()' has been removed.
                     - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
+            * Reports :
+                - The class 'forms.bulk.ReportFilterBulkForm' has been removed.
             * Commercial :
                 - In 'bricks' :
                     - The method 'ApproachesBrick._populate_related_real_entities()' has been removed.
@@ -296,6 +326,8 @@
                 - A mandatory field "entity_content_type" has been added to 'models.RootNode'.
             * Projects :
                 - In 'bricks.ProjectTasksBrick', the variable "creation_perm" is not injected in the context anymore.
+            * Polls :
+                - The class 'forms.poll_reply.InnerEditPersonForm' has been removed.
 
     Internal breaking changes :
     ---------------------------

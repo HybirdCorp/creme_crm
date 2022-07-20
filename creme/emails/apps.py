@@ -85,27 +85,35 @@ class EmailsConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from . import models
+        # from . import models
 
         register = bulk_update_registry.register
-        register(self.EmailCampaign, exclude=('mailing_lists',))
+        # register(self.EmailCampaign, exclude=('mailing_lists',))
+        register(self.EmailCampaign).exclude('mailing_lists')
+        register(self.MailingList).exclude('mailing_lists')
         # TODO: tags modifiable=False ??
-        register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
+        # register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
         # TODO: inner-form for body_html when RichTextEditor is ok in inner-popup
-        register(self.EmailTemplate, exclude=('body_html',))
-        register(
-            self.EntityEmail,
-            exclude=(
-                'sender', 'recipient',
-                'subject', 'body', 'body_html',
-                'signature', 'attachments',
-            ),  # TODO: idem
+        # register(self.EmailTemplate, exclude=('body_html',))
+        register(self.EmailTemplate).exclude('body_html')
+        # register(
+        #     self.EntityEmail,
+        #     exclude=(
+        #         'sender', 'recipient',
+        #         'subject', 'body', 'body_html',
+        #         'signature', 'attachments',
+        #     ),  # TODO: idem
+        # )
+        register(self.EntityEmail).exclude(
+            'sender', 'recipient',
+            'subject', 'body', 'body_html',
+            'signature', 'attachments',
         )
         # TODO: idem
-        register(
-            models.LightWeightEmail,
-            exclude=('sender', 'recipient', 'subject', 'body'),
-        )
+        # register(
+        #     models.LightWeightEmail,
+        #     exclude=('sender', 'recipient', 'subject', 'body'),
+        # )
 
     def register_buttons(self, button_registry):
         from . import buttons

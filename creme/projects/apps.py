@@ -54,6 +54,11 @@ class ProjectsConfig(CremeAppConfig):
             bricks.ParentTasksBrick,
         )
 
+    def register_bulk_update(self, bulk_update_registry):
+        register = bulk_update_registry.register
+        register(self.Project)
+        register(self.ProjectTask)
+
     def register_creme_config(self, config_registry):
         from . import models
 

@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.utils.encoding import force_str  # force_text
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -49,6 +50,7 @@ from ..forms.activity import (
     UnavailableUsersSubCell,
     UserMessagesSubCell,
 )
+from ..forms.fields import ActivityTypeField
 from ..models import ActivitySubType, ActivityType, Calendar, Status
 from ..utils import check_activity_collisions
 from .base import (
@@ -1849,22 +1851,38 @@ class ActivityTestCase(_ActivitiesTestCase):
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
         )
 
-        url = self.build_inneredit_url(activity, field_name)
-        self.assertGET200(url)
+        # url = self.build_inneredit_url(activity, field_name)
+        uri = self.build_inneredit_uri(activity, field_name)
 
+        # GET ---
+        # self.assertGET200(url)
+        response1 = self.assertGET200(uri)
+
+        form_field_name = f'override-{field_name}'
+
+        with self.assertNoException():
+            type_f = response1.context['form'].fields[form_field_name]
+
+        self.assertTupleEqual(
+            (activity.type_id, activity.sub_type_id),
+            type_f.initial,
+        )
+
+        # POST ---
+        a_type_id    = constants.ACTIVITYTYPE_MEETING
+        a_subtype_id = constants.ACTIVITYSUBTYPE_MEETING_NETWORK
         self.assertNoFormError(self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'field_value': self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                # 'field_value': self._acttype_field_value(a_type_id, a_subtype_id),
+                form_field_name: self._acttype_field_value(a_type_id, a_subtype_id),
             },
         ))
 
         activity = self.refresh(activity)
-        self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity.type_id)
-        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity.sub_type_id)
+        self.assertEqual(a_type_id,    activity.type_id)
+        self.assertEqual(a_subtype_id, activity.sub_type_id)
 
     def test_inner_edit_type01(self):
         "Type (& subtype)"
@@ -1875,7 +1893,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self._aux_inner_edit_type('sub_type')
 
     def test_inner_edit_type03(self):
-        "Exclude constants.ACTIVITYTYPE_INDISPO from valid choices"
+        "Exclude constants.ACTIVITYTYPE_INDISPO from valid choices."
         user = self.login()
 
         create_dt = self.create_datetime
@@ -1887,22 +1905,29 @@ class ActivityTestCase(_ActivitiesTestCase):
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
         )
 
+        field_name = 'type'
+        form_field_name = f'override-{field_name}'
         response = self.assertPOST200(
-            self.build_inneredit_url(activity, 'type'),
+            # self.build_inneredit_url(activity, 'type'),
+            self.build_inneredit_uri(activity, field_name),
             data={
-                'field_value': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO, ''),
+                # 'field_value': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO, ''),
+                form_field_name: self._acttype_field_value(
+                    constants.ACTIVITYTYPE_INDISPO, '',
+                ),
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value', _('This type causes constraint error.')
+            # response, 'form', 'field_value', _('This type causes constraint error.')
+            response, 'form', form_field_name, _('This type causes constraint error.'),
         )
 
     def test_inner_edit_type04(self):
-        "Indisponibilities type cannot be changed, the sub_type can."
+        "Unavailability type cannot be changed, the sub_type can."
         user = self.login()
 
         subtype = ActivitySubType.objects.create(
-            id='hollydays', name='Hollydays',
+            id='holidays', name='Holidays',
             type_id=constants.ACTIVITYTYPE_INDISPO,
         )
 
@@ -1915,67 +1940,167 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         fvalue = self._acttype_field_value
-        url = self.build_inneredit_url(activity, 'type')
+        # url = self.build_inneredit_url(activity, 'type')
+        field_name = 'type'
+        form_field_name = f'override-{field_name}'
+        uri = self.build_inneredit_uri(activity, 'type')
         response = self.assertPOST200(
-            url,
+            # url,
+            uri,
             data={
-                'field_value': fvalue(
+                # 'field_value': fvalue(
+                form_field_name: fvalue(
                     constants.ACTIVITYTYPE_PHONECALL,
                     constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
                 ),
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value', _('This type causes constraint error.')
+            # response, 'form', 'field_value', _('This type causes constraint error.')
+            response, 'form', form_field_name, _('This type causes constraint error.')
         )
 
         self.assertNoFormError(self.client.post(
-            url,
-            data={'field_value': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
+            # url,
+            uri,
+            # data={'field_value': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
+            data={form_field_name: fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
         ))
         activity = self.refresh(activity)
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity.type_id)
-        self.assertEqual(subtype,              activity.sub_type)
+        self.assertEqual(subtype,                        activity.sub_type)
 
     def test_bulk_edit_type01(self):
-        "Unavailabilities cannot be changed when they are mixed with other types."
+        "No Unavailability."
         user = self.login()
 
         create_dt = self.create_datetime
-        create_activity = partial(Activity.objects.create, user=user)
-        activity1 = create_activity(
-            title='act01',
+        create_activity = partial(
+            Activity.objects.create,
+            user=user,
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
-            type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
+        activity1 = create_activity(
+            title='act01',
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
         activity2 = create_activity(
             title='act02',
-            start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
-            end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
         )
 
-        url = self.build_bulkupdate_url(Activity, 'type')
-        self.assertGET200(url)
+        field_name = 'type'
+        build_uri = partial(self.build_bulkupdate_uri, model=Activity, field=field_name)
+        response1 = self.assertGET200(build_uri(entities=[activity1.pk, activity2]))
+
+        formfield_name = f'override-{field_name}'
+        with self.assertNoException():
+            type_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(type_f, ActivityTypeField)
+
+        type_ids = {atype.id for atype in type_f.types}
+        self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
+        self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
+        self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
+
+        self.assertFalse(type_f.help_text)
+
+        # ---
         self.assertNoFormError(self.client.post(
-            url,
+            build_uri(),
             data={
-                '_bulk_fieldname': url,
-                'field_value': self._acttype_field_value(
+                'entities': [activity1.pk, activity2.pk],
+                formfield_name: self._acttype_field_value(
                     constants.ACTIVITYTYPE_MEETING,
                     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 ),
+            },
+        ))
+
+        activity1 = self.refresh(activity1)
+        self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity1.type_id)
+        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity1.sub_type_id)
+
+        activity2 = self.refresh(activity2)
+        self.assertEqual(constants.ACTIVITYTYPE_MEETING,            activity2.type_id)
+        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, activity2.sub_type_id)
+
+    def test_bulk_edit_type02(self):
+        "Unavailability cannot be changed when they are mixed with other types."
+        user = self.login()
+
+        create_dt = self.create_datetime
+        create_activity = partial(
+            Activity.objects.create,
+            user=user,
+            start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
+            end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
+        )
+        activity1 = create_activity(
+            title='act01',
+            type_id=constants.ACTIVITYTYPE_INDISPO,
+        )
+        activity2 = create_activity(
+            title='act02',
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+        )
+
+        # url = self.build_bulkupdate_url(Activity, 'type')
+        # self.assertGET200(url)
+        field_name = 'type'
+        build_uri = partial(self.build_bulkupdate_uri, model=Activity, field=field_name)
+        response1 = self.assertGET200(build_uri(entities=[activity1.pk, activity2]))
+
+        formfield_name = f'override-{field_name}'
+        with self.assertNoException():
+            type_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(type_f, ActivityTypeField)
+
+        type_ids = {atype.id for atype in type_f.types}
+        self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
+        self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
+        self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
+
+        self.assertEqual(
+            ngettext(
+                'Beware! The type of {count} activity cannot be changed because'
+                ' it is an unavailability.',
+                'Beware! The type of {count} activities cannot be changed because'
+                ' they are unavailability.',
+                1
+            ).format(count=1),
+            type_f.help_text,
+        )
+
+        # ---
+        self.assertNoFormError(self.client.post(
+            # url,
+            build_uri(),
+            data={
                 'entities': [activity1.pk, activity2.pk],
+                # '_bulk_fieldname': url,
+                # 'field_value': self._acttype_field_value(
+                #     constants.ACTIVITYTYPE_MEETING,
+                #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # ),
+                formfield_name: self._acttype_field_value(
+                    constants.ACTIVITYTYPE_MEETING,
+                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                ),
             },
         ))
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
         # No change
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, self.refresh(activity1).type_id)
 
-    def test_bulk_edit_type02(self):
-        "Unavailabilities type can be changed when they are not mixed with other types."
+    def test_bulk_edit_type03(self):
+        "Unavailability type can be changed when they are not mixed with other types."
         user = self.login()
 
         ACTIVITYTYPE_INDISPO = constants.ACTIVITYTYPE_INDISPO
@@ -1996,15 +2121,34 @@ class ActivityTestCase(_ActivitiesTestCase):
             end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
         )
 
-        url = self.build_bulkupdate_url(Activity, 'type')
+        # url = self.build_bulkupdate_url(Activity, 'type')
+        field_name = 'type'
+        build_uri = partial(self.build_bulkupdate_uri, model=Activity, field='type')
+        response1 = self.assertGET200(build_uri(entities=[activity1, activity2]))
+
+        formfield_name = f'override-{field_name}'
+        with self.assertNoException():
+            type_f = response1.context['form'].fields[formfield_name]
+
+        self.assertListEqual(
+            [constants.ACTIVITYTYPE_INDISPO],
+            [atype.id for atype in type_f.types],
+        )
+        self.assertFalse(type_f.help_text)
+
+        # ---
         self.assertNoFormError(self.client.post(
-            url,
+            # url,
+            build_uri(),
             data={
-                '_bulk_fieldname': url,
-                'field_value': self._acttype_field_value(
+                'entities': [activity1.pk, activity2.pk],
+                # '_bulk_fieldname': url,
+                # 'field_value': self._acttype_field_value(
+                #     ACTIVITYTYPE_INDISPO, subtype.id,
+                # ),
+                formfield_name: self._acttype_field_value(
                     ACTIVITYTYPE_INDISPO, subtype.id,
                 ),
-                'entities': [activity1.pk, activity2.pk],
             },
         ))
         activity1 = self.refresh(activity1)

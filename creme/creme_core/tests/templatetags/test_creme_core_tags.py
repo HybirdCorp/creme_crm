@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils.translation import gettext, gettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
@@ -255,9 +256,9 @@ class CremeCoreTagsTestCase(CremeTestCase):
 
     # TODO: complete with other field types
     def test_print_field(self):
-        user = self.login()
+        user = self.create_user()
         orga = FakeOrganisation.objects.create(
-            user=self.user, name='<br/>Amestris', url_site='www.amestris.org',
+            user=user, name='<br/>Amestris', url_site='www.amestris.org',
         )
 
         with self.assertNoException():
@@ -842,4 +843,47 @@ class CremeCoreTagsTestCase(CremeTestCase):
             r'''   content: "foo© \0027 \0022  2020\003E \003C";'''
             r'''}''',
             render.strip(),
+        )
+
+    def test_inner_edition_uri(self):
+        user = self.create_user()
+        orga = FakeOrganisation.objects.create(user=user, name='Amestris')
+
+        build_cell = partial(EntityCellRegularField.build, model=FakeOrganisation)
+
+        with self.assertNoException():
+            render1 = Template(
+                '{% load creme_core_tags %}'
+                '{% inner_edition_uri instance=entity cells=cells %}'
+            ).render(Context({
+                'entity': orga,
+                'cells': [build_cell(name='name'), build_cell(name='phone')],
+            }))
+
+        self.assertEqual(
+            reverse(
+                'creme_core__inner_edition',
+                args=(orga.entity_type_id, orga.id)
+            ) + '?cell=regular_field-name&amp;cell=regular_field-phone',
+            render1.strip(),
+        )
+
+        # cell instance + callback URL ---
+        url = orga.get_lv_absolute_url()
+        with self.assertNoException():
+            render2 = Template(
+                '{% load creme_core_tags %}'
+                '{% inner_edition_uri instance=entity cells=cell callback_url=url %}'
+            ).render(Context({
+                'entity': orga,
+                'cell': build_cell(name='name'),
+                'url': url,
+            }))
+
+        self.assertEqual(
+            reverse(
+                'creme_core__inner_edition',
+                args=(orga.entity_type_id, orga.id)
+            ) + f'?cell=regular_field-name&amp;callback_url={url}',
+            render2.strip(),
         )

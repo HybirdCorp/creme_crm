@@ -11,8 +11,9 @@ from creme.activities import get_activity_model
 from creme.activities.models import ActivityType
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.forms.fields import GenericEntityField
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
-from creme.creme_core.models import SetCredentials
+from creme.creme_core.models import FieldsConfig, SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons import get_contact_model, get_organisation_model
 from creme.persons.tests.base import (
@@ -1168,15 +1169,20 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
-        url = self.build_inneredit_url(preply, 'name')
-        self.assertGET200(url)
+        field_name = 'name'
+        # url = self.build_inneredit_url(preply, 'name')
+        uri = self.build_inneredit_uri(preply, field_name)
+        # self.assertGET200(url)
+        self.assertGET200(uri)
 
         name = preply.name + ' (edited)'
         response = self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(preply)],
-                'field_value':  name,
+                # 'entities_lbl': [str(preply)],
+                # 'field_value':  name,
+                field_name:  name,
             },
         )
         self.assertNoFormError(response)
@@ -1192,40 +1198,89 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform1)
 
-        self.assertPOST(
-            400,
-            self.build_inneredit_url(preply, 'pform'),
-            data={
-                'entities_lbl': [str(preply)],
-                'field_value':  pform2.id,
-            },
+        # self.assertPOST(
+        #     400,
+        #     self.build_inneredit_url(preply, 'pform'),
+        #     data={
+        #         'entities_lbl': [str(preply)],
+        #         'field_value':  pform2.id,
+        #     },
+        # )
+        field_name = 'pform'
+        self.assertPOST404(
+            self.build_inneredit_uri(preply, field_name),
+            data={field_name: pform2.id},
         )
         self.assertEqual(pform1, self.refresh(preply).pform)
 
     @skipIfCustomContact
-    def test_inneredit03(self):
-        "Inner edition: 'person' field."
+    def test_inneredit_person01(self):
+        "Not required."
         user = self.login()
+
+        FieldsConfig.objects.create(
+            content_type=PollReply,
+            descriptions=[('description', {FieldsConfig.REQUIRED: True})],
+        )  # Should not be used
+
+        pform  = PollForm.objects.create(user=user, name='Form#1')
+        preply = PollReply.objects.create(
+            name='Reply#1', user=user, pform=pform, description='First reply',
+        )
+
+        # url = self.build_inneredit_url(preply, 'person')
+        field_name = 'person'
+        uri = self.build_inneredit_uri(preply, field_name)
+        # self.assertGET200(url)
+        response1 = self.assertGET200(uri)
+
+        formfield_name = f'override-{field_name}'
+
+        with self.assertNoException():
+            person_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(person_f, GenericEntityField)
+        self.assertIsNone(person_f.initial)
+        self.assertFalse(person_f.required)
+
+        # ---
+        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
+        self.assertNoFormError(self.client.post(
+            # url,
+            uri,
+            data={
+                # 'entities_lbl': [str(preply)],
+                # 'field_value':  self.formfield_value_generic_entity(leina),
+                formfield_name: self.formfield_value_generic_entity(leina),
+            },
+        ))
+        person = self.refresh(preply).person
+        self.assertIsNotNone(person)
+        self.assertEqual(leina, person.get_real_entity())
+
+    def test_inneredit_person02(self):
+        "Configured as required."
+        user = self.login()
+
+        field_name = 'person'
+        FieldsConfig.objects.create(
+            content_type=PollReply,
+            descriptions=[(field_name, {FieldsConfig.REQUIRED: True})],
+        )
 
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
-        url = self.build_inneredit_url(preply, 'person')
-        self.assertGET200(url)
+        response = self.assertGET200(self.build_inneredit_uri(preply, field_name))
 
-        leina = Contact.objects.create(user=user, first_name='Leina', last_name='Vance')
-        self.assertNoFormError(self.client.post(
-            url,
-            data={
-                'entities_lbl': [str(preply)],
-                'field_value':  self.formfield_value_generic_entity(leina),
-            },
-        ))
-        self.assertEqual(leina, self.refresh(preply).person.get_real_entity())
+        with self.assertNoException():
+            person_f = response.context['form'].fields[f'override-{field_name}']
+
+        self.assertTrue(person_f.required)
 
     @skipIfCustomContact
     def test_inneredit04(self):
-        "Inner edition: 'person' field + not super user"
+        "Inner edition: 'person' field + not superuser."
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
         create_sc = partial(SetCredentials.objects.create, role=self.role)
@@ -1244,29 +1299,35 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform  = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform)
 
-        url = self.build_inneredit_url(preply, 'person')
+        field_name = 'person'
+        # url = self.build_inneredit_url(preply, 'person')
+        uri = self.build_inneredit_uri(preply, field_name)
 
         create_contact = Contact.objects.create
         leina = create_contact(user=self.other_user, first_name='Leina', last_name='Vance')
         response = self.client.post(
-            url,
+            uri,
             data={
-                'entities_lbl': [str(preply)],
-                'field_value':  self.formfield_value_generic_entity(leina),
+                # 'entities_lbl': [str(preply)],
+                # 'field_value':  self.formfield_value_generic_entity(leina),
+                f'override-{field_name}': self.formfield_value_generic_entity(leina),
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value',
+            # response, 'form', 'field_value',
+            response, 'form', f'override-{field_name}',
             _('You are not allowed to link this entity: {}').format(leina),
         )
 
         # ----
         claudette = create_contact(user=user, first_name='Claudette', last_name='Vance')
         response = self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(preply)],
-                'field_value':  self.formfield_value_generic_entity(claudette),
+                # 'entities_lbl': [str(preply)],
+                # 'field_value':  self.formfield_value_generic_entity(claudette),
+                f'override-{field_name}': self.formfield_value_generic_entity(claudette),
             },
         )
         self.assertNoFormError(response)
@@ -1281,7 +1342,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
         preply = PollReply.objects.create(name='Reply#1', user=user, pform=pform, person=leina)
 
-        response = self.client.post(self.build_inneredit_url(preply, 'person'))
+        # response = self.client.post(self.build_inneredit_url(preply, 'person'))
+        response = self.client.post(self.build_inneredit_uri(preply, 'person'))
         self.assertNoFormError(response)
         self.assertIsNone(self.refresh(preply).person)
 

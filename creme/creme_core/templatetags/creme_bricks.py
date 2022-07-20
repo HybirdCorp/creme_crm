@@ -736,9 +736,12 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
         'data_type': cell.data_type,
         'multiline': cell.is_multiline,
 
-        # TODO: pass the registry in context ?
-        'edit_url':  bulk_update.bulk_update_registry.inner_uri(
-            cell=cell, instance=instance, user=user,
+        # TODO: pass the registry in context?
+        # 'edit_url':  bulk_update.bulk_update_registry.inner_uri(
+        #     cell=cell, instance=instance, user=user,
+        # ),
+        'edit_url': bulk_update.bulk_update_registry.inner_uri(
+            instance=instance, cells=[cell],
         ),
         'edit_perm': _bulk_has_perm(instance, user),
     }
@@ -815,8 +818,11 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
     # TODO: pass the registry in context ?
     return brick_card_action(
         context,
+        # url=bulk_update.bulk_update_registry.inner_uri(
+        #     cell=cell, instance=instance, user=user,
+        # ),
         url=bulk_update.bulk_update_registry.inner_uri(
-            cell=cell, instance=instance, user=user,
+            instance=instance, cells=[cell],
         ),
         enabled=_bulk_has_perm(instance, user),
         **kwargs

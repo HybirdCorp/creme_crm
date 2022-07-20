@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -112,21 +112,49 @@ class BatchActionsField(JSONField):
 
     def _get_fields(self):
         if self._fields is None:
+            # fields = []
+            # model = self._model
+            # managed_fields = tuple(batch_operator_manager.managed_fields)
+            # registry = self.bulk_update_registry
+            # updatable = partial(
+            #     registry.is_updatable, model=model, exclude_unique=False,
+            # )
+            # get_form = registry.status(model).get_form
+            #
+            # for field in model._meta.fields:
+            #     if field.editable and isinstance(field, managed_fields):
+            #         fname = field.name
+            #
+            #         # Not a specific form (ie: specific business logic)
+            #         if updatable(field_name=fname) and get_form(fname) is None:
+            #             fields.append((field.name, field))
+            #
+            # sort_key = collator.sort_key
+            # fields.sort(key=lambda c: sort_key(str(c[1].verbose_name)))
+            #
+            # self._fields = OrderedDict(fields)
             fields = []
             model = self._model
             managed_fields = tuple(batch_operator_manager.managed_fields)
             registry = self.bulk_update_registry
+
+            config = registry.config(model)
+            if config is None:
+                # TODO: rework this sh*t
+                from django.http import Http404
+                raise Http404(f'The model "{model}" is not registered for bulk-update.')
+
             updatable = partial(
-                registry.is_updatable, model=model, exclude_unique=False,
+                config.is_regular_field_updatable, model=model, exclude_unique=False,
             )
-            get_form = registry.status(model).get_form
+            overrider_classes = config.overrider_classes
 
             for field in model._meta.fields:
                 if field.editable and isinstance(field, managed_fields):
                     fname = field.name
 
-                    # Not a specific form (ie: specific business logic) TODO: test
-                    if updatable(field_name=fname) and get_form(fname) is None:
+                    # Not a specific form (ie: specific business logic)
+                    if updatable(field=field) and fname not in overrider_classes:
                         fields.append((field.name, field))
 
             sort_key = collator.sort_key

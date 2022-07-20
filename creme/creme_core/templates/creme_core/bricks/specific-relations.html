@@ -73,8 +73,10 @@
                             {% brick_table_column title=cell.title %}
                         {% endif %}
                     {% endfor %}
-                    {% if not relation_type.is_internal %}
+                    {% if relation_type.is_internal %}
                         {% brick_table_column title=_('Action') status='action' %}
+                    {% else %}
+                        {% brick_table_column title=_('Action') status='action' colspan=2 %}
                     {% endif %}
                     </tr>
                 </thead>
@@ -99,6 +101,10 @@
                         <td>{{HIDDEN_VALUE}}</td>
                         {% endfor %}
                     {% endif %}
+                        <td  {% brick_table_data_status action %}>{% inner_edition_uri instance=entity_obj cells=cells callback_url=object.get_absolute_url as edition_uri %}{% has_perm_to change entity_obj as obj_edition_perm %}
+                            {% blocktranslate with object=entity_obj asvar edition_label %}Edit «{{object}}»{% endblocktranslate %}
+                            {% brick_table_action id='edit' url=edition_uri label=edition_label enabled=obj_edition_perm %}
+                        </td>
                       {% if not relation_type.is_internal %}
                         <td  {% brick_table_data_status action %}>{% has_perm_to unlink entity_obj as object_unlink_perm %}
                           {% brick_table_action id='delete' url=delete_url __id=entity_obj.srb_relation_cache.id label=_('Delete this relationship') icon='unlink' enabled=subject_unlink_perm|and_op:object_unlink_perm %}

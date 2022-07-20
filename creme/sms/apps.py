@@ -58,7 +58,11 @@ class SMSConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
+        # bulk_update_registry.register(self.SMSCampaign, exclude=('lists',))
+        register = bulk_update_registry.register
+        register(self.SMSCampaign).exclude('lists')
+        register(self.MessagingList)
+        register(self.MessageTemplate)
 
     def register_custom_forms(self, cform_registry):
         from . import custom_forms

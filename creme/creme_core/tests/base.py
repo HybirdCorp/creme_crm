@@ -27,6 +27,7 @@ from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
 from ..management.commands.creme_populate import Command as PopulateCommand
 from ..models import (
+    CremeEntity,
     CremePropertyType,
     CremeUser,
     DeletionCommand,
@@ -707,23 +708,47 @@ class _CremeTestCase:
         return obj.__class__.objects.get(pk=obj.pk)
 
     @staticmethod
-    def build_inneredit_url(entity, fieldname):
-        return reverse(
+    # def build_inneredit_url(entity, fieldname):
+    #     return reverse(
+    #         'creme_core__inner_edition',
+    #         args=(
+    #             ContentType.objects.get_for_model(entity).pk,
+    #             entity.pk,
+    #             fieldname,
+    #         ),
+    #     )
+    def build_inneredit_uri(entity, *fields):
+        url = reverse(
             'creme_core__inner_edition',
-            args=(
-                ContentType.objects.get_for_model(entity).pk,
-                entity.pk,
-                fieldname,
-            ),
+            args=(ContentType.objects.get_for_model(entity).pk, entity.pk),
+        )
+        return f'{url}?' + '&'.join(
+            f'cell=regular_field-{field}'
+            if isinstance(field, str) else
+            f'cell=custom_field-{field.id}'
+            for field in fields
         )
 
     @staticmethod
-    def build_bulkupdate_url(model, fieldname=None):
+    # def build_bulkupdate_url(model, fieldname=None):
+    #     args = [ContentType.objects.get_for_model(model).id]
+    #     if fieldname:
+    #         args.append(fieldname)
+    #
+    #     return reverse('creme_core__bulk_update', args=args)
+    def build_bulkupdate_uri(*, model, field=None, entities=()):
         args = [ContentType.objects.get_for_model(model).id]
-        if fieldname:
-            args.append(fieldname)
+        if field is not None:
+            args.append(
+                f'regular_field-{field}'
+                if isinstance(field, str) else
+                f'custom_field-{field.id}'
+            )
 
-        return reverse('creme_core__bulk_update', args=args)
+        url = reverse('creme_core__bulk_update', args=args)
+        ids = '.'.join(str(e.id if isinstance(e, CremeEntity) else e) for e in entities)
+
+        return f"{url}?entities={ids}" if ids else url
 
     @staticmethod
     def formfield_value_date(*args):

@@ -310,7 +310,7 @@ class InheritedDataChain(Generic[T]):
 
 class OrderedSet(MutableSet):
     """Set that remembers original insertion order.
-    Implementation based on a doubly linked link and an internal dictionary.
+    Implementation based on a doubly linked list and an internal dictionary.
     This design gives OrderedSet the same big-Oh running times as regular sets
     including O(1) adds, removes, and lookups as well as O(n) iteration.
     """

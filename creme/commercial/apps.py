@@ -65,13 +65,16 @@ class CommercialConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from . import models
+        # from . import models
 
         register = bulk_update_registry.register
-        # TODO: min_value/max_value constraint in the model... )
-        register(models.ActObjectivePatternComponent, exclude=['success_rate'])
-        # TODO: special form for segment
-        register(models.MarketSegmentDescription, exclude=['segment'])
+        # todo: min_value/max_value constraint in the model...
+        # register(models.ActObjectivePatternComponent, exclude=['success_rate'])
+        # todo: special form for segment
+        # register(models.MarketSegmentDescription, exclude=['segment'])
+        register(self.Act)
+        register(self.Pattern)
+        register(self.Strategy)
 
     def register_buttons(self, button_registry):
         from . import buttons

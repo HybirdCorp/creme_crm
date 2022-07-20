@@ -93,7 +93,7 @@ if apps.is_installed('creme.activities'):
             self.context = context
             self.contact = contact
 
-        # @property  # TODO: cached_property ??
+        # @property
         @cached_property
         def label(self):
             contact = self.contact

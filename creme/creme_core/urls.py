@@ -118,8 +118,13 @@ entity_patterns = [
         name='creme_core__entity_info_fields',
     ),
 
+    # re_path(
+    #     r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+    #     entity.InnerEdition.as_view(),
+    #     name='creme_core__inner_edition',
+    # ),
     re_path(
-        r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+        r'^edit/inner/(?P<ct_id>\d+)/(?P<id>\d+)[/]?$',
         entity.InnerEdition.as_view(),
         name='creme_core__inner_edition',
     ),
@@ -129,8 +134,13 @@ entity_patterns = [
         entity.BulkUpdate.as_view(),
         name='creme_core__bulk_update',
     ),
+    # re_path(
+    #     r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+    #     entity.BulkUpdate.as_view(),
+    #     name='creme_core__bulk_update',
+    # ),
     re_path(
-        r'^update/bulk/(?P<ct_id>\d+)/field/(?P<field_name>[\w-]+)[/]?$',
+        r'^update/bulk/(?P<ct_id>\d+)/field/(?P<cell_key>[\w-]+)[/]?$',
         entity.BulkUpdate.as_view(),
         name='creme_core__bulk_update',
     ),
