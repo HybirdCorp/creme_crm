@@ -792,26 +792,26 @@ class SendingsTestCase(_EmailsTestCase):
             data={'brick_id': MailsBrick.id_}
         )
 
-    def test_inneredit(self):
-        user = self.login()
-        camp = EmailCampaign.objects.create(user=user, name='camp01')
-        sending = EmailSending.objects.create(
-            campaign=camp, type=EmailSending.Type.IMMEDIATE,
-            sending_date=now(), state=EmailSending.State.PLANNED,
-        )
-
-        build_url = self.build_inneredit_url
-        self.assertGET(400, build_url(sending, 'campaign'))
-        self.assertGET(400, build_url(sending, 'state'))
-        self.assertGET(400, build_url(sending, 'subject'))
-        self.assertGET(400, build_url(sending, 'body'))
-        self.assertGET(400, build_url(sending, 'body_html'))
-        self.assertGET(400, build_url(sending, 'signature'))
-        self.assertGET(400, build_url(sending, 'attachments'))
-
-        self.assertGET(400, build_url(sending, 'sender'))
-        self.assertGET(400, build_url(sending, 'type'))
-        self.assertGET(400, build_url(sending, 'sending_date'))
+    # TODO?
+    # def test_inneredit(self):
+    #     user = self.login()
+    #     camp = EmailCampaign.objects.create(user=user, name='camp01')
+    #     sending = EmailSending.objects.create(
+    #         campaign=camp, type=EmailSending.Type.IMMEDIATE,
+    #         sending_date=now(), state=EmailSending.State.PLANNED,
+    #     )
+    #
+    #     build_uri = self.build_inneredit_uri
+    #     self.assertGET404(build_uri(sending, 'campaign'))
+    #     self.assertGET404(build_uri(sending, 'state'))
+    #     self.assertGET404(build_uri(sending, 'subject'))
+    #     self.assertGET404(build_uri(sending, 'body'))
+    #     self.assertGET404(build_uri(sending, 'body_html'))
+    #     self.assertGET404(build_uri(sending, 'signature'))
+    #     self.assertGET404(build_uri(sending, 'attachments'))
+    #     self.assertGET404(build_uri(sending, 'sender'))
+    #     self.assertGET404(build_uri(sending, 'type'))
+    #     self.assertGET404(build_uri(sending, 'sending_date'))
 
     def test_next_wakeup01(self):
         "Several deferred sendings."

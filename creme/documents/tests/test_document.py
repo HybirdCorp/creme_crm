@@ -60,7 +60,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertTrue(DocumentCategory.objects.exists())
 
     def test_create(self):
-        "Auto-fill title if empty."
+        "Autofill title if empty."
         from creme.creme_core.utils.file_handling import FileCreator
 
         filename = 'DocTestCreate001.txt'

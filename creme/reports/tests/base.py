@@ -114,12 +114,17 @@ class BaseReportsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('reports__create_report')
 
-    def _create_simple_contacts_report(self, name='Contact report', efilter=None, user=None):
+    def _create_simple_contacts_report(self,
+                                       name='Contact report',
+                                       efilter=None,
+                                       user=None,
+                                       **kwargs):
         report = Report.objects.create(
             user=user or self.user,
             name=name,
             ct=FakeContact,
             filter=efilter,
+            **kwargs
         )
         Field.objects.create(
             report=report, name='last_name', type=constants.RFT_FIELD, order=1,

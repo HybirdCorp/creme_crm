@@ -967,28 +967,31 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             MarketSegmentCategory.objects.values_list('segment_desc_id', flat=True),
         )
 
-    def test_inneredit_segmentdesc(self):
-        user = self.login()
-        strategy = Strategy.objects.create(user=user, name='Strat#1')
-        segment_desc = self._create_segment_desc(strategy, 'Industry', product='green powder')
-
-        build_url = self.build_inneredit_url
-        url = build_url(segment_desc, 'product')
-        self.assertGET200(url)
-
-        product = segment_desc.product.title()
-        response = self.client.post(
-            url,
-            data={
-                'entities_lbl': [str(segment_desc)],
-                'field_value':  product,
-            },
-        )
-        self.assertNoFormError(response)
-        self.assertEqual(product, self.refresh(segment_desc).product)
-
-        self.assertGET(400, build_url(segment_desc, 'strategy'))
-        self.assertGET(400, build_url(segment_desc, 'segment'))
+    # TODO?
+    # def test_inneredit_segmentdesc(self):
+    #     user = self.login()
+    #     strategy = Strategy.objects.create(user=user, name='Strat#1')
+    #     segment_desc = self._create_segment_desc(strategy, 'Industry', product='green powder')
+    #
+    #     build_uri = self.build_inneredit_uri
+    #     field_name = 'product'
+    #     uri = build_uri(segment_desc, field_name)
+    #     self.assertGET200(uri)
+    #
+    #     product = segment_desc.product.title()
+    #     response = self.client.post(
+    #         uri,
+    #         data={
+    #             # 'entities_lbl': [str(segment_desc)],
+    #             # 'field_value':  product,
+    #             field_name:  product,
+    #         },
+    #     )
+    #     self.assertNoFormError(response)
+    #     self.assertEqual(product, self.refresh(segment_desc).product)
+    #
+    #     self.assertGET404(build_uri(segment_desc, 'strategy'))
+    #     self.assertGET404(build_uri(segment_desc, 'segment'))
 
     @skipIfCustomOrganisation
     def test_reload_assets_matrix(self):

@@ -26,11 +26,14 @@ from django.core.exceptions import FieldDoesNotExist, PermissionDenied
 from django.db import IntegrityError
 from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
+from django.forms.fields import ChoiceField
 from django.forms.models import modelform_factory
 from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
+from django.utils.functional import cached_property
+from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -40,6 +43,11 @@ from .. import constants
 from ..auth import SUPERUSER_PERM
 from ..auth.decorators import login_required
 from ..auth.entity_credentials import EntityCredentials
+from ..core.entity_cell import (
+    CELLS_MAP,
+    EntityCellCustomField,
+    EntityCellRegularField,
+)
 from ..core.exceptions import (
     BadRequestError,
     ConflictError,
@@ -47,7 +55,7 @@ from ..core.exceptions import (
 )
 from ..creme_jobs import trash_cleaner_type
 from ..forms import CremeEntityForm
-from ..forms.bulk import BulkDefaultEditForm
+# from ..forms.bulk import BulkDefaultEditForm
 from ..forms.merge import MergeEntitiesBaseForm
 from ..forms.merge import form_factory as merge_form_factory
 # NB: do no import <bulk_update_registry> to facilitate unit testing
@@ -69,10 +77,12 @@ from ..utils import (
     get_from_GET_or_404,
     get_from_POST_or_404,
 )
+from ..utils.collections import LimitedList
 from ..utils.html import sanitize_html
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.serializers import json_encode
 from ..utils.translation import get_model_verbose_name
+from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
 from .generic import base, listview
@@ -298,13 +308,50 @@ def _bulk_has_perm(entity, user):  # NB: indeed 'entity' can be a simple model..
     return user.has_perm_to_change(owner) if isinstance(owner, CremeEntity) else False
 
 
-class InnerEdition(base.ContentTypeRelatedMixin,
+# class InnerEdition(base.ContentTypeRelatedMixin,
+#                    generic.CremeModelEditionPopup):
+#     # model = ...
+#     # form_class = ...
+#     pk_url_kwarg = 'id'
+#
+#     field_name_url_kwarg = 'field_name'
+#     bulk_update_registry = bulk_update.bulk_update_registry
+#
+#     def check_instance_permissions(self, instance, user):
+#         super().check_instance_permissions(instance=instance, user=user)
+#
+#         if not _bulk_has_perm(instance, user):
+#             raise PermissionDenied(gettext('You are not allowed to edit this entity'))
+#
+#     def dispatch(self, *args, **kwargs):
+#         try:
+#             return super().dispatch(*args, **kwargs)
+#         except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
+#             return HttpResponseBadRequest(str(e))
+#
+#     def get_form_class(self):
+#         return self.bulk_update_registry.get_form(
+#             model=self.object.__class__,
+#             field_name=self.kwargs[self.field_name_url_kwarg],
+#             default=BulkDefaultEditForm,
+#         )
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         del kwargs['instance']  # todo: use CremeEdition & remove this ?
+#         kwargs['entities'] = [self.object]  # todo: rename 'entities' arg
+#
+#         return kwargs
+#
+#     def get_queryset(self):
+#         return self.get_ctype().model_class()._default_manager.all()
+class InnerEdition(base.EntityCTypeRelatedMixin,
                    generic.CremeModelEditionPopup):
     # model = ...
     # form_class = ...
     pk_url_kwarg = 'id'
+    cell_key_arg = 'cell'
 
-    field_name_url_kwarg = 'field_name'
     bulk_update_registry = bulk_update.bulk_update_registry
 
     def check_instance_permissions(self, instance, user):
@@ -313,39 +360,187 @@ class InnerEdition(base.ContentTypeRelatedMixin,
         if not _bulk_has_perm(instance, user):
             raise PermissionDenied(gettext('You are not allowed to edit this entity'))
 
-    def dispatch(self, *args, **kwargs):
-        try:
-            return super().dispatch(*args, **kwargs)
-        except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
-            return HttpResponseBadRequest(str(e))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        cb_url = context['callback_url']
+        if cb_url:
+            context['help_message'] = format_html(
+                '<a href="{url}">{label}</a>',
+                url=f'{self.object.get_edit_absolute_url()}?callback_url={cb_url}',
+                label=gettext('Full edition form'),
+            )
+
+        return context
 
     def get_form_class(self):
-        return self.bulk_update_registry.get_form(
-            model=self.object.__class__,
-            field_name=self.kwargs[self.field_name_url_kwarg],
-            default=BulkDefaultEditForm,
+        model = self.object.__class__
+
+        # TODO: always GET?
+        cells, errors = CELLS_MAP.build_cells_from_keys(
+            model=model, keys=self.request.GET.getlist(self.cell_key_arg),
         )
+        if errors:
+            raise Http404('A cell key is invalid')
 
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        del kwargs['instance']  # TODO: use CremeEdition & remove this ?
-        kwargs['entities'] = [self.object]  # TODO: rename 'entities' arg
-
-        return kwargs
+        registry = self.bulk_update_registry
+        try:
+            return registry.build_form_class(model, cells)
+        except registry.Error as e:
+            raise Http404(str(e)) from e
 
     def get_queryset(self):
         return self.get_ctype().model_class()._default_manager.all()
 
 
-# TODO: factorise with InnerEdition
+# class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
+#     # model = ...
+#     # form_class = ...
+#     # pk_url_kwarg = ...
+#     title = _('Multiple update')
+#
+#     field_name_url_kwarg = 'field_name'
+#     bulk_update_registry = bulk_update.bulk_update_registry
+#
+#     def dispatch(self, *args, **kwargs):
+#         try:
+#             return super().dispatch(*args, **kwargs)
+#         except (FieldDoesNotExist, bulk_update.FieldNotAllowed) as e:
+#             return HttpResponseBadRequest(str(e))
+#
+#    def get_context_data(self, **kwargs):
+#        context = super().get_context_data(**kwargs)
+#
+#        count = len(self.get_entity_ids())
+#        context['help_message'] = ngettext(
+#            '{count} «{model}» has been selected.',
+#            '{count} «{model}» have been selected.',
+#            count
+#        ).format(
+#            count=count,
+#            model=get_model_verbose_name(model=self.get_ctype().model_class(), count=count),
+#        )
+#
+#        return context
+#
+#     def get_form_class(self):
+#         model = self.get_ctype().model_class()
+#         registry = self.bulk_update_registry
+#         field_name = self.kwargs.get(self.field_name_url_kwarg)
+#
+#         if field_name is None:
+#             field_name = registry.get_default_field(model).name
+#
+#         return registry.get_form(
+#             model=model, field_name=field_name, default=BulkDefaultEditForm,
+#         )
+#
+#     def get_form_kwargs(self):
+#         kwargs = super().get_form_kwargs()
+#         kwargs['entities'] = self.get_entities()
+#         kwargs['is_bulk'] = True
+#
+#         return kwargs
+#
+#     def get_summary(self, form):
+#         initial_count = len(self.get_entity_ids())
+#         success_count = len(form.bulk_cleaned_entities)
+#         invalid_count = len(form.bulk_invalid_entities)
+#         forbidden_count = initial_count - success_count - invalid_count
+#
+#         context = {
+#             'model': get_model_verbose_name(form.model, success_count),
+#             'success': success_count,
+#             'initial': initial_count,
+#             'invalid': invalid_count,
+#             'forbidden': forbidden_count,
+#         }
+#
+#         if initial_count == success_count:
+#             summary = ngettext(
+#                 '{success} «{model}» has been successfully modified.',
+#                 '{success} «{model}» have been successfully modified.',
+#                 success_count
+#             )
+#         else:
+#             summary = ngettext(
+#                 '{success} of {initial} «{model}» has been successfully modified.',
+#                 '{success} of {initial} «{model}» have been successfully modified.',
+#                 success_count
+#             )
+#
+#             if forbidden_count:
+#                 summary += ' ' + ngettext(
+#                     '{forbidden} was not editable.',
+#                     '{forbidden} were not editable.',
+#                     forbidden_count
+#                 )
+#
+#             if invalid_count:
+#                 summary += ' ' + ngettext(
+#                     '{invalid} has returned an error.',
+#                     '{invalid} have returned an error.',
+#                     invalid_count
+#                 )
+#
+#         return summary.format(**context)
+#
+#     def form_valid(self, form):
+#         super().form_valid(form=form)
+#
+#         return render(
+#             self.request,
+#             template_name='creme_core/frags/bulk_process_report.html',
+#             context={
+#                 'form': form,
+#                 'title': self.get_title(),
+#                 'summary': self.get_summary(form=form),
+#             },
+#         )
+#
+#     def get_entity_ids(self):
+#         if self.request.method == 'POST':
+#             return self.request.POST.getlist('entities', [])
+#         else:
+#             raw_ids = self.request.GET.get('entities')
+#             return raw_ids.split('.') if raw_ids else []
+#
+#     def get_entities(self):
+#         entity_ids = self.get_entity_ids()
+#
+#         # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and
+#         #    nullable ids will fail with postgresql (both 9.6 & 10.x).
+#         # entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
+#         qs = self.get_queryset()
+#         entities = qs.filter(pk__in=entity_ids)
+#
+#         filtered = EntityCredentials.filter(
+#             self.request.user, queryset=entities, perm=EntityCredentials.CHANGE,
+#         )
+#
+#         # NB: Move 'SELECT FOR UPDATE' here for now.
+#         #     It could cause performance issues with a large amount of
+#         #     selected entities, but this never happens with common use cases.
+#         # return filtered
+#         if self.request.method == 'POST':
+#             if not filtered:
+#                 raise PermissionDenied(_('You are not allowed to edit these entities'))
+#
+#             return qs.select_for_update().filter(pk__in=filtered)
+#         else:
+#             return qs.filter(pk__in=filtered)
+#
+#     def get_queryset(self):
+#         return self.get_ctype().model_class()._default_manager.all()
 class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
-    # model = ...
-    # form_class = ...
-    # pk_url_kwarg = ...
+    # form_class = ...  => generated dynamically
     title = _('Multiple update')
 
-    field_name_url_kwarg = 'field_name'
+    cell_key_url_kwarg = 'cell_key'
     bulk_update_registry = bulk_update.bulk_update_registry
+
+    results_template_name = 'creme_core/bulk-update-results.html'
+    max_errors = 100
 
     def dispatch(self, *args, **kwargs):
         try:
@@ -356,8 +551,8 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        count = len(self.get_entity_ids())
-        # TODO: select_label in model instead (e.g. gender issue)
+        count = len(self.entity_ids)
+        # TODO: select_label in model instead (e.g. gender issue)?
         context['help_message'] = ngettext(
             '{count} «{model}» has been selected.',
             '{count} «{model}» have been selected.',
@@ -372,89 +567,150 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     def get_form_class(self):
         model = self.get_ctype().model_class()
         registry = self.bulk_update_registry
-        field_name = self.kwargs.get(self.field_name_url_kwarg)
 
-        if field_name is None:
-            field_name = registry.get_default_field(model).name
+        cell = None
+        cell_key = self.kwargs.get(self.cell_key_url_kwarg)
+        if cell_key:
+            cell = CELLS_MAP.build_cell_from_key(
+                model=model, key=self.kwargs.get(self.cell_key_url_kwarg),
+            )
+            if cell is None:
+                raise Http404(f'The cell "{cell_key}" is invalid')
 
-        return registry.get_form(
-            model=model, field_name=field_name, default=BulkDefaultEditForm,
+        config = registry.config(model)
+        if config is None:
+            raise Http404(f'The model "{model}" is not registered for bul-update.')
+
+        sort_key = collator.sort_key
+
+        rfield_cells = sorted(
+            (
+                EntityCellRegularField.build(model, field.name)
+                for field in config.regular_fields(exclude_unique=True)
+            ),
+            key=lambda cell: sort_key(cell.title),
+        )
+        cfield_cells = sorted(
+            (EntityCellCustomField(cfield) for cfield in config.custom_fields),
+            key=lambda cell: sort_key(cell.title),
+        )
+
+        # TODO: test
+        if not rfield_cells and not cfield_cells:
+            raise Http404(f'The model "{model}" has not inner-editable field.')
+
+        if cell is None:
+            cell = rfield_cells[0] if rfield_cells else cfield_cells[0]
+
+        try:
+            form_cls = registry.build_form_class(model, cells=[cell], exclude_unique=True)
+        except registry.Error as e:
+            raise Http404(str(e)) from e
+
+        build_url = self._bulk_field_url
+        choices = [(build_url(cell), cell.title) for cell in rfield_cells]
+        if cfield_cells:
+            choices.append((
+                gettext('Custom fields'),
+                [(build_url(cell), cell.title) for cell in cfield_cells]
+            ))
+
+        class BulkEditionForm(form_cls):
+            # TODO: change field name (beware of JavaScript)
+            # TODO: we could easily bulk-edit several fields with a multi-selector...
+            _bulk_fieldname = ChoiceField(
+                choices=choices,
+                label=_('Field to update'),
+                initial=self._bulk_field_url(cell),
+                required=False,
+            )
+
+            # TODO: (management of '*' in field list is needed)
+            # blocks = FieldBlockManager({
+            #     'id': 'general', 'label': _('Field & value'), 'fields': ('_bulk_fieldname', '*'),
+            # })
+
+            field_order = ['_bulk_fieldname']  # NB: set the field as first one
+
+            # TODO: call super()._post_clean only if instance.pk?
+            # def _post_clean(this):
+
+        return BulkEditionForm
+
+    def _bulk_field_url(self, cell):
+        # TODO: cell_key as GET argument?
+        #       We could store the base URL + GET argument's name in HTML attributes,
+        #       & choices values would be the cell keys.
+        return reverse(
+            'creme_core__bulk_update',
+            kwargs={
+                'ct_id': ContentType.objects.get_for_model(cell.model).id,
+                'cell_key': cell.key,
+            },
         )
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['entities'] = self.get_entities()
-        kwargs['is_bulk'] = True
+
+        entities = self.entities
+        kwargs['instances'] = entities
+
+        if len(entities) == 1:
+            kwargs['instance'] = entities[0]
 
         return kwargs
 
-    def get_summary(self, form):
-        initial_count = len(self.get_entity_ids())
-        success_count = len(form.bulk_cleaned_entities)
-        invalid_count = len(form.bulk_invalid_entities)
-        forbidden_count = initial_count - success_count - invalid_count
-
-        context = {
-            'model': get_model_verbose_name(form.model, success_count),
-            'success': success_count,
-            'initial': initial_count,
-            'invalid': invalid_count,
-            'forbidden': forbidden_count,
-        }
-
-        # TODO: modification_label/bulk_label/... in model instead (fr: masculin/féminin)
-        if initial_count == success_count:
-            summary = ngettext(
-                '{success} «{model}» has been successfully modified.',
-                '{success} «{model}» have been successfully modified.',
-                success_count
-            )
-        else:
-            summary = ngettext(
-                '{success} of {initial} «{model}» has been successfully modified.',
-                '{success} of {initial} «{model}» have been successfully modified.',
-                success_count
-            )
-
-            if forbidden_count:
-                summary += ' ' + ngettext(
-                    '{forbidden} was not editable.',
-                    '{forbidden} were not editable.',
-                    forbidden_count
-                )
-
-            if invalid_count:
-                summary += ' ' + ngettext(
-                    '{invalid} has returned an error.',
-                    '{invalid} have returned an error.',
-                    invalid_count
-                )
-
-        return summary.format(**context)
-
-    # TODO: avoid the use of 2 templates ?
     def form_valid(self, form):
-        super().form_valid(form=form)
+        # Here only an instance of our form bound to an empty instance has been
+        # validated ; so we can still get ValidationErrors with our concrete
+        # instances, but we do not stop the process when an error happens, we
+        # just keep statistics about them.
+        form_cls = type(form)
+        user = form.user
+        success_count = 0
+        errors = LimitedList(max_size=self.max_errors)
+        entities = self.entities
+
+        for entity in entities:
+            # TODO: files=request.FILES?
+            instance_form = form_cls(
+                user=user, instance=entity, instances=entities, data=self.request.POST,
+            )
+
+            if instance_form.is_valid():
+                instance_form.save()
+                success_count += 1
+            else:
+                errors.append((entity, instance_form.errors))
+
+        initial_count = len(self.entity_ids)
 
         return render(
             self.request,
-            template_name='creme_core/frags/bulk_process_report.html',  # TODO: attributes ?
+            template_name=self.results_template_name,
             context={
-                'form': form,
                 'title': self.get_title(),
-                'summary': self.get_summary(form=form),
+                # 'ctype': ContentType.objects.get_for_model(type(form.instance)), TODO?
+
+                'initial_count': initial_count,
+                'success_count': success_count,
+                'forbidden_count': initial_count - success_count - len(errors),
+
+                'errors': errors,
             },
         )
 
-    def get_entity_ids(self):
+    @cached_property
+    def entity_ids(self):
         if self.request.method == 'POST':
             return self.request.POST.getlist('entities', [])
         else:
             raw_ids = self.request.GET.get('entities')
             return raw_ids.split('.') if raw_ids else []
 
-    def get_entities(self):
-        entity_ids = self.get_entity_ids()
+    @cached_property
+    def entities(self):
+        entity_ids = self.entity_ids
 
         # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and
         #    nullable ids will fail with postgresql (both 9.6 & 10.x).
@@ -476,6 +732,8 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
             if not filtered:
                 raise PermissionDenied(_('You are not allowed to edit these entities'))
 
+            # TODO: remove .select_for_update() here & perform it in form_valid()
+            #       on chunks of the global query (+ separated transaction?)
             return qs.select_for_update().filter(pk__in=filtered)
         else:
             return qs.filter(pk__in=filtered)
@@ -507,7 +765,7 @@ class EntitiesToMergeSelection(base.EntityRelatedMixin,
                                listview.BaseEntitiesListPopup):
     """List-view to select a second entity to merge with a given entity.
 
-    The second entity must have the same type than the first one, and cannot
+    The second entity must have the same type as the first one, and cannot
     have the same ID.
     """
     mode = listview.SelectionMode.SINGLE

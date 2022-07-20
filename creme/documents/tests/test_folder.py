@@ -5,8 +5,13 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms import CreatorEntityField
 from creme.creme_core.gui import actions
-from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.creme_core.models import (
+    FakeOrganisation,
+    FieldsConfig,
+    SetCredentials,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents import constants
 from creme.documents.actions import ExploreFolderAction
@@ -385,6 +390,12 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
     def test_inneredit_parent01(self):
         user = self.login()
+
+        FieldsConfig.objects.create(
+            content_type=Folder,
+            descriptions=[('description', {FieldsConfig.REQUIRED: True})],
+        )  # Should not be used
+
         cat1, cat2 = FolderCategory.objects.all()[:2]
 
         create_folder = partial(
@@ -393,11 +404,24 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder1 = create_folder(title='Test folder#1', category=cat1)
         folder2 = create_folder(title='Test folder#2', category=cat2)
 
-        url = self.build_inneredit_url(folder1, 'parent_folder')
-        self.assertGET200(url)
+        field_name = 'parent_folder'
+        # url = self.build_inneredit_url(folder1, 'parent_folder')
+        uri = self.build_inneredit_uri(folder1, field_name)
+        # self.assertGET200(url)
+        response1 = self.assertGET200(uri)
+        formfield_name = f'override-{field_name}'
 
-        response = self.client.post(url, data={'field_value': folder2.pk})
-        self.assertNoFormError(response)
+        with self.assertNoException():
+            parent_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(parent_f, CreatorEntityField)
+        self.assertIsNone(parent_f.initial)
+        self.assertFalse(parent_f.required)
+
+        # ----
+        # response2 = self.client.post(url, data={'field_value': folder2.pk})
+        response2 = self.client.post(uri, data={formfield_name: folder2.pk})
+        self.assertNoFormError(response2)
 
         folder1 = self.refresh(folder1)
         self.assertEqual(folder2, folder1.parent_folder)
@@ -414,9 +438,12 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder1 = create_folder(title='Test folder#1')
         folder2 = create_folder(title='Test folder#2', category=cat)
 
+        field_name = 'parent_folder'
         response = self.client.post(
-            self.build_inneredit_url(folder1, 'parent_folder'),
-            data={'field_value': folder2.pk},
+            # self.build_inneredit_url(folder1, 'parent_folder'),
+            self.build_inneredit_uri(folder1, field_name),
+            # data={'field_value': folder2.pk},
+            data={f'override-{field_name}': folder2.pk},
         )
         self.assertNoFormError(response)
 
@@ -435,26 +462,77 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
 
-        url = self.build_inneredit_url(folder1, 'parent_folder')
-        response1 = self.assertPOST200(url, data={'field_value': folder3.id})
+        # url = self.build_inneredit_url(folder1, 'parent_folder')
+        field_name = 'parent_folder'
+        uri = self.build_inneredit_uri(folder1, field_name)
+        # response1 = self.assertPOST200(url, data={'field_value': folder3.id})
+        formfield_name = f'override-{field_name}'
+        response1 = self.assertPOST200(uri, data={formfield_name: folder3.id})
+        # self.assertFormError(
+        #     response1, 'form', None,
+        #     '{} : {}'.format(
+        #         _('Parent folder'),
+        #         _('This folder is one of the child folders of «%(folder)s»') % {
+        #             'folder': folder1,
+        #         },
+        #     ),
+        # )
         self.assertFormError(
+            # response1, 'form', field_name,
             response1, 'form', None,
-            '{} : {}'.format(
-                _('Parent folder'),
-                _('This folder is one of the child folders of «%(folder)s»') % {
-                    'folder': folder1,
-                },
-            ),
+            _('This folder is one of the child folders of «%(folder)s»') % {
+                'folder': folder1,
+            },
         )
 
         # -----
-        response2 = self.client.post(url, data={'field_value': folder1.pk})
+        # response2 = self.client.post(url, data={'field_value': folder1.pk})
+        response2 = self.client.post(uri, data={formfield_name: folder1.pk})
         # self.assertNoFormError(response2)
         # self.assertIsNone(self.refresh(folder1).parent_folder)
         self.assertFormError(
-            response2, 'form', 'field_value',
+            # response2, 'form', 'field_value',
+            response2, 'form', formfield_name,
             _('«%(entity)s» violates the constraints.') % {'entity': folder1},
         )
+
+    def test_inneredit_parent04(self):
+        "Initial not None."
+        user = self.login()
+
+        create_folder = partial(
+            Folder.objects.create, user=user, description='Test description',
+        )
+        folder1 = create_folder(title='Test folder#1')
+        folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
+
+        field_name = 'parent_folder'
+        response = self.assertGET200(self.build_inneredit_uri(folder2, field_name))
+
+        with self.assertNoException():
+            parent_f = response.context['form'].fields[f'override-{field_name}']
+
+        self.assertEqual(folder1.id, parent_f.initial)
+
+    def test_inneredit_parent05(self):
+        "Configured as required."
+        user = self.login()
+
+        field_name = 'parent_folder'
+        FieldsConfig.objects.create(
+            content_type=Folder,
+            descriptions=[(field_name, {FieldsConfig.REQUIRED: True})],
+        )
+
+        cat = FolderCategory.objects.first()
+        folder = Folder.objects.create(user=user, title='Test folder#1', category=cat)
+
+        response = self.assertGET200(self.build_inneredit_uri(folder, field_name))
+
+        with self.assertNoException():
+            parent_f = response.context['form'].fields[f'override-{field_name}']
+
+        self.assertTrue(parent_f.required)
 
     def test_bulkedit_parent(self):
         user = self.login()
@@ -467,24 +545,32 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
         folder4 = create_folder(title='Test folder#4')
 
-        url = self.build_bulkupdate_url(Folder, 'parent_folder')
+        # url = self.build_bulkupdate_url(Folder, 'parent_folder')
+        # self.assertGET200(url)
+        folders = [folder1, folder3, folder4]
+        field_name = 'parent_folder'
+        url = self.build_bulkupdate_uri(model=Folder, field=field_name)
         self.assertGET200(url)
 
-        response = self.client.post(
+        # ---
+        formfield_name = f'override-{field_name}'
+        response2 = self.client.post(
             url,
             data={
-                'field_value': folder3.id,
-                'entities':    [folder1.id, folder3.id, folder4.id],
+                # 'field_value': folder3.id,
+                # 'entities':    [folder1.id, folder3.id, folder4.id],
+                'entities': [folder.id for folder in folders],
+                formfield_name: folder3.id,
             },
         )
         self.assertContains(
-            response,
+            response2,
             _('This folder is one of the child folders of «%(folder)s»') % {
                 'folder': folder1,
             },
         )
         self.assertContains(
-            response,
+            response2,
             _('«%(folder)s» cannot be its own parent') % {'folder': folder3},
         )
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -164,7 +164,8 @@ def listview_td_action_for_cell(*, cell, instance, user):
 
     return {
         # TODO: pass the registry in a list-view context
-        'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        # 'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
+        'edit_url':  bulk_update_registry.inner_uri(instance=instance, cells=[cell]),
         'edit_perm': _bulk_has_perm(instance, user),
     }
 

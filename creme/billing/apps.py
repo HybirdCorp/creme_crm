@@ -153,12 +153,18 @@ class BillingConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from .models import PaymentInformation
+        # from .models import PaymentInformation
 
         register = bulk_update_registry.register
-        register(self.ProductLine,   exclude=['on_the_fly_item'])
-        register(self.ServiceLine,   exclude=['on_the_fly_item'])
-        register(PaymentInformation, exclude=['organisation'])  # TODO: tags modifiable=False ??
+        # register(self.ProductLine,   exclude=['on_the_fly_item'])
+        # register(self.ServiceLine,   exclude=['on_the_fly_item'])
+        # register(PaymentInformation, exclude=['organisation'])  # TODO: tags modifiable=False ??
+        register(self.Invoice)
+        register(self.Quote)
+        register(self.SalesOrder)
+        register(self.CreditNote)
+        register(self.ProductLine).exclude('on_the_fly_item')
+        register(self.ServiceLine).exclude('on_the_fly_item')
 
     def register_buttons(self, button_registry):
         from . import buttons

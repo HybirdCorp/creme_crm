@@ -30,7 +30,9 @@ import creme.creme_core.forms.base as core_forms
 import creme.creme_core.forms.fields as core_fields
 from creme import persons, polls
 from creme.creme_core.auth import EntityCredentials
-from creme.creme_core.forms.bulk import BulkDefaultEditForm
+# from creme.creme_core.forms.bulk import BulkDefaultEditForm
+from creme.creme_core.gui.bulk_update import FieldOverrider
+from creme.creme_core.models import FieldsConfig
 
 Contact      = persons.get_contact_model()
 Organisation = persons.get_organisation_model()
@@ -245,17 +247,39 @@ class PollReplyFillForm(core_forms.CremeForm):
         return self.poll_reply
 
 
-class InnerEditPersonForm(BulkDefaultEditForm):
-    def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
-        super().__init__(model, field, user, entities, is_bulk, **kwargs)
+# class InnerEditPersonForm(BulkDefaultEditForm):
+#     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
+#         super().__init__(model, field, user, entities, is_bulk, **kwargs)
+#         person_field = core_fields.GenericEntityField(
+#             label=_('Person who filled'),
+#             required=False,
+#             models=[Organisation, Contact],
+#             user=user,
+#         )
+#
+#         if not is_bulk:
+#             person_field.initial = entities[0].person
+#
+#         self.fields['field_value'] = person_field
+class PersonOverrider(FieldOverrider):
+    field_names = ['person']
+
+    def formfield(self, instances, user, **kwargs):
+        first = instances[0]
         person_field = core_fields.GenericEntityField(
             label=_('Person who filled'),
-            required=False,
+            required=FieldsConfig.objects
+                                 .get_for_model(type(first))
+                                 .is_fieldname_required(self.field_names[0]),
             models=[Organisation, Contact],
             user=user,
         )
 
-        if not is_bulk:
-            person_field.initial = entities[0].person
+        if len(instances) == 1:
+            person_field.initial = first.person
 
-        self.fields['field_value'] = person_field
+        return person_field
+
+    def post_clean_instance(self, *, instance, value, form):
+        # TODO: default implementation?
+        setattr(instance, self.field_names[0], value)

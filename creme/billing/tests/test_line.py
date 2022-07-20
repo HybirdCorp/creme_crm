@@ -1376,19 +1376,26 @@ class LineTestCase(_BillingTestCase):
             comment='I believe',
         )
 
-        build_url = self.build_inneredit_url
-        url = build_url(pline, 'comment')
-        self.assertGET200(url)
+        # build_url = self.build_inneredit_url
+        build_uri = self.build_inneredit_uri
+        # url = build_url(pline, 'comment')
+        field_name = 'comment'
+        uri = build_uri(pline, field_name)
+        # self.assertGET200(url)
+        self.assertGET200(uri)
 
         comment = pline.comment + ' I can flyyy'
         response = self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(pline)],
-                'field_value':  comment,
+                # 'entities_lbl': [str(pline)],
+                # 'field_value':  comment,
+                field_name:  comment,
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(comment, self.refresh(pline).comment)
 
-        self.assertGET(400, build_url(pline, 'on_the_fly_item'))
+        # self.assertGET(400, build_url(pline, 'on_the_fly_item'))
+        self.assertGET404(build_uri(pline, 'on_the_fly_item'))

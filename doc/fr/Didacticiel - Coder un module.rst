@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-07-2022 pour la version 2.4 de Creme
+:Version: 01-09-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2814,13 +2814,8 @@ Modification champ à champ
 Tous les champs déclarés comme ``editable=True`` dans vos modèles d'entités
 (c'est le cas par défaut) peuvent être modifié dans les vues détaillés desdits
 modèles dans les blocs d'informations (ainsi que dans les vues en liste).
-Un champ non éditable ne pourra pas être modifié de cette manière.
-
-Parfois, vous voulez que des champs soient présents dans le formulaire de
-création de la fiche, mais vous les excluez du formulaire d'édition (attribut
-``exclude`` de la classe ``Meta`` dudit formulaire). De la même manière, vous
-voudrez que ces champs ne puissent pas être modifiés non plus dans la vue
-détaillée : ::
+Il suffit simplement de déclarer votre classe d'entité comme étant compatible,
+comme ceci : ::
 
     [...]
 
@@ -2828,10 +2823,25 @@ détaillée : ::
         [...]
 
         def register_bulk_update(self, bulk_update_registry):
-            bulk_update_registry.register(
-                Beaver,
-                exclude=['my_field1','my_field2'],
-            )
+            bulk_update_registry.register(Beaver)
+
+
+Notez que les champs non éditables ne pourront pas être modifiés de cette manière.
+
+Parfois, vous voulez que des champs soient présents dans le formulaire de
+création de la fiche, mais vous les excluez du formulaire d'édition (attribut
+``exclude`` de la classe ``Meta`` dudit formulaire). De la même manière, vous
+voudrez que ces champs ne puissent pas être modifiés non plus dans la vue
+détaillée. Il vous faudra alors utiliser la méthode ``exclude()`` de l'objet
+renvoyé par ``register()`` : ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_bulk_update(self, bulk_update_registry):
+            bulk_update_registry.register(Beaver).exclude('my_field1', 'my_field2')
 
 
 Vous pouvez aussi vouloir personnaliser le formulaire d'édition pour un champ
@@ -2843,17 +2853,34 @@ en particulier, parce qu'il est associé à des règles métiers par exemple : :
         [...]
 
         def register_bulk_update(self, bulk_update_registry):
-            from .forms.my_field import MyBulkEditForm
+            from .forms.my_field import MyOverrider
 
-            bulk_update_registry.register(
-                Beaver,
-                innerforms={'my_field3': MyBulkEditForm},
-            )
+            bulk_update_registry.register(Beaver).add_overriders(MyOverrider)
 
 
-Les formulaires donnés en paramètre doivent hériter de
-``creme.creme_core.forms.bulk.BulkForm`` (``BulkDefaultEditForm`` est souvent
-un bon choix comme classe mère).
+Le fichier ``my_project/beavers/forms/my_field.py`` ressemblant à ça : ::
+
+    from django.forms import ValidationError
+
+    from creme.creme_core.gui.bulk_update import FieldOverrider
+
+    class MyOverrider(FieldOverrider):
+        # Ici on va avoir un champ de formulaire complexe qui va renvoyer des
+        # valeurs cohérentes pour 2 champs de notre modèle
+        field_names = ['my_field3','my_field4']
+
+        def formfield(self, instances, user, **kwargs):
+            return MyComplexFormField(label='Field3 & field4')
+
+        def post_clean_instance(self, *, instance, value, form):
+            # On extrait 'value3' & 'value4' depuis "value", renvoyé par notre champ
+            [...]
+
+            if really_important_check(value3):
+                raise ValidationError('Blablabla')
+
+            instance.my_field3 = value3
+            instance.my_field4 = value4
 
 
 Clonage de fiche

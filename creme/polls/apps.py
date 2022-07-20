@@ -61,13 +61,19 @@ class PollsConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        from .forms.poll_reply import InnerEditPersonForm
-        from .models import PollFormLine
+        # from .forms.poll_reply import InnerEditPersonForm
+        # from .models import PollFormLine
+        from .forms.poll_reply import PersonOverrider
 
-        bulk_update_registry.register(
-            self.PollReply, innerforms={'person': InnerEditPersonForm},
-        )
-        bulk_update_registry.register(PollFormLine, exclude=['type'])
+        # bulk_update_registry.register(
+        #     self.PollReply, innerforms={'person': InnerEditPersonForm},
+        # )
+        register = bulk_update_registry.register
+        register(self.PollForm)
+        register(self.PollReply).add_overriders(PersonOverrider)
+        register(self.PollCampaign)
+        # bulk_update_registry.register(PollFormLine, exclude=['type'])
+        # bulk_update_registry.register(PollFormLine).exclude('type') TODO ??
 
     def register_creme_config(self, config_registry):
         from . import models

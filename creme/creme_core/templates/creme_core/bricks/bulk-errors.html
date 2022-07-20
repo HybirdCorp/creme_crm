@@ -20,19 +20,22 @@
 {% endblock %}
 
 {% block brick_table_rows %}
-    {% for entity, error in errors %}
-        <tr>
-            <td>{{entity}}</td>
-            <td class="bulk-errors-messages">
-                <ul>
-                {% for message in error.messages %}
-                    <li>{{message}}</li>
-                {% endfor %}
-                </ul>
-            </td>
-        </tr>
-    {% endfor %}
-    {% if count > 100 %}
-        <tr>{% translate 'Other errors have been omitted.' %}</tr>
-    {% endif %}
+{#    {% for entity, error in errors %} #}
+  {% for entity, entity_errors in errors %}
+    <tr>
+        <td>{{entity}}</td>
+        <td class="bulk-errors-messages">
+            <ul>
+{#              {% for message in error.messages %} #}
+              {% for message in entity_errors.values %}
+                <li>{{message}}</li>
+              {% endfor %}
+            </ul>
+        </td>
+    </tr>
+  {% endfor %}
+{#  {% if count > 100 %} #}
+  {% if errors|length > errors.max_size %}{# TODO: unit test %}
+    <tr>{% translate 'Other errors have been omitted.' %}</tr>
+  {% endif %}
 {% endblock %}

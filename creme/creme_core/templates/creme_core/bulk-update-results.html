@@ -1,0 +1,14 @@
+{% load i18n %}
+
+{% if errors %}
+    {% include 'creme_core/bricks/bulk-errors.html' %}
+{% else %}
+  {% if initial_count == success_count %}
+    <p>{% blocktranslate count counter=success_count %}{{counter}} entity has been successfully modified.{% plural %}{{counter}} entities have been successfully modified.{% endblocktranslate %}</p>
+  {% else %}
+    <ul>
+        <li>{% blocktranslate count counter=success_count %}{{counter}} entity on {{initial_count}} has been successfully modified.{% plural %}{{counter}} entities on {{initial_count}} have been successfully modified.{% endblocktranslate %}</li>
+        <li>{% blocktranslate count counter=forbidden_count %}{{counter}} entity was not editable.{% plural %}{{counter}} entities were not editable.{% endblocktranslate %}</li>
+    </ul>
+  {% endif %}
+{% endif %}

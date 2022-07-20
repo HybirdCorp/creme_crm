@@ -17,12 +17,14 @@
 ################################################################################
 
 from django.core.exceptions import ValidationError
+# from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
 import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.forms import CremeModelForm
-from creme.creme_core.forms.bulk import BulkDefaultEditForm
+# from creme.creme_core.forms.bulk import BulkDefaultEditForm
+from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
 from ..constants import ACTIVITYTYPE_INDISPO
@@ -69,49 +71,94 @@ class ActivitySubTypeForm(CremeModelForm):
         return instance
 
 
-class BulkEditTypeForm(BulkDefaultEditForm):
+# class BulkEditTypeForm(BulkDefaultEditForm):
+#     error_messages = {
+#         'immutable_indispo': _('The type of an indisponibility cannot be changed.'),
+#     }
+#
+#     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
+#         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
+#         self.fields['field_value'] = type_selector = ActivityTypeField(
+#             label=_('Type'),
+#             types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
+#         )
+#         self._mixed_indispo = False
+#         indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
+#
+#         if indispo_count:
+#             if indispo_count == len(entities):
+#                 # All entities are indisponibilities, so we propose to change the sub-type.
+#                 type_selector.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
+#             else:
+#                 self._mixed_indispo = True
+#                 self.fields['beware'] = core_fields.ReadonlyMessageField(
+#                     label=_('Beware !'),
+#                     initial=ngettext(
+#                         'The type of {count} activity cannot be changed because'
+#                         ' it is an indisponibility.',
+#                         'The type of {count} activities cannot be changed because'
+#                         ' they are indisponibilities.',
+#                         indispo_count
+#                     ).format(count=indispo_count),
+#                 )
+#
+#         if not is_bulk:
+#             first = entities[0]
+#             type_selector.initial = (first.type_id, first.sub_type_id)
+#
+#     def _bulk_clean_entity(self, entity, values):
+#         if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
+#             raise ValidationError(
+#                 self.error_messages['immutable_indispo'],
+#                 code='immutable_indispo',
+#             )
+#
+#         entity.type, entity.sub_type = values.get(self.field_name)
+#
+#         return entity
+class TypeOverrider(FieldOverrider):
+    field_names = ['type', 'sub_type']
+
     error_messages = {
-        'immutable_indispo': _('The type of an indisponibility cannot be changed.'),
+        'immutable': _('The type of an indisponibility cannot be changed.'),
     }
 
-    def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
-        self.fields['field_value'] = type_selector = ActivityTypeField(
+    _mixed_unavailability = False
+
+    def formfield(self, instances, user, **kwargs):
+        field = ActivityTypeField(
             label=_('Type'),
             types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
         )
-        self._mixed_indispo = False
-        indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
+        unavailability_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in instances)
 
-        if indispo_count:
-            if indispo_count == len(entities):
-                # All entities are indisponibilities, so we propose to change the sub-type.
-                type_selector.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
+        if unavailability_count:
+            if unavailability_count == len(instances):
+                # All entities are Unavailability, so we propose to change the subtype.
+                field.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
             else:
-                self._mixed_indispo = True
-                # TODO: remove when old view entity.bulk_edit_field() has been removed
-                self.fields['beware'] = core_fields.ReadonlyMessageField(
-                    label=_('Beware !'),
-                    initial=ngettext(
-                        'The type of {count} activity cannot be changed because'
-                        ' it is an indisponibility.',
-                        'The type of {count} activities cannot be changed because'
-                        ' they are indisponibilities.',
-                        indispo_count
-                    ).format(count=indispo_count),
-                )
+                self._mixed_unavailability = True
 
-        if not is_bulk:
-            first = entities[0]
-            type_selector.initial = (first.type_id, first.sub_type_id)
+                field.help_text = ngettext(
+                    'Beware! The type of {count} activity cannot be changed '
+                    'because it is an unavailability.',
+                    'Beware! The type of {count} activities cannot be changed '
+                    'because they are unavailability.',
+                    unavailability_count
+                ).format(count=unavailability_count)
 
-    def _bulk_clean_entity(self, entity, values):
-        if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
+        if len(instances) == 1:
+            first = instances[0]
+            field.initial = first.type_id, first.sub_type_id
+
+        return field
+
+    def post_clean_instance(self, *, instance, value, form):
+        if self._mixed_unavailability and instance.type_id == ACTIVITYTYPE_INDISPO:
             raise ValidationError(
-                self.error_messages['immutable_indispo'],
-                code='immutable_indispo',
+                self.error_messages['immutable'],
+                code='immutable',
             )
 
-        entity.type, entity.sub_type = values.get(self.field_name)
-
-        return entity
+        if value:
+            instance.type, instance.sub_type = value

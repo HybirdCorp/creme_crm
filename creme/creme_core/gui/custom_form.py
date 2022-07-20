@@ -142,7 +142,7 @@ class CustomFormExtraSubCell:
                             instance: Model,
                             value,
                             form: CremeEntityForm) -> None:
-        """This methods is called by the generated form after the instance has been cleaned.
+        """This method is called by the generated form after the instance has been cleaned.
         @raise ValidationError.
         """
         pass
@@ -151,7 +151,7 @@ class CustomFormExtraSubCell:
                            instance: Model,
                            value,
                            form: CremeEntityForm) -> bool:
-        """This methods is called by the generated form after the instance has been saved.
+        """This method is called by the generated form after the instance has been saved.
         @return: A boolean indicating if the instance should be saved again.
         """
         return False
@@ -176,7 +176,7 @@ class EntityCellCustomFormExtra(EntityCell):
                 return cls(sub_cell_cls(model=model))
 
         logger.warning(
-            'CustomFormExtraEntityCell.build(): no sub-cell found for <model=%s name="%s"> '
+            'EntityCellCustomFormExtra.build(): no sub-cell found for <model=%s name="%s"> '
             '(available: %s)',
             model, name, cls.allowed_sub_cell_classes,
         )

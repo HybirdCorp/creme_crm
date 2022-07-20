@@ -856,42 +856,56 @@ class InvoiceTestCase(_BillingTestCase):
         name = 'invoice001'
         invoice = self.create_invoice_n_orgas(name, user=user)[0]
 
-        build_url = partial(self.build_inneredit_url, entity=invoice)
-        url = build_url(fieldname='name')
-        self.assertGET200(url)
+        # build_url = partial(self.build_inneredit_url, entity=invoice)
+        build_uri = partial(self.build_inneredit_uri, invoice)
+        # url = build_url(fieldname='name')
+        field_name = 'name'
+        uri = build_uri(field_name)
+        # self.assertGET200(url)
+        self.assertGET200(uri)
 
         name = name.title()
         response = self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(invoice)],
-                'field_value':  name,
+                # 'entities_lbl': [str(invoice)],
+                # 'field_value':  name,
+                field_name: name,
             },
         )
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(invoice).name)
 
         # Addresses should not be editable
-        self.assertGET(400, build_url(fieldname='billing_address'))
-        self.assertGET(400, build_url(fieldname='shipping_address'))
+        # self.assertGET(400, build_url(fieldname='billing_address'))
+        # self.assertGET(400, build_url(fieldname='shipping_address'))
+        self.assertGET404(build_uri('billing_address'))
+        self.assertGET404(build_uri('shipping_address'))
 
     def test_inner_edit02(self):
         "Discount"
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
-        url = self.build_inneredit_url(entity=invoice, fieldname='discount')
-        self.assertGET200(url)
+        # url = self.build_inneredit_url(entity=invoice, fieldname='discount')
+        field_name = 'discount'
+        uri = self.build_inneredit_uri(invoice, field_name)
+        # self.assertGET200(url)
+        self.assertGET200(uri)
 
         response = self.assertPOST200(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(invoice)],
-                'field_value':  '110',
+                # 'entities_lbl': [str(invoice)],
+                # 'field_value':  '110',
+                field_name:  '110',
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value',
+            # response, 'form', 'field_value',
+            response, 'form', field_name,
             _('Enter a number between 0 and 100 (it is a percentage).'),
         )
 

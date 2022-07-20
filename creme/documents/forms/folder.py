@@ -19,7 +19,9 @@
 from django.db.models.query_utils import Q
 
 from creme.creme_core.forms import CremeEntityForm
-from creme.creme_core.forms.bulk import BulkDefaultEditForm
+# from creme.creme_core.forms.bulk import BulkDefaultEditForm
+from creme.creme_core.gui.bulk_update import FieldOverrider
+from creme.creme_core.models import FieldsConfig
 
 
 class BaseFolderCustomForm(CremeEntityForm):
@@ -27,18 +29,41 @@ class BaseFolderCustomForm(CremeEntityForm):
         super().__init__(*args, **kwargs)
         pk = self.instance.id
         if pk:
-            # TODO: remove direct children too ??
+            # TODO: remove direct children too?
             # TODO: would be cool to get 'instance' in limit_choices_to...
             self.fields['parent_folder'].q_filter = ~Q(id=pk)
 
 
-class ParentFolderBulkForm(BulkDefaultEditForm):
-    def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-        super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
+# class ParentFolderBulkForm(BulkDefaultEditForm):
+#     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
+#         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
+#
+#         if len(entities) == 1:
+#             self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
+class ParentFolderOverrider(FieldOverrider):
+    field_names = ['parent_folder']
 
-        if len(entities) == 1:
-            # TODO: like above -> remove direct children too ??
-            self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
+    def formfield(self, instances, user, **kwargs):
+        first = instances[0]
+
+        model = type(first)
+        model_field = model._meta.get_field(self.field_names[0])
+        field = model_field.formfield()
+        field.user = user  # TODO: fix in order it works in constructor too
+
+        if len(instances) == 1 and first.pk:
+            # TODO: like above -> exclude direct children too?
+            field.q_filter = ~Q(id=first.pk)
+            field.initial = first.parent_folder_id
+
+        # TODO: get a 'form' argument & use form.fields_configs?
+        field.required = FieldsConfig.objects.get_for_model(model).is_field_required(model_field)
+
+        return field
+
+    # TODO: default implementation of post_clean_instance()?
+    def post_clean_instance(self, *, instance, value, form):
+        setattr(instance, self.field_names[0], value)
 
 
 def get_merge_form_builder():

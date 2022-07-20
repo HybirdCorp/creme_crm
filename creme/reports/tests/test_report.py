@@ -14,6 +14,7 @@ from django.utils.translation import ngettext
 from django.utils.translation import override as override_language
 from django.utils.translation import pgettext
 
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
 # from creme.creme_core.core.entity_cell import (
@@ -28,6 +29,7 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.forms import ReadonlyMessageField
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
     CremeProperty,
@@ -617,6 +619,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_report_inneredit_filter01(self):
         self.login()
 
+        FieldsConfig.objects.create(
+            content_type=Report,
+            descriptions=[('description', {FieldsConfig.REQUIRED: True})],
+        )  # Should not be used
+
         create_ef = partial(EntityFilter.objects.smart_update_or_create, is_custom=True)
         contact_filter = create_ef('test-filter1', 'Mihana family', FakeContact)
         orga_filter    = create_ef('test-filter2', 'Mihana house', FakeOrganisation)
@@ -624,25 +631,50 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'test-filter3', 'XXX', FakeContact, is_private=True, user=self.other_user
         )
 
-        report = self._create_simple_contacts_report('A')
+        report = self._create_simple_contacts_report('A', description='Simple report')
         self.assertIsNone(report.filter)
 
-        url = self.build_inneredit_url(report, 'filter')
-        response = self.assertGET200(url)
-        self.assertContains(response, contact_filter.name)
-        # Excluded from filter choices because report targets a Contact:
-        self.assertNotContains(response, orga_filter.name)
-        self.assertNotContains(response, private_filter.name)
+        # url = self.build_inneredit_url(report, 'filter')
+        field_name = 'filter'
+        uri = self.build_inneredit_uri(report, field_name)
+        # response1 = self.assertGET200(url)
+        response1 = self.assertGET200(uri)
+        form_field_name = f'override-{field_name}'
 
-        response = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        with self.assertNoException():
+            filter_f1 = response1.context['form'].fields[form_field_name]
+            choices = [*filter_f1.choices]
+
+        self.assertInChoices(value=contact_filter.id, label=contact_filter.name, choices=choices)
+        self.assertInChoices(value='', label=pgettext('creme_core-filter', 'All'), choices=choices)
+        # Excluded from filter choices because report targets a Contact:
+        self.assertNotInChoices(value=orga_filter.id,    choices=choices)
+        self.assertNotInChoices(value=private_filter.id, choices=choices)
+
+        self.assertIsNone(filter_f1.initial)
+        self.assertFalse(filter_f1.required)
+
+        # ---
+        # response2 = self.assertPOST200(url, data={'field_value': orga_filter.pk})
+        response2 = self.assertPOST200(uri, data={form_field_name: orga_filter.pk})
         self.assertFormError(
-            response, 'form', 'field_value',
+            # response2, 'form', 'field_value',
+            response2, 'form', form_field_name,
             _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
-        response = self.client.post(url, data={'field_value': contact_filter.pk})
-        self.assertNoFormError(response)
+        # response3 = self.client.post(url, data={'field_value': contact_filter.pk})
+        response3 = self.client.post(uri, data={form_field_name: contact_filter.pk})
+        self.assertNoFormError(response3)
         self.assertEqual(contact_filter, self.refresh(report).filter)
+
+        # ---
+        response3 = self.assertGET200(uri)
+
+        with self.assertNoException():
+            filter_f3 = response3.context['form'].fields[form_field_name]
+
+        self.assertEqual(contact_filter.id, filter_f3.initial)
 
     def test_report_inneredit_filter02(self):
         "Private filter to another user -> cannot edit."
@@ -658,9 +690,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ct=efilter.entity_type, filter=efilter,
         )
 
-        url = self.build_inneredit_url(report, 'filter')
+        # url = self.build_inneredit_url(report, 'filter')
+        field_name = 'filter'
+        uri = self.build_inneredit_uri(report, field_name)
         self.assertContains(
-            self.client.get(url),
+            # self.client.get(url),
+            self.client.get(uri),
             ngettext(
                 'The filter cannot be changed because it is private.',
                 'The filters cannot be changed because they are private.',
@@ -669,12 +704,32 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             html=True,
         )
 
-        response = self.assertPOST200(url, data={'field_value': ''})
+        # response = self.assertPOST200(url, data={'field_value': ''})
+        response = self.assertPOST200(uri, data={f'override-{field_name}': ''})
         self.assertFormError(
-            response, 'form', None,
+            # response, 'form', None,
+            response, 'form', f'override-{field_name}',
             _('The filter cannot be changed because it is private.'),
         )
         self.assertEqual(efilter, self.refresh(report).filter)
+
+    def test_report_inneredit_filter03(self):
+        self.login()
+
+        field_name = 'filter'
+        FieldsConfig.objects.create(
+            content_type=Report,
+            descriptions=[(field_name, {FieldsConfig.REQUIRED: True})],
+        )
+
+        report = self._create_simple_contacts_report('A')
+
+        response = self.assertGET200(self.build_inneredit_uri(report, field_name))
+
+        with self.assertNoException():
+            filter_f = response.context['form'].fields[f'override-{field_name}']
+
+        self.assertTrue(filter_f.required)
 
     def test_report_bulkedit_filter01(self):
         "Reports are related to the same ContentType -> OK."
@@ -684,62 +739,101 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         contact_filter = create_ef('test-filter1', 'Mihana family', FakeContact)
         orga_filter    = create_ef('test-filter2', 'Mihana house', FakeOrganisation)
 
-        report_1 = self._create_simple_contacts_report('Filter #1')
-        report_2 = self._create_simple_contacts_report('Filter #2')
+        report1 = self._create_simple_contacts_report('Filter #1')
+        report2 = self._create_simple_contacts_report('Filter #2')
 
-        url = self.build_bulkupdate_url(Report, 'filter')
-        self.assertGET200(url)
+        # url = self.build_bulkupdate_url(Report, 'filter')
+        # self.assertGET200(url)
+        reports = [report1, report2]
+        field_name = 'filter'
+        build_uri = partial(self.build_bulkupdate_uri, model=Report, field=field_name)
+        response1 = self.assertGET200(build_uri(entities=reports))
+        formfield_name = f'override-{field_name}'
 
-        response = self.assertPOST200(
-            url,
+        with self.assertNoException():
+            filter_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(filter_f, CreatorModelChoiceField)
+        self.assertEqual(pgettext('creme_core-filter', 'All'), filter_f.empty_label)
+
+        # ---
+        response2 = self.assertPOST200(
+            # url,
+            build_uri(),
             data={
-                'field_value': orga_filter.id,
-                'entities': [report_1.id, report_2.id],
+                'entities': [report.id for report in reports],
+                # 'field_value': orga_filter.id,
+                formfield_name: orga_filter.id,
             },
         )
         self.assertFormError(
-            response, 'form', 'field_value',
+            # response2, 'form', 'field_value',
+            response2, 'form', formfield_name,
             _(
                 'Select a valid choice. '
                 'That choice is not one of the available choices.'
             ),
         )
 
-        response = self.client.post(
-            url,
+        response2 = self.client.post(
+            # url,
+            build_uri(),
             data={
-                'field_value': contact_filter.id,
-                'entities': [report_1.id, report_2.id],
+                'entities': [report.id for report in reports],
+                # 'field_value': contact_filter.id,
+                formfield_name: contact_filter.id,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
-        self.assertEqual(self.refresh(report_1).filter, contact_filter)
-        self.assertEqual(self.refresh(report_2).filter, contact_filter)
+        self.assertEqual(self.refresh(report1).filter, contact_filter)
+        self.assertEqual(self.refresh(report2).filter, contact_filter)
 
     def test_report_bulkedit_filter02(self):
         "Reports are related to different ContentTypes -> error."
         self.login()
 
+        field_name = 'filter'
+        FieldsConfig.objects.create(
+            content_type=Report,
+            descriptions=[(field_name, {FieldsConfig.REQUIRED: True})],
+        )
+
         contact_filter = EntityFilter.objects.smart_update_or_create(
             'test-filter', 'Mihana family', FakeContact, is_custom=True,
         )
 
-        report_1 = self._create_simple_contacts_report('Contact report')
-        report_2 = self._create_simple_organisations_report('Orga report')
+        report1 = self._create_simple_contacts_report('Contact report')
+        report2 = self._create_simple_organisations_report('Orga report')
 
-        url = self.build_bulkupdate_url(Report, 'filter')
-        self.assertGET200(url)
+        # url = self.build_bulkupdate_url(Report, 'filter')
+        # self.assertGET200(url)
+        reports = [report1, report2]
+        build_uri = partial(self.build_bulkupdate_uri, model=Report, field=field_name)
+        response1 = self.assertGET200(build_uri(entities=reports))
+        formfield_name = f'override-{field_name}'
 
-        response = self.assertPOST200(
-            url,
+        with self.assertNoException():
+            filter_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(filter_f, ReadonlyMessageField)
+        self.assertEqual(_('Filter'), filter_f.label)
+        self.assertTrue(filter_f.initial)
+        self.assertFalse(filter_f.required)
+
+        # ----
+        response2 = self.assertPOST200(
+            # url,
+            build_uri(),
             data={
-                'field_value': contact_filter.id,
-                'entities': [report_1.id, report_2.id],
+                'entities': [report.id for report in reports],
+                # 'field_value': contact_filter.id,
+                formfield_name: contact_filter.id,
             },
         )
         self.assertFormError(
-            response, 'form', None,
+            # response2, 'form', None,
+            response2, 'form', formfield_name,
             _(
                 'Filter field can only be updated when reports '
                 'target the same type of entities (e.g: only contacts).'
@@ -759,25 +853,49 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         efilter2 = create_ef('test-filter2', name='Filter #2', is_private=True, user=other_user)
         efilter3 = create_ef('test-filter3', name='Filter #3', is_private=True, user=user)
 
-        report_1 = self._create_simple_contacts_report('Filter #1', efilter=efilter1)
-        report_2 = self._create_simple_contacts_report('Filter #2')
-        report_3 = Report.objects.create(
+        report1 = self._create_simple_contacts_report('Filter #1', efilter=efilter1)
+        report2 = self._create_simple_contacts_report('Filter #2')
+        report3 = Report.objects.create(
             user=other_user, name="Other's report",
             ct=efilter2.entity_type, filter=efilter2,
         )
 
-        response = self.client.post(
-            self.build_bulkupdate_url(Report, 'filter'),
+        field_name = 'filter'
+        formfield_name = f'override-{field_name}'
+        reports = [report1, report2, report3]
+        build_uri = partial(self.build_bulkupdate_uri, model=Report, field=field_name)
+        response1 = self.assertGET200(build_uri(entities=reports))
+
+        with self.assertNoException():
+            filter_f = response1.context['form'].fields[formfield_name]
+
+        self.assertIsInstance(filter_f, CreatorModelChoiceField)
+        self.assertEqual(
+            ngettext(
+                'Beware! The filter of {count} report cannot be changed '
+                'because it is private.',
+                'Beware! The filters of {count} reports cannot be changed '
+                'because they are private.',
+                1,
+            ).format(count=1),
+            filter_f.help_text,
+        )
+
+        # ---
+        response2 = self.client.post(
+            # self.build_bulkupdate_url(Report, 'filter'),
+            build_uri(),
             data={
-                'field_value': efilter3.id,
-                'entities': [report_1.id, report_2.id, report_3.id],
+                'entities': [report.id for report in reports],
+                # 'field_value': efilter3.id,
+                formfield_name: efilter3.id,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
-        self.assertEqual(efilter3, self.refresh(report_1).filter)
-        self.assertEqual(efilter3, self.refresh(report_2).filter)
-        self.assertEqual(efilter2, self.refresh(report_3).filter)  # No change
+        self.assertEqual(efilter3, self.refresh(report1).filter)
+        self.assertEqual(efilter3, self.refresh(report2).filter)
+        self.assertEqual(efilter2, self.refresh(report3).filter)  # No change
 
     def test_listview(self):
         self.login()

@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 19-08-2022 for Creme 2.4
+:Version: 01-09-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2704,13 +2704,8 @@ Edition of a single field
 
 All fields declared as ``editable=True`` in your entity models (it's the
 default value) can be edited in the related detailed views, from the
-information bricks (and in list-views too). A not editable cannot be edited
-this way.
-
-Sometimes, you want some fields are present in the creation form of your
-entity, but you exclude then from the edition form (attribute ``exclude`` of
-the class ``Meta`` in the form). In the same manner, you could want to avoid
-the edition of some fields in the detailed view: ::
+information bricks (and in list-views too).
+You just have to declarer your entity class as compatible, like this: ::
 
     [...]
 
@@ -2718,10 +2713,23 @@ the edition of some fields in the detailed view: ::
         [...]
 
         def register_bulk_update(self, bulk_update_registry):
-            bulk_update_registry.register(
-                Beaver,
-                exclude=['my_field1','my_field2'],
-            )
+            bulk_update_registry.register(Beaver)
+
+Notice that the fields declared as ``editable=True`` cannot be edited this way.
+
+Sometimes, you want some fields are present in the creation form of your
+entity, but you exclude then from the edition form (attribute ``exclude`` of
+the class ``Meta`` in the form). In the same manner, you could want to avoid
+the edition of some fields in the detailed view. So you have to use the method
+``exclude()`` of the object returned by ``register()``: ::
+
+    [...]
+
+    class BeaversConfig(CremeAppConfig):
+        [...]
+
+        def register_bulk_update(self, bulk_update_registry):
+            bulk_update_registry.register(Beaver).exclude('my_field1', 'my_field2')
 
 
 If you want to customise th edition form for a particular field, because it has
@@ -2733,17 +2741,34 @@ some business logic for example: ::
         [...]
 
         def register_bulk_update(self, bulk_update_registry):
-            from .forms.my_field import MyBulkEditForm
+            from .forms.my_field import MyOverrider
 
-            bulk_update_registry.register(
-                Beaver,
-                innerforms={'my_field3': MyBulkEditForm},
-            )
+            bulk_update_registry.register(Beaver).add_overriders(MyOverrider)
 
 
-The forms passed as parameter must inherit
-``creme.creme_core.forms.bulk.BulkForm`` (``BulkDefaultEditForm`` is often a
-good choice as parent class).
+The file ``my_project/beavers/forms/my_field.py`` looks like: ::
+
+    from django.forms import ValidationError
+
+    from creme.creme_core.gui.bulk_update import FieldOverrider
+
+    class MyOverrider(FieldOverrider):
+        # We'll build a complex form field which returns some consistent values
+        # for 2 fields of our model
+        field_names = ['my_field3','my_field4']
+
+        def formfield(self, instances, user, **kwargs):
+            return MyComplexFormField(label='Field3 & field4')
+
+        def post_clean_instance(self, *, instance, value, form):
+            # We extract 'value3' & 'value4' from "value", returned by our field
+            [...]
+
+            if really_important_check(value3):
+                raise ValidationError('Blablabla')
+
+            instance.my_field3 = value3
+            instance.my_field4 = value4
 
 
 Entity cloning

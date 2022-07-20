@@ -42,6 +42,9 @@ class EventsConfig(CremeAppConfig):
         brick_registry.register(bricks.ResultsBrick) \
                       .register_hat(self.Event, main_brick_cls=bricks.EventBarHatBrick)
 
+    def register_bulk_update(self, bulk_update_registry):
+        bulk_update_registry.register(self.Event)
+
     def register_custom_forms(self, cform_registry):
         from . import custom_forms
 

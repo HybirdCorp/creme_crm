@@ -230,25 +230,26 @@ class SendingsTestCase(CremeTestCase):
             # data={'brick_id': MailsBrick.id_}
         )
 
-    def test_inneredit(self):
-        user = self.login()
-
-        camp = SMSCampaign.objects.create(user=user, name='Camp#1')
-        template = MessageTemplate.objects.create(
-            user=user, name='My template', subject='Subject', body='My body is ready',
-        )
-        sending = Sending.objects.create(
-            campaign=camp,
-            date=date.today(),
-            template=template,
-            content='My body is <b>ready</b>',
-        )
-
-        build_url = self.build_inneredit_url
-        self.assertGET(400, build_url(sending, 'campaign'))
-        self.assertGET(400, build_url(sending, 'date'))
-        self.assertGET(400, build_url(sending, 'template'))
-        self.assertGET(400, build_url(sending, 'content'))
+    # TODO?
+    # def test_inneredit(self):
+    #     user = self.login()
+    #
+    #     camp = SMSCampaign.objects.create(user=user, name='Camp#1')
+    #     template = MessageTemplate.objects.create(
+    #         user=user, name='My template', subject='Subject', body='My body is ready',
+    #     )
+    #     sending = Sending.objects.create(
+    #         campaign=camp,
+    #         date=date.today(),
+    #         template=template,
+    #         content='My body is <b>ready</b>',
+    #     )
+    #
+    #     build_uri = self.build_inneredit_uri
+    #     self.assertGET404(build_uri(sending, 'campaign'))
+    #     self.assertGET404(build_uri(sending, 'date'))
+    #     self.assertGET404(build_uri(sending, 'template'))
+    #     self.assertGET404(build_uri(sending, 'content'))
 
     # TODO: test sync_messages()
     # TODO: test send_messages()

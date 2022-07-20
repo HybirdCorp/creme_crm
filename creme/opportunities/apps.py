@@ -68,6 +68,9 @@ class OpportunitiesConfig(CremeAppConfig):
             secondary_brick_classes=(bricks.OpportunityCardHatBrick,),
         )
 
+    def register_bulk_update(self, bulk_update_registry):
+        bulk_update_registry.register(self.Opportunity)
+
     def register_buttons(self, button_registry):
         from . import buttons
 

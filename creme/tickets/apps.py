@@ -42,6 +42,11 @@ class TicketsConfig(CremeAppConfig):
 
         brick_registry.register_4_model(self.Ticket, TicketBrick)
 
+    def register_bulk_update(self, bulk_update_registry):
+        register = bulk_update_registry.register
+        register(self.Ticket)
+        register(self.TicketTemplate)
+
     def register_buttons(self, button_registry):
         from . import buttons
 

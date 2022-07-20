@@ -442,15 +442,18 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         project = self.create_project(
             'Eva01', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
         )[0]
-        url = self.build_inneredit_url(project, 'start_date')
-        self.assertGET200(url)
+        # url = self.build_inneredit_url(project, 'start_date')
+        uri = self.build_inneredit_uri(project, 'start_date')
+        # self.assertGET200(url)
+        self.assertGET200(uri)
 
         self.assertNoFormError(self.client.post(
-            url,
+            # url,
+            uri,
             data={
-                'entities_lbl': [str(project)],
+                # 'entities_lbl': [str(project)],
                 # 'field_value':  '2012-3-4',
-                'field_value':  self.formfield_value_date(2012, 3, 4),
+                'start_date':  self.formfield_value_date(2012, 3, 4),
             },
         ))
         self.assertEqual(
@@ -467,11 +470,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             'Eva01', start_date=date(2012, 2, 20), end_date=date(2012, 3, 25),
         )[0]
         response = self.assertPOST200(
-            self.build_inneredit_url(project, 'start_date'),
+            # self.build_inneredit_url(project, 'start_date'),
+            self.build_inneredit_uri(project, 'start_date'),
             data={
-                'entities_lbl': [str(project)],
+                # 'entities_lbl': [str(project)],
                 # 'field_value':  '2012-03-27',  # <= after end_date
-                'field_value':  date(2012, 3, 27),  # <= after end_date
+                'start_date': date(2012, 3, 27),  # <= after end_date
             },
         )
 
