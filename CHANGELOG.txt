@@ -1,7 +1,5 @@
 == Version 2.3.5 Work in progress (not released -- this is a draft) ==
 
-  TODO: recompile .mo (creme_core+js, creme_config, emails)
-
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
