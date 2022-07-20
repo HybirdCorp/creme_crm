@@ -191,7 +191,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
     @staticmethod
     def _build_ts(dt):
-        return float(dt.strftime('%s')) * 1000  # Simulates JS that sends milliseconds
+        return float(int(dt.timestamp())) * 1000  # Simulates JS that sends milliseconds
 
     @staticmethod
     def build_link_url(activity_id):
@@ -825,8 +825,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             reverse('activities__calendars_activities'),
             data={
                 'calendar_id': calendar.pk,
-                'start': start.strftime('%s'),
-                'end': end.strftime('%s'),
+                'start': int(start.timestamp()),
+                'end': int(end.timestamp()),
             },
         )
 
@@ -900,7 +900,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=self.other_user.linked_contact, object_entity=act3)
 
         response = self._get_cal_activities(
-            [cal], start=start.strftime('%s'), end=end.strftime('%s'),
+            [cal], start=int(start.timestamp()), end=int(end.timestamp()),
         )
 
         data = response.json()
@@ -1024,7 +1024,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         create_rel(subject_entity=user.linked_contact,       object_entity=act8)
 
         # cal2 should not be used, it does not belong to user (so, no 'act2')
-        response = self._get_cal_activities([cal1, cal2], start=start.strftime('%s'))
+        response = self._get_cal_activities([cal1, cal2], start=int(start.timestamp()))
 
         data = response.json()
 
@@ -1065,7 +1065,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         act1.calendars.set([cal1, cal2])  # <== Act1 must be returned twice
         act2.calendars.set([cal2])
 
-        response = self._get_cal_activities([cal1, cal2], start=start.strftime('%s'))
+        response = self._get_cal_activities([cal1, cal2], start=int(start.timestamp()))
         self.assertCountEqual(
             [
                 (act1.id, cal1.id),
@@ -1098,7 +1098,7 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         self._get_cal_activities(
             [cal1, cal2, cal3],
-            start=self.create_datetime(year=2019, month=5, day=1).strftime('%s'),
+            start=int(self.create_datetime(year=2019, month=5, day=1).timestamp()),
         )
 
         # Getting the view again => use Calendars in session

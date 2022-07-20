@@ -16,15 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import os
 import pathlib
 import unittest
-from os.path import dirname
 from shutil import rmtree
 from tempfile import mkdtemp
 
 from django.apps import apps
 from django.conf import settings
-from django.contrib.contenttypes.models import ContentType
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
@@ -36,27 +35,54 @@ def http_port():
     return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
 
 
-class CremeTestSuite(unittest.TestSuite):
-    """This test suite populates the DB in the Creme way."""
-    def run(self, *args, **kwargs):
-        populate_command = PopulateCommand()
-        populate_command.requires_system_checks = False
-        populate_command.requires_migrations_checks = False
-        call_command(populate_command, verbosity=0)
-        # The cache seems corrupted when we switch to the test DB
-        ContentType.objects.clear_cache()
-
-        return super().run(*args, **kwargs)
+def reset_contenttype_cache():
+    """Reset content type cache.
+    The import is here to prevent issues if django.setup() was not called
+    before the creme.utils.test import : could happend if 'spawn' is used
+    for multiprocessing on Windows or OSX.
+    """
+    from django.contrib.contenttypes.models import ContentType
+    ContentType.objects.clear_cache()
 
 
-def creme_init_worker(counter):
-    _init_worker(counter)
+def check_runner_can_fork(runner):
+    """Check if the system can create 'fork'.
+    - A fork will clone the process and continue with the context of the fork point.
+    - A spawn will create a new python machine and import again all the libraries.
+      Does not work with the hacks on connections done by the test runner.
+    Obviously, Windows only support 'spawn'...
+    """
+    import multiprocessing
+
+    if runner.parallel > 1 and 'fork' not in multiprocessing.get_all_start_methods():
+        raise ValueError(
+            f"You cannot use --parallel={runner.parallel}; Your system does not support 'fork'"
+        )
+
+
+def creme_test_populate():
+    """Run creme_populate of the test database"""
+    from django.db import connection
+    print(f"Populate test database '{connection.settings_dict['NAME']}'")
+
     populate_command = PopulateCommand()
     populate_command.requires_system_checks = False
     populate_command.requires_migrations_checks = False
     call_command(populate_command, verbosity=0)
     # The cache seems corrupted when we switch to the test DB
-    ContentType.objects.clear_cache()
+    reset_contenttype_cache()
+
+
+class CremeTestSuite(unittest.TestSuite):
+    """This test suite populates the DB in the Creme way."""
+    def run(self, *args, **kwargs):
+        creme_test_populate()
+        return super().run(*args, **kwargs)
+
+
+def creme_init_worker(counter):
+    _init_worker(counter)
+    creme_test_populate()
 
 
 class CremeParallelTestSuite(ParallelTestSuite):
@@ -67,8 +93,8 @@ class CremeParallelTestSuite(ParallelTestSuite):
 class CremeTestLoader(unittest.TestLoader):
     suiteClass = CremeTestSuite
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
         self._ignored_dir_paths = set()
 
@@ -83,7 +109,7 @@ class CremeTestLoader(unittest.TestLoader):
         match = super()._match_path(path, full_path, pattern)
 
         if match:
-            dir_path = pathlib.Path(dirname(full_path))
+            dir_path = pathlib.Path(full_path).parent
             path_is_ok = self.is_path_relative_to
 
             if not any(path_is_ok(dir_path, allowed_path) for allowed_path in self._allowed_paths):
@@ -105,10 +131,16 @@ class CremeDiscoverRunner(DiscoverRunner):
     """
     test_suite = CremeTestSuite
     parallel_test_suite = CremeParallelTestSuite
-    test_loader = CremeTestLoader()
 
     def __init__(self, *args, **kwargs):
+        # Create the instance here to prevent issues if django.setup() was not called
+        # before the creme.utils.test import : could happend if 'spawn' is used
+        # for multiprocessing on Windows or OSX.
+        self.test_loader = CremeTestLoader()
+
         super().__init__(*args, **kwargs)
+        check_runner_can_fork(self)
+
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
         self._http_server = None
@@ -118,19 +150,21 @@ class CremeDiscoverRunner(DiscoverRunner):
         print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         print(f' ... {self._mock_media_path} created.')
-        self._http_server = python_subprocess(
+        script = (
             'import http.server;'
             'import os;'
             'from socketserver import TCPServer;'
-            'os.chdir("{path}");'
+            'os.chdir(r"{path}");'
             'TCPServer.allow_reuse_address = True;'
             'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-            'print("Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
-            'httpd.serve_forever()'.format(
-                path=dirname(settings.CREME_ROOT),
-                port=http_port(),
-            )
+            'print(r"Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
+            'httpd.serve_forever()'
+        ).format(
+            path=os.fspath(pathlib.Path(settings.CREME_ROOT).parent),
+            port=http_port(),
         )
+
+        self._http_server = python_subprocess(script)
 
     def _clean_mock_media(self):
         if self._mock_media_path:
