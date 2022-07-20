@@ -257,7 +257,7 @@ def format_string_brace_named(format_str, **kwargs):
 # NB: seems not used any more...
 @register.filter
 def to_timestamp(date):
-    return date.strftime('%s')
+    return str(int(date.timestamp()))
 
 
 @register.filter
