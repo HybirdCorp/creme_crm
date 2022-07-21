@@ -63,21 +63,14 @@ def check_runner_can_fork(runner):
 def creme_test_populate():
     """Run creme_populate of the test database"""
     from django.db import connection
-    print(f"Populate test database '{connection.settings_dict['NAME']}'")
 
+    print(f"Populate test database '{connection.settings_dict['NAME']}'...")
     populate_command = PopulateCommand()
     populate_command.requires_system_checks = False
     populate_command.requires_migrations_checks = False
     call_command(populate_command, verbosity=0)
     # The cache seems corrupted when we switch to the test DB
     reset_contenttype_cache()
-
-
-class CremeTestSuite(unittest.TestSuite):
-    """This test suite populates the DB in the Creme way."""
-    def run(self, *args, **kwargs):
-        creme_test_populate()
-        return super().run(*args, **kwargs)
 
 
 def creme_init_worker(counter):
@@ -91,8 +84,6 @@ class CremeParallelTestSuite(ParallelTestSuite):
 
 
 class CremeTestLoader(unittest.TestLoader):
-    suiteClass = CremeTestSuite
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._allowed_paths = [app_conf.path for app_conf in apps.get_app_configs()]
@@ -129,7 +120,6 @@ class CremeDiscoverRunner(DiscoverRunner):
     - launches an HTTP server which serves static files, in order to test code
       which retrieve HTTP resources.
     """
-    test_suite = CremeTestSuite
     parallel_test_suite = CremeParallelTestSuite
 
     def __init__(self, *args, **kwargs):
@@ -165,6 +155,12 @@ class CremeDiscoverRunner(DiscoverRunner):
         )
 
         self._http_server = python_subprocess(script)
+
+    def setup_databases(self, **kwargs):
+        ret = super().setup_databases(**kwargs)
+        creme_test_populate()
+
+        return ret
 
     def _clean_mock_media(self):
         if self._mock_media_path:
