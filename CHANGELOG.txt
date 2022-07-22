@@ -1,5 +1,10 @@
 == Version 2.2.14 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # A deleted CustomField cannot be inner-edited/bulk-edited any more ;
+      it is now hidden in the block "Custom fields" too.
+
 
 == Version 2.2.13 ==
 
