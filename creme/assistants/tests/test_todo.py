@@ -670,7 +670,13 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         entity.user = self.other_user
         entity.save()
 
-        ToDo.objects.create(real_entity=entity, title='Todo#1', deadline=now())
+        now_value = now()
+
+        sv = self.get_object_or_fail(SettingValue, key_id=MIN_HOUR_4_TODO_REMINDER)
+        sv.value = localtime(now_value).hour
+        sv.save()
+
+        ToDo.objects.create(real_entity=entity, title='Todo#1', deadline=now_value)
 
         self.execute_reminder_job(self.get_reminder_job())
         self.assertEqual(1, DateReminder.objects.count())
