@@ -15,7 +15,7 @@
 from pathlib import Path
 
 from creme.settings import *  # NOQA
-from creme.settings import INSTALLED_APPS
+from creme.settings import CREME_ROOT, INSTALLED_APPS
 
 SECRET_KEY = 'CircleCi-Secret-Key'
 
@@ -41,6 +41,13 @@ MEDIA_ROOT = BASE_DIR / 'media' / 'upload'
 STATIC_ROOT = BASE_DIR / 'media' / 'static'
 
 # JOBMANAGER_BROKER = 'redis://@localhost:6379/0'
+
+GEOLOCATION_TOWNS = [
+    (
+        Path(CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'test.towns.france.csv.zip',
+        {'country': 'France'}
+    ),
+]
 
 try:
     from .local_settings import *  # NOQA
