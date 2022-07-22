@@ -1474,6 +1474,11 @@ NON_MOBILE_SITE_DOMAIN = ''
 # It can be an URL or a local file ; zip files are also supported.
 GEOLOCATION_TOWNS = [
     (join(CREME_ROOT, 'geolocation', 'data', 'towns.france.csv.zip'), {'country': 'France'}),
+    # For the unit tests a lighter version of the file exists with only the "chef-lieu"
+    # (
+    #    join(CREME_ROOT, 'geolocation', 'tests', 'data', 'test.towns.france.csv.zip'),
+    #    {'country': 'France'}
+    # ),
 ]
 
 # Url for address geolocation search (nominatim is the only supported backend for now)
