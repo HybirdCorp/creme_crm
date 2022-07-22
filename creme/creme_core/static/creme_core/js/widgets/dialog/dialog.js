@@ -776,14 +776,23 @@ creme.dialogs = $.extend(creme.dialogs, {
 /*
  * Since jqueryui 1.10 some events are not allowed to get outside the popup.
  * So the custom Chosen widget will not work correctly (needs focus event on search field).
+ * Same issue with Select2
  */
-$.widget("ui.dialog", $.ui.dialog, {
-    _allowInteraction: function (event) {
-        if ($(event.target).closest(".chzn-drop").length) {
-            return true;
-        }
+if (!$.ui.dialog.prototype._allowInteractionPatched) {
+    $.ui.dialog.prototype._allowInteraction = function(e) {
+        if (typeof e !== "undefined") {
+            // DEPRECATED: to be removed when Chosen has been definitively removed in Creme 2.5
+            if ($(e.target).closest(".chzn-drop").length) {
+                return true;
+            }
 
-        return this._super(event);
-    }
-});
+            if ($(e.target).closest('.select2-drop').length) {
+                return true;
+            }
+            $.ui.dialog.prototype._allowInteractionPatched = true;
+            return (typeof this._super === "function") ? this._super(e) : this;
+        }
+    };
+}
+
 }(jQuery));
