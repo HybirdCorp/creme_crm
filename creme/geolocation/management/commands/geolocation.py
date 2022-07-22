@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ import csv
 import io
 import logging
 from functools import partial
+from pathlib import Path
 from urllib.request import urlopen
 from zipfile import ZipFile
 
@@ -137,6 +138,9 @@ class CSVPopulator:
         logger.info(message)
 
     def populate(self, source):
+        if isinstance(source, Path):
+            source = source.resolve().as_uri()
+
         if isinstance(source, str):
             try:
                 url_info = parse_path(source)

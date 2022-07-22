@@ -10,6 +10,15 @@
         - The style of the mouse cursor for checkboxes has been fixed.
         - The style for disabled jobs (in the related brick) has been improved.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps:
+            * Geolocation :
+                - A reduced list of towns is available for unit tests.
+
 
 == Version 2.3.5 ==
 
