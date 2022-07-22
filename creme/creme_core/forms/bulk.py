@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
 ################################################################################
 
 import logging
-import re
+# import re
 from functools import partial
 from itertools import chain
 
@@ -36,7 +36,7 @@ from ..models import CremeEntity, FieldsConfig, custom_field
 from .base import CremeForm
 
 logger = logging.getLogger(__name__)
-_CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
+# _CUSTOMFIELD_PATTERN = re.compile('^customfield-(?P<id>[0-9]+)')
 _CUSTOMFIELD_FORMAT = 'customfield-{}'  # TODO: remove & use base._CUSTOM_NAME instead
 
 

@@ -47,10 +47,12 @@ __all__ = (
 
 class CustomFieldManager(models.Manager):
     # TODO: python 3.8 '/' argument ?
+    # TODO: exclude deleted fields?
     def compatible(self, ct_or_model):
         return self.filter(content_type=as_ctype(ct_or_model))
 
     # TODO: python 3.8 '/' argument ?
+    # TODO: exclude deleted fields?
     def get_for_model(self, ct_or_model) -> dict[int, CustomField]:
         ct = as_ctype(ct_or_model)
         cache = get_per_request_cache()

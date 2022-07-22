@@ -193,7 +193,12 @@ class CustomFieldsBrick(Brick):
         entity = context['object']
 
         # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
-        cfields = CustomField.objects.get_for_model(entity.entity_type).values()
+        # cfields = CustomField.objects.get_for_model(entity.entity_type).values()
+        cfields = [
+            cfield
+            for cfield in CustomField.objects.get_for_model(entity.entity_type).values()
+            if not cfield.is_deleted
+        ]
         CremeEntity.populate_custom_values([entity], cfields)
 
         return self._render(self.get_template_context(
