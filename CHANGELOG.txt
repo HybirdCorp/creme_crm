@@ -7,6 +7,8 @@
   ------------
     # The periodic jobs were not working correctly with Unix socket as broker
       (not timeout was set so the manager had to be pinged to execute them).
+    # A deleted CustomField cannot be inner-edited/bulk-edited any more ;
+      it is now hidden in the block "Custom fields" too.
     # In 'creme.forms.widgets', the state 'disabled' has been fixed :
         - in 'CalendarWidget' (indeed the Javascript component 'creme.widget.DatePicker').
         - in 'TimeWidget' (indeed the JavaScript part 'creme.forms.TimePicker').
@@ -36,6 +38,7 @@
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
+        # The global variable 'creme_core.forms.bulk._CUSTOMFIELD_PATTERN' has been removed (it was unused).
         # The constructor of 'creme_core.forms.entity_filter.widgets.DateFieldsConditionsWidget'
           does not take any argument "enabled" now (backported to Creme 2.3).
 
