@@ -145,7 +145,7 @@ class _BulkUpdateRegistry:
             model = self._model
             custom_fields = {
                 f'customfield-{field.pk}': field
-                for field in CustomField.objects.compatible(model)
+                for field in CustomField.objects.compatible(model).exclude(is_deleted=True)
             }
 
             for field in custom_fields.values():

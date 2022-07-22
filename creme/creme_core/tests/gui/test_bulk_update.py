@@ -379,6 +379,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         create_cf(name='C', content_type=contact_ct, field_type=CustomField.BOOL)
         create_cf(name='0', content_type=contact_ct, field_type=CustomField.INT)
+        create_cf(
+            name='DELETED', content_type=contact_ct, field_type=CustomField.INT,
+            is_deleted=True,
+        )
 
         custom_names = ['0', 'A', 'C']
 
