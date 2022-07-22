@@ -2194,6 +2194,18 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertRaises(DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(mario))
         self.assertRaises(DoesNotExist, get_cf_values, cf_multi_enum, self.refresh(luigi))
 
+    def test_custom_field_deleted(self):
+        self.login()
+
+        cfield = CustomField.objects.create(
+            name='int', content_type=self.contact_ct, field_type=CustomField.INT,
+            is_deleted=True,
+        )
+        mario, luigi, url = self.create_2_contacts_n_url(
+            field=_CUSTOMFIELD_FORMAT.format(cfield.id),
+        )
+        self.assertGET(400, url)
+
     def test_other_field_validation_error(self):
         user = self.login()
         create_empty_user = partial(
@@ -2560,6 +2572,20 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
         self.assertEqual(user, field.user)
+
+    def test_custom_field03(self):
+        "Deleted CustomField => error."
+        self.login()
+        mario = self.create_contact()
+        cfield = CustomField.objects.create(
+            name='custom 1', content_type=mario.entity_type,
+            field_type=CustomField.INT,
+            is_deleted=True,
+        )
+        self.assertGET(
+            400,
+            self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id)),
+        )
 
     def test_related_subfield_missing(self):
         self.login()
