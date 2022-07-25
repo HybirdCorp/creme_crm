@@ -194,6 +194,62 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(FakeDocument,            cell.model)
         self.assertEqual('get_pretty_properties', cell.value)
 
+    def test_registry_build_cell_from_key(self):
+        build = partial(CELLS_MAP.build_cell_from_key, model=FakeContact)
+        cell1 = build(key='regular_field-first_name')
+        self.assertIsInstance(cell1, EntityCellRegularField)
+        self.assertEqual(FakeContact,  cell1.model)
+        self.assertEqual('first_name', cell1.value)
+
+        cell2 = build(key='function_field-get_pretty_properties')
+        self.assertIsInstance(cell2, EntityCellFunctionField)
+        self.assertEqual(FakeContact,             cell2.model)
+        self.assertEqual('get_pretty_properties', cell2.value)
+
+        self.assertIsNone(build(key='regular_field-invalid'))
+        self.assertIsNone(build(key='first_name'))
+        self.assertIsNone(build(key=EntityCellRegularField.type_id))
+        self.assertIsNone(build(key='not_registered-first_name'))
+
+    def test_registry_build_cells_from_keys01(self):
+        "No error."
+        cells, errors = CELLS_MAP.build_cells_from_keys(
+            model=FakeContact,
+            keys=[
+                f'{EntityCellRegularField.type_id}-first_name',
+                f'{EntityCellFunctionField.type_id}-get_pretty_properties',
+            ],
+        )
+        self.assertIs(errors, False)
+        self.assertEqual(2, len(cells))
+
+        cell1 = cells[0]
+        self.assertIsInstance(cell1, EntityCellRegularField)
+        self.assertEqual(FakeContact,  cell1.model)
+        self.assertEqual('first_name', cell1.value)
+
+        cell2 = cells[1]
+        self.assertIsInstance(cell2, EntityCellFunctionField)
+        self.assertEqual(FakeContact,             cell2.model)
+        self.assertEqual('get_pretty_properties', cell2.value)
+
+    def test_registry_build_cells_from_keys02(self):
+        "Error."
+        cells, errors = CELLS_MAP.build_cells_from_keys(
+            model=FakeDocument,
+            keys=[
+                f'{EntityCellRegularField.type_id}-invalid',
+                f'{EntityCellFunctionField.type_id}-get_pretty_properties',
+            ],
+        )
+        self.assertIs(errors, True)
+        self.assertEqual(1, len(cells))
+
+        cell = cells[0]
+        self.assertIsInstance(cell, EntityCellFunctionField)
+        self.assertEqual(FakeDocument,            cell.model)
+        self.assertEqual('get_pretty_properties', cell.value)
+
     def test_regular_field01(self):
         self.assertEqual(_('Fields'), EntityCellRegularField.verbose_name)
 
