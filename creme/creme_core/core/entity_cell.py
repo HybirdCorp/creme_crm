@@ -250,10 +250,18 @@ class EntityCellsRegistry:
     def __getitem__(self, type_id: str):
         return self._cell_classes[type_id]
 
-    def build_cell_from_dict(self,
-                             model: type[Model],
-                             dict_cell: dict,
-                             ) -> EntityCell | None:
+    def _build_cell(self, model: type[Model], type_id: str, value: str) -> EntityCell | None:
+        cls = self._cell_classes.get(type_id)
+        if cls is None:
+            logger.exception(
+                'EntityCellsRegistry._build_cell(): unknown type_id="%s"',
+                type_id,
+            )
+            return None
+
+        return cls.build(model, value)
+
+    def build_cell_from_dict(self, model: type[Model], dict_cell: dict) -> EntityCell | None:
         try:
             type_id = dict_cell['type']
             value = dict_cell['value']
@@ -262,17 +270,9 @@ class EntityCellsRegistry:
                 'EntityCellsRegistry.build_cell_from_dict(): data=%s',
                 dict_cell,
             )
-        else:
-            cls = self._cell_classes.get(type_id)
-            if cls is None:
-                logger.exception(
-                    'EntityCellsRegistry.build_cell_from_dict(): unknown type_id="%s"',
-                    type_id,
-                )
-            else:
-                return cls.build(model, value)
+            return None
 
-        return None
+        return self._build_cell(model=model, type_id=type_id, value=value)
 
     def build_cells_from_dicts(self,
                                model: type[Model],
@@ -316,6 +316,41 @@ class EntityCellsRegistry:
                 dicts
             )
             errors = True
+
+        return cells, errors
+
+    def build_cell_from_key(self, model: type[Model], key: str) -> EntityCell | None:
+        try:
+            type_id, value = key.split('-', 1)
+        except ValueError:
+            logger.exception(
+                'EntityCellsRegistry.build_cell_from_key(): data=%s',
+                key,
+            )
+            return None
+
+        return self._build_cell(model=model, type_id=type_id, value=value)
+
+    def build_cells_from_keys(self,
+                              model: type[Model],
+                              keys: Iterable[str],
+                              ) -> tuple[list[EntityCell], bool]:
+        """Build some EntityCells instance from an iterable of keys (strings).
+
+        @param model: Class inheriting <django.db.model.Model> related to the cells.
+        @param keys: Iterable of strings ; see 'EntityCell.key'.
+        @return: tuple(list_of_cells, errors) ; 'errors' is a boolean.
+        """
+        cells = []
+        errors = False
+
+        for key in keys:
+            cell = self.build_cell_from_key(model, key)
+
+            if cell is not None:
+                cells.append(cell)
+            else:
+                errors = True
 
         return cells, errors
 
