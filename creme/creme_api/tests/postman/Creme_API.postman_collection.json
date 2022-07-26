@@ -1,0 +1,4749 @@
+{
+	"info": {
+		"_postman_id": "7aa99c26-3b05-4936-9034-fdc511610d0c",
+		"name": "Creme_API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Tokens",
+			"item": [
+				{
+					"name": "ask_token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'token';",
+									"const response_keys = ['token', 'token_type', 'expires_in'];",
+									"",
+									"const responseJson = pm.response.json();",
+									"",
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"pm.test(\"The response has all properties\", () => {",
+									"    pm.expect(responseJson).to.have.all.keys(response_keys);",
+									"});",
+									"",
+									"postman.setEnvironmentVariable(\"token\", responseJson.token);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"application_id\": \"{{application_id}}\",\n    \"application_secret\": \"{{application_secret}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/tokens/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"tokens",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Civilities",
+			"item": [
+				{
+					"name": "civilities_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const response_results_keys = ['id', 'title', 'shortcut'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/civilities/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "civility_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const response_keys = ['id', 'title', 'shortcut'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Lord\",\n  \"shortcut\": \"ld\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/civilities/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "civility_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const response_keys = ['id', 'title', 'shortcut'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/civilities/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{civility_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "civility_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const response_keys = ['id', 'title', 'shortcut'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Master\",\n  \"shortcut\": \"Mas\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/civilities/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{civility_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "civility_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const response_keys = ['id', 'title', 'shortcut'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Lady\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/civilities/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{civility_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "civility_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'civility';",
+									"const entity_name_plr = 'civilities';",
+									"",
+									"utils.get_or_create_entity_id_if_needed(pm, entity_name, entity_name_plr);",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/civilities/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"civilities",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{civility_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Contacts",
+			"item": [
+				{
+					"name": "contacts_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_results_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_listview_with_addresses(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/contacts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const needed_entities = [\"user\", \"civility\", \"sector\", \"position\"];",
+									"const needed_entities_plurals = [\"users\", \"civilities\", \"sectors\", \"positions\"];",
+									"",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_createview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\":{{user_id}},\n  \"description\": \"Transfiguration professor at Hogwarts School of Witchcraft and Wizardry.\",\n  \"billing_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"civility\": {{civility_id}},\n  \"last_name\": \"McGonagall\",\n  \"first_name\": \"Minerva\",\n  \"skype\": \"@minerva\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"mobile\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"minerva.mcgonagall@mail.com\",\n  \"url_site\": \"https://minerva.mcgonagall.en\",\n  \"position\": {{position_id}},\n  \"full_position\": \"Headmistress, Head of Gryffindor, Professor\",\n  \"sector\": {{sector_id}},\n  \"birthday\": \"1930-10-04\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_detailview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_updateviews_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const needed_entities = [\"user\", \"civility\", \"sector\", \"position\"];",
+									"const needed_entities_plurals = [\"users\", \"civilities\", \"sectors\", \"positions\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\":{{user_id}},\n  \"description\": \"Transfiguration professor at Hogwarts School of Witchcraft and Wizardry.\",\n  \"billing_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"civility\": {{civility_id}},\n  \"last_name\": \"McGonagall\",\n  \"first_name\": \"Minerva\",\n  \"skype\": \"@minerva\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"mobile\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"minerva.mcgonagall@mail.com\",\n  \"url_site\": \"https://minerva.mcgonagall.en\",\n  \"position\": {{position_id}},\n  \"full_position\": \"Headmistress, Head of Gryffindor, Professor\",\n  \"sector\": {{sector_id}},\n  \"birthday\": \"1930-10-04\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_updateviews_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const needed_entities = [\"user\", \"civility\", \"sector\", \"position\"];",
+									"const needed_entities_plurals = [\"users\", \"civilities\", \"sectors\", \"positions\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\":{{user_id}},\n  \"description\": \"Transfiguration professor at Hogwarts School of Witchcraft and Wizardry.\",\n  \"billing_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"civility\": {{civility_id}},\n  \"last_name\": \"McGonagall\",\n  \"first_name\": \"Minerva\",\n  \"skype\": \"@minerva\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"mobile\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"minerva.mcgonagall@mail.com\",\n  \"url_site\": \"https://minerva.mcgonagall.en\",\n  \"position\": {{position_id}},\n  \"full_position\": \"Headmistress, Head of Gryffindor, Professor\",\n  \"sector\": {{sector_id}},\n  \"birthday\": \"1930-10-04\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_clone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'civility', 'last_name', 'first_name', 'skype', 'phone', 'mobile', 'fax', 'email', 'url_site', 'position', 'full_position', 'sector', 'is_user', 'birthday'];",
+									"",
+									"utils.test_entity_cloneview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/clone/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								"clone",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_restore",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.test_entity_restoreview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/restore/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								"restore",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_trash",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.test_entity_trashview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/trash/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								"trash",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contact_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contact';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contacts/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contacts",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contact_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ContentTypes",
+			"item": [
+				{
+					"name": "contenttypes_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contenttype';",
+									"const response_results_keys = ['id', 'name', 'application'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contenttypes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contenttypes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "contenttype_details",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'contenttype';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'contenttype'",
+									"const response_keys = ['id', 'name', 'application']",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/contenttypes/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"contenttypes",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{contenttype_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "CredentialSets",
+			"item": [
+				{
+					"name": "credentials_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const response_results_keys = ['id', 'role', 'set_type', 'ctype', 'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink', 'forbidden', 'efilter'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "credential_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const needed_entities = [\"contenttype\", \"role\"];",
+									"const needed_entities_plurals = [\"contenttypes\", \"roles\"]",
+									"",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const response_keys = ['id', 'role', 'set_type', 'ctype', 'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink', 'forbidden', 'efilter'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": {{role_id}},\n  \"set_type\": 1,\n  \"ctype\": {{contenttype_id}},\n  \"can_view\": true,\n  \"can_change\": true,\n  \"can_delete\": true,\n  \"can_link\": true,\n  \"can_unlink\": true,\n  \"forbidden\": false\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/credentials/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "credential_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential'",
+									"const response_keys = ['id', 'role', 'set_type', 'ctype', 'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink', 'forbidden', 'efilter']",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{credential_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "credential_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const response_keys = ['id', 'role', 'set_type', 'ctype', 'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink', 'forbidden', 'efilter'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const needed_entities = [\"contenttype\", \"role\"];",
+									"const needed_entities_plurals = [\"contenttypes\", \"roles\"]",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"role\": {{role_id}},\n  \"set_type\": 2,\n  \"ctype\": {{contenttype_id}},\n  \"can_view\": true,\n  \"can_change\": true,\n  \"can_delete\": true,\n  \"can_link\": true,\n  \"can_unlink\": true,\n  \"forbidden\": false\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/credentials/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{credential_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "credential_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const response_keys = ['id', 'role', 'set_type', 'ctype', 'can_view', 'can_change', 'can_delete', 'can_link', 'can_unlink', 'forbidden', 'efilter'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"const needed_entities = [\"contenttype\", \"role\"];",
+									"const needed_entities_plurals = [\"contenttypes\", \"roles\"]",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"set_type\": 1\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/credentials/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{credential_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "credential_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'credential';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/credentials/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"credentials",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{credential_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "LegalForms",
+			"item": [
+				{
+					"name": "legal_forms_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const response_results_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/legal_forms/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "legal_form_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Wizardry school\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/legal_forms/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "legal_form_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/legal_forms/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{legal_form_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "legal_form_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const entity_name_plr = 'legal_forms';",
+									"",
+									"utils.get_or_create_entity_id_if_needed(pm, entity_name, entity_name_plr);",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Ministry\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/legal_forms/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{legal_form_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "legal_form_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const entity_name_plr = 'legal_forms';",
+									"",
+									"utils.get_or_create_entity_id_if_needed(pm, entity_name, entity_name_plr);",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Hospital\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/legal_forms/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{legal_form_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "legal_form_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'legal_form';",
+									"const entity_name_plr = 'legal_forms';",
+									"",
+									"utils.get_or_create_entity_id_if_needed(pm, entity_name, entity_name_plr);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/legal_forms/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"legal_forms",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{legal_form_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Organisations",
+			"item": [
+				{
+					"name": "organisations_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_results_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date'];",
+									"",
+									"utils.test_entity_listview_with_addresses(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/organisations/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const needed_entities = [\"user\", \"staff_size\", \"sector\", \"legal_form\"];",
+									"const needed_entities_plurals = [\"users\", \"staff_sizes\", \"sectors\", \"legal_forms\"];",
+									"",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date'];",
+									"",
+									"utils.test_entity_createview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": {{user_id}},\n  \"description\": \"Hogwarts School of Witchcraft and Wizardry, often shortened to Hogwarts, was the British wizarding school, located in the Scottish Highlands.\",\n  \"billing_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Hogwarts Castle\",\n    \"department\": \"Highlands\",\n    \"state\": \"Scotland\",\n    \"country\": \"Great Britain\"\n  },\n  \"name\": \"Hogwarts School of Witchcraft and Wizardry\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"contact@hogwarts.en\",\n  \"url_site\": \"https://hogwarts.en\",\n  \"sector\": {{sector_id}},\n  \"legal_form\": {{legal_form_id}},\n  \"staff_size\": {{staff_size_id}},\n  \"capital\": 0,\n  \"annual_revenue\": \"a lot of Galleons\",\n  \"siren\": \"muggle stuff\",\n  \"naf\": \"muggle stuff\",\n  \"siret\": \"muggle stuff\",\n  \"rcs\": \"muggle stuff\",\n  \"tvaintra\": \"muggle stuff\",\n  \"subject_to_vat\": false,\n  \"creation_date\": \"0990-01-01\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organisations/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date'];",
+									"",
+									"utils.test_entity_detailview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date'];",
+									"",
+									"utils.test_entity_updateviews_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const needed_entities = [\"user\", \"staff_size\", \"sector\", \"legal_form\"];",
+									"const needed_entities_plurals = [\"users\", \"staff_sizes\", \"sectors\", \"legal_forms\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"user\": {{user_id}},\n  \"description\": \"Beauxbatons Academy of Magic was the French wizarding school located in the Pyrenees mountains of southern France. It was was one of the three largest wizarding schools in Europe.\",\n  \"billing_address\": {\n    \"address\": \"Beauxbatons Castle\",\n    \"department\": \"Hautes-Pyrénées\",\n    \"state\": \"Occitanie\",\n    \"country\": \"France\"\n  },\n  \"shipping_address\": {\n    \"address\": \"Beauxbatons Castle\",\n    \"department\": \"Hautes-Pyrénées\",\n    \"state\": \"Occitanie\",\n    \"country\": \"France\"\n  },\n  \"name\": \"Beauxbatons Academy of Magic\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"contact@beauxbatons.fr\",\n  \"url_site\": \"https://beauxbatons.fr\",\n  \"sector\": {{sector_id}},\n  \"legal_form\": {{legal_form_id}},\n  \"staff_size\": {{staff_size_id}},\n  \"capital\": 0,\n  \"annual_revenue\": \"a lot of Galleons\",\n  \"siren\": \"muggle stuff\",\n  \"naf\": \"muggle stuff\",\n  \"siret\": \"muggle stuff\",\n  \"rcs\": \"muggle stuff\",\n  \"tvaintra\": \"muggle stuff\",\n  \"subject_to_vat\": false,\n  \"creation_date\": \"1290-01-01\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date'];",
+									"",
+									"utils.test_entity_updateviews_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const needed_entities = [\"user\", \"staff_size\", \"sector\", \"legal_form\"];",
+									"const needed_entities_plurals = [\"users\", \"staff_sizes\", \"sectors\", \"legal_forms\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"description\": \"The Ministry of Magic was the main governing body of the magical community of Great Britain and Ireland, with the intention of preservation of magical law.\",\n  \"name\": \"British Ministry of Magic\",\n  \"phone\": \"+44 6 00 00 00 00\",\n  \"fax\": \"+44 6 00 00 00 00\",\n  \"email\": \"contact@british.mom.en\",\n  \"url_site\": \"https://british.mom.en\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_clone",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const response_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted', 'user', 'description', 'name', 'is_managed', 'phone', 'fax', 'email', 'url_site', 'sector', 'legal_form', 'staff_size', 'capital', 'annual_revenue', 'siren', 'naf', 'siret', 'rcs', 'tvaintra', 'subject_to_vat', 'creation_date']",
+									"",
+									"utils.test_entity_cloneview_with_addresses(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/clone/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								"clone",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_restore",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.test_entity_restoreview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/restore/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								"restore",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_trash",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"const entity_name_plr = 'organisations';",
+									"",
+									"utils.get_or_create_entity_id_if_needed(pm, entity_name, entity_name_plr);",
+									"utils.test_entity_trashview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/trash/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								"trash",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "organisation_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'organisation';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/organisations/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"organisations",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{organisation_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Positions",
+			"item": [
+				{
+					"name": "positions_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"const response_results_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "position_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Professor\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/positions/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "position_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{position_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "position_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"headteacher\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/positions/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{position_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "position_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Auror\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/positions/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{position_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "position_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'position';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/positions/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"positions",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{position_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "roles_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"const response_results_keys = ['id', 'name', 'allowed_apps', 'admin_4_apps', 'creatable_ctypes', 'exportable_ctypes', 'credentials'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "role_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"const response_keys = ['id', 'name', 'allowed_apps', 'admin_4_apps', 'creatable_ctypes', 'exportable_ctypes', 'credentials'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"creme_role_api_{{$timestamp}}\",\n  \"allowed_apps\": [\n    \"creme_core\"\n  ],\n  \"admin_4_apps\": [\n    \"creme_core\"\n  ],\n  \"creatable_ctypes\": [\n\n  ],\n  \"exportable_ctypes\": [\n\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "role_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"const response_keys = ['id', 'name', 'allowed_apps', 'admin_4_apps', 'creatable_ctypes', 'exportable_ctypes', 'credentials'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{role_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "role_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"const response_keys = ['id', 'name', 'allowed_apps', 'admin_4_apps', 'creatable_ctypes', 'exportable_ctypes', 'credentials'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"creme_role_api_{{$timestamp}}\",\n  \"allowed_apps\": [\n    \"creme_core\"\n  ],\n  \"admin_4_apps\": [\n    \"creme_core\"\n  ],\n  \"creatable_ctypes\": [\n\n  ],\n  \"exportable_ctypes\": [\n\n  ]\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{role_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "role_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"const response_keys = ['id', 'name', 'allowed_apps', 'admin_4_apps', 'creatable_ctypes', 'exportable_ctypes', 'credentials'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"creme_role_api_{{$timestamp}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/roles/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{role_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "role_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'role';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/roles/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"roles",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{role_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Sectors",
+			"item": [
+				{
+					"name": "sectors_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"const response_results_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sectors/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sector_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Wizardry education\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/sectors/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sector_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sectors/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{sector_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sector_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Ministry of magic\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/sectors/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{sector_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sector_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"const response_keys = ['id', 'title'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Healing magic\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/sectors/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{sector_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "sector_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'sector';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/sectors/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"sectors",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{sector_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "StaffSizes",
+			"item": [
+				{
+					"name": "staff_sizes_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"const response_results_keys = ['id', 'size'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "staff_size_create",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"const response_keys = ['id', 'size'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": \"XL\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "staff_size_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"const response_keys = ['id', 'size'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{staff_size_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "staff_size_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"const response_keys = ['id', 'size'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": \"XXL\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{staff_size_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "staff_size_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"const response_keys = ['id', 'size'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"size\": \"M\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{staff_size_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "staff_size_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'staff_size';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/staff_sizes/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"staff_sizes",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{staff_size_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Teams",
+			"item": [
+				{
+					"name": "teams_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const response_results_keys = ['id', 'teammates', 'name'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/teams/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const response_keys = ['id', 'teammates', 'name'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teammates\": [\n  ],\n  \"name\": \"ravenclaw_{{$timestamp}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const response_keys = ['id', 'teammates', 'name'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/teams/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const response_keys = ['id', 'teammates', 'name'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"teammates\": [\n  ],\n  \"name\": \"hufflepuff_{{$timestamp}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const response_keys = ['id', 'teammates', 'name'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"gryffindor_{{$timestamp}}\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "team_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'team';",
+									"const entity_name_plr = 'teams';",
+									"",
+									"utils.get_or_create_transfer_to_id(pm, entity_name, entity_name_plr);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transfer_to\": {{transfer_to_team_id}}\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/teams/:id/delete/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"teams",
+								":id",
+								"delete",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{team_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "users_list",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"",
+									"const response_results_keys = ['id', 'username', 'last_name', 'first_name', 'email', 'date_joined', 'last_login', 'is_active', 'is_superuser', 'role', 'time_zone', 'theme'];",
+									"",
+									"utils.test_entity_listview(pm, entity_name, response_results_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_create",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const needed_entities = [\"role\"];",
+									"const needed_entities_plurals = [\"roles\"];",
+									"",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const response_keys = ['id', 'username', 'last_name', 'first_name', 'email', 'date_joined', 'last_login', 'is_active', 'is_superuser', 'role', 'time_zone', 'theme'];",
+									"",
+									"utils.test_entity_createview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"harry_potter_{{$timestamp}}\",\n    \"last_name\": \"Potter\",\n    \"first_name\": \"Harry\",\n    \"email\": \"harry.potter{{$timestamp}}@mail.com\",\n    \"role\": {{role_id}},\n    \"is_active\": true,\n    \"is_superuser\": false,\n    \"time_zone\": \"Europe/Paris\",\n    \"theme\": \"icecream\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_details",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const response_keys = ['id', 'username', 'last_name', 'first_name', 'email', 'date_joined', 'last_login', 'is_active', 'is_superuser', 'role', 'time_zone', 'theme'];",
+									"",
+									"utils.test_entity_detailview(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_full_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const response_keys = ['id', 'username', 'last_name', 'first_name', 'email', 'date_joined', 'last_login', 'is_active', 'is_superuser', 'role', 'time_zone', 'theme'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'user'",
+									"const needed_entities = [\"role\"];",
+									"const needed_entities_plurals = [\"roles\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"martine_potter_{{$timestamp}}\",\n    \"last_name\": \"Potter\",\n    \"first_name\": \"Martine\",\n    \"email\": \"martine.potter{{$timestamp}}@mail.com\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_partial_update",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const response_keys = ['id', 'username', 'last_name', 'first_name', 'email', 'date_joined', 'last_login', 'is_active', 'is_superuser', 'role', 'time_zone', 'theme'];",
+									"",
+									"utils.test_entity_updateviews(pm, entity_name, response_keys);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const needed_entities = [\"role\"];",
+									"const needed_entities_plurals = [\"roles\"];",
+									"",
+									"utils.prerequest_script_entity_detail_and_updateviews(pm, entity_name);",
+									"utils.get_or_create_needed_entities(pm, needed_entities, needed_entities_plurals);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"first_name\": \"Micheline\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_set_password",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status test\", function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"password\": \"Monmotdepasse3.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id/set_password/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id",
+								"set_password",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "user_delete",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"",
+									"utils.test_entity_deleteview(pm, entity_name);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const entity_name = 'user';",
+									"const entity_name_plr = 'users';",
+									"",
+									"utils.get_or_create_transfer_to_id(pm, entity_name, entity_name_plr);",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transfer_to\": {{transfer_to_user_id}}\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/users/:id/delete/",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								":id",
+								"delete",
+								""
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{user_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils.get_token_if_needed(pm);",
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "token {{token}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "Authorization",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"const addresses_labels = [\"billing_address\", \"shipping_address\"];",
+					"const address_keys = [\"address\", \"po_box\", \"zipcode\", \"city\", \"department\", \"state\", \"country\"];",
+					"const listview_response_keys = ['next', 'previous', 'results'];",
+					"const restore_trash_keys = ['id', 'uuid', 'created', 'modified', 'is_deleted'];",
+					"",
+					"const _create_req_bodies = {",
+					"    \"role\": `{",
+					"        \"name\": \"creme_role_api_{{$timestamp}}\",",
+					"        \"allowed_apps\": [\"creme_core\"],",
+					"        \"admin_4_apps\": [\"creme_core\"],",
+					"        \"creatable_ctypes\": [],",
+					"        \"exportable_ctypes\": []",
+					"    }`,",
+					"    \"user\": `{",
+					"        \"username\": \"harry_potter_{{$timestamp}}\",",
+					"        \"last_name\": \"Potter\",",
+					"        \"first_name\": \"Harry\",",
+					"        \"email\": \"harry.potter{{$timestamp}}@mail.com\",",
+					"        \"role\": {{role_id}},",
+					"        \"is_active\": true,",
+					"        \"is_superuser\": false,",
+					"        \"time_zone\": \"Europe/Paris\",",
+					"        \"theme\": \"icecream\"",
+					"    }`,",
+					"    \"civility\": `{",
+					"        \"title\": \"Lord\",",
+					"        \"shortcut\": \"ld\"",
+					"    }`,",
+					"    \"legal_form\": `{",
+					"        \"title\": \"Wizardry school\"",
+					"    }`,",
+					"    \"postition\": `{",
+					"        \"title\": \"Professor\"",
+					"    }`,",
+					"    \"sector\": `{",
+					"        \"title\": \"Wizardry education\"",
+					"    }`,",
+					"    \"staff_size\": `{",
+					"        \"size\": \"XL\"",
+					"    }`,",
+					"    \"team\": `{",
+					"        \"teammates\": [],",
+					"        \"name\": \"ravenclaw_{{$timestamp}}\"",
+					"    }`",
+					"}",
+					"",
+					"function _test_status(pm, status_code) {",
+					"    pm.test(\"Status test\", function () {",
+					"        pm.response.to.have.status(status_code);",
+					"    });",
+					"}",
+					"",
+					"function _test_has_properties(pm, responseJson, response_keys, with_addresses) {",
+					"    pm.test(\"The response has all properties\", () => {",
+					"        if (with_addresses) {",
+					"            for (let i = 0; i < addresses_labels.length; i++) {",
+					"                if (addresses_labels[i] in responseJson) {",
+					"                    response_keys.push(addresses_labels[i]);",
+					"                }",
+					"            }",
+					"        }",
+					"        pm.expect(responseJson).to.have.all.keys(response_keys);",
+					"    });",
+					"}",
+					"",
+					"function _test_has_properties_listview(pm, responseJson, response_results_keys, with_addresses) {",
+					"    pm.test(\"The list response has all properties\", () => {",
+					"        pm.expect(responseJson).to.have.all.keys(listview_response_keys);",
+					"        pm.expect(responseJson.results).to.be.a('array');",
+					"        if (responseJson.results.length > 0){",
+					"            _test_has_properties(pm, responseJson.results[0], response_results_keys, with_addresses)",
+					"        }",
+					"    });",
+					"}",
+					"",
+					"function _test_has_requested_info(pm, responseJson, with_addresses) {",
+					"    pm.test(\"The response has the requested info values\", () => {",
+					"        const requestJson = JSON.parse(pm.request.body);",
+					"        for (let key in requestJson) {",
+					"            if (with_addresses) {",
+					"                if (addresses_labels.includes(key)) {",
+					"                    pm.expect(responseJson[key]).to.have.all.keys(address_keys);",
+					"                    for (let address_key in requestJson[key]) {",
+					"                        pm.expect(responseJson[key][address_key]).to.deep.equal(requestJson[key][address_key]);",
+					"                    }",
+					"                } else {",
+					"                    pm.expect(responseJson[key]).to.deep.equal(requestJson[key]);",
+					"                }",
+					"            } else {",
+					"                pm.expect(responseJson[key]).to.deep.equal(requestJson[key]);",
+					"            }",
+					"        }",
+					"    });",
+					"}",
+					"",
+					"function _test_has_correct_id(pm, responseJson) {",
+					"    pm.test(\"The response has the requested ID\", () => {",
+					"        const test_tmp_id = pm.environment.get(\"test_tmp_id\");",
+					"",
+					"        pm.expect(responseJson.id).to.be.eq(test_tmp_id);",
+					"    });",
+					"}",
+					"",
+					"function _test_has_different_id(pm, responseJson) {",
+					"    pm.test(\"The response has a different ID\", () => {",
+					"        const test_tmp_id = pm.environment.get(\"test_tmp_id\");",
+					"",
+					"        pm.expect(responseJson.id).to.not.be.eq(test_tmp_id);",
+					"    });",
+					"}",
+					"",
+					"function _test_deleted_value(pm, responseJson, is_deleted) {",
+					"    pm.test(\"The response has the requested is_deleted value\", () => {",
+					"        pm.expect(responseJson.is_deleted).to.be.eq(is_deleted);",
+					"    });",
+					"}",
+					"",
+					"function _assign_entity_id(pm, responseJson, entity_name) {",
+					"    if (\"id\" in responseJson && responseJson.id) {",
+					"        pm.environment.set(entity_name + \"_id\", responseJson.id);",
+					"    }",
+					"}",
+					"function _assign_entity_ids_for_listview(pm, responseJson, entity_name) {",
+					"    if (\"results\" in responseJson && responseJson.results.length > 0){",
+					"        _assign_entity_id(pm, responseJson.results[0], entity_name)",
+					"        if (responseJson.results.length > 1){",
+					"            _assign_entity_id(pm, responseJson.results[1], entity_name)",
+					"        }",
+					"    }",
+					"}",
+					"",
+					"function _test_entity_listview_with_or_without_addresses(pm, entity_name, response_results_keys, with_addresses=false) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 200);",
+					"    _test_has_properties_listview(pm, responseJson, response_results_keys, with_addresses);",
+					"    _assign_entity_ids_for_listview(pm, responseJson, entity_name);",
+					"}",
+					"",
+					"function _test_entity_createview_with_or_without_addresses(pm, entity_name, response_keys, with_addresses=false) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 201);",
+					"    _test_has_properties(pm, responseJson, response_keys, with_addresses);",
+					"    _test_has_requested_info(pm, responseJson, with_addresses);",
+					"    _assign_entity_id(pm, responseJson, entity_name);",
+					"}",
+					"",
+					"function _test_entity_detailview_with_or_without_addresses(pm, entity_name, response_keys, with_addresses=false) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 200);",
+					"    _test_has_properties(pm, responseJson, response_keys, with_addresses);",
+					"    _test_has_correct_id(pm, responseJson);",
+					"    _assign_entity_id(pm, responseJson, entity_name);",
+					"}",
+					"function _test_entity_updateviews_with_or_without_addresses(pm, entity_name, response_keys, with_addresses=false) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 200);",
+					"    _test_has_properties(pm, responseJson, response_keys, with_addresses);",
+					"    _test_has_correct_id(pm, responseJson);",
+					"    _test_has_requested_info(pm, responseJson, with_addresses);",
+					"    _assign_entity_id(pm, responseJson, entity_name);",
+					"}",
+					"function _test_entity_cloneview_with_or_without_addresses(pm, entity_name, response_keys, with_addresses=false) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 201);",
+					"    _test_has_properties(pm, responseJson, response_keys, with_addresses);",
+					"    _test_has_different_id(pm, responseJson);",
+					"    _assign_entity_id(pm, responseJson, entity_name);",
+					"}",
+					"function _test_entity_restore_or_trashview(pm, entity_name, is_deleted) {",
+					"    const responseJson = pm.response.json();",
+					"",
+					"    _test_status(pm, 200);",
+					"    _test_has_properties(pm, responseJson, restore_trash_keys);",
+					"    _test_has_correct_id(pm, responseJson);",
+					"    _test_deleted_value(pm, responseJson, is_deleted);",
+					"    _assign_entity_id(pm, responseJson, entity_name);",
+					"}",
+					"",
+					"",
+					"utils = {",
+					"    get_token_if_needed: function (pm) {",
+					"        token = pm.environment.get(\"token\");",
+					"        if (!token) {",
+					"            const request_url = pm.environment.get(\"protocol\") + \"://\" + pm.environment.get(\"domain\") + \":\" + pm.environment.get(\"port\") + \"/\" + pm.environment.get(\"base_path\") + \"/\" + \"tokens\" + \"/\";",
+					"",
+					"            const request_headers = {",
+					"                \"Content-Type\": \"application/json\"",
+					"            };",
+					"",
+					"            const create_request_body = {",
+					"                mode: 'raw',",
+					"                raw: {'application_id': pm.environment.get(\"application_id\"),",
+					"                'application_secret': pm.environment.get(\"application_secret\")}",
+					"            };",
+					"",
+					"            const create_request = {",
+					"                url: request_url,",
+					"                method: 'POST',",
+					"                header: request_headers,",
+					"                body: create_request_body",
+					"            };",
+					"            pm.sendRequest(create_request, function (err, res) {",
+					"                pm.expect(res).to.have.property('code', 200);",
+					"                pm.environment.set(\"token\", res.json().token);",
+					"            });",
+					"        }",
+					"    },",
+					"    get_or_create_needed_entities: function (pm, needed_entities, needed_entities_plurals, not_first_id=false) {",
+					"        const moment = require('moment');",
+					"        const request_headers = {",
+					"            \"Authorization\": \"token \" + pm.environment.get(\"token\"),",
+					"            \"Content-Type\": \"application/json\"",
+					"        };",
+					"",
+					"        let stop_loop = false;",
+					"        for (let i = 0; i < needed_entities.length; i++) {",
+					"            if (stop_loop) {",
+					"                break;",
+					"            }",
+					"            let needed_entity = needed_entities[i];",
+					"            let needed_entity_plural = needed_entities_plurals[i];",
+					"",
+					"            let request_url = pm.environment.get(\"protocol\") + \"://\" + pm.environment.get(\"domain\") + \":\" + pm.environment.get(\"port\") + \"/\" + pm.environment.get(\"base_path\") + \"/\" + needed_entity_plural + \"/\";",
+					"",
+					"            let needed_entity_id_label = needed_entity + \"_id\";",
+					"            let needed_entity_id = pm.environment.get(needed_entity_id_label);",
+					"            if (!needed_entity_id) {",
+					"                let get_request = {",
+					"                    url: request_url,",
+					"                    method: 'GET',",
+					"                    header: request_headers,",
+					"                };",
+					"                pm.sendRequest(get_request, (err, res) => {",
+					"                    if (res.code === 401) {",
+					"                        console.error(res.code + \" \" + res.status + \": \" + res.text());",
+					"                        stop_loop = true;",
+					"                        return",
+					"                    }",
+					"                    pm.expect(res).to.have.property('code', 200);",
+					"                    let responseJson = res.json();",
+					"                    let results = responseJson.results;",
+					"",
+					"                    if (results.length > 0 && !(not_first_id && results[results.length-1].id === 1)) {",
+					"                        pm.environment.set(needed_entity_id_label, results[results.length-1].id);",
+					"                    } else {",
+					"                        let raw_create_req_body = _create_req_bodies[needed_entity].replace(/{{\\$timestamp}}/g, moment().format((\"x\")));",
+					"                        if (needed_entity === \"user\") {",
+					"                            raw_create_req_body = raw_create_req_body.replace(\"{{role_id}}\", pm.environment.get(\"role_id\"));",
+					"                        }",
+					"                        let create_request_body = {",
+					"                            mode: 'raw',",
+					"                            raw: raw_create_req_body",
+					"                        };",
+					"                        let create_request = {",
+					"                            url: request_url,",
+					"                            method: 'POST',",
+					"                            header: request_headers,",
+					"                            body: create_request_body",
+					"                        };",
+					"",
+					"                        pm.sendRequest(create_request, function (err, res) {",
+					"                            pm.expect(res).to.have.property('code', 201);",
+					"                            pm.environment.set(needed_entity_id_label, res.json().id);",
+					"                        });",
+					"                    }",
+					"                });",
+					"            }",
+					"        }",
+					"    },",
+					"    get_or_create_transfer_to_id: function (pm, entity_name, entity_name_plr) {",
+					"        const moment = require('moment');",
+					"        const request_headers = {",
+					"            \"Authorization\": \"token \" + pm.environment.get(\"token\"),",
+					"            \"Content-Type\": \"application/json\"",
+					"        };",
+					"",
+					"        let request_url = pm.environment.get(\"protocol\") + \"://\" + pm.environment.get(\"domain\") + \":\" + pm.environment.get(\"port\") + \"/\" + pm.environment.get(\"base_path\") + \"/\" + entity_name_plr + \"/\";",
+					"",
+					"        let entity_id_label = \"transfer_to_\" + entity_name + \"_id\";",
+					"        let entity_id = pm.environment.get(entity_id_label);",
+					"        if (!entity_id) {",
+					"            let raw_create_req_body = _create_req_bodies[needed_entity].replace(/{{\\$timestamp}}/g, moment().format((\"x\")));",
+					"            if (entity_name === \"user\") {",
+					"                raw_create_req_body = raw_create_req_body.replace(\"{{role_id}}\", pm.environment.get(\"role_id\"));",
+					"            }",
+					"            let create_request_body = {",
+					"                mode: 'raw',",
+					"                raw: raw_create_req_body",
+					"            };",
+					"            let create_request = {",
+					"                url: request_url,",
+					"                method: 'POST',",
+					"                header: request_headers,",
+					"                body: create_request_body",
+					"            };",
+					"",
+					"            pm.sendRequest(create_request, function (err, res) {",
+					"                pm.expect(res).to.have.property('code', 201);",
+					"                pm.environment.set(entity_id_label, res.json().id);",
+					"            });",
+					"        }",
+					"    },",
+					"    prerequest_script_entity_detail_and_updateviews: function(pm, entity_name) {",
+					"        const entity_id_label = entity_name + '_id';",
+					"        let test_tmp_id = pm.request.url.variables.get('id');",
+					"        if (test_tmp_id == \"{{\" + entity_id_label + \"}}\"){",
+					"            test_tmp_id = pm.environment.get(entity_id_label);",
+					"        }",
+					"        pm.environment.set(\"test_tmp_id\", test_tmp_id);",
+					"    },",
+					"    test_entity_listview: function(pm, entity_name, response_results_keys) {",
+					"        _test_entity_listview_with_or_without_addresses(pm, entity_name, response_results_keys);",
+					"    },",
+					"    test_entity_createview: function(pm, entity_name, response_keys) {",
+					"        _test_entity_createview_with_or_without_addresses(pm, entity_name, response_keys);",
+					"    },",
+					"    test_entity_detailview: function(pm, entity_name, response_keys) {",
+					"        _test_entity_detailview_with_or_without_addresses(pm, entity_name, response_keys);",
+					"    },",
+					"    test_entity_updateviews: function(pm, entity_name, response_keys) {",
+					"        _test_entity_updateviews_with_or_without_addresses(pm, entity_name, response_keys);",
+					"    },",
+					"    test_entity_deleteview: function(pm, entity_name) {",
+					"        _test_status(pm, 204);",
+					"        pm.environment.set(entity_name + \"_id\", \"\");",
+					"    },",
+					"    test_entity_listview_with_addresses: function(pm, entity_name, response_results_keys) {",
+					"        _test_entity_listview_with_or_without_addresses(pm, entity_name, response_results_keys, true);",
+					"    },",
+					"    test_entity_createview_with_addresses: function(pm, entity_name, response_keys) {",
+					"        _test_entity_createview_with_or_without_addresses(pm, entity_name, response_keys, true);",
+					"    },",
+					"    test_entity_detailview_with_addresses: function(pm, entity_name, response_keys) {",
+					"        _test_entity_detailview_with_or_without_addresses(pm, entity_name, response_keys, true);",
+					"    },",
+					"    test_entity_updateviews_with_addresses: function(pm, entity_name, response_keys) {",
+					"        _test_entity_updateviews_with_or_without_addresses(pm, entity_name, response_keys, true);",
+					"    },",
+					"    test_entity_cloneview_with_addresses: function(pm, entity_name, response_keys) {",
+					"        _test_entity_cloneview_with_or_without_addresses(pm, entity_name, response_keys, true);",
+					"    },",
+					"    test_entity_restoreview: function(pm, entity_name) {",
+					"        _test_entity_restore_or_trashview(pm, entity_name, false);",
+					"    },",
+					"    test_entity_trashview: function(pm, entity_name) {",
+					"        _test_entity_restore_or_trashview(pm, entity_name, true);",
+					"    },",
+					"    get_or_create_entity_id_if_needed: function(pm, entity_name, entity_name_plr, not_first_id=false) {",
+					"        entity_id = pm.environment.get(entity_name + \"_id\");",
+					"        if (!entity_id) {",
+					"            utils.get_or_create_needed_entities(pm, [entity_name], [entity_name_plr], not_first_id);",
+					"        }",
+					"    }",
+					"}",
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "X-CSRFToken",
+			"value": "WnA0x7Lorgax9gjdw9WuUs0pCrFay53pyoQOhnpO0R9wf6XkSh0uVh1o1f68hdMD",
+			"type": "default"
+		}
+	]
+}
