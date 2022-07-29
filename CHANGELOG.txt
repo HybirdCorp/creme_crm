@@ -6,7 +6,9 @@
 
   Users side :
   ------------
-    # The style of the mouse cursor for checkboxes has been fixed.
+    # About the visual style :
+        - The style of the mouse cursor for checkboxes has been fixed.
+        - The style for disabled jobs (in the related brick) has been improved.
 
 
 == Version 2.3.5 ==
