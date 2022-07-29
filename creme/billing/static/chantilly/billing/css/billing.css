@@ -155,6 +155,11 @@ ul.bline-error-list > li {
     justify-content: space-around;
 }
 
+.billing-lines-brick .bline-container.bline-container-modified .bline-buttons,
+.billing-lines-brick .bline-container.bline-container-not_saved .bline-buttons {
+    background: #ffad16;
+}
+
 .billing-lines-brick .linetable {
     width: 100%;
 
@@ -198,9 +203,14 @@ ul.bline-error-list > li {
     color: #666;
 }
 
-.billing-lines-brick .bline-fields {
+.billing-lines-brick .bline-container .bline-fields {
     background: #fcfcfc;
     width: 100%;
+}
+
+.billing-lines-brick .bline-container.bline-container-modified .bline-fields,
+.billing-lines-brick .bline-container.bline-container-not_saved .bline-fields {
+    background: #ffe9c4;
 }
 
 .billing-lines-brick .bline-container-separator {
