@@ -46,7 +46,7 @@
 
 {% block brick_table_rows %}
     {% for job in page.object_list %}
-    <tr>
+    <tr{% if not job.enabled %} class="job-disabled"{% endif %}>
         <td class="job-app">{{job.type.app_config.verbose_name|default:'?'}}</td>
         <td class="job-type">{{job.type|default:'?'}}</td>
         <td class="job-owner">{% if job.user %}{{job.user}}{% else %}<span class="empty-field">—</span>{% endif %}</td>
