@@ -1494,3 +1494,10 @@ svg.icon {
 .bulk-errors-messages ul li {
     padding: 0;
 }
+
+/* Jobs brick */
+
+.creme_core-jobs-brick .job-disabled {
+    background: #ebebeb;
+    color: grey;
+}
