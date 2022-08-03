@@ -21,13 +21,63 @@
 
 creme.form = creme.form || {};
 
+function djangoLocalisation(options) {
+    return {
+        errorLoading: function () {
+            return options.errorLoadingMsg || gettext('The results could not be loaded.');
+        },
+        inputTooLong: function (args) {
+            var overChars = args.input.length - args.maximum;
+
+            if (options.inputTooLongMsg) {
+                return options.inputTooLongMsg(args);
+            } else {
+                return ngettext('Please delete %d character', 'Please delete %d characters', overChars).format(overChars);
+            }
+        },
+        inputTooShort: function (args) {
+            var remainingChars = args.minimum - args.input.length;
+
+            if (options.inputTooShortMsg) {
+                return options.inputTooShortMsg(args);
+            } else {
+                return ngettext('Please enter %d or more characters', 'Please enter %d or more characters', remainingChars).format(remainingChars);
+            }
+        },
+        loadingMore: function () {
+            return options.loadingMoreMsg || gettext('Loading more results…');
+        },
+        maximumSelected: function (args) {
+            if (options.maximumSelectedMsg) {
+                return options.maximumSelectedMsg(args);
+            } else {
+                return ngettext('You can only select %d item', 'You can only select %d items', args.maximum).format(args.maximum);
+            }
+        },
+        noResults: function () {
+            return options.noResultsMsg || gettext('No result');
+        },
+        searching: function () {
+            return options.searchingMsg || gettext('Searching…');
+        },
+        removeAllItems: function () {
+            return options.removeAllItemsMsg || gettext('Remove all items');
+        },
+        removeItem: function () {
+            return options.removeItemMsg || gettext('Remove item');
+        },
+        search: function() {
+            return options.searchMsg || gettext('Search');
+        }
+    };
+}
+
 creme.form.Select2 = creme.component.Component.sub({
     _init_: function(options) {
         this._options = $.extend({
             multiple: false,
             sortable: false,
             clearable: false,
-            noResults: gettext("No result"),
             placeholder: undefined, // gettext("Select one option"),
             placeholderMultiple: undefined // gettext("Select some options")
         }, options || {});
@@ -41,6 +91,10 @@ creme.form.Select2 = creme.component.Component.sub({
         return $.extend({}, this._options);
     },
 
+    localisation: function(options) {
+        return djangoLocalisation($.extend({}, this._options, options));
+    },
+
     bind: function(element) {
         Assert.not(this.isBound(), 'Select2 instance is already active');
 
@@ -51,6 +105,7 @@ creme.form.Select2 = creme.component.Component.sub({
         element.attr('data-placeholder', placeholder);
 
         var instance = element.select2({
+            language: this.localisation(),
             templateSelection: function(data) {
                 return data.text;
             }

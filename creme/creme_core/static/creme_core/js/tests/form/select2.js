@@ -30,6 +30,72 @@ QUnit.module("creme.form.Select2", new QUnitMixin({
     }
 }));
 
+
+QUnit.parametrize('creme.form.Select2.localisation', [
+    [{}, {
+        noResults: gettext('No result'),
+        loadingMore: gettext('Loading more results…'),
+        errorLoading: gettext('The results could not be loaded.'),
+        removeAllItems: gettext('Remove all items'),
+        removeItem: gettext('Remove item'),
+        search: gettext('Search')
+    }],
+    [{
+        noResultsMsg: 'Rien',
+        loadingMoreMsg: 'Ca vient...',
+        errorLoadingMsg: 'Ca marche pas',
+        removeAllItemsMsg: 'Enleve tout',
+        removeItemMsg: 'Enleve',
+        searchMsg: 'On cherche'
+    }, {
+        noResults: 'Rien',
+        loadingMore: 'Ca vient...',
+        errorLoading: 'Ca marche pas',
+        removeAllItems: 'Enleve tout',
+        removeItem: 'Enleve',
+        search: 'On cherche'
+    }]
+], function(options, expected) {
+    var select2 = new creme.form.Select2();
+    var locale = select2.localisation(options);
+    equal(locale.noResults(), expected.noResults);
+    equal(locale.loadingMore(), expected.loadingMore);
+    equal(locale.errorLoading(), expected.errorLoading);
+    equal(locale.removeAllItems(), expected.removeAllItems);
+    equal(locale.removeItem(), expected.removeItem);
+    equal(locale.search(), expected.search);
+});
+
+QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
+    [{}, {input: 'abcd', maximum: 3}, ngettext('Please delete %d character', 'Please delete %d characters', 1).format(1)],
+    [{}, {input: 'abcde', maximum: 3}, ngettext('Please delete %d character', 'Please delete %d characters', 2).format(2)],
+    [{inputTooLongMsg: function() { return 'Trop long !'; }}, {input: 'abcde', maximum: 3}, 'Trop long !']
+], function(options, args, expected) {
+    var select2 = new creme.form.Select2();
+    var locale = select2.localisation(options);
+    equal(locale.inputTooLong(args), expected);
+});
+
+QUnit.parametrize('creme.form.Select2.localisation (inputTooShort)', [
+    [{}, {input: 'ab', minimum: 3}, gettext('Please enter %d or more characters').format(1)],
+    [{}, {input: 'a', minimum: 3}, gettext('Please enter %d or more characters').format(2)],
+    [{inputTooShortMsg: function() { return 'Trop court !'; }}, {input: 'a', minimum: 3}, 'Trop court !']
+], function(options, args, expected) {
+    var select2 = new creme.form.Select2();
+    var locale = select2.localisation(options);
+    equal(locale.inputTooShort(args), expected);
+});
+
+QUnit.parametrize('creme.form.Select2.localisation (maximumSelectedMsg)', [
+    [{}, {maximum: 1}, ngettext('You can only select %d item', 'You can only select %d items', 1).format(1)],
+    [{}, {maximum: 3}, ngettext('You can only select %d item', 'You can only select %d items', 3).format(3)],
+    [{maximumSelectedMsg: function() { return 'Trop de selections !'; }}, {maximum: 3}, 'Trop de selections !']
+], function(options, args, expected) {
+    var select2 = new creme.form.Select2();
+    var locale = select2.localisation(options);
+    equal(locale.maximumSelected(args), expected);
+});
+
 QUnit.test('creme.form.Select2.bind (empty)', function() {
     var select = this.createSelect();
     var select2 = new creme.form.Select2();
@@ -81,8 +147,7 @@ QUnit.test('creme.form.Select2.bind (multiple)', function() {
     deepEqual({
         multiple: true,
         sortable: false,
-        clearable: false,
-        noResults: gettext("No result")
+        clearable: false
     }, select2.options());
 
     select.attr('multiple', '');
