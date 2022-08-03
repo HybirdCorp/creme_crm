@@ -85,7 +85,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
             this._select2 = new creme.form.Select2({
                 multiple: Boolean(this._multiple),
                 sortable: element.is('[data-sortable]'),
-                noResults: element.data('noResults'),
+                noResultsMsg: element.data('noResults'),
                 placeholder: element.data('placeholder'),
                 placeholderMultiple: element.data('placeholderMultiple')
             }).bind(element);
