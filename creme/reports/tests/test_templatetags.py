@@ -13,7 +13,7 @@ from .base import BaseReportsTestCase, Report, ReportGraph
 
 
 class ReportsTagsTestCase(BaseReportsTestCase):
-    def test_chart_json(self):
+    def test_jqplot_chart_json(self):
         rgraph = ReportGraph(
             linked_report=Report(name='Organisation report', ct=FakeOrganisation),
             name='Number of created organisations / year',
@@ -30,7 +30,7 @@ class ReportsTagsTestCase(BaseReportsTestCase):
         with self.assertNoException():
             render1 = Template(
                 r'{% load reports_tags %}'
-                r'{% reports_chart_json graph chart %}'
+                r'{% reports_chart_jqplot_json graph chart %}'
             ).render(ctxt)
 
         with self.assertNoException():
@@ -51,7 +51,7 @@ class ReportsTagsTestCase(BaseReportsTestCase):
         with self.assertNoException():
             render2 = Template(
                 r'{% load reports_tags %}'
-                r'{% reports_chart_json graph chart is_small=True %}'
+                r'{% reports_chart_jqplot_json graph chart is_small=True %}'
             ).render(ctxt)
 
         with self.assertNoException():

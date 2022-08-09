@@ -29,7 +29,7 @@
                 "fontSize": "9pt",
                 "textColor":  "black"
             },
-            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
+            "label": "{{rgraph.verbose_abscissa}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
@@ -44,7 +44,7 @@
                 "textColor":  "black",
                 "fontSize":   "9pt"
             },
-            "label": "{% reports_graph_ordinate rgraph %}",
+            "label": "{{rgraph.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
