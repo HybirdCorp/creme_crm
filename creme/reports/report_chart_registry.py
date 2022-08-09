@@ -27,6 +27,32 @@ class ReportChart:
         self.label = label
         self.template: str = template or f'reports/plot/{name}.json'
 
+    def props(self, graph, data):
+        return {}
+
+
+class ReportBarChart(ReportChart):
+    template = 'reports/plot/barchart.json'
+
+    def props(self, graph, data):
+        return {
+            "xAxisTitle": graph.verbose_abscissa(),
+            "yAxisTitle": graph.verbose_ordinate(),
+        }
+
+
+class ReportPieChart(ReportChart):
+    template = 'reports/plot/piechart.json'
+
+
+class ReportTubeChart(ReportChart):
+    template = 'reports/plot/tubechart.json'
+
+    def props(self, graph, data):
+        return {
+            "xAxisTitle": graph.verbose_abscissa(),
+        }
+
 
 class ReportChartRegistry:
     __slots__ = ('_charts',)
@@ -34,8 +60,10 @@ class ReportChartRegistry:
     def __init__(self):
         self._charts: dict[str, ReportChart] = {}
 
-    def register(self, chart: ReportChart) -> ReportChartRegistry:
-        self._charts[chart.name] = chart
+    def register(self, *charts: ReportChart) -> ReportChartRegistry:
+        for chart in charts:
+            self._charts[chart.name] = chart
+
         return self
 
     def get(self, name: str) -> ReportChart | None:

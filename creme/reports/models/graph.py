@@ -216,18 +216,18 @@ class AbstractReportGraph(CremeEntity):
     def model(self) -> type[CremeEntity]:
         return self.linked_report.ct.model_class()
 
-    def verbose_abscissa(self, graph):
+    def verbose_abscissa(self):
         output = self.hand.verbose_abscissa
 
         if self.abscissa_type:
-            output += f' - {graph.hand.verbose_name}'
+            output += f' - {self.hand.verbose_name}'
 
             if self.abscissa_parameter:
-                output += f' {graph.abscissa_parameter}'
+                output += f' {self.abscissa_parameter}'
 
         return output
 
-    def verbose_ordinate(self, graph):
+    def verbose_ordinate(self):
         aggregator = self.hand.ordinate
 
         if aggregator.cell:
