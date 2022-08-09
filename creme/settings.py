@@ -900,6 +900,7 @@ CREME_CORE_JS = [
     # DEPRECATED: to be removed in Creme 2.5
     # 'creme_core/js/widgets/form/chosen.js',
     'creme_core/js/widgets/form/select2.js',
+    'creme_core/js/widgets/form/dropdown.js',
 
     'creme_core/js/widgets/frame.js',
     'creme_core/js/widgets/toggle.js',
@@ -989,6 +990,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
 
     ('creme.reports',       'reports/js/reports.js'),
     ('creme.reports',       'reports/js/reports-actions.js'),
+    ('creme.reports',       'reports/js/reports-brick.js'),
+    ('creme.reports',       'reports/js/chart/tubechart.js'),
 
     ('creme.graphs',        'graphs/js/chart/relation-chart.js'),
 
@@ -1093,6 +1096,7 @@ TEST_CREME_CORE_JS = [
     # DEPRECATED: to be removed in Creme 2.5
     # 'creme_core/js/tests/form/chosen.js',
     'creme_core/js/tests/form/select2.js',
+    'creme_core/js/tests/form/dropdown.js',
 
     'creme_core/js/tests/list/list-pager.js',
     'creme_core/js/tests/list/listview-actions.js',
@@ -1152,6 +1156,8 @@ TEST_CREME_OPT_JS = [
     ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
     ('creme.reports',       'reports/js/tests/reports-chart.js'),
+    ('creme.reports',       'reports/js/tests/reports-brick.js'),
+    ('creme.reports',       'reports/js/tests/tube-chart.js'),
 ]
 
 # Optional js/css bundles for extending projects.

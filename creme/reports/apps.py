@@ -25,7 +25,7 @@ class ReportsConfig(CremeAppConfig):
     default = True
     name = 'creme.reports'
     verbose_name = _('Reports')
-    dependencies = ['creme.creme_core']
+    dependencies = ['creme.creme_core', 'creme.sketch']
 
     def ready(self):
         self.register_reports_aggregations()
@@ -56,6 +56,8 @@ class ReportsConfig(CremeAppConfig):
             bricks.ReportFieldsBrick,
             bricks.ReportGraphsBrick,
             bricks.InstanceBricksInfoBrick,
+            bricks.ReportGraphChartBrick,
+            bricks.ReportGraphChartListBrick,
         ).register_4_instance(
             bricks.ReportGraphBrick,
         ).register_hat(
@@ -137,15 +139,18 @@ class ReportsConfig(CremeAppConfig):
         )
 
     def register_reports_charts(self):
-        from .report_chart_registry import ReportChart, report_chart_registry
+        from .report_chart_registry import (
+            ReportBarChart,
+            ReportPieChart,
+            ReportTubeChart,
+            report_chart_registry,
+        )
 
         # TODO: register several at once
         report_chart_registry.register(
-            ReportChart('barchart',  _('Histogram')),
-        ).register(
-            ReportChart('piechart',  _('Pie')),
-        ).register(
-            ReportChart('tubechart', _('Tube')),
+            ReportBarChart('barchart',  _('Histogram')),
+            ReportPieChart('piechart',  _('Pie')),
+            ReportTubeChart('tubechart', _('Tube')),
         )
 
     def register_reports_graph_fetchers(self):

@@ -180,3 +180,81 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
     @property
     def target_ctypes(self):
         return self.fetcher.linked_models
+
+
+class ReportGraphChartBrick(core_bricks.Brick):
+    id_ = core_bricks.Brick.generate_id('reports', 'graph-chart')
+    dependencies = (ReportGraph,)
+    verbose_name = "Report's chart"
+    template_name = 'reports/bricks/report-chart.html'
+
+    def detailview_display(self, context):
+        graph = context['object']
+
+        x, y = graph.fetch(user=context['user'], order=context['request'].GET.get('order', 'ASC'))
+        data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+
+        return self._render(self.get_template_context(
+            context,
+            graph=graph,
+            data=data,
+            charts=[chart for _, chart in report_chart_registry],
+            props={
+                name: chart.props(graph, data) for name, chart in report_chart_registry
+            }
+        ))
+
+    @property
+    def target_ctypes(self):
+        return (ReportGraph,)
+
+
+class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
+    id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graph-chart-list')
+    verbose_name = _("Report's graphs")
+    description = _(
+        'Adds & edits some graphs related to a report.\n'
+        'A graph displays visually computed values, like the number of '
+        'Invoices created per month for example.\n'
+        'App: Reports'
+    )
+    dependencies = (ReportGraph,)
+    template_name = 'reports/bricks/report-chart-list.html'
+    # order_by = 'name'
+    order_by = 'created'
+    target_ctypes = (Report,)
+
+    def detailview_display(self, context):
+        context = self.get_template_context(
+            context,
+            ReportGraph.objects.filter(linked_report=context['object']),
+            charts=[chart for _, chart in report_chart_registry]
+        )
+
+        graphs = context['page'].object_list
+
+        counter = Counter(
+            InstanceBrickConfigItem.objects
+                                   .filter(entity__in=[g.id for g in graphs])
+                                   .values_list('entity', flat=True)
+        )
+
+        context['rows'] = []
+
+        for graph in graphs:
+            graph.instance_bricks_count = counter[graph.id]
+            x, y = graph.fetch(
+                user=context['user'],
+                order=context['request'].GET.get('order', 'ASC')
+            )
+            data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+
+            context['rows'].append({
+                'graph': graph,
+                'data': data,
+                'props': {
+                    name: chart.props(graph, data) for name, chart in report_chart_registry
+                }
+            })
+
+        return self._render(context)

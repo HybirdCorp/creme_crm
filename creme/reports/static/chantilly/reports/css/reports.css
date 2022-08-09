@@ -11,7 +11,7 @@
 
 /* Columns brick - end */
 
-/* block types - graph type */
+/* brick types - graph type */
 
 .brick svg.brick-header-icon {
     fill: currentColor;
@@ -145,12 +145,11 @@
     padding: 5px 10px;
 }
 
-/* block types - graph type - end */
+/* brick types - graph type - end */
 
 /* graphs inside tables */
 
 .reports-graphs-brick .graph-row-header.graph-row-collapsed .toggle-icon-collapse {
-
     display: none;
 }
 
@@ -160,6 +159,33 @@
 
 .graph-row.graph-row-collapsed {
     display: none;
+}
+
+.graph-accordion-title a {
+    font-size: 1.3em;
+    font-weight: 600;
+}
+
+.graph-accordion-title:hover {
+    cursor: pointer;
+}
+
+.graph-accordion-title {
+    display: flex;
+}
+
+.graph-accordion-title .graph-accordion-toggle {
+    height: 16px;
+    padding: 4px 3px;
+}
+
+.graph-accordion-title.graph-accordion-expanded .graph-accordion-icon {
+    transform: rotate(180deg);
+}
+
+.graph-accordion-title .graph-accordion-text {
+    text-align: center;
+    flex: 1;
 }
 
 .brick-table tr.graph-row > td.reports-graph-brick {
@@ -210,3 +236,7 @@ button.reports-chart-selectors-refresh {
 }
 
 /* Report preview - end */
+
+.reports-graph-brick .brick-d3-content {
+    min-height: 300px;
+}
