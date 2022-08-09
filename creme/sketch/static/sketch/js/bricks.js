@@ -31,7 +31,6 @@ creme.D3ChartBrickController = creme.component.Component.sub({
 
         this._chart = chart;
         this._sketch = new creme.D3Sketch();
-        this._backend = options.backend || creme.ajax.defaultCacheBackend();
         this._model = new creme.model.Array([]);
     },
 

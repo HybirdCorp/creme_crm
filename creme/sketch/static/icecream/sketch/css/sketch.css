@@ -18,6 +18,10 @@
     shape-rendering: crispEdges;
 }
 
+.d3-sketch .not-visible {
+    display: none;
+}
+
 .bar-chart .bar rect {
     fill: #4682b4;
     shape-rendering: crispEdges;
