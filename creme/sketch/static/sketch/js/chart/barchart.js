@@ -31,7 +31,8 @@ creme.D3BarChart = creme.D3Chart.sub({
         barTextColor: "#fff",
         limits: [],
         margin: 0,
-        transition: true
+        transition: true,
+        visible: true
     },
 
     _init_: function(options) {
@@ -69,7 +70,7 @@ creme.D3BarChart = creme.D3Chart.sub({
         var chart = svg.select(".bar-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append('g').attr('class', 'bar-chart d3-chart');
+            chart = svg.append('g');
 
             chart.append('g')
                     .attr('class', 'x axis')
@@ -89,6 +90,8 @@ creme.D3BarChart = creme.D3Chart.sub({
             chart.append('g').attr('class', 'bars');
             chart.append('g').attr('class', 'limits');
         }
+
+        chart.attr('class', props.visible ? 'bar-chart d3-chart' : 'bar-chart d3-chart not-visible');
 
         this._updateChart(sketch, chart, data, props);
     },

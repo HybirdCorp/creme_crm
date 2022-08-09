@@ -25,7 +25,8 @@ creme.D3DonutChart = creme.D3Chart.sub({
         margin: 0,
         colors: null,
         showLegend: true,
-        transition: true
+        transition: true,
+        visible: true
     },
 
     _init_: function(options) {
@@ -38,25 +39,28 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var chart = svg.select(".donut-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append("g")
-                           .attr('class', 'donut-chart d3-chart');
+            chart = svg.append("g");
 
             chart.append('g').attr('class', 'slices');
-            svg.append('g').attr('class', 'legend');
+            chart.append('g').attr('class', 'legend');
         }
+
+        chart.attr('class', props.visible ? 'donut-chart d3-chart' : 'donut-chart d3-chart not-visible');
+        // svg.select('.legend').attr('class', props.visible ? 'legend' : 'legend not-visible');
 
         this._updateChart(sketch, chart, data, props);
         return this;
     },
 
     _updateChart: function(sketch, chart, data, props) {
-        var bounds = creme.svgBounds(sketch.size(), props.margin, {
+        var bounds = creme.svgBounds(sketch.size(), props.margin);
+        var sliceBounds = creme.svgBounds(bounds, {
             left: props.showLegend ? props.legendSize : 0
         });
-        var radius = creme.svgBoundsRadius(bounds);
+        var radius = creme.svgBoundsRadius(sliceBounds);
         var colors = props.colors || d3.quantize(function(t) {
             return d3.interpolateSpectral(t * 0.8 + 0.1);
-        }, data.length);
+        }, Math.max(data.length, 2));  // we must quantize at least TWO colors or it will be black
 
         var xkeys = Array.from(new Set(data.map(function(d) { return d.x; })));
 
@@ -71,18 +75,27 @@ creme.D3DonutChart = creme.D3Chart.sub({
         }
 
         var arcpath = d3.arc()
-                        .innerRadius(Math.max(0, radius - props.band))
+                        .innerRadius(props.band > 0 ? Math.max(0, radius - props.band) : 0)
                         .outerRadius(radius);
 
         var pielayout = d3.pie()
                           .sort(null)
                           .value(function(d) { return d.y; });
 
-        chart.attr("transform", creme.svgTransform().translate(bounds.width / 2, bounds.height / 2));
+        chart.select('.legend')
+             .attr("transform", creme.svgTransform().translate(bounds.left, bounds.top));
+
+        chart.select('.slices')
+             .attr("transform", creme.svgTransform().translate(
+                 bounds.top + (sliceBounds.width / 2),
+                 bounds.left + (sliceBounds.height / 2)
+             ));
 
         var items = chart.select('.slices')
                              .selectAll('.slice')
-                             .data(pielayout(data));
+                             .data(pielayout(data.filter(function(d) {
+                                 return d.y > 0;
+                             })));
 
         if (props.showLegend) {
             var legends = creme.d3LegendColumn()
