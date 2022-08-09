@@ -50,7 +50,7 @@
                 "fontSize": "8pt",
                 "formatString": "%d%%"
             },
-            "label": "{% reports_graph_ordinate rgraph %}",
+            "label": "{{rgraph.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",
@@ -68,7 +68,7 @@
                 "show": false
             },
             "ticks": [""],
-            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
+            "label": "{{rgraph.verbose_abscissa}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize": "10pt",

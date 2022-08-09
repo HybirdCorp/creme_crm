@@ -16,6 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
+
 from django import template
 from django.template.loader import render_to_string
 
@@ -23,7 +25,7 @@ register = template.Library()
 
 
 @register.simple_tag
-def reports_chart_json(rgraph, chart, is_small=False):
+def reports_chart_jqplot_json(rgraph, chart, is_small=False):
     return render_to_string(
         chart.template,
         {'rgraph': rgraph, 'chart': chart, 'is_small': is_small},
@@ -47,6 +49,11 @@ def reports_chart_labels(charts):
 
 @register.simple_tag
 def reports_graph_ordinate(rgraph):
+    warnings.warn(
+        'This tag is deprecated; Use rgraph.verbose_ordinate instead',
+        DeprecationWarning
+    )
+
     aggregator = rgraph.hand.ordinate
 
     return (

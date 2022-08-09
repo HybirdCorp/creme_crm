@@ -31,7 +31,7 @@
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
             "pad": 1.0,
-            "label": "{{rgraph.hand.verbose_abscissa}}{% if rgraph.abscissa_type %} - {{rgraph.hand.verbose_name}}{% if rgraph.abscissa_parameter %} ({{rgraph.abscissa_parameter}}){% endif %}{% endif %}",
+            "label": "{{rgraph.verbose_abscissa}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "9pt",
@@ -56,7 +56,7 @@
                 "textColor":  "black",
                 "fontSize":   {% if is_small %}"8pt"{% else %}"9pt"{% endif %}
             },
-            "label": "{% reports_graph_ordinate rgraph %}",
+            "label": "{{rgraph.verbose_ordinate}}",
             "labelOptions": {
                 "fontWeight": "bold",
                 "fontSize":   "10pt",
