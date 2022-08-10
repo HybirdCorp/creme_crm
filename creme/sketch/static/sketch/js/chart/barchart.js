@@ -45,11 +45,10 @@ creme.D3BarChart = creme.D3Chart.sub({
                 font: "10px sans-serif"
             },
             ".bar-chart .bar rect": {
-                fill: props.barColor,
                 "shape-rendering": "crispEdges"
             },
             ".bar-chart .bar.selected rect": {
-                fill: props.barSelected
+                "opacity": "0.8"
             },
             ".bar-chart .bar text": {
                 "text-anchor": "middle"
@@ -114,6 +113,10 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var ymax = d3.max(data, function(d) { return d.y; }) || 1;
 
+        var colorScale = d3.scaleOrdinal()
+                               .domain([0, data.length])
+                               .range(creme.d3ColorRange(props.barColor));
+
         xscale.domain(data.map(function(d) { return d.x; }))
               .range([0, bounds.width], 0.1);
 
@@ -143,6 +146,7 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         var context = {
             bounds: bounds,
+            colorScale: colorScale,
             xscale: xscale,
             yscale: yscale,
             textformat: d3.format(",.0f")
@@ -182,6 +186,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                .attr('x', 1)
                .attr('width', xscale.bandwidth())
                .attr('height', function(d) { return bounds.height - yscale(d.y); })
+               .attr("fill", function(d) { return context.colorScale(d.x); })
                .on('click', function(d, i) { selection.select(i); });
 
         bar.append('text')
@@ -204,6 +209,7 @@ creme.D3BarChart = creme.D3Chart.sub({
               });
 
         update.select('rect')
+                .attr("fill", function(d) { return context.colorScale(d.x); })
                 .attr('width', xscale.bandwidth())
                 .attr('height', function(d) { return bounds.height - yscale(d.y); });
 

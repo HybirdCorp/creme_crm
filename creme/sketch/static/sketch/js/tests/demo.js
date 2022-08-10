@@ -117,16 +117,21 @@ QUnit.test('creme.D3BarChart (select)', function(assert) {
 });
 
 QUnit.parametrize('creme.D3DonutChart (draw)', [
-    [[{x: 'A', y: 0}], {}, {
+    [[{x: 'A', y: 1}], {}, {
         '.donut-chart .slices .slice': 1,
         '.legend .legend-item': 1
     }],
-    [[{x: 'A', y: 0}], {showLegend: false}, {
+    [[{x: 'A', y: 1}], {showLegend: false}, {
         '.donut-chart .slices .slice': 1,
         '.legend .legend-item': 0
     }],
-    [[{x: 'A', y: 0}, {x: 'B', y: 0}, {x: 'C', y: 0}, {x: 'D', y: 0}], {band: 0}, {
+    [[{x: 'A', y: 1}, {x: 'B', y: 2}, {x: 'C', y: 3}, {x: 'D', y: 4}], {band: 0}, {
         '.donut-chart .slices .slice': 4,
+        '.legend .legend-item': 4
+    }],
+    // zero-y are ignored in slice rending
+    [[{x: 'A', y: 1}, {x: 'B', y: 2}, {x: 'C', y: 0}, {x: 'D', y: 4}], {}, {
+        '.donut-chart .slices .slice': 3,
         '.legend .legend-item': 4
     }]
 ], function(data, options, expected, assert) {

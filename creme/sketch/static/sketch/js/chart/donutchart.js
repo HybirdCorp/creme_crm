@@ -64,15 +64,9 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
         var xkeys = Array.from(new Set(data.map(function(d) { return d.x; })));
 
-        var colorScale;
-
-        if (Array.isArray(colors)) {
-            colorScale = d3.scaleOrdinal()
+        var colorScale = d3.scaleOrdinal()
                                .domain([0, data.length])
-                               .range(colors);
-        } else {
-            colorScale = Object.isFunc(colors) ? colors : function() { return props.colors; };
-        }
+                               .range(creme.d3ColorRange(colors));
 
         var arcpath = d3.arc()
                         .innerRadius(props.band > 0 ? Math.max(0, radius - props.band) : 0)

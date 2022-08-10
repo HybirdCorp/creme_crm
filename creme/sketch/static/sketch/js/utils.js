@@ -242,4 +242,12 @@ creme.svgAsImage = function(done, svg, options) {
     return image;
 };
 
+creme.d3ColorRange = function(colors) {
+    if (Array.isArray(colors)) {
+        return colors;
+    } else {
+        return [colors];
+    }
+};
+
 }(jQuery));

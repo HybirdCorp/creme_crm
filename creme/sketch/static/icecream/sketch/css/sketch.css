@@ -23,7 +23,6 @@
 }
 
 .bar-chart .bar rect {
-    fill: #4682b4;
     shape-rendering: crispEdges;
 }
 
@@ -32,15 +31,15 @@
 }
 
 .bar-chart .bar rect:hover {
-    fill: #66a2d4;
+    opacity: 0.8;
 }
 
 .bar-chart .bar.selected rect {
-    fill: #b6a2d4;
+    opacity: 0.8;
 }
 
 .bar-chart .bar.selected rect:hover {
-    fill: #d6c2f4;
+    opacity: 0.8;
 }
 
 .bar-chart .bar text {
