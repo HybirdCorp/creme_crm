@@ -32,6 +32,7 @@ creme.D3Sketch = creme.component.Component.sub({
 
     bind: function(element) {
         Assert.not(this.isBound(), 'D3Sketch is already bound');
+        Assert.that(element.length === 1, 'Unable to bind D3Sketch to multiple nor empty selection');
 
         this._element = element.addClass('d3-sketch');
         var svg = this._svg = d3.select(element.get()[0]).append("svg");

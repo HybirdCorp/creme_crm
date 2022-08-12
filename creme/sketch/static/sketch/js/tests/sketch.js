@@ -36,6 +36,22 @@ QUnit.test('creme.D3Sketch.bind', function(assert) {
     }, Error, 'Error: D3Sketch is already bound');
 });
 
+QUnit.parametrize('creme.D3Sketch.bind (invalid selection)', [
+    [
+        $([
+            '<div style="width: 300px; height: 200px;">',
+            '<div style="width: 300px; height: 200px;">'
+        ])
+    ],
+    [
+        $([])
+    ]
+], function(element, assert) {
+    this.assertRaises(function() {
+        new creme.D3Sketch().bind(element);
+    }, Error, 'Error: Unable to bind D3Sketch to multiple nor empty selection');
+});
+
 QUnit.test('creme.D3Sketch.unbind', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">');
     var sketch = new creme.D3Sketch();
