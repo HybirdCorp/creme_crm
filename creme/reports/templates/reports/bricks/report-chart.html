@@ -5,8 +5,7 @@
 {% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% trans "Graph" context "reports-graphs" as title_prefix %}{% templatize '{{title_prefix}} — {{graph.name}}' as title %}
-    {% brick_header_title title=title icon='report' %}
+    {% brick_header_title title=graph.name icon='report' %}
 {% endblock %}
 
 {% block brick_header_actions %}

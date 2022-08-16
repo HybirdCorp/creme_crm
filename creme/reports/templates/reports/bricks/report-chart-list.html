@@ -81,12 +81,12 @@
                     {% with bricks_count=graph.instance_bricks_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
                     {% if bricks_count %}
                     <div class="graph-action">
-                        {% brick_table_action id='view' url='reports__instance_bricks_info'|url:graph.id label=popup_label display='text' %}
+                        {% brick_table_action id='view' url='reports__instance_chart_bricks_info'|url:graph.id label=popup_label display='text' %}
                     </div>
                     {% endif  %}
                     {% endwith %}
                     <div class="graph-action">
-                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
+                        {% brick_table_action id='add' url='reports__create_instance_chart_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
                     </div>
                 </div>
             </div>

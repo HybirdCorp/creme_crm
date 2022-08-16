@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.views import generic
 
 from .. import get_rgraph_model
-from ..bricks import InstanceBricksInfoBrick
-from ..forms.bricks import GraphInstanceBrickForm
+from ..bricks import InstanceBricksInfoBrick, InstanceGraphChartInfoBrick
+from ..forms.bricks import GraphChartInstanceBrickForm, GraphInstanceBrickForm
 
 
 class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
@@ -59,4 +59,15 @@ class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
     def get_brick_ids(self):
         return (
             InstanceBricksInfoBrick.id_,
+        )
+
+
+class GraphChartInstanceBrickCreation(GraphInstanceBrickCreation):
+    form_class = GraphChartInstanceBrickForm
+
+
+class GraphChartInstanceBricks(GraphInstanceBricks):
+    def get_brick_ids(self):
+        return (
+            InstanceGraphChartInfoBrick.id_,
         )

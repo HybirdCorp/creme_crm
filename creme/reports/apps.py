@@ -58,8 +58,10 @@ class ReportsConfig(CremeAppConfig):
             bricks.InstanceBricksInfoBrick,
             bricks.ReportGraphChartBrick,
             bricks.ReportGraphChartListBrick,
+            bricks.InstanceGraphChartInfoBrick,
         ).register_4_instance(
             bricks.ReportGraphBrick,
+            bricks.ReportGraphChartInstanceBrick,
         ).register_hat(
             self.Report,
             main_brick_cls=bricks.ReportBarHatBrick,

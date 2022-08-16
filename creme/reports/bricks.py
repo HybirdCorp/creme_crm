@@ -258,3 +258,102 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
             })
 
         return self._render(context)
+
+
+class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
+    id_ = core_bricks.Brick.generate_id('reports', 'instance-graph-chart')
+    dependencies = (ReportGraph,)
+    verbose_name = "Report's chart"
+    template_name = 'reports/bricks/report-chart.html'
+
+    def __init__(self, instance_brick_config_item):
+        super().__init__(instance_brick_config_item)
+        get_data = instance_brick_config_item.get_extra_data
+        graph = instance_brick_config_item.entity.get_real_entity()
+
+        fetcher = self.fetcher = ReportGraph.fetcher_registry.get(
+            graph=graph,
+            fetcher_dict={
+                key: get_data(key)
+                for key in GraphFetcher.DICT_KEYS
+            },
+        )
+
+        fetcher_vname = fetcher.verbose_name
+        self.verbose_name = (
+            f'{fetcher.graph} - {fetcher_vname}'
+            if fetcher_vname else
+            str(fetcher.graph)
+        )
+        self.description = gettext(
+            'This block displays the graph «{graph}», contained by the report «{report}».\n'
+            'App: Reports'
+        ).format(graph=graph, report=graph.linked_report)
+
+        error = fetcher.error
+        self.errors = [error] if error else None
+
+    def _render_graph(self, context, graph, data, **kwargs):
+        context = self.get_template_context(
+            context,
+            graph=graph,
+            data=data,
+            charts=[chart for _, chart in report_chart_registry],
+            props={
+                name: chart.props(graph, data) for name, chart in report_chart_registry
+            },
+            **kwargs
+        )
+
+        return self._render(context)
+
+    def detailview_display(self, context):
+        graph = context['object']
+        data = []
+        error = None
+
+        try:
+            x, y = self.fetcher.fetch_4_entity(entity=graph, user=context['user'])
+            data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+        except GraphFetcher.IncompatibleContentType as e:
+            error = str(e)
+        except GraphFetcher.UselessResult:
+            pass
+
+        return self._render_graph(
+            context,
+            graph=graph,
+            data=data,
+            error=error
+        )
+
+    def home_display(self, context):
+        x, y = self.fetcher.fetch(user=context['user'])
+        data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
+
+        return self._render_graph(
+            context,
+            graph=self.fetcher.graph,
+            data=data,
+        )
+
+    @property
+    def target_ctypes(self):
+        return self.fetcher.linked_models
+
+
+class InstanceGraphChartInfoBrick(core_bricks.QuerysetBrick):
+    id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance-graph-charts-info')
+    verbose_name = _('Blocks')
+    dependencies = (InstanceBrickConfigItem,)
+    template_name = 'reports/bricks/instance-bricks-info.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            InstanceBrickConfigItem.objects.filter(
+                brick_class_id=ReportGraphChartInstanceBrick.id_,
+                entity=context['object'].id,
+            ),
+        ))
