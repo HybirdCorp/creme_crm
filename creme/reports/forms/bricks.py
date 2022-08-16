@@ -28,8 +28,9 @@ from creme.creme_core.forms.base import CremeModelForm
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.utils.unicode_collation import collator
+from creme.reports.bricks import ReportGraphBrick
 
-from ..bricks import ReportGraphBrick
+from ..bricks import ReportGraphChartInstanceBrick
 from ..core.graph.fetcher import GraphFetcher
 
 if TYPE_CHECKING:
@@ -203,3 +204,7 @@ class GraphInstanceBrickForm(CremeModelForm):
             ibci.set_extra_data(key=k, value=v)
 
         return super().save(*args, **kwargs)
+
+
+class GraphChartInstanceBrickForm(GraphInstanceBrickForm):
+    brick_class = ReportGraphChartInstanceBrick

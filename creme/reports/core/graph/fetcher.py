@@ -92,8 +92,10 @@ class GraphFetcher:
                                  brick_class: type[InstanceBrick] | None = None,
                                  ) -> InstanceBrickConfigItem:
         if brick_class is None:
-            from creme.reports.bricks import ReportGraphBrick
-            brick_class = ReportGraphBrick
+            # from creme.reports.bricks import ReportGraphBrick
+            # brick_class = ReportGraphBrick
+            from creme.reports.bricks import ReportGraphChartInstanceBrick
+            brick_class = ReportGraphChartInstanceBrick
 
         ibci = InstanceBrickConfigItem(
             entity=self.graph,
