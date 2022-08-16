@@ -50,6 +50,8 @@
             - The support of InfoPath files has been removed.
         * Graphs :
             - New 'Relationship graph' brick is available
+        * Polls :
+            - The design of the 'Statistic' brick has changed.
 
   Developers side :
   -----------------
@@ -120,6 +122,8 @@
            - Graphs :
                 * Add "creme.sketch" as dependency
                 * New GraphRelationChartBrick that renders the relation graphs
+           - Polls :
+                * The 'Statistic' brick does not use jQplot anymore.
 
     Breaking changes :
     ------------------
@@ -163,6 +167,8 @@
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' has been removed.
+                * Pools :
+                    - The templatetag 'poll_stats_chart' has been removed.
         # There are 2 major changes in formats (dates, numbers) :
            - 'USE_L10N = True' by default.
            - The formats in creme/settings.py (DATE_FORMAT, DATE_INPUT_FORMATS...) have been cleared,

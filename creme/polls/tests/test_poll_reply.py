@@ -2359,7 +2359,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             stats4 = nodes[3].answer_stats
             stats5 = nodes[4].answer_stats
 
+        self.assertEqual(nodes[0].answer_count, 0)
         self.assertFalse(stats1)
+
+        self.assertEqual(nodes[1].answer_count, 3)
         self.assertSetEqual(
             {
                 (answer_2_1, 2, round((2.0 * 100.0) / 3.0, 2)),
@@ -2367,6 +2370,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             },
             {*stats2},
         )
+
+        self.assertEqual(nodes[2].answer_count, 3)
         self.assertSetEqual(
             {
                 ('European', 1, round((1.0 * 100.0) / 3.0, 2)),
@@ -2374,6 +2379,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             },
             {*stats3},
         )
+
+        self.assertEqual(nodes[3].answer_count, 6)
         self.assertSetEqual(
             {
                 ('White',  3, round((3.0 * 100.0) / 6.0, 2)),
@@ -2383,6 +2390,8 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             },
             {*stats4},
         )
+
+        self.assertEqual(nodes[4].answer_count, 3)
         self.assertSetEqual(
             {
                 ('White',   1, round((1.0 * 100.0) / 3.0, 2)),

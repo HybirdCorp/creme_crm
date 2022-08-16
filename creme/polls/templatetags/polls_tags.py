@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2021  Hybird
+#    Copyright (C) 2012-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,7 @@
 import logging
 
 from django import template
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-
-from creme.creme_core.utils.serializers import json_encode
-from creme.polls.core import PollLineType
 
 logger = logging.getLogger(__name__)
 register = template.Library()
@@ -62,29 +58,29 @@ def poll_node_css(style, node):
     return style.css(node)
 
 
-@register.simple_tag
-def poll_stats_chart(node):
-    try:
-        if node.type == PollLineType.BOOL:
-            chartpath = 'polls/templatetags/plots/boolean.html'
-            data = [
-                [[percent, 1, f'{answer} − {percent} %']]
-                for answer, _stat, percent in node.answer_stats
-            ]
-        else:
-            chartpath = 'polls/templatetags/plots/number.html'
-            data = [
-                [[percent, str(answer)] for answer, _stat, percent in node.answer_stats],
-            ]
+# @register.simple_tag
+# def poll_stats_chart(node):
+#     try:
+#         if node.type == PollLineType.BOOL:
+#             chartpath = 'polls/templatetags/plots/boolean.html'
+#             data = [
+#                 [[percent, 1, f'{answer} − {percent} %']]
+#                 for answer, _stat, percent in node.answer_stats
+#             ]
+#         else:
+#             chartpath = 'polls/templatetags/plots/number.html'
+#             data = [
+#                 [[percent, str(answer)] for answer, _stat, percent in node.answer_stats],
+#             ]
 
-        context = {
-            'node': node,
-            'data': mark_safe(json_encode(data)),  # TODO: use the template-filter 'jsonify' ?
-            'count': len(node.answer_stats),
-        }
+#         context = {
+#             'node': node,
+#             'data': mark_safe(json_encode(data)),  # TODO: use the template-filter 'jsonify' ?
+#             'count': len(node.answer_stats),
+#         }
 
-        return template.loader.render_to_string(chartpath, context)
-    except Exception:
-        logger.exception('An error occurred in {% poll_stats_chart %}')
+#         return template.loader.render_to_string(chartpath, context)
+#     except Exception:
+#         logger.exception('An error occurred in {% poll_stats_chart %}')
 
-        return _('[An error occurred]')
+#         return _('[An error occurred]')
