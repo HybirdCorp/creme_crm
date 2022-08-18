@@ -144,7 +144,9 @@ class UserDeactivation(generic.CheckedView):
 
             if user_to_deactivate.is_staff and not user.is_staff:
                 return HttpResponse(
-                    gettext("You can't deactivate a staff user."), status=400,
+                    gettext("You can't deactivate a staff user."),
+                    # status=400,
+                    status=409,
                 )
 
             if user_to_deactivate.is_active:
@@ -160,15 +162,27 @@ class UserActivation(generic.CheckedView):
 
     def post(self, request, **kwargs):
         user_id = self.kwargs[self.user_id_url_kwarg]
+        model = get_user_model()
 
         with atomic():
             user_to_activate = get_object_or_404(
-                get_user_model().objects.select_for_update(), id=user_id,
+                model.objects.select_for_update(), id=user_id,
             )
 
             if user_to_activate.is_staff and not request.user.is_staff:
                 return HttpResponse(
-                    gettext("You can't activate a staff user."), status=400,
+                    gettext("You can't activate a staff user."),
+                    # status=400,
+                    status=409,
+                )
+
+            if model.objects.filter(
+                is_active=True,
+                email=user_to_activate.email,
+            ).exclude(id=user_to_activate.id).exists():
+                return HttpResponse(
+                    gettext('An active user with the same email address already exists.'),
+                    status=409,
                 )
 
             if not user_to_activate.is_active:

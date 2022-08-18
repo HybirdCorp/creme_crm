@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-18 11:33+0200\n"
+"POT-Creation-Date: 2022-08-18 18:56+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -726,6 +726,9 @@ msgstr "Le fichier a une version qui n'est pas gérée."
 
 msgid "main content must be a dictionary"
 msgstr "le contenu principal doit être un dictionnaire"
+
+msgid "An active user with the same email address already exists."
+msgstr "Un utilisateur activé avec la même adresse e-mail existe déjà."
 
 msgid "Password"
 msgstr "Mot de passe"
@@ -2423,9 +2426,6 @@ msgstr "Il y a déjà un processus de suppression pour un rôle."
 
 msgid "Edit the instance's settings"
 msgstr "Modifier la configuration de l'instance"
-
-#~ msgid "A property type with this name already exists."
-#~ msgstr "Un type de propriété avec ce nom existe déjà."
 
 #~ msgid "No filter"
 #~ msgstr "Pas de filtre"

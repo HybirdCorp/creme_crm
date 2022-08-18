@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.urls import reverse
@@ -143,6 +144,14 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             # TODO: should we limit the edition of email? (it could be used to
             #       reset the password -- but happily the History shows who
             #       changed the field).
+
+            if get_user_model()._default_manager.filter(
+                is_active=True, email=self.email,
+            ).exclude(id=self.is_user_id).exists():
+                raise ValidationError(gettext(
+                    'This Contact is related to a user and an active user '
+                    'already uses this e-mail address.'
+                ))
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
