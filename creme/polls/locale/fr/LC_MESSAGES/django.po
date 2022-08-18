@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Polls 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-07-19 12:30+0200\n"
+"POT-Creation-Date: 2022-08-19 19:02+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -498,6 +498,21 @@ msgstr "Sans objet"
 msgid "Statistics"
 msgstr "Statistiques"
 
+#, python-format
+msgid "%(total)s reply"
+msgid_plural "%(total)s replies"
+msgstr[0] "%(total)s réponse"
+msgstr[1] "%(total)s réponses"
+
+msgctxt "polls"
+msgid "Statistics are not available for the moment"
+msgstr "Aucune statistique disponible pour le moment"
+
+msgid "Not chosen"
+msgid_plural "Not chosen"
+msgstr[0] "Non sélectionné"
+msgstr[1] "Non sélectionnés"
+
 msgid "Poll statistics"
 msgstr "Statistiques de sondage"
 
@@ -508,9 +523,6 @@ msgstr "La réponse à la question n°{number} contient «{answer}»."
 #, python-brace-format
 msgid "The answer to the question #{number} is «{answer}»."
 msgstr "La réponse à la question n°{number} est «{answer}»."
-
-msgid "[An error occurred]"
-msgstr "[Une erreur s'est produite]"
 
 #, python-brace-format
 msgid "Question for «{entity}»"
@@ -572,6 +584,9 @@ msgstr "Modification de réponse"
 
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
+
+#~ msgid "[An error occurred]"
+#~ msgstr "[Une erreur s'est produite]"
 
 #~ msgid "New replies for «%s»"
 #~ msgstr "Nouvelles réponses pour «%s»"
