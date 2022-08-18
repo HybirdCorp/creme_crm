@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-17 16:06+0200\n"
+"POT-Creation-Date: 2022-08-18 11:33+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -737,8 +737,16 @@ msgstr "Confirmation du mot de passe"
 msgid "Enter the same password as before, for verification."
 msgstr ""
 
-# Already in django.contrib.auth
-msgid "Password (again)"
+# Already translated in django.auth
+msgid "Old password"
+msgstr ""
+
+# Already translated in django.auth
+msgid "New password"
+msgstr ""
+
+# Already translated in django.auth
+msgid "New password confirmation"
 msgstr ""
 
 msgid "Teammates"
