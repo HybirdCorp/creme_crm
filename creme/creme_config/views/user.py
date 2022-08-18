@@ -23,8 +23,10 @@ from django.db import DatabaseError
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.views.decorators.debug import sensitive_post_parameters
 
 from creme.creme_core.auth import SUPERUSER_PERM
 from creme.creme_core.core.exceptions import ConflictError
@@ -45,6 +47,10 @@ class PasswordChange(generic.CremeModelEditionPopup):
     pk_url_kwarg = 'user_id'
     permissions = SUPERUSER_PERM
     title = _('Change password for «{object}»')
+
+    @method_decorator(sensitive_post_parameters())
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
 
 
 class BaseUserCreation(generic.CremeModelCreationPopup):

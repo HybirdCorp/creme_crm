@@ -21,6 +21,7 @@
                 - Non-internal types can now be disabled.
                 - A new kind of constraints has been added : forbidden properties (on subject & object of course).
             - An edition view for semi-fixed relationship types has been added.
+            - The old password is required when changing a user's password.
             - The configurations of CustomForms are collapsed by default, & can be expanded separately.
         * Assistants :
             - The trigger date of an Alert can now be relative to a date field of the linked entity (e.g. "3 days before its birthday").

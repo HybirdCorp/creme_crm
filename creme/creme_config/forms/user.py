@@ -131,20 +131,28 @@ class UserEditForm(CremeModelForm):
 
 
 # NB: we cannot use django.contrib.auth.forms.AdminPasswordChangeForm, because it defines a 'user'
-#     attribute like us (but it correspond to our 'user2edit' one, not our 'user' one)
+#     attribute like us (but it corresponds to our 'user2edit' one, not our 'user' one)
 class UserChangePwForm(CremeForm):
     error_messages = {
         'password_mismatch': auth_forms.SetPasswordForm.error_messages['password_mismatch'],
+        'password_incorrect': auth_forms.PasswordChangeForm.error_messages['password_incorrect'],
     }
 
+    old_password = CharField(
+        label=_('Old password'),
+        strip=False,
+        widget=PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
+    )
     password_1 = CharField(
-        label=_('Password'),
+        # label=_('Password'),
+        label=_('New password'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(
-        label=_('Password (again)'),
+        # label=_('Password (again)'),
+        label=_('New password confirmation'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=_('Enter the same password as before, for verification.'),
@@ -153,6 +161,17 @@ class UserChangePwForm(CremeForm):
     def __init__(self, *args, **kwargs):
         self.user2edit = kwargs.pop('instance')
         super().__init__(*args, **kwargs)
+
+    def clean_old_password(self):
+        old_password = self.cleaned_data["old_password"]
+
+        if not self.user.check_password(old_password):
+            raise ValidationError(
+                self.error_messages['password_incorrect'],
+                code='password_incorrect',
+            )
+
+        return old_password
 
     def clean_password_2(self):
         data = self.data

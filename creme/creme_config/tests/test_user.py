@@ -716,22 +716,43 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         other_user = User.objects.create(username='deunan')
         url = self._build_edit_url(other_user.id, password=True)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+
+        # GET ---
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Change password for «{object}»').format(object=other_user),
-            response.context.get('title'),
+            response1.context.get('title'),
         )
 
-        # ---
-        password = 'password'
-        response = self.client.post(
+        # POST (error) ---
+        new_password = 'password'
+        response2 = self.assertPOST200(
             url,
             follow=True,
-            data={'password_1': password, 'password_2': password},
+            data={
+                'old_password': 'mismatch',
+                'password_1': new_password,
+                'password_2': new_password,
+            },
         )
-        self.assertNoFormError(response)
-        self.assertTrue(self.refresh(other_user).check_password(password))
+        self.assertFormError(
+            response2, 'form', 'old_password',
+            _('Your old password was entered incorrectly. Please enter it again.'),
+        )
+
+        # POST ---
+        response3 = self.client.post(
+            url,
+            follow=True,
+            data={
+                'old_password': self.password,
+                'password_1': new_password,
+                'password_2': new_password,
+            },
+        )
+        self.assertNoFormError(response3)
+        self.assertTrue(self.refresh(other_user).check_password(new_password))
 
     @skipIfNotCremeUser
     def test_change_password02(self):
