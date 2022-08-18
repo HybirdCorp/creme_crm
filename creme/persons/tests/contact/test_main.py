@@ -108,6 +108,42 @@ class ContactTestCase(_BaseTestCase):
 
         self.assertEqual(UUID_FIRST_CONTACT, str(first_contact.uuid))
 
+    def test_clean_unique_user_email(self):
+        user1 = self.create_user(0)
+
+        # user2 = self.create_user(1, email=user1.email)
+        user2 = self.create_user(1)
+
+        # contact = Contact.objects.create(
+        #     user=user, first_name='Faye', last_name='Valentine',
+        # )
+        contact2 = user2.linked_contact
+        contact2.email = user1.email
+
+        with self.assertRaises(ValidationError) as cm:
+            contact2.clean()
+
+        self.assertListEqual(
+            [_(
+                'This Contact is related to a user and an active user already '
+                'uses this e-mail address.'
+            )],
+            cm.exception.messages,
+        )
+
+        # Ignore inactive ---
+        user1.is_active = False
+        user1.save()
+
+        with self.assertNoException():
+            contact2.clean()
+
+        # Ignore own user ---
+        contact2.email = user2.email
+
+        with self.assertNoException():
+            contact2.clean()
+
     def test_createview01(self):
         user = self.login()
 

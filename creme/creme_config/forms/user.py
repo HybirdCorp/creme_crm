@@ -36,9 +36,9 @@ CremeUser = get_user_model()
 # TODO: inherit from django.contrib.auth.forms.UserCreationForm
 #       => we need a Mixin to initialize the user in fields  (like HookableForm)
 class UserAddForm(CremeModelForm):
-    # Copied from django.contrib.auth.forms.UserCreationForm
     error_messages = {
         'password_mismatch': auth_forms.UserCreationForm.error_messages['password_mismatch'],
+        'used_email': _('An active user with the same email address already exists.'),
     }
 
     password_1 = CharField(
@@ -68,6 +68,17 @@ class UserAddForm(CremeModelForm):
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+
+        if type(self.instance)._default_manager.filter(is_active=True, email=email).exists():
+            raise ValidationError(
+                self.error_messages['used_email'],
+                code='used_email',
+            )
+
+        return email
 
     # Copied from django.contrib.auth.forms.UserCreationForm
     def clean_password_2(self):
@@ -106,6 +117,10 @@ class UserAddForm(CremeModelForm):
 
 # TODO: factorise with UserAddForm
 class UserEditForm(CremeModelForm):
+    error_messages = {
+        'used_email': _('An active user with the same email address already exists.'),
+    }
+
     role = ModelChoiceField(
         label=_('Role'), queryset=UserRole.objects.all(), required=False,
     )
@@ -119,6 +134,20 @@ class UserEditForm(CremeModelForm):
 
         # NB: browser can ignore <em> tag in <option>...
         self.fields['role'].empty_label = '*{}*'.format(gettext('Superuser'))
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        instance = self.instance
+
+        if type(instance)._default_manager.filter(
+            is_active=True, email=email,
+        ).exclude(id=instance.id).exists():
+            raise ValidationError(
+                self.error_messages['used_email'],
+                code='used_email',
+            )
+
+        return email
 
     def save(self, *args, **kwargs):
         instance = self.instance

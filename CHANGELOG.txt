@@ -15,6 +15,7 @@
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # Apps :
         * Creme_config :
+            - The email addresses of active users must be unique.
             - The menu icon can now be customised.
             - The menu can be customised per role.
             - The relationship types have been improved :

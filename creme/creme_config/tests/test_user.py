@@ -188,7 +188,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create01(self):
+    def test_create_user01(self):
         user = self.login()
 
         rtype1 = self.get_object_or_fail(RelationType, id=REL_SUB_EMPLOYED_BY)
@@ -271,7 +271,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create02(self):
+    def test_create_user02(self):
         "Not superuser ; special chars in username."
         self.login()
 
@@ -317,8 +317,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertRelationCount(1, contact, REL_SUB_MANAGES, orga)
 
     @skipIfNotCremeUser
-    def test_create03(self):
-        "First name, last name, email, orga, rtypes are required."
+    def test_create_user_required_fields(self):
+        "First name, last name, email, organisation, relation are required."
         self.login()
 
         password = 'password'
@@ -340,7 +340,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFormError(response, 'form', 'relation',     msg)
 
     @skipIfNotCremeUser
-    def test_create04(self):
+    def test_create_user_credentials(self):
         "Not super-user => forbidden."
         user = self.login_not_as_superuser()
 
@@ -365,8 +365,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_create05(self):
-        "Wrong username"
+    def test_create_user_wrong_username(self):
         user = self.login()
 
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -398,9 +397,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
         }],
     )
-    # def test_create07(self):
-    def test_create06(self):
-        "Password errors."
+    def test_create_user_password_errors(self):
         user = self.login()
         url = self.ADD_URL
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -457,9 +454,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    # def test_create08(self):
-    def test_create07(self):
-        "Unique username"
+    def test_create_user_unique_username(self):
+        "Unique username."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
 
@@ -478,12 +474,42 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'username', _('A user with that username already exists.')
+            response, 'form', 'username', _('A user with that username already exists.'),
         )
 
     @skipIfNotCremeUser
+    def test_create_user_unique_email(self):
+        "Unique email (among active users)."
+        user = self.login()
+        orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
+
+        other_user = self.other_user
+        password = 'password'
+        data = {
+            'username': 'deunan',
+            'first_name': 'Deunan',
+            'last_name': 'Knut',
+            'email': other_user.email,  # <===
+            'organisation': orga.id,
+            'relation': REL_SUB_EMPLOYED_BY,
+            'password_1': password,
+            'password_2': password,
+        }
+
+        response1 = self.assertPOST200(self.ADD_URL, data)
+        self.assertFormError(
+            response1, 'form', 'email',
+            _('An active user with the same email address already exists.'),
+        )
+
+        # ---
+        other_user.is_active = False
+        other_user.save()
+        self.assertNoFormError(self.client.post(self.ADD_URL, data))
+
+    @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_create08(self):
+    def test_create_user_relationship_error(self):
         "Internal relationships are forbidden."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -519,8 +545,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
         }],
     )
-    def test_create09(self):
-        "Similarity errors"
+    def test_create_user_similarity_errors(self):
         user = self.login()
         url = self.ADD_URL
         orga = Organisation.objects.create(user=user, name='Olympus', is_managed=True)
@@ -560,7 +585,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_edit01(self):
+    def test_edit_user(self):
         user = self.login()
 
         role1 = UserRole(name='Master')
@@ -580,11 +605,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(other_user.has_perm_to_view(briareos))
 
         url = self._build_edit_url(other_user.id)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit «{object}»').format(object=other_user),
-            response.context.get('title'),
+            response1.context.get('title'),
         )
 
         # ----
@@ -592,7 +617,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         last_name = 'Knut'
         email = 'd.knut@eswat.ol'
         role2 = UserRole.objects.create(name='Slave')
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -601,8 +626,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 'email':      email,
                 'role':       role2.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         other_user = self.refresh(other_user)
         self.assertEqual(first_name, other_user.first_name)
@@ -621,7 +645,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(email,       deunan.email)
 
     @skipIfNotCremeUser
-    def test_edit02(self):
+    def test_edit_user_not_team(self):
         "Can not edit a team with the user edit view."
         self.login()
 
@@ -637,7 +661,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_edit03(self):
+    def test_edit_user_credentials(self):
         "Logged as regular user."
         user = self.login_not_as_superuser()
 
@@ -669,7 +693,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_edit04(self):
+    def test_edit_user_empty_role(self):
         "Common user without role."
         self.login()
 
@@ -687,7 +711,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(other_user.is_superuser)
 
     @skipIfNotCremeUser
-    def test_edit05(self):
+    def test_edit_staff_user01(self):
         "Even a super-user cannot edit a staff user."
         self.login()
 
@@ -699,7 +723,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertGET404(self._build_edit_url(user.id))
 
     @skipIfNotCremeUser
-    def test_edit06(self):
+    def test_edit_staff_user02(self):
         "A staff-user can edit a staff user."
         self.login(is_staff=True)
 
@@ -709,6 +733,52 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             is_staff=True,
         )
         self.assertGET200(self._build_edit_url(user.id))
+
+    @skipIfNotCremeUser
+    def test_edit_user_unique_email01(self):
+        "Unique email (amon active users)."
+        self.login()
+        user = User.objects.create_user(
+            username='deunan', first_name='Deunan', last_name='Knut',
+            email='d.knut@eswat.ol', password='uselesspw',
+        )
+
+        other_user = self.other_user
+
+        data = {
+            'first_name': user.first_name,
+            'last_name': user.last_name,
+            'role': other_user.role_id,
+            'email': other_user.email,  # <==
+        }
+
+        url = self._build_edit_url(user.id)
+        response1 = self.assertPOST200(url, data=data)
+        self.assertFormError(
+            response1, 'form', 'email',
+            _('An active user with the same email address already exists.'),
+        )
+
+        # ---
+        other_user.is_active = False
+        other_user.save()
+        self.assertNoFormError(self.client.post(url, data=data))
+
+    @skipIfNotCremeUser
+    def test_edit_user_unique_email02(self):
+        "Unique email (amon active users) - self instance is excluded."
+        self.login()
+
+        other_user = self.other_user
+        self.assertNoFormError(self.client.post(
+            self._build_edit_url(other_user.id),
+            data={
+                'first_name': other_user.first_name,
+                'last_name': other_user.last_name,
+                'role': '',
+                'email': other_user.email,  # <==
+            }
+        ))
 
     @skipIfNotCremeUser
     def test_change_password01(self):
@@ -811,32 +881,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_user_activation01(self):
-        "Not superuser."
-        self.login_not_as_superuser()
-        other_user = User.objects.create(username='deunan')
-        self.assertGET403(self._build_activation_url(other_user.id, activation=False))
-        self.assertGET403(self._build_activation_url(other_user.id, activation=True))
-
-    @skipIfNotCremeUser
-    def test_user_activation02(self):
-        "Post only & Current user."
-        user = self.login()
-        url = self._build_activation_url(user.id, activation=False)
-        self.assertGET405(url)
-        self.assertPOST409(url)
-
-    @skipIfNotCremeUser
-    def test_user_activation03(self):
-        "User is staff."
-        self.login()
-        other_user = User.objects.create(username='deunan', is_staff=True)
-        self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
-        self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
-
-    @skipIfNotCremeUser
-    def test_user_activation04(self):
-        "OK."
+    def test_user_activation(self):
         self.login()
         other_user = User.objects.create(username='deunan')
 
@@ -848,8 +893,59 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(other_user).is_active)
 
     @skipIfNotCremeUser
+    def test_user_activation_credentials(self):
+        "Not superuser."
+        self.login_not_as_superuser()
+        other_user = User.objects.create(username='deunan')
+        self.assertGET403(self._build_activation_url(other_user.id, activation=False))
+        self.assertGET403(self._build_activation_url(other_user.id, activation=True))
+
+    @skipIfNotCremeUser
+    def test_user_activation_errors(self):
+        "Post only & Current user."
+        user = self.login()
+        url = self._build_activation_url(user.id, activation=False)
+        self.assertGET405(url)
+        self.assertPOST409(url)
+
+    @skipIfNotCremeUser
+    def test_user_activation_staff(self):
+        "User is staff."
+        self.login()
+        other_user = User.objects.create(username='deunan', is_staff=True)
+        # self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
+        # self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
+        response1 = self.client.post(self._build_activation_url(other_user.id, activation=True))
+        self.assertContains(response1, _("You can't activate a staff user."), status_code=409)
+
+        response2 = self.client.post(self._build_activation_url(other_user.id, activation=False))
+        self.assertContains(response2, _("You can't deactivate a staff user."), status_code=409)
+
+    @skipIfNotCremeUser
+    def test_user_activation_unique_email(self):
+        "Email must remain unique among active users."
+        self.login()
+        other_user = self.other_user
+        disabled_user = User.objects.create(
+            username='deunan', email=other_user.email, is_active=False,
+        )
+
+        url = self._build_activation_url(disabled_user.id, activation=True)
+        response1 = self.client.post(url)
+        self.assertContains(
+            response1,
+            _('An active user with the same email address already exists.'),
+            status_code=409,
+        )
+
+        # ---
+        other_user.is_active = False
+        other_user.save()
+        self.assertPOST200(url)
+
+    @skipIfNotCremeUser
     @skipIfCustomContact
-    def test_team_create01(self):
+    def test_create_team01(self):
         self.login()
 
         url = self.ADD_TEAM_URL
@@ -891,7 +987,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertFalse(Contact.objects.filter(is_user=team))
 
     @skipIfNotCremeUser
-    def test_team_create02(self):
+    def test_create_team02(self):
         self.login_not_as_superuser()
 
         url = self.ADD_TEAM_URL
@@ -912,7 +1008,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         return team
 
     @skipIfNotCremeUser
-    def test_team_edit01(self):
+    def test_edit_team01(self):
         self.login()
 
         role = UserRole(name='Role')
@@ -976,7 +1072,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTrue(self.refresh(user03).has_perm_to_view(entity))
 
     @skipIfNotCremeUser
-    def test_team_edit02(self):
+    def test_edit_team02(self):
         self.login_not_as_superuser()
 
         create_user = partial(User.objects.create_user, password='uselesspw')
@@ -999,7 +1095,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
     @skipIfNotCremeUser
-    def test_team_delete01(self):
+    def test_delete_team01(self):
         self.login()
 
         user = User.objects.create_user(
@@ -1015,7 +1111,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(team)
 
     @skipIfNotCremeUser
-    def test_team_delete02(self):
+    def test_delete_team02(self):
         self.login()
 
         user = User.objects.create_user(
@@ -1037,7 +1133,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(team2, ce.user)
 
     @skipIfNotCremeUser
-    def test_team_delete03(self):
+    def test_delete_team03(self):
         self.login()
 
         team = self._create_team('Teamee', [])
@@ -1047,7 +1143,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(team)
 
     @skipIfNotCremeUser
-    def test_team_delete04(self):
+    def test_delete_team04(self):
         self.login_not_as_superuser()
 
         user = User.objects.create_user(
@@ -1062,7 +1158,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST403(url, data={'to_user': user.id})
 
     @skipIfNotCremeUser
-    def test_user_delete01(self):
+    def test_delete_superuser(self):
         "Delete view can delete a superuser if at least one remains."
         user = self.login()
         root = self.get_object_or_fail(User, username='root')
@@ -1087,8 +1183,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertDoesNotExist(root)
 
     @skipIfNotCremeUser
-    def test_user_delete02(self):
-        "Delete view can delete any normal user"
+    def test_delete_regular_user(self):
+        "Delete view can delete any normal user."
         user = self.login()
         self.assertTrue(user.is_superuser)
 
@@ -1107,7 +1203,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(user, ce.user)
 
     @skipIfNotCremeUser
-    def test_user_cannot_delete_last_superuser(self):
+    def test_delete_last_superuser(self):
         "Delete view can not delete the last superuser."
         self.client.login(username='root', password='root')
 
@@ -1123,8 +1219,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(user)
 
     @skipIfNotCremeUser
-    def test_user_cannot_delete_staff_user(self):
-        "Delete view can not delete the staff user."
+    def test_delete_staff_user(self):
+        "Delete view can not delete a staff user."
         user = self.login()
         hybird = User.objects.create(username='hybird', is_staff=True)
 
@@ -1133,7 +1229,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertPOST(404, url, {'to_user': user.id})
 
     @skipIfNotCremeUser
-    def test_user_cannot_delete_during_transfert(self):
+    def test_delete_user_during_transfer(self):
         "Delete view is protected by a lock."
         user = self.login()
         root = self.get_object_or_fail(User, username='root')
@@ -1153,7 +1249,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             self.assertEqual(2, User.objects.filter(is_superuser=True).count())
 
     @skipIfNotCremeUser
-    def test_user_delete_errors(self):
+    def test_delete_user_errors(self):
         "Validation errors."
         user = self.login()
         root = User.objects.get(username='root')
@@ -1177,8 +1273,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertStillExists(user)
 
     @skipIfNotCremeUser
-    def test_user_delete_credentials(self):
-        "Only super user are allowed."
+    def test_delete_user_credentials(self):
+        "Only superusers are allowed."
         user = self.login_not_as_superuser()
 
         url = self._build_delete_url(self.other_user)
