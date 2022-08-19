@@ -142,6 +142,8 @@ class EntityEmailsList(generic.EntitiesList):
 class EntityEmailLinking(RelationsAdding):
     title = _('Link «{entity}» to emails')
 
+    brick_class = bricks.MailsHistoryBrick
+
     def get_relation_types(self):
         subject = self.get_related_entity()
         compatible_rtypes = []
@@ -149,7 +151,7 @@ class EntityEmailLinking(RelationsAdding):
         # subjects_prop_ids = None
 
         for rtype in RelationType.objects.filter(
-            id__in=bricks.MailsHistoryBrick.relation_type_deps,
+            id__in=self.brick_class.relation_type_deps,
         ).prefetch_related(
             'subject_ctypes', 'subject_properties', 'subject_forbidden_properties',
         ):
@@ -180,7 +182,6 @@ class EntityEmailLinking(RelationsAdding):
             else:
                 compatible_rtypes.append(rtype)
 
-        # TODO: unit test
         if not compatible_rtypes:
             raise ConflictError(gettext('No type of relationship is compatible.'))
 

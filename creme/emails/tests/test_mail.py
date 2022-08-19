@@ -8,6 +8,7 @@ from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
 from django.forms import IntegerField
 from django.urls import reverse
+from django.utils.html import escape
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from parameterized import parameterized
@@ -18,6 +19,7 @@ from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
+    CremePropertyType,
     CustomField,
     FakeInvoice,
     FieldsConfig,
@@ -1048,6 +1050,42 @@ better &amp; lighter than the previous one.
                 rtype.enabled = True
                 rtype.save()
 
+    def test_link_to_emails04(self):
+        "Incompatible relation types (property types constraints)."
+        self.login()
+
+        ptype = CremePropertyType.objects.smart_update_or_create(
+            str_pk='test-prop_important', text='Is important',
+        )
+
+        url = self._build_link_emails_url(self.other_user.linked_contact)
+        modified_rtypes = []
+
+        def add_constraint(rtype_id):
+            rtype = self.get_object_or_fail(RelationType, id=rtype_id)
+            rtype.subject_properties.add(ptype)
+            modified_rtypes.append(rtype)
+
+        try:
+            self.assertGET200(url)
+
+            add_constraint(REL_OBJ_MAIL_SENT)
+            self.assertGET200(url)
+
+            add_constraint(REL_OBJ_MAIL_RECEIVED)
+            self.assertGET200(url)
+
+            add_constraint(REL_OBJ_RELATED_TO)
+            error_response = self.assertGET409(url)
+        finally:
+            for rtype in modified_rtypes:
+                rtype.subject_properties.remove(ptype)
+
+        self.assertIn(
+            escape(_('No type of relationship is compatible.')),
+            error_response.content.decode(),
+        )
+
     def test_brick(self):
         user = self.login()
 
@@ -1303,5 +1341,3 @@ better &amp; lighter than the previous one.
 
         email.restore()
         self.assertFalse(queue.refreshed_jobs)
-
-    # TODO: test EntityEmailLinking + property constraint
