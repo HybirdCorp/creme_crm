@@ -5,7 +5,7 @@ syntax: glob
 *.pyc
 
 # Still useful?
-*.orig
+#*.orig
 .project*
 .settings*
 
@@ -41,13 +41,6 @@ artifacts/*
 
 # mypy
 .mypy_cache/*
-
-# # HG
-# \.orig\..*$
-# \.orig$
-# \.chg\..*$
-# \.rej$
-# \.conflict\~$
 
 # nodejs
 node_modules/
