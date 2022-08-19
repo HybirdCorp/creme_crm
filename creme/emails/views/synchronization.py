@@ -102,7 +102,7 @@ class EmailToSyncCorrection(generic.CremeModelEditionPopup):
         types = instance.related_persons.values_list('type', flat=True)
         if len(types) != 1 or types[0] != EmailToSyncPerson.Type.SENDER:
             raise ConflictError(
-                'Does not seem to be a forwarded e-mail (only a sender).'
+                'Does not seem to be a forwarded email (only a sender).'
             )
 
 

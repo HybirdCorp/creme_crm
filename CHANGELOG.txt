@@ -27,7 +27,7 @@
         * Assistants :
             - The trigger date of an Alert can now be relative to a date field of the linked entity (e.g. "3 days before its birthday").
               Relative trigger dates are automatically updated when the date field changes.
-            - The owner of Alerts & ToDos can now be dynamic, to always send e-mails to the entity's owner.
+            - The owner of Alerts & ToDos can now be dynamic, to always send emails to the entity's owner.
         * Activities :
             - The relationships type "is subject of the activity" is now internal.
             - In creation form, when an Alert with a trigger date relative to the Activity's start is created,
@@ -35,7 +35,7 @@
               So the trigger date is finally updated when the Activity's start is modified (a very old annoying behaviour disappears).
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
-              This feature allows Creme to fetch e-mails from some mailboxes to potentially create true Email entities
+              This feature allows Creme to fetch emails from some mailboxes to potentially create true Email entities
               (e.g. you sent a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
                 - Now the mail servers are configured with a GUI (it was in 'settings.py').
                 - IMAP4 is supported (only POP3 was).
@@ -386,7 +386,7 @@
         * Reports :
             - The CustomFields with type DATE can now be used as abscissa in ReportGraphs (only DATETIME was available).
         * Emails :
-            - When you create an e-mail from a detailed view, only one of the 2 bodies needs to be filled
+            - When you create an email from a detailed view, only one of the 2 bodies needs to be filled
               (the other one is automatically filled from it).
         * Assistants :
             - In Alerts & ToDos bricks, the validated lines can be shown/hidden. The default behaviour is still the same.
@@ -2206,7 +2206,7 @@
         * Emails :
             - Sendings have now a true detail-view :
                 - The template used for a sending can now be viewed.
-                - A link to the entity related to a mail has been added in the e-mails's brick.
+                - A link to the entity related to a mail has been added in the emails's brick.
             - A list-view action & a bulk-action have been added for Emails : "resend".
         * Tickets :
             - A statistic has been added : count of not closed tickets.
@@ -3062,7 +3062,7 @@
             - If you create your own model field inheriting ForeignKey/OneToOneField, you cannot set a model during migration for 'to' attribute.
             - If you import the module 'creme_config.registry', the import should be done after all the app configs are ready (e.g. importing within a view function) in order to avoid errors.
             - Django 1.9 does not like '/' at the beginning of URL regex (it says it's useless, but it can be useful in some rare cases).
-            - The MIMEtype of e-mail attachments is now set.
+            - The MIMEtype of email attachments is now set.
         # Changes caused by Django 1.10 :
             - The method 'Command.execute()' will crash if all arguments do not receive a value (use 'django.core.management.call_command()' instead).
             - The variable 'django.utils.http.PROTOCOL_TO_PORT' has been removed (seems not documented).
@@ -3071,7 +3071,7 @@
               So you should use the new template-based system instead (it's what have been done in Creme -- see below).
             - The method 'Widget.format_output()' has been removed (a custom widget template should be used instead).
             - The arguments of 'creme_core.forms.bulk.BulkFieldSelectWidget.build_attrs()' have changed to follow the Django 1.11 signature.
-            - In unit tests, (fake) e-mails are not sent when the recipient is empty anymore.
+            - In unit tests, (fake) emails are not sent when the recipient is empty anymore.
         # Most of libraries have been upgraded :
             - 'bleach' 1.4.X => 2.1.X.
             - 'xlrd' : 0.9.X => 1.1.X
@@ -4065,7 +4065,7 @@
                 -  The template 'commercial/templatetags/widget_score.html' needs a variable "view_name" to work correctly.
             * Assistants :
                 - The method 'UserMessage.send_mails()'' takes now an additional argument 'job'.
-                  It catches the exceptions when e-mails are sent, & do not send again the same e-mails.
+                  It catches the exceptions when emails are sent, & do not send again the same emails.
             * Reports :
                 - JavaScript:
                     - The function 'creme.reports.loadHeaderFilters()' takes an additional parameter ('url').

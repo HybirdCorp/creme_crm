@@ -400,7 +400,7 @@ class ContactMergeTestCase(_BaseTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', None,
-            _('This Contact is related to a user and must have an e-mail address.'),
+            _('This Contact is related to a user and must have an email address.'),
         )
 
         response = self.client.post(
@@ -460,7 +460,7 @@ class ContactMergeTestCase(_BaseTestCase):
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
             response, 'form', None,
-            _('This Contact is related to a user and must have an e-mail address.'),
+            _('This Contact is related to a user and must have an email address.'),
         )
 
         response = self.client.post(

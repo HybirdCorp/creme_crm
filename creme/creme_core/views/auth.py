@@ -32,7 +32,7 @@ class PasswordReset(base.SubmittableMixin, auth_views.PasswordResetView):
     template_name = 'creme_core/auth/password_reset/form.html'
     subject_template_name = 'creme_core/auth/password_reset/email/subject.txt'
     email_template_name = 'creme_core/auth/password_reset/email/body.txt'
-    # html_email_template_name = None  # Set to get an HTML e-mail
+    # html_email_template_name = None  # Set to get an HTML email
     # from_email = 'noreply@mycompagny.org'  # NB: settings.DEFAULT_FROM_EMAIL used by default
     success_url = reverse_lazy('creme_core__password_reset_done')
     title = _('Reset your password (Step 1/4)')

@@ -119,7 +119,7 @@ class ConditionOperator:
     # Boolean ;  <True> means that the operand given by the user should not be
     # validated because sub-part of a valid input must be accepted.
     #   Eg: we want to search in the values of an EmailField with a string
-    #       which is not a complete (& so, valid) e-mail address.
+    #       which is not a complete (& so, valid) email address.
     accept_subpart: bool = True
 
     # Format string used by <description()>.

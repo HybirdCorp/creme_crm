@@ -122,10 +122,10 @@ class Reminder:
 
     def next_wakeup(self, now_value: datetime) -> datetime | None:
         """Returns the next time when the job manager should wake up in order
-        to send the related e-mails.
+        to send the related emails.
         @param now_value: datetime object representing 'now'.
-        @return None -> the job has not to be woke up.
-                A datetime instance -> the job should be woke up at this time.
+        @return None -> the job has not to be woken up.
+                A datetime instance -> the job should be woken up at this time.
                     If it's in the past, it means the job should be run immediately
                     (tip: you can simply return now_value).
         """

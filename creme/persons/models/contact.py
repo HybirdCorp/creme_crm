@@ -139,7 +139,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
 
             if not self.email:
                 raise ValidationError(
-                    gettext('This Contact is related to a user and must have an e-mail address.')
+                    gettext('This Contact is related to a user and must have an email address.')
                 )
             # TODO: should we limit the edition of email? (it could be used to
             #       reset the password -- but happily the History shows who
@@ -150,7 +150,7 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             ).exclude(id=self.is_user_id).exists():
                 raise ValidationError(gettext(
                     'This Contact is related to a user and an active user '
-                    'already uses this e-mail address.'
+                    'already uses this email address.'
                 ))
 
     def delete(self, *args, **kwargs):
