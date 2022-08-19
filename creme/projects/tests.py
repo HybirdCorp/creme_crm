@@ -9,6 +9,7 @@ from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 
+import creme.projects.bricks as proj_bricks
 from creme.activities.constants import (
     ACTIVITYSUBTYPE_MEETING_MEETING,
     ACTIVITYTYPE_MEETING,
@@ -22,6 +23,8 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
 from creme.creme_core.models import Currency, SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils.currency_format import currency
 from creme.persons.models import Contact
 from creme.persons.tests.base import skipIfCustomContact
 
@@ -59,7 +62,7 @@ def skipIfCustomTask(test_func):
 
 @skipIfCustomContact
 @skipIfCustomProject
-class ProjectsTestCase(CremeTestCase):
+class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     EXTRA_LEADERS_KEY = 'cform_extra-projects_leaders'
     EXTRA_PARENTTASKS_KEY = 'cform_extra-projects_parent_tasks'
     DELETE_RESOURCE_URL = reverse('projects__delete_resource')
@@ -203,7 +206,7 @@ class ProjectsTestCase(CremeTestCase):
 
         return self.get_object_or_fail(ProjectTask, linked_project=project, title=title)
 
-    def test_project_detailview(self):
+    def test_project_detailview01(self):
         self.login()
 
         status = ProjectStatus.objects.all()[0]
@@ -213,6 +216,68 @@ class ProjectsTestCase(CremeTestCase):
         )[0]
         response = self.assertGET200(project.get_absolute_url())
         self.assertTemplateUsed(response, 'projects/view_project.html')
+
+        # ---
+        tree = self.get_html_tree(response.content)
+        info_brick_node = self.get_brick_node(tree, proj_bricks.ProjectExtraInfoBrick.id_)
+        self.assertListEqual(
+            [
+                currency(0, project.currency),  # Cost
+                '—',  # Delay
+            ],
+            [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+        )
+
+        # ---
+        task_brick_node = self.get_brick_node(tree, proj_bricks.ProjectTasksBrick.id_)
+        self.assertEqual(
+            _('Related tasks'),
+            self.get_brick_title(task_brick_node),
+        )
+
+    def test_project_detailview02(self):
+        "With tasks."
+        user = self.login()
+
+        project = Project.objects.create(
+            user=user, name='Eva02', status=ProjectStatus.objects.first(),
+        )
+        now_value = now()
+        task = ProjectTask.objects.create(
+            user=user,
+            linked_project=project,
+            title='legs',
+            tstatus=TaskStatus.objects.get(pk=NOT_STARTED_PK),
+            start=now_value,
+            end=now_value + timedelta(days=3),
+            duration=1,
+        )
+
+        resource = Resource.objects.create(
+            linked_contact=user.linked_contact, task=task, hourly_cost=100,
+        )
+        self.create_activity(resource, duration='3')
+
+        response = self.assertGET200(project.get_absolute_url())
+
+        # ---
+        tree = self.get_html_tree(response.content)
+        info_brick_node = self.get_brick_node(tree, proj_bricks.ProjectExtraInfoBrick.id_)
+        self.assertListEqual(
+            [
+                currency(300, project.currency),  # Cost
+                '2',  # Delay (3 - 1)
+            ],
+            [node.text for node in info_brick_node.findall('.//div[@class="brick-kv-value"]')],
+        )
+
+        # ---
+        task_brick_node = self.get_brick_node(tree, proj_bricks.ProjectTasksBrick.id_)
+        self.assertEqual(
+            _('{count} Related task').format(count=1),
+            self.get_brick_title(task_brick_node),
+        )
+        self.assertInstanceLink(task_brick_node, task)
 
     def test_project_createview01(self):
         user = self.login()
@@ -459,13 +524,13 @@ class ProjectsTestCase(CremeTestCase):
                 },
             )
 
-        response = post('')
-        self.assertEqual(200, response.status_code)
-        self.assertFormError(response, 'form', 'duration', _('This field is required.'))
+        response1 = post('')
+        self.assertEqual(200, response1.status_code)
+        self.assertFormError(response1, 'form', 'duration', _('This field is required.'))
 
         duration_1 = 50
-        response = post(duration_1)
-        self.assertNoFormError(response)
+        response2 = post(duration_1)
+        self.assertNoFormError(response2)
 
         tasks = ProjectTask.objects.filter(linked_project=project)
         self.assertEqual(1, tasks.count())
@@ -477,7 +542,7 @@ class ProjectsTestCase(CremeTestCase):
 
         duration_2 = 180
         dt_value = self.formfield_value_datetime
-        response = self.client.post(
+        response3 = self.client.post(
             url,
             follow=True,
             data={
@@ -493,7 +558,7 @@ class ProjectsTestCase(CremeTestCase):
                 self.EXTRA_PARENTTASKS_KEY: self.formfield_value_multi_creator_entity(task1),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         tasks = ProjectTask.objects.filter(linked_project=project)
         self.assertEqual(2, tasks.count())
@@ -780,10 +845,10 @@ class ProjectsTestCase(CremeTestCase):
         task = self.create_task(project, 'legs')
         self.assertFalse(task.resources_set.all())
 
-        response = self.assertGET200(self._build_add_resource_url(task))
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(self._build_add_resource_url(task))
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(_('Allocation of a new resource'), context.get('title'))
         self.assertEqual(Resource.save_label,               context.get('submit_label'))
         # ---
@@ -829,6 +894,23 @@ class ProjectsTestCase(CremeTestCase):
         self.assertEqual(8,   project.get_effective_duration())
         self.assertEqual(800, project.get_project_cost())  # 8 * 100
         self.assertEqual(0,   project.get_delay())
+
+        # ---
+        detail_response = self.assertGET200(task.get_absolute_url())
+        tree = self.get_html_tree(detail_response.content)
+
+        resources_brick_node = self.get_brick_node(tree, proj_bricks.TaskResourcesBrick.id_)
+        self.assertEqual(
+            _('{count} Resource assigned to this task').format(count=1),
+            self.get_brick_title(resources_brick_node),
+        )
+
+        activities_brick_node = self.get_brick_node(tree, proj_bricks.TaskActivitiesBrick.id_)
+        self.assertEqual(
+            _('{count} Related activity').format(count=1),
+            self.get_brick_title(activities_brick_node),
+        )
+        self.assertInstanceLink(activities_brick_node, worker)
 
     @skipIfCustomActivity
     @skipIfCustomTask
