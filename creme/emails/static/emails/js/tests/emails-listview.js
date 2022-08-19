@@ -28,7 +28,7 @@ QUnit.test('creme.emails.ResendEMailsAction (no selection)', function(assert) {
 
     action.start();
 
-    this.assertOpenedAlertDialog(gettext("Please select at least one e-mail."));
+    this.assertOpenedAlertDialog(gettext("Please select at least one email."));
     this.closeDialog();
 
     deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));

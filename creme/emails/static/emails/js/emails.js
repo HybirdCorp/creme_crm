@@ -285,7 +285,7 @@ creme.emails.ResendEMailsAction = creme.component.Action.sub({
         }
 
         if (selection.length < 1) {
-            creme.dialogs.warning(gettext("Please select at least one e-mail."))
+            creme.dialogs.warning(gettext("Please select at least one email."))
                          .onClose(function() {
                              self.cancel();
                           })

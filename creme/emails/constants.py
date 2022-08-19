@@ -1,5 +1,5 @@
 # The RFC 2822 (http://www.faqs.org/rfcs/rfc2822.html) does not define a maximum
-# length for the subject of an e-mail ; several e-mail service truncate them
+# length for the subject of an email ; several email services truncate them
 # (130 chars, 255 chars...). 100 is the historical length in Creme.
 # TODO: increase to 128/256/... ? use TextFields instead of CharFields ?
 SUBJECT_LENGTH = 100

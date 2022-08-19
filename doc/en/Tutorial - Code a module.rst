@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-07-2022 for Creme 2.4
+:Version: 19-08-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -3104,7 +3104,7 @@ can be :
    Eg: consulting an inbox, if a file is present through FTP…
  - ``JobType.PSEUDO_PERIODIC`` : as in the previous case, there is only one
    instance of ``Job`` ; it is run depending of the data stored in the DB and
-   which define the next run. For example, if a job have to send e-mails
+   which define the next run. For example, if a job have to send emails
    in 17 hours then in 3 days.
 
 As we created a periodic job, we must create the instance of ``Job`` in our
@@ -3221,7 +3221,7 @@ List of different services
   ``register_billing_algorithm()`` to know how to do.
 - The app **recurrents** can generate objects regularly. Look at files
   ``recurrents_register.py`` in the apps ``billing`` or ``tickets``.
-- The app **crudity** can create objects from external data, like e-mails.
+- The app **crudity** can create objects from external data, like emails.
 
 
 Unit tests and tests driven development

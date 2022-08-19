@@ -38,7 +38,7 @@
 
 {% block brick_table_rows %}
 {% url 'emails__accept_email_to_sync' as accept_url %}{% url 'emails__delete_email_to_sync' as delete_url %}
-{% translate 'Only the recipient marked as main is used to fill the field «Recipient» of the final e-mail. All recipients are linked to the email anyway.' as mark_help_text %}
+{% translate 'Only the recipient marked as main is used to fill the field «Recipient» of the final email. All recipients are linked to the email anyway.' as mark_help_text %}
     {% for email_to_sync in page.object_list %}
     <tr>
         <td data-selectable-selector-column>

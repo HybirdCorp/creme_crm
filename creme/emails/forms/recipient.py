@@ -56,7 +56,7 @@ def _detect_end_line(uploaded_file):
 class MailingListAddRecipientsForm(CremeForm):
     recipients = MultiEmailField(
         label=_('Recipients'),
-        help_text=_('Write a valid e-mail address per line.'),
+        help_text=_('Write a valid email address per line.'),
     )
 
     blocks = FieldBlockManager({
@@ -86,7 +86,7 @@ class MailingListAddCSVForm(CremeForm):
     recipients = FileField(
         label=_('Recipients'),
         help_text=_(
-            'A file containing one e-mail address per line '
+            'A file containing one email address per line '
             '(e.g. "creme@crm.com" without quotation marks).'
         )
     )

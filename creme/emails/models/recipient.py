@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from creme.creme_core.models import CremeModel
 
 
 class EmailRecipient(CremeModel):
-    """A model which stores an e-mail address not linked to a Contact/Organisation."""
+    """A model which stores an email address not linked to a Contact/Organisation."""
     ml = models.ForeignKey(
         settings.EMAILS_MLIST_MODEL,
         on_delete=models.CASCADE, verbose_name=_('Related mailing list'),

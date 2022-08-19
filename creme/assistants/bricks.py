@@ -84,10 +84,10 @@ class TodosBrick(_AssistantsBrick):
     description = _(
         'Allows to add ToDos to the current entity, which help you to remind '
         'some things to achieve.\n'
-        'Hint #1: ToDos can have a deadline ; e-mails are sent to the owners of the '
+        'Hint #1: ToDos can have a deadline ; emails are sent to the owners of the '
         'ToDos which are not marked as done and near of their deadline (see the '
         'job «Reminders»).\n'
-        'Hint #2: if the owner of a ToDo is a team, e-mails are sent to all the '
+        'Hint #2: if the owner of a ToDo is a team, emails are sent to all the '
         'teammates.\n'
         'App: Assistants'
     )
@@ -159,9 +159,9 @@ class AlertsBrick(_AssistantsBrick):
     description = _(
         'Allows to add Alerts to the current entity, which help you to remind '
         'some important things to achieve before a trigger date.\n'
-        'E-mails are sent to the owners of the Alerts which are not marked as validated and '
+        'Emails are sent to the owners of the Alerts which are not marked as validated and '
         'near of their deadline (see the job «Reminders»).\n'
-        'Hint: if the owner of an Alert is a team, e-mails are sent to all the '
+        'Hint: if the owner of an Alert is a team, emails are sent to all the '
         'teammates.\n'
         'App: Assistants'
     )

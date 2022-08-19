@@ -126,7 +126,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertListEqual(
             [_(
                 'This Contact is related to a user and an active user already '
-                'uses this e-mail address.'
+                'uses this email address.'
             )],
             cm.exception.messages,
         )
@@ -449,7 +449,7 @@ class ContactTestCase(_BaseTestCase):
             contact.full_clean()
 
         self.assertListEqual(
-            [_('This Contact is related to a user and must have an e-mail address.')],
+            [_('This Contact is related to a user and must have an email address.')],
             cm.exception.messages,
         )
 

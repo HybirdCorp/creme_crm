@@ -307,7 +307,7 @@ class MailsHistoryBrick(QuerysetBrick):
 
 class MailPopupBrick(SimpleBrick):
     id_ = QuerysetBrick.generate_id('emails', 'mail_popup')
-    verbose_name = 'Detail popup of e-mail'
+    verbose_name = 'Detail popup of email'
     dependencies = (EntityEmail,)
     template_name = 'emails/bricks/mail-popup.html'
     configurable = False
