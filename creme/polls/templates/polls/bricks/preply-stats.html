@@ -13,7 +13,7 @@
     <div class="brick-list-item poll-item poll-response-item {% if node.is_section %}poll-section{% else %}poll-question{% endif %}">
         {% if node.is_section %}
         <div class="poll-group">
-            <div class="poll-title" style="padding-left:{{node.deep|mult:1.5|floatformat:'2u'}}em;">
+            <div class="poll-title" style="padding-left:{{node.deep|mult:1.5|floatformat:'3u'}}em;">
                 <div class="poll-title-number"><div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div></div>
                 <div class="poll-title-label">
                     <span>{% print_field object=node field='name' %}</span>
@@ -23,7 +23,7 @@
         </div>
         {% else %}
         <div class="poll-group">
-            <div class="poll-title" style="padding-left:{{node.deep|mult:1.5|floatformat:'2u'}}em;">
+            <div class="poll-title" style="padding-left:{{node.deep|mult:1.5|floatformat:'3u'}}em;">
                 <div class="poll-title-number">{% if node.number %}<div style="{% poll_node_css style node %}">{% poll_node_number style node %}</div>{% endif %}</div>
                 <div class="poll-title-label">
                     <span>{{node.question}}</span>
@@ -35,9 +35,9 @@
             </div>
             <div class="poll-stack">
                 {% for answer, count, ratio in node.answer_stats %}
-                <div class="poll-stack-bar poll-stack-color-{% cycle 'a' 'b' 'c' 'd' 'e' 'f' %}" style="flex-basis: {{ ratio|floatformat:'2u' }}%;">
+                <div class="poll-stack-bar poll-stack-color-{% cycle 'a' 'b' 'c' 'd' 'e' 'f' %}" style="flex-basis: {{ ratio|floatformat:'3u' }}%;">
                     <div class="poll-stack-title">
-                        <a class="poll-stack-text poll-stack-label" href="">{{ answer }}</a>
+                        <div class="poll-stack-text poll-stack-label">{{ answer }}</div>
                         <div class="poll-stack-text poll-stack-description">{{ ratio|floatformat:'2' }} %</div>
                     </div>
                     <div class="poll-stack-text poll-stack-count">{{count}}</div>
@@ -48,6 +48,16 @@
                 </div>
                 {% endfor %}
                 {% resetcycle %}
+                {% if node.answer_zeros %}
+                <div class="poll-stack-zero">
+                    <div class="poll-zero-title">{% blocktranslate count total=node.answer_zeros|length %}Not chosen{% plural %}Not chosen{% endblocktranslate %}</div>
+                    <div class="poll-zero-items">
+                        {% for answer, count, ratio in node.answer_zeros %}
+                        <div class="poll-zero-label">{{ answer }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endif %}

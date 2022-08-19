@@ -19,6 +19,8 @@
 from collections import Counter, defaultdict
 from itertools import count
 
+from django.utils.functional import partition
+
 from creme.creme_core.utils import int_2_roman
 
 from . import get_pollform_model, get_pollreply_model
@@ -207,11 +209,17 @@ class StatsTree(SectionTree):
                     total += choice_count
                     stats[choice_label] += choice_count
 
-            fline.answer_count = total
-            fline.answer_stats = [
+            answer_zeros, answer_stats = partition(
+                lambda stat: stat[1] > 0,
                 (
-                    stat_label,
-                    stat_count,
-                    round(float(stat_count * 100) / float(total), 2),
-                ) for stat_label, stat_count in stats.items()
-            ] if total > 0 else []
+                    (
+                        stat_label,
+                        stat_count,
+                        round(float(stat_count * 100) / float(total), 3),
+                    ) for stat_label, stat_count in stats.items()
+                ) if total > 0 else []
+            )
+
+            fline.answer_count = total
+            fline.answer_stats = answer_stats
+            fline.answer_zeros = answer_zeros

@@ -2353,54 +2353,63 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual([fline1, fline2, fline3, fline4, fline5], nodes)
 
         with self.assertNumQueries(0):
-            stats1 = nodes[0].answer_stats
-            stats2 = nodes[1].answer_stats
-            stats3 = nodes[2].answer_stats
-            stats4 = nodes[3].answer_stats
-            stats5 = nodes[4].answer_stats
+            node1, node2, node3, node4, node5 = nodes
 
-        self.assertEqual(nodes[0].answer_count, 0)
-        self.assertFalse(stats1)
+        self.assertEqual(node1.answer_count, 0)
+        self.assertFalse(node1.answer_stats)
+        self.assertFalse(node1.answer_zeros)
 
-        self.assertEqual(nodes[1].answer_count, 3)
+        self.assertEqual(node2.answer_count, 3)
         self.assertSetEqual(
             {
-                (answer_2_1, 2, round((2.0 * 100.0) / 3.0, 2)),
-                (answer_2_4, 1, round((1.0 * 100.0) / 3.0, 2)),
+                (answer_2_1, 2, round((2.0 * 100.0) / 3.0, 3)),
+                (answer_2_4, 1, round((1.0 * 100.0) / 3.0, 3)),
             },
-            {*stats2},
+            {*node2.answer_stats},
         )
+        self.assertFalse(node2.answer_zeros)
 
-        self.assertEqual(nodes[2].answer_count, 3)
+        self.assertEqual(node3.answer_count, 3)
         self.assertSetEqual(
             {
-                ('European', 1, round((1.0 * 100.0) / 3.0, 2)),
-                ('African',  2, round((2.0 * 100.0) / 3.0, 2)),
+                ('European', 1, round((1.0 * 100.0) / 3.0, 3)),
+                ('African',  2, round((2.0 * 100.0) / 3.0, 3)),
             },
-            {*stats3},
+            {*node3.answer_stats},
         )
+        self.assertFalse(node3.answer_zeros)
 
-        self.assertEqual(nodes[3].answer_count, 6)
+        self.assertEqual(node4.answer_count, 6)
         self.assertSetEqual(
             {
-                ('White',  3, round((3.0 * 100.0) / 6.0, 2)),
-                ('Black',  2, round((2.0 * 100.0) / 6.0, 2)),
+                ('White',  3, round((3.0 * 100.0) / 6.0, 3)),
+                ('Black',  2, round((2.0 * 100.0) / 6.0, 3)),
+                ('Purple', 1, round((1.0 * 100.0) / 6.0, 3)),
+            },
+            {*node4.answer_stats},
+        )
+        self.assertSetEqual(
+            {
                 ('Green',  0, 0.0),
-                ('Purple', 1, round((1.0 * 100.0) / 6.0, 2)),
             },
-            {*stats4},
+            {*node4.answer_zeros}
         )
 
-        self.assertEqual(nodes[4].answer_count, 3)
+        self.assertEqual(node5.answer_count, 3)
         self.assertSetEqual(
             {
-                ('White',   1, round((1.0 * 100.0) / 3.0, 2)),
+                ('White',   1, round((1.0 * 100.0) / 3.0, 3)),
+                (_('Other'), 2, round((2.0 * 100.0) / 3.0, 3)),
+            },
+            {*node5.answer_stats},
+        )
+        self.assertSetEqual(
+            {
                 ('Black',   0, 0.0),
                 ('Green',   0, 0.0),
                 ('Purple',  0, 0.0),
-                (_('Other'), 2, round((2.0 * 100.0) / 3.0, 2)),
             },
-            {*stats5},
+            {*node5.answer_zeros}
         )
 
     def test_statsview(self):

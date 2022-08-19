@@ -167,7 +167,7 @@
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
                 * Crudity :
                     - The function 'crudity.utils.strip_html()' has been removed.
-                * Pools :
+                * Polls :
                     - The templatetag 'poll_stats_chart' has been removed.
         # There are 2 major changes in formats (dates, numbers) :
            - 'USE_L10N = True' by default.
