@@ -63,6 +63,17 @@ urlpatterns = [
     ),
 
     re_path(
+        r'^graph/fetch/(?P<graph_id>\d+)/settings[/]?$',
+        graph.GraphFetchSettings.as_view(),
+        name='reports__update_graph_fetch_settings',
+    ),
+    re_path(
+        r'^graph/fetch/(?P<instance_brick_id>\d+)/settings/(?P<entity_id>\d+)[/]?$',
+        graph.GraphFetchSettingsForInstance.as_view(),
+        name='reports__update_graph_fetch_settings_for_instance',
+    ),
+
+    re_path(
         r'^graph/(?P<graph_id>\d+)/brick/add[/]?$',
         bricks.GraphInstanceBrickCreation.as_view(),
         name='reports__create_instance_brick',

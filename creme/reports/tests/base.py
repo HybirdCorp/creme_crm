@@ -17,6 +17,7 @@ from creme.creme_core.models import (
     Relation,
     RelationType,
 )
+from creme.creme_core.models.bricks import InstanceBrickConfigItem
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_BILL_ISSUED as REL_SUB_BILL_ISSUED,
@@ -31,6 +32,7 @@ from creme.creme_core.tests.fake_models import (
     FakeInvoiceLine,
     FakeOrganisation,
 )
+from creme.reports.constants import RGF_NOLINK
 
 from .. import (
     constants,
@@ -131,6 +133,14 @@ class BaseReportsTestCase(CremeTestCase):
         )
 
         return report
+
+    def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
+        self.assertNoFormError(self.client.post(
+            reverse('reports__create_instance_brick', args=(graph.id,)),
+            data={'fetcher': fetcher, **kwargs}
+        ))
+
+        return InstanceBrickConfigItem.objects.get(entity=graph.id)
 
     def _create_contacts_report(self, name='Report #1', efilter=None, user=None):
         report = self._create_simple_contacts_report(name=name, efilter=efilter, user=user)

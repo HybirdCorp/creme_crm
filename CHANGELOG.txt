@@ -134,6 +134,10 @@
                 * New GraphRelationChartBrick that renders the relation graphs
            - Polls :
                 * The 'Statistic' brick does not use jQplot anymore.
+           - Reports:
+                * Add the following views to store the graph states in D3 bricks.
+                     - reports.views.graph.GraphFetchSettings
+                     - reports.views.graph.GraphFetchSettingsForInstance
 
     Breaking changes :
     ------------------

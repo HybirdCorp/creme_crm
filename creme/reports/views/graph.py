@@ -18,6 +18,7 @@
 
 import logging
 
+from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
 
@@ -205,3 +206,85 @@ class GraphFetchingForInstance(base.EntityRelatedMixin, GraphFetchingBase):
             x = y = None
 
         return fetcher.graph, x, y
+
+
+class GraphFetchSettingsBase(base.CheckedView):
+    # permissions = 'reports' => No, we want to get the "plot" even if the ReportGraph
+    #                            cannot be seen (the plot's data use credentials any way).
+    response_class = CremeJsonResponse
+    report_chart_registry = report_chart_registry
+
+    def clean_chart(self, request):
+        value = request.POST.get('chart')
+
+        if not value:
+            raise ValueError('Chart value is missing')
+
+        registered = [c[0] for c in self.report_chart_registry]
+
+        if value not in registered:
+            raise ValueError(
+                f'Chart value must be in {registered} (value={value})'
+            )
+
+        return value
+
+    def clean_sort(self, request):
+        value = request.POST.get('sort', 'ASC')
+        return Order.from_string(value)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            chart: str = self.clean_chart(request)
+            order: Order = self.clean_sort(request)
+        except ValueError as e:
+            return HttpResponseBadRequest(e)
+
+        rgraph = self.get_graph(request)
+
+        if self.request.user.has_perm_to_change(rgraph):
+            # TODO: does need we a 'default' chart value ??
+            if (chart and chart != rgraph.chart) or order.asc != rgraph.asc:
+                type(rgraph).objects.filter(id=rgraph.id).update(
+                    asc=order.asc,
+                    chart=chart
+                )
+        else:
+            order = Order(rgraph.asc)
+            chart = rgraph.chart
+
+            logger.warning(
+                f'The ReportGraph id="{rgraph.id}" cannot be edited, '
+                'so the settings are not saved.',
+            )
+
+        # TODO: send error too ?
+        return self.response_class({'sort': str(order), 'chart': chart})
+
+
+class GraphFetchSettings(base.EntityRelatedMixin, GraphFetchSettingsBase):
+    entity_id_url_kwarg = 'graph_id'
+    entity_classes = ReportGraph
+
+    def check_related_entity_permissions(self, entity, user):
+        # NB: we avoid the <user.has_perm_to_change_or_die(entity)> of super().
+        #     (see GraphFetchingBase notes about credentials).
+        pass
+
+    def get_graph(self, request):
+        return self.get_related_entity()
+
+
+class GraphFetchSettingsForInstance(base.EntityRelatedMixin, GraphFetchSettingsBase):
+    def get_graph(self, request):
+        entity = self.get_related_entity()
+        brick_config = get_object_or_404(
+            InstanceBrickConfigItem,
+            pk=self.kwargs['instance_brick_id'],
+        )
+        brick = brick_registry.get_brick_4_instance(brick_config, entity=entity)
+
+        try:
+            return brick.fetcher.graph
+        except AttributeError as e:
+            raise ConflictError('Invalid brick: {e}') from e  # TODO: test
