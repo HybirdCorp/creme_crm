@@ -18,6 +18,7 @@
 
 from collections import Counter
 
+from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -83,7 +84,8 @@ class ReportGraphsBrick(core_bricks.QuerysetBrick):
         graphs = btc['page'].object_list
         counter = Counter(
             InstanceBrickConfigItem.objects
-                                   .filter(entity__in=[g.id for g in graphs])
+                                   .filter(entity__in=[g.id for g in graphs],
+                                           brick_class_id=ReportGraphBrick.id_)
                                    .values_list('entity', flat=True)
         )
 
@@ -190,14 +192,20 @@ class ReportGraphChartBrick(core_bricks.Brick):
 
     def detailview_display(self, context):
         graph = context['object']
+        order = 'ASC' if graph.asc else 'DESC'
 
-        x, y = graph.fetch(user=context['user'], order=context['request'].GET.get('order', 'ASC'))
+        x, y = graph.fetch(
+            user=context['user'],
+            order=context['request'].GET.get('order', order)
+        )
+
         data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
 
         return self._render(self.get_template_context(
             context,
             graph=graph,
             data=data,
+            settings_update_url=reverse('reports__update_graph_fetch_settings', args=(graph.id,)),
             charts=[chart for _, chart in report_chart_registry],
             props={
                 name: chart.props(graph, data) for name, chart in report_chart_registry
@@ -235,23 +243,30 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
 
         counter = Counter(
             InstanceBrickConfigItem.objects
-                                   .filter(entity__in=[g.id for g in graphs])
+                                   .filter(entity__in=[g.id for g in graphs],
+                                           brick_class_id=ReportGraphChartInstanceBrick.id_)
                                    .values_list('entity', flat=True)
         )
 
         context['rows'] = []
 
         for graph in graphs:
-            graph.instance_bricks_count = counter[graph.id]
+            order = 'ASC' if graph.asc else 'DESC'
+
             x, y = graph.fetch(
                 user=context['user'],
-                order=context['request'].GET.get('order', 'ASC')
+                order=context['request'].GET.get('order', order)
             )
+
             data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
 
             context['rows'].append({
                 'graph': graph,
                 'data': data,
+                'instance_brick_count': counter[graph.id],
+                'settings_update_url': reverse(
+                    'reports__update_graph_fetch_settings', args=(graph.id,)
+                ),
                 'props': {
                     name: chart.props(graph, data) for name, chart in report_chart_registry
                 }
@@ -298,6 +313,10 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
             context,
             graph=graph,
             data=data,
+            settings_update_url=reverse(
+                'reports__update_graph_fetch_settings_for_instance',
+                args=(self.config_item.id, graph.id,)
+            ),
             charts=[chart for _, chart in report_chart_registry],
             props={
                 name: chart.props(graph, data) for name, chart in report_chart_registry
@@ -313,7 +332,11 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
         error = None
 
         try:
-            x, y = self.fetcher.fetch_4_entity(entity=graph, user=context['user'])
+            x, y = self.fetcher.fetch_4_entity(
+                entity=graph,
+                user=context['user'],
+                order='ASC' if graph.asc else 'DESC'
+            )
             data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
         except GraphFetcher.IncompatibleContentType as e:
             error = str(e)
@@ -328,7 +351,10 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
         )
 
     def home_display(self, context):
-        x, y = self.fetcher.fetch(user=context['user'])
+        x, y = self.fetcher.fetch(
+            user=context['user'],
+            order='ASC' if self.fetcher.graph.asc else 'DESC'
+        )
         data = [{'x': x, 'y': y[0], 'url': y[1]} for x, y in zip(x, y)]
 
         return self._render_graph(

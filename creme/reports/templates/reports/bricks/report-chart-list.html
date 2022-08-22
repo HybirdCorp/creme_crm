@@ -54,7 +54,7 @@
         <td class="reports-graph-brick" colspan="6">
             {% if row.data %}
             <div class="brick-graph-header clearfix">
-                <div class="graph-controls">
+                <div class="graph-controls" data-fetch-settings-url="{{row.settings_update_url}}">
                     <div class="graph-control graph-controls-type">
                         <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                         <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this graph' %}">
@@ -66,8 +66,8 @@
                     <div class="graph-control graph-controls-sort">
                         <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                         <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
-                            <option value="ASC">{% translate 'Ascending' %}</option>
-                            <option value="DESC">{% translate 'Descending' %}</option>
+                            <option value="ASC" {% if graph.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
+                            <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                         </select>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                         <span class="graph-volatile-value">{{volatile_column}}</span>
                     </div>
                     {% endif %}
-                    {% with bricks_count=graph.instance_bricks_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
+                    {% with bricks_count=row.instance_brick_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
                     {% if bricks_count %}
                     <div class="graph-action">
                         {% brick_table_action id='view' url='reports__instance_chart_bricks_info'|url:graph.id label=popup_label display='text' %}

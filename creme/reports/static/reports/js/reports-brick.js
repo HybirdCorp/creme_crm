@@ -27,13 +27,16 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
     _init_: function(element, options) {
         var self = this;
 
-        options = options || {};
+        options = $.extend({
+            debounceDelay: 100
+        }, options || {});
 
         this._charts = {};
         this._element = element;
         this._backend = options.backend || creme.ajax.defaultCacheBackend();
         this._model = new creme.model.AjaxArray(this._backend);
         this._model.url(options.fetchUrl);
+        this.debounceDelay(options.debounceDelay);
 
         this._selectionListeners = {
             change: function(event) {
@@ -47,10 +50,12 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
 
         element.on('change', '.graph-controls-type .graph-control-value', function(e) {
             this.swapChart($(e.target).val());
+            this._updateFetchSettings();
         }.bind(this));
 
         element.on('change', '.graph-controls-sort .graph-control-value', function(e) {
             this.model().reverse();
+            this._updateFetchSettings();
         }.bind(this));
 
         this._model.reset(this.initialData());
@@ -95,6 +100,17 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
         this.chart().draw();
     },
 
+    debounceDelay: function(delay) {
+        return Object.property(this, '_debounceDelay', delay);
+    },
+
+    state: function() {
+        var chart = this._element.find('.graph-controls-type .graph-control-value').val();
+        var sort = this._element.find('.graph-controls-sort .graph-control-value').val();
+
+        return {chart: chart, sort: sort};
+    },
+
     swapChart: function(name) {
         var chart = this._charts[name];
 
@@ -115,6 +131,14 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
 
         chart.selection().on(this._selectionListeners);
         this._chart = chart;
+    },
+
+    _updateFetchSettings: function() {
+        var url = this._element.find('.graph-controls').data('fetchSettingsUrl');
+
+        _.debounce(function() {
+            creme.ajax.query(url, {action: 'post', dataType: 'json'}, this.state()).start();
+        }.bind(this), this.debounceDelay() || 0)();
     },
 
     _onSelectionChange: function(event) {

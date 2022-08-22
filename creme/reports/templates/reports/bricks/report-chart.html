@@ -19,7 +19,7 @@
 {% block brick_content %}
     {% if data %}
     <div class="brick-graph-header clearfix">
-        <div class="graph-controls">
+        <div class="graph-controls" data-fetch-settings-url="{{settings_update_url}}">
             <div class="graph-control graph-controls-type">
                 <span class="graph-control-name">{% translate 'Graph' context 'reports-graphs' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                 <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the type of visualisation for this graph' %}">
@@ -31,8 +31,8 @@
             <div class="graph-control graph-controls-sort">
                 <span class="graph-control-name">{% translate 'Sorting' %}&nbsp;<span class="typography-colon">:</span>&nbsp;</span>
                 <select class="graph-control-value" data-dropdown-alt="{% translate 'Select the sort order' %}">
-                    <option value="ASC">{% translate 'Ascending' %}</option>
-                    <option value="DESC">{% translate 'Descending' %}</option>
+                    <option value="ASC" {% if graph.asc %}selected{% endif %}>{% translate 'Ascending' %}</option>
+                    <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                 </select>
             </div>
         </div>
