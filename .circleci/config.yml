@@ -506,12 +506,14 @@ workflows:
           filters:
             tags:
               only: /.*/
+            branches:
+              only: /main/
       - docker-push-creme-demo:
           filters:
             tags:
               only: /.*/
             branches:
-              ignore: /.*/
+              only: /main/
           requires:
             - docker-build-creme-demo
             - javascript-tests
@@ -523,7 +525,7 @@ workflows:
             tags:
               only: /.*/
             branches:
-              ignore: /.*/
+              only: /main/
           requires:
             - javascript-tests
             - python37-tests-sqlite3
