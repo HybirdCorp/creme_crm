@@ -29,6 +29,7 @@ commands:
       - run: sudo apt update
 #      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
       - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
+      - run: sudo lsb_release -a
 
   install-py-dev-env:
     parameters:
@@ -148,6 +149,30 @@ commands:
             echo "export LANGUAGE=<< parameters.language >>" >> $BASH_ENV
             echo "export LC_ALL=<< parameters.language >>.<< parameters.encoding >>" >> $BASH_ENV
 
+  halt-if-no-change:
+    description: "Halt CircleCI step if there is any files matched with a pattern"
+    parameters:
+      pattern:
+        description: "Regular expression to filter changed files"
+        type: string
+    steps:
+      - when:
+          condition:
+            not:
+              equal: [ main, << pipeline.git.branch >> ]
+          steps:
+            - run:
+               name: Check changes of "<< parameters.pattern >>" files
+               working_directory: << pipeline.parameters.source_path >>
+               command: |
+                 changes=$(git diff main --stat | (grep -P "<< parameters.pattern >> " || true))
+                 if [ -z "$changes" ]; then
+                   echo "No change. Skip next steps"
+                   circleci-agent step halt
+                 else
+                   echo "$changes"
+                 fi
+
 orbs:
   browser-tools: circleci/browser-tools@1.2.5
 
@@ -157,6 +182,8 @@ jobs:
       - image: cimg/python:3.7
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - install-creme-system-packages
       - install-py-dev-env:
           python: "python3.7"
@@ -168,6 +195,8 @@ jobs:
       - image: cimg/python:3.7
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - install-creme-system-packages
       - install-py-dev-env:
           python: "python3.7"
@@ -184,6 +213,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
@@ -210,6 +241,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: en_US
           encoding: UTF-8
@@ -230,6 +263,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
@@ -252,6 +287,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: en_US
           encoding: UTF-8
@@ -272,6 +309,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
@@ -289,6 +328,8 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
@@ -306,10 +347,14 @@ jobs:
     resource_class: large
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(py|html)"
       - setup-locale:
           language: fr_FR
           encoding: UTF-8
       - install-creme-system-packages
+      - run: sudo apt list python*-venv
+      # - run: apt install -y python3.10-venv
       - install-py-dev-env:
           python: "python3.10"
       - create-creme-project
@@ -322,6 +367,8 @@ jobs:
      - image: cimg/python:3.7-node
     steps:
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.(js|html)"
       - install-creme-system-packages
       - install-py-dev-env:
           python: "python3.7"
@@ -358,8 +405,10 @@ jobs:
     docker:
      - image: cimg/python:3.7-browsers
     steps:
-      - browser-tools/install-browser-tools
       - checkout-creme
+      - halt-if-no-change:
+          pattern: "\\.js"
+      - browser-tools/install-browser-tools
       - install-creme-system-packages
       - install-py-dev-env:
           python: "python3.7"
