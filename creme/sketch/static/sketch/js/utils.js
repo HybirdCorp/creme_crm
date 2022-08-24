@@ -250,4 +250,14 @@ creme.d3ColorRange = function(colors) {
     }
 };
 
+creme.d3Map = function(select, func) {
+    var res = [];
+
+    select.each(function(d) {
+        res.push(func.apply(this, [d]));
+    });
+
+    return res;
+};
+
 }(jQuery));

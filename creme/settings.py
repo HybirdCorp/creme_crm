@@ -965,6 +965,8 @@ CREME_OPT_JS = [  # OPTIONAL APPS
     ('creme.sketch',        'sketch/js/draw/drawable.js'),
     ('creme.sketch',        'sketch/js/draw/legend.js'),
     ('creme.sketch',        'sketch/js/draw/limit.js'),
+    ('creme.sketch',        'sketch/js/draw/axis.js'),
+    ('creme.sketch',        'sketch/js/draw/text.js'),
     ('creme.sketch',        'sketch/js/chart/areachart.js'),
     ('creme.sketch',        'sketch/js/chart/barchart.js'),
     ('creme.sketch',        'sketch/js/chart/donutchart.js'),

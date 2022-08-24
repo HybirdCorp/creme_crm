@@ -50,14 +50,14 @@ QUnit.parametrize('creme.D3BarChart (draw)', [
     [[{x: 'A', y: 0}], {}, {
         '.bar-chart .bars .bar': 1,
         '.bar-chart .limits .limit': 0,
-        '.bar-chart .x .axis-title': {'text': ''},
-        '.bar-chart .y .axis-title': {'text': ''}
+        '.bar-chart .x .axis-title-label': {'text': ''},
+        '.bar-chart .y .axis-title-label': {'text': ''}
     }],
     [[{x: 'A', y: 0}], {limits: [5, 10, 15], xAxisTitle: 'X'}, {
         '.bar-chart .bars .bar': 1,
         '.bar-chart .limits .limit': 3,
-        '.bar-chart .x .axis-title': {'text': 'X →'},
-        '.bar-chart .y .axis-title': {'text': ''}
+        '.bar-chart .x .axis-title-label': {'text': 'X'},
+        '.bar-chart .y .axis-title-label': {'text': ''}
     }],
     [[
         {x: 'A', y: 0},
@@ -67,8 +67,8 @@ QUnit.parametrize('creme.D3BarChart (draw)', [
     ], {limits: [5, 10, 15], xAxisTitle: 'X', yAxisTitle: 'Y'}, {
         '.bar-chart .bars .bar': 4,
         '.bar-chart .limits .limit': 3,
-        '.bar-chart .x .axis-title': {'text': 'X →'},
-        '.bar-chart .y .axis-title': {'text': '↑ Y'}
+        '.bar-chart .x .axis-title-label': {'text': 'X'},
+        '.bar-chart .y .axis-title-label': {'text': 'Y'}
     }]
 ], function(data, options, expected, assert) {
     var chart = new creme.D3BarChart(options);

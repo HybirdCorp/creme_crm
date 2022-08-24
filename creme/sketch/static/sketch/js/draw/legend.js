@@ -30,13 +30,13 @@ creme.D3LegendRow = creme.D3Drawable.sub({
         text: function(d, i) { return d; }
     },
 
-    draw: function(d, i) {
+    draw: function(node, datum, i) {
         var props = this.props();
         var position = function(d, i) {
             return creme.svgTransform().translate(i * (props.swatchSize.width + props.spacing), 0);
         };
 
-        var items = d.selectAll('.legend-item').data(props.data || []);
+        var items = d3.select(node).selectAll('.legend-item').data(props.data || []);
 
         var newItem = items.enter()
                            .append('g')
@@ -86,13 +86,13 @@ creme.D3LegendColumn = creme.D3Drawable.sub({
         text: function(d, i) { return d; }
     },
 
-    draw: function(d, i) {
+    draw: function(node, datum, i) {
         var props = this.props();
         var position = function(d, i) {
             return creme.svgTransform().translate(0, i * (props.swatchSize.height + props.spacing));
         };
 
-        var items = d.selectAll('.legend-item').data(props.data || []);
+        var items = d3.select(node).selectAll('.legend-item').data(props.data || []);
 
         var newItem = items.enter()
                            .append('g')

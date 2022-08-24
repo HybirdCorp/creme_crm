@@ -30,7 +30,7 @@ creme.D3LimitStack = creme.D3Drawable.sub({
         color: '#000'
     },
 
-    draw: function(d) {
+    draw: function(node, datum, i) {
         var props = this.props();
 
         function position(d, i) {
@@ -39,7 +39,7 @@ creme.D3LimitStack = creme.D3Drawable.sub({
            );
         }
 
-        var limits = d.selectAll('.limit').data(props.data || []);
+        var limits = d3.select(node).selectAll('.limit').data(props.data || []);
 
         limits.enter()
               .append('line')
