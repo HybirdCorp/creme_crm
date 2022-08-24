@@ -26,6 +26,14 @@ creme.D3Drawable = creme.component.Component.sub({
         this.props($.extend({}, this.defaultProps, options || {}));
     },
 
+    drawAll: function(selection) {
+        var self = this;
+
+        return selection.each(function(datum, i, nodes) {
+            self.draw(this, datum, i, nodes);
+        });
+    },
+
     draw: function(d, i) {
         throw new Error('Not implemented');
     },
@@ -57,8 +65,8 @@ creme.d3Drawable = function(options) {
 
     Assert.is(instance, creme.D3Drawable, 'Must be a creme.D3Drawable');
 
-    function renderer(d, i) {
-        return instance.draw(d, i);
+    function renderer(selection) {
+        return instance.drawAll(selection);
     }
 
     renderer.prop = function(name, value) {

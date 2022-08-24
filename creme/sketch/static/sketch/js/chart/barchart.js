@@ -21,7 +21,7 @@
 
 creme.D3BarChart = creme.D3Chart.sub({
     defaultProps: {
-        xAxisSize: 30,
+        xAxisSize: 20,
         xAxisTitle: '',
         yAxisSize: 30,
         yAxisTitle: '',
@@ -51,7 +51,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                 "opacity": "0.8"
             },
             ".bar-chart .bar text": {
-                "text-anchor": "middle"
+                "text-align": "center"
             },
             ".bar-chart .bar text.inner": {
                 fill: props.barTextColor
@@ -69,28 +69,33 @@ creme.D3BarChart = creme.D3Chart.sub({
         var chart = svg.select(".bar-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append('g');
+            chart = svg.append('g')
+                           .attr('class', 'bar-chart d3-chart');
 
-            chart.append('g')
-                    .attr('class', 'x axis')
-                    .append('text')
-                        .attr('class', 'axis-title')
-                        .attr('text-anchor', 'end')
-                        .attr('fill', 'currentColor');
+            chart.append('g').attr('class', 'x axis');
 
             chart.append("g")
-                    .attr("class", "y axis")
-                    .append('text')
-                        .attr('class', 'axis-title')
-                        .attr('text-anchor', 'start')
-                        .attr('y', 10)
-                        .attr('fill', 'currentColor');
+                    .attr("class", "y axis");
+
+            var ytitle = chart.append('text')
+                                  .attr('class', 'y axis-title')
+                                  .attr('text-anchor', 'start')
+                                  .attr('fill', 'currentColor');
+
+            ytitle.append('tspan')
+                      .attr('class', 'axis-title-arror')
+                      .text('↑');
+
+            ytitle.append('tspan')
+                      .attr('class', 'axis-title-label')
+                      .attr('dy', '0.1em')
+                      .attr('dx', '0.5em');
 
             chart.append('g').attr('class', 'bars');
             chart.append('g').attr('class', 'limits');
         }
 
-        chart.attr('class', props.visible ? 'bar-chart d3-chart' : 'bar-chart d3-chart not-visible');
+        chart.classed('not-visible', !props.visible);
 
         this._updateChart(sketch, chart, data, props);
     },
@@ -99,14 +104,11 @@ creme.D3BarChart = creme.D3Chart.sub({
         var yAxisTitleSize = (props.yAxisTitle ? 20 : 0);
         var xAxisTitleSize = (props.xAxisTitle ? 20 : 0);
 
-        var xAxisTitle = props.xAxisTitle ? '' + props.xAxisTitle + ' →' : '';
-        var yAxisTitle = props.yAxisTitle ? '↑ ' + props.yAxisTitle : '';
-
-        var bounds = creme.svgBounds(sketch.size(), {
+        var bounds = creme.svgBounds(sketch.size(), props.margin);
+        var barBounds = creme.svgBounds(bounds, {
             left: props.yAxisSize,
-            bottom: props.xAxisSize + xAxisTitleSize,
-            top: yAxisTitleSize
-        }, props.margin);
+            top: yAxisTitleSize / 2
+        });
 
         var xscale = d3.scaleBand().padding(0.1);
         var yscale = d3.scaleLinear();
@@ -117,35 +119,46 @@ creme.D3BarChart = creme.D3Chart.sub({
                                .domain([0, data.length])
                                .range(creme.d3ColorRange(props.barColor));
 
-        xscale.domain(data.map(function(d) { return d.x; }))
-              .range([0, bounds.width], 0.1);
-
-        yscale.domain([0, ymax])
-              .range([bounds.height, 0]);
-
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
 
-        chart.selectAll('.x.axis')
-                .attr('transform', creme.svgTransform().translate(0, bounds.height))
-                .call(d3.axisBottom(xscale).tickSizeOuter(0));
+        xscale.domain(data.map(function(d) { return d.x; }))
+              .range([0, barBounds.width], 0.1);
 
-        chart.selectAll('.x .axis-title')
-                .attr('transform', creme.svgTransform().translate(bounds.width, props.xAxisSize))
-                .text(xAxisTitle);
+        var xAxis = creme.d3BottomAxis()
+                              .scale(xscale)
+                              .minHeight(props.xAxisSize)
+                              .bounds(barBounds)
+                              .label(props.xAxisTitle);
+
+        chart.selectAll('.x.axis')
+                .call(xAxis)
+                .attr('transform', creme.svgTransform().translate(
+                     props.yAxisSize, bounds.height - xAxis.preferredHeight()
+                 ));
+
+        barBounds = creme.svgBounds(barBounds, {
+            bottom: xAxis.preferredHeight()
+        });
+
+        yscale.domain([0, ymax])
+              .range([barBounds.height, 0]);
 
         chart.selectAll('.y.axis')
+                .attr('transform', creme.svgTransform().translate(props.yAxisSize, yAxisTitleSize))
                 .call(d3.axisLeft(yscale).tickSizeOuter(0));
 
-        chart.selectAll('.y .axis-title')
-                .attr('transform', creme.svgTransform().translate(-props.yAxisSize, -yAxisTitleSize))
-                .text(yAxisTitle);
+        chart.selectAll('.y.axis-title')
+                .attr('transform', creme.svgTransform().translate(0, yAxisTitleSize / 2))
+                .selectAll('.axis-title-label')
+                    .text(props.yAxisTitle);
 
         var items = chart.select('.bars')
+                             .attr('transform', creme.svgTransform().translate(props.yAxisSize, xAxisTitleSize))
                              .selectAll('.bar')
                              .data(data);
 
         var context = {
-            bounds: bounds,
+            bounds: barBounds,
             colorScale: colorScale,
             xscale: xscale,
             yscale: yscale,
