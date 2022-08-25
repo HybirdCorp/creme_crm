@@ -470,13 +470,13 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
     equal($('.ui-dialog .bulk-selection-summary').text(), '2 entities are selected');
 
     deepEqual([], this.mockListenerCalls('action-cancel'));
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.closeDialog();
 
     deepEqual([['cancel']], this.mockListenerCalls('action-cancel'));
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
@@ -497,7 +497,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     this.assertOpenedDialog();
 
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.submitFormDialog({
@@ -508,7 +508,9 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     equal($('.ui-dialog .bulk-selection-summary').text(), '2 entities are selected');
     deepEqual([
-        ['GET', {}],
+        ['GET', {
+            entities: '2.3'
+        }],
         ['POST', {
             entities: ['2', '3'],
             _bulk_fieldname: ['mock/entity/edit/field-a'],
@@ -540,7 +542,7 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 
     this.assertOpenedDialog();
 
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     this.submitFormDialog({
@@ -552,7 +554,9 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
     deepEqual([['done']], this.mockListenerCalls('action-done'));
 
     deepEqual([
-        ['mock/entity/edit', 'GET', {}],
+        ['mock/entity/edit', 'GET', {
+            entities: '2.3'
+        }],
         ['mock/entity/edit', 'POST', {
             entities: ['2', '3'],
             _bulk_fieldname: ['mock/entity/edit/field-a'],
@@ -588,7 +592,7 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
 
     var dialog = this.assertOpenedDialog();
 
-    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/entity/edit'));
+    deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
     equal(dialog.find('[name="_bulk_fieldname"]').length, 1);
@@ -597,8 +601,12 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
     this.assertOpenedDialog();
 
     deepEqual([
-        ['mock/entity/edit', 'GET', {}],
-        ['mock/entity/edit/field-b', 'GET', {}]
+        ['mock/entity/edit', 'GET', {
+            entities: '2.3'
+        }],
+        ['mock/entity/edit/field-b', 'GET', {
+            entities: '2.3'
+        }]
     ], this.mockBackendUrlCalls());
 
     this.submitFormDialog({
@@ -608,8 +616,12 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
 
     deepEqual([
-        ['mock/entity/edit', 'GET', {}],
-        ['mock/entity/edit/field-b', 'GET', {}],
+        ['mock/entity/edit', 'GET', {
+            entities: '2.3'
+        }],
+        ['mock/entity/edit/field-b', 'GET', {
+            entities: '2.3'
+        }],
         ['mock/entity/edit/field-b', 'POST', {
             entities: ['2', '3'],
             _bulk_fieldname: ['mock/entity/edit/field-b'],
