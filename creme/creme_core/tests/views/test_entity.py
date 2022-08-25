@@ -1386,18 +1386,19 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes
 
-    def _build_update_url(self, *, field, ctype=None):
+    def _build_update_url(self, *, field, ids=(), ctype=None):
         if ctype is None:
             ctype = self.contact_ct
 
-        return reverse('creme_core__bulk_update', args=(ctype.id, field))
+        url = reverse('creme_core__bulk_update', args=(ctype.id, field))
+        return f"{url}?entities={'.'.join(str(id) for id in ids)}" if ids else url
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
         create_contact = partial(FakeContact.objects.create, user=self.user)
         mario = create_contact(first_name='Mario', last_name='Bros', **(mario_kwargs or {}))
         luigi = create_contact(first_name='Luigi', last_name='Bros', **(luigi_kwargs or {}))
 
-        return mario, luigi, self._build_update_url(field=field)
+        return mario, luigi, self._build_update_url(field=field, ids=(mario.id, luigi.id))
 
     def test_regular_field_error01(self):
         self.login()
@@ -1431,7 +1432,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario = FakeContact.objects.create(user=user, first_name='Mario', last_name='Bros')
         build_url = self._build_update_url
         url = build_url(field='first_name')
-        response = self.assertGET200(url)
+        response = self.assertGET200(f'{url}?entities={mario.id}')
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
 
         context = response.context
@@ -2228,7 +2229,9 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario          = create_contact(first_name='Mario', last_name='Bros')
 
         url = self._build_update_url(field='last_name')
-        self.assertGET200(url)
+        self.assertGET200(
+            f'{url}?entities={empty_contact1.id}.{empty_contact2.id}.{mario.id}'
+        )
 
         response = self.client.post(
             url,
