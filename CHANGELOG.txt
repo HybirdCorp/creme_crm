@@ -6,6 +6,8 @@
 
   Users side :
   ------------
+    # The bulk-update view now accepts selected entities IDs as GET argument ;
+      it avoids some strange behaviours (form which changes after the first submittion), e.g. Activities' type edition.
     # About the visual style :
         - The style of the mouse cursor for checkboxes has been fixed.
         - The style for disabled jobs (in the related brick) has been improved.
