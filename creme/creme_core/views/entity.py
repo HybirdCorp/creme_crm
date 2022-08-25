@@ -450,33 +450,38 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         )
 
     def get_entity_ids(self):
-        return self.request.POST.getlist('entities', [])
+        if self.request.method == 'POST':
+            return self.request.POST.getlist('entities', [])
+        else:
+            raw_ids = self.request.GET.get('entities')
+            return raw_ids.split('.') if raw_ids else []
 
     def get_entities(self):
+        entity_ids = self.get_entity_ids()
+
+        # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and
+        #    nullable ids will fail with postgresql (both 9.6 & 10.x).
+        # TODO: This bug may be fixed in django>=2.0
+        #       (see https://code.djangoproject.com/ticket/28010)
+        # entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
+        qs = self.get_queryset()
+        entities = qs.filter(pk__in=entity_ids)
+
+        filtered = EntityCredentials.filter(
+            self.request.user, queryset=entities, perm=EntityCredentials.CHANGE,
+        )
+
+        # NB: Move 'SELECT FOR UPDATE' here for now.
+        #     It could cause performance issues with a large amount of
+        #     selected entities, but this never happens with common use cases.
+        # return filtered
         if self.request.method == 'POST':
-            entity_ids = self.get_entity_ids()
-            # NB (#60): 'SELECT FOR UPDATE' in a query using an 'OUTER JOIN' and
-            #    nullable ids will fail with postgresql (both 9.6 & 10.x).
-            # TODO: This bug may be fixed in django>=2.0
-            #       (see https://code.djangoproject.com/ticket/28010)
-            # entities = self.get_queryset().select_for_update().filter(pk__in=entity_ids)
-            qs = self.get_queryset()
-            entities = qs.filter(pk__in=entity_ids)
-
-            filtered = EntityCredentials.filter(
-                self.request.user, queryset=entities, perm=EntityCredentials.CHANGE,
-            )
-
             if not filtered:
                 raise PermissionDenied(_('You are not allowed to edit these entities'))
 
-            # NB: Move 'SELECT FOR UPDATE' here for now.
-            #     It could cause performance issues with a large amount of
-            #     selected entities, but this never happens with common use cases.
-            # return filtered
             return qs.select_for_update().filter(pk__in=filtered)
         else:
-            return ()
+            return qs.filter(pk__in=filtered)
 
     def get_queryset(self):
         return self.get_ctype().model_class()._default_manager.all()

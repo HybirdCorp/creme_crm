@@ -169,6 +169,9 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
         } else {
             var dialog = new creme.dialog.FormDialog({
                 url: options.url,
+                data: {
+                    entities: selection.join('.')
+                },
                 submitData: {entities: selection}
             });
 
