@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 17:13+0200\n"
+"POT-Creation-Date: 2022-08-03 08:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -252,6 +252,40 @@ msgstr "Sélectionnez un ou plusieurs choix"
 msgid "Select one option"
 msgstr "Sélectionnez un choix"
 
+msgid "The results could not be loaded."
+msgstr "Les résultats ne peuvent pas être chargés."
+
+#, javascript-format
+msgid "Please delete %d character"
+msgid_plural "Please delete %d characters"
+msgstr[0] "Supprimez %d caractère"
+msgstr[1] "Supprimez %d caractères"
+
+#, javascript-format
+msgid "Please enter %d or more characters"
+msgstr "Saisissez au moins %d caractères"
+
+msgid "Loading more results…"
+msgstr "Chargement de résultats supplémentaires…"
+
+#, javascript-format
+msgid "You can only select %d item"
+msgid_plural "You can only select %d items"
+msgstr[0] "Vous ne pouvez sélectionner qu'un élément"
+msgstr[1] "Vous ne pouvez sélectionner que %d éléments"
+
+msgid "Searching…"
+msgstr "Recherche en cours…"
+
+msgid "Remove all items"
+msgstr "Supprimer tous les sélections"
+
+msgid "Remove item"
+msgstr "Supprimer l'élément sélectionné"
+
+msgid "Search"
+msgstr "Rechercher"
+
 msgid "De-select"
 msgstr "Dé-sélectionner"
 
@@ -267,14 +301,8 @@ msgstr "Supprimer"
 #~ msgid "Finished"
 #~ msgstr "Terminé"
 
-#~ msgid "Remove"
-#~ msgstr "Enlever"
-
 #~ msgid "Add all"
 #~ msgstr "Ajouter tout"
-
-#~ msgid "Remove all"
-#~ msgstr "Enlever tout"
 
 #~ msgid "Up"
 #~ msgstr "Monter"
@@ -310,9 +338,6 @@ msgstr "Supprimer"
 #~ msgid_plural "Search results: %d entities"
 #~ msgstr[0] "Résultats de recherche : %d fiche"
 #~ msgstr[1] "Résultats de recherche : %d fiches"
-
-#~ msgid "Search results…"
-#~ msgstr "Résultats de recherche…"
 
 #~ msgid "Today"
 #~ msgstr "Aujourd'hui"
