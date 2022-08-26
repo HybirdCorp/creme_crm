@@ -1439,14 +1439,12 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertEqual(_('Multiple update'),        context.get('title'))
         self.assertEqual(_('Save the modifications'), context.get('submit_label'))
         self.assertHTMLEqual(
-            '<span class="bulk-selection-summary" data-msg="{msg}"'
-            '      data-msg-plural="{plural}"></span>'.format(
-                msg=_('{count} «{model}» has been selected.').format(
-                    count='%s', model='Test Contact',
-                ),
-                plural=_('{count} «{model}» have been selected.').format(
-                    count='%s', model='Test Contacts',
-                )
+            ngettext(
+                '{count} «{model}» has been selected.',
+                '{count} «{model}» has been selected.',
+                1
+            ).format(
+                count=1, model='Test Contact',
             ),
             context.get('help_message'),
         )

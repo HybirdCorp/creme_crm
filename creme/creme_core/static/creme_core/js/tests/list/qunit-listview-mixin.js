@@ -11,13 +11,23 @@
             var createEditActionFormHtml = this.createEditActionFormHtml.bind(this);
 
             this.setMockBackendGET({
-                'mock/entity/edit': backend.response(200, createEditActionFormHtml()),
-                'mock/entity/edit/field-a': backend.response(200, createEditActionFormHtml({
-                    field_name: 'mock/entity/edit/field-a'
-                })),
-                'mock/entity/edit/field-b': backend.response(200, createEditActionFormHtml({
-                    field_name: 'mock/entity/edit/field-b'
-                })),
+                'mock/entity/edit': function(url, data, options) {
+                    return backend.response(200, createEditActionFormHtml({
+                        entities: (data.entities ? data.entities.split('.') : [])
+                    }));
+                },
+                'mock/entity/edit/field-a': function(url, data, options) {
+                    return backend.response(200, createEditActionFormHtml({
+                        field_name: 'mock/entity/edit/field-a',
+                        entities: (data.entities ? data.entities.split('.') : [])
+                    }));
+                },
+                'mock/entity/edit/field-b': function(url, data, options) {
+                    return backend.response(200, createEditActionFormHtml({
+                        field_name: 'mock/entity/edit/field-b',
+                        entities: (data.entities ? data.entities.split('.') : [])
+                    }));
+                },
                 'mock/entity/addto': function(url, data, options) {
                     return backend.response(200, MOCK_FORM_ADDTO);
                 },
@@ -30,10 +40,13 @@
 
                 if (Object.isEmpty(value)) {
                     return backend.response(200, createEditActionFormHtml({
-                        field_name: data._bulk_fieldname
+                        field_name: data._bulk_fieldname,
+                        entities: (data.entities ? data.entities.split('.') : [])
                     }));
                 } else {
-                    return backend.response(200, '');
+                    return backend.response(200, '<div>${count} entitie(s) have been updated !</div>'.template({
+                        count: (data.entities || []).length
+                    }));
                 }
             }
 
@@ -106,12 +119,13 @@
                     {value: 'mock/entity/edit/field-b', label: 'Field B'}
                 ],
                 field_name: 'mock/entity/edit/field-a',
-                field_value: ''
+                field_value: '',
+                entities: []
             }, options || {});
 
             return (
                 '<div>'
-                  + '<span class="bulk-selection-summary" data-msg="%d entity is selected" data-msg-plural="%d entities are selected"></span>'
+                  + '<div class="help-sign"><p>${help}</p></div>'
                   + '<form>'
                       + '<select name="_bulk_fieldname">${fields}</selected>'
                       + '<input type="text" name="field_value" value="${value}"/>'
@@ -125,7 +139,8 @@
                         selected: field.value === options.field_name ? 'selected=""' : ''
                     });
                 }).join(''),
-                value: options.field_value
+                value: options.field_value,
+                help: ngettext("%d entity is selected", "%d entities are selected", options.entities.length).format(options.entities.length)
             });
         },
 
