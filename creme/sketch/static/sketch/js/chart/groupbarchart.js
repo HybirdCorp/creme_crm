@@ -32,7 +32,8 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
         margin: 0,
         colors: ["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"],
         transition: true,
-        groupId: function(d) { return d.group; }
+        groupId: function(d) { return d.group; },
+        visible: true
     },
 
     _init_: function(options) {
@@ -76,6 +77,8 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
 
             svg.append('g').attr('class', 'legend');
         }
+
+        chart.classed('not-visible', !props.visible);
 
         this._updateChart(sketch, chart, data, props);
     },

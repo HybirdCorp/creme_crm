@@ -44,8 +44,17 @@ creme.D3Chart = creme.component.Component.sub({
             return $.extend({}, this._props);
         }
 
-        $.extend(this._props, props);
+        this._props = $.extend(this._props || {}, props);
         return this;
+    },
+
+    prop: function(name, value) {
+        if (value === undefined) {
+            return this._props[name];
+        } else {
+            this._props[name] = value;
+            return this;
+        }
     },
 
     selection: function(selection) {
