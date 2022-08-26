@@ -151,6 +151,7 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
     _init_: function(list, options) {
         this._super_(creme.component.Action, '_init_', this._run, options);
         this._list = list;
+        this._isEditionDone = false;
     },
 
     _run: function(options) {
@@ -158,6 +159,7 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
 
         var self = this;
         var list = this._list;
+        var isEditionDone = false;
         var selection = list.selectedRows();
 
         if (selection.length < 1) {
@@ -172,53 +174,26 @@ creme.lv_widget.EditSelectedAction = creme.component.Action.sub({
                 data: {
                     entities: selection.join('.')
                 },
-                submitData: {entities: selection}
+                submitData: {entities: selection},
+                // DO NOT close the popup on form success !
+                closeOnFormSuccess: false
             });
 
             dialog.onFormSuccess(function(event, data) {
-                       list.reload();
-                       self.done();
+                       // The summary must be shown, so we cannot close the
+                       // dialog now. Just store the successful state
+                       isEditionDone = true;
                    })
-                   /*
-                    * Old behaviour for dialogs in "innerpopup" mode.
-                   .onFormError(function(event, data) {
-                       if ($('form', this.content()).length === 0) {
-                           this._removeButton('send');
-                           this._updateButtonLabel('cancel', gettext('Close'));
-                           this._bulk_edit_done = true;
-                       }
-                   })
-                   */
                    .onClose(function() {
-                       self.cancel();
-                       /*
-                       if (this._bulk_edit_done) {
+                       if (isEditionDone) {
                            list.reload();
                            self.done();
                        } else {
                            self.cancel();
                        }
-                       */
                    })
                    .on('frame-update', function(event, frame) {
-                       var content = frame.delegate();
-                       var summary = content.find('.bulk-selection-summary');
-
-                       if (summary.length) {
-                           var count = selection.length;
-                           var message = summary.data('msg') || '';
-                           var plural = summary.data('msg-plural') || message;
-
-                           if (pluralidx(count)) {
-                               message = plural || message;
-                           }
-
-                           // TODO: need all model select_label in djangojs.po files
-                           // var content = ngettext(summary.attr('data-msg'), summary.attr('data-msg-plural'), count);
-                           summary.text(message.format(selection.length));
-                       }
-
-                       content.on('change', '[name="_bulk_fieldname"]', function() {
+                       frame.delegate().on('change', '[name="_bulk_fieldname"]', function() {
                            var next = $(this).val();
                            if (!Object.isNone(next) && next !== dialog.frame().lastFetchUrl()) {
                                dialog.fetch(next);
@@ -466,9 +441,9 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
             draggable: true,
             width: width * 0.8,
             maxWidth: width,
+            // validator: 'innerpopup',
             url: url,
-            title: title,
-            validator: 'innerpopup'
+            title: title
         };
     },
 

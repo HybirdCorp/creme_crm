@@ -264,7 +264,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     _updateButtonLabel: function(name, label) {
-        $('.ui-button-text', this.button(name)).html(label);
+        this.button(name).html(label);
     },
 
     _dialogContainer: function() {
