@@ -33,7 +33,6 @@ from django.http import Http404, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -363,18 +362,27 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        meta = self.get_ctype().model_class()._meta
+        count = len(self.get_entity_ids())
+
         # TODO: select_label in model instead (fr: masculin/féminin)
-        context['help_message'] = format_html(
-            '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}">'
-            '</span>',
-            msg=gettext('{count} «{model}» has been selected.').format(
-                count='%s', model=meta.verbose_name,
-            ),
-            plural=gettext('{count} «{model}» have been selected.').format(
-                count='%s', model=meta.verbose_name_plural,
-            ),
-        )
+        meta = self.get_ctype().model_class()._meta
+        model_label = meta.verbose_name_plural  if count > 1 else meta.verbose_name
+
+        context['help_message'] = ngettext(
+            '{count} «{model}» has been selected.',
+            '{count} «{model}» have been selected.',
+            count
+        ).format(count=count, model=model_label)
+#         context['help_message'] = format_html(
+#             '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}">'
+#             '</span>',
+#             msg=gettext('{count} «{model}» has been selected.').format(
+#                 count='%s', model=meta.verbose_name,
+#             ),
+#             plural=gettext('{count} «{model}» have been selected.').format(
+#                 count='%s', model=meta.verbose_name_plural,
+#             ),
+#         )
 
         return context
 

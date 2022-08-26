@@ -466,8 +466,8 @@ QUnit.test('creme.listview.EditSelectedAction (cancel)', function(assert) {
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .bulk-selection-summary').length, 1);
-    equal($('.ui-dialog .bulk-selection-summary').text(), '2 entities are selected');
+    equal($('.ui-dialog .help-sign').length, 1);
+    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
 
     deepEqual([], this.mockListenerCalls('action-cancel'));
     deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
@@ -497,6 +497,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     this.assertOpenedDialog();
 
+    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
     deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
@@ -506,7 +507,7 @@ QUnit.test('creme.listview.EditSelectedAction (submit => partially fail => close
 
     this.assertOpenedDialog();
 
-    equal($('.ui-dialog .bulk-selection-summary').text(), '2 entities are selected');
+    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
     deepEqual([
         ['GET', {
             entities: '2.3'
@@ -542,6 +543,7 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
 
     this.assertOpenedDialog();
 
+    equal($('.ui-dialog .help-sign').text(), '2 entities are selected');
     deepEqual([['GET', {entities: '2.3'}]], this.mockBackendUrlCalls('mock/entity/edit'));
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
 
@@ -549,7 +551,12 @@ QUnit.test('creme.listview.EditSelectedAction (ok)', function(assert) {
         field_value: 'ok'
     });
 
-    this.assertClosedDialog();
+    // The dialog is still open to show the summary
+    this.assertOpenedDialog();
+    equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
+    deepEqual([], this.mockListenerCalls('action-done'));
+
+    this.closeDialog();
 
     deepEqual([['done']], this.mockListenerCalls('action-done'));
 
@@ -613,8 +620,14 @@ QUnit.test('creme.listview.EditSelectedAction (field change)', function(assert) 
         field_value: 'ok'
     });
 
-    deepEqual([['done']], this.mockListenerCalls('action-done'));
+    // The dialog is still open to show the summary
+    this.assertOpenedDialog();
+    equal($('.ui-dialog .ui-creme-dialog-frame').text(), '2 entitie(s) have been updated !');
+    deepEqual([], this.mockListenerCalls('action-done'));
 
+    this.closeDialog();
+
+    deepEqual([['done']], this.mockListenerCalls('action-done'));
     deepEqual([
         ['mock/entity/edit', 'GET', {
             entities: '2.3'

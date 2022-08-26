@@ -63,7 +63,8 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
             submitOnKey: 13,
             submitData: {},
             noValidate: false,
-            validator: 'default'
+            validator: 'default',
+            closeOnFormSuccess: true
         }, options || {});
 
         this._super_(creme.dialog.Dialog, '_init_', options);
@@ -179,8 +180,15 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
              * event after ALL valid submits and send a "cancel" event when the
              * cancel/close button is pressed.
              */
-            this._frame.clear();
-            this._destroyDialog();
+            if (this.options.closeOnFormSuccess) {
+                this._frame.clear();
+                this._destroyDialog();
+            } else {
+                this._removeButton('send');
+                // TODO : Remove this hack once the 'cancel' behavior will be distinct
+                // from 'close' (see the previous TODO).
+                this._updateButtonLabel('cancel', gettext('Close'));
+            }
         } else {
             this._super_(creme.dialog.Dialog, '_onFrameUpdate', event, response.content, dataType, 'submit');
             this._updateButtonState("send", true, 'auto');
