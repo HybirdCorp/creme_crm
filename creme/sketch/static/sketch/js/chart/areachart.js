@@ -23,7 +23,8 @@ creme.D3AreaChart = creme.D3Chart.sub({
     defaultProps: {
         xaxisSize: 30,
         yaxisSize: 20,
-        margin: 0
+        margin: 0,
+        visible: true
     },
 
     _init_: function(options) {
@@ -43,6 +44,8 @@ creme.D3AreaChart = creme.D3Chart.sub({
             chart.append('g').attr('class', 'x axis');
             chart.append("g").attr("class", "y axis");
         }
+
+        chart.classed('not-visible', !props.visible);
 
         this._updateChart(sketch, chart, data, props);
         return this;

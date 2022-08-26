@@ -39,14 +39,14 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var chart = svg.select(".donut-chart");
 
         if (chart.size() === 0) {
-            chart = svg.append("g");
+            chart = svg.append("g")
+                           .attr('class', 'donut-chart d3-chart');
 
             chart.append('g').attr('class', 'slices');
             chart.append('g').attr('class', 'legend');
         }
 
-        chart.attr('class', props.visible ? 'donut-chart d3-chart' : 'donut-chart d3-chart not-visible');
-        // svg.select('.legend').attr('class', props.visible ? 'legend' : 'legend not-visible');
+        chart.classed('not-visible', !props.visible);
 
         this._updateChart(sketch, chart, data, props);
         return this;

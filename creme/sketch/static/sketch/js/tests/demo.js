@@ -46,6 +46,29 @@ QUnit.parametrize('creme.D3Chart (demo, asImage, empty)', {
     });
 });
 
+QUnit.parametrize('creme.D3Chart (demo, visible)', {
+    barchart: new creme.D3BarChart(),
+    donutchart: new creme.D3DonutChart(),
+    areachart: new creme.D3AreaChart(),
+    groupbarchart: new creme.D3GroupBarChart(),
+    stackbarchart: new creme.D3StackBarChart()
+}, function(chart, assert) {
+    var sketch = new creme.D3Sketch().bind($('<div>'));
+
+    chart.sketch(sketch);
+
+    equal(true, chart.props().visible);
+
+    chart.draw();
+
+    equal(false, sketch.svg().select('.d3-chart').classed('not-visible'));
+
+    chart.prop('visible', false);
+    chart.draw();
+
+    equal(true, sketch.svg().select('.d3-chart').classed('not-visible'));
+});
+
 QUnit.parametrize('creme.D3BarChart (draw)', [
     [[{x: 'A', y: 0}], {}, {
         '.bar-chart .bars .bar': 1,
