@@ -357,26 +357,15 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
         context = super().get_context_data(**kwargs)
 
         count = len(self.get_entity_ids())
-
-        # TODO: select_label in model instead (fr: masculin/féminin)
-        meta = self.get_ctype().model_class()._meta
-        model_label = meta.verbose_name_plural  if count > 1 else meta.verbose_name
-
+        # TODO: select_label in model instead (e.g. gender issue)
         context['help_message'] = ngettext(
             '{count} «{model}» has been selected.',
             '{count} «{model}» have been selected.',
             count
-        ).format(count=count, model=model_label)
-#         context['help_message'] = format_html(
-#             '<span class="bulk-selection-summary" data-msg="{msg}" data-msg-plural="{plural}">'
-#             '</span>',
-#             msg=gettext('{count} «{model}» has been selected.').format(
-#                 count='%s', model=meta.verbose_name,
-#             ),
-#             plural=gettext('{count} «{model}» have been selected.').format(
-#                 count='%s', model=meta.verbose_name_plural,
-#             ),
-#         )
+        ).format(
+            count=count,
+            model=get_model_verbose_name(model=self.get_ctype().model_class(), count=count),
+        )
 
         return context
 
