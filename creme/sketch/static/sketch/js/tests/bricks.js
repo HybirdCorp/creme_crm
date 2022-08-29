@@ -66,10 +66,10 @@ QUnit.test('creme.D3ChartBrickController.bind (no data)', function(assert) {
 });
 
 QUnit.parametrize('creme.D3ChartBrickController.bind', [
-    [null, null, [], {x: 3, y: 7, width: 52, height: 107}],
-    [[1, 2, 3, 4], null, [1, 2, 3, 4], {x: 3, y: 7, width: 52, height: 107}],
-    [null, {x: 147, group: 'A'}, [], {x: 147, y: 7, width: 52, height: 107, group: 'A'}],
-    [[1, 2, 3, 4], {x: 147, group: 'A'}, [1, 2, 3, 4], {x: 147, y: 7, width: 52, height: 107, group: 'A'}]
+    [null, null, [], {drawOnResize: true, x: 3, y: 7, width: 52, height: 107}],
+    [[1, 2, 3, 4], null, [1, 2, 3, 4], {drawOnResize: true, x: 3, y: 7, width: 52, height: 107}],
+    [null, {x: 147, group: 'A'}, [], {drawOnResize: true, x: 147, y: 7, width: 52, height: 107, group: 'A'}],
+    [[1, 2, 3, 4], {x: 147, group: 'A'}, [1, 2, 3, 4], {drawOnResize: true, x: 147, y: 7, width: 52, height: 107, group: 'A'}]
 ], function(data, props, expectedData, expectedProps, assert) {
     var brick = this.createD3ChartBrick({
         data: data,
@@ -181,10 +181,10 @@ QUnit.test('creme.D3ChartBrickPopoverAction', function(assert) {
 });
 
 QUnit.parametrize('creme.setupD3ChartBrick', [
-    [null, null, [], {x: 3, y: 7, width: 52, height: 107}],
-    [[1, 2, 3, 4], null, [1, 2, 3, 4], {x: 3, y: 7, width: 52, height: 107}],
-    [null, {x: 147, group: 'A'}, [], {x: 147, y: 7, width: 52, height: 107, group: 'A'}],
-    [[1, 2, 3, 4], {x: 147, group: 'A'}, [1, 2, 3, 4], {x: 147, y: 7, width: 52, height: 107, group: 'A'}]
+    [null, null, [], {drawOnResize: true, x: 3, y: 7, width: 52, height: 107}],
+    [[1, 2, 3, 4], null, [1, 2, 3, 4], {drawOnResize: true, x: 3, y: 7, width: 52, height: 107}],
+    [null, {x: 147, group: 'A'}, [], {drawOnResize: true, x: 147, y: 7, width: 52, height: 107, group: 'A'}],
+    [[1, 2, 3, 4], {drawOnResize: false, x: 147, group: 'A'}, [1, 2, 3, 4], {drawOnResize: false, x: 147, y: 7, width: 52, height: 107, group: 'A'}]
 ], function(data, props, expectedData, expectedProps, assert) {
     var chart = new FakeD3Chart();
     var html = this.createD3ChartBrickHtml({
