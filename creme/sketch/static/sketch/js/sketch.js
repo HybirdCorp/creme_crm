@@ -21,6 +21,7 @@
 
 creme.D3Sketch = creme.component.Component.sub({
     _init_: function(options) {
+        this._events = new creme.component.EventHandler();
         this._elementListeners = {
             resize: this.resize.bind(this)
         };
@@ -35,7 +36,17 @@ creme.D3Sketch = creme.component.Component.sub({
         Assert.that(element.length === 1, 'Unable to bind D3Sketch to multiple nor empty selection');
 
         this._element = element.addClass('d3-sketch');
-        var svg = this._svg = d3.select(element.get()[0]).append("svg");
+
+        var domElement = element.get(0);
+        var svg = this._svg = d3.select(domElement).append("svg");
+
+        // IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
+        // will be constantly evaluated and the node will grow indefinitely.
+        this._resizeObserver = new window.ResizeObserver(function(entries) {
+            this.resize();
+        }.bind(this));
+
+        this._resizeObserver.observe(domElement);
 
         svg.attr("width", element.innerWidth())
            .attr("height", element.innerHeight());
@@ -47,6 +58,9 @@ creme.D3Sketch = creme.component.Component.sub({
     unbind: function() {
         Assert.that(this.isBound(), 'D3Sketch is not bound');
 
+        this._resizeObserver.disconnect();
+        this._resizeObserver = undefined;
+
         this._element.off(this._elementListeners);
         this._element.removeClass('d3-sketch');
         this._element = undefined;
@@ -54,6 +68,16 @@ creme.D3Sketch = creme.component.Component.sub({
         this._svg.remove();
         this._svg = undefined;
 
+        return this;
+    },
+
+    on: function(event, listeners, decorator) {
+        this._events.on(event, listeners, decorator);
+        return this;
+    },
+
+    off: function(event, listeners) {
+        this._events.off(event, listeners);
         return this;
     },
 
@@ -107,7 +131,8 @@ creme.D3Sketch = creme.component.Component.sub({
             this._svg.attr('width', size.width)
                      .attr('height', size.height);
 
-            this._element.trigger(jQuery.Event("sketch-resize", size));
+            this._element.trigger(jQuery.Event("sketch-resize"), size);
+            this._events.trigger('resize', [size]);
         }
 
         return this;

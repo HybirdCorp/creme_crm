@@ -1,4 +1,5 @@
 /* globals QUnitSketchMixin, FakeD3Chart */
+
 (function($) {
 
 QUnit.module("creme.D3Chart", new QUnitMixin(QUnitSketchMixin));
@@ -9,7 +10,7 @@ QUnit.test('creme.D3Chart', function(assert) {
     equal(undefined, chart.model());
     equal(undefined, chart.sketch());
     equal(false, chart.hasCanvas());
-    deepEqual({}, chart.props());
+    deepEqual({drawOnResize: true}, chart.props());
     deepEqual({}, chart.exportProps());
     equal("g { font: 10px sans-serif; }", chart.exportStyle());
 });
@@ -141,6 +142,30 @@ QUnit.test('creme.D3Chart.draw (array)', function(assert) {
         '<rect x="3" y="7" width="52" height="107" fill="red"></rect>' +
         '<rect x="3" y="114" width="52" height="107" fill="blue"></rect>'
     ), sketch.svg().node());
+});
+
+
+QUnit.parametrize('creme.D3Chart.props.drawOnResize', [
+    [true, '<rect x="3" y="7" width="52" height="107" fill="red"></rect>'],
+    [false, '']
+], function(drawOnResize, expected, assert) {
+    var sketch = new creme.D3Sketch().bind($('<div>'));
+    var chart = new FakeD3Chart({
+        drawOnResize: drawOnResize
+    }).sketch(sketch);
+
+    chart.model([{color: 'red'}]);
+
+    this.equalHtml('', sketch.svg().node());
+
+    sketch.resize({width: 12, height: 12});
+
+    setTimeout(function() {
+        this.equalHtml(expected, sketch.svg().node());
+        start();
+    }.bind(this), 300);
+
+    stop(1);
 });
 
 QUnit.test('creme.D3Chart.saveAs', function(assert) {

@@ -12,6 +12,15 @@
     font: 10px sans-serif;
 }
 
+.d3-sketch svg {
+    /*
+    IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
+    will be constantly evaluated and the node will grow indefinitely if ResizeObserver
+    is enabled.
+    */
+    display: block !important;
+}
+
 .d3-sketch .axis path, .d3-chart .axis line {
     fill: none;
     stroke: #000;

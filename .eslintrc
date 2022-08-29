@@ -26,6 +26,7 @@
     "XMLHttpRequest": true,
     "Blob": true,
     "Set": true,
+    "ResizeObserver": true,
 
     /* External libraries */
     "jQuery": true,

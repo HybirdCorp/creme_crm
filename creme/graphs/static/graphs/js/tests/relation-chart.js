@@ -10,7 +10,7 @@ QUnit.test('creme.D3GraphRelationChart (empty)', function(assert) {
 
     chart.sketch(sketch);
 
-    deepEqual(chart.defaultProps, chart.props());
+    deepEqual($.extend({drawOnResize: true}, chart.defaultProps), chart.props());
     equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();

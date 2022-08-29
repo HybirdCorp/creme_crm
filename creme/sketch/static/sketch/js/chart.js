@@ -23,7 +23,9 @@ creme.D3Chart = creme.component.Component.sub({
     defaultProps: {},
 
     _init_: function(options) {
-        options = options || {};
+        options = $.extend({
+            drawOnResize: true
+        }, options || {});
 
         this._props = $.extend({}, this.defaultProps);
         this._events = new creme.component.EventHandler();
@@ -34,6 +36,10 @@ creme.D3Chart = creme.component.Component.sub({
             add:    this._onModelAdd.bind(this),
             remove: this._onModelRemove.bind(this),
             reset:  this._onModelReset.bind(this)
+        };
+
+        this._sketchListeners = {
+            resize: _.debounce(this._onSketchResize.bind(this), 200)
         };
 
         this.props(options);
@@ -81,7 +87,14 @@ creme.D3Chart = creme.component.Component.sub({
         }
 
         Assert.is(sketch, creme.D3Sketch, '${sketch} is not a creme.D3Sketch', {sketch: sketch});
+
+        if (this._sketch) {
+            this._sketch.off(this._sketchListeners);
+        }
+
         this._sketch = sketch;
+        this._sketch.on(this._sketchListeners);
+
         return this;
     },
 
@@ -176,6 +189,12 @@ creme.D3Chart = creme.component.Component.sub({
 
     _draw: function(sketch, data, props) {
         throw new Error('Not implemented');
+    },
+
+    _onSketchResize: function() {
+        if (this.prop('drawOnResize')) {
+            this.draw();
+        }
     },
 
     _onModelUpdate: function(event, data, start, end, previous, action) {

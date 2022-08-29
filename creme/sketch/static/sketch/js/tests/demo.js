@@ -15,7 +15,11 @@ QUnit.parametrize('creme.D3Chart (demo, empty)', {
 
     chart.sketch(sketch);
 
-    deepEqual(chart.defaultProps, chart.props());
+    deepEqual($.extend(
+        {drawOnResize: true},
+        chart.defaultProps
+    ), chart.props());
+
     equal(0, sketch.svg().select('.d3-chart').size());
 
     chart.draw();
