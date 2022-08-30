@@ -10,6 +10,7 @@
         - It now accepts selected entities IDs as GET argument ;
           it avoids some strange behaviours (form which changes after the first submitting), e.g. Activities' type edition.
         - The dialog now displays correctly the summary at the end instead of closing.
+        - A crash when you try to edit a of sub-field has been fixed (it's used by Addresses).
     # About the visual style :
         - The style of the mouse cursor for checkboxes has been fixed.
         - The style for disabled jobs (in the related brick) has been improved.
