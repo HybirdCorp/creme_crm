@@ -80,7 +80,7 @@ class BulkForm(CremeForm):
             entities = self.entities
             # TODO: factorise
             field_name = (
-                f'{self.parent_field.name}__{self.field_name}'
+                f'{self.model_parent_field.name}__{self.field_name}'
                 if self.is_subfield else
                 self.field_name
             )
