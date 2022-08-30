@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -83,7 +83,7 @@ class BulkForm(CremeForm):
             model = self.model
             entities = self.entities
             # TODO: factorise
-            fieldname = f'{self.parent_field.name}__{self.field_name}' \
+            fieldname = f'{self.model_parent_field.name}__{self.field_name}' \
                         if self.is_subfield else \
                         self.field_name
 
