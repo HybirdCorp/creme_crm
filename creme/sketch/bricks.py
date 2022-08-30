@@ -251,7 +251,7 @@ class DemoBarChartBrick(BarChartBrick):
     ordinate_title = "Axis of Ordinates"
 
     def get_chart_data(self, context):
-        return [{"x": f"A {i}", "y": randint(1, 1000)} for i in range(1, randint(5, 40))]
+        return [{"x": f"A {i}", "y": randint(1, 1500)} for i in range(1, randint(5, 40))]
 
 
 class DemoDonutChartBrick(DonutChartBrick):

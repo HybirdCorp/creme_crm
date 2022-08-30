@@ -21,8 +21,6 @@
 
 creme.D3BottomAxis = creme.D3Drawable.sub({
     defaultProps: {
-        zIndex: 1,
-        bounds: {top: 0, left: 0, width: 0, height: 0},
         label: function(d, i) { return d; },
         help: function(d, i) { return d; },
         scale: function(d, i) { return d; },
@@ -33,10 +31,17 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
         var props = this.props();
         var axis = d3.select(node);
 
-        axis.call(d3.axisBottom(props.scale).tickSizeOuter(0))
-            .selectAll('.tick text')
-                .call(creme.d3TextWrap().maxWidth(props.scale.bandwidth())
-                                        .lineHeight('1.1em'));
+        var ticks = axis.select('.axis-ticks');
+
+        if (ticks.size() === 0) {
+            ticks = axis.append('g')
+                            .attr('class', 'axis-ticks');
+        }
+
+        ticks.call(d3.axisBottom(props.scale).tickSizeOuter(0))
+             .selectAll('.tick text')
+                 .call(creme.d3TextWrap().maxWidth(props.scale.bandwidth())
+                                         .lineHeight('1.1em'));
 
         var title = axis.select('.axis-title');
 
@@ -57,23 +62,76 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
         title.select('.axis-title-label').text(props.label);
 
         var titleHeight = title.node().getBBox().height;
-        var ticksHeight = Math.max(
-            props.minHeight,
-            d3.max(creme.d3Map(axis.selectAll('.tick'), function() {
-                return this.getBBox().height;
-            }))
+        var ticksBBox = ticks.node().getBBox();
+
+        title.attr('transform', creme.svgTransform().translate(
+             ticksBBox.width,
+             Math.max(props.minHeight, ticksBBox.height) + (titleHeight / 2) * 1.1)
         );
-
-        title.attr('transform', creme.svgTransform().translate(props.bounds.width, ticksHeight + (titleHeight / 2) * 1.1));
-
-        this.prop('preferredHeight', ticksHeight + titleHeight * 1.1);
     }
 });
 
 creme.d3BottomAxis = function(options) {
     return creme.d3Drawable({
         instance: new creme.D3BottomAxis(options),
-        props: ['label', 'help', 'zIndex', 'scale', 'minHeight', 'bounds', 'preferredHeight']
+        props: ['label', 'help', 'scale', 'minHeight', 'tickFormat']
+    });
+};
+
+creme.D3LeftAxis = creme.D3Drawable.sub({
+    defaultProps: {
+        label: function(d, i) { return d; },
+        help: function(d, i) { return d; },
+        scale: function(d, i) { return d; },
+        minWidth: 20
+    },
+
+    draw: function(node, datum, i) {
+        var props = this.props();
+        var axis = d3.select(node);
+
+        var ticks = axis.select('.axis-ticks');
+
+        if (ticks.size() === 0) {
+            ticks = axis.append('g')
+                            .attr('class', 'axis-ticks');
+        }
+
+        ticks.call(d3.axisLeft(props.scale)
+                        .tickFormat(props.tickFormat)
+                        .tickSizeOuter(0));
+
+        var title = axis.select('.axis-title');
+
+        if (title.size() === 0) {
+            title = axis.append('text')
+                            .attr('class', 'axis-title')
+                            .attr('text-anchor', 'start')
+                            .attr('fill', 'currentColor')
+                            .attr('dy', '-1em');
+
+            title.append('tspan')
+                     .attr('class', 'axis-title-arrow')
+                     .text('↑');
+
+            title.append('tspan')
+                     .attr('class', 'axis-title-label')
+                     .attr('dy', '0.1em')
+                     .attr('dx', '0.5em');
+        }
+
+        title.select('.axis-title-label').text(props.label);
+
+        title.attr('transform', creme.svgTransform().translate(
+             -ticks.node().getBBox().width, 0
+        ));
+    }
+});
+
+creme.d3LeftAxis = function(options) {
+    return creme.d3Drawable({
+        instance: new creme.D3LeftAxis(options),
+        props: ['label', 'help', 'scale', 'tickFormat']
     });
 };
 
