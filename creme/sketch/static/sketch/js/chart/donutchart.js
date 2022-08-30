@@ -54,10 +54,6 @@ creme.D3DonutChart = creme.D3Chart.sub({
 
     _updateChart: function(sketch, chart, data, props) {
         var bounds = creme.svgBounds(sketch.size(), props.margin);
-        var sliceBounds = creme.svgBounds(bounds, {
-            left: props.showLegend ? props.legendSize : 0
-        });
-        var radius = creme.svgBoundsRadius(sliceBounds);
         var colors = props.colors || d3.quantize(function(t) {
             return d3.interpolateSpectral(t * 0.8 + 0.1);
         }, Math.max(data.length, 2));  // we must quantize at least TWO colors or it will be black
@@ -68,28 +64,9 @@ creme.D3DonutChart = creme.D3Chart.sub({
                                .domain([0, data.length])
                                .range(creme.d3ColorRange(colors));
 
-        var arcpath = d3.arc()
-                        .innerRadius(props.band > 0 ? Math.max(0, radius - props.band) : 0)
-                        .outerRadius(radius);
-
         var pielayout = d3.pie()
                           .sort(null)
                           .value(function(d) { return d.y; });
-
-        chart.select('.legend')
-             .attr("transform", creme.svgTransform().translate(bounds.left, bounds.top));
-
-        chart.select('.slices')
-             .attr("transform", creme.svgTransform().translate(
-                 bounds.top + (sliceBounds.width / 2),
-                 bounds.left + (sliceBounds.height / 2)
-             ));
-
-        var items = chart.select('.slices')
-                             .selectAll('.slice')
-                             .data(pielayout(data.filter(function(d) {
-                                 return d.y > 0;
-                             })));
 
         if (props.showLegend) {
             var legends = creme.d3LegendColumn()
@@ -98,8 +75,33 @@ creme.D3DonutChart = creme.D3Chart.sub({
                                     .spacing(0)
                                     .data(xkeys.sort());
 
-            sketch.svg().select('.legend').call(legends);
+            chart.select('.legend')
+                     .attr("transform", creme.svgTransform().translate(bounds.left, bounds.top))
+                     .call(legends);
+
+             // Re-calculate bounds with the legend width AFTER text wrap
+             bounds = creme.svgBounds(bounds, {
+                 left: chart.select('.legend').node().getBBox().width
+             });
         }
+
+        var radius = creme.svgBoundsRadius(bounds);
+
+        var arcpath = d3.arc()
+                        .innerRadius(props.band > 0 ? Math.max(0, radius - props.band) : 0)
+                        .outerRadius(radius);
+
+        chart.select('.slices')
+             .attr("transform", creme.svgTransform().translate(
+                 bounds.left + (bounds.width / 2),
+                 bounds.top + (bounds.height / 2)
+             ));
+
+        var items = chart.select('.slices')
+                             .selectAll('.slice')
+                             .data(pielayout(data.filter(function(d) {
+                                 return d.y > 0;
+                             })));
 
         var context = {
             arcpath: arcpath,
