@@ -242,6 +242,18 @@ creme.svgAsImage = function(done, svg, options) {
     return image;
 };
 
+creme.d3FontSize = function(select) {
+    if (select.size() > 1) {
+        return creme.d3Map(select, function(d) {
+            return parseFloat(window.getComputedStyle(this).fontSize) || 0;
+        });
+    } else if (select.size() > 0) {
+        return parseFloat(window.getComputedStyle(select.node()).fontSize) || 0;
+    } else {
+        return 0;
+    }
+};
+
 creme.d3ColorRange = function(colors) {
     if (Array.isArray(colors)) {
         return colors;
