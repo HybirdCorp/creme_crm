@@ -453,7 +453,13 @@
 
         nextStateUrl: function(data) {
             var link = new creme.ajax.URL(this.reloadUrl());
-            return link.updateSearchData(data || {}).href();
+
+            // HACK : Since we don't have a specific view to reset the search
+            // state, we must cleanup the urls to prevent unexpected "search=clear"
+            // arguments when going back in history.
+            var urlData = _.omit(data || {}, ['search']);
+
+            return link.updateSearchData(urlData).href();
         },
 
         toggleSort: function(column) {
@@ -495,6 +501,24 @@
 
         reload: function(listeners) {
             this.submitState({}, listeners);
+        },
+
+        resetSearchState: function(listeners) {
+            // Reset search state by removing all the 'search' arguments
+            var state = {};
+            var searchKeys = this._element.find('.lv-search-header .lv-state-field').map(function() {
+                return $(this).attr('name');
+            }).get();
+
+            searchKeys.forEach(function(key) {
+                state[key] = [''];
+            });
+
+            // Add the 'clear' argument to remove stored search
+            // TODO : at least change this name or create a specific view !
+            state['search'] = 'clear';
+
+            return this.submitState(state, listeners);
         },
 
         submitState: function(data, listeners) {
