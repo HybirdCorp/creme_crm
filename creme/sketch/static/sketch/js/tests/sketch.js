@@ -11,7 +11,7 @@ QUnit.test('creme.D3Sketch', function(assert) {
     equal(undefined, sketch.element());
 
     deepEqual({width: 0, height: 0}, sketch.size());
-    deepEqual({width: 0, height: 0}, sketch.preferredSize());
+    deepEqual({width: 0, height: 0}, sketch.containerSize());
 
     deepEqual(0, sketch.width());
     deepEqual(0, sketch.height());
@@ -26,7 +26,7 @@ QUnit.test('creme.D3Sketch.bind', function(assert) {
     ok(sketch.svg() !== undefined);
 
     deepEqual({width: 300, height: 200}, sketch.size());
-    deepEqual({width: 300, height: 200}, sketch.preferredSize());
+    deepEqual({width: 300, height: 200}, sketch.containerSize());
 
     deepEqual(300, sketch.width());
     deepEqual(200, sketch.height());
@@ -72,7 +72,7 @@ QUnit.test('creme.D3Sketch.unbind', function(assert) {
     equal(undefined, sketch.element());
 
     deepEqual({width: 0, height: 0}, sketch.size());
-    deepEqual({width: 0, height: 0}, sketch.preferredSize());
+    deepEqual({width: 0, height: 0}, sketch.containerSize());
 
     deepEqual(0, sketch.width());
     deepEqual(0, sketch.height());
@@ -86,26 +86,19 @@ QUnit.test('creme.D3Sketch.resize', function(assert) {
     deepEqual({width: 0, height: 0}, sketch.size());
 
     // If not bound, the resize() do nothing.
-    sketch.resize({width: 150});
+    element.get(0).style.width = '150px';
     deepEqual({width: 0, height: 0}, sketch.size());
 
     sketch.bind(element);
 
     equal(true, sketch.isBound());
-    deepEqual({width: 300, height: 200}, sketch.size());
-
-    sketch.resize({width: 150});
     deepEqual({width: 150, height: 200}, sketch.size());
 
-    sketch.resize({width: 250, height: 500});
-    deepEqual({width: 250, height: 500}, sketch.size());
-
-    // Use preferredSize as default
-    sketch.resize();
-    deepEqual({width: 300, height: 200}, sketch.size());
+    element.get(0).style.width = '250px';
+    deepEqual({width: 250, height: 200}, sketch.size());
 });
 
-QUnit.test('creme.D3Sketch.resize (outside)', function(assert) {
+QUnit.test('creme.D3Sketch.resize (events)', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();
 
@@ -190,7 +183,7 @@ QUnit.test('creme.D3Sketch.saveAs', function(assert) {
                     start();
                 }, 'my-test.svg');
             });
-        }, sketch.svg().node(), {width: 300, height: 200});
+        }, sketch.svg().node(), sketch.size());
     });
 });
 
@@ -263,7 +256,37 @@ QUnit.test('creme.D3Sketch.asImage', function(assert) {
     sketch.asImage(function(image) {
         equal(image.src, expectedURI);
         start();
-    }, {width: 300, height: 200, encoderType: 'image/png'});
+    }, {encoderType: 'image/png'});
+});
+
+QUnit.test('creme.D3Sketch.asImage (custom size)', function(assert) {
+    var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
+    var sketch = new creme.D3Sketch();
+
+    equal(false, sketch.isBound());
+
+    this.assertRaises(function() {
+        sketch.asImage('my-test.svg');
+    }, Error, 'Error: D3Sketch is not bound');
+
+    sketch.bind(element);
+    sketch.svg().append('rect')
+                    .attr('x', 10)
+                    .attr('y', 10)
+                    .attr('width', 20)
+                    .attr('height', 20)
+                    .attr('fill', 'red');
+
+    var expectedURI = creme.svgAsDataURI(
+        sketch.svg().node(), {width: 450, height: 218, encoderType: 'image/png'}
+    );
+
+    stop(1);
+
+    sketch.asImage(function(image) {
+        equal(image.src, expectedURI);
+        start();
+    }, {width: 450, height: 218, encoderType: 'image/png'});
 });
 
 }(jQuery));

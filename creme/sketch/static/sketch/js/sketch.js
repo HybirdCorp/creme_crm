@@ -23,7 +23,7 @@ creme.D3Sketch = creme.component.Component.sub({
     _init_: function(options) {
         this._events = new creme.component.EventHandler();
         this._elementListeners = {
-            resize: this.resize.bind(this)
+            resize: this._onContainerResize.bind(this)
         };
     },
 
@@ -40,16 +40,15 @@ creme.D3Sketch = creme.component.Component.sub({
         var domElement = element.get(0);
         var svg = this._svg = d3.select(domElement).append("svg");
 
+        // Initialize SVG element size
+        svg.attr('width', '100%')
+           .attr('height', this.containerSize().height)
+           .style('display', 'block');
+
         // IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
         // will be constantly evaluated and the node will grow indefinitely.
-        this._resizeObserver = new window.ResizeObserver(function(entries) {
-            this.resize();
-        }.bind(this));
-
+        this._resizeObserver = new ResizeObserver(this._onContainerResize.bind(this));
         this._resizeObserver.observe(domElement);
-
-        svg.attr("width", element.innerWidth())
-           .attr("height", element.innerHeight());
 
         element.on(this._elementListeners);
         return this;
@@ -94,7 +93,7 @@ creme.D3Sketch = creme.component.Component.sub({
         return this._svg;
     },
 
-    preferredSize: function() {
+    containerSize: function() {
         if (this.isBound()) {
             return {
                 width: this._element.innerWidth(),
@@ -105,40 +104,45 @@ creme.D3Sketch = creme.component.Component.sub({
         }
     },
 
-    size: function(size) {
+    size: function() {
         if (this.isBound()) {
+            var style = window.getComputedStyle(this._svg.node());
+            var preferred = this.containerSize();
+
             return {
-                width: +(this._svg.attr('width')),
-                height: +(this._svg.attr('height'))
+                width: parseInt(style.width) || preferred.width,
+                height: parseInt(style.height) || preferred.height
             };
         } else {
             return {width: 0, height: 0};
         }
     },
 
+    _onContainerResize: function() {
+        var preferred = this.containerSize();
+
+        // Force container height (CSS issue with height=auto)
+        this._svg.attr('height', preferred.height);
+
+        var svgSize = this.size();
+
+        this._element.trigger(jQuery.Event("sketch-resize"), svgSize);
+        this._events.trigger('resize', [svgSize]);
+    },
+
     width: function() {
-        return this.isBound() ? +(this._svg.attr('width')) : 0;
+        return this.isBound() ? this.size().width : 0;
     },
 
     height: function() {
-        return this.isBound() ? +(this._svg.attr('height')) : 0;
-    },
-
-    resize: function(size) {
-        if (this.isBound()) {
-            size = $.extend({}, this.preferredSize(), size || {});
-
-            this._svg.attr('width', size.width)
-                     .attr('height', size.height);
-
-            this._element.trigger(jQuery.Event("sketch-resize"), size);
-            this._events.trigger('resize', [size]);
-        }
-
-        return this;
+        return this.isBound() ? this.size().height : 0;
     },
 
     saveAs: function(done, filename, options) {
+        // Computed SVG size is set as default for the blob generation because
+        // the attribute value may be '100%' or 'auto' and cause issues
+        options = $.extend(this.size(), options);
+
         Assert.that(this.isBound(), 'D3Sketch is not bound');
         Assert.that(Object.isFunc(done), 'A callback is required to convert and save the SVG.');
 
@@ -161,6 +165,10 @@ creme.D3Sketch = creme.component.Component.sub({
     },
 
     asImage: function(done, options) {
+        // Computed SVG size is set as default for the blob generation because
+        // the attribute value may be '100%' or 'auto' and cause issues
+        options = $.extend(this.size(), options);
+
         Assert.that(this.isBound(), 'D3Sketch is not bound');
         Assert.that(Object.isFunc(done), 'A callback is required to convert the SVG as image.');
 

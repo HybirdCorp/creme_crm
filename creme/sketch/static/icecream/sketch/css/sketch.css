@@ -19,6 +19,8 @@
     is enabled.
     */
     display: block !important;
+    height: auto !important;
+    width: 100%;
 }
 
 .d3-sketch .axis path, .d3-chart .axis line {
