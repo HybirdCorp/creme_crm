@@ -1386,11 +1386,15 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         contact_status._innerforms = self._contact_innerforms
         contact_status.excludes = self._contact_excludes
 
-    def _build_update_url(self, *, field, ids=(), ctype=None):
+    def _build_update_url(self, *, field=None, ids=(), ctype=None):
         if ctype is None:
             ctype = self.contact_ct
 
-        url = reverse('creme_core__bulk_update', args=(ctype.id, field))
+        url = (
+            reverse('creme_core__bulk_update', args=(ctype.id, field))
+            if field else
+            reverse('creme_core__bulk_update', args=(ctype.id,))
+        )
         return f"{url}?entities={'.'.join(str(id) for id in ids)}" if ids else url
 
     def create_2_contacts_n_url(self, mario_kwargs=None, luigi_kwargs=None, field='first_name'):
@@ -1454,11 +1458,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         self.assertInChoices(value=url,                     label=_('First name'), choices=choices)
         self.assertInChoices(value=build_url(field='user'), label=_('Owner user'), choices=choices)
-
-        baddr_choices = dict(choices)[_('Billing address')]
-        self.assertInChoices(
-            value=build_url(field='address__city'), label=_('City'), choices=baddr_choices,
-        )
 
         # ---
         first_name = 'Marioooo'
@@ -1885,6 +1884,54 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         self.assertListEqual([*image1.categories.all()], categories)
         self.assertListEqual([*image2.categories.all()], categories[:1])
+
+    def test_regular_field_subfield(self):
+        user = self.login()
+
+        create_contact = partial(FakeContact.objects.create, user=user, last_name='Bros')
+        mario = create_contact(first_name='Mario')
+        luigi = create_contact(first_name='Luigi')
+
+        address1 = FakeAddress.objects.create(entity=mario, value='address 1')
+        mario.address = address1
+        mario.save()
+
+        build_url = self._build_update_url
+
+        # GET (no field given) ---
+        response1 = self.assertGET200(f'{build_url()}?entities={mario.id}')
+
+        with self.assertNoException():
+            choices = response1.context['form'].fields['_bulk_fieldname'].choices
+            baddr_choices = dict(choices)[_('Billing address')]
+
+        self.assertInChoices(
+            value=build_url(field='address__city'), label=_('City'), choices=baddr_choices,
+        )
+
+        # GET (field given) ---
+        uri = f'{build_url(field="address__city")}?entities={mario.id}'
+        response2 = self.assertGET200(uri)
+
+        with self.assertNoException():
+            city_f = response2.context['form'].fields['field_value']
+
+        self.assertIsInstance(city_f, CharField)
+        self.assertEqual(_('City'), city_f.label)
+
+        # POST ---
+        city = 'New Dong city'
+        response3 = self.client.post(
+            uri,
+            data={
+                'entities': [mario.id, luigi.id],
+                'field_value': city,
+            },
+        )
+        self.assertNoFormError(response3)
+
+        self.assertEqual(city, self.refresh(mario).address.city)
+        self.assertIsNone(self.refresh(luigi).address)
 
     def test_custom_field_integer(self):
         self.login()
