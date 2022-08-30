@@ -748,6 +748,7 @@ QUnit.test('creme.listview.actionregistry', function(assert) {
     ok(registry.has('popover'));
 
     ok(registry.has('submit-lv-state'));
+    ok(registry.has('reset-lv-search'));
     ok(registry.has('edit-selection'));
     ok(registry.has('delete-selection'));
     ok(registry.has('addto-selection'));
