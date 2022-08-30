@@ -19,6 +19,19 @@
 (function($) {
     "use strict";
 
+    // Backport of underscorejs omit function (see https://underscorejs.org/#omit)
+    function _omit(data, keys) {
+        var output = {};
+
+        for (var key in data) {
+            if (keys.indexOf(key) === -1) {
+                output[key] = data[key];
+            }
+        }
+
+        return output;
+    }
+
     var ListViewColumnFilterBuilders = creme.component.FactoryRegistry.sub({
         _build_select: function(element, options, list) {
             new creme.component.Chosen().activate(element);
@@ -454,7 +467,13 @@
 
         nextStateUrl: function(data) {
             var link = new creme.ajax.URL(this.reloadUrl());
-            return link.updateSearchData(data || {}).href();
+
+            // HACK : Since we don't have a specific view to reset the search
+            // state, we must cleanup the urls to prevent unexpected "search=clear"
+            // arguments when going back in history.
+            var urlData = _omit(data || {}, ['search']);
+
+            return link.updateSearchData(urlData).href();
         },
 
         toggleSort: function(column) {
@@ -496,6 +515,24 @@
 
         reload: function(listeners) {
             this.submitState({}, listeners);
+        },
+
+        resetSearchState: function(listeners) {
+            // Reset search state by removing all the 'search' arguments
+            var state = {};
+            var searchKeys = this._element.find('.lv-search-header .lv-state-field').map(function() {
+                return $(this).attr('name');
+            }).get();
+
+            searchKeys.forEach(function(key) {
+                state[key] = [''];
+            });
+
+            // Add the 'clear' argument to remove stored search
+            // TODO : at least change this name or create a specific view !
+            state['search'] = 'clear';
+
+            return this.submitState(state, listeners);
         },
 
         submitState: function(data, listeners) {

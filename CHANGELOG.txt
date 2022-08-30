@@ -1,5 +1,8 @@
 == Version 2.3.7 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Clearing search state of the listview now works correctly
 
 == Version 2.3.6 ==
 
