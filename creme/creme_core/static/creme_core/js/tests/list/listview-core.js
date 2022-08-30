@@ -912,6 +912,80 @@ QUnit.test('creme.listview.core (custom search widget)', function(assert) {
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
+QUnit.test('creme.listview.core (resetSearchState)', function(assert) {
+    var html = this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
+                            '<input class="lv-state-field" name="search-regular_field-name" data-lv-search-widget="text" title="Name" type="text" value="C">' +
+                        '</th>'
+            }
+        ]
+    });
+    var element = $(html).appendTo(this.qunitFixture());
+    var listview = creme.widget.create(element);
+    var listener = {
+        done: this.mockListener('submit-done'),
+        fail: this.mockListener('submit-fail'),
+        cancel: this.mockListener('submit-cancel'),
+        'done fail cancel': this.mockListener('submit-complete')
+    };
+
+    this.setListviewReloadResponse(html);
+
+    listview.controller().on('submit-state-start', this.mockListener('submit-state-start'))
+                         .on('submit-state-done', this.mockListener('submit-state-done'))
+                         .on('submit-state-complete', this.mockListener('submit-state-complete'));
+
+    listview.controller().resetSearchState(listener);
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: [''],
+            selection: ['multiple'],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'search-regular_field-name': [''],
+            search: 'clear'
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+
+    deepEqual([
+        ['done', html]
+    ], this.mockListenerCalls('submit-done'));
+    deepEqual([], this.mockListenerCalls('submit-fail'));
+    deepEqual([], this.mockListenerCalls('submit-cancel'));
+    deepEqual([
+        ['done', html]
+    ], this.mockListenerCalls('submit-complete'));
+
+    var nextUrl = new creme.ajax.URL('mock/listview/reload').updateSearchData({
+        sort_key: ['regular_field-name'],
+        sort_order: ['ASC'],
+        selection: ['multiple'],
+        selected_rows: [''],
+        q_filter: ['{}'],
+        ct_id: ['67'],
+        'search-regular_field-name': [''],
+        rows: ['10']
+    });
+
+    deepEqual([
+        ['submit-state-start', nextUrl.href()]
+    ], this.mockListenerCalls('submit-state-start'));
+    deepEqual([
+        ['submit-state-done', nextUrl.href(), html]
+    ], this.mockListenerCalls('submit-state-done'));
+    deepEqual([
+        ['submit-state-complete', nextUrl.href(), html]
+    ], this.mockListenerCalls('submit-state-complete'));
+});
 
 QUnit.test('creme.listview.core (toggle sort)', function(assert) {
     var element = $(this.createListViewHtml(this.sortableListViewHtmlOptions({
@@ -1079,6 +1153,49 @@ QUnit.test('creme.listview.core (hatbar buttons, submit-lv-state)', function(ass
             sort_order: ['ASC'],
             'search-regular_field-name': ['C'],
             custom_state: 12
+        }]
+    ], this.mockBackendUrlCalls('mock/listview/reload'));
+});
+
+QUnit.test('creme.listview.core (hatbar buttons, reset-lv-search)', function(assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        hatbarbuttons: [
+            {action: 'reset-lv-search'}
+        ],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: '<th class="sorted lv-column sortable text">' +
+                            '<input class="lv-state-field" name="search-regular_field-name" title="Name" type="text" value="C">' +
+                        '</th>'
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+
+    var listview = creme.widget.create(element);
+    var button = element.find('.list-header-buttons a[data-action]');
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+
+    equal(1, button.length);
+    equal(false, button.is('.is-disabled'));
+
+    button.trigger('click');
+
+    deepEqual([
+        ['POST', {
+            ct_id: ['67'],
+            q_filter: ['{}'],
+            content: 1,
+            rows: ['10'],
+            selected_rows: [''],
+            selection: ['multiple'],
+            sort_key: ['regular_field-name'],
+            sort_order: ['ASC'],
+            'search-regular_field-name': [''],
+            search: 'clear'
         }]
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
