@@ -208,7 +208,7 @@ class DemoGroupBarChartBrick(GroupBarChartBrick):
 
         for group in groups[:randint(2, 5)]:
             items = [{
-                "x": f"A−{i}",
+                "x": f"A {i}",
                 "y": randint(1, 100),
                 "group": group,
             } for i in range(3, 8)]
@@ -231,7 +231,7 @@ class DemoStackBarChartBrick(StackBarChartBrick):
 
         for group in groups[:randint(2, 5)]:
             items = [{
-                "x": f"A−{i}",
+                "x": f"A {i}",
                 "y": randint(1, 100),
                 "group": group,
             } for i in range(3, 8)]
@@ -262,4 +262,4 @@ class DemoDonutChartBrick(DonutChartBrick):
     verbose_name = "Demo Donut Chart"
 
     def get_chart_data(self, context):
-        return [{"x": f"A−{i}", "y": randint(1, 100)} for i in range(1, randint(5, 10))]
+        return [{"x": f"A {i}", "y": randint(1, 100)} for i in range(1, randint(5, 10))]
