@@ -149,7 +149,8 @@ QUnit.parametrize('creme.D3Chart.props.drawOnResize', [
     [true, '<rect x="3" y="7" width="52" height="107" fill="red"></rect>'],
     [false, '']
 ], function(drawOnResize, expected, assert) {
-    var sketch = new creme.D3Sketch().bind($('<div>'));
+    var element = $('<div>');
+    var sketch = new creme.D3Sketch().bind(element);
     var chart = new FakeD3Chart({
         drawOnResize: drawOnResize
     }).sketch(sketch);
@@ -158,7 +159,7 @@ QUnit.parametrize('creme.D3Chart.props.drawOnResize', [
 
     this.equalHtml('', sketch.svg().node());
 
-    sketch.resize({width: 12, height: 12});
+    element.css({width: 12, height: 12}).trigger('resize');
 
     setTimeout(function() {
         this.equalHtml(expected, sketch.svg().node());

@@ -172,10 +172,10 @@ creme.D3Chart = creme.component.Component.sub({
 
         options = $.extend(this.sketch().size(), options || {});
 
-        return new creme.D3Sketch().bind($('<div>')).resize({
+        return new creme.D3Sketch().bind($('<div>').css({
             width: options.width,
             height: options.height
-        });
+        }));
     },
 
     _export: function(sketch, data) {
