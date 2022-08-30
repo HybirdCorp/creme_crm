@@ -2,8 +2,10 @@
 
   Users side :
   ------------
-    # A deleted CustomField cannot be inner-edited/bulk-edited any more ;
-      it is now hidden in the block "Custom fields" too.
+    # The bulk-update view got several fixes :
+        - A deleted CustomField cannot be inner-edited/bulk-edited any more ;
+          it is now hidden in the block "Custom fields" too.
+        - A crash when you try to edit a of sub-field has been fixed (it's used by Addresses).
 
 
 == Version 2.2.13 ==
