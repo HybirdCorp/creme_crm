@@ -523,6 +523,18 @@ creme.lv_widget.ListViewActionBuilders = creme.action.DefaultActionBuilderRegist
         });
     },
 
+    _build_reset_lv_search: function(url, options, data, e) {
+        var listview = this._list;
+
+        return new creme.component.Action(function() {
+            listview.resetSearchState({
+                done: function() { this.done(); },
+                fail: function() { this.fail(); },
+                cancel: function() { this.cancel(); }
+            });
+        });
+    },
+
     _build_redirect: function(url, options, data) {
         return this._redirectAction(url, options, data);
     }

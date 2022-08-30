@@ -43,8 +43,7 @@
                 {{label}}
                 {% widget_icon name='search' label=label size='listview-button' %}
             </a>
-            <a class="clear-search button-right{% if not search_form.search_q %} is-disabled{% endif %}" data-action="submit-lv-state">
-                {% blockjsondata %}{"data": {"search": "clear"}}{% endblockjsondata %}
+            <a class="clear-search button-right{% if not search_form.search_q %} is-disabled{% endif %}" data-action="reset-lv-search">
                 {% translate 'Clear search'%}
             </a>
           {% endblock %}
