@@ -41,6 +41,7 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
         ticks.call(d3.axisBottom(props.scale).tickSizeOuter(0))
              .selectAll('.tick text')
                  .call(creme.d3TextWrap().maxWidth(props.scale.bandwidth())
+                                         .breakAll(true)
                                          .lineHeight('1.1em'));
 
         var title = axis.select('.axis-title');
