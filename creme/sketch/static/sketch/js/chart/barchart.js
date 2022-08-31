@@ -89,6 +89,7 @@ creme.D3BarChart = creme.D3Chart.sub({
     _updateChart: function(sketch, chart, data, props) {
         var xscale = d3.scaleBand().padding(0.1);
         var yscale = d3.scaleLinear();
+        var bounds = creme.svgBounds(sketch.size(), props.margin);
 
         var ymax = d3.max(data, function(d) { return d.y; }) || 1;
         var yAxisTitleHeight = creme.d3FontSize(chart.select('.y.axis')) * 2;
@@ -97,11 +98,9 @@ creme.D3BarChart = creme.D3Chart.sub({
                                .domain([0, data.length])
                                .range(creme.d3ColorRange(props.barColor));
 
-        var bounds = creme.svgBounds(sketch.size(), {
-            left: props.yAxisSize
-        }, props.margin);
-
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
+
+        bounds = creme.svgBounds(bounds, {left: props.yAxisSize});
 
         xscale.domain(data.map(function(d) { return d.x; }))
               .range([0, bounds.width], 0.1);
@@ -113,7 +112,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                                 .label(props.xAxisTitle))
                 .attr('transform', function() {
                     return creme.svgTransform().translate(
-                        bounds.width - Math.floor(this.getBBox().width),
+                        props.yAxisSize,
                         bounds.height - Math.floor(this.getBBox().height)
                     );
                 });
@@ -130,14 +129,14 @@ creme.D3BarChart = creme.D3Chart.sub({
               .range([bounds.height, 0]);
 
         chart.selectAll('.y.axis')
-                  .attr('transform', creme.svgTransform().translate(0, yAxisTitleHeight))
+                  .attr('transform', creme.svgTransform().translate(props.yAxisSize, yAxisTitleHeight))
                   .call(creme.d3LeftAxis()
                                   .scale(yscale)
                                   .tickFormat(props.yAxisTickFormat)
                                   .label(props.yAxisTitle));
 
         var items = chart.select('.bars')
-                             .attr('transform', creme.svgTransform().translate(0, yAxisTitleHeight))
+                             .attr('transform', creme.svgTransform().translate(props.yAxisSize, yAxisTitleHeight))
                              .selectAll('.bar')
                              .data(data);
 
