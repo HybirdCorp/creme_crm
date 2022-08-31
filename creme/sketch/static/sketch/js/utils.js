@@ -91,7 +91,7 @@ creme.svgBounds = function(bounds) {
     };
 
     if (arguments.length > 1) {
-        for (var i in arguments) {
+        for (var i = 1; i < arguments.length; ++i) {
             var m = arguments[i];
 
             if (Object.isNumber(m) || Object.isString(m)) {

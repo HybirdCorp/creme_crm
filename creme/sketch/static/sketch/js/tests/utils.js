@@ -56,6 +56,34 @@ QUnit.parametrize('creme.svgBounds', [
     deepEqual(expected, creme.svgBounds.apply(null, args));
 });
 
+QUnit.test('creme.svgBounds (self)', function(assert) {
+    var bounds = {width: 300, height: 200};
+
+    bounds = creme.svgBounds(bounds, 5);
+    deepEqual({
+        top: 5,
+        left: 5,
+        width: 300 - (5 * 2),
+        height: 200 - (5 * 2)
+    }, bounds);
+
+    bounds = creme.svgBounds(bounds, {left: 30});
+    deepEqual({
+        top: 5,
+        left: 5 + 30,
+        width: 300 - (5 * 2) - 30,
+        height: 200 - (5 * 2)
+    }, bounds);
+
+    bounds = creme.svgBounds(bounds, {bottom: 8});
+    deepEqual({
+        top: 5,
+        left: 5 + 30,
+        width: 300 - (5 * 2) - 30,
+        height: 200 - (5 * 2) - 8
+    }, bounds);
+});
+
 QUnit.test('creme.svgAsXml', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var svg = d3.select(element.get()[0]).append("svg");
