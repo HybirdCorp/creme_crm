@@ -22,63 +22,98 @@
 creme.D3TextWrap = creme.D3Drawable.sub({
     defaultProps: {
         lineHeight: '1.2em',
-        maxWidth: 0
+        maxWidth: 0,
+        wordBreakSeparator: '-',
+        breakAll: false
     },
 
-    draw: function(node, datum, i) {
-        var props = this.props();
-
+    breakWord: function(text, props) {
+        var node = text.node();
         var computedWidth = node.getComputedTextLength();
-        var expectedWidth = Object.isFunc(props.maxWidth) ? props.maxWidth.bind(node)(datum, i) : props.maxWidth;
-        var lineHeight = props.lineHeight;
-
-        if (computedWidth <= expectedWidth) {
-            return;
-        }
-
-        var text = d3.select(node);
-        var words = text.text().split(/\s+/);
-
-        if (words.length < 2) {
-            return;
-        }
-
         var avgCharSize = (computedWidth / text.text().length);
+
+        var words = text.text().split(/\s+/);
         var lines = [];
         var line = words.shift();
-        var word = words.shift();
 
-        while (word) {
+        words.forEach(function(word) {
             var next = line + ' ' + word;
 
-            if (next.length * avgCharSize > expectedWidth) {
+            if (next.length * avgCharSize > props.maxWidth) {
                 lines.push(line);
                 line = word;
             } else {
                 line = next;
             }
-
-            word = words.shift();
-        }
+        });
 
         lines.push(line);
+        return lines;
+    },
 
-        text.text("")
-            .selectAll("tspan")
-            .data(lines)
-                .join("tspan")
-                    .text(function(d) { return d; })
-                    .attr("x", 0)
-                    .attr("dy", function(d, i) {
-                        return i === 0 ? null : lineHeight;
-                     });
+    breakAll: function(text, props) {
+        var node = text.node();
+        var computedWidth = node.getComputedTextLength();
+        var avgCharSize = (computedWidth / text.text().length);
+        var maxWordLength = Math.ceil(props.maxWidth / avgCharSize) - props.wordBreakSeparator.length;
+
+        var lines = [];
+        var words = text.text().split(/\s+/);
+        var line = '';
+
+        words.forEach(function(word) {
+            if (word.length > maxWordLength) {
+                if (line) {
+                    lines.push(line);
+                }
+
+                line = word;
+
+                while (line.length > maxWordLength) {
+                    lines.push(line.substring(0, maxWordLength) + props.wordBreakSeparator);
+                    line = line.substring(maxWordLength);
+                }
+            } else if (line) {
+                var next = line + ' ' + word;
+
+                if (next.length * avgCharSize > props.maxWidth) {
+                    lines.push(line);
+                    line = word;
+                } else {
+                    line = next;
+                }
+            } else {
+                line = word;
+            }
+        });
+
+        lines.push(line);
+        return lines;
+    },
+
+    draw: function(node, datum, i) {
+        var props = this.props();
+        var text = d3.select(node);
+        var lines = props.breakAll ? this.breakAll(text, props) : this.breakWord(text, props);
+
+        if (lines.length > 1) {
+            text.text("")
+                .selectAll("tspan")
+                   .data(lines)
+                   .join("tspan")
+                       .text(function(d) { return d; })
+                       .attr("x", 0)
+                       .attr("dy", function(d, i) {
+                           return i === 0 ? null : props.lineHeight;
+                       });
+        }
     }
 });
 
 creme.d3TextWrap = function(options) {
     return creme.d3Drawable({
         instance: new creme.D3TextWrap(options),
-        props: ['lineHeight', 'maxWidth']
+        props: ['lineHeight', 'maxWidth', 'wordBreakSeparator', 'breakAll']
     });
 };
 

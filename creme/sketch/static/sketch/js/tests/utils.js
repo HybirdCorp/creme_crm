@@ -206,6 +206,24 @@ QUnit.parametrize('creme.svgBoundsRadius', [
     equal(creme.svgBoundsRadius(bounds), expected);
 });
 
+QUnit.parametrize('creme.d3FontSize', [
+    [[], 0],
+    [[''], 10],
+    [['8px', '', '2.1em'], [8, 10, 21]]
+], function(data, expected, assert) {
+    var element = $('<svg width="100" height="100" style="font-size:10px;">').appendTo(this.qunitFixture());
+    var svg = d3.select(element.get(0));
 
+    svg.selectAll('text')
+           .data(data)
+           .enter()
+               .append('text')
+                   .style('font-size', function(d) { return d; });
+
+    var selection = svg.selectAll('text');
+
+    equal(selection.size(), data.length);
+    deepEqual(expected, creme.d3FontSize(selection));
+});
 
 }(jQuery));
