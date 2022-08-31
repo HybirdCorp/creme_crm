@@ -32,11 +32,13 @@ creme.D3LegendRow = creme.D3Drawable.sub({
 
     draw: function(node, datum, i) {
         var props = this.props();
+        var interval = Math.max((props.swatchSize.width || 0) + props.spacing, props.interval || 0);
         var position = function(d, i) {
-            return creme.svgTransform().translate(i * (props.swatchSize.width + props.spacing), 0);
+            return creme.svgTransform().translate((interval / 2) + i * interval, 0);
         };
 
-        var items = d3.select(node).selectAll('.legend-item').data(props.data || []);
+        var legend = d3.select(node);
+        var items = legend.selectAll('.legend-item').data(props.data || []);
 
         var newItem = items.enter()
                            .append('g')
@@ -50,11 +52,10 @@ creme.D3LegendRow = creme.D3Drawable.sub({
                    .attr("fill", props.swatchColor);
 
         newItem.append("text")
-                   .attr("x", props.swatchSize.width / 2)
-                   .attr('text-anchor', 'middle')
                    .attr("y", props.swatchSize.height * 1.5)
+                   .attr("dx", props.swatchSize.width / 2)
                    .attr("dy", "0.35em")
-                   .text(props.text);
+                   .attr('text-anchor', 'middle');
 
         var item = items.attr("transform", position);
 
@@ -65,13 +66,18 @@ creme.D3LegendRow = creme.D3Drawable.sub({
         item.select("text").text(props.text);
 
         items.exit().remove();
+
+        legend.selectAll('.legend-item text')
+                  .call(creme.d3TextWrap().maxWidth(interval)
+                                          .breakAll(true)
+                                          .lineHeight('1.1em'));
     }
 });
 
 creme.d3LegendRow = function(options) {
     return creme.d3Drawable({
         instance: new creme.D3LegendRow(options),
-        props: ['swatchSize', 'swatchColor', 'spacing', 'data', 'text']
+        props: ['swatchSize', 'swatchColor', 'spacing', 'data', 'text', 'interval']
     });
 };
 

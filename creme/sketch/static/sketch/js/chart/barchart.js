@@ -109,6 +109,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                 .call(creme.d3BottomAxis()
                                 .scale(xscale)
                                 .minHeight(props.xAxisSize)
+                                .tickWrapWidth(xscale.bandwidth())
                                 .label(props.xAxisTitle))
                 .attr('transform', function() {
                     return creme.svgTransform().translate(

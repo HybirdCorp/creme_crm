@@ -24,7 +24,8 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
         label: function(d, i) { return d; },
         help: function(d, i) { return d; },
         scale: function(d, i) { return d; },
-        minHeight: 20
+        minHeight: 20,
+        tickWrapWidth: 30
     },
 
     draw: function(node, datum, i) {
@@ -40,7 +41,7 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
 
         ticks.call(d3.axisBottom(props.scale).tickSizeOuter(0))
              .selectAll('.tick text')
-                 .call(creme.d3TextWrap().maxWidth(props.scale.bandwidth())
+                 .call(creme.d3TextWrap().maxWidth(props.tickWrapWidth)
                                          .breakAll(true)
                                          .lineHeight('1.1em'));
 
@@ -75,7 +76,7 @@ creme.D3BottomAxis = creme.D3Drawable.sub({
 creme.d3BottomAxis = function(options) {
     return creme.d3Drawable({
         instance: new creme.D3BottomAxis(options),
-        props: ['label', 'help', 'scale', 'minHeight', 'tickFormat']
+        props: ['label', 'help', 'scale', 'minHeight', 'tickFormat', 'tickWrapWidth']
     });
 };
 
