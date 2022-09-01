@@ -38,7 +38,12 @@ creme.D3GraphRelationChart = creme.D3Chart.sub({
         edgeColors: d3.schemeCategory10,
         maxIteration: 100,
         transition: true,
-        showLegend: true
+        showLegend: true,
+        /*
+         * TODO : This chart does not support updates so we have to disable the
+         * "redraw on resize" feature for now.
+         */
+        drawOnResize: false
     },
 
     _init_: function(options) {
@@ -220,7 +225,12 @@ creme.D3GraphRelationChart = creme.D3Chart.sub({
                         .attr("stroke", "#fff")
                         .attr("stroke-width", 2);
 
-        var zoom = d3.zoom().on("zoom", function() {
+        var zoom = d3.zoom();
+
+        // HACK : Fix SVGLength.value property issue in tests
+        // (see https://github.com/Webiks/force-horse/issues/19#issuecomment-826728521)
+        zoom.extent([[0, 0], [bounds.width, bounds.height]]);
+        zoom.on("zoom", function() {
             chart.attr("transform", d3.event.transform);
         });
 

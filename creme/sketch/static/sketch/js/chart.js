@@ -23,11 +23,12 @@ creme.D3Chart = creme.component.Component.sub({
     defaultProps: {},
 
     _init_: function(options) {
-        options = $.extend({
-            drawOnResize: true
-        }, options || {});
+        options = options || {};
 
-        this._props = $.extend({}, this.defaultProps);
+        this._props = $.extend({
+            drawOnResize: true
+        }, this.defaultProps);
+
         this._events = new creme.component.EventHandler();
         this._selection = new creme.model.SelectionController();
 
