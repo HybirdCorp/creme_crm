@@ -37,16 +37,22 @@ creme.D3Sketch = creme.component.Component.sub({
 
         this._element = element.addClass('d3-sketch');
 
+        // IMPORTANT : If ANYTHING remains in the container along with the <svg> element
+        // the ResizeObserve will loop indefinitely :
+        //    1. Gets container 'innerSize' : BOTH the <svg> & other elements size
+        //    2. Apply this size to the <svg>, and make it grow
+        //    3. The <svg> new growth triggers another event for ResizeObserve...
+        this._element.empty();
+
         var domElement = element.get(0);
         var svg = this._svg = d3.select(domElement).append("svg");
 
         // Initialize SVG element size
         svg.attr('width', '100%')
-           .attr('height', this.containerSize().height)
-           .style('display', 'block');
+           .attr('height', this.containerSize().height);
 
         // IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
-        // will be constantly evaluated and the node will grow indefinitely.
+        // will be constantly evaluated and the node will grow indefinitely (CSS issue)
         this._resizeObserver = new ResizeObserver(this._onContainerResize.bind(this));
         this._resizeObserver.observe(domElement);
 
@@ -82,7 +88,7 @@ creme.D3Sketch = creme.component.Component.sub({
 
     clear: function() {
         Assert.that(this.isBound(), 'D3Sketch is not bound');
-        this._svg.selectAll('*').remove();
+        this._svg.interrupt().selectAll('*').interrupt().remove();
     },
 
     element: function() {

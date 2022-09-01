@@ -43,9 +43,13 @@ creme.D3ChartBrickController = creme.component.Component.sub({
 
         var model = this._model;
         var element = brick.element();
+        var container = element.find('.brick-d3-content');
 
         this._brick = brick;
-        this._sketch.bind(element.find('.brick-d3-content'));
+
+        if (container.length > 0) {
+            this._sketch.bind(container);
+        }
 
         this._chart.props(this.initialProps())
                    .sketch(this._sketch)
