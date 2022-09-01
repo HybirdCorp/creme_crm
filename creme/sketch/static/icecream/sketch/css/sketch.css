@@ -19,7 +19,7 @@
     is enabled.
     */
     display: block !important;
-    height: auto !important;
+    height: 100% !important;
     width: 100%;
 }
 
@@ -107,11 +107,11 @@
     border: 0px;
 }
 
-.sketch-dashboard-brick .brick-content.is-empty {
+.sketch-chart-brick .brick-content.is-empty {
     padding: 5px 10px;
 }
 
-.sketch-dashboard-brick .brick-d3-content.brick-empty {
+.sketch-chart-brick .brick-d3-empty {
     text-transform: uppercase;
     text-align: left;
     font-weight: 600;

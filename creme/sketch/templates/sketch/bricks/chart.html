@@ -20,7 +20,7 @@
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
     {% else %}
-    <div class="brick-d3-content brick-empty">{% trans 'No data' %}</div>
+    <div class="brick-d3-empty">{% trans 'No data available' %}</div>
     {% endif %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
 {% endblock %}
