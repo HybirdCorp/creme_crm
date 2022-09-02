@@ -8,6 +8,8 @@ SHELL := /bin/bash
 MAKE_NPROCS ?= $(shell nproc)
 CREME_LANGUAGE ?= fr
 PORT ?= 8000
+KARMA_BROWSERS ?= FirefoxHeadless
+CHROME_BIN ?= /usr/bin/google-chrome
 
 
 ## clean - Basic cleanup, mostly temporary files.
@@ -103,13 +105,12 @@ karma-clean:
 karma: __media karma-clean
 	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
 	    node_modules/.bin/karma start .karma.conf.js \
-	        --browsers=FirefoxHeadless \
+	        --browsers=${KARMA_BROWSERS} \
 	        --targets=$(filter-out $@,$(MAKECMDGOALS))
 
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
 karma-browsers: __media karma-clean
-	CHROME_BIN=/usr/bin/google-chrome \
 	KARMA_DJANGOSTATICS=${CREME_MEDIA} \
 	    node_modules/.bin/karma start .karma.conf.js \
 	        --browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
