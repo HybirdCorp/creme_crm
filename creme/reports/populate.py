@@ -165,7 +165,6 @@ class Populator(BasePopulator):
                     {'brick': core_bricks.RelationsBrick,    'order': 500},
 
                     {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
-                    {'brick': bricks.ReportGraphChartListBrick,      'order':  60, 'zone': RIGHT},
                 ],
             )
 
@@ -201,6 +200,6 @@ class Populator(BasePopulator):
             BrickDetailviewLocation.objects.multi_create(
                 defaults={'model': ReportGraph, 'zone': BrickDetailviewLocation.TOP},
                 data=[
-                    {'brick': bricks.ReportGraphChartBrick,  'order':  50},
+                    {'brick': bricks.ReportGraphD3ChartBrick,  'order':  50},
                 ],
             )

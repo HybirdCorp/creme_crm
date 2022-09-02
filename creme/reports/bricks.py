@@ -102,6 +102,9 @@ class InstanceBricksInfoBrick(core_bricks.QuerysetBrick):
     template_name = 'reports/bricks/instance-bricks-info.html'
     configurable = False
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context,
@@ -184,10 +187,10 @@ class ReportGraphBrick(core_bricks.InstanceBrick):
         return self.fetcher.linked_models
 
 
-class ReportGraphChartBrick(core_bricks.Brick):
+class ReportGraphD3ChartBrick(core_bricks.Brick):
     id_ = core_bricks.Brick.generate_id('reports', 'graph-chart')
     dependencies = (ReportGraph,)
-    verbose_name = "Report's chart"
+    verbose_name = "Report's SVG chart"
     template_name = 'reports/bricks/report-chart.html'
 
     def detailview_display(self, context):
@@ -217,9 +220,9 @@ class ReportGraphChartBrick(core_bricks.Brick):
         return (ReportGraph,)
 
 
-class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
+class ReportGraphD3ChartListBrick(core_bricks.QuerysetBrick):
     id_ = core_bricks.QuerysetBrick.generate_id('reports', 'graph-chart-list')
-    verbose_name = _("Report's graphs")
+    verbose_name = _("Report's SVG charts")
     description = _(
         'Adds & edits some graphs related to a report.\n'
         'A graph displays visually computed values, like the number of '
@@ -244,7 +247,7 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
         counter = Counter(
             InstanceBrickConfigItem.objects
                                    .filter(entity__in=[g.id for g in graphs],
-                                           brick_class_id=ReportGraphChartInstanceBrick.id_)
+                                           brick_class_id=ReportGraphD3ChartInstanceBrick.id_)
                                    .values_list('entity', flat=True)
         )
 
@@ -275,10 +278,10 @@ class ReportGraphChartListBrick(core_bricks.QuerysetBrick):
         return self._render(context)
 
 
-class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
+class ReportGraphD3ChartInstanceBrick(core_bricks.InstanceBrick):
     id_ = core_bricks.Brick.generate_id('reports', 'instance-graph-chart')
     dependencies = (ReportGraph,)
-    verbose_name = "Report's chart"
+    verbose_name = "Report's SVG chart"
     template_name = 'reports/bricks/report-chart.html'
 
     def __init__(self, instance_brick_config_item):
@@ -368,7 +371,7 @@ class ReportGraphChartInstanceBrick(core_bricks.InstanceBrick):
         return self.fetcher.linked_models
 
 
-class InstanceGraphChartInfoBrick(core_bricks.QuerysetBrick):
+class InstanceGraphD3ChartInfoBrick(core_bricks.QuerysetBrick):
     id_ = core_bricks.QuerysetBrick.generate_id('reports', 'instance-graph-charts-info')
     verbose_name = _('Blocks')
     dependencies = (InstanceBrickConfigItem,)
@@ -379,7 +382,7 @@ class InstanceGraphChartInfoBrick(core_bricks.QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             InstanceBrickConfigItem.objects.filter(
-                brick_class_id=ReportGraphChartInstanceBrick.id_,
+                brick_class_id=ReportGraphD3ChartInstanceBrick.id_,
                 entity=context['object'].id,
             ),
         ))

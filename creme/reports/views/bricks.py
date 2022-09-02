@@ -22,8 +22,11 @@ from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.views import generic
 
 from .. import get_rgraph_model
-from ..bricks import InstanceBricksInfoBrick, InstanceGraphChartInfoBrick
-from ..forms.bricks import GraphChartInstanceBrickForm, GraphInstanceBrickForm
+from ..bricks import InstanceBricksInfoBrick, InstanceGraphD3ChartInfoBrick
+from ..forms.bricks import (
+    GraphD3ChartInstanceBrickForm,
+    GraphInstanceBrickForm,
+)
 
 
 class GraphInstanceBrickCreation(generic.AddingInstanceToEntityPopup):
@@ -62,12 +65,12 @@ class GraphInstanceBricks(generic.RelatedToEntityDetailPopup):
         )
 
 
-class GraphChartInstanceBrickCreation(GraphInstanceBrickCreation):
-    form_class = GraphChartInstanceBrickForm
+class GraphD3ChartInstanceBrickCreation(GraphInstanceBrickCreation):
+    form_class = GraphD3ChartInstanceBrickForm
 
 
-class GraphChartInstanceBricks(GraphInstanceBricks):
+class GraphD3ChartInstanceBricks(GraphInstanceBricks):
     def get_brick_ids(self):
         return (
-            InstanceGraphChartInfoBrick.id_,
+            InstanceGraphD3ChartInfoBrick.id_,
         )

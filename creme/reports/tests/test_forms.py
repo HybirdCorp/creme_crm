@@ -34,7 +34,7 @@ from creme.creme_core.tests.forms.base import FieldTestCase
 from creme.reports import constants
 from creme.reports.bricks import (
     ReportGraphBrick,
-    ReportGraphChartInstanceBrick,
+    ReportGraphD3ChartInstanceBrick,
 )
 from creme.reports.core.graph import AbscissaInfo, OrdinateInfo
 from creme.reports.core.graph.cell_constraint import (
@@ -50,7 +50,7 @@ from creme.reports.core.graph.fetcher import (
 )
 from creme.reports.forms.bricks import (
     FetcherChoiceIterator,
-    GraphChartInstanceBrickForm,
+    GraphD3ChartInstanceBrickForm,
     GraphFetcherField,
     GraphInstanceBrickForm,
 )
@@ -2226,7 +2226,7 @@ class GraphFetcherFieldTestCase(FieldTestCase):
         self.assertEqual('#', field.widget.choices.separator)
 
 
-class GraphChartInstanceBrickFormTestCase(BaseReportsTestCase):
+class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
     def test_init_n_clean(self):
         user = self.create_user()
         graph = self._create_documents_rgraph(user)
@@ -2258,7 +2258,9 @@ class GraphChartInstanceBrickFormTestCase(BaseReportsTestCase):
         RegularFieldLinkedGraphFetcher(
             graph=graph,
             value=fk_name,
-        ).create_brick_config_item()
+        ).create_brick_config_item(
+            brick_class=ReportGraphBrick
+        )
 
         form1 = GraphInstanceBrickForm(
             user=user, graph=graph,
@@ -2290,7 +2292,9 @@ class GraphChartInstanceBrickFormTestCase(BaseReportsTestCase):
         RegularFieldLinkedGraphFetcher(
             graph=graph2,  # Not same graph => collision
             value=fk_name,
-        ).create_brick_config_item()
+        ).create_brick_config_item(
+            brick_class=ReportGraphBrick
+        )
 
         form = GraphInstanceBrickForm(
             user=user, graph=graph1,
@@ -2320,19 +2324,19 @@ class GraphChartInstanceBrickFormTestCase(BaseReportsTestCase):
         self.assertTrue(form.is_valid())
 
 
-class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
+class GraphD3ChartInstanceBrickFormTestCase(BaseReportsTestCase):
     def test_init_n_clean(self):
         user = self.create_user()
         graph = self._create_documents_rgraph(user)
 
-        form1 = GraphChartInstanceBrickForm(user=user, graph=graph)
+        form1 = GraphD3ChartInstanceBrickForm(user=user, graph=graph)
 
         fetcher_f = form1.fields.get('fetcher')
         self.assertIsInstance(fetcher_f, GraphFetcherField)
         self.assertEqual(graph, fetcher_f.graph)
 
         fk_name = 'linked_folder'
-        form2 = GraphChartInstanceBrickForm(
+        form2 = GraphD3ChartInstanceBrickForm(
             user=user, graph=graph,
             data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
         )
@@ -2352,9 +2356,11 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         RegularFieldLinkedGraphFetcher(
             graph=graph,
             value=fk_name,
-        ).create_brick_config_item()
+        ).create_brick_config_item(
+            brick_class=ReportGraphD3ChartInstanceBrick
+        )
 
-        form1 = GraphChartInstanceBrickForm(
+        form1 = GraphD3ChartInstanceBrickForm(
             user=user, graph=graph,
             data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
         )
@@ -2369,7 +2375,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
             ),
         )
 
-        form2 = GraphChartInstanceBrickForm(
+        form2 = GraphD3ChartInstanceBrickForm(
             user=user, graph=graph, data={'fetcher': constants.RGF_NOLINK},
         )
         self.assertTrue(form2.is_valid())
@@ -2384,9 +2390,11 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         RegularFieldLinkedGraphFetcher(
             graph=graph2,  # Not same graph => collision
             value=fk_name,
-        ).create_brick_config_item()
+        ).create_brick_config_item(
+            brick_class=ReportGraphD3ChartInstanceBrick
+        )
 
-        form = GraphChartInstanceBrickForm(
+        form = GraphD3ChartInstanceBrickForm(
             user=user, graph=graph1,
             data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
         )
@@ -2397,8 +2405,8 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
         user = self.create_user()
         graph = self._create_documents_rgraph(user)
 
-        class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
-            id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
+        class OtherReportGraphBrick(ReportGraphD3ChartInstanceBrick):
+            id_ = ReportGraphD3ChartInstanceBrick.generate_id('reports', 'other_graph')
 
         fk_name = 'linked_folder'
         RegularFieldLinkedGraphFetcher(
@@ -2407,7 +2415,7 @@ class GraphInstanceBrickFormTestCase(BaseReportsTestCase):
             brick_class=OtherReportGraphBrick,
         )
 
-        form = GraphChartInstanceBrickForm(
+        form = GraphD3ChartInstanceBrickForm(
             user=user, graph=graph,
             data={'fetcher': f'{constants.RGF_FK}|{fk_name}'},
         )
