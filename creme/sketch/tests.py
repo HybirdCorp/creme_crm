@@ -32,8 +32,6 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
         [bricks.StackBarChartBrick, {"limits": [], "transition": True, "showLegend": True}],
     ])
     def test_chart_default_props(self, chart_class, expected):
-        user = self.login()
-
         class FooChartBrick(chart_class):
             id_ = bricks.Brick.generate_id('sketch', str(chart_class))
 
@@ -44,7 +42,43 @@ class ChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertEqual(expected, brick.get_chart_props({}))
 
-        content = self.render_brick(user, FooChartBrick)
+    @parameterized.expand([
+        [
+            bricks.DemoBarChartBrick,
+            {
+                "limits": [],
+                "transition": True,
+                "xAxisTitle": "Axis of Abscissas",
+                "yAxisTitle": "Axis of Ordinates"
+            }
+        ],
+        [
+            bricks.DemoDonutChartBrick,
+            {
+                "band": 60,
+                "transition": True
+            }
+        ],
+        [
+            bricks.DemoGroupBarChartBrick,
+            {
+                "limits": [],
+                "transition": True,
+                "showLegend": True
+            }
+        ],
+        [
+            bricks.DemoStackBarChartBrick,
+            {
+                "limits": [],
+                "transition": True,
+                "showLegend": True
+            }
+        ],
+    ])
+    def test_demo_chart_render(self, chart_class, expected):
+        user = self.login()
+        content = self.render_brick(user, chart_class)
 
         self.assertInHTML(
             jsondata(expected, **{"class": "sketch-chart-props"}), content, 1

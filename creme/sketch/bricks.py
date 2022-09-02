@@ -39,7 +39,7 @@ class ChartBrick(Brick):
         """
         raise NotImplementedError()
 
-    def detailview_display(self, context):
+    def _render_chart(self, context):
         return self._render(
             self.get_template_context(
                 context,
@@ -47,9 +47,6 @@ class ChartBrick(Brick):
                 props=self.get_chart_props(context)
             )
         )
-
-    def home_display(self, context):
-        return self.detailview_display(context)
 
 
 class BarChartBrick(ChartBrick):
@@ -217,6 +214,12 @@ class DemoGroupBarChartBrick(GroupBarChartBrick):
 
         return data
 
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
+    def home_display(self, context):
+        return self._render_chart(context)
+
 
 class DemoStackBarChartBrick(StackBarChartBrick):
     """
@@ -240,6 +243,12 @@ class DemoStackBarChartBrick(StackBarChartBrick):
 
         return data
 
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
+    def home_display(self, context):
+        return self._render_chart(context)
+
 
 class DemoBarChartBrick(BarChartBrick):
     """
@@ -253,6 +262,12 @@ class DemoBarChartBrick(BarChartBrick):
     def get_chart_data(self, context):
         return [{"x": f"A {i}", "y": randint(1, 1500)} for i in range(1, randint(5, 40))]
 
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
+    def home_display(self, context):
+        return self._render_chart(context)
+
 
 class DemoDonutChartBrick(DonutChartBrick):
     """
@@ -263,3 +278,9 @@ class DemoDonutChartBrick(DonutChartBrick):
 
     def get_chart_data(self, context):
         return [{"x": f"A {i}", "y": randint(1, 100)} for i in range(1, randint(5, 10))]
+
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
+    def home_display(self, context):
+        return self._render_chart(context)
