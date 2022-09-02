@@ -12,10 +12,11 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 from creme.reports.bricks import (
     ReportGraph,
-    ReportGraphChartBrick,
-    ReportGraphChartInstanceBrick,
-    ReportGraphChartListBrick,
+    ReportGraphD3ChartBrick,
+    ReportGraphD3ChartInstanceBrick,
+    ReportGraphD3ChartListBrick,
 )
+from creme.reports.core.graph.hand import _generate_date_format
 from creme.reports.report_chart_registry import report_chart_registry
 from creme.reports.tests.base import BaseReportsTestCase
 from creme.reports.tests.fake_models import (
@@ -86,15 +87,15 @@ def reverse_listview(name, q_filters):
     return reverse(name) + f'?q_filter={qfilter}'
 
 
-@mock.patch('creme.reports.bricks.ReportGraphChartBrick._render')
-class ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
+@mock.patch('creme.reports.bricks.ReportGraphD3ChartBrick._render')
+class ReportGraphD3ChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
         user = self.create_user()
         graph = self._create_documents_rgraph(user=user)
 
         context = detailview_display_context(graph, user)
 
-        brick = ReportGraphChartBrick()
+        brick = ReportGraphD3ChartBrick()
         brick.detailview_display(context)
 
         mock_brick_render.assert_called_once_with({
@@ -127,7 +128,7 @@ class ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         ]
 
-        brick = ReportGraphChartBrick()
+        brick = ReportGraphD3ChartBrick()
         brick.detailview_display(context)
 
         mock_brick_render.assert_called_once_with({
@@ -144,8 +145,8 @@ class ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         })
 
 
-@mock.patch('creme.reports.bricks.ReportGraphChartListBrick._render')
-class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
+@mock.patch('creme.reports.bricks.ReportGraphD3ChartListBrick._render')
+class ReportGraphD3ChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def _create_report_graphs(self, report):
         return (
             ReportGraph.objects.create(
@@ -172,7 +173,7 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
 
         context = detailview_display_context(report, user)
 
-        brick = ReportGraphChartListBrick()
+        brick = ReportGraphD3ChartListBrick()
         brick.detailview_display(context)
 
         mock_brick_render.assert_called_once()
@@ -192,7 +193,7 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
 
         context = detailview_display_context(report, user)
 
-        brick = ReportGraphChartListBrick()
+        brick = ReportGraphD3ChartListBrick()
         brick.detailview_display(context)
 
         data = []
@@ -239,7 +240,7 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
 
         create_fake_docs(user)
 
-        brick = ReportGraphChartListBrick()
+        brick = ReportGraphD3ChartListBrick()
         brick.detailview_display(detailview_display_context(report, user))
 
         graph_by_year_data = [
@@ -252,9 +253,11 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
             },
         ]
 
+        by_month_format = _generate_date_format(year=True, month=True)
+
         graph_by_month_data = [
             {
-                'x': '05/2022',
+                'x': datetime(2022, 5, 1).strftime(by_month_format),  # 05-2022
                 'y': 2,
                 'url': reverse_listview(
                     'reports__list_fake_documents', q_filters=[
@@ -263,7 +266,7 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
                 )
             },
             {
-                'x': '08/2022',
+                'x': datetime(2022, 8, 1).strftime(by_month_format),  # 08-2022
                 'y': 1,
                 'url': reverse_listview(
                     'reports__list_fake_documents', q_filters=[
@@ -311,8 +314,8 @@ class ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase)
         ])
 
 
-@mock.patch('creme.reports.bricks.ReportGraphChartInstanceBrick._render')
-class ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
+@mock.patch('creme.reports.bricks.ReportGraphD3ChartInstanceBrick._render')
+class ReportGraphD3ChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
     def test_detailview_display__no_data(self, mock_brick_render):
         user = self.login()
         graph = self._create_documents_rgraph(user=user)
@@ -320,7 +323,7 @@ class ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestC
 
         context = detailview_display_context(graph, user)
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphD3ChartInstanceBrick(instance)
         brick.detailview_display(context)
 
         mock_brick_render.assert_called_once_with({
@@ -354,7 +357,7 @@ class ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestC
             },
         ]
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphD3ChartInstanceBrick(instance)
         brick.detailview_display(context)
 
         mock_brick_render.assert_called_once_with({
@@ -377,7 +380,7 @@ class ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestC
 
         context = home_display_context(user)
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphD3ChartInstanceBrick(instance)
         brick.home_display(context)
 
         mock_brick_render.assert_called_once_with({
@@ -411,7 +414,7 @@ class ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTestC
             },
         ]
 
-        brick = ReportGraphChartInstanceBrick(instance)
+        brick = ReportGraphD3ChartInstanceBrick(instance)
         brick.home_display(context)
 
         mock_brick_render.assert_called_once_with({

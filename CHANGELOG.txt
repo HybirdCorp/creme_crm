@@ -136,8 +136,12 @@
                 * The 'Statistic' brick does not use jQplot anymore.
            - Reports:
                 * Add the following views to store the graph states in D3 bricks.
-                     - reports.views.graph.GraphFetchSettings
-                     - reports.views.graph.GraphFetchSettingsForInstance
+                   - reports.views.graph.GraphFetchSettings
+                   - reports.views.graph.GraphFetchSettingsForInstance
+                * Add bricks as replacement of JQplot ones.
+                   - ReportGraphD3ChartBrick
+                   - ReportGraphD3ChartListBrick
+                   - ReportGraphD3ChartInstanceBrick
 
     Breaking changes :
     ------------------

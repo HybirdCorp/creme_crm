@@ -30,7 +30,7 @@ from creme.creme_core.models import InstanceBrickConfigItem
 from creme.creme_core.utils.unicode_collation import collator
 from creme.reports.bricks import ReportGraphBrick
 
-from ..bricks import ReportGraphChartInstanceBrick
+from ..bricks import ReportGraphD3ChartInstanceBrick
 from ..core.graph.fetcher import GraphFetcher
 
 if TYPE_CHECKING:
@@ -206,5 +206,5 @@ class GraphInstanceBrickForm(CremeModelForm):
         return super().save(*args, **kwargs)
 
 
-class GraphChartInstanceBrickForm(GraphInstanceBrickForm):
-    brick_class = ReportGraphChartInstanceBrick
+class GraphD3ChartInstanceBrickForm(GraphInstanceBrickForm):
+    brick_class = ReportGraphD3ChartInstanceBrick

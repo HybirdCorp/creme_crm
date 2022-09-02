@@ -86,12 +86,12 @@ urlpatterns = [
 
     re_path(
         r'^graph/(?P<graph_id>\d+)/chart_brick/add[/]?$',
-        bricks.GraphChartInstanceBrickCreation.as_view(),
+        bricks.GraphD3ChartInstanceBrickCreation.as_view(),
         name='reports__create_instance_chart_brick',
     ),
     re_path(
         r'^graph/(?P<graph_id>\d+)/chart_bricks[/]?$',
-        bricks.GraphChartInstanceBricks.as_view(),
+        bricks.GraphD3ChartInstanceBricks.as_view(),
         name='reports__instance_chart_bricks_info',
     ),
 

@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.apps import CremeAppConfig
@@ -56,15 +57,19 @@ class ReportsConfig(CremeAppConfig):
             bricks.ReportFieldsBrick,
             bricks.ReportGraphsBrick,
             bricks.InstanceBricksInfoBrick,
-            bricks.ReportGraphChartBrick,
-            bricks.ReportGraphChartListBrick,
-            bricks.InstanceGraphChartInfoBrick,
         ).register_4_instance(
             bricks.ReportGraphBrick,
-            bricks.ReportGraphChartInstanceBrick,
         ).register_hat(
             self.Report,
             main_brick_cls=bricks.ReportBarHatBrick,
+        )
+
+        brick_registry.register(
+            bricks.ReportGraphD3ChartBrick,
+            bricks.ReportGraphD3ChartListBrick,
+            bricks.InstanceGraphD3ChartInfoBrick,
+        ).register_4_instance(
+            bricks.ReportGraphD3ChartInstanceBrick,
         )
 
     def register_bulk_update(self, bulk_update_registry):
