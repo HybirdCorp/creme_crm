@@ -116,6 +116,9 @@ class RelationChartBrick(ChartBrick):
             self.get_graph_chart_data(context['object'], context['user'])
         )
 
+    def detailview_display(self, context):
+        return self._render_chart(context)
+
 
 class RootNodesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
