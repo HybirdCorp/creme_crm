@@ -152,72 +152,81 @@ QUnit.test('creme.d3LimitStack', function(assert) {
 });
 
 QUnit.parametrize('creme.d3TextWrap (word-break)', [
-    ['', {'text': {html: ''}}],
-    ['short', {'text': {html: 'short'}}],
-    ['toolongbutsingleword', {'text': {html: 'toolongbutsingleword'}}],
+    ['', {'.wrapit': {html: ''}}],
+    ['short', {'.wrapit': {html: 'short'}}],
+    ['toolongbutasingleword', {'.wrapit': {html: 'toolongbutasingleword'}}],
     ['a bit too long', {
-        'text': {
+        '.wrapit': {
             html: [
                 '<tspan x="0">a bit too</tspan>',
                 '<tspan x="0" dy="1.73em">long</tspan>'
             ].join('')
         }
     }],
-    ['real long text that seems to never finish', {
-        'text': {
+    ['real long text toolongbutasingleword that seems to never finish', {
+        '.wrapit': {
             html: [
                 '<tspan x="0">real long</tspan>',
-                '<tspan x="0" dy="1.73em">text that</tspan>',
-                '<tspan x="0" dy="1.73em">seems to</tspan>',
-                '<tspan x="0" dy="1.73em">never</tspan>',
+                '<tspan x="0" dy="1.73em">text</tspan>',
+                '<tspan x="0" dy="1.73em">toolongbutasingleword</tspan>',
+                '<tspan x="0" dy="1.73em">that seems</tspan>',
+                '<tspan x="0" dy="1.73em">to never</tspan>',
                 '<tspan x="0" dy="1.73em">finish</tspan>'
             ].join('')
         }
     }]
 ], function(message, expected, assert) {
-    var element = $('<div style="width: 100px; height: 100px; font-size: 10px;">').appendTo(this.qunitFixture());
+    var element = $('<div style="width: 100px; height: 100px; font-size: 10px; font-weight: normal; font-family: monospace;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch().bind(element);
-    var wrapper = creme.d3TextWrap().maxWidth(50).lineHeight('1.73em');
+
+    // Get approx width on 10 characters as reference (use monospace font)
+    var text10Width = sketch.svg().append('text')
+                                  .text('0123456789')
+                                  .node()
+                                      .getComputedTextLength();
 
     var node = sketch.svg().append('text')
-                               .attr('width', '50px')
-                               .text(message);
+                           .attr('class', 'wrapit')
+                           .text(message);
 
-    this.assertD3Nodes(sketch.svg(), {'text': {text: message}});
+    this.assertD3Nodes(sketch.svg(), {'.wrapit': {text: message}});
 
-    node.call(wrapper);
+    // Wraps text on 10th character
+    node.call(creme.d3TextWrap()
+                        .maxWidth(text10Width)
+                        .lineHeight('1.73em'));
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
 
 QUnit.parametrize('creme.d3TextWrap (all-break)', [
-    ['', {'text': {html: ''}}],
-    ['short', {'text': {html: 'short'}}],
-    ['toolongbutsingleword', {
-        'text': {
+    ['', {'.wrapit': {html: ''}}],
+    ['short', {'.wrapit': {html: 'short'}}],
+    ['toolongbutasingleword', {
+        '.wrapit': {
             html: [
-                '<tspan x="0">toolongbu-</tspan>',
-                '<tspan x="0" dy="1.73em">tsinglewo-</tspan>',
-                '<tspan x="0" dy="1.73em">rd</tspan>'
+                '<tspan x="0">toolongbut-</tspan>',
+                '<tspan x="0" dy="1.73em">asinglewor-</tspan>',
+                '<tspan x="0" dy="1.73em">d</tspan>'
             ].join('')
         }
     }],
     ['a bit too long', {
-        'text': {
+        '.wrapit': {
             html: [
                 '<tspan x="0">a bit too</tspan>',
                 '<tspan x="0" dy="1.73em">long</tspan>'
             ].join('')
         }
     }],
-    ['real long text toolongbutsingleword that seems to never finish', {
-        'text': {
+    ['real long text toolongbutasingleword that seems to never finish', {
+        '.wrapit': {
             html: [
                 '<tspan x="0">real long</tspan>',
                 '<tspan x="0" dy="1.73em">text</tspan>',
-                '<tspan x="0" dy="1.73em">toolongbu-</tspan>',
-                '<tspan x="0" dy="1.73em">tsinglewo-</tspan>',
-                '<tspan x="0" dy="1.73em">rd that</tspan>',
+                '<tspan x="0" dy="1.73em">toolongbut-</tspan>',
+                '<tspan x="0" dy="1.73em">asinglewor-</tspan>',
+                '<tspan x="0" dy="1.73em">d that</tspan>',
                 '<tspan x="0" dy="1.73em">seems to</tspan>',
                 '<tspan x="0" dy="1.73em">never</tspan>',
                 '<tspan x="0" dy="1.73em">finish</tspan>'
@@ -225,19 +234,26 @@ QUnit.parametrize('creme.d3TextWrap (all-break)', [
         }
     }]
 ], function(message, expected, assert) {
-    var element = $('<div style="width: 100px; height: 100px; font-size: 10px;">').appendTo(this.qunitFixture());
+    var element = $('<div style="width: 100px; height: 100px; font-size: 10px; font-weight: normal; font-family: monospace;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch().bind(element);
-    var wrapper = creme.d3TextWrap().breakAll(true)
-                                    .maxWidth(50)
-                                    .lineHeight('1.73em');
+
+    // Get approx width on 10 characters as reference (use monospace font)
+    var text10Width = sketch.svg().append('text')
+                                  .text('0123456789')
+                                  .node()
+                                      .getComputedTextLength();
 
     var node = sketch.svg().append('text')
-                               .attr('width', '50px')
-                               .text(message);
+                           .attr('class', 'wrapit')
+                           .text(message);
 
-    this.assertD3Nodes(sketch.svg(), {'text': {text: message}});
+    this.assertD3Nodes(sketch.svg(), {'.wrapit': {text: message}});
 
-    node.call(wrapper);
+    // Wraps text and split words on 10th character
+    node.call(creme.d3TextWrap()
+                        .maxWidth(text10Width)
+                        .breakAll(true)
+                        .lineHeight('1.73em'));
 
     this.assertD3Nodes(sketch.svg(), expected);
 });
