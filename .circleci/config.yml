@@ -34,28 +34,29 @@ commands:
       - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
 
   install-py-dev-env:
-    parameters:
-      python:
-        type: string
     steps:
-      - run: which <<parameters.python>>
+      - run: which python
+      - run: python --version
+      - run: python --version > /tmp/python_version
+      - run: cat /tmp/python_version
+
+      - run: cd << pipeline.parameters.source_path >> && python -c "import creme; print(creme.get_version())" > /tmp/creme_version
+      - run: cat /tmp/creme_version
 
       - restore_cache:
           keys:
-            - << pipeline.parameters.pycache_prefix >>-<< parameters.python >>-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+            - << pipeline.parameters.pycache_prefix >>-{{ checksum "/tmp/python_version" }}-{{ checksum "/tmp/creme_version" }}-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
 
-      - run: <<parameters.python>> -m venv ~/venv
+      - run: python -m venv ~/venv
       # Require setuptools v46.4.0 at least
       - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
-      - run: which python
       - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,graphs]
-      - run: python --version
       - run: pip freeze
       - run: pip list --outdated
 
       - save_cache:
-          key: << pipeline.parameters.pycache_prefix >>-<< parameters.python >>-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
+          key: << pipeline.parameters.pycache_prefix >>-{{ checksum "/tmp/python_version" }}-{{ checksum "/tmp/creme_version" }}-{{ checksum "<< pipeline.parameters.source_path >>/setup.cfg" }}
           paths: "~/venv"
 
   install-node-env:
@@ -160,25 +161,23 @@ jobs:
     steps:
       - checkout-creme
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - run: make -C << pipeline.parameters.source_path >> isort-check
 
 
   python37-lint-flake8:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
     steps:
       - checkout-creme
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - run: flake8 << pipeline.parameters.source_path >>/creme/ --config << pipeline.parameters.source_path >>/setup.cfg
 
 
   python37-tests-mysql:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
       - image: cimg/mysql:5.7
         environment:
           MYSQL_ROOT_PASSWORD: creme
@@ -193,8 +192,7 @@ jobs:
           port: 3306
       - install-creme-system-packages
       - run: sudo apt install -y mariadb-client
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'mysql_settings'
@@ -203,7 +201,7 @@ jobs:
 
   python37-tests-pgsql:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
       - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
@@ -218,8 +216,7 @@ jobs:
       - wait-database:
           port: 5432
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'pgsql_settings'
@@ -228,7 +225,7 @@ jobs:
 
   python37-tests-sqlite3:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
     resource_class: large
     steps:
       - checkout-creme
@@ -236,8 +233,7 @@ jobs:
           language: fr_FR
           encoding: UTF-8
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
       - run-creme-unit-tests
@@ -245,7 +241,7 @@ jobs:
 
   run-coverage:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
       - image: cimg/postgres:12.10
         environment:
           POSTGRES_USER: creme
@@ -260,8 +256,7 @@ jobs:
       - wait-database:
           port: 5432
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'pgsql_settings'
@@ -270,7 +265,7 @@ jobs:
 
   python38-tests-sqlite3:
     docker:
-      - image: cimg/python:3.8.13
+      - image: cimg/python:3.8
     resource_class: large
     steps:
       - checkout-creme
@@ -278,8 +273,7 @@ jobs:
           language: fr_FR
           encoding: UTF-8
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.8"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
       - run-creme-unit-tests
@@ -287,7 +281,7 @@ jobs:
 
   python39-tests-sqlite3:
     docker:
-      - image: cimg/python:3.9.13
+      - image: cimg/python:3.9
     resource_class: large
     steps:
       - checkout-creme
@@ -295,8 +289,7 @@ jobs:
           language: fr_FR
           encoding: UTF-8
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.9"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
       - run-creme-unit-tests
@@ -304,7 +297,7 @@ jobs:
 
   python310-tests-sqlite3:
     docker:
-      - image: cimg/python:3.10.4
+      - image: cimg/python:3.10
     resource_class: large
     steps:
       - checkout-creme
@@ -312,8 +305,7 @@ jobs:
           language: fr_FR
           encoding: UTF-8
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.10"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-unit-tests
       - run-creme-unit-tests
@@ -321,12 +313,11 @@ jobs:
 
   javascript-lint:
     docker:
-     - image: cimg/python:3.7.13-node
+     - image: cimg/python:3.7-node
     steps:
       - checkout-creme
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-statics
       - install-node-env
@@ -358,13 +349,12 @@ jobs:
 
   javascript-tests:
     docker:
-     - image: cimg/python:3.7.13-browsers
+     - image: cimg/python:3.7-browsers
     steps:
       - browser-tools/install-browser-tools
       - checkout-creme
       - install-creme-system-packages
-      - install-py-dev-env:
-          python: "python3.7"
+      - install-py-dev-env
       - create-creme-project
       - setup-creme-statics
       - install-node-env
@@ -420,7 +410,7 @@ jobs:
 
   creme-package:
     docker:
-      - image: cimg/python:3.7.13
+      - image: cimg/python:3.7
     steps:
       - checkout-creme
       - run: pip install -U pip setuptools wheel
