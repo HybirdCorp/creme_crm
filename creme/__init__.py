@@ -1,5 +1,10 @@
 __version__ = '2.4-alpha1'
 
+
+def get_version():
+    return __version__
+
+
 # App registry hooking ---------------------------------------------------------
 
 try:
