@@ -2,7 +2,9 @@ from datetime import datetime
 from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
+from json import loads as json_load
 from unittest import skipIf
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Field as ModelField
@@ -32,6 +34,7 @@ from creme.creme_core.tests.fake_models import (
     FakeInvoiceLine,
     FakeOrganisation,
 )
+from creme.creme_core.utils.queries import QSerializer
 from creme.reports.constants import RGF_NOLINK
 
 from .. import (
@@ -116,6 +119,46 @@ class BaseReportsTestCase(CremeTestCase):
 
         cls.ADD_URL = reverse('reports__create_report')
 
+    def assertListviewURL(self, url, model, expected_q=None, expected_efilter_id=None):
+        q_serializer = QSerializer()
+        parsed_url = urlparse(url)
+        self.assertTrue(model.get_lv_absolute_url(), parsed_url.path)
+
+        GET_params = parse_qs(parsed_url.query)
+
+        # '?q_filter=' ------
+        if expected_q is None:
+            self.assertNotIn('q_filter', GET_params)
+        else:
+            qfilters = GET_params.pop('q_filter', ())
+            self.assertEqual(1, len(qfilters))
+
+            with self.assertNoException():
+                qfilter = json_load(qfilters[0])
+
+            expected_qfilter = json_load(q_serializer.dumps(expected_q))
+            self.assertIsInstance(qfilter, dict)
+            self.assertEqual(2, len(qfilter))
+            self.assertEqual(expected_qfilter['op'], qfilter['op'])
+            # TODO: improve for nested Q...
+            self.assertCountEqual(expected_qfilter['val'], qfilter['val'])
+
+        # '&filter=' ------
+        if expected_efilter_id is None:
+            self.assertNotIn('filter', GET_params)
+        else:
+            self.assertEqual([expected_efilter_id], GET_params.pop('filter', None))
+
+        self.assertFalse(GET_params)  # All valid parameters have been removed
+
+    def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
+        self.assertNoFormError(self.client.post(
+            reverse('reports__create_instance_brick', args=(graph.id,)),
+            data={'fetcher': fetcher, **kwargs}
+        ))
+
+        return InstanceBrickConfigItem.objects.get(entity=graph.id)
+
     def _create_simple_contacts_report(self,
                                        name='Contact report',
                                        efilter=None,
@@ -133,14 +176,6 @@ class BaseReportsTestCase(CremeTestCase):
         )
 
         return report
-
-    def _create_graph_instance_brick(self, graph, fetcher=RGF_NOLINK, **kwargs):
-        self.assertNoFormError(self.client.post(
-            reverse('reports__create_instance_brick', args=(graph.id,)),
-            data={'fetcher': fetcher, **kwargs}
-        ))
-
-        return InstanceBrickConfigItem.objects.get(entity=graph.id)
 
     def _create_contacts_report(self, name='Report #1', efilter=None, user=None):
         report = self._create_simple_contacts_report(name=name, efilter=efilter, user=user)
@@ -247,4 +282,26 @@ class BaseReportsTestCase(CremeTestCase):
             abscissa_cell_value='created',
             abscissa_type=ReportGraph.Group.YEAR,
             ordinate_type=ReportGraph.Aggregator.COUNT,
+        )
+
+    def _create_invoice_report_n_graph(self,
+                                       abscissa='issuing_date',
+                                       ordinate_type=ReportGraph.Aggregator.SUM,
+                                       ordinate_field='total_no_vat',
+                                       ):
+        self.report = report = Report.objects.create(
+            user=self.user,
+            name='All invoices of the current year',
+            ct=FakeInvoice,
+        )
+
+        # TODO: we need a helper ReportGraph.create() ??
+        return ReportGraph.objects.create(
+            user=self.user,
+            linked_report=report,
+            name='Sum of current year invoices total without taxes / month',
+            abscissa_cell_value=abscissa,
+            abscissa_type=ReportGraph.Group.MONTH,
+            ordinate_type=ordinate_type,
+            ordinate_cell_key=f'regular_field-{ordinate_field}',
         )

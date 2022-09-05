@@ -42,10 +42,11 @@
     flex: 1;
     cursor: default;
     padding: 3px 5px;
+    display: flex;
+    align-items: center;
 }
 
 .reports-graph-brick .brick-graph-header .graph-control {
-    display: inline-flex;
     padding-left: 5px;
 }
 
@@ -75,7 +76,7 @@
 /* ? - end */
 
 .reports-graph-brick .brick-graph-header .graph-actions {
-    display: inline-flex;
+    margin-left: auto;
 }
 
 .reports-graph-brick .brick-graph-header .graph-action:before {
@@ -125,7 +126,7 @@
 }
 
 .reports-graph-brick .brick-graph-header .graph-volatile {
-    padding: 3px 5px;
+    padding: 0px 5px;
 }
 
 .reports-graph-brick .brick-graph-header .graph-volatile-label {
@@ -160,35 +161,49 @@
     display: none;
 }
 
-.graph-row.graph-row-collapsed {
+.reports-graphs-brick .graph-row.graph-row-collapsed {
     display: none;
 }
 
-.graph-accordion-title a {
+.reports-graphs-brick .graph-accordion-title a {
     font-size: 1.3em;
     font-weight: 600;
 }
 
-.graph-accordion-title:hover {
+.reports-graphs-brick .graph-accordion-title:hover {
     cursor: pointer;
 }
 
-.graph-accordion-title {
+.reports-graphs-brick .graph-accordion-title {
     display: flex;
 }
 
-.graph-accordion-title .graph-accordion-toggle {
+.reports-graphs-brick .graph-accordion-title .graph-accordion-toggle {
     height: 16px;
     padding: 4px 3px;
 }
 
-.graph-accordion-title.graph-accordion-expanded .graph-accordion-icon {
+.reports-graphs-brick .graph-accordion-title.graph-accordion-expanded .graph-accordion-icon {
     transform: rotate(180deg);
 }
 
-.graph-accordion-title .graph-accordion-text {
+.reports-graphs-brick .graph-accordion-title .graph-accordion-text {
     text-align: center;
     flex: 1;
+}
+
+.reports-graphs-brick .brick-d3-empty {
+    text-transform: uppercase;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: #777;
+    padding: 5px 10px;
+}
+
+.reports-graphs-brick .brick-content .brick-error {
+    background: none;
+    color: #f06060;
 }
 
 .brick-table tr.graph-row > td.reports-graph-brick {

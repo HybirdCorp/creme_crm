@@ -2,7 +2,7 @@
 {% load i18n creme_bricks %}
 {% load jsondata templatize jsonify from creme_core_tags %}
 
-{% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% endblock %}
+{% block brick_extra_class %}sketch-chart-brick reports-graph-brick{% if not data %} is-empty{% endif %}{% endblock %}
 
 {% block brick_header_title %}
     {% brick_header_title title=graph.name icon='report' %}
@@ -10,11 +10,11 @@
 
 {% block brick_header_actions %}
     {% brick_header_action id='refresh' label=_('Reload') icon='reload' %}
+    {% if data %}
     {% brick_header_action id='sketch-download' label=_('Download') icon='download' %}
     {% brick_header_action id='sketch-popover' label=_('Scale') icon='view' %}
+    {% endif %}
 {% endblock %}
-
-{% block brick_content_extra_class %}{% if not data %} is-empty{% endif %}{% endblock %}
 
 {% block brick_content %}
     {% if data %}
@@ -35,13 +35,23 @@
                     <option value="DESC" {% if not graph.asc %}selected{% endif %}>{% translate 'Descending' %}</option>
                 </select>
             </div>
+            <div class="graph-actions">
+                {% if object and fetcher.verbose_name %}
+                <div class="graph-volatile">
+                    <span class="graph-volatile-label">{% translate 'Volatile column' %} <span class="typography-colon">:</span>&nbsp;</span>
+                    <span class="graph-volatile-value">{{ fetcher.verbose_name }}</span>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
     <div class="brick-d3-content"></div>
     {% jsondata data class="sketch-chart-data" %}
     {% if props %}{% jsondata props class="sketch-chart-props" %}{% endif %}
+    {% elif error %}
+    <div class="brick-d3-empty brick-error">{{error}}</div>
     {% else %}
-    <div class="brick-empty">{% trans 'No data' %}</div>
+    <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
     {% endif %}
 {% endblock %}
 

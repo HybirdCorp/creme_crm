@@ -1,6 +1,9 @@
 /* globals QUnitConsoleMixin */
 
 (function($) {
+
+var jqplot = ($.jqplot || {});
+
 var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
     seriesDefaults: {
         renderer: 'jqplot.PieRenderer',
@@ -10,7 +13,7 @@ var PLOTSELECTOR_PIEGRAPH_SCRIPT = {
 
 var PLOTSELECTOR_PIEGRAPH = {
     seriesDefaults: {
-        renderer: $.jqplot.PieRenderer,
+        renderer: jqplot.PieRenderer,
         rendererOptions: {showDataLabels: true}
     }
 };
@@ -40,7 +43,7 @@ var PLOTSELECTOR_BARGRAPH_SCRIPT = {
 
 var PLOTSELECTOR_BARGRAPH = {
     seriesDefaults: {
-        renderer: $.jqplot.BarRenderer,
+        renderer: jqplot.BarRenderer,
         rendererOptions: {
             showDataLabels: true,
             fillToZero: true
@@ -53,7 +56,7 @@ var PLOTSELECTOR_BARGRAPH = {
     axes: {
         xaxis: {
             ticks: ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
-            renderer: $.jqplot.CategoryAxisRenderer
+            renderer: jqplot.CategoryAxisRenderer
         },
         yaxis: {
             tickOptions: {formatString: "%.2f €"}
@@ -155,7 +158,7 @@ QUnit.module("creme.widgets.plotselector.js", new QUnitMixin(QUnitAjaxMixin,
     }
 }));
 
-QUnit.test('creme.widget.PlotSelector.create (no graph, no data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (no graph, no data)', function(assert) {
     var element = this.createMockPlotSelector();
     var widget = creme.widget.create(element);
     var plot_widget = $('.ui-creme-jqueryplot', element).creme().widget();
@@ -176,7 +179,7 @@ QUnit.test('creme.widget.PlotSelector.create (no graph, no data)', function(asse
     deepEqual([], this.mockConsoleErrorCalls());
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, no data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, no data)', function(assert) {
     var element = this.createMockPlotSelector();
     this.appendMockPlotScript(element, 'bar', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie', PLOTSELECTOR_PIEGRAPH_SCRIPT);
@@ -202,7 +205,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, no data)', function(assert
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, name, no data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, name, no data)', function(assert) {
     var element = this.createMockPlotSelector({'plot-name': 'pie'});
     this.appendMockPlotScript(element, 'bar', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie', PLOTSELECTOR_PIEGRAPH_SCRIPT);
@@ -218,7 +221,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, no data)', function(
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, template name, no initial, no data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, template name, no initial, no data)', function(assert) {
     var element = this.createMockPlotSelector({'plot-name': '${name}-graph'});
     this.appendMockPlotScript(element, 'bar-graph', PLOTSELECTOR_BARGRAPH_SCRIPT);
     this.appendMockPlotScript(element, 'pie-graph', PLOTSELECTOR_PIEGRAPH_SCRIPT);
@@ -234,7 +237,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, template name, no initial,
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, template name, initial, no data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, template name, initial, no data)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-name': '${name}-graph',
         'initial': JSON.stringify({'name': 'pie'})
@@ -254,7 +257,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, template name, initial, no
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, name, data url)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, name, data url)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/1/data',
         'plot-name': 'pie-graph'
@@ -274,7 +277,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, data url)', function
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_01_DATA);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, no initial)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, name, template data url, no initial)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph'
@@ -294,7 +297,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, n
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, initial)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.create (graphs, name, template data url, initial)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph',
@@ -315,7 +318,7 @@ QUnit.test('creme.widget.PlotSelector.create (graphs, name, template data url, i
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_01_DATA);
 });
 
-QUnit.test('creme.widget.PlotSelector.reload (graphs, name, template data url)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reload (graphs, name, template data url)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph'
@@ -361,7 +364,7 @@ QUnit.test('creme.widget.PlotSelector.reload (graphs, name, template data url)',
     deepEqual(plot_widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.PlotSelector.reload (no cache)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reload (no cache)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph'
@@ -410,7 +413,7 @@ QUnit.test('creme.widget.PlotSelector.reload (no cache)', function(assert) {
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_02_DATA);
 });
 
-QUnit.test('creme.widget.PlotSelector.reload (cache, timeout)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reload (cache, timeout)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph'
@@ -470,7 +473,7 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, timeout)', function(assert)
     }, 300);
 });
 
-QUnit.test('creme.widget.PlotSelector.reload (cache, resetBackend)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reload (cache, resetBackend)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': 'pie-graph'
@@ -525,7 +528,7 @@ QUnit.test('creme.widget.PlotSelector.reload (cache, resetBackend)', function(as
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_02_DATA);
 });
 
-QUnit.test('creme.widget.PlotSelector.reload (graphs, template name, template data url)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reload (graphs, template name, template data url)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': '${name}-graph'
@@ -571,7 +574,7 @@ QUnit.test('creme.widget.PlotSelector.reload (graphs, template name, template da
     deepEqual(plot_widget.plotData(), PLOTSELECTOR_PLOT_02_DATA);
 });
 
-QUnit.test('creme.widget.PlotSelector.reset (graphs, template name, template data url)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.PlotSelector.reset (graphs, template name, template data url)', function(assert) {
     var element = this.createMockPlotSelector({
         'plot-data-url': 'mock/plot/${id}/data',
         'plot-name': '${name}-graph'

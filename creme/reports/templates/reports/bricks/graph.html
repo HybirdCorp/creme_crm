@@ -59,6 +59,8 @@
   {% endwith %}
 {% endblock %}
 
+{% block brick_content_extra_class %}{% if not x %} is-empty{% endif %}{% endblock %}
+
 {% block brick_content %}
     {% if x %}
     <div class="brick-graph-header clearfix">

@@ -97,6 +97,48 @@ class MediaGeneratorConfig(AppConfig):
     def ready(self):
         self._build_MEDIA_BUNDLES()
 
+    # TODO : remove when dropping the jQPlot compatibility (creme 2.5+)
+    def _jqplot_core_css(self):
+        return [
+            'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
+        ] if settings.USE_JQPLOT else ()
+
+    # TODO : remove when dropping the jQPlot compatibility (creme 2.5+)
+    def _jqplot_lib_js(self):
+        return (
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/jquery.jqplot.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.enhancedLegendRenderer.js',  # noqa
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.categoryAxisRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisLabelRenderer.js',  # noqa
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisTickRenderer.js',  # noqa
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pieRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.donutRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.barRenderer.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pointLabels.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
+            'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
+        ) if settings.USE_JQPLOT else ()
+
+    # TODO : remove when dropping the jQPlot compatibility (creme 2.5+)
+    def _jqplot_core_js(self):
+        return (
+            'creme_core/js/widgets/plotdata.js',
+            'creme_core/js/widgets/plot.js',
+            'creme_core/js/widgets/plotselector.js',
+        ) if settings.USE_JQPLOT else ()
+
+    # TODO : remove when dropping the jQPlot compatibility (creme 2.5+)
+    def _jqplot_opt_js(self, apps):
+        is_installed = apps.is_installed
+        app_bundles = (
+            ('creme.reports', 'reports/js/reports-jqplot.js'),
+        ) if settings.USE_JQPLOT else ()
+
+        return (js for app, js in app_bundles if is_installed(app))
+
     def _build_MEDIA_BUNDLES(self):
         is_installed = apps.is_installed
 
@@ -104,11 +146,14 @@ class MediaGeneratorConfig(AppConfig):
             settings.CREME_I18N_JS,
             [
                 *settings.CREME_LIB_JS,
+                *self._jqplot_lib_js(),
                 *(js for app, js in settings.CREME_OPTLIB_JS if is_installed(app)),
             ],
             [
                 *settings.CREME_CORE_JS,
+                *self._jqplot_core_js(),
                 *(js for app, js in settings.CREME_OPT_JS if is_installed(app)),
+                *self._jqplot_opt_js(apps),
             ],
         ]
 
@@ -123,6 +168,7 @@ class MediaGeneratorConfig(AppConfig):
 
         CREME_CSS = [
             *settings.CREME_CORE_CSS,
+            *self._jqplot_core_css(),
             *(css for app, css in settings.CREME_OPT_CSS if is_installed(app)),
         ]
         MEDIA_BUNDLES.extend(

@@ -90,6 +90,30 @@ QUnit.test('parametrize (combine)', function(assert) {
     ]);
 });
 
+QUnit.test('parametrize (skip)', function(assert) {
+    var callable = function() {};
+
+    callable.skipped = true;
+
+    var test_faker = new FunctionFaker({instance: QUnit, method: 'test'});
+    var skip_faker = new FunctionFaker({instance: QUnit, method: 'skip'});
+
+    test_faker.with(function() {
+        skip_faker.with(function() {
+            QUnit.parametrize('myskiptest', {
+                paramsA: ['a', 'b'],
+                paramsB: [12, 13]
+            }, callable);
+        });
+    });
+
+    deepEqual(test_faker.calls(), []);
+    deepEqual(skip_faker.calls().map(function(c) { return c[0]; }), [
+        'myskiptest-paramsA',
+        'myskiptest-paramsB'
+    ]);
+});
+
 QUnit.parametrize('parametrize (real, dict)', {
     usecase_A: ['a', 'string', 'usecase_A'],
     usecase_B: [12, 'number', 'usecase_B']
@@ -107,6 +131,22 @@ QUnit.parametrize('parametrize (real, combine)', [
     equal(typeof arg1, 'number');
     equal(typeof arg2, 'string');
     equal(arg3, true);
+});
+
+QUnit.parametrize('parametrizeIf', [
+    [true, []],
+    [function() { return true; }, []],
+    [false, ['myskiptest-a', 'myskiptest-b']],
+    [function() { return false; }, ['myskiptest-a', 'myskiptest-b']]
+], function(condition, expected, assert) {
+    var callable = function() {};
+    var faker = new FunctionFaker({instance: QUnit, method: 'test'});
+
+    faker.with(function() {
+        QUnit.parametrizeIf(condition, 'myskiptest', ['a', 'b'], callable);
+    });
+
+    deepEqual(faker.calls().map(function(c) { return c[0]; }), expected);
 });
 
 }(jQuery));

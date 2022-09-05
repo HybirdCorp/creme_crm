@@ -62,6 +62,12 @@
               Notice it can be downloaded as image too.
         * Polls :
             - The design of the 'Statistic' brick has changed.
+        * Reports :
+            - The reports now are displaying new charts using D3js which comes with many improvements:
+                - Performance improvements (native SVG)
+                - Charts are following layout changes like resizing the window.
+                - No longer limited for the creation of custom charts (see 'Relationship graph' brick)
+            - The 'USE_JQPLOT' setting allows to fallback to JQplot if needed, and will be removed on release 2.5
 
   Developers side :
   -----------------
@@ -107,6 +113,8 @@
                         - 'SYNCHRONIZATION_STATUSES' is deprecated.
                 * Graphs :
                     - The method 'models.RootNode.get_relation_types()' is deprecated.
+                * Reports :
+                    - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
         # In 'creme_core.models' :
             - The class 'fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
               so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
@@ -119,6 +127,9 @@
                 - 'creme_core-hatmenubar-update'
                 - 'creme_core-hatmenubar-form'
             - Added 'creme.D3GraphRelationChart' that displays the relations between nodes of a graph.
+            - Added 'creme.form.DropDown' component that decorate a <select> (used for new reports D3 bricks)
+                - Displays a toggle link if there is only 2 options
+                - Displays a link that opens a popover with the unselected options
         # Apps
             - Sketch : New application that integrates D3js tools for creme
                 * Added base bricks for the most common usecases.
@@ -135,13 +146,13 @@
            - Polls :
                 * The 'Statistic' brick does not use jQplot anymore.
            - Reports:
+                * Add "creme.sketch" as dependency
                 * Add the following views to store the graph states in D3 bricks.
                    - reports.views.graph.GraphFetchSettings
                    - reports.views.graph.GraphFetchSettingsForInstance
-                * Add bricks as replacement of JQplot ones.
-                   - ReportGraphD3ChartBrick
-                   - ReportGraphD3ChartListBrick
-                   - ReportGraphD3ChartInstanceBrick
+                * Add new brick for graph details view
+                   - ReportGraphChartBrick
+                * New USE_JQPLOT setting that switches from JQplot to D3 report graphs.
 
     Breaking changes :
     ------------------
@@ -183,6 +194,9 @@
                     - The method 'AbstractStrategy.get_segment_category()' has been removed.
                 * Reports :
                     - The template file "reports/templatetags/report_chart.html" has been removed.
+                    - Rename chart bricks:
+                        - ReportGraphBrick -> ReportGraphChartInstanceBrick
+                        - ReportGraphsBrick -> ReportGraphChartListBrick
                 * Recurrents :
                     - The property 'registry.RecurrentRegistry.ctypes' has been removed.
                 * Crudity :

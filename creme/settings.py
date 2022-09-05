@@ -725,6 +725,10 @@ CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
 JQUERY_MIGRATE_MUTE = True
 
+# Allows to fallback to JQPlot for the reports bricks. This flag will disappear
+# along JQPlot resources in the release 2.5
+USE_JQPLOT = False
+
 # TODO: create a static/css/creme-minimal.css for login/logout ??
 CREME_CORE_CSS = [
     # Name
@@ -732,7 +736,7 @@ CREME_CORE_CSS = [
 
     # Content
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
-    'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
+    # 'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
     # 'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
     # 'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
     'creme_core/css/select2/select2-4.0.13.css',
@@ -797,20 +801,20 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/3.x/jquery-migrate-3.3.2.js',
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/jquery.jqplot.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.enhancedLegendRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.categoryAxisRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisLabelRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisTickRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pieRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.donutRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.barRenderer.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pointLabels.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
-    'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/jquery.jqplot.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.enhancedLegendRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.categoryAxisRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisLabelRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisTickRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pieRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.donutRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.barRenderer.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pointLabels.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
+    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
     # creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
@@ -921,9 +925,9 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/entityselector.js',
     'creme_core/js/widgets/pselect.js',
     'creme_core/js/widgets/actionlist.js',
-    'creme_core/js/widgets/plotdata.js',
-    'creme_core/js/widgets/plot.js',
-    'creme_core/js/widgets/plotselector.js',
+    # 'creme_core/js/widgets/plotdata.js',
+    # 'creme_core/js/widgets/plot.js',
+    # 'creme_core/js/widgets/plotselector.js',
     'creme_core/js/widgets/scrollactivator.js',
     'creme_core/js/widgets/container.js',
     'creme_core/js/widgets/editor.js',
@@ -1155,7 +1159,7 @@ TEST_CREME_OPT_JS = [
     ('creme.projects',      'projects/js/tests/projects.js'),
     ('creme.reports',       'reports/js/tests/reports-actions.js'),
     ('creme.reports',       'reports/js/tests/reports-listview.js'),
-    ('creme.reports',       'reports/js/tests/reports-chart.js'),
+    ('creme.reports',       'reports/js/tests/reports-jqplot.js'),
     ('creme.reports',       'reports/js/tests/reports-brick.js'),
     ('creme.reports',       'reports/js/tests/tube-chart.js'),
 ]

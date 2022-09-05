@@ -1,9 +1,8 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks reports_tags %}
+{% load i18n creme_bricks reports_tags creme_widgets %}
 {% load jsondata has_perm_to jsonify url from creme_core_tags %}
-{% load widget_icon from creme_widgets %}
 
-{% block brick_extra_class %}{{block.super}} reports-graph-list-brick{% endblock %}
+{% block brick_extra_class %}{{block.super}} reports-graphs-brick{% endblock %}
 
 {% block brick_header_title %}
 {% translate 'Graphs' context 'reports-graphs' as empty_label %}
@@ -50,7 +49,7 @@
             </div>
         </td>
     </tr>
-    <tr data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed">
+    <tr data-graph-id="{{graph.id}}" class="graph-row graph-row-collapsed{% if not row.data %} is-empty{% endif %}">
         <td class="reports-graph-brick" colspan="6">
             {% if row.data %}
             <div class="brick-graph-header clearfix">
@@ -81,20 +80,22 @@
                     {% with bricks_count=row.instance_brick_count %}{% blocktranslate count count=bricks_count asvar popup_label %}{{count}} configured block{% plural %}{{count}} configured blocks{% endblocktranslate %}
                     {% if bricks_count %}
                     <div class="graph-action">
-                        {% brick_table_action id='view' url='reports__instance_chart_bricks_info'|url:graph.id label=popup_label display='text' %}
+                        {% brick_table_action id='view' url='reports__instance_bricks_info'|url:graph.id label=popup_label display='text' %}
                     </div>
                     {% endif  %}
                     {% endwith %}
                     <div class="graph-action">
-                        {% brick_table_action id='add' url='reports__create_instance_chart_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
+                        {% brick_table_action id='add' url='reports__create_instance_brick'|url:graph.id label=_('Create a block for this graph') display='text' enabled=admin_perm %}
                     </div>
                 </div>
             </div>
             <div class="brick-d3-content"></div>
             {% jsondata row.data class="sketch-chart-data" %}
             {% if row.props %}{% jsondata row.props class="sketch-chart-props" %}{% endif %}
+            {% elif row.error %}
+            <div class="brick-d3-empty brick-error">{{row.error}}</div>
             {% else %}
-            <div class="brick-empty">{% trans 'No data' %}</div>
+            <div class="brick-d3-empty">{% translate 'No values or graph is not applicable here' %}</div>
             {% endif %}
         </td>
     </tr>

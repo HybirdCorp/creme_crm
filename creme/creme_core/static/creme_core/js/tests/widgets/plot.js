@@ -132,7 +132,7 @@ QUnit.module("creme.widget.plot.js", new QUnitMixin(QUnitAjaxMixin,
     }
 }));
 
-QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.create (empty)', function(assert) {
     var element = this.createMockPlot();
     creme.widget.create(element, {},
                         this.mockListener('plot-init'),
@@ -148,7 +148,7 @@ QUnit.test('creme.widget.Plot.create (empty)', function(assert) {
     deepEqual([], this.mockConsoleWarnCalls());
 });
 
-QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.create (invalid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_INVALID);
 
     creme.widget.create(element,
@@ -165,7 +165,7 @@ QUnit.test('creme.widget.Plot.create (invalid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.create (valid)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     var widget = creme.widget.create(element, {},
                                      this.mockListener('plot-init'),
@@ -184,7 +184,7 @@ QUnit.test('creme.widget.Plot.create (valid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.create (valid, savable)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.create (valid, savable)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     var widget = creme.widget.create(element, {savable: true},
                                      this.mockListener('plot-init'),
@@ -203,7 +203,7 @@ QUnit.test('creme.widget.Plot.create (valid, savable)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.draw (empty)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
 
@@ -224,7 +224,7 @@ QUnit.test('creme.widget.Plot.draw (empty)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.draw (valid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -243,7 +243,7 @@ QUnit.test('creme.widget.Plot.draw (valid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.draw (valid, raster)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.draw (valid, raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element, {plotmode: 'raster'});
@@ -266,7 +266,7 @@ QUnit.test('creme.widget.Plot.draw (valid, raster)', function(assert) {
     stop(1);
 });
 
-QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.draw (invalid)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -287,7 +287,7 @@ QUnit.test('creme.widget.Plot.draw (invalid)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.redraw (valid, data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -312,7 +312,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, data)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertReady(element);
@@ -336,7 +336,7 @@ QUnit.test('creme.widget.Plot.redraw (empty, valid default)', function(assert) {
     deepEqual(widget.plotData(), []);
 });
 
-QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.redraw (valid, options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -371,7 +371,7 @@ QUnit.test('creme.widget.Plot.redraw (valid, options)', function(assert) {
     }, this.mockListenerCalls());
 });
 
-QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.capture (svg)', function(assert) {
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     var widget = creme.widget.create(element, {});
 
@@ -381,7 +381,7 @@ QUnit.test('creme.widget.Plot.capture (svg)', function(assert) {
     equal(1, widget.capture().length);
 });
 
-QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.capture (raster)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
 
@@ -403,7 +403,7 @@ QUnit.test('creme.widget.Plot.capture (raster)', function(assert) {
     });
 });
 
-QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.capture (raster image in popup)', function(assert) {
     var self = this;
     var element = this.createMockPlot(MOCK_PLOT_CONTENT_JSON_DEFAULT);
     creme.widget.create(element, {savable: true});
@@ -427,7 +427,7 @@ QUnit.test('creme.widget.Plot.capture (raster image in popup)', function(assert)
     }, 200);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (convert data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -450,7 +450,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert data)', function(assert) {
     deepEqual(widget.plotOptions(), plot_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -483,7 +483,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data)', function(assert) {
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (preprocess data chained)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -519,7 +519,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess data chained)', function(as
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (convert + preprocess data)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -554,7 +554,7 @@ QUnit.test('creme.widget.Plot.preprocess (convert + preprocess data)', function(
     deepEqual(widget.plotInfo().built.options, built_plot_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (preprocess options)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -623,7 +623,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess options)', function(assert)
     deepEqual(widget.plotOptions(), plot_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (preprocess handlers)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);
@@ -664,7 +664,7 @@ QUnit.test('creme.widget.Plot.preprocess (preprocess handlers)', function(assert
     deepEqual(widget.plotInfo().built.options, plot_built_options);
 });
 
-QUnit.test('creme.widget.Plot.preprocess (preprocess invalid handler)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.widget.Plot.preprocess (preprocess invalid handler)', function(assert) {
     var element = this.createMockPlot('');
     var widget = creme.widget.create(element);
     this.assertActive(element);

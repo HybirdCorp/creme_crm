@@ -63,7 +63,7 @@ QUnit.module("creme.reports.chart", new QUnitMixin(QUnitEventMixin,
 
 }));
 
-QUnit.test('creme.reports.ChartController (initialize)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.reports.ChartController (initialize)', function(assert) {
     var initial = {
         chart: 'piechart',
         sort:  'DESC'
@@ -85,7 +85,7 @@ QUnit.test('creme.reports.ChartController (initialize)', function(assert) {
     equal(true, element.find('.ui-creme-plotselector').is('.widget-ready'));
 });
 
-QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.reports.ChartController (select chart)', function(assert) {
     var initial = {
         chart: 'piechart',
         sort:  'DESC'
@@ -113,7 +113,7 @@ QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
     equal('Descending', element.find('.graph-controls-sort .graph-control-value').text());
 });
 
-QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
+QUnit.skipIf(!$.fn.jqplot, 'creme.reports.ChartController (select chart)', function(assert) {
     var initial = {
         chart: 'piechart',
         sort:  'DESC'
@@ -141,7 +141,7 @@ QUnit.test('creme.reports.ChartController (select chart)', function(assert) {
     equal('Ascending', element.find('.graph-controls-sort .graph-control-value').text());
 });
 
-QUnit.parameterize('creme.reports.ChartController (graphael converter)', [
+QUnit.parametrizeIf(!$.fn.jqplot, 'creme.reports.ChartController (graphael converter)', [
     [{}, []],
     [{x: [1, 2]}, []],  // needs both x & y
     [{y: [1, 2]}, []],  // needs both x & y

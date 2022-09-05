@@ -21,6 +21,17 @@
 
 creme.form = creme.form || {};
 
+/*
+ * Displays a <select> as a link with the selected option as label.
+ *
+ * @param {String} dropdownMode | data-dropdown-mode
+ *    auto    : Use 'toggle' mode if 2 options and 'popover' for more
+ *    popover : Displays a popover to select the next value
+ *    toggle  : Go to the next value without showing a popover.
+ *
+ * @param {String} dropdownAlt | data-dropdown-alt
+ *    Tooltip of the link
+ */
 creme.form.DropDown = creme.component.Component.sub({
     _init_: function(element, options) {
         options = $.extend({
