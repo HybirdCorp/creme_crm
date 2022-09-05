@@ -13,7 +13,7 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_BILL_ISSUED,
     FAKE_REL_SUB_EMPLOYED_BY,
 )
-from creme.reports.bricks import ReportGraphBrick
+from creme.reports.bricks import ReportGraphChartInstanceBrick
 # from creme.reports.constants import (
 #     RGA_COUNT,
 #     RGF_FK,
@@ -55,7 +55,7 @@ class GraphFetcherTestCase(CremeTestCase):
         ibci = fetcher1.create_brick_config_item()
         self.assertIsInstance(ibci, InstanceBrickConfigItem)
         self.assertEqual(graph.id, ibci.entity_id)
-        self.assertEqual(ReportGraphBrick.id_, ibci.brick_class_id)
+        self.assertEqual(ReportGraphChartInstanceBrick.id_, ibci.brick_class_id)
         self.assertEqual(RGF_NOLINK, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
@@ -73,7 +73,7 @@ class GraphFetcherTestCase(CremeTestCase):
 
         # ----
         # TODO: move to test for bricks ?
-        brick = ReportGraphBrick(ibci)
+        brick = ReportGraphChartInstanceBrick(ibci)
         self.assertIsNone(brick.errors)
         self.assertEqual(
             '{} - {}'.format(graph.name, _('No volatile column')),
@@ -139,7 +139,7 @@ class GraphFetcherTestCase(CremeTestCase):
 
         # ----
         # TODO: move to test for bricks ?
-        brick = ReportGraphBrick(ibci)
+        brick = ReportGraphChartInstanceBrick(ibci)
         self.assertIsNone(brick.errors)
         self.assertEqual(
             '{} - {}'.format(
@@ -229,14 +229,14 @@ class GraphFetcherTestCase(CremeTestCase):
 
         # ----
         # TODO: move to test for bricks ?
-        brick = ReportGraphBrick(ibci)
+        brick = ReportGraphChartInstanceBrick(ibci)
         self.assertIsNone(brick.errors)
         self.assertListEqual([FakeOrganisation], brick.target_ctypes)
 
     def test_create_brick_config_item(self):
         "Other brick class."
-        class OtherReportGraphBrick(ReportGraphBrick):
-            id_ = ReportGraphBrick.generate_id('reports', 'other_graph')
+        class OtherReportGraphBrick(ReportGraphChartInstanceBrick):
+            id_ = ReportGraphChartInstanceBrick.generate_id('reports', 'other_graph')
 
         user = self.create_user()
         report = Report.objects.create(user=user, name='Field Test', ct=FakeContact)

@@ -1,6 +1,3 @@
-from json import loads as json_load
-from unittest import mock
-
 from django.urls import reverse
 from parameterized import parameterized
 
@@ -10,6 +7,7 @@ from creme.reports.report_chart_registry import (
     ReportPieChart,
     report_chart_registry,
 )
+from creme.reports.views import graph as graph_views
 
 from .base import BaseReportsTestCase, skipIfCustomReport
 
@@ -20,6 +18,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
     def setUpClass(cls):
         super(GraphFetchSettingsTestCase, cls).setUpClass()
 
+        # TODO : Use a fake registry instead.
         report_chart_registry.register(
             ReportPieChart(name='fakepie', label='Fake Pie')
         )
@@ -33,8 +32,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             }
         )
 
-    @mock.patch('creme.reports.views.graph.logger')
-    def test_update_settings__not_allowed(self, mock_logger):
+    def test_update_settings__not_allowed(self):
         """Edition on reports is needed to update the settings"""
         self.login(is_superuser=False, allowed_apps=['reports'])
         SetCredentials.objects.create(
@@ -47,22 +45,24 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
         self.assertEqual(graph.asc, True)
         self.assertEqual(graph.chart, None)
 
-        response = self.assertPOST200(
-            path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
-            data={
-                "sort": "DESC",
-                "chart": 'fakepie',
-            }
-        )
+        with self.assertLogs(graph_views.logger, level='WARNING') as logs:
+            response = self.assertPOST200(
+                path=reverse('reports__update_graph_fetch_settings', args=(graph.pk,)),
+                data={
+                    "sort": "DESC",
+                    "chart": 'fakepie',
+                }
+            )
 
-        self.assertEqual({
+        self.assertJSONEqual(response.content, {
             "sort": "ASC",
             "chart": None
-        }, json_load(response.content))
+        })
 
-        mock_logger.warning.assert_called_with(
-            f'The ReportGraph id="{graph.id}" cannot be edited, so the settings are not saved.',
-        )
+        self.assertEqual([
+            f'WARNING:creme.reports.views.graph:The ReportGraph id="{graph.id}" '
+            'cannot be edited, so the settings are not saved.'
+        ], logs.output)
 
     @parameterized.expand([
         ({}, 'Chart value is missing'),
@@ -103,7 +103,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             }
         )
 
-        self.assertEqual({"sort": "DESC", "chart": "fakepie"}, json_load(response.content))
+        self.assertJSONEqual(response.content, {"sort": "DESC", "chart": "fakepie"})
 
         graph.refresh_from_db()
         self.assertEqual(graph.asc, False)
@@ -185,7 +185,7 @@ class GraphFetchSettingsTestCase(BaseReportsTestCase):
             }
         )
 
-        self.assertEqual({"sort": "DESC", "chart": "fakepie"}, json_load(response.content))
+        self.assertJSONEqual(response.content, {"sort": "DESC", "chart": "fakepie"})
 
         graph.refresh_from_db()
         self.assertEqual(graph.asc, False)

@@ -19,7 +19,7 @@
         var skipIt = Object.isFunc(condition) ? condition() : Boolean(condition);
 
         if (skipIt) {
-            QUnit.skip(name, callable);
+            QUnit.skip(name);
         } else {
             QUnit.test(name, callable);
         }
@@ -75,14 +75,24 @@
         }
 
         __iterScenarios(scenarios || {}, function(scenario, label) {
-            QUnit.test('${name}-${label}'.template({name: name, label: label}), function() {
-                callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
-            });
+            if (!!callable.skipped) {
+                QUnit.skip('${name}-${label}'.template({name: name, label: label}));
+            } else {
+                QUnit.test('${name}-${label}'.template({name: name, label: label}), function() {
+                    callable.apply(this, (Array.isArray(scenario) ? scenario : [scenario]).concat(Array.copy(arguments)));
+                });
+            }
         });
     };
 
+    window.QUnit.parameterizeIf = function(condition, name, scenarios, callable) {
+        callable.skipped = Object.isFunc(condition) ? condition() : Boolean(condition);
+        return QUnit.parameterize(name, scenarios, callable);
+    }
+
     /* An alias for me */
     window.QUnit.parametrize = window.QUnit.parameterize;
+    window.QUnit.parametrizeIf = window.QUnit.parameterizeIf;
 
     $.migrateTrace = true;
 

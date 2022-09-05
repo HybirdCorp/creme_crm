@@ -34,13 +34,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
 )
 
-from . import (
-    bricks,
-    constants,
-    custom_forms,
-    get_report_model,
-    get_rgraph_model,
-)
+from . import bricks, constants, custom_forms, get_report_model
 from .forms.report import FilteredCTypeSubCell, FilterSubCell
 from .menu import ReportsEntry
 
@@ -52,7 +46,6 @@ class Populator(BasePopulator):
 
     def populate(self):
         Report = get_report_model()
-        ReportGraph = get_rgraph_model()
 
         HeaderFilter.objects.create_if_needed(
             pk=constants.DEFAULT_HFILTER_REPORT,
@@ -158,11 +151,11 @@ class Populator(BasePopulator):
                 defaults={'model': Report, 'zone': BrickDetailviewLocation.LEFT},
                 data=[
                     {'order': 5},
-                    {'brick': core_bricks.CustomFieldsBrick, 'order':  40},
-                    {'brick': bricks.ReportFieldsBrick,      'order':  50},
-                    {'brick': bricks.ReportGraphsBrick,      'order':  60},
-                    {'brick': core_bricks.PropertiesBrick,   'order': 450},
-                    {'brick': core_bricks.RelationsBrick,    'order': 500},
+                    {'brick': core_bricks.CustomFieldsBrick,    'order':  40},
+                    {'brick': bricks.ReportFieldsBrick,         'order':  50},
+                    {'brick': bricks.ReportGraphChartListBrick, 'order':  60},
+                    {'brick': core_bricks.PropertiesBrick,      'order': 450},
+                    {'brick': core_bricks.RelationsBrick,       'order': 500},
 
                     {'brick': core_bricks.HistoryBrick, 'order': 20, 'zone': RIGHT},
                 ],
@@ -195,11 +188,3 @@ class Populator(BasePopulator):
                 BrickDetailviewLocation.objects.create_if_needed(
                     brick=LinkedDocsBrick, order=600, zone=RIGHT, model=Report,
                 )
-
-        if not BrickDetailviewLocation.objects.filter_for_model(ReportGraph).exists():
-            BrickDetailviewLocation.objects.multi_create(
-                defaults={'model': ReportGraph, 'zone': BrickDetailviewLocation.TOP},
-                data=[
-                    {'brick': bricks.ReportGraphD3ChartBrick,  'order':  50},
-                ],
-            )

@@ -17,7 +17,9 @@
 ################################################################################
 
 import logging
+import warnings
 
+from django.conf import settings
 from django.http.response import HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext_lazy as _
@@ -90,6 +92,12 @@ class GraphFetchingBase(base.CheckedView):
         return value
 
     def get(self, request, *args, **kwargs):
+        if not settings.USE_JQPLOT:
+            warnings.warn(
+                'This view is deprecated and no longer used by the new D3 charts',
+                DeprecationWarning
+            )
+
         chart = self.get_chart()
         order = self.get_order()
         save = self.get_save_settings()
@@ -254,8 +262,9 @@ class GraphFetchSettingsBase(base.CheckedView):
             chart = rgraph.chart
 
             logger.warning(
-                f'The ReportGraph id="{rgraph.id}" cannot be edited, '
+                'The ReportGraph id="%s" cannot be edited, '
                 'so the settings are not saved.',
+                rgraph.id
             )
 
         # TODO: send error too ?

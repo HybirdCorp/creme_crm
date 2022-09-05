@@ -20,7 +20,7 @@ from creme.persons.reports import OwnedGraphFetcher
 from .base import Contact, Organisation
 
 if apps.is_installed('creme.reports'):
-    from creme.reports.bricks import ReportGraphBrick
+    from creme.reports.bricks import ReportGraphChartInstanceBrick
     from creme.reports.core.graph.fetcher import GraphFetcher
     from creme.reports.tests.base import (
         Report,
@@ -71,7 +71,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(RGF_OWNED, ibci.get_extra_data('type'))
         self.assertIsNone(ibci.get_extra_data('value'))
 
-        brick = ReportGraphBrick(ibci)
+        brick = ReportGraphChartInstanceBrick(ibci)
         self.assertEqual(
             f'{graph.name} - {vname}',
             brick.verbose_name,

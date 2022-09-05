@@ -113,12 +113,13 @@ QUnit.module("creme.reports.ReportD3Chart*BrickController", new QUnitMixin(QUnit
                             '</div>' +
                         '</td>' +
                     '</tr>' +
-                    '<tr data-graph-id="${id}" class="graph-row graph-row-collapsed">' +
+                    '<tr data-graph-id="${id}" class="graph-row graph-row-collapsed ${empty}">' +
                         '<td class="reports-graph-brick">${chart}</td>' +
                     '</tr>'
                 ).template({
                     id: graph.id,
                     title: graph.title || 'Graph ${id}'.template(graph),
+                    empty: Object.isEmpty(graph.chart.data) ? 'is-empty' : '',
                     chart: self.createD3ChartSwappableContentHtml(graph.chart)
                 });
             }).join('')
@@ -448,6 +449,78 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
 
     equal(2, element.find('svg .d3-chart').length);
+});
+
+
+QUnit.test('creme.ReportD3ChartListBrickController (empty sub-graph)', function(assert) {
+    var html = this.createD3ChartListBrickHtml({
+        graphs: [
+            {
+                id: 'graph-a',
+                chart: {
+                    charts: [
+                        { name: 'bar', label: 'Bar Chart' },
+                        { name: 'pie', label: 'Pie Chart', selected: true }
+                    ],
+                    data: [],
+                    props: {
+                        pie: { band: 42 },
+                        bar: { xAxisTitle: 'X Axis', yAxisTitle: 'Y Axis' }
+                    }
+                }
+            }, {
+                id: 'graph-b',
+                chart: {
+                    charts: [
+                        { name: 'bar', label: 'Bar Chart', selected: true },
+                        { name: 'pie', label: 'Pie Chart' }
+                    ],
+                    data: [
+                        { x: 'X', y: 78 }
+                    ],
+                    props: {
+                        pie: { band: 0 },
+                        bar: { xAxisTitle: 'B Abscissas', yAxisTitle: 'B Ordinates' }
+                    }
+                }
+            }
+        ]
+    });
+    var brick = this.createBrick(html);
+    var controller = new creme.ReportD3ChartListBrickController({
+        charts: function() {
+            return {
+                bar: new creme.D3BarChart({margin: 4}),
+                pie: new creme.D3DonutChart({margin: 8})
+            };
+        }
+    });
+
+    controller.bind(brick);
+
+    var element = brick.element();
+    var swappers = controller.swappers();
+
+    deepEqual(Object.keys(swappers), ['graph-b']);
+
+    deepEqual(element.find('.graph-row').map(function() {
+        return {
+            id: $(this).data('graphId'),
+            collapsed: $(this).is('.graph-row-collapsed')
+        };
+    }).get(), [
+        {id: 'graph-a', collapsed: true},
+        {id: 'graph-b', collapsed: true}
+    ]);
+
+    equal(swappers['graph-b'].chart() instanceof creme.D3BarChart, true);
+    var props = swappers['graph-b'].chart().props();
+    equal(props.xAxisTitle, 'B Abscissas');
+    equal(props.yAxisTitle, 'B Ordinates');
+
+    // Only one sketch is created but nothing visible
+    equal(1, element.find('svg').length, 'svg canvas count');
+    equal(0, element.find('svg .d3-chart').length);
 });
 
 QUnit.test('creme.ReportD3ChartListBrickController (setup)', function(assert) {
