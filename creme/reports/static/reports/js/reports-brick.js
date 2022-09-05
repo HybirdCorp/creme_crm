@@ -49,7 +49,7 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
         this._chartState = element.find('.graph-controls-type .graph-control-value').dropdown();
 
         element.on('change', '.graph-controls-type .graph-control-value', function(e) {
-            this.swapChart($(e.target).val());
+            this.swapChart($(e.target).val()).draw();
             this._updateFetchSettings();
         }.bind(this));
 
@@ -97,7 +97,13 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
     },
 
     draw: function() {
-        this.chart().draw();
+        Object.values(this._charts).forEach(function(chart) {
+            if (chart.hasCanvas()) {
+                chart.draw();
+            }
+        });
+
+        return this;
     },
 
     debounceDelay: function(delay) {
@@ -115,22 +121,26 @@ creme.ReportD3ChartSwapper = creme.component.Component.sub({
         var chart = this._charts[name];
 
         if (Object.isNone(chart)) {
+            console.warn(
+                'ReportD3ChartSwapper : unable to swap to the unknown chart "${name}"'.template({name: name})
+            );
             return;
         }
 
         if (this._chart) {
-            this._chart.props({visible: false}).draw();
+            this._chart.props({visible: false});
             this._chart.selection().off(this._selectionListeners);
         }
 
         chart.props(this.initialProps()[name] || {})
              .props({visible: true})
              .sketch(this._sketch)
-             .model(this._model)
-             .draw();
+             .model(this._model);
 
         chart.selection().on(this._selectionListeners);
         this._chart = chart;
+
+        return this;
     },
 
     _updateFetchSettings: function() {
@@ -198,6 +208,8 @@ creme.ReportD3ChartBrickController = creme.component.Component.sub({
             this._swapper = new creme.ReportD3ChartSwapper(brick.element(), {
                 charts: this.props().charts
             });
+
+            this._swapper.draw();
         }
     },
 
@@ -268,7 +280,9 @@ creme.ReportD3ChartListBrickController = creme.component.Component.sub({
 
             $(this).toggleClass('graph-accordion-expanded');
 
-            swappers[graphId].draw();
+            if ($(this).is('.graph-accordion-expanded')) {
+                swappers[graphId].draw();
+            }
         });
     },
 
