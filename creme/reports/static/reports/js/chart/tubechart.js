@@ -73,7 +73,9 @@ creme.D3TubeChart = creme.D3Chart.sub({
 
         chart.classed('not-visible', !props.visible);
 
-        this._updateChart(sketch, chart, data, props);
+        if (props.visible) {
+            this._updateChart(sketch, chart, data, props);
+        }
     },
 
     _updateChart: function(sketch, chart, data, props) {

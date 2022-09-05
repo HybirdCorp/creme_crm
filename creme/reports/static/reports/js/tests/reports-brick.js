@@ -275,6 +275,8 @@ QUnit.parametrize('creme.ReportD3ChartBrickController (selection)', [
 
     var sketch = controller.swapper().sketch();
 
+    controller.swapper().draw();
+
     equal(sketch.svg().select('.bars .bar').attr('class'), 'bar');
     deepEqual([], this.mockRedirectCalls());
 
@@ -337,7 +339,7 @@ QUnit.test('creme.ReportD3ChartBrickController (setup)', function(assert) {
     equal(false, brick.isLoading());
 
     equal(1, element.find('svg').length);
-    var svg = d3.select(element.find('svg').get()[0]);
+    var svg = d3.select(element.find('svg').get(0));
 
     equal(svg.select('.bars .bar').size(), 1);
 });
@@ -429,7 +431,7 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
 
     // Sketches are created but nothing visible
     equal(2, element.find('svg').length, 'svg canvas count');
-    equal(2, element.find('svg .d3-chart').length);
+    equal(0, element.find('svg .d3-chart').length);
 
     // Now toggle first one
     element.find('.graph-accordion-title[data-graph-id="graph-b"]').trigger('click');
@@ -437,11 +439,15 @@ QUnit.test('creme.ReportD3ChartListBrickController (toggle)', function(assert) {
     equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), true);
     equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
 
+    equal(1, element.find('svg .d3-chart').length);
+
     // Then the second one
     element.find('.graph-accordion-title[data-graph-id="graph-a"]').trigger('click');
 
     equal(element.find('.graph-row[data-graph-id="graph-a"]').is('.graph-row-collapsed'), false);
     equal(element.find('.graph-row[data-graph-id="graph-b"]').is('.graph-row-collapsed'), false);
+
+    equal(2, element.find('svg .d3-chart').length);
 });
 
 QUnit.test('creme.ReportD3ChartListBrickController (setup)', function(assert) {
