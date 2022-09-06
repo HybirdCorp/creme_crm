@@ -1137,26 +1137,30 @@ class TinyMCEEditor(widgets.Textarea):
         return context
 
 
-class ColorPickerWidget(widgets.TextInput):
+# class ColorPickerWidget(widgets.TextInput):
+#     template_name = 'creme_core/forms/widgets/color.html'
+
+#     def get_context(self, name, value, attrs):
+#         widget_type = 'ui-creme-jqueryplugin'
+#         context = super().get_context(name=name, value=value, attrs=attrs)
+
+#         final_attrs = context['widget']['attrs']
+#         base_css = (
+#             'ui-creme-input ui-creme-widget widget-auto'
+#             if final_attrs.pop('auto', True) else
+#             'ui-creme-input ui-creme-widget'
+#         )
+#         final_attrs['class'] = (
+#             f"{base_css} {widget_type} {final_attrs.get('class', '')}"
+#         ).strip()
+#         final_attrs['widget'] = widget_type
+#         final_attrs['plugin'] = 'gccolor'
+
+#         return context
+
+class ColorInput(widgets.Input):
+    input_type = 'color'
     template_name = 'creme_core/forms/widgets/color.html'
-
-    def get_context(self, name, value, attrs):
-        widget_type = 'ui-creme-jqueryplugin'
-        context = super().get_context(name=name, value=value, attrs=attrs)
-
-        final_attrs = context['widget']['attrs']
-        base_css = (
-            'ui-creme-input ui-creme-widget widget-auto'
-            if final_attrs.pop('auto', True) else
-            'ui-creme-input ui-creme-widget'
-        )
-        final_attrs['class'] = (
-            f"{base_css} {widget_type} {final_attrs.get('class', '')}"
-        ).strip()
-        final_attrs['widget'] = widget_type
-        final_attrs['plugin'] = 'gccolor'
-
-        return context
 
 
 class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultiple):

@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.forms import (
     BooleanField,
     ChoiceField,
+    Form,
     HiddenInput,
     IntegerField,
     TypedChoiceField,
@@ -539,10 +540,23 @@ class ColorFieldTestCase(FieldTestCase):
     def test_ok01(self):
         clean = ColorField().clean
         self.assertEqual('AAAAAA', clean('AAAAAA'))
+        self.assertEqual('AAAAAA', clean('#AAAAAA'))
         self.assertEqual('AAAAAA', clean('aaaaaa'))
+        self.assertEqual('AAAAAA', clean('#aaaaaa'))
         self.assertEqual('123456', clean('123456'))
         self.assertEqual('123ABC', clean('123ABC'))
         self.assertEqual('123ABC', clean('123abc'))
+
+    def test_render(self):
+        class ColorForm(Form):
+            color = ColorField()
+
+        form = ColorForm(data={'color': '123abc'})
+
+        self.assertInHTML(
+            '<input id="id_color" name="color" type="color" value="#123abc" required/>',
+            form.as_p()
+        )
 
 
 class DurationFieldTestCase(FieldTestCase):

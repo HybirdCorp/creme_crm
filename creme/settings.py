@@ -733,7 +733,7 @@ CREME_CORE_CSS = [
     # Content
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
     'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
-    'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
+    # 'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
     # 'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
     'creme_core/css/select2/select2-4.0.13.css',
 
@@ -811,7 +811,7 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pointLabels.js',
     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
     'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
-    'creme_core/js/jquery/extensions/gccolor-1.0.3.js',
+    # creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     # 'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',

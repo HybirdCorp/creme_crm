@@ -1886,13 +1886,16 @@ class DateRangeField(fields.MultiValueField):
 class ColorField(fields.CharField):
     """A Field which handles HTML colors (e.g: #F2FAB3) without '#' """
     default_validators = [validators.validate_color]
-    widget = core_widgets.ColorPickerWidget
+    widget = core_widgets.ColorInput
     default_error_messages = {
         'invalid': _('Enter a valid value (e.g. DF8177).'),
     }
 
-    def __init__(self, *, max_length=6, min_length=6, **kwargs):
-        super().__init__(max_length=max_length, min_length=min_length, **kwargs)
+    def to_python(self, value):
+        return value[1:] if value and value.startswith('#') else value
+
+    def prepare_value(self, value):
+        return f'#{value}'
 
     def clean(self, value):
         return super().clean(value).upper()

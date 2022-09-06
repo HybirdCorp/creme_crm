@@ -170,7 +170,6 @@ class MiscViewsTestCase(ViewsTestCase):
         'blocklist',
         'checklistselect',
         'chosen',
-        'colorpicker',
         'combobox',
         'editor',
         'entityselector',
