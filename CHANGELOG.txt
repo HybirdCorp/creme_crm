@@ -13,6 +13,7 @@
       So, by default, the formats for dates & times depend on the user's language.
     # In the History's block, lines related to entities from apps you cannot view are excluded.
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
+    # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
     # Apps :
         * Creme_config :
             - The email addresses of active users must be unique.
@@ -188,6 +189,9 @@
                       "rtypedoesnotexist", "ctypenotallowed", "nopropertymatch".
                 - In 'MultiRelationEntityField', these methods have been removed :
                   _get_cache(), _build_ctype_cache(), _build_rtype_cache().
+                - In 'ColorField':
+                     - Use 'ColorInput' instead of 'ColorPickerWidget'
+                     - Accept the '#RRGGBB' format as input.
             - In 'widgets' :
                 - The attribute 'CalendarWidget.default_help_text' is now a format string.
                 - The class 'OrderedMultipleChoiceWidget' has been reworked (& its template file too) ;
@@ -201,6 +205,7 @@
                 - BaseDecimalField._sanitize_separators()
             - In 'relation._RelationsCreateForm', the error messages with the following keys have been removed :
               "missing_property_single", "missing_property_multi".
+            - 'widgets.ColorInput' replaces 'widgets.ColorPickerWidget'
         # In 'creme_core.gui' :
             - The class attribute 'button_menu.Button.id_' has been renamed "id" ;
               you have to rename this attribute in your child classes.
@@ -233,6 +238,7 @@
               the new component 'creme.widget.SelectOrInputWidget' is used instead.
             - 'creme.form.Chosen' is now deprecated; It has been renamed as 'creme.form.Chosen'.
               No longer used in media generation but still exist to ease migrations.
+            - The jQuery extension 'gccolor' has been removed. 
         # Apps :
             * Creme_config :
                 - The brick 'MenuBrick' has been reworked (to manage menu per role) ; the template variable "entries" is now a list of dictionaries.
