@@ -138,22 +138,23 @@ creme.D3Chart = creme.component.Component.sub({
     },
 
     saveAs: function(done, filename, options) {
-        var sketch = this._newCanvas(options);
         var data = this.model() ? this.model().all() : [];
 
-        this._export(sketch, data);
+        this._withShadowSketch(options, function(sketch) {
+            this._export(sketch, data);
+            sketch.saveAs(done, filename, options);
+        });
 
-        sketch.saveAs(done, filename, options);
         return this;
     },
 
     asImage: function(done, options) {
-        var sketch = this._newCanvas(options);
         var data = this.model() ? this.model().all() : [];
 
-        this._export(sketch, data);
-
-        return sketch.asImage(done);
+        return this._withShadowSketch(options, function(sketch) {
+            this._export(sketch, data);
+            return sketch.asImage(done);
+        });
     },
 
     exportStyle: function(props) {
@@ -168,15 +169,33 @@ creme.D3Chart = creme.component.Component.sub({
         return {};
     },
 
-    _newCanvas: function(options) {
+    _withShadowSketch: function(options, callable) {
         Assert.that(this.hasCanvas(), 'D3Chart must have a target sketch to draw on');
 
         options = $.extend(this.sketch().size(), options || {});
 
-        return new creme.D3Sketch().bind($('<div>').css({
+        var id = _.uniqueId('shadow-d3sketch');
+        var element = $('<div>').css({
             width: options.width,
-            height: options.height
-        }));
+            height: options.height,
+            display: 'absolute',
+            left: -10000,
+            top: -10000
+        }).attr('id', id);
+
+        // Prevent potential issues by ignoring resize events
+        var canvas = new creme.D3Sketch({ignoreResize: true}).bind(element);
+
+        try {
+            element.appendTo('body');
+            return callable.bind(this)(canvas);
+        } finally {
+            try {
+                canvas.unbind();
+            } finally {
+                element.remove();
+            }
+        }
     },
 
     _export: function(sketch, data) {
