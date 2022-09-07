@@ -21,6 +21,11 @@
 
 creme.D3Sketch = creme.component.Component.sub({
     _init_: function(options) {
+        options = $.extend({
+            ignoreResize: false
+        }, options || {});
+
+        this._ignoreResize = !!options.ignoreResize;
         this._events = new creme.component.EventHandler();
         this._elementListeners = {
             resize: this._onContainerResize.bind(this)
@@ -29,6 +34,10 @@ creme.D3Sketch = creme.component.Component.sub({
 
     isBound: function() {
         return Object.isNone(this._element) === false;
+    },
+
+    ignoreResize: function() {
+        return this._ignoreResize;
     },
 
     bind: function(element) {
@@ -53,8 +62,10 @@ creme.D3Sketch = creme.component.Component.sub({
 
         // IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
         // will be constantly evaluated and the node will grow indefinitely (CSS issue)
-        this._resizeObserver = new ResizeObserver(this._onContainerResize.bind(this));
-        this._resizeObserver.observe(domElement);
+        if (!this.ignoreResize()) {
+            this._resizeObserver = new ResizeObserver(this._onContainerResize.bind(this));
+            this._resizeObserver.observe(domElement);
+        }
 
         element.on(this._elementListeners);
         return this;
@@ -63,8 +74,10 @@ creme.D3Sketch = creme.component.Component.sub({
     unbind: function() {
         Assert.that(this.isBound(), 'D3Sketch is not bound');
 
-        this._resizeObserver.disconnect();
-        this._resizeObserver = undefined;
+        if (this._resizeObserver) {
+            this._resizeObserver.disconnect();
+            this._resizeObserver = undefined;
+        }
 
         this._element.off(this._elementListeners);
         this._element.removeClass('d3-sketch');

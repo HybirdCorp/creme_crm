@@ -125,6 +125,31 @@ QUnit.test('creme.D3Sketch.resize (events)', function(assert) {
     stop(1);
 });
 
+QUnit.test('creme.D3Sketch.resize (ignore)', function(assert) {
+    var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
+    var sketch = new creme.D3Sketch({ignoreResize: true});
+
+    sketch.bind(element);
+
+    element.on('sketch-resize', this.mockListener('sketch-resize'));
+    sketch.on('resize', this.mockListener('resize'));
+
+    deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
+    deepEqual([], this.mockListenerCalls('resize'));
+
+    element.get(0).style.width = '150px';
+
+    setTimeout(function() {
+        deepEqual([], this.mockListenerJQueryCalls('sketch-resize'));
+        deepEqual([], this.mockListenerCalls('resize'));
+        deepEqual({width: 150, height: 200}, sketch.size());
+        start();
+    }.bind(this), 50);
+
+    stop(1);
+});
+
+
 QUnit.test('creme.D3Sketch.clear', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();

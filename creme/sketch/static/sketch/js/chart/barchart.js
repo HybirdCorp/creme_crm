@@ -53,7 +53,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                 "opacity": "0.8"
             },
             ".bar-chart .bar text": {
-                "text-align": "center"
+                "text-anchor": "middle"
             },
             ".bar-chart .bar text.inner": {
                 fill: props.barTextColor
@@ -63,6 +63,13 @@ creme.D3BarChart = creme.D3Chart.sub({
                 "z-index": 1
             }
         });
+    },
+
+    exportProps: function() {
+        return {
+            transition: false,
+            drawOnResize: false
+        };
     },
 
     _draw: function(sketch, data, props) {
@@ -92,7 +99,13 @@ creme.D3BarChart = creme.D3Chart.sub({
         var bounds = creme.svgBounds(sketch.size(), props.margin);
 
         var ymax = d3.max(data, function(d) { return d.y; }) || 1;
-        var yAxisTitleHeight = creme.d3FontSize(chart.select('.y.axis')) * 2;
+        var yAxisFontSize = creme.d3FontSize(chart.select('.y.axis'));
+
+        // 2em height for the title
+        var yAxisTitleHeight = yAxisFontSize * 2;
+
+        // 6px tick line + 3em width for the label
+        var yAxisSize = Math.max(props.yAxisSize, 6 + (yAxisFontSize * 3));
 
         var colorScale = d3.scaleOrdinal()
                                .domain([0, data.length])
@@ -100,7 +113,7 @@ creme.D3BarChart = creme.D3Chart.sub({
 
         chart.attr('transform', creme.svgTransform().translate(bounds.left, bounds.top));
 
-        bounds = creme.svgBounds(bounds, {left: props.yAxisSize});
+        bounds = creme.svgBounds(bounds, {left: yAxisSize});
 
         xscale.domain(data.map(function(d) { return d.x; }))
               .range([0, bounds.width], 0.1);
@@ -113,7 +126,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                                 .label(props.xAxisTitle))
                 .attr('transform', function() {
                     return creme.svgTransform().translate(
-                        props.yAxisSize,
+                        yAxisSize,
                         bounds.height - Math.floor(this.getBBox().height)
                     );
                 });
@@ -130,14 +143,14 @@ creme.D3BarChart = creme.D3Chart.sub({
               .range([bounds.height, 0]);
 
         chart.selectAll('.y.axis')
-                  .attr('transform', creme.svgTransform().translate(props.yAxisSize, yAxisTitleHeight))
+                  .attr('transform', creme.svgTransform().translate(yAxisSize, yAxisTitleHeight))
                   .call(creme.d3LeftAxis()
                                   .scale(yscale)
                                   .tickFormat(props.yAxisTickFormat)
                                   .label(props.yAxisTitle));
 
         var items = chart.select('.bars')
-                             .attr('transform', creme.svgTransform().translate(props.yAxisSize, yAxisTitleHeight))
+                             .attr('transform', creme.svgTransform().translate(yAxisSize, yAxisTitleHeight))
                              .selectAll('.bar')
                              .data(data);
 
