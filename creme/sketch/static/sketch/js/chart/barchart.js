@@ -93,10 +93,23 @@ creme.D3BarChart = creme.D3Chart.sub({
         this._updateChart(sketch, chart, data, props);
     },
 
+    chartData: function(data) {
+        return data.map(function(d, i) {
+            return {
+                index: i,
+                x: d.x,
+                y: d.y,
+                data: d
+            };
+        });
+    },
+
     _updateChart: function(sketch, chart, data, props) {
         var xscale = d3.scaleBand().padding(0.1);
         var yscale = d3.scaleLinear();
         var bounds = creme.svgBounds(sketch.size(), props.margin);
+
+        data = this.chartData(data);
 
         var ymax = d3.max(data, function(d) { return d.y; }) || 1;
         var yAxisFontSize = creme.d3FontSize(chart.select('.y.axis'));
@@ -187,7 +200,8 @@ creme.D3BarChart = creme.D3Chart.sub({
         var bounds = context.bounds;
 
         var bar = enter.append('g')
-                          .attr('class', function(d) { return d.selected ? 'bar selected' : 'bar'; })
+                          .attr('class', 'bar')
+                          .classed('selected', function(d) { return d.data.selected; })
                           .attr('transform', function(d) {
                               return creme.svgTransform().translate(xscale(d.x), yscale(d.y));
                           });
@@ -197,7 +211,7 @@ creme.D3BarChart = creme.D3Chart.sub({
                .attr('width', xscale.bandwidth())
                .attr('height', function(d) { return bounds.height - yscale(d.y); })
                .attr("fill", function(d) { return context.colorScale(d.x); })
-               .on('click', function(d, i) { selection.select(i); });
+               .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
                .attr('dy', '.75em')
@@ -213,8 +227,9 @@ creme.D3BarChart = creme.D3Chart.sub({
         var textformat = context.textformat;
         var bounds = context.bounds;
 
-        update.attr('class', function(d) { return d.selected ? 'bar selected' : 'bar'; })
-              .attr('transform', function(d) {
+        update.selection().classed('selected', function(d) { return d.data.selected; });
+
+        update.attr('transform', function(d) {
                   return creme.svgTransform().translate(xscale(d.x), yscale(d.y));
               });
 

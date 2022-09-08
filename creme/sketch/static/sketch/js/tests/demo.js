@@ -73,6 +73,27 @@ QUnit.parametrize('creme.D3Chart (demo, visible)', {
     equal(true, sketch.svg().select('.d3-chart').classed('not-visible'));
 });
 
+QUnit.parametrize('creme.D3Chart (demo, transition)', [
+    true, false
+], {
+    barchart: new creme.D3BarChart(),
+    donutchart: new creme.D3DonutChart(),
+    areachart: new creme.D3AreaChart(),
+    groupbarchart: new creme.D3GroupBarChart(),
+    stackbarchart: new creme.D3StackBarChart()
+}, function(transition, chart, assert) {
+    var sketch = new creme.D3Sketch().bind($('<div>'));
+
+    chart.prop('transition', transition);
+    chart.sketch(sketch);
+    chart.model([{x: 'A', y: 1, g: 'Group A'}]);
+
+    chart.draw();
+    chart.draw();
+
+    equal(1, sketch.svg().select('.d3-chart').size());
+});
+
 QUnit.parametrize('creme.D3BarChart (draw)', [
     [[{x: 'A', y: 0}], {}, {
         '.bar-chart .bars .bar': 1,
@@ -182,7 +203,7 @@ QUnit.test('creme.D3DonutChart (select)', function(assert) {
     var sketch = new creme.D3Sketch().bind($('<div>'));
 
     chart.sketch(sketch);
-    chart.model([{x: 'A', y: 0}, {x: 'B', y: 5}, {x: 'C', y: 38}, {x: 'D', y: 12}]);
+    chart.model([{x: 'A', y: 1}, {x: 'B', y: 5}, {x: 'C', y: 38}, {x: 'D', y: 12}]);
 
     equal(0, sketch.svg().select('.d3-chart').size());
 
@@ -204,7 +225,7 @@ QUnit.test('creme.D3DonutChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.donut-chart .slices .slice path').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, selected: true}], chart.selection().selected());
+    deepEqual([{x: 'A', y: 1, selected: true}], chart.selection().selected());
 });
 
 QUnit.parametrize('creme.D3AreaChart (draw)', [
@@ -234,7 +255,14 @@ QUnit.parametrize('creme.D3GroupBarChart (hierarchy)', [
     [[], []],
     [
         [{x: 'A', y: 0, g: 'Group A'}],
-        [{group: 'Group A', items: [{x: 'A', y: 0, g: 'Group A', index: 0}]}]
+        [
+            {
+                group: 'Group A',
+                items: [
+                    {x: 'A', y: 0, index: 0, data: {x: 'A', y: 0, g: 'Group A'}}
+                ]
+            }
+        ]
     ],
     [
         [
@@ -244,9 +272,25 @@ QUnit.parametrize('creme.D3GroupBarChart (hierarchy)', [
             {x: 'A', y: 0, g: 'Group C'}
         ],
         [
-            {group: 'Group A', items: [{x: 'A', y: 0, g: 'Group A', index: 0}, {x: 'B', y: 0, g: 'Group A', index: 1}]},
-            {group: 'Group B', items: [{x: 'C', y: 0, g: 'Group B', index: 2}]},
-            {group: 'Group C', items: [{x: 'A', y: 0, g: 'Group C', index: 3}]}
+            {
+                group: 'Group A',
+                items: [
+                    {x: 'A', y: 0, index: 0, data: {x: 'A', y: 0, g: 'Group A'}},
+                    {x: 'B', y: 0, index: 1, data: {x: 'B', y: 0, g: 'Group A'}}
+                ]
+            },
+            {
+                group: 'Group B',
+                items: [
+                    {x: 'C', y: 0, index: 2, data: {x: 'C', y: 0, g: 'Group B'}}
+                ]
+            },
+            {
+                group: 'Group C',
+                items: [
+                    {x: 'A', y: 0, index: 3, data: {x: 'A', y: 0, g: 'Group C'}}
+                ]
+            }
         ]
     ]
 ], function(input, expected, assert) {
@@ -324,7 +368,7 @@ QUnit.test('creme.D3GroupBarChart (select)', function(assert) {
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true, index: 2}], chart.selection().selected());
+    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.group-bar-chart .selected': 1
     });
@@ -332,7 +376,7 @@ QUnit.test('creme.D3GroupBarChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.group-bar-chart rect').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true, index: 0}], chart.selection().selected());
+    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
 });
 
 
@@ -343,7 +387,7 @@ QUnit.parametrize('creme.D3StackBarChart (hierarchy)', [
         [{
             group: 'Group A',
             items: [
-                {x: 'A', y: 0, startY: 0, endY: 0, data: {x: 'A', y: 0, g: 'Group A', index: 0}}
+                {x: 'A', y: 0, index: 0, startY: 0, endY: 0, data: {x: 'A', y: 0, g: 'Group A'}}
             ]
         }]
     ],
@@ -360,22 +404,22 @@ QUnit.parametrize('creme.D3StackBarChart (hierarchy)', [
             {
                 group: 'Group A',
                 items: [
-                    {x: 'A', y: 5,  startY: 0, endY: 5,      data: {x: 'A', y: 5,  g: 'Group A', index: 0}},
-                    {x: 'B', y: 12, startY: 5, endY: 5 + 12, data: {x: 'B', y: 12, g: 'Group A', index: 1}}
+                    {x: 'A', y: 5,  index: 0, startY: 0, endY: 5,      data: {x: 'A', y: 5,  g: 'Group A'}},
+                    {x: 'B', y: 12, index: 1, startY: 5, endY: 5 + 12, data: {x: 'B', y: 12, g: 'Group A'}}
                 ]
             },
             {
                 group: 'Group B',
                 items: [
-                    {x: 'C', y: 23, startY: 0, endY: 23, data: {x: 'C', y: 23, g: 'Group B', index: 2}}
+                    {x: 'C', y: 23, index: 2, startY: 0, endY: 23, data: {x: 'C', y: 23, g: 'Group B'}}
                 ]
             },
             {
                 group: 'Group C',
                 items: [
-                    {x: 'A', y: 8,  startY: 0,      endY: 8,          data: {x: 'A', y: 8,  g: 'Group C', index: 3}},
-                    {x: 'B', y: 71, startY: 8,      endY: 8 + 71,     data: {x: 'B', y: 71, g: 'Group C', index: 4}},
-                    {x: 'C', y: 6,  startY: 8 + 71, endY: 8 + 71 + 6, data: {x: 'C', y: 6,  g: 'Group C', index: 5}}
+                    {x: 'A', index: 3, y: 8,  startY: 0,      endY: 8,          data: {x: 'A', y: 8,  g: 'Group C'}},
+                    {x: 'B', index: 4, y: 71, startY: 8,      endY: 8 + 71,     data: {x: 'B', y: 71, g: 'Group C'}},
+                    {x: 'C', index: 5, y: 6,  startY: 8 + 71, endY: 8 + 71 + 6, data: {x: 'C', y: 6,  g: 'Group C'}}
                 ]
             }
         ]
@@ -455,7 +499,7 @@ QUnit.test('creme.D3StackBarChart (select)', function(assert) {
 
     chart.selection().select(2);
 
-    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true, index: 2}], chart.selection().selected());
+    deepEqual([{x: 'C', y: 5, group: 'Group B', selected: true}], chart.selection().selected());
     this.assertD3Nodes(sketch.svg(), {
         '.stack-bar-chart .selected': 1
     });
@@ -463,7 +507,7 @@ QUnit.test('creme.D3StackBarChart (select)', function(assert) {
     // toggles selection
     sketch.svg().select('.stack-bar-chart rect').dispatch('click');
 
-    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true, index: 0}], chart.selection().selected());
+    deepEqual([{x: 'A', y: 0, group: 'Group A', selected: true}], chart.selection().selected());
 });
 
 }(jQuery));
