@@ -52,11 +52,25 @@ creme.D3DonutChart = creme.D3Chart.sub({
         return this;
     },
 
+    chartData: function(data) {
+        return data.map(function(d, i) {
+            return {
+                index: i,
+                x: d.x,
+                y: d.y,
+                selected: d.selected,
+                data: d
+            };
+        });
+    },
+
     _updateChart: function(sketch, chart, data, props) {
         var bounds = creme.svgBounds(sketch.size(), props.margin);
         var colors = props.colors || d3.quantize(function(t) {
             return d3.interpolateSpectral(t * 0.8 + 0.1);
         }, Math.max(data.length, 2));  // we must quantize at least TWO colors or it will be black
+
+        data = this.chartData(data);
 
         var xkeys = Array.from(new Set(data.map(function(d) { return d.x; })));
 
@@ -125,12 +139,13 @@ creme.D3DonutChart = creme.D3Chart.sub({
         var formatValue = context.formatValue;
 
         var arc = item.append('g')
-                         .attr('class', function(d) { return d.data.selected ? 'slice selected' : 'slice'; });
+                         .attr('class', 'slice')
+                         .classed('selected', function(d) { return d.data.selected; });
 
         arc.append("path")
                .attr('d', arcpath)
                .attr("fill", function(d) { return colorScale(d.data.x); })
-               .on('click', function(d, i) { selection.select(i); });
+               .on('click', function(e, d) { selection.select(d.data.index); });
 
         arc.append("text")
                .attr("dy", ".35em")
@@ -139,8 +154,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
                .attr("transform", function(d) {
                     var pos = arcpath.centroid(d);
                     return creme.svgTransform().translate(pos[0], pos[1]);
-                })
-               .on('click', function(d, i) { selection.select(i); });
+                });
     },
 
     _updateItem: function(item, context) {
@@ -157,7 +171,7 @@ creme.D3DonutChart = creme.D3Chart.sub({
             };
         };
 
-        item.attr('class', function(d) { return d.data.selected ? 'slice selected' : 'slice'; });
+        item.selection().classed('selected', function(d) { return d.data.selected; });
 
         if (context.transition) {
             item.select('path').attrTween("d", arcTween);

@@ -230,8 +230,8 @@ creme.D3GraphRelationChart = creme.D3Chart.sub({
         // HACK : Fix SVGLength.value property issue in tests
         // (see https://github.com/Webiks/force-horse/issues/19#issuecomment-826728521)
         zoom.extent([[0, 0], [bounds.width, bounds.height]]);
-        zoom.on("zoom", function() {
-            chart.attr("transform", d3.event.transform);
+        zoom.on("zoom", function(e) {
+            chart.attr("transform", e.transform);
         });
 
         var applyState = this._applySimulationState.bind(this);

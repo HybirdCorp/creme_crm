@@ -159,6 +159,7 @@ creme.D3TubeChart = creme.D3Chart.sub({
             data = {
                 y: d.y,
                 x: d.x,
+                index: i,
                 startX: acc,
                 endX: acc + d.y,
                 data: d
@@ -189,7 +190,7 @@ creme.D3TubeChart = creme.D3Chart.sub({
                .attr('width', function(d) { return xscale(d.y); })
                .attr('height', bounds.height)
                .attr("fill", function(d) { return color(d.x); })
-               .on('click', function(d, i) { selection.select(i); });
+               .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
                .attr('dy', '.75em')
@@ -204,16 +205,12 @@ creme.D3TubeChart = creme.D3Chart.sub({
         var textformat = context.textformat;
         var bounds = context.bounds;
 
+        update.selection()
+                  .classed('selected', function(d) { return d.data.selected ; });
+
         update.attr('transform', function(d) {
                   return creme.svgTransform().translate(xscale(d.startX) || 0, 0);
               });
-
-        // TODO : create helper function for this in d3.transition.prototype
-        if (context.transition) {
-            update.selection().classed('selected', function(d) { return d.data.selected ; });
-        } else {
-            update.classed('selected', function(d) { return d.data.selected ; });
-        }
 
         update.select('rect')
                .attr('width', function(d) { return xscale(d.y); })

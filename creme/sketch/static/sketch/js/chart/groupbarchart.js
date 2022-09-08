@@ -164,9 +164,13 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
 
         data.forEach(function(d, i) {
             var group = groupId(d);
-            d.index = i;
             stack[group] = (stack[group] || []);
-            stack[group].push(d);
+            stack[group].push({
+                x: d.x,
+                y: d.y,
+                index: i,
+                data: d
+            });
         });
 
         return Object.entries(stack).map(function(entry) {
@@ -211,7 +215,8 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
         var colorscale = context.color;
 
         var bar = bars.append('g')
-                          .attr('class', function(d) { return d.selected ? 'bar selected' : 'bar'; })
+                          .attr('class', 'bar')
+                          .classed('selected', function(d) { return d.data.selected; })
                           .attr('transform', function(d) {
                               return creme.svgTransform().translate(xscale(d.x) || 0, yscale(d.y));
                            });
@@ -221,15 +226,14 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
                 .attr('width', xscale.bandwidth())
                 .attr('height', function(d) { return bounds.height - yscale(d.y); })
                 .attr("fill", function(d) { return colorscale(d.x); })
-                .on('click', function(d, i) { selection.select(d.index); });
+                .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
                 .attr('dy', '0.75em')
                 .attr('class', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 'inner' : 'outer'; })
                 .attr('y', function(d) { return (bounds.height - yscale(d.y)) > 15 ? 6 : -12; })
                 .attr('x', Math.ceil(xscale.bandwidth() / 2))
-                .text(context.text)
-                .on('click', function(d, i) { selection.select(d.index); });
+                .text(context.text);
 
         return bar;
     },
@@ -240,8 +244,10 @@ creme.D3GroupBarChart = creme.D3Chart.sub({
         var bounds = context.bounds;
         var color = context.color;
 
-        bar.attr('class', function(d) { return d.selected ? 'bar selected' : 'bar'; })
-           .attr('transform', function(d) {
+        bar.selection()
+               .classed('selected', function(d) { return d.data.selected; });
+
+        bar.attr('transform', function(d) {
                 return creme.svgTransform().translate(xscale(d.x) || 0, yscale(d.y));
             });
 

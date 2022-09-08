@@ -167,24 +167,23 @@ creme.D3StackBarChart = creme.D3Chart.sub({
 
         data.forEach(function(d, i) {
             var group = groupId(d);
-            d.index = i;
             stack[group] = (stack[group] || []);
-            stack[group].push(d);
+            stack[group].push({
+                x: d.x,
+                y: d.y,
+                index: i,
+                data: d
+            });
         });
 
         for (var group in stack) {
             var acc = 0;
-            stack[group] = stack[group].map(function(d, i, items) {
+            stack[group].forEach(function(d, i, items) {
                 var prevY = i > 0 ? items[i - 1].y : 0;
                 acc += prevY;
 
-                return {
-                    y: d.y,
-                    x: d.x,
-                    startY: acc,
-                    endY: acc + d.y,
-                    data: d
-                };
+                d.startY = acc;
+                d.endY = acc + d.y;
             });
         }
 
@@ -228,7 +227,8 @@ creme.D3StackBarChart = creme.D3Chart.sub({
         var color = context.color;
 
         var bar = bars.append('g')
-                          .attr('class', function(d) { return d.data.selected ? 'bar selected' : 'bar'; })
+                          .attr('class', 'bar')
+                          .classed('selected', function(d) { return d.data.selected; })
                           .attr('transform', function(d) {
                               return creme.svgTransform().translate(0, yscale(d.endY));
                            });
@@ -239,15 +239,14 @@ creme.D3StackBarChart = creme.D3Chart.sub({
                .attr('width', context.stackscale.bandwidth())
                .attr('height', function(d) { return yscale(d.startY) - yscale(d.endY); })
                .attr("fill", function(d) { return color(d.x); })
-               .on('click', function(d, i) { selection.select(d.data.index); });
+               .on('click', function(e, d) { selection.select(d.index); });
 
         bar.append('text')
                .attr('dy', '0.75em')
                .attr('class', function(d) { return (yscale(d.startY) - yscale(d.endY)) > 16 ? 'inner' : 'outer'; })
                .attr('y', 6)
                .attr('x', Math.ceil(context.stackscale.bandwidth() / 2))
-               .text(context.text)
-               .on('click', function(d, i) { selection.select(d.data.index); });
+               .text(context.text);
 
         return bar;
     },
@@ -256,8 +255,10 @@ creme.D3StackBarChart = creme.D3Chart.sub({
         var yscale = context.yscale;
         var color = context.color;
 
-        bar.attr('class', function(d) { return d.data.selected ? 'bar selected' : 'bar'; })
-           .attr('transform', function(d) {
+        bar.selection()
+                .classed('selected', function(d) { return d.data.selected; });
+
+        bar.attr('transform', function(d) {
                return creme.svgTransform().translate(0, yscale(d.endY));
            });
 
