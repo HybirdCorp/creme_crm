@@ -292,7 +292,45 @@ class OrganisationCardHatBrick(Brick):
         ))
 
 
-class ManagersBrick(QuerysetBrick):
+class _LinkedPeopleBrick(QuerysetBrick):
+    # id_ = ...
+    # verbose_name = ...
+    # description =  ...
+    dependencies = (Relation, Contact)
+    # relation_type_deps = ...
+    template_name = 'persons/bricks/base/linked-people.html'
+    target_ctypes = (Organisation,)
+
+    creation_label = 'Create a related contact'
+    cells_desc = [
+        (EntityCellRegularField, 'phone'),
+        (EntityCellRegularField, 'mobile'),
+        (EntityCellRegularField, 'email'),
+    ]
+
+    def _get_people_qs(self, orga):
+        raise NotImplementedError
+
+    def detailview_display(self, context):
+        cells = []
+        for cell_class, cell_name in self.cells_desc:
+            cell = cell_class.build(Contact, cell_name)
+            if cell is not None and not cell.is_excluded:
+                cells.append(cell)
+
+        return self._render(self.get_template_context(
+            context,
+            # TODO: better system to know which field(s) to select_related()
+            #       when we represent an entity.
+            self._get_people_qs(context['object']).select_related('civility'),
+            relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
+            add_title=self.creation_label,
+            cells=cells,
+        ))
+
+
+# class ManagersBrick(QuerysetBrick):
+class ManagersBrick(_LinkedPeopleBrick):
     id_ = QuerysetBrick.generate_id('persons', 'managers')
     verbose_name = _('Organisation managers')
     description = _(
@@ -301,36 +339,39 @@ class ManagersBrick(QuerysetBrick):
         'Organisation by relationships «manages».\n'
         'App: Accounts and Contacts'
     )
-    dependencies = (Relation, Contact)
+    # dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_MANAGES, )
     template_name = 'persons/bricks/managers.html'
-    target_ctypes = (Organisation,)
+    # target_ctypes = (Organisation,)
+
+    creation_label = _('Create a manager')
 
     def _get_people_qs(self, orga):
         return orga.get_managers()
 
-    def _get_add_title(self):
-        return _('Create a manager')  # Lazy -> translated only if used
+    # def _get_add_title(self):
+    #     return _('Create a manager')  # Lazy -> translated only if used
 
-    def detailview_display(self, context):
-        orga = context['object']
-        is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
+    # def detailview_display(self, context):
+    #     orga = context['object']
+    #     is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
+    #
+    #     return self._render(self.get_template_context(
+    #         context,
+    #         self._get_people_qs(orga).select_related('civility'),
+    #         # rtype_id=self.relation_type_deps[0],
+    #         relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
+    #         add_title=self._get_add_title(),
+    #         hidden_fields={
+    #             fname
+    #             for fname in ('phone', 'mobile', 'email')
+    #             if is_hidden(fname)
+    #         },
+    #     ))
 
-        return self._render(self.get_template_context(
-            context,
-            self._get_people_qs(orga).select_related('civility'),
-            # rtype_id=self.relation_type_deps[0],
-            relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
-            add_title=self._get_add_title(),
-            hidden_fields={
-                fname
-                for fname in ('phone', 'mobile', 'email')
-                if is_hidden(fname)
-            },
-        ))
 
-
-class EmployeesBrick(ManagersBrick):
+# class EmployeesBrick(ManagersBrick):
+class EmployeesBrick(_LinkedPeopleBrick):
     id_ = QuerysetBrick.generate_id('persons', 'employees')
     verbose_name = _('Organisation employees')
     description = _(
@@ -342,11 +383,13 @@ class EmployeesBrick(ManagersBrick):
     relation_type_deps = (constants.REL_OBJ_EMPLOYED_BY, )
     template_name = 'persons/bricks/employees.html'
 
+    creation_label = _('Create an employee')
+
     def _get_people_qs(self, orga):
         return orga.get_employees()
 
-    def _get_add_title(self):
-        return _('Create an employee')  # Lazy -> translated only if used
+    # def _get_add_title(self):
+    #     return _('Create an employee')  # Lazy -> translated only if used
 
 
 # TODO: factorise (see CSV import) ? (exclude param in info_field_names())
