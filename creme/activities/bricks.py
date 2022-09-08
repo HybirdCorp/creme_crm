@@ -48,7 +48,7 @@ class ParticipantsBrick(QuerysetBrick):
     dependencies = (Relation, Contact, Calendar, Organisation)
     relation_type_deps = (constants.REL_OBJ_PART_2_ACTIVITY,)
 
-    template_name = 'activities//bricks/participants.html'
+    template_name = 'activities/bricks/participants.html'
     order_by = 'id'  # For consistent ordering between 2 queries (for pages)
 
     target_ctypes = (Activity, )

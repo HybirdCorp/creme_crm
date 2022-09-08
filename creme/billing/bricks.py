@@ -218,13 +218,13 @@ class _ReceivedBillingDocumentsBrick(QuerysetBrick):
     target_ctypes = (Contact, Organisation)
     order_by = '-expiration_date'
 
-    _billing_model = None  # OVERLOAD ME
+    _billing_model = None  # OVERRIDE ME
 
-    _title         = _('{count} Received billing document')  # OVERLOAD ME
-    _title_plural  = _('{count} Received billing documents')  # OVERLOAD ME
+    _title         = _('{count} Received billing document')  # OVERRIDE ME
+    _title_plural  = _('{count} Received billing documents')  # OVERRIDE ME
 
-    _empty_title = _('Received billing documents')  # OVERLOAD ME
-    _empty_msg   = _('No received billing document for the moment')  # OVERLOAD ME
+    _empty_title = _('Received billing documents')  # OVERRIDE ME
+    _empty_msg   = _('No received billing document for the moment')  # OVERRIDE ME
 
     def detailview_display(self, context):
         person_id = context['object'].id

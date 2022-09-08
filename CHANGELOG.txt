@@ -287,7 +287,9 @@
                 - The class 'forms.folder.ParentFolderBulkForm' has been removed.
             * Persons :
                 - In 'bricks' :
-                    - In the class 'ManagersBrick' (& so 'EmployeesBrick'), the template variable "rtype_id" is not injected anymore.
+                    - In the class 'ManagersBrick' (& so 'EmployeesBrick') :
+                        - the template variable "rtype_id" is not injected anymore.
+                        - the method '_get_add_title()' has been removed ; use the attribute 'creation_label' instead.
                     - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Activities :
