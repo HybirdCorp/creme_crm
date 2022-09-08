@@ -135,6 +135,8 @@
             - In 'creme_core.forms' :
                 - The alias 'base.FieldBlocksGroup' has been removed.
                 - The class 'fields.AjaxModelChoiceField' has been removed.
+                - For 'fields.GenericEntityField' & 'fields.MultiGenericEntityField',
+                  the compatibility with the deprecated format "{ctype: <int>, ...}" has been removed.
             - In 'creme_core.models' :
                 - The method 'CremePropertyType.create()' has been removed.
                 - The method 'Job.not_finished_jobs()' has been removed.
