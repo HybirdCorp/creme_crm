@@ -43,7 +43,7 @@ class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
 
     is_managed = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
 
-    phone    = PhoneField(_('Phone number'), max_length=100, blank=True).set_tags(optional=True)
+    phone    = PhoneField(_('Phone'), max_length=100, blank=True).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)
     email    = models.EmailField(_('Email address'), blank=True).set_tags(optional=True)
     url_site = models.URLField(_('Web Site'), max_length=500, blank=True).set_tags(optional=True)

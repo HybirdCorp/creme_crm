@@ -430,7 +430,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('loves_comics', _('Loves comics')),
             ('mobile',       _('Mobile')),
             ('user',         _('Owner user')),
-            ('phone',        _('Phone number')),
+            ('phone',        _('Phone')),
             ('image',        _('Photograph')),
             ('position',     _('Position')),
             ('languages',    _('Spoken language(s)')),

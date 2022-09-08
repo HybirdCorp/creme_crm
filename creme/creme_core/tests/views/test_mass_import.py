@@ -2126,7 +2126,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertIsNone(jr_error.entity_ctype)
         self.assertIsNone(jr_error.entity)
         self.assertListEqual(
-            [_('The field «{}» has been configured as required.').format(_('Phone number'))],
+            [_('The field «{}» has been configured as required.').format(_('Phone'))],
             jr_error.messages,
         )
 

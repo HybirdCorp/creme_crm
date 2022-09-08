@@ -141,7 +141,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             email_f = fields1['email']
             email_f_choices = email_f.choices
 
-        self.assertEqual(_('Phone number'), phone_f1.label)
+        self.assertEqual(_('Phone'), phone_f1.label)
         self.assertInChoices(value='',         label='---',         choices=phone_f_choices)
         self.assertInChoices(value='hidden',   label=_('Hidden'),   choices=phone_f_choices)
         self.assertInChoices(value='required', label=_('Required'), choices=phone_f_choices)
