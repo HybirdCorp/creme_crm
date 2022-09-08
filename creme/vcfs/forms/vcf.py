@@ -173,7 +173,7 @@ class VcfImportForm(CremeModelForm):
 
     # Organisation name & details
     work_name     = CharField(label=_('Name'),           required=False)
-    work_phone    = CharField(label=_('Phone number'),   required=False)
+    work_phone    = CharField(label=_('Phone'),          required=False)
     work_fax      = CharField(label=_('Fax'),            required=False)
     work_email    = EmailField(label=_('Email address'), required=False)
     work_url_site = URLField(label=_('Web Site'),        required=False)

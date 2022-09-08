@@ -318,7 +318,7 @@ else:
 
         # NB: keep nullable for some tests
         phone = core_fields.PhoneField(
-            _('Phone number'), max_length=100, blank=True, null=True,
+            _('Phone'), max_length=100, blank=True, null=True,
         ).set_tags(optional=True)
         mobile = core_fields.PhoneField(
             _('Mobile'), max_length=100, blank=True,  # null=True,
@@ -413,7 +413,7 @@ else:
     class FakeOrganisation(CremeEntity):
         name = models.CharField(_('Name'), max_length=200)
         phone = core_fields.PhoneField(
-            _('Phone number'), max_length=100, blank=True,  # null=True,
+            _('Phone'), max_length=100, blank=True,  # null=True,
         )
         email = models.EmailField(
             _('Email address'), max_length=100, blank=True,  # null=True,

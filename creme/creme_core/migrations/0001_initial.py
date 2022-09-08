@@ -1373,7 +1373,7 @@ class Migration(migrations.Migration):
                     ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                     ('is_a_nerd', models.BooleanField(default=False, verbose_name='Is a Nerd')),
                     ('loves_comics', models.BooleanField(default=None, null=True, blank=True, verbose_name='Loves comics')),
-                    ('phone', core_fields.PhoneField(max_length=100, null=True, verbose_name='Phone number', blank=True)),
+                    ('phone', core_fields.PhoneField(max_length=100, null=True, verbose_name='Phone', blank=True)),
                     ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
                     ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
@@ -1566,7 +1566,7 @@ class Migration(migrations.Migration):
                         )
                     ),
                     ('name', models.CharField(max_length=200, verbose_name='Name')),
-                    ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
+                    ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                     ('email', models.EmailField(max_length=100, verbose_name='Email address', blank=True)),
                     ('url_site', models.URLField(max_length=500, null=True, verbose_name='Web Site', blank=True)),
                     ('capital', models.PositiveIntegerField(null=True, verbose_name='Capital', blank=True)),
