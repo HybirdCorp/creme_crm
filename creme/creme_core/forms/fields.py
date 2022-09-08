@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-import warnings
 from collections import defaultdict
 from copy import deepcopy
 from functools import partial
@@ -516,15 +515,17 @@ class GenericEntityField(EntityCredsJSONField):
         required = self.required
 
         # Compatibility with older format.
-        if data and isinstance(data.get('ctype'), dict):
-            ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
-            ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
-        else:
-            warnings.warn(
-                'GenericEntityField: old format "ctype": id entry is deprecated.',
-                DeprecationWarning
-            )
-            ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
+        # if data and isinstance(data.get('ctype'), dict):
+        #     ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
+        #     ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
+        # else:
+        #     warnings.warn(
+        #         'GenericEntityField: old format "ctype": id entry is deprecated.',
+        #         DeprecationWarning
+        #     )
+        #     ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
+        ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
+        ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
 
         entity_pk = clean_value(data, 'entity', int, required, 'entityrequired')
         entity = self._clean_entity(self._clean_ctype(ctype_pk), entity_pk)
@@ -603,15 +604,17 @@ class MultiGenericEntityField(GenericEntityField):
         # Group entity PKs by ctype, in order to make efficient queries
         for entry in data:
             # Compatibility with older format.
-            if data and isinstance(entry.get('ctype'), dict):
-                ctype_choice = clean_value(entry, 'ctype', dict, required=False)
-                ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
-            else:
-                warnings.warn(
-                    'MultiGenericEntityField: old format "ctype": id entry is deprecated.',
-                    DeprecationWarning
-                )
-                ctype_pk = clean_value(entry, 'ctype', int, required=False)
+            # if data and isinstance(entry.get('ctype'), dict):
+            #     ctype_choice = clean_value(entry, 'ctype', dict, required=False)
+            #     ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
+            # else:
+            #     warnings.warn(
+            #         'MultiGenericEntityField: old format "ctype": id entry is deprecated.',
+            #         DeprecationWarning
+            #     )
+            #     ctype_pk = clean_value(entry, 'ctype', int, required=False)
+            ctype_choice = clean_value(entry, 'ctype', dict, required=False)
+            ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
 
             if not ctype_pk:
                 continue

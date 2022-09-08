@@ -394,17 +394,17 @@ class GenericEntityFieldTestCase(_JSONFieldBaseTestCase):
             field.clean(self.build_field_data(contact.entity_type_id, contact.pk)),
         )
 
-    def test_clean_entity_old_format(self):
-        user = self.login()
-        contact = self.create_contact()
-        field = GenericEntityField(
-            models=[FakeOrganisation, FakeContact, FakeImage],
-            user=user,
-        )
-        self.assertEqual(
-            contact,
-            field.clean(json_dump({'ctype': str(contact.entity_type_id), 'entity': contact.id})),
-        )
+#     def test_clean_entity_old_format(self):
+#         user = self.login()
+#         contact = self.create_contact()
+#         field = GenericEntityField(
+#             models=[FakeOrganisation, FakeContact, FakeImage],
+#             user=user,
+#         )
+#         self.assertEqual(
+#             contact,
+#             field.clean(json_dump({'ctype': str(contact.entity_type_id), 'entity': contact.id})),
+#         )
 
     def test_clean_incomplete_not_required(self):
         user = self.login()
@@ -816,18 +816,18 @@ class MultiGenericEntityFieldTestCase(_JSONFieldBaseTestCase):
         field.user = user
         self.assertEqual([contact, orga], field.clean(self.build_data(contact, orga)))
 
-    def test_clean_entities_old_format(self):
-        user = self.login()
-        contact = self.create_contact()
-        orga    = self.create_orga()
+#     def test_clean_entities_old_format(self):
+#         user = self.login()
+#         contact = self.create_contact()
+#         orga    = self.create_orga()
 
-        field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact], user=user)
-        value = json_dump([
-            {'ctype': str(contact.entity_type_id), 'entity': contact.id},
-            {'ctype': str(orga.entity_type_id),    'entity': orga.id},
-        ])
+#         field = MultiGenericEntityField(models=[FakeOrganisation, FakeContact], user=user)
+#         value = json_dump([
+#             {'ctype': str(contact.entity_type_id), 'entity': contact.id},
+#             {'ctype': str(orga.entity_type_id),    'entity': orga.id},
+#         ])
 
-        self.assertEqual([contact, orga], field.clean(value))
+#         self.assertEqual([contact, orga], field.clean(value))
 
     def test_clean_duplicates(self):
         "Duplicates are removed."
