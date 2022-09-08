@@ -26,6 +26,7 @@ from django.db.models.query_utils import FilteredRelation, Q
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons, products
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui.bricks import (
     Brick,
     BrickDependencies,
@@ -158,6 +159,7 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
 
     # If True, entity marked as deleted are excluded from the query.
     exclude_deleted = True
+    cells_desc = []
 
     # def _get_queryset(self, entity):
     #     pass
@@ -173,12 +175,19 @@ class _LinkedStuffBrick(_RelatedToOpportunity, QuerysetBrick):
         entity = context['object']
         relation_type = RelationType.objects.get(id=self.relation_type_deps[0])
 
+        cells = []
+        for cell_class, cell_name in self.cells_desc:
+            cell = cell_class.build(Contact, cell_name)
+            if cell is not None and not cell.is_excluded:
+                cells.append(cell)
+
         return self._render(self.get_template_context(
             context,
             self._get_queryset(opportunity=entity, rtype=relation_type),
             # predicate_id=self.relation_type_deps[0],
             # relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
             relation_type=relation_type,
+            cells=cells,
         ))
 
 
@@ -194,6 +203,13 @@ class LinkedContactsBrick(_LinkedStuffBrick):
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_LINKED_CONTACT, )
     template_name = 'opportunities/bricks/contacts.html'
+
+    cells_desc = [
+        (EntityCellRegularField, 'position'),
+        (EntityCellRegularField, 'email'),
+        (EntityCellRegularField, 'phone'),
+        (EntityCellRegularField, 'mobile'),
+    ]
 
     # def _get_queryset(self, entity):
     #     return self.get_related_contacts(
@@ -258,6 +274,14 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     dependencies = (Relation, Contact)
     relation_type_deps = (constants.REL_OBJ_RESPONSIBLE, )
     template_name = 'opportunities/bricks/managers.html'
+
+    # TODO: factorise ?
+    cells_desc = [
+        (EntityCellRegularField, 'position'),
+        (EntityCellRegularField, 'email'),
+        (EntityCellRegularField, 'phone'),
+        (EntityCellRegularField, 'mobile'),
+    ]
 
     # def _get_queryset(self, entity):
     #     return self.get_related_contacts(
