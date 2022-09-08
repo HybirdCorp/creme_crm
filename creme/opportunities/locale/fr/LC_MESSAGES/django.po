@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Opportunities 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:52+0200\n"
+"POT-Creation-Date: 2022-09-08 18:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -492,8 +492,12 @@ msgid ""
 "enable it if it's still useful, or remove this block"
 msgstr ""
 
-msgid "Unlink"
-msgstr "Délier"
+# Already in creme_core
+msgid "Actions"
+msgstr ""
+
+msgid "Edit this contact"
+msgstr "Modifier ce contact"
 
 msgid "Unlink this contact"
 msgstr "Délier ce contact"
@@ -517,6 +521,9 @@ msgstr "Générer une facture"
 
 msgid "Link to an invoice"
 msgstr "Lier à une facture"
+
+msgid "Unlink"
+msgstr "Délier"
 
 msgid "Unlink this invoice"
 msgstr "Délier cette facture"
@@ -610,6 +617,9 @@ msgstr "{count} Produits associés"
 msgid "Link to a product"
 msgstr "Lier à un produit"
 
+msgid "Edit this product"
+msgstr "Modifier ce produit"
+
 msgid "Unlink this product"
 msgstr "Délier ce produit"
 
@@ -681,6 +691,9 @@ msgstr "{count} Services concernés"
 
 msgid "Link to a service"
 msgstr "Lier à un service"
+
+msgid "Edit this service"
+msgstr "Modifier ce service"
 
 msgid "Unlink this service"
 msgstr "Délier ce service"

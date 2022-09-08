@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_widgets creme_bricks %}
-{% load and_op has_perm_to from creme_core_tags %}
+{% load i18n creme_cells creme_widgets creme_bricks %}
+{% load and_op has_perm_to inner_edition_uri from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} opportunities-products-brick{% endblock %}
 
@@ -25,14 +25,34 @@
 
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
-    {% brick_table_column title=_('Unlink') status='action' %}
+{#    {% brick_table_column title=_('Unlink') status='action' %} #}
+    {% for cell in cells %}
+    {% brick_table_column_for_cell cell=cell %}
+    {% endfor %}
+    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
 {% block brick_table_rows %}
 {% has_perm_to unlink object as unlink_perm %}{% url 'creme_core__delete_similar_relations' as delete_relation_url %}
     {% for product in page.object_list %}
-    <tr>
+    <tr>{% has_perm_to view product as product_view_perm %}
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink product user %}</td>
+        {% if product_view_perm %}
+          {% for cell in cells %}
+            <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>{% cell_render cell=cell instance=product user=user as cell_content %}
+                {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
+            </td>
+          {% endfor %}
+        {% else %}
+            {% for cell in cells %}<td>{{HIDDEN_VALUE}}</td>{% endfor %}
+        {% endif %}
+        <td {% brick_table_data_status action %}>{% has_perm_to change product as product_edit_perm %}
+          {% if cells %}{% inner_edition_uri instance=product cells=cells callback_url=object.get_absolute_url as edition_uri %}
+            {% brick_table_action id='edit' url=edition_uri label=_('Edit this product') enabled=product_edit_perm %}
+          {% else %}
+            {% brick_table_action id='redirect' url=product.get_edit_absolute_url|add:'?callback_url=${location}' label=_('Edit this product') icon='edit' enabled=product_edit_perm %}
+          {% endif %}
+        </td>
         <td {% brick_table_data_status action %}>{% has_perm_to unlink product as product_unlink_perm %}
             {% brick_table_action id='delete' url=delete_relation_url __subject_id=object.id __type=relation_type.id __object_id=product.pk label=_('Unlink this product') icon='unlink' enabled=unlink_perm|and_op:product_unlink_perm %}
         </td>
