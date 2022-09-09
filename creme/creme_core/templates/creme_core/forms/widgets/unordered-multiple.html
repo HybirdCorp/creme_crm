@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}{% spaceless %}
+{% load i18n %}{% load lt from creme_core_tags %}{% spaceless %}
 {% with view_less=widget.view_less creation_allowed=widget.creation_allowed creation_url=widget.creation_url %}
 {% if widget.choice_count == 0 and not creation_allowed %}
 {% translate 'No choice available.' %}

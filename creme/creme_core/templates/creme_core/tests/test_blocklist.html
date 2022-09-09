@@ -1,9 +1,8 @@
 {% extends "creme_core/tests/testbase.html" %}
-{% load i18n %}
-{% load media %}
-{% load creme_core_tags creme_bricks creme_widgets %}
+{% load creme_bricks  %}
 
 {% block test_title %}Creme Block List{% endblock %}
+
 {% block test_header %}
     <script type="text/javascript">
         $(document).ready(function() {
@@ -18,12 +17,11 @@
         });
     </script>
 {% endblock %}
+
 {% block test_content %}
-
-<button id="test-blocklist-refresh">Refresh</button>
-<label for="test-blocklist-count">Item count</label>
-<input type="number" id="test-blocklist-count" value="{{request.GET.count|default:10}}" min="0" max="1000" />
-{% brick_import app='creme_core' name='test_dummy_list' as test_dummy_list_brick %}
-{% brick_display test_dummy_list_brick %}
-
+    <button id="test-blocklist-refresh">Refresh</button>
+    <label for="test-blocklist-count">Item count</label>
+    <input type="number" id="test-blocklist-count" value="{{request.GET.count|default:10}}" min="0" max="1000" />
+    {% brick_import app='creme_core' name='test_dummy_list' as test_dummy_list_brick %}
+    {% brick_display test_dummy_list_brick %}
 {% endblock %}

@@ -1,5 +1,4 @@
-{% load i18n creme_core_tags creme_widgets %}
-
+{% load i18n %}{% load get_efilter_conditions from creme_core_tags %}
 <summary>{% blocktranslate %}Conditions of «{{efilter}}»{% endblocktranslate %}</summary>
 <details>
 {% get_efilter_conditions efilter=efilter user=user as vconds %}

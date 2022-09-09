@@ -1,4 +1,5 @@
-{% load i18n creme_core_tags creme_widgets creme_listview creme_cells creme_ctype creme_query %}
+{% load i18n creme_cells creme_ctype creme_listview creme_query creme_widgets %}
+{% load get_by_index get_entity_html_attrs not_op from creme_core_tags %}
 
 {% with cells=header_filters.selected.filtered_cells %}
 

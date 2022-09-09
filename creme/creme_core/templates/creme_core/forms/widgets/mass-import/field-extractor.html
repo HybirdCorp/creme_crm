@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load eq from creme_core_tags %}
 {% with id=widget.attrs.id name=widget.name sub_choices=widget.subfield_choices %}
 <table {# name="{{name}}" #}{% include 'django/forms/widgets/attrs.html' %}>
     <tbody>

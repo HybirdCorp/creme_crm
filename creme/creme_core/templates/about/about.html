@@ -1,5 +1,5 @@
 {% extends 'about/base.html' %}
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load scm_info from creme_core_tags %}
 
 {% block icon %}<a href="{% url 'creme_core__home' %}" title="{% translate 'Back to home' %}" >{{block.super}}</a>{% endblock %}
 

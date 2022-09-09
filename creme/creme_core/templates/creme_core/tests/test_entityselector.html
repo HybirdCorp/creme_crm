@@ -1,7 +1,8 @@
 {% extends "creme_core/tests/testbase.html" %}
-{% load i18n media creme_core_tags creme_widgets %}
+{% load creme_widgets %}
 
 {% block test_title %}Entity Widget{% endblock %}
+
 {% block test_header %}
     <style type="text/css">
         li > h5 {
@@ -9,9 +10,9 @@
         }
     </style>
 {% endblock %}
+
 {% block test_content %}
 <ul>
-    
     <li>
         <h3>Entity selector</h3>
         <ul>

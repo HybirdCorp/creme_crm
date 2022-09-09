@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load jsonify from creme_core_tags %}
 <div class="hfilter_widget" {% include 'django/forms/widgets/attrs.html' %}>
     <input class="inner_value" type="hidden" name="{{widget.name}}" value="{{widget.value}}">
     <div class="selectors">

@@ -1,5 +1,5 @@
 {% extends 'creme_core/history/html/base.html' %}
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load templatize from creme_core_tags %}
 
 {% block content %}
 {% templatize '<span class="property-text">{{property_text}}</span>' as property_text %}
