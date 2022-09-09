@@ -15,7 +15,7 @@ ACTIVITYTYPE_PHONECALL = 'activities-activitytype_phonecall'
 ACTIVITYTYPE_GATHERING = 'activities-activitytype_gathering'
 ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
 ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
-ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'
+ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'  # TODO: rename
 
 CREATION_LABELS = {
     ACTIVITYTYPE_TASK:       _('Create a task'),
