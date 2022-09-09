@@ -120,7 +120,7 @@ class TypeOverrider(FieldOverrider):
     field_names = ['type', 'sub_type']
 
     error_messages = {
-        'immutable': _('The type of an indisponibility cannot be changed.'),
+        'immutable': _('The type of an unavailability cannot be changed.'),
     }
 
     _mixed_unavailability = False

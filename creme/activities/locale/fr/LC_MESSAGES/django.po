@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-06 12:52+0200\n"
+"POT-Creation-Date: 2022-09-09 10:26+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -298,7 +298,7 @@ msgstr ""
 msgid "Duration"
 msgstr "Durée"
 
-msgid "The type of an indisponibility cannot be changed."
+msgid "The type of an unavailability cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 
 #, python-brace-format
@@ -1021,9 +1021,6 @@ msgstr "Changer le calendrier de «{object}»"
 #~ msgid "Error"
 #~ msgstr "Erreur"
 
-#~ msgid "Indisponibility"
-#~ msgstr "Indisponibilité"
-
 #~ msgid "Add a meeting"
 #~ msgstr "Ajouter un rendez-vous"
 
@@ -1032,9 +1029,6 @@ msgstr "Changer le calendrier de «{object}»"
 
 #~ msgid "Add a task"
 #~ msgstr "Ajouter une tâche"
-
-#~ msgid "Add an indisponibility"
-#~ msgstr "Ajouter une indisponibilité"
 
 #~ msgid "Add a phonecall"
 #~ msgstr "Ajouter un appel téléphonique"
