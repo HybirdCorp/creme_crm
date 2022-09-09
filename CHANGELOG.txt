@@ -48,12 +48,18 @@
                 - ...
               BEWARE: if you used this feature in Creme 2.3, you'll have to remove the configuration
                       in your settings (it's not supported anymore) & re-create it in the GUI.
+        * Persons :
+            - The Organisation's bricks "Managers" & "Employees" propose now to edit the related contacts, using the new multi-fields inner-edition feature.
+        * Opportunities :
+            - The bricks "Linked Contacts" & "Business managers" display now these fields for the related contacts: position, email, phone, mobile.
+              They propose to edit them too, using the new multi-fields inner-edition feature.
         * Mobile :
             - A "owner" field is now present in forms for of Contacts & Organisations.
         * Crudity :
             - The support of InfoPath files has been removed.
         * Graphs :
-            - New 'Relationship graph' brick is available
+            - A new 'Relationship graph' brick is available, displaying the graph in the detail-view without having to download an image.
+              Notice it can be downloaded as image too.
         * Polls :
             - The design of the 'Statistic' brick has changed.
 
