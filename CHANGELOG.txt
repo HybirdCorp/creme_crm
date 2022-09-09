@@ -2,9 +2,16 @@
 
   TODO: compile .mo files (reports)
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
   Users side :
   ------------
     # Clearing search state of the listview now works correctly
+    # Apps:
+        * Persons :
+            - A style issue with the edition buttons in address bricks has been fixed.
+
 
 == Version 2.3.6 ==
 

@@ -141,11 +141,16 @@
     margin-left: 15px;
 }
 
-.persons-addresses-brick .brick-action .brick-action-icon {
+.persons-addresses-brick.brick .brick-action .brick-action-icon {
     margin-bottom: -1px;
     height: 10px;
     min-width: 10px;
     max-width: 10px;
+
+    /* TODO: better core class? */
+    border: none;
+    box-shadow: none;
+    background: none;
 }
 
 /* states - empty state */
