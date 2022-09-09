@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -25,8 +25,8 @@ var _DIALOG_SCROLLTYPES = ['frame', 'background'];
 
 // TODO : factorize
 var clamp = function(value, min, max) {
-    value = !isNaN(max) ? Math.min(max, value) : value;
-    return !isNaN(min) ? Math.max(min, value) : value;
+    value = _.isNumber(max) ? (max > value ? value : max) : value;
+    return _.isNumber(min) ? (min < value ? value : min) : value;
 };
 
 creme.dialog.Dialog = creme.component.Component.sub({
@@ -45,11 +45,12 @@ creme.dialog.Dialog = creme.component.Component.sub({
             resizable:  true,
             draggable:  true,
             width:      640,
-            height:     350,
+            height:     Math.min(350, maxHeight),
             maxHeight:  maxHeight,
             scroll:     'frame',
-            within:     $('.ui-dialog-within-container'),
+            within:     within,
             fitFrame:   true,
+            shrink:     true,
             useFrameTitleBar: true,
             useFrameActions: true,
             closeOnEscape: true,
@@ -280,36 +281,48 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return $(this._dialog).parent('.ui-dialog').first();
     },
 
+    _dialogOption: function(name, value) {
+        if (value === undefined) {
+            return this._dialog.dialog('option', name);
+        } else {
+            this._dialog.dialog('option', name, value);
+        }
+    },
+
     _resizeDialog: function(width, height) {
         if (!this.isOpened()) {
             return;
         }
 
-        var maxWidth = this._dialog.dialog('option', 'maxWidth');
-        var maxHeight = this._dialog.dialog('option', 'maxHeight');
+        var maxSize = this.maxSize();
+        var minSize = this.minSize();
 
-        var minWidth = this._dialog.dialog('option', 'minWidth');
-        var minHeight = this._dialog.dialog('option', 'minHeight');
+        width = clamp(width, minSize.width, maxSize.width);
+        height = clamp(height, minSize.height, maxSize.height);
 
-        width = minWidth > 0 ? Math.max(width, minWidth) : width;
-        height = minHeight > 0 ? Math.max(height, minHeight) : height;
+        this._dialogOption('width', width);
+        this._dialogOption('height', height);
 
-        width = maxWidth > 0 ? Math.min(width, maxWidth) : width;
-        height = maxHeight > 0 ? Math.min(height, maxHeight) : height;
+        if (this.options.shrink) {
+            this._frame.delegate().css({
+                'min-height': minSize.height,
+                'width': 'auto'
+            });
+        } else {
+            var framePreferredHeight = clamp(this._frame.preferredSize()[1], minSize.height);
 
-        this._dialog.dialog('option', 'width', width);
-        this._dialog.dialog('option', 'height', height);
-
-        var framePreferredHeight = this._frame.preferredSize()[1];
-
-        if (minHeight > 0) {
-            framePreferredHeight = Math.max(minHeight, framePreferredHeight);
+            this._frame.delegate().css({
+                'min-height': framePreferredHeight,
+                'width': 'auto'
+            });
         }
 
-        this._frame.delegate().css('min-height', framePreferredHeight)
-                              .css('width', 'auto');
-
         this._frame.overlay().resize();
+
+        return {
+            width: width,
+            height: height
+        };
     },
 
     fitToFrameSize: function() {
@@ -319,51 +332,19 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
         var container = this._dialogContainer();
         var body = $('> .ui-dialog-content', container);
-        var frame = this._frame.delegate();
 
-        var previousWidth = container.outerWidth();
-        var previousHeight = container.outerHeight();
+        body.css({
+            height: 'auto',
+            width: 'auto'
+        });
 
-        // set frame to default size
-        frame.css('width', (Math.round(this.options.width - (container.outerWidth() - body.width()))));
-        var frame_width_padding = frame.position().left + (frame.outerWidth() - frame.width());
-        var frame_height_padding = frame.position().top + (frame.outerHeight() - frame.height());
-
-        // eval preferred size of frame elements
-        var size = this._frame.preferredSize();
-        var preferredWidth = Math.round(size[0] + frame_width_padding + (body.outerWidth() - body.width()));
-        var preferredHeight = Math.round(size[1] + frame_height_padding + (body.outerHeight() - body.height()));
-
-        // apply this to dialog body
-        body.width(preferredWidth)
-            .height(preferredHeight);
-
-        // eval preferred size of dialog with resized body
-        var width = container.outerWidth();
-        var height = container.outerHeight();
-
-        // add a threshold to prevent instability.
-        width = Math.abs(width - previousWidth) < 5 ? previousWidth - 2 : width;
-        height = Math.abs(height - previousHeight) < 5 ? previousHeight : height;
-
-        this._resizeDialog(width, height);
+        var size = this._resizeDialog(container.width(), container.height());
         this.position(this.position());
 
-        var maxHeight = this._dialog.dialog('option', 'maxHeight');
-
-        if (height < maxHeight || maxHeight === null) {
-            body.height('auto');
-        }
-
-        body.css('width', 'auto');
-
-        /*
-        console.log('previous:', [previousWidth, previousHeight],
-                    'preferred:', [preferredWidth, preferredHeight],
-                    'computed:', [width, height],
-                    'container:', [container.outerWidth(), container.outerHeight()],
-                    'real:', this.length);
-        */
+        body.css({
+            "max-height": size.height + 30,
+            "height": 'auto'
+        });
     },
 
     center: function(constraint) {
@@ -399,7 +380,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
             });
         }
 
-        this._dialog.dialog('option', 'position', position);
+        this._dialogOption('position', position);
         return this;
     },
 
@@ -420,7 +401,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
     },
 
     replaceButtons: function(buttons) {
-        this._dialog.dialog('option', 'buttons', buttons);
+        this._dialogOption('buttons', buttons);
     },
 
     resize: function(width, height) {
@@ -434,8 +415,8 @@ creme.dialog.Dialog = creme.component.Component.sub({
     size: function() {
         if (this.isOpened()) {
             return {
-                width: this._dialog.dialog('option', 'width'),
-                height: this._dialog.dialog('option', 'height')
+                width: this._dialogOption('width'),
+                height: this._dialogOption('height')
             };
         }
     },
@@ -444,14 +425,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
         if (size === undefined) {
             if (this.isOpened()) {
                 return {
-                    width: this._dialog.dialog('option', 'minWidth'),
-                    height: this._dialog.dialog('option', 'minHeight')
+                    width: this._dialogOption('minWidth'),
+                    height: this._dialogOption('minHeight')
                 };
             }
         } else {
             if (this.isOpened()) {
-                this._dialog.dialog('option', 'minWidth', size.width);
-                this._dialog.dialog('option', 'minHeight', size.height);
+                this._dialogOption('minWidth', size.width);
+                this._dialogOption('minHeight', size.height);
             }
 
             return this;
@@ -462,14 +443,14 @@ creme.dialog.Dialog = creme.component.Component.sub({
         if (size === undefined) {
             if (this.isOpened()) {
                 return {
-                    width: this._dialog.dialog('option', 'maxWidth'),
-                    height: this._dialog.dialog('option', 'maxHeight')
+                    width: this._dialogOption('maxWidth'),
+                    height: this._dialogOption('maxHeight')
                 };
             }
         } else {
             if (this.isOpened()) {
-                this._dialog.dialog('option', 'maxWidth', size.width);
-                this._dialog.dialog('option', 'maxHeight', size.height);
+                this._dialogOption('maxWidth', size.width);
+                this._dialogOption('maxHeight', size.height);
             }
 
             return this;
@@ -502,10 +483,10 @@ creme.dialog.Dialog = creme.component.Component.sub({
 
     title: function(title) {
         if (title === undefined) {
-            return this._dialog.dialog('option', 'title');
+            return this._dialogOption('title');
         }
 
-        this._dialog.dialog('option', 'title', String(title).decodeHTMLEntities());
+        this._dialogOption('title', String(title).decodeHTMLEntities());
         return this;
     },
 
