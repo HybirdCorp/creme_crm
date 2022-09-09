@@ -1137,7 +1137,7 @@ class EntityDeletionMixin:
 
 
 class EntitiesDeletion(EntityDeletionMixin, base.CheckedView):
-    "Delete several CremeEntities, with a Ajax call (POST method)."
+    "Delete several CremeEntities, with an Ajax call (POST method)."
 
     def get_entity_ids(self):
         try:
