@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_widgets creme_ctype %}
+{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
 <fieldset title="{% translate 'Filter the lines of the table' %}">
     <div class="legend">
         {% translate 'Filter' context 'creme_core-noun' as label %}{% widget_icon name='filter' label=label size='listview-filter' %}{{label}}

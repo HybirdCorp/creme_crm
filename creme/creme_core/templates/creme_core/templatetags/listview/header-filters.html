@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags creme_widgets creme_ctype %}
+{% load i18n creme_ctype creme_widgets %}{% load blockjsondata from creme_core_tags %}
 <fieldset title="{% translate 'Show only the desired columns' %}">
     <div class="legend">
         {% translate 'View of list' as label %}{% widget_icon name='header_filter' label=label size='listview-filter' %}{{label}}

@@ -1,4 +1,4 @@
-{% load creme_core_tags creme_widgets %}
+{% load creme_widgets %}{% load jsondata from creme_core_tags %}
 <a href="{{url}}" title="{{help_text}}" class="brick-card-action action-type-{{action_type}} {{properties}} {{class}}" data-action="{{action_id}}">
     {% jsondata data class='brick-action-data' %}
     {% if icon %}{% widget_render_icon icon class='brick-action-icon' %}{% endif %}

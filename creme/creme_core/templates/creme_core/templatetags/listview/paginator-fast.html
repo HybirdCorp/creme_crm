@@ -1,4 +1,4 @@
-{% load i18n creme_core_tags %}
+{% load i18n %}{% load jsonify from creme_core_tags %}
 <div class="listview-pagination">
     <a class="pager-link pager-link-first {% if not page.has_previous %}is-disabled{% endif %}" href="" title="{% translate 'First page' %}" {% if page.has_previous %}data-page="{{page.first_page_info|jsonify}}"{% endif %}>{% translate 'First page' %}</a>
     <a class="pager-link pager-link-previous {% if not page.has_previous %}is-disabled{% endif %}" href="" title="{% translate 'Previous page' %}" {% if page.has_previous %}data-page="{{page.previous_page_info|jsonify}}"{% endif %}>{% translate 'Previous page' %}</a>

@@ -1,4 +1,4 @@
-{% load creme_core_tags %}
+{% load jsondata from creme_core_tags %}
 <a href="{{url}}" title="{{help_text}}" class="card-button{% if icon %} card-button-icon{% endif %}{% if disabled %} forbidden is-disabled{% endif %} {{class}}" data-action="{{action_id}}">
     {% jsondata data %}
     {% if icon %}{{icon.render}}{% endif %}{{label}}

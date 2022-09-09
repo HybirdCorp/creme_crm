@@ -1,4 +1,4 @@
-{% load creme_core_tags creme_bricks %}
+{% load creme_bricks %}{% load jsonify from creme_core_tags %}
 {% block brick_before %}{% endblock %}
 <div class="brick {% block brick_extra_class %}{% endblock %} is-loading-border ui-creme-widget widget-auto {% if state %}{% brick_state_classes state %}{% endif %}" widget="brick"
      id="{{brick_id}}"
