@@ -77,7 +77,11 @@ module.exports = function(config) {
         staticsPath + '/main*.js'
     ];
 
-    var qunitmixins = [sourcePath + '/tests/**/qunit*mixin.js']
+    var qunitfiles = [
+        sourcePath + '/tests/**/qunit-parametrize.js',
+        sourcePath + '/tests/**/qunit*mixin.js'
+    ];
+
     var allfiles = [sourcePath + '/tests/**/!(qunit)*.js'];
     var defaultBrowsers = ['FirefoxHeadless']
     var globals = {
@@ -119,7 +123,7 @@ module.exports = function(config) {
         autoWatch: true,
         concurrency: 1,
         frameworks: ['qunit'],
-        files: commonfiles.concat(qunitmixins)
+        files: commonfiles.concat(qunitfiles)
                           .concat(targets),
         browsers: browsers,
 
