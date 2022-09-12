@@ -5,7 +5,7 @@
   },
 
   "env": {
-    "es6": false,
+    "es6": false
   },
 
   "plugins": [
@@ -27,7 +27,7 @@
     "Blob": true,
     "Set": true,
     "ResizeObserver": true,
-
+    
     /* External libraries */
     "jQuery": true,
     "$": true,

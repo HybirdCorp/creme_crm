@@ -1018,7 +1018,8 @@ TEST_CREME_LIB_JS = [
     'testlib.js',
 
     # Content
-    'creme_core/js/tests/qunit/qunit-1.18.0.js',
+    'creme_core/js/tests/qunit/qunit-1.23.1.js',
+    'creme_core/js/tests/qunit/qunit-parametrize.js',
     'creme_core/js/tests/qunit/qunit-mixin.js',
     'creme_core/js/tests/component/qunit-event-mixin.js',
     'creme_core/js/tests/ajax/qunit-ajax-mixin.js',
@@ -1077,6 +1078,7 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/assert.js',
     'creme_core/js/tests/faker.js',
     'creme_core/js/tests/browser.js',
+    'creme_core/js/tests/parametrize.js',
 
     'creme_core/js/tests/widgets/base.js',
     'creme_core/js/tests/widgets/widget.js',
