@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,10 +20,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel
+# from creme.creme_core.models import CremeModel
+from creme.creme_core.models import MinionModel
 
 
-class Category(CremeModel):
+# class Category(CremeModel):
+class Category(MinionModel):
     name = models.CharField(_('Name of the category'), max_length=100)
     description = models.CharField(_('Description'), max_length=100)
 
@@ -39,7 +41,8 @@ class Category(CremeModel):
         ordering = ('name',)
 
 
-class SubCategory(CremeModel):
+# class SubCategory(CremeModel):
+class SubCategory(MinionModel):
     name = models.CharField(_('Name of the sub-category'), max_length=100)
     description = models.CharField(_('Description'), max_length=100)
     category = models.ForeignKey(
@@ -57,3 +60,9 @@ class SubCategory(CremeModel):
         verbose_name = pgettext_lazy('products-sub_category', 'Sub-category')
         verbose_name_plural = pgettext_lazy('products-sub_category', 'Sub-categories')
         ordering = ('name',)
+
+    def save(self, *args, **kwargs):
+        if not self.is_custom and self.category.is_custom:
+            raise ValueError('TODO')
+
+        super().save(*args, **kwargs)

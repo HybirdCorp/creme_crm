@@ -116,6 +116,8 @@
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
         # In 'creme_core.models' :
+            - A new abstract model 'base.Minion' has been created with fields uuid/is_custom/extra_data.
+              Most of the small models which gravitate around entities have been converted in the different apps.
             - The class 'fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
               so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
             - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
@@ -312,6 +314,8 @@
                     - the field 'Alert.trigger' can now be NULL.
             * Documents :
                 - In 'bricks.LinkedDocsBrick', the template variable "predicate_id" is not injected anymore.
+                - In 'constants', the following items have been removed :
+                  DOCUMENTS_FROM_ENTITIES, DOCUMENTS_FROM_ENTITIES_NAME, DOCUMENTS_FROM_EMAILS, DOCUMENTS_FROM_EMAILS_NAME.
                 - The class 'forms.folder.ParentFolderBulkForm' has been removed.
             * Persons :
                 - In 'bricks' :

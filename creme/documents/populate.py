@@ -30,6 +30,7 @@ from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
+# from creme.creme_core.utils import create_if_needed
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CustomFormConfigItem,
@@ -39,7 +40,6 @@ from creme.creme_core.models import (
     RelationType,
     SearchConfigItem,
 )
-from creme.creme_core.utils import create_if_needed
 
 from . import (
     bricks,
@@ -72,16 +72,31 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        # TODO: pk string (or UUID) (+ move DOCUMENTS_FROM_EMAILS in 'emails' app) ??
-        entities_cat = create_if_needed(
-            FolderCategory,
-            {'pk': constants.DOCUMENTS_FROM_ENTITIES},
-            name=str(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False,
-        )
-        create_if_needed(
-            FolderCategory,
-            {'pk': constants.DOCUMENTS_FROM_EMAILS},
-            name=str(constants.DOCUMENTS_FROM_EMAILS_NAME), is_custom=False,
+        # entities_cat = create_if_needed(
+        #     FolderCategory,
+        #     {'pk': constants.DOCUMENTS_FROM_ENTITIES},
+        #     name=str(constants.DOCUMENTS_FROM_ENTITIES_NAME), is_custom=False,
+        # )
+        create_folder_cat = FolderCategory.objects.get_or_create
+        entities_cat = create_folder_cat(
+            uuid=constants.UUID_FOLDER_CAT_ENTITIES,
+            defaults={
+                'name': _('Documents related to entities'),
+                'is_custom': False,
+            },
+        )[0]
+        # create_if_needed(
+        #     FolderCategory,
+        #     {'pk': constants.DOCUMENTS_FROM_EMAILS},
+        #     name=str(constants.DOCUMENTS_FROM_EMAILS_NAME), is_custom=False,
+        # )
+        # TODO: move in 'emails' app in Creme2.5
+        create_folder_cat(
+            uuid=constants.UUID_FOLDER_CAT_EMAILS,
+            defaults={
+                'name': _('Documents received by email'),
+                'is_custom': False,
+            },
         )
 
         # TODO: created by 'products' & 'persons' app ?

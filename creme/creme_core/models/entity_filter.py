@@ -289,7 +289,7 @@ class EntityFilterManager(models.Manager):
         return ef
 
 
-class EntityFilter(models.Model):  # CremeModel ???
+class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     """A model that contains conditions that filter queries on CremeEntity objects.
     They are principally used in the list views.
     Conditions can be :

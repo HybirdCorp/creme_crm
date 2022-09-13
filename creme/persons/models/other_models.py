@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,13 +20,15 @@ from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel
+# from creme.creme_core.models import CremeModel
+from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
 
 
-class Civility(CremeModel):
+# class Civility(CremeModel):
+class Civility(MinionModel):
     title    = CharField(pgettext_lazy('persons-civility', 'Title'), max_length=100)
     shortcut = CharField(_('Shortcut'), max_length=100)
 
@@ -42,7 +44,8 @@ class Civility(CremeModel):
         ordering = ('title',)
 
 
-class Position(CremeModel):
+# class Position(CremeModel):
+class Position(MinionModel):
     title = CharField(pgettext_lazy('persons-position', 'Title'), max_length=100)
 
     creation_label = pgettext_lazy('persons-position', 'Create a position')
@@ -57,7 +60,8 @@ class Position(CremeModel):
         ordering = ('title',)
 
 
-class Sector(CremeModel):
+# class Sector(CremeModel):
+class Sector(MinionModel):
     title = CharField(pgettext_lazy('persons-sector', 'Title'), max_length=100)
 
     creation_label = pgettext_lazy('persons-sector', 'Create a sector')
@@ -72,7 +76,8 @@ class Sector(CremeModel):
         ordering = ('title',)
 
 
-class LegalForm(CremeModel):
+# class LegalForm(CremeModel):
+class LegalForm(MinionModel):
     title = CharField(pgettext_lazy('persons-legalform', 'Title'), max_length=100)
 
     creation_label = _('Create a legal form')
@@ -87,7 +92,8 @@ class LegalForm(CremeModel):
         ordering = ('title',)
 
 
-class StaffSize(CremeModel):
+# class StaffSize(CremeModel):
+class StaffSize(MinionModel):
     size  = CharField(_('Size'), max_length=100)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 

@@ -32,11 +32,10 @@ from creme.creme_core.models import fields as creme_fields
 logger = logging.getLogger(__name__)
 
 
-class UserMessagePriority(core_models.CremeModel):
+# class UserMessagePriority(core_models.CremeModel):
+class UserMessagePriority(core_models.MinionModel):
     title = models.CharField(_('Title'), max_length=200)
-
-    # Used by creme_config
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('assistants-messaqe_priority', 'Create a priority')
 

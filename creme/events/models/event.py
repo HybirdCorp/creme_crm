@@ -23,10 +23,10 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import (
+from creme.creme_core.models import (  # CremeModel
     CREME_REPLACE,
     CremeEntity,
-    CremeModel,
+    MinionModel,
     Relation,
     RelationType,
 )
@@ -41,7 +41,8 @@ _STATS_TYPES = (
 )
 
 
-class EventType(CremeModel):
+# class EventType(CremeModel):
+class EventType(MinionModel):
     name = models.CharField(_('Name'), max_length=50)
 
     creation_label = pgettext_lazy('events-event_type', 'Create a type')

@@ -591,7 +591,7 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
 
             # NB: we just need another URLs for creation/edition/deletion
-            # (even if these ones are stupid)
+            # (even if these are stupid)
             register_model(
                 fake_models.FakePosition, 'fake_position',
             ).creation(

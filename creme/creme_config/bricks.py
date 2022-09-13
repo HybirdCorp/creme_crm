@@ -31,6 +31,7 @@ import creme.creme_core.forms.base as core_forms
 from creme.creme_core import get_world_settings_model
 from creme.creme_core.core import setting_key
 from creme.creme_core.core.entity_filter import EF_USER
+from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.gui.bricks import (
     Brick,
     BricksManager,
@@ -121,14 +122,20 @@ class GenericModelBrick(QuerysetBrick):
         displayable_fields = []
         is_reorderable = False
 
+        # for field in meta.fields:
+        #     fieldname = field.name.lower()
+        #
+        #     if fieldname == 'is_custom':
+        #         continue
+        #     elif fieldname == 'order':
+        #         is_reorderable = True
+        #     else:
+        #         displayable_fields.append(field)
         for field in meta.fields:
-            fieldname = field.name.lower()
-
-            if fieldname == 'is_custom':
-                continue
-            elif fieldname == 'order':
+            if field.name == 'order':
                 is_reorderable = True
-            else:
+
+            if field.get_tag(FieldTag.VIEWABLE):
                 displayable_fields.append(field)
 
         displayable_fields.extend(meta.many_to_many)

@@ -11,7 +11,8 @@ from creme.creme_core.models import FileRef, SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.documents import get_document_model
-from creme.documents.constants import DOCUMENTS_FROM_EMAILS
+# from creme.documents.constants import DOCUMENTS_FROM_EMAILS
+from creme.documents.constants import UUID_FOLDER_CAT_EMAILS
 from creme.documents.models import FolderCategory
 from creme.emails import bricks
 from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENT
@@ -1019,7 +1020,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTrue(exists(path))
 
         folder = attachment.linked_folder
-        self.assertEqual(DOCUMENTS_FROM_EMAILS, folder.category_id)
+        # self.assertEqual(DOCUMENTS_FROM_EMAILS, folder.category_id)
+        self.assertEqual(UUID_FOLDER_CAT_EMAILS, str(folder.category.uuid))
         self.assertEqual(
             _("{username}'s files received by email").format(
                 username=user.username,
@@ -1085,7 +1087,8 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         create_folder = partial(
             Folder.objects.create,
-            category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
+            # category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
+            category=FolderCategory.objects.get(uuid=UUID_FOLDER_CAT_EMAILS),
         )
         create_folder(user=other_user)
         folder = create_folder(user=user)

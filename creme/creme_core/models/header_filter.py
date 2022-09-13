@@ -152,7 +152,7 @@ class HeaderFilterManager(models.Manager):
         return hf
 
 
-class HeaderFilter(models.Model):  # CremeModel ???
+class HeaderFilter(models.Model):  # TODO: CremeModel? MinionModel?
     """View of list : sets of columns (see EntityCell) stored for a specific
     ContentType of CremeEntity.
     """
