@@ -25,6 +25,27 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertTrue(Category.objects.exists())
         self.assertTrue(SubCategory.objects.exists())
 
+    def test_subcategory(self):
+        cat = Category.objects.create(name='Category', description='description')
+        self.assertTrue(cat.is_custom)
+        sub_cat = SubCategory(name='Sub cat', category=cat, description='description')
+        self.assertTrue(sub_cat.is_custom)
+
+        with self.assertNoException():
+            sub_cat.save()
+
+        # ---
+        sub_cat.is_custom = False
+
+        with self.assertRaises(ValueError):
+            sub_cat.save()
+
+        # ---
+        cat.is_custom = False
+
+        with self.assertNoException():
+            sub_cat.save()
+
     def test_subcategories_view(self):
         self.login()
 

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,22 +16,21 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import uuid
-
+# import uuid
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel
+# from creme.creme_core.models import CremeModel
+import creme.creme_core.models as core_models
 
 from ..constants import MIMETYPE_PREFIX_IMG
 
 
-class FolderCategory(CremeModel):
+# class FolderCategory(CremeModel):
+class FolderCategory(core_models.MinionModel):
     name = models.CharField(_('Category name'), max_length=100, unique=True)
-
-    # Used by creme_config
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('documents-folder_category', 'Create a category')
 
@@ -45,12 +44,13 @@ class FolderCategory(CremeModel):
         return self.name
 
 
-class DocumentCategory(CremeModel):
+# class DocumentCategory(CremeModel):
+class DocumentCategory(core_models.MinionModel):
     name = models.CharField(_('Name'), max_length=100, unique=True)
-    uuid = models.UUIDField(
-        unique=True, default=uuid.uuid4, editable=False,
-    ).set_tags(viewable=False)
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    # uuid = models.UUIDField(
+    #     unique=True, default=uuid.uuid4, editable=False,
+    # ).set_tags(viewable=False)
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('documents-doc_category', 'Create a category')
 
@@ -64,7 +64,7 @@ class DocumentCategory(CremeModel):
         return self.name
 
 
-class MimeType(CremeModel):
+class MimeType(core_models.CremeModel):
     name = models.CharField(_('Name'), max_length=100, unique=True)
 
     class Meta:

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,14 @@ from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel
+# from creme.creme_core.models import CremeModel
+from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
 
-class Criticity(CremeModel):
+# TODO: rename criticality
+# class Criticity(CremeModel):
+class Criticity(MinionModel):
     """Criticality of a ticket: critical, not important etc..."""
     name = CharField(_('Name'), max_length=100, unique=True)
     order = BasicAutoField(_('Order'))  # Used by creme_config

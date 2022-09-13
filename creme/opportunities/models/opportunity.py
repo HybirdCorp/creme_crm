@@ -36,7 +36,8 @@ from creme.persons.workflow import transform_target_into_prospect
 from .. import constants
 
 
-class SalesPhase(core_models.CremeModel):
+# class SalesPhase(core_models.CremeModel):
+class SalesPhase(core_models.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     order = BasicAutoField(_('Order'))
 
@@ -61,7 +62,8 @@ class SalesPhase(core_models.CremeModel):
             raise ValidationError(gettext('A phase can not be won and lost at the same time.'))
 
 
-class Origin(core_models.CremeModel):
+# class Origin(core_models.CremeModel):
+class Origin(core_models.MinionModel):
     name = models.CharField(_('Origin'), max_length=100)
 
     creation_label = pgettext_lazy('opportunities-origin', 'Create an origin')

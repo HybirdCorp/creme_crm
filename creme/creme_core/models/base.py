@@ -17,11 +17,13 @@
 ################################################################################
 
 import logging
+import uuid
 from itertools import chain
 
 from django.core.exceptions import ValidationError
 from django.core.validators import EMPTY_VALUES
-from django.db.models import FileField, Model
+from django.db import models
+from django.db.models import FileField
 from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -31,7 +33,7 @@ from .file_ref import FileRef
 logger = logging.getLogger(__name__)
 
 
-class CremeModel(Model):
+class CremeModel(models.Model):
     creation_label = _('Create')
     save_label     = _('Save')
     # TODO: do a complete refactor for _CremeModel.selection_label
@@ -92,3 +94,22 @@ class CremeModel(Model):
 
         if errors:
             raise ValidationError(errors)
+
+
+class MinionModel(CremeModel):
+    """Base model which is great for small models used to represent "choices" in
+     entities & which you classically register in creme_config.
+     """
+    uuid = models.UUIDField(
+        unique=True, editable=False, default=uuid.uuid4,
+    ).set_tags(viewable=False)
+
+    # Used by creme_config (if is_custom is False, the instance cannot be deleted)
+    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+
+    # Can be used by third party code to store the data they want,
+    # without having to modify the code.
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
+
+    class Meta:
+        abstract = True

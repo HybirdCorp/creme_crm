@@ -7,7 +7,7 @@ from .auth import (  # NOQA
     SetCredentials,
     UserRole,
 )
-from .base import CremeModel  # NOQA
+from .base import CremeModel, MinionModel  # NOQA
 from .bricks import *  # NOQA
 from .button_menu import ButtonMenuItem  # NOQA
 from .creme_property import CremeProperty, CremePropertyType  # NOQA

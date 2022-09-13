@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,12 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import CremeModel
+from creme.creme_core.models import CremeModel, MinionModel
 from creme.creme_core.models.fields import DurationField
+
+# TODO: use MinionModel for ActivityType & ActivitySubType
+#       => convert "id" from strings to integers, add constants for UUIDs
+#          It needs some data migration for Activity, EntityFilterCondition (other?)
 
 
 # TODO: Rename to ActivityKind ??
@@ -41,6 +45,7 @@ class ActivityType(CremeModel):
 
     # Used by creme_config
     is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 
@@ -74,6 +79,7 @@ class ActivitySubType(CremeModel):
 
     # Used by creme_config
     is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
+    extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
 
@@ -87,11 +93,11 @@ class ActivitySubType(CremeModel):
         ordering = ('name',)
 
 
-class Status(CremeModel):
+# class Status(CremeModel):
+class Status(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     description = models.TextField(_('Description'))
-    # Used by creme_config
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 

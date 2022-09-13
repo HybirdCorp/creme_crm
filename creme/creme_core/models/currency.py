@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,17 +19,19 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-from .base import CremeModel
+# from .base import CremeModel
+from .base import MinionModel
 
 
 # TODO: add the possibility to choose a default currency which will be used everywhere in the CRM
-class Currency(CremeModel):
+# class Currency(CremeModel):
+class Currency(MinionModel):
     name = models.CharField(_('Currency'), max_length=100)
     local_symbol = models.CharField(_('Local symbol'), max_length=100)
     international_symbol = models.CharField(_('International symbol'), max_length=100)
 
-    # Used by creme_config
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)
+    # # Used by creme_config
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = _('Create a currency')
 

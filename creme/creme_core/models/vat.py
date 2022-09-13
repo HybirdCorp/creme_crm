@@ -23,7 +23,8 @@ from django.utils.translation import gettext_lazy as _
 
 from ..constants import DEFAULT_VAT
 from ..global_info import cached_per_request
-from .base import CremeModel
+# from .base import CremeModel
+from .base import MinionModel
 
 
 class VatManager(models.Manager):
@@ -32,10 +33,11 @@ class VatManager(models.Manager):
         return self.filter(is_default=True)[0]
 
 
-class Vat(CremeModel):
+# class Vat(CremeModel):
+class Vat(MinionModel):
     value = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
-    is_custom = models.BooleanField(default=True).set_tags(viewable=False)  # Used by creme_config
+    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     objects = VatManager()
 
