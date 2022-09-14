@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+from itertools import islice
 from typing import Iterable, Iterator
 
 from django.db.models import Field, Model
@@ -38,7 +39,7 @@ class Enumerator:
         """
         self.field = field
 
-    def choices(self, user) -> list[dict]:
+    def choices(self, user, *, term=None, values=None, limit=None) -> list[dict]:
         """Return the list of choices (see below) available for the given user.
         Abstract method.
 
@@ -94,8 +95,33 @@ class QSEnumerator(Enumerator):
 
         return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
-    def choices(self, user):
-        return [*map(self.instance_as_dict, self._queryset())]
+    def filter_by_term(self, user, term, limit=None):
+        queryset = self._queryset()
+        term = term.lower()
+
+        choices = filter(
+            lambda c: term in c['label'].lower(),
+            map(self.instance_as_dict, queryset)
+        )
+
+        return list(islice(choices, limit) if limit else choices)
+
+    def filter_by_values(self, user, values, limit=None):
+        queryset = self._queryset().filter(id__in=values)
+        return list(
+            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
+        )
+
+    def choices(self, user, *, term=None, values=None, limit=None):
+        if term:
+            return self.filter_by_term(user, term, limit)
+        elif values:
+            return self.filter_by_values(user, values, limit)
+
+        queryset = self._queryset()
+        return list(
+            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
+        )
 
 
 class _EnumerableRegistry:

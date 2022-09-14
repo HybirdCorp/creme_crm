@@ -21,7 +21,8 @@
 
     var ListViewColumnFilterBuilders = creme.component.FactoryRegistry.sub({
         _build_select: function(element, options, list) {
-            new creme.form.Select2().bind(element);
+            element.data('lvselect2', new creme.form.Select2(element));
+
             this._element = element.on('change', function(e) {
                 e.stopPropagation();
                 list.submitState(creme.ajax.serializeFormAsDict($(this)));

@@ -4,62 +4,78 @@
 
 {% block test_header %}
     <style type="text/css">
-        ul.vbox li.chosen-test-item {
+        ul.vbox li.select2-test-item {
             padding-top: 2px;
         }
 
-        li.chosen-test-item > select {
+        li.select2-test-item > select {
             width:350px;
         }
 
-        li.chosen-test-item > span {
+        li.select2-test-item > span {
             top: 0.5em;
-            vertical-align: top;
             position: relative;
         }
     </style>
 
     <script type="text/javascript">
-        var CHOSEN_TEST_OPTIONS = [
-           ["email",       "Adresse e-mail"],
-           ["description", "Description"],
-           ["fax",         "Fax"],
-           ["mobile",      "Mobile"],
-           ["last_name",   "Nom"],
-           ["phone",       "Numéro de téléphone"],
-           ["first_name",  "Prénom"],
-           ["url_site",    "Site Web"],
-           ["skype",       "Skype"]
+        var AVAILABLE_OPTIONS = [
+            {value: "email",       label: "Adresse e-mail"},
+            {value: "description", label: "Description"},
+            {value: "fax",         label: "Fax"},
+            {value: "mobile",      label: "Mobile"},
+            {value: "last_name",   label: "Nom"},
+            {value: "phone",       label: "Numéro de téléphone"},
+            {value: "first_name",  label: "Prénom"},
+            {value: "url_site",    label: "Site Web"},
+            {value: "skype",       label: "Skype"}
         ];
 
-        function randomOptions(threshold) {
-            var options = [];
-
-            CHOSEN_TEST_OPTIONS.forEach(function(value) {
-                if (Math.random() > threshold) {
-                    options.push(value);
-                }
-            });
-
-            return options;
-        }
-
         $(document).ready(function() {
-            var mockbackend = new creme.ajax.MockAjaxBackend({sync: true});
-            var urls = {
-                'mock/options': function() {
-                    return mockbackend.responseJSON(200, randomOptions(Math.random()));
+            var backend = new creme.ajax.MockAjaxBackend({sync: true, delay: 0});
+
+            backend.GET = {
+                'mock/random': function() {
+                    var results = AVAILABLE_OPTIONS.filter(function() {
+                        return Math.random() > 0.5;
+                    });
+
+                    return backend.responseJSON(200, results);
+                },
+                'mock/enum': function(url, data, options) {
+                    data = data || {};
+
+                    var term = (data.term || '').toLowerCase();
+                    var limit = data.limit || 50;
+
+                    var results = AVAILABLE_OPTIONS.filter(function(option) {
+                        return option.label.toLowerCase().indexOf(term) !== -1;
+                    }).slice(0, limit);
+
+                    return backend.responseJSON(200, results);
                 }
             };
 
-            $.extend(mockbackend.GET, urls);
+            creme.ajax.defaultBackend(backend);
 
-            $('.ui-creme-dselect').each(function() {
-                $(this).creme().create({backend: mockbackend});
+            function setupSelect2Field(element, options) {
+                if (element.data('cremeSelect2')) {
+                    element.data('cremeSelect2').destroy();
+                }
+
+                element.data('cremeSelect2', new creme.form.Select2(element, options));
+            }
+
+            $('.creme-test-body select').each(function() {
+                setupSelect2Field($(this));
             });
 
-            $('button#test-reload-button').on('click', function() {
-                $('#reloadable-select').creme().widget().reload({});
+            $(document).on('change', '.select2-enum-limit', function() {
+                var element = $('#select2-enum');
+
+                setupSelect2Field(element, {
+                    enumLimit: parseInt($(this).val()) || 5
+                });
             });
         });
     </script>
@@ -69,10 +85,8 @@
         <li>
             <h4>Static single select</h4>
             <ul class="ui-layout vbox">
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            data-clearable="true"
+                <li class="select2-test-item">
+                    <select data-allow-clear="true"
                             data-placeholder="Choisissez un champ...">
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
@@ -85,11 +99,9 @@
                         <option value="skype">Skype</option>
                     </select>
                 </li>
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            data-no-results="Aucun résultat..."
-                            >
+                <li class="select2-test-item">
+                    <select data-placeholder="Choisissez un champ..."
+                            data-no-results="Aucun résultat...">
                         <option value="">&nbsp;</option>
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
@@ -103,10 +115,8 @@
                     </select>
                     <span>Empty choice</span>
                 </li>
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            data-allow-clear="true"
+                <li class="select2-test-item">
+                    <select data-allow-clear="true"
                             data-placeholder="Choisissez un champ...">
                         <option>&nbsp;</option>
                         <option value="email">Adresse e-mail</option>
@@ -126,10 +136,8 @@
         <li>
             <h4>Static multiple select</h4>
             <ul class="ui-layout vbox">
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            multiple
+                <li class="select2-test-item">
+                    <select multiple
                             data-placeholder="Choisissez un champ..."
                             data-placeholder-multiple="Choisissez un ou plusieurs champs...">
                         <option value="email">Adresse e-mail</option>
@@ -143,13 +151,10 @@
                         <option value="skype">Skype</option>
                     </select>
                 </li>
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            multiple
-                            data-sortable
-                            data-placeholder-multiple="Choisissez un ou plusieurs champs..."
-                            >
+                <li class="select2-test-item">
+                    <select multiple
+                            sortable
+                            data-placeholder-multiple="Choisissez un ou plusieurs champs...">
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -165,25 +170,20 @@
             </ul>
         </li>
         <li>
-            <h4>Dynamic single select</h4>
+            <h4>Enum (ajax)</h4>
             <ul class="ui-layout vbox">
-                <li class="chosen-test-item">
-                    <select widget="ui-creme-dselect" class="ui-creme-input ui-creme-widget ui-creme-dselect"
-                            autocomplete
-                            id="reloadable-select"
-                            url="mock/options"
-                            data-placeholder="Choisissez un champ...">
-                        <option value="email">Adresse e-mail</option>
-                        <option value="description">Description</option>
-                        <option value="fax">Fax</option>
-                        <option value="mobile">Mobile</option>
-                        <option value="last_name">Nom</option>
-                        <option value="phone">Numéro de téléphone</option>
-                        <option value="first_name">Prénom</option>
-                        <option value="url_site">Site Web</option>
-                        <option value="skype">Skype</option>
+                <li class="select2-test-item">
+                    <select id="select2-enum" data-enum-url="mock/enum" data-enum-limit="5" data-placeholder="Choisissez un champ..."></select>
+                    <span>data-enum-limit&nbsp;</span>
+                    <select class="select2-enum-limit">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5" selected>5 (default)</option>
+                        <option value="10">10</option>
+                        <option value="10">100</option>
                     </select>
-                    <button id="test-reload-button">Reload</button>
                 </li>
             </ul>
         </li>

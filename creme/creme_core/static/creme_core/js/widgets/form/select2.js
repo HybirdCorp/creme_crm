@@ -21,6 +21,8 @@
 
 creme.form = creme.form || {};
 
+var S2 = $.fn.select2.amd;
+
 function djangoLocalisation(options) {
     return {
         errorLoading: function () {
@@ -47,6 +49,9 @@ function djangoLocalisation(options) {
         loadingMore: function () {
             return options.loadingMoreMsg || gettext('Loading more results…');
         },
+        enumTooManyResults: function() {
+            return options.tooManyResults || gettext('Show more results');
+        },
         maximumSelected: function (args) {
             if (options.maximumSelectedMsg) {
                 return options.maximumSelectedMsg(args);
@@ -72,44 +77,257 @@ function djangoLocalisation(options) {
     };
 }
 
+function convertToSelect2Data(data) {
+    data = data || [];
+
+    var groups = {};
+    var options = [];
+
+    data.filter(function(item) {
+        return item.visible !== false;
+    }).forEach(function(item) {
+        var option = {
+            id: item.value,
+            text: item.label,
+            disabled: item.disabled || false,
+            selected: item.selected || false
+        };
+
+        if (item.group) {
+            var group = groups[item.group] = (groups[item.group] || {
+                text: item.group,
+                children: []
+            });
+
+            group.children.push(option);
+        } else {
+            options.push(option);
+        }
+    });
+
+    if (!_.isEmpty(groups)) {
+        options = options.concat(_.values(groups));
+    }
+
+    return options;
+}
+
+S2.define('select2/data/enum', [
+    'select2/data/array',
+    'select2/utils'
+], function(ArrayAdapter, Utils) {
+    function Adapter(element, options) {
+        var enumOptions = this.enumOptions = $.extend({
+            limit: 50,
+            debounce: 100,
+            cache: false
+        }, options.get('enum'));
+
+        if (enumOptions.cache) {
+            this._queryBackend = creme.ajax.defaultCacheBackend();
+        } else {
+            this._queryBackend = creme.ajax.defaultBackend();
+        }
+
+        Adapter.__super__.constructor.call(this, element, options);
+    };
+
+    Utils.Extend(Adapter, ArrayAdapter);
+
+    Adapter.prototype.bind = function (container, $container) {
+        Adapter.__super__.bind.call(this, container, $container);
+
+        var self = this;
+
+        this._pinItems = this.$element.find('option[data-pinned]')
+                                      .map(function() { return self.item($(this)); })
+                                      .get();
+
+        container.on('enum:more', function(params) {
+            params = $.extend({}, this._lastEnumParams);
+            params.limit += this.enumOptions.limit;
+            this.trigger('query', params);
+        }.bind(this));
+
+
+        container.on('close', function() {
+            // If some queries were already done, think to reset the limit !
+            if (this._lastEnumParams) {
+                this._lastEnumParams.limit = this.enumOptions.limit;
+            }
+        }.bind(this));
+    };
+
+    Adapter.prototype.processResults = function (data, limit) {
+        var items = (this._pinItems || []).concat(convertToSelect2Data(data));
+
+        return {
+            results: items.slice(0, limit),
+            more: data.length > limit
+        };
+    };
+
+    Adapter.prototype.enumQuery = function (params, callback) {
+        var self = this;
+        var options = this.enumOptions;
+
+        params.limit = (params.limit || this.enumOptions.limit);
+
+        if (this._query && this._query.isCancelable()) {
+            this._query.cancel();
+        }
+
+        var query = this._query = this._queryBackend.query({backend: {dataType: 'json'}});
+
+        query.url(options.url)
+             .onDone(function(event, data) {
+                 self._lastEnumParams = params;
+                 callback(self.processResults(data, params.limit));
+             })
+             .onFail(function() {
+                 self.trigger('results:message', {
+                     message: 'errorLoading'
+                 });
+             });
+
+        return query.get({
+            term: params.term,
+            limit: params.limit + 1  // Ask for one more element to detect overflow
+        });
+    };
+
+    Adapter.prototype.query = function (params, callback) {
+        /*
+         * HACK : underscoreJS function _.debounce does not work within Select2 "context"
+         * for whatever reason. Lets do it ourselves !
+         */
+        if (this._debounce) {
+            clearTimeout(this._debounce);
+        }
+
+        if (this.enumOptions.debounce > 0) {
+            this._debounce = setTimeout(function() {
+                this._debounce = null;
+                this.enumQuery(params, callback);
+            }.bind(this), this.enumOptions.debounce);
+        } else {
+            this.enumQuery(params, callback);
+        }
+    };
+
+    return Adapter;
+});
+
+
+S2.define('select2/dropdown/enum', [], function () {
+    function EnumMessage(decorated, $element, options, dataAdapter) {
+        decorated.call(this, $element, options, dataAdapter);
+        this.$message = this.createMessage();
+    }
+
+    EnumMessage.prototype.bind = function (decorated, container, $container) {
+        decorated.call(this, container, $container);
+
+        var self = this;
+
+        this.$results.parent().on('click', '.select2-results__more', function(e) {
+            e.stopPropagation();
+            self.moreLoading = true;
+            self.trigger('enum:more');
+        });
+
+        container.on('query', function() {
+            self.$message.remove();
+        });
+    };
+
+    EnumMessage.prototype.append = function (decorated, data) {
+        decorated.call(this, data);
+
+        this.moreLoading = false;
+
+        if (data.more) {
+            this.$results.parent().append(this.$message);
+        } else {
+            this.$message.remove();
+        }
+    };
+
+    EnumMessage.prototype.createMessage = function() {
+        var message = this.options.get('translations').get('enumTooManyResults');
+        var element = $(
+            '<div class="select2-results__more" role="option" aria-disabled="true"></div>'
+        );
+
+        element.html(message({}));
+        return element;
+    };
+
+    return EnumMessage;
+});
+
+
 creme.form.Select2 = creme.component.Component.sub({
-    _init_: function(options) {
-        this._options = $.extend({
-            multiple: false,
-            sortable: false,
-            clearable: false,
-            placeholder: undefined, // gettext("Select one option"),
-            placeholderMultiple: undefined // gettext("Select some options")
+    _init_: function(element, options) {
+        Assert.not(element.is('.select2-hidden-accessible'), 'Select2 instance is already active');
+
+        options = this._options = $.extend({
+            multiple: element.is('[multiple]'),
+            sortable: element.is('[sortable]'),
+            allowClear: element.data('allowClear'),
+            placeholder: element.data('placeholder'),
+            placeholderMultiple: element.data('placeholderMultiple'),
+            enumURL: element.data('enumUrl'),
+            enumLimit: element.data('enumLimit'),
+            enumDebounce: element.data('enumDebounce'),
+            enumCache: element.data('enumCache')
         }, options || {});
-    },
 
-    isBound: function() {
-        return !Object.isNone(this._instance);
-    },
-
-    options: function() {
-        return $.extend({}, this._options);
-    },
-
-    localisation: function(options) {
-        return djangoLocalisation($.extend({}, this._options, options));
-    },
-
-    bind: function(element) {
-        Assert.not(this.isBound(), 'Select2 instance is already active');
-
-        var options = this._options;
         var placeholder = options.multiple ? options.placeholderMultiple : options.placeholder;
 
-        element.toggleAttr('data-allow-clear', options.clearable, 'true');
-        element.attr('data-placeholder', placeholder);
-
-        var instance = element.select2({
+        var select2Options = {
+            allowClear: options.allowClear,
+            placeholder: placeholder,
+            debug: true,
+            theme: 'creme',
             language: this.localisation(),
             templateSelection: function(data) {
                 return data.text;
             }
-        });
+        };
+
+        if (options.enumURL) {
+            S2.require([
+                'select2/utils',
+                'select2/results',
+                'select2/data/enum',
+                'select2/dropdown/enum',
+                'select2/dropdown/hidePlaceholder'
+            ], function(Utils, ResultsAdapter, EnumAdapter, EnumMessage, HidePlaceholder) {
+                var resultsAdapter = Utils.Decorate(ResultsAdapter, EnumMessage);
+
+                if (select2Options.placeholder) {
+                    resultsAdapter = Utils.Decorate(resultsAdapter, HidePlaceholder);
+                }
+
+                $.extend(select2Options, {
+                    'enum': {
+                        url: options.enumURL,
+                        debounce: options.enumDebounce,
+                        limit: options.enumLimit,
+                        cache: options.enumCache
+                    },
+                    dataAdapter: EnumAdapter,
+                    resultsAdapter: resultsAdapter
+                });
+            }, undefined, true);
+        }
+
+        if (select2Options.placeholder && Object.isEmpty(element.find('option[value=""]'))) {
+            element.append($('<option>${placeholder}</option>'.template(select2Options)));
+        }
+
+        var instance = element.select2(select2Options);
 
         if (options.multiple && options.sortable) {
             this._activateSort(element);
@@ -120,8 +338,16 @@ creme.form.Select2 = creme.component.Component.sub({
         return this;
     },
 
-    unbind: function() {
-        if (this.isBound()) {
+    options: function() {
+        return $.extend({}, this._options);
+    },
+
+    localisation: function(options) {
+        return djangoLocalisation($.extend({}, this._options, options));
+    },
+
+    destroy: function() {
+        if (!Object.isNone(this.element)) {
             if (this._sortable && this._sortable.length > 0) {
                 this._sortable.sortable('destroy');
                 this._sortable = null;
@@ -138,19 +364,8 @@ creme.form.Select2 = creme.component.Component.sub({
     refresh: function() {
         var data = creme.model.ChoiceGroupRenderer.parse(this.element);
 
-        var selectData = (data || []).filter(function(item) {
-            return item.visible;
-        }).map(function(item) {
-            return {
-                id: item.value,
-                text: item.label,
-                disabled: item.disabled,
-                selected: item.selected
-            };
-        });
-
         this.element.select2({
-            data: selectData
+            data: convertToSelect2Data(data)
         });
 
         this.element.trigger('change.select2');
@@ -167,7 +382,7 @@ creme.form.Select2 = creme.component.Component.sub({
             revert:  200,
             delay:   200,
             stop: function() {
-                jQuery.fn.select2.amd.require(['select2/utils'], function(Utils) {
+                S2.require(['select2/utils'], function(Utils) {
                     var sorted = $(choices).find('.select2-selection__choice').map(function() {
                         return Utils.GetData(this, 'data');
                     }).get().map(function(d) {

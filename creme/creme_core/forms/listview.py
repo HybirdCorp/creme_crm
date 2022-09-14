@@ -20,16 +20,16 @@ from __future__ import annotations
 
 import decimal
 import logging
-# import unicodedata
 from collections import OrderedDict  # defaultdict
 from datetime import datetime
 from functools import partial
 from re import compile as compile_re
 
-# from django.conf import settings
+from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import Field, Widget
-# from django.utils.formats import get_format
+from django.urls.base import reverse
 from django.utils.formats import get_format_lazy, sanitize_separators
 from django.utils.functional import cached_property
 from django.utils.timezone import now
@@ -40,9 +40,12 @@ from creme.creme_core.core import enumerable
 from creme.creme_core.forms.base import CremeForm
 from creme.creme_core.forms.widgets import DatePickerMixin
 from creme.creme_core.models import Relation
-# from creme.creme_core.utils.dates import dt_from_str
 from creme.creme_core.utils.date_range import CustomRange
 
+# import unicodedata
+# from django.conf import settings
+# from django.utils.formats import get_format
+# from creme.creme_core.utils.dates import dt_from_str
 logger = logging.getLogger(__name__)
 NULL = 'NULL'
 
@@ -193,6 +196,113 @@ class SelectLVSWidget(ListViewSearchWidget):
         return data.get(name)
 
 
+class LVSEnumerator:
+    null_label = _('* is empty *')
+    enumerable_registry = enumerable.enumerable_registry
+    limit = getattr(settings, 'LISTVIEW_ENUMERABLE_LIMIT', 50)
+
+    def __init__(self, user, field, registry=None):
+        registry = registry or self.enumerable_registry
+
+        self.user = user
+        self.field = field
+
+        try:
+            self.enumerator = registry.enumerator_by_field(field)
+        except ValueError as e:
+            logger.warning('RegularRelatedField => %s', e)
+            self.enumerator = None
+
+    def get_field_null_label(self, field):
+        try:
+            null_label = field.get_null_label()
+        except AttributeError:
+            null_label = ''
+
+        return f'* {null_label} *' if null_label else self.null_label
+
+    def choices(self, values):
+        choices = []
+
+        field = self.field
+
+        if field.null or field.many_to_many:
+            choices.append({
+                'value': NULL,
+                'label': self.get_field_null_label(field),
+                'pinned': True
+            })
+
+        if self.enumerator:
+            choices.extend(
+                self.enumerator.choices(
+                    user=self.user,
+                    values=values,
+                    limit=self.limit
+                )
+            )
+
+        return choices
+
+    def url(self):
+        ctype = ContentType.objects.get_for_model(self.field.model)
+        return reverse(
+            'creme_core__enumerable_choices', args=(ctype.id, self.field.name)
+        )
+
+
+class EnumerableLVSWidget(ListViewSearchWidget):
+    template_name = 'creme_core/listview/search-widgets/enumerable.html'
+    all_label = pgettext_lazy('creme_core-filter', 'All')
+
+    def group_choices(self, choices, selected_value):
+        groups = OrderedDict()
+
+        for choice in choices:
+            value = str(choice['value'])
+            group_name = choice.get('group')
+            group_choices = groups.get(group_name)
+            if group_choices is None:
+                groups[group_name] = group_choices = []
+
+            group_choices.append(
+                # TODO: use "help" ? (need to display entirely our widget, not a regular <select>)
+                {
+                    'value': value,
+                    'text': choice['label'],
+                    'selected': selected_value == value,
+                    'pinned': choice.get('pinned', False)
+                }
+            )
+
+        return [*groups.items()]
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        context['enum'] = {
+            'groups': self.group_choices(
+                self.enumerator.choices(values=[value] if value else None),
+                value
+            )
+        }
+
+        return context
+
+    def build_attrs(self, base_attrs, extra_attrs=None):
+        attrs = super().build_attrs(base_attrs, extra_attrs)
+
+        if self.enumerator:
+            attrs.update({
+                'data-enum-url': self.enumerator.url,
+                'data-enum-limit': self.enumerator.limit,
+                'data-enum-cache': 'true',
+                'data-allow-clear': 'true',
+                'data-placeholder': self.all_label,
+            })
+
+        return attrs
+
+
 # TODO: extends MultiWidget & remove/improve get_context() ?
 # class DateRangeLVSWidget(ListViewSearchWidget):
 class DateRangeLVSWidget(DatePickerMixin, ListViewSearchWidget):
@@ -236,9 +346,10 @@ class ListViewSearchField(Field):
     widget: type[ListViewSearchWidget] = ListViewSearchWidget
 
     def __init__(self, *, cell, user, **kwargs):
-        super().__init__(**kwargs)
         self.cell = cell
         self.user = user
+
+        super().__init__(**kwargs)
 
     def to_python(self, value):
         return Q()
@@ -529,45 +640,24 @@ class RegularDateField(TemporalLVSMixin, ListViewSearchField):
 
 
 class RegularRelatedField(ListViewSearchField):
-    widget = SelectLVSWidget
-    enumerable_registry = enumerable.enumerable_registry
-    default_null_label = _('* is empty *')
+    widget = EnumerableLVSWidget
 
-    def __init__(self, enumerable_registry=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, *, cell, user, enumerable_registry=None, **kwargs):
+        field = cell.field_info[-1]
 
-        if enumerable_registry is None:
-            enumerable_registry = self.enumerable_registry
+        self.enumerator = LVSEnumerator(
+            user=user,
+            field=field,
+            registry=enumerable_registry
+        )
 
-        self.choices = self.widget.choices = choices = [
-            {'value': '', 'label': pgettext_lazy('creme_core-filter', 'All')},
-        ]
+        super().__init__(cell=cell, user=user, **kwargs)
 
-        field = self.cell.field_info[-1]
-        if field.null or field.many_to_many:
-            choices.append({
-                'value': NULL,
-                'label': self._get_field_null_label(field),
-            })
-
-        try:
-            enumerator = enumerable_registry.enumerator_by_field(field)
-        except ValueError as e:
-            logger.warning('RegularRelatedField => %s', e)
-        else:
-            choices.extend(enumerator.choices(user=self.user))
-
-    def _get_field_null_label(self, field):
-        try:
-            null_label = field.get_null_label()
-        except AttributeError:
-            null_label = ''
-
-        return f'* {null_label} *' if null_label else self.default_null_label
+        self.widget.enumerator = self.enumerator
 
     def to_python(self, value):
         if value:
-            for choice in self.choices:
+            for choice in self.enumerator.choices(values=[value]):
                 pk = choice['value']
 
                 if value == str(pk):

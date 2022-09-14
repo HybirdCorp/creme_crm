@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2021  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import enumerable
@@ -40,13 +41,23 @@ class UserEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def choices(self, user):
-        choices = super().choices(user)
+    def filter_by_term(self, user, term, limit=None):
+        queryset = self._queryset().filter(
+            Q(first_name__icontains=term)
+            | Q(last_name__icontains=term)
+            | Q(username__icontains=term)
+        )
+
+        return list(map(self.instance_as_dict, queryset))
+
+    def choices(self, user, *, term=None, values=None, limit=None):
+        # Do not apply limits on queryset, because ordering is done later
+        choices = super().choices(user, term=term, values=values)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d.get('group', ''), d['label'])))
 
-        return choices
+        return choices[:limit] if limit else choices
 
 
 class EntityFilterEnumerator(enumerable.QSEnumerator):
@@ -58,18 +69,31 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def choices(self, user):
-        choices = super().choices(user)
+    def filter_by_term(self, user, term, limit=None):
+        queryset = self._queryset().filter(name__icontains=term)
+        return list(map(self.instance_as_dict, queryset))
+
+    def choices(self, user, *, term=None, values=None, limit=None):
+        # Do not apply limits on queryset, because ordering is done later
+        choices = super().choices(user, term=term, values=values)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d['group'], d['label'])))
 
-        return choices
+        return choices[:limit] if limit else choices
 
 
 class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
-    def choices(self, user):
-        return [
+    def choices(self, user, *, term=None, values=None, limit=None):
+        choices = [
             {'value': ct_id, 'label': label}
             for ct_id, label in ctype_choices(entity_ctypes())
         ]
+
+        if values:
+            choices = list(filter(lambda d: str(d['value']) in values, choices))
+        elif term:
+            term = term.lower()
+            choices = list(filter(lambda d: term in d['label'].lower(), choices))
+
+        return choices[:limit] if limit else choices

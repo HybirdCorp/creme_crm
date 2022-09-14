@@ -19,20 +19,38 @@ class EnumerableViewsTestCase(ViewsTestCase):
             args=(ContentType.objects.get_for_model(model).id, field_name),
         )
 
+    def test_choices__invalid_limit(self):
+        self.login()
+        url = self._build_choices_url(models.FakeContact, 'civility')
+        self.assertGET(400, url + '?limit=NaN')
+
     def test_choices_success_fk(self):
         self.login()
-        response = self.assertGET200(self._build_choices_url(models.FakeContact, 'civility'))
+
+        expected = [
+            {'value': id, 'label': title}
+            for id, title in models.FakeCivility.objects.values_list('id', 'title')
+        ]
+
+        url = self._build_choices_url(models.FakeContact, 'civility')
+        response = self.assertGET200(url)
 
         with self.assertNoException():
-            choices = response.json()
+            self.assertListEqual(expected, response.json())
 
-        self.assertListEqual(
-            [
-                {'value': id, 'label': title}
-                for id, title in models.FakeCivility.objects.values_list('id', 'title')
-            ],
-            choices,
-        )
+        response = self.assertGET200(url + '?limit=2')
+
+        with self.assertNoException():
+            self.assertListEqual(expected[:2], response.json())
+
+        response = self.assertGET200(url + '?term=Mister')
+
+        with self.assertNoException():
+            mister = models.FakeCivility.objects.get(title='Mister')
+
+            self.assertListEqual([
+                {'value': mister.id, 'label': str(mister)}
+            ], response.json())
 
     def test_choices_success_m2m(self):
         self.login()
