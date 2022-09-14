@@ -1,3 +1,5 @@
+/* global FunctionFaker */
+
 (function($) {
 
 QUnit.module("creme.sketch.utils", new QUnitMixin());
@@ -224,6 +226,49 @@ QUnit.parametrize('creme.d3FontSize', [
 
     equal(selection.size(), data.length);
     deepEqual(expected, creme.d3FontSize(selection));
+});
+
+QUnit.parametrize('creme.d3PreventResizeObserverLoop', [
+    false, true
+], {
+    'no size change': [{width: 100, height: 100}, {width: 100, height: 100}, {unobserve: 0, observe: 0}],
+    'width change': [{width: 100, height: 100}, {width: 200, height: 100}, {unobserve: 1, observe: 1}],
+    'height change': [{width: 100, height: 100}, {width: 100, height: 200}, {unobserve: 1, observe: 1}]
+}, function(callbackFailure, prevSize, nextSize, expected, assert) {
+    var element = $('<div>').css(prevSize).appendTo(this.qunitFixture());
+    var target = element.get(0);
+    var callback = function() {
+        target.style.width = '' + nextSize.width + 'px';
+        target.style.height = '' + nextSize.height + 'px';
+
+        if (callbackFailure) {
+            throw new Error('ResizeObservable callback failure');
+        }
+    };
+
+    var trigger = creme.d3PreventResizeObserverLoop(callback);
+
+    var observe = new FunctionFaker();
+    var unobserve = new FunctionFaker();
+
+    var observer = {
+        observe: observe.wrap(),
+        unobserve: unobserve.wrap()
+    };
+
+    try {
+        trigger([{target: target}], observer);
+    } catch (e) {
+        ok(callbackFailure);
+    }
+
+    window.requestAnimationFrame(function() {
+        equal(observe.calls().length, expected.observe, 'ResizeObserver.observe');
+        equal(unobserve.calls().length, expected.unobserve, 'ResizeObserver.unobserve');
+        start();
+    });
+
+    stop(1);
 });
 
 }(jQuery));
