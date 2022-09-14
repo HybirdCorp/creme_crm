@@ -121,6 +121,7 @@
             - The class 'fields.RealEntityForeignKey' now have a method 'get_prefetch_queryset()' ;
               so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
             - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
+            - The model 'FileRef' got a new JSONField called "extra_data" which can be used by third party code.
         # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
           can now be called with a combination of permissions (like 'VIEW | CHANGE').
         # In Javascript:
