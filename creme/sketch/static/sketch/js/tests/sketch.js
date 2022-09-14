@@ -149,7 +149,6 @@ QUnit.test('creme.D3Sketch.resize (ignore)', function(assert) {
     stop(1);
 });
 
-
 QUnit.test('creme.D3Sketch.clear', function(assert) {
     var element = $('<div style="width: 300px; height: 200px;">').appendTo(this.qunitFixture());
     var sketch = new creme.D3Sketch();

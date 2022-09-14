@@ -272,4 +272,52 @@ creme.d3Map = function(select, func) {
     return res;
 };
 
+creme.d3PreventResizeObserverLoop = function(callback) {
+    /*
+     * Prevent an issue caused by the infinite loop detection of the
+     * ResizeObserver : an observed element should NEVER be resized within the observer callback !
+     *
+     * It sometimes happens for whatever reason, mostly in unit tests.
+     *
+     * This "decorator" returns a function to use as ResizeObserver callback and
+     * follows those steps:
+     *    1. get the "initial" sizes of all elements
+     *    2. call the "decorated" callback as usual
+     *    3. get the sizes of all elements and filter those that has changed
+     *    4. remove the changed elements from the observer to prevent the infinite loop
+     *    5. wait for the next "AnimationFrame" before observing these elements again.
+     */
+    return function(entries, observer) {
+        var previousSizes = entries.map(function(entry) {
+            return entry.target.getBoundingClientRect();
+        });
+
+        try {
+            callback(entries, observer);
+        } finally {
+            var resizedElements = entries.filter(function(entry, i) {
+                var size = entry.target.getBoundingClientRect();
+                var previousSize = previousSizes[i];
+
+                return (
+                    size.width !== previousSize.width ||
+                    size.height !== previousSize.height
+                );
+            }).map(function(event) {
+                return event.target;
+            });
+
+            resizedElements.forEach(function(element) {
+                observer.unobserve(element);
+            });
+
+            window.requestAnimationFrame(function() {
+                resizedElements.forEach(function(element) {
+                    observer.observe(element);
+                });
+            });
+        }
+    };
+};
+
 }(jQuery));

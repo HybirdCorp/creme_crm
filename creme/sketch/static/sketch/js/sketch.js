@@ -63,7 +63,7 @@ creme.D3Sketch = creme.component.Component.sub({
         // IMPORTANT : If the svg is display mode is 'inline-block' (default), the height
         // will be constantly evaluated and the node will grow indefinitely (CSS issue)
         if (!this.ignoreResize()) {
-            this._resizeObserver = new ResizeObserver(this._onContainerResize.bind(this));
+            this._resizeObserver = new ResizeObserver(creme.d3PreventResizeObserverLoop(this._onContainerResize.bind(this)));
             this._resizeObserver.observe(domElement);
         }
 
