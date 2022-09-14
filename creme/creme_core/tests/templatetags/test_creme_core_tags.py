@@ -259,6 +259,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
         user = self.create_user()
         orga = FakeOrganisation.objects.create(
             user=user, name='<br/>Amestris', url_site='www.amestris.org',
+            email='contact@mestris.org',
         )
 
         with self.assertNoException():
@@ -267,6 +268,7 @@ class CremeCoreTagsTestCase(CremeTestCase):
                 "<ul>"
                 "<li>{% print_field object=entity field='name' %}</li>"
                 "<li>{% print_field object=entity field='url_site' %}</li>"
+                # "{% print_field object=entity field='email' as email %}<li>{{email}}</li>"
                 "</ul>"
             )
             render = template.render(Context({'entity': orga, 'user': user}))
@@ -287,7 +289,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            '"print_field" tag requires arguments.',
+            # '"print_field" tag requires arguments.',
+            "'print_field' did not receive value(s) for the argument(s): 'object', 'field'",
             str(cm.exception),
         )
 
@@ -299,7 +302,8 @@ class CremeCoreTagsTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            '"print_field" tag has invalid arguments.',
+            # '"print_field" tag has invalid arguments.',
+            "'print_field' received too many positional arguments",
             str(cm.exception),
         )
 
