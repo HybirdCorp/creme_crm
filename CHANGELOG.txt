@@ -115,6 +115,8 @@
                     - The method 'models.RootNode.get_relation_types()' is deprecated.
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
+        # In the class 'creme_core.auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
+          can now be called with a combination of permissions (like 'VIEW | CHANGE').
         # In 'creme_core.models' :
             - A new abstract model 'base.Minion' has been created with fields uuid/is_custom/extra_data.
               Most of the small models which gravitate around entities have been converted in the different apps.
@@ -122,8 +124,7 @@
               so the method 'Queryset.prefetch_related()' can be called with the name of a field of this type.
             - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
             - The model 'FileRef' got a new JSONField called "extra_data" which can be used by third party code.
-        # In the class 'auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
-          can now be called with a combination of permissions (like 'VIEW | CHANGE').
+        # In 'creme_core.templatetags.creme_core_tags', the tag "print_field" can now store the output inside a variable with the classical keyword "as".
         # In Javascript:
             - Added some convenience actions for the hatbarmenu widget
                 - 'creme_core-hatmenubar-view'
@@ -373,6 +374,7 @@
         # In 'creme_core.gui.last_viewed.LastViewedItem', the key "ctype_id" is now mandatory.
         # In 'creme_core.management.commands.i18n_overload.Command._get_catalog_paths()', the return
           values are now instances of 'pathlib.Path'.
+        # In 'creme_core.templatetags.creme_core_tags', the implementation of "print_field" has changed.
         # In Javascript:
             - 'creme.widget.DynamicSelect' is using the new wrapper 'creme.form.Select2' instead of 'creme.form.Chosen'.
         # Apps :
