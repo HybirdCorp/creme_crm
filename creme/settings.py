@@ -740,6 +740,7 @@ CREME_CORE_CSS = [
     # 'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
     # 'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
     'creme_core/css/select2/select2-4.0.13.css',
+    'creme_core/css/select2/select2-creme.css',
 
     'creme_core/css/creme.css',
     'creme_core/css/creme-ui.css',

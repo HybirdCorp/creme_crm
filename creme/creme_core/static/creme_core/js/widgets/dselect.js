@@ -55,7 +55,7 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _destroy: function(element) {
         if (this._select2) {
-            this._select2.unbind();
+            this._select2.destroy();
         }
     },
 
@@ -82,13 +82,13 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     _initAutocomplete: function(element, options) {
         if (this._autocomplete) {
-            this._select2 = new creme.form.Select2({
+            this._select2 = new creme.form.Select2(element, {
                 multiple: Boolean(this._multiple),
                 sortable: element.is('[data-sortable]'),
                 noResultsMsg: element.data('noResults'),
                 placeholder: element.data('placeholder'),
                 placeholderMultiple: element.data('placeholderMultiple')
-            }).bind(element);
+            });
         }
     },
 

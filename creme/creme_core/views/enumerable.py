@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 
 from ..core.enumerable import enumerable_registry
-from ..core.exceptions import ConflictError
+from ..core.exceptions import BadRequestError, ConflictError
 from ..http import CremeJsonResponse
 from ..models import CustomField, CustomFieldEnumValue
 from .generic import base
@@ -50,8 +50,15 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
             raise ConflictError(e) from e
 
     def get(self, request, *args, **kwargs):
+        try:
+            limit = request.GET.get('limit')
+            limit = int(limit) if limit is not None else None
+            term = request.GET.get('term')
+        except ValueError as e:
+            raise BadRequestError(e) from e
+
         return self.response_class(
-            self.get_enumerator().choices(user=request.user),
+            self.get_enumerator().choices(user=request.user, limit=limit, term=term),
             safe=False,  # Result is not a dictionary
         )
 
