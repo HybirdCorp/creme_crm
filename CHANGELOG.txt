@@ -215,6 +215,7 @@
            - The formats in creme/settings.py (DATE_FORMAT, DATE_INPUT_FORMATS...) have been cleared,
              so the django's values are used if you set 'USE_L10N = False'.
           So you may encounter some changes if you parse dates in your code & were relying of some specific formats.
+        # In the class 'creme_core.apps.CremeAppConfig', the method 'register_sanboxes()' has been renamed 'register_sandboxes()'.
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
         # In 'creme_core.forms' :
