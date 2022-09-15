@@ -68,7 +68,8 @@ if apps.is_installed('creme.assistants'):
 
 @skipIfCustomActivity
 class ActivityTestCase(_ActivitiesTestCase):
-    ADD_INDISPO_URL = reverse('activities__create_indispo')
+    # ADD_INDISPO_URL = reverse('activities__create_indispo')
+    ADD_UNAVAILABILITY_URL = reverse('activities__create_unavailability')
 
     @staticmethod
     def _build_add_related_uri(related, act_type_id=None):
@@ -2109,14 +2110,14 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         create_dt = self.create_datetime
-        create_indispo = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
-        activity1 = create_indispo(
-            title='Indispo01',
+        create_unav = partial(Activity.objects.create, user=user, type_id=ACTIVITYTYPE_INDISPO)
+        activity1 = create_unav(
+            title='Unavailability01',
             start=create_dt(year=2015, month=1, day=1, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=1, hour=15, minute=0),
         )
-        activity2 = create_indispo(
-            title='Indispo02',
+        activity2 = create_unav(
+            title='Unavailability02',
             start=create_dt(year=2015, month=1, day=2, hour=14, minute=0),
             end=create_dt(year=2015, month=1, day=2, hour=15, minute=0),
         )
@@ -2385,7 +2386,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
         other_user = self.other_user
 
-        url = self.ADD_INDISPO_URL
+        url = self.ADD_UNAVAILABILITY_URL
         response1 = self.assertGET200(url)
         self.assertEqual(_('Create an unavailability'), response1.context.get('title'))
 
@@ -2461,7 +2462,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             id='holidays', name='Holidays', type_id=constants.ACTIVITYTYPE_INDISPO,
         )
         response = self.client.post(
-            self.ADD_INDISPO_URL,
+            self.ADD_UNAVAILABILITY_URL,
             follow=True,
             data={
                 'user':  user.pk,
@@ -2493,7 +2494,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         user = self.login()
 
         response = self.assertPOST200(
-            self.ADD_INDISPO_URL,
+            self.ADD_UNAVAILABILITY_URL,
             follow=True,
             data={
                 'user': user.pk,
@@ -2534,7 +2535,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         title = 'AFK'
         response = self.assertPOST200(
-            self.ADD_INDISPO_URL,
+            self.ADD_UNAVAILABILITY_URL,
             follow=True,
             data={
                 'user': user.id,
