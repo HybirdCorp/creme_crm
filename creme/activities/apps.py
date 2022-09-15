@@ -197,7 +197,8 @@ class ActivitiesConfig(CremeAppConfig):
         ).add_link(
             'activities-create_unavailability',
             label=_('Unavailability'),
-            url=reverse('activities__create_indispo'),
+            # url=reverse('activities__create_indispo'),
+            url=reverse('activities__create_unavailability'),
             perm=creation_perm,
             priority=25,
         )

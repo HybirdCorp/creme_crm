@@ -129,9 +129,11 @@ urlpatterns = [
         ),
         Swappable(
             re_path(
-                r'^activity/add_indispo[/]?$',
+                # r'^activity/add_indispo[/]?$',
+                r'^activity/add_unavailability[/]?$',
                 activity.UnavailabilityCreation.as_view(),
-                name='activities__create_indispo',
+                # name='activities__create_indispo',
+                name='activities__create_unavailability',
             )
         ),
         Swappable(

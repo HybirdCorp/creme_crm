@@ -332,6 +332,8 @@
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Activities :
                 - The class 'forms.activity_type.BulkEditTypeForm' has been removed.
+                - The URL named "activities__create_indispo" has been renamed "activities__create_unavailability" ;
+                  the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'
                   & the class 'ProductInnerEditCategory' has been removed.
