@@ -16,6 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
 from datetime import timedelta
 
 from django.db import models
@@ -49,14 +50,14 @@ class ActivityType(CremeModel):
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'activities'
         verbose_name = _('Type of activity')
         verbose_name_plural = _('Types of activity')
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
     def as_timedelta(self):
         hours, minutes, seconds = self.default_hour_duration.split(':')
@@ -79,18 +80,30 @@ class ActivitySubType(CremeModel):
 
     # Used by creme_config
     is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
+
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a sub-type')
-
-    def __str__(self):
-        return self.name
 
     class Meta:
         app_label = 'activities'
         verbose_name = _('Sub-type of activity')
         verbose_name_plural = _('Sub-types of activity')
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.is_custom and self.type.is_custom:
+            # raise ValueError(...) TODO: in creme2.5
+            logging.getLogger(__name__).critical(
+                'the ActivitySubType id="%s" is not custom,'
+                'so the related ActivityType cannot be custom.',
+                self.id,
+            )
+
+        super().save(*args, **kwargs)
 
 
 # class Status(CremeModel):
@@ -101,11 +114,11 @@ class Status(MinionModel):
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'activities'
         verbose_name = pgettext_lazy('activities-singular', 'Status of activity')
         verbose_name_plural = pgettext_lazy('activities-plural', 'Status of activity')
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name

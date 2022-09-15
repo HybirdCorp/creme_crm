@@ -134,7 +134,10 @@
             - Added 'creme.form.DropDown' component that decorate a <select> (used for new reports D3 bricks)
                 - Displays a toggle link if there is only 2 options
                 - Displays a link that opens a popover with the unselected options
-        # Apps
+        # Apps :
+            - Activities :
+                - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
+                  In Creme 2.5 an exception will be raised.
             - Sketch : New application that integrates D3js tools for creme
                 * Added base bricks for the most common usecases.
                    - BarChartBrick
