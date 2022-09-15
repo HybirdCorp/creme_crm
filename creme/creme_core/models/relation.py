@@ -202,7 +202,7 @@ class RelationManager(models.Manager):
         user = kwargs.pop('user', None)
         user_id = kwargs.pop('user_id') if user is None else user.id
 
-        for _i in range(10):
+        for i in range(10):
             try:
                 relation = self.get(**kwargs)
             except self.model.DoesNotExist:
@@ -210,7 +210,12 @@ class RelationManager(models.Manager):
                     # NB: Relation.save is already @atomic'd
                     relation = self.create(**kwargs, user_id=user_id)
                 except IntegrityError:
-                    logger.exception('Avoid a Relation duplicate: %s ?!', kwargs)
+                    if i:
+                        # Avoiding one concurrent creation is OK, 2+ is suspicious...
+                        logger.exception(
+                            'Avoid a concurrent Relation creation %s times: %s',
+                            i, kwargs,
+                        )
                     continue
 
             break
