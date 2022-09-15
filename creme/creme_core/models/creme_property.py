@@ -110,7 +110,7 @@ class CremePropertyManager(models.Manager):
         except IntegrityError:
             logger.exception('Avoid a CremeProperty duplicate: %s ?!', kwargs)
 
-    def safe_get_or_create(self, **kwargs):
+    def safe_get_or_create(self, **kwargs) -> CremeProperty:
         """Kind of safe version of 'get_or_create'.
         Safe means the UNIQUE constraint of Relation is respected, &
         this method will never raise an IntegrityError.
@@ -143,7 +143,8 @@ class CremePropertyManager(models.Manager):
 
     def safe_multi_save(self,
                         properties: Iterable[CremeProperty],
-                        check_existing: bool = True) -> int:
+                        check_existing: bool = True,
+                        ) -> int:
         """Save several instances of CremeProperty by taking care of the UNIQUE
         constraint on ('type', 'creme_entity').
 
