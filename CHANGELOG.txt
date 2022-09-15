@@ -78,6 +78,7 @@
         - The version of 'jquery-ui' is now "1.13.1".
     - Chosen to Select2 migration :
         - New dependency 'Select2 4.0.13'
+    - Sortable.js was upgraded from "1.10.2" to "1.15.0".
     - New application Sketch :
         - New dependency 'd3js 5.16.0'
         - New dependency 'filesaver 2.0.4' (customized)
