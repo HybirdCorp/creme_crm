@@ -37,8 +37,14 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # ---
         sub_cat.is_custom = False
 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ValueError) as cm:
             sub_cat.save()
+
+        self.assertEqual(
+            f'The SubCategory id="{sub_cat.id}" is not custom,'
+            f'so the related Category cannot be custom.',
+            str(cm.exception),
+        )
 
         # ---
         cat.is_custom = False

@@ -31,14 +31,14 @@ class Category(MinionModel):
 
     creation_label = pgettext_lazy('products-category', 'Create a category')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'products'
         verbose_name = pgettext_lazy('products-category', 'Category')
         verbose_name_plural = pgettext_lazy('products-category', 'Categories')
         ordering = ('name',)
+
+    def __str__(self):
+        return self.name
 
 
 # class SubCategory(CremeModel):
@@ -52,17 +52,20 @@ class SubCategory(MinionModel):
 
     creation_label = pgettext_lazy('products-sub_category', 'Create a sub-category')
 
-    def __str__(self):
-        return self.name
-
     class Meta:
         app_label = 'products'
         verbose_name = pgettext_lazy('products-sub_category', 'Sub-category')
         verbose_name_plural = pgettext_lazy('products-sub_category', 'Sub-categories')
         ordering = ('name',)
 
+    def __str__(self):
+        return self.name
+
     def save(self, *args, **kwargs):
         if not self.is_custom and self.category.is_custom:
-            raise ValueError('TODO')
+            raise ValueError(
+                f'The SubCategory id="{self.id}" is not custom,'
+                f'so the related Category cannot be custom.',
+            )
 
         super().save(*args, **kwargs)
