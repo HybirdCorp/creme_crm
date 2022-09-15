@@ -92,7 +92,7 @@ class BillingExporter:
     def export(self, *,
                entity: CremeEntity,
                user) -> FileRef | HttpResponse:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def id(self) -> ExporterId:
@@ -105,7 +105,7 @@ class BillingExporter:
         """Get resources paths to screenshots.
         Useful to illustrate choices in configurations GUI.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class BillingExportEngine:
@@ -118,14 +118,14 @@ class BillingExportEngine:
         self.model = model
 
     def exporter(self, flavour: ExporterFlavour) -> BillingExporter:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @property
     def flavours(self) -> Iterator[ExporterFlavour]:
         """Different flavours an engine supports.
         Used by the configuration GUI.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def generate_id(app_label: str, name: str) -> EngineId:

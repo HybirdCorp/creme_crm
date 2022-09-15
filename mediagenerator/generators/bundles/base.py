@@ -49,7 +49,7 @@ class Filter:
         """
         Yields content for each output item for the given variation.
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_dev_output(self, name, variation):
         """

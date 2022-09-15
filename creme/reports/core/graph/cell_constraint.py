@@ -53,13 +53,13 @@ class GraphHandCellConstraint:
     def cells(self,
               not_hiddable_cell_keys: Container[str] = (),
               ) -> Iterator[EntityCell]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def check_cell(self,
                    cell: EntityCell,
                    not_hiddable_cell_keys: Container[str] = (),
                    ) -> bool:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_cell(self,
                  cell_key: str,

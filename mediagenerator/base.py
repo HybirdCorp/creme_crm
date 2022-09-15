@@ -26,7 +26,7 @@ class Generator:
         Yields tuples of the form:
         content, mimetype
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get_dev_output_names(self):
         """
@@ -37,4 +37,4 @@ class Generator:
 
         Here, key must be the same as for get_output_names().
         """
-        raise NotImplementedError()
+        raise NotImplementedError

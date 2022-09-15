@@ -329,7 +329,7 @@ class BaseStatusSetting(generic.CheckedView):
         return HttpResponse()
 
     def update(self, *, event, contact, status):
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class InvitationStatusSetting(BaseStatusSetting):

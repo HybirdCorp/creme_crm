@@ -161,7 +161,7 @@ class UploadForm(CremeForm):
 
 class BaseExtractor:
     def extract_value(self, line: Line, user) -> ExtractedTuple:
-        raise NotImplementedError()
+        raise NotImplementedError
 
 
 class SingleColumnExtractor(BaseExtractor):

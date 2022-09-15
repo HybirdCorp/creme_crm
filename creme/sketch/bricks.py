@@ -37,7 +37,7 @@ class ChartBrick(Brick):
         """
         Raw data for the chart. Must be implemented !
         """
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _render_chart(self, context):
         return self._render(

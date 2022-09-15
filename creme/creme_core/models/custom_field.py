@@ -180,7 +180,7 @@ class CustomFieldValue(CremeModel):
 
     @staticmethod
     def _get_formfield(**kwargs) -> forms.Field:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @classmethod
     def get_formfield(cls,

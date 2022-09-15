@@ -84,10 +84,10 @@ class MailBox:
                     logger.warning('Email sync: deleting the email "%s" failed.', email_id)
 
         def _retrieve_email_as_bytes(self, email_id: EmailID) -> bytes:
-            raise NotImplementedError()
+            raise NotImplementedError
 
         def _delete_email(self, email_id: EmailID) -> None:
-            raise NotImplementedError()
+            raise NotImplementedError
 
     def __init__(self, *,
                  host: str,
@@ -157,13 +157,13 @@ class MailBox:
         yield from email_ids
 
     def _login(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _retrieve_ids(self) -> Iterator[EmailID]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _quit(self) -> None:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def fetch_email(self, email_id: EmailID):
         return self._EmailFetcher(box=self, email_id=email_id)
