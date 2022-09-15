@@ -62,7 +62,9 @@ class AveragePerMonthStatistics:
 
         if count:
             average = count / months
-            stat = (item['messages'] % average).format(
+            # NB: ngettext() warns if you pass a float ;
+            #     is round() always the right plural rules in all languages??
+            stat = (item['messages'] % round(average)).format(
                 # count=number_format(average, decimal_pos=1, use_l10n=True),
                 count=number_format(average, decimal_pos=1),
             )
