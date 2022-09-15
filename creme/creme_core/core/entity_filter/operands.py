@@ -34,7 +34,7 @@ class ConditionDynamicOperand:
 
     def resolve(self):
         "Get the effective value  to use in QuerySet."
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def validate(self, *, field, value):
         """Raise a validation error if the value is invalid.

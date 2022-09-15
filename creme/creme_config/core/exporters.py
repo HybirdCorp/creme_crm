@@ -71,7 +71,7 @@ class Exporter:
         return self.model._default_manager.all()
 
     def dump_instance(self, instance: Model) -> dict:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def __call__(self) -> list[dict]:
         return [*map(self.dump_instance, self.get_queryset())]

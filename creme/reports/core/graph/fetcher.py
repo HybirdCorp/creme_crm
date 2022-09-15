@@ -86,7 +86,7 @@ class GraphFetcher:
     def choices(cls,
                 model: type[CremeEntity],
                 ) -> Iterator[tuple[str, str | list[tuple[str, str]]]]:
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def create_brick_config_item(self,
                                  brick_class: type[InstanceBrick] | None = None,

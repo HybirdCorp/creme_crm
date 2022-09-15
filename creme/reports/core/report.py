@@ -183,7 +183,7 @@ class ReportHand:
                                      ) -> str:
         """Overload this in sub-class when you compute the hand value (entity is viewable)."""
         # return
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _handle_report_values(self,
                               entity: CremeEntity | None,

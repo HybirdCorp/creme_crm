@@ -79,7 +79,7 @@ class BaseAddressesInformation(CheckedView):
         return get_object_or_404(EntityFilter, pk=filter_id) if filter_id else None
 
     def get_info(self, request):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def get(self, request, *args, **kwargs):
         return self.response_class(self.get_info(request))

@@ -253,7 +253,7 @@ class _AssistantSubCell(CustomFormExtraSubCell):
     is_required = False
 
     def _concrete_formfield(self, instance, user, **kwargs):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     @staticmethod
     def _create_alert(activity, trigger_date, **kwargs):

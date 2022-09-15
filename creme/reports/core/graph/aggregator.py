@@ -48,7 +48,7 @@ class ReportGraphAggregator:
         self._error: str | None = error
 
     def annotate(self):
-        raise NotImplementedError()
+        raise NotImplementedError
 
     # TODO: improve annotate() API instead?
     @property
