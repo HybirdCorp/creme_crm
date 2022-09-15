@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from django.urls import reverse
 
 from ..models import ActivitySubType, ActivityType
@@ -7,6 +9,55 @@ from .base import _ActivitiesTestCase
 
 
 class ActivityTypeTestCase(_ActivitiesTestCase):
+    def test_save(self):
+        atype = ActivityType.objects.create(
+            id='test-activity_martial',
+            name='Martial arts',
+            default_day_duration=0, default_hour_duration='00:15:00',
+        )
+        self.assertTrue(atype.is_custom)
+
+        sub_type = ActivitySubType(
+            id='test-activity_karate', name='Karate session', type=atype,
+        )
+        self.assertTrue(sub_type.is_custom)
+
+        # with self.assertNoException():  # TODO: creme2.5
+        with self.assertLogs(level='CRITICAL') as logs_manager1:
+            # Trick: there is not 'assertNoLogs()' in Python < 3.10
+            logging.getLogger('foo').critical('dummy message')
+
+            sub_type.save()
+
+        self.assertListEqual(logs_manager1.output, ['CRITICAL:foo:dummy message'])
+
+        # ---
+        sub_type.is_custom = False
+
+        # with self.assertRaises(ValueError):  # TODO: creme2.5
+        with self.assertLogs(level='CRITICAL') as logs_manager2:
+            sub_type.save()
+
+        self.assertListEqual(
+            logs_manager2.output,
+            [
+                f'CRITICAL:creme.activities.models.other_models:'
+                f'the ActivitySubType id="{sub_type.id}" is not custom,'
+                f'so the related ActivityType cannot be custom.'
+            ],
+        )
+
+        # ---
+        atype.is_custom = False
+
+        # with self.assertNoException():  # TODO: creme2.5
+        with self.assertLogs(level='CRITICAL') as logs_manager3:
+            logging.getLogger('foo').critical('dummy message')
+
+            sub_type.save()
+
+        self.assertListEqual(logs_manager3.output, ['CRITICAL:foo:dummy message'])
+
     def test_create_type(self):
         self.login()
         self.assertGET200(reverse('creme_config__app_portal', args=('activities',)))
@@ -38,7 +89,7 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
     def test_edit_type(self):
         self.login()
 
-        type_id = 'test-activity_awsesome'
+        type_id = 'test-activity_awesome'
         atype = ActivityType.objects.create(
             pk=type_id,
             name='karate session',
