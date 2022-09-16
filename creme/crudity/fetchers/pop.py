@@ -97,7 +97,8 @@ class PopFetcher(CrudityFetcher):
         for msg_info in messages:
             attachments = []
             message_number, message_size = msg_info.split()
-            r, raw_message_lines, message_size = client.retr(int(message_number))
+            message_number = int(message_number)
+            r, raw_message_lines, message_size = client.retr(message_number)
 
             out_str = b'\n'.join(raw_message_lines)
             out_str = re.sub(b'\r(?!=\n)', b'\r\n', out_str)
