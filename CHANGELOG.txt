@@ -15,6 +15,10 @@
             - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
               In Creme 2.5 an exception will be raised.
             - In the statistics block, a warning message about using 'ngettext()' with a float number has been removed.
+        * Geolocation :
+            - Addresses which belong to billing models are now avoided with filter "All Contacts & Organisations",
+              which can improve performances with a lot of addresses.
+              Deleted entities are avoided too.
         * Crudity :
             - A bug in the code which delete retrieved emails has been fixed.
 
