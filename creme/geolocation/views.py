@@ -18,6 +18,7 @@
 
 from functools import partial
 
+from django.contrib.contenttypes.models import ContentType
 from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -32,6 +33,7 @@ from creme.creme_core.utils import (
 )
 from creme.creme_core.views.generic import CheckedView
 
+from .bricks import _NeighboursMapBrick
 from .models import GeoAddress
 from .utils import address_as_dict, addresses_from_persons, get_radius
 
@@ -145,6 +147,15 @@ class NeighboursInformation(BaseAddressesInformation):
             neighbours = neighbours.filter(
                 address__content_type=ctype,
                 address__object_id__in=owner_ids,
+            )
+        else:  # All Contacts & Organisations
+            # TODO: get the allowed ContentTypes as GET arguments
+            neighbours = neighbours.filter(
+                address__content_type__in=map(
+                    ContentType.objects.get_for_model,
+                    _NeighboursMapBrick.target_ctypes,
+                ),
+                address__object__is_deleted=False,
             )
 
         # Filter credentials
