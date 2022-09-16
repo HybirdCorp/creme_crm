@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -347,7 +347,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         # TODO: better validation (eg: corresponding EntityCell allowed + searchable ?) ?
         #  - limit the max depth of sub-fields chain ?
-        #  - do no allow all fields ?
+        #  - do not allow all fields ?
         if json_q_filter:
             try:
                 return QSerializer().loads(json_q_filter)
