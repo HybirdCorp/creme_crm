@@ -5,7 +5,7 @@
     {% if not object.sent %}{% url 'emails__resend_emails' as resend_url %}
         <div class='bar-action'>
         {% if object.synchronised %}
-            {% brick_bar_button action='update' __ids=object.id label=_('Re-send') url=resend_url icon='refresh' confirm=_('This mail was synchronized. Are you sure you want to send it ?') %}
+            {% brick_bar_button action='update' __ids=object.id label=_('Re-send') url=resend_url icon='refresh' confirm=_('This mail was synchronized. Are you sure you want to send it?') %}
         {% else %}
             {% brick_bar_button action='update' __ids=object.id label=_('Re-send') url=resend_url icon='refresh' %}
         {% endif %}
