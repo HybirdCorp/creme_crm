@@ -346,7 +346,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
         # TODO: better validation (e.g. corresponding EntityCell allowed + searchable ?) ?
         #  - limit the max depth of sub-fields chain ?
-        #  - do no allow all fields ?
+        #  - do not allow all fields ?
         if json_q_filter:
             try:
                 return QSerializer().loads(json_q_filter)
