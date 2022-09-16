@@ -15,7 +15,11 @@
 {% endblock %}
 
 {% block brick_before_content %}
-    <div class="help">{% translate 'Emails sent to these servers can be synchronized (ie: transformed as Creme Email entities).' %}</div>
+    <div class="help">{% blocktranslate with sync_url='emails__sync_portal'|url asvar help_text %}Emails sent to these servers can be synchronized (ie: transformed as Creme Email entities).
+The emails are retrieved and stored in a sandbox. Then users can choose to transform them as entities (or to drop them) in the view <a href="{{sync_url}}">Synchronization of incoming emails</a>.
+BEWARE: these mailboxes must be dedicated to the synchronisation, because emails are deleted once they have been retrieved (the synchronisation address is generally used as Carbon Copy).{% endblocktranslate %}
+        {{help_text|safe|linebreaksbr}}
+    </div>
 {% endblock %}
 
 {% block brick_table_columns %}
