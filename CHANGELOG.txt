@@ -17,6 +17,7 @@
     # In the History's block, lines related to entities from apps you cannot view are excluded.
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
+    # The version of the shipped Closure compiler has been upgraded (2020-01-12 => 2022-09-05).
     # Apps :
         * Creme_config :
             - The email addresses of active users must be unique.
