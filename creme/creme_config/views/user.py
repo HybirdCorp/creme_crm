@@ -19,8 +19,10 @@
 import logging
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.db import DatabaseError
 from django.db.transaction import atomic
+from django.forms.utils import ErrorList
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
@@ -176,17 +178,14 @@ class UserActivation(generic.CheckedView):
                     status=409,
                 )
 
-            if model.objects.filter(
-                is_active=True,
-                email=user_to_activate.email,
-            ).exclude(id=user_to_activate.id).exists():
-                return HttpResponse(
-                    gettext('An active user with the same email address already exists.'),
-                    status=409,
-                )
-
             if not user_to_activate.is_active:
                 user_to_activate.is_active = True
+
+                try:
+                    user_to_activate.clean()
+                except ValidationError as e:
+                    return HttpResponse(ErrorList(e.messages).as_ul(), status=409)
+
                 user_to_activate.save()
 
         return HttpResponse()

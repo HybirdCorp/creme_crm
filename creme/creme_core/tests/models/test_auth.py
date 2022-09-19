@@ -3,7 +3,7 @@ from functools import partial
 from django.apps import apps
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import QuerySet
 from django.db.models.deletion import ProtectedError
 from django.test.utils import override_settings
@@ -102,6 +102,117 @@ class CredentialsTestCase(CremeTestCase):
         self.assertIsNone(sandbox.user)
         self.assertEqual(OnlySuperusersType.id, sandbox.type_id)
         self.assertIsInstance(sandbox.type, OnlySuperusersType)
+
+    def test_clean(self):
+        user = self.user
+        other_user = self.other_user
+
+        user.email = other_user.email
+
+        with self.assertRaises(ValidationError) as cm:
+            user.clean()
+
+        with self.assertNoException():
+            error_dict = cm.exception.error_dict
+
+        self.assertDictEqual(
+            {'email': [_('An active user with the same email address already exists.')]},
+            {
+                field_name: [
+                    message for error in field_errors for message in error.messages
+                ] for field_name, field_errors in error_dict.items()
+            },
+        )
+
+        # ---
+        other_user.is_active = False
+        other_user.save()
+
+        with self.assertNoException():
+            user.clean()
+
+    def test_manager_create_user(self):
+        username = 'kanna'
+        first_name = 'Kanna'
+        last_name = 'Endo'
+        data = {
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'password': self.password,
+            'email': self.user.email,  # <===
+        }
+
+        with self.assertRaises(ValidationError) as cm:
+            CremeUser.objects.create_user(**data)
+
+        with self.assertNoException():
+            error_dict = cm.exception.error_dict
+
+        self.assertDictEqual(
+            {'email': [_('An active user with the same email address already exists.')]},
+            {
+                field_name: [
+                    message for error in field_errors for message in error.messages
+                ] for field_name, field_errors in error_dict.items()
+            },
+        )
+
+        # ---
+        data['email'] = email = 'kanna@century.jp'
+        with self.assertNoException():
+            user = CremeUser.objects.create_user(**data)
+
+        self.assertIsInstance(user, CremeUser)
+        self.assertEqual(username,   user.username)
+        self.assertEqual(first_name, user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual(email,      user.email)
+        self.assertTrue(user.check_password(self.password))
+        self.assertFalse(user.is_superuser)
+        # TODO: role must not be None?!
+
+    def test_manager_create_superuser(self):
+        username = 'kanna'
+        first_name = 'Kanna'
+        last_name = 'Endo'
+        data = {
+            'username': username,
+            'first_name': first_name,
+            'last_name': last_name,
+            'password': self.password,
+            'email': self.user.email,  # <===
+        }
+
+        with self.assertRaises(ValidationError) as cm:
+            CremeUser.objects.create_superuser(**data)
+
+        with self.assertNoException():
+            error_dict = cm.exception.error_dict
+
+        self.assertDictEqual(
+            {'email': [_('An active user with the same email address already exists.')]},
+            {
+                field_name: [
+                    message for error in field_errors for message in error.messages
+                ] for field_name, field_errors in error_dict.items()
+            },
+        )
+
+        # ---
+        data['email'] = email = 'kanna@century.jp'
+        with self.assertNoException():
+            user = CremeUser.objects.create_superuser(**data)
+
+        self.assertIsInstance(user, CremeUser)
+        self.assertEqual(username,   user.username)
+        self.assertEqual(first_name, user.first_name)
+        self.assertEqual(last_name,  user.last_name)
+        self.assertEqual(email,      user.email)
+        self.assertTrue(user.check_password(self.password))
+        self.assertTrue(user.is_superuser)
+
+    # TODO: test get_admin()
 
     def test_user_attributes01(self):
         user = self.user
@@ -3115,7 +3226,7 @@ class CredentialsTestCase(CremeTestCase):
 
         self.assertListEqual([contact1.id, contact3.id], ids_list)
 
-    def test_sandox01(self):
+    def test_sandbox01(self):
         "Owned by super-users."
         user = self.user
         self._create_role(
@@ -3180,7 +3291,7 @@ class CredentialsTestCase(CremeTestCase):
             {e.get_real_entity() for e in filter_entities(super_user, entities_qs)},
         )
 
-    def test_sandox02(self):
+    def test_sandbox02(self):
         "Owned by a role."
         user = self.user
         other_user = self.other_user
@@ -3254,7 +3365,7 @@ class CredentialsTestCase(CremeTestCase):
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)},
         )
 
-    def test_sandox03(self):
+    def test_sandbox03(self):
         "Owned by a user."
         user = self.user
         other_user = self.other_user
@@ -3317,7 +3428,7 @@ class CredentialsTestCase(CremeTestCase):
             {e.get_real_entity() for e in filter_entities(other_user, entities_qs)},
         )
 
-    def test_sandox04(self):
+    def test_sandbox04(self):
         "Owned by a team."
         user = self.user
         other_user = self.other_user

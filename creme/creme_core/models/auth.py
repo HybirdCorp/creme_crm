@@ -35,7 +35,7 @@ from django.contrib.auth.models import (
 )
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.functional import partition
@@ -841,6 +841,7 @@ class CremeUserManager(BaseUserManager):
         )
 
         user.set_password(password)
+        user.clean()
         user.save()
 
         return user
@@ -943,6 +944,10 @@ class CremeUser(AbstractBaseUser):
 
     objects = CremeUserManager()
 
+    error_messages = {
+        'used_email': _('An active user with the same email address already exists.'),
+    }
+
     USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['first_name', 'last_name', 'email']
 
@@ -963,6 +968,22 @@ class CremeUser(AbstractBaseUser):
     def __str__(self):
         return self.get_full_name()
 
+    def clean(self):
+        # TODO: team + role= None etc... (+ split in sub methods)
+        email = self.email
+        qs = type(self)._default_manager.filter(is_active=True, email=email)
+
+        if self.id:
+            qs = qs.exclude(id=self.id)
+
+        if qs.exists():
+            raise ValidationError({
+                'email': ValidationError(
+                    self.error_messages['used_email'],
+                    code='used_email',
+                ),
+            })
+
     def get_full_name(self) -> str:
         if self.is_team:
             return gettext('{user} (team)').format(user=self.username)
@@ -981,8 +1002,6 @@ class CremeUser(AbstractBaseUser):
 
     def get_short_name(self) -> str:
         return self.username
-
-    # TODO: def clean() ?? (team + role= None etc...)
 
     @property
     def settings(self) -> UserSettingValueManager:
