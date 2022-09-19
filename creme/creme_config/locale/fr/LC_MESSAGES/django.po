@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-08-18 18:56+0200\n"
+"POT-Creation-Date: 2022-09-19 15:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -726,9 +726,6 @@ msgstr "Le fichier a une version qui n'est pas gérée."
 
 msgid "main content must be a dictionary"
 msgstr "le contenu principal doit être un dictionnaire"
-
-msgid "An active user with the same email address already exists."
-msgstr "Un utilisateur activé avec la même adresse e-mail existe déjà."
 
 msgid "Password"
 msgstr "Mot de passe"
@@ -2402,6 +2399,9 @@ msgstr "Vous ne pouvez pas désactiver un super administrateur."
 
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
+
+msgid "An active user with the same email address already exists."
+msgstr "Un utilisateur activé avec la même adresse e-mail existe déjà."
 
 #, python-brace-format
 msgid "Add credentials to «{object}»"

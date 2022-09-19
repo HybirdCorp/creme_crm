@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-07 17:16+0200\n"
+"POT-Creation-Date: 2022-09-19 15:53+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1780,6 +1780,9 @@ msgstr "Langue"
 
 msgid "Language of your browser"
 msgstr "Langue de votre navigateur"
+
+msgid "An active user with the same email address already exists."
+msgstr "Un utilisateur activé avec la même adresse e-mail existe déjà."
 
 msgid "Create a user"
 msgstr "Créer un utilisateur"

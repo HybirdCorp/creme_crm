@@ -931,11 +931,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         url = self._build_activation_url(disabled_user.id, activation=True)
-        response1 = self.client.post(url)
-        self.assertContains(
-            response1,
-            _('An active user with the same email address already exists.'),
-            status_code=409,
+        response1 = self.assertPOST409(url)
+        self.assertHTMLEqual(
+            '<ul class="errorlist"><li>{}</li></ul>'.format(
+                _('An active user with the same email address already exists.')
+            ),
+            response1.content.decode(),
         )
 
         # ---
