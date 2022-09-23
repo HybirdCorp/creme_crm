@@ -133,14 +133,29 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                raise ValidationError(
-                    gettext('This Contact is related to a user and must have a first name.')
-                )
+                # raise ValidationError(
+                #     gettext('This Contact is related to a user and must have a first name.')
+                # )
+                raise ValidationError({
+                    'first_name': ValidationError(
+                        gettext('This Contact is related to a user and must have a first name.'),
+                        # code='TODO',
+                    ),
+                })
 
             if not self.email:
-                raise ValidationError(
-                    gettext('This Contact is related to a user and must have an email address.')
-                )
+                # raise ValidationError(
+                #     gettext('This Contact is related to a user and must have an email address.')
+                # )
+                raise ValidationError({
+                    'email': ValidationError(
+                        gettext(
+                            'This Contact is related to a user and must have an email address.'
+                        ),
+                        # code='TODO',
+                    ),
+                })
+
             # TODO: should we limit the edition of email? (it could be used to
             #       reset the password -- but happily the History shows who
             #       changed the field).
@@ -148,10 +163,19 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             if get_user_model()._default_manager.filter(
                 is_active=True, email=self.email,
             ).exclude(id=self.is_user_id).exists():
-                raise ValidationError(gettext(
-                    'This Contact is related to a user and an active user '
-                    'already uses this email address.'
-                ))
+                # raise ValidationError(gettext(
+                #     'This Contact is related to a user and an active user '
+                #     'already uses this email address.'
+                # ))
+                raise ValidationError({
+                    'email': ValidationError(
+                        gettext(
+                            'This Contact is related to a user and an active '
+                            'user already uses this email address.'
+                        ),
+                        # code='TODO',
+                    ),
+                })
 
     def delete(self, *args, **kwargs):
         self._check_deletion()  # Should not be useful (trashing should be blocked too)
