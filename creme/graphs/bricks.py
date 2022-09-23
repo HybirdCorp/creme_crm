@@ -17,6 +17,7 @@
 ################################################################################
 
 import logging
+import warnings
 
 from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
@@ -33,6 +34,13 @@ logger = logging.getLogger(__name__)
 
 class GraphBarHatBrick(Brick):
     template_name = 'graphs/bricks/graph-hat-bar.html'
+
+    def __init__(self):
+        super().__init__()
+        warnings.warn(
+            'The class graphs.bricks.GraphBarHatBrick is deprecated.',
+            DeprecationWarning,
+        )
 
     def detailview_display(self, context):
         try:

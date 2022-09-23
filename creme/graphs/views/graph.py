@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+import warnings
 
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext
@@ -38,6 +39,10 @@ Graph = get_graph_model()
 @login_required
 @permission_required('graphs')
 def dl_png(request, graph_id):
+    warnings.warn(
+        'The view graphs.views.graph.dl_png() is deprecated.', DeprecationWarning,
+    )
+
     graph = get_object_or_404(Graph, pk=graph_id)
     user = request.user
 

@@ -44,10 +44,11 @@ class GraphsConfig(CremeAppConfig):
             bricks.RootNodesBrick,
             bricks.RelationChartBrick,
             bricks.OrbitalRelationTypesBrick,
-        ).register_hat(
-            self.Graph,
-            main_brick_cls=bricks.GraphBarHatBrick,
         )
+        # ).register_hat(
+        #     self.Graph,
+        #     main_brick_cls=bricks.GraphBarHatBrick,
+        # )
 
     def register_bulk_update(self, bulk_update_registry):
         bulk_update_registry.register(self.Graph)

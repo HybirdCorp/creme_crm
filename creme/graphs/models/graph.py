@@ -101,6 +101,11 @@ class AbstractGraph(CremeEntity):
         ]
 
     def generate_png(self, user):
+        warnings.warn(
+            'The method graphs.models.AbstractGraph.generate_png() is deprecated.',
+            DeprecationWarning,
+        )
+
         from os.path import join
 
         import pygraphviz as pgv
