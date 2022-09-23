@@ -1,7 +1,10 @@
 {% extends 'creme_core/bricks/generic/hat-bar.html' %}
 {% load i18n creme_widgets %}
+{% load log from creme_core_tags %}
 
 {% block buttons %}
+    {% log 'The file "creme/graphs/templates/graphs/bricks/graph-hat-bar.html" is deprecated' level='WARN' %}
+
     {% if dl_button %}
     <div class='bar-action'>
         <a href="{% url 'graphs__dl_image' object.id %}">

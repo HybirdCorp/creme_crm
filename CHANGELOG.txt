@@ -114,7 +114,12 @@
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.
                         - 'SYNCHRONIZATION_STATUSES' is deprecated.
                 * Graphs :
-                    - The method 'models.RootNode.get_relation_types()' is deprecated.
+                    - The class 'bricks.GraphBarHatBrick' is deprecated ;
+                      the related template file "graphs/bricks/graph-hat-bar.html" is deprecated too.
+                    - In 'models':
+                        - The method 'AbstractGraph.generate_png()' is deprecated.
+                        - The method 'RootNode.get_relation_types()' is deprecated.
+                    - The function-view 'views.graph.dl_png()' is deprecated.
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
         # In the class 'creme_core.auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
