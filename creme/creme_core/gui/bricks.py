@@ -642,7 +642,12 @@ class CustomBrick(Brick):
         self.config_item = custombrick_conf_item
 
     def detailview_display(self, context) -> str:
-        return self._render(self.get_template_context(context, config_item=self.config_item))
+        config_item = self.config_item
+        return self._render(self.get_template_context(
+            context,
+            config_item=config_item,
+            cells=[*config_item.filtered_cells],
+        ))
 
 
 class BricksManager:
