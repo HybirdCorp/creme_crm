@@ -66,6 +66,9 @@ commands:
 
       - run: cp << pipeline.parameters.source_path >>/package*.json << pipeline.parameters.instance_directory >>
       - run:
+          working_directory: << pipeline.parameters.instance_directory >>
+          command: node --version
+      - run:
           name: Installing NodeJS
           working_directory: << pipeline.parameters.instance_directory >>
           command: npm install && npm run eslint-install

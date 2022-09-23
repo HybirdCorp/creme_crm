@@ -202,7 +202,7 @@ In order to run the JavaScript linter locally, you can install a NodeJS environm
 Python package nodeenv. In your virtualenv (named "mycremeenv"):
 ```sh
 >> pip install nodeenv
->> nodeenv -n 12.16.3 -p    # to install nodejs 12.16.3 with "mycremeenv"
+>> nodeenv -n 14.20.0 -p    # to install nodejs 14.20.0 with "mycremeenv"
 >> deactivate
 >> workon mycremeenv
 >> nodejs --version  # to check the installation is OK
