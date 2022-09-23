@@ -162,7 +162,7 @@ class CreditNotesBrick(PaginatedBrick):
 
 
 class TotalBrick(Brick):
-    id_ = SimpleBrick.generate_id('billing', 'total')
+    id_ = Brick.generate_id('billing', 'total')
     dependencies = (
         ProductLine, ServiceLine,
         Relation,

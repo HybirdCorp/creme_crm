@@ -538,6 +538,15 @@ class _BulkUpdateRegistry:
                CustomFields) we want to edit.
         @return: The form class.
         @raise _BulkUpdateRegistry.Error (model not registered, not editable field...).
+
+        Note about the behaviour of the generated form class:
+        if you edit the field A of an instance, the field B is configured to
+        be REQUIRED, and the field B is not filled for the instance. A ValidationError
+        will be risen by the model's clean() method, and this error will be
+        converted as a non-field-error.
+        But CustomFields which are required & not filled will not cause error
+        when you edit another field(s); it seems to be the less annoying behavior,
+        but it could change if the future.
         """
         assert issubclass(model, CremeEntity)
 
@@ -656,7 +665,7 @@ class _BulkUpdateRegistry:
             def _update_errors(this, errors):
                 # NB: some models can raise ValidationError related to some of their fields
                 #     in their clean() method (e.g. documents.models.AbstractFolder).
-                #     If one of this field does not correspond ti any field in the form,
+                #     If one of this field does not correspond to any field in the form,
                 #     the base form class raise a ValueError (& so we get an error 500).
                 #     So here we remap these errors.
 
