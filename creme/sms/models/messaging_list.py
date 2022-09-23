@@ -25,7 +25,7 @@ from creme.creme_core.models import CremeEntity
 
 
 class AbstractMessagingList(CremeEntity):
-    name = models.CharField(_('Name of the messaging list'), max_length=80)
+    name = models.CharField(_('Name'), max_length=80)
     contacts = models.ManyToManyField(
         settings.PERSONS_CONTACT_MODEL,
         verbose_name=_('Contacts recipients'), editable=False,

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-19 15:53+0200\n"
+"POT-Creation-Date: 2022-09-23 18:23+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -756,7 +756,8 @@ msgstr "Types de relation semi-fixés"
 
 msgid "You are not allowed to link the created entity (wrong owner?)."
 msgstr ""
-"Vous n'êtes pas autorisé à relier la fiche créée (mauvais propriétaire ?)"
+"Vous n'avez pas la permission de relier la fiche créée (mauvais "
+"propriétaire ?)"
 
 msgid "Description"
 msgstr "Description"
@@ -769,7 +770,7 @@ msgid "These relationships will be added: {}"
 msgstr "Ces relations vont être ajoutées : {}"
 
 msgid "You are not allowed to link this kind of entity."
-msgstr "Vous n'êtes pas autorisé à relier ce type de fiche."
+msgstr "Vous n'avez pas la permission de relier ce type de fiche."
 
 msgid "This field is invalid with this model."
 msgstr "Ce champ n'existe pas dans ce type de fiche."
@@ -1298,12 +1299,13 @@ msgstr "Certaines fiches ne sont pas reliables: {}"
 #, python-brace-format
 msgid "Not authenticated user is not allowed to link «{model}»"
 msgstr ""
-"Un utilisateur non connecté ou anonyme n'est pas autorisé à lier «{model}»"
+"Un utilisateur non connecté ou anonyme n'est pas autorisé à relier «{model}»"
 
 #, python-brace-format
 msgid "You are not allowed to link with the «{models}» of this user."
 msgstr ""
-"Vous n'êtes pas autorisé à relier avec les «{models}» de cet utilisateur."
+"Vous n'avez pas la permission de relier avec les «{models}» de cet "
+"utilisateur."
 
 msgid "Clear"
 msgstr "Effacer"
@@ -1808,31 +1810,31 @@ msgid "You are not allowed to access to the app: {}"
 msgstr "Vous n'avez pas accès à cette application: {}"
 
 msgid "You are not allowed to configure this app: {}"
-msgstr "Vous n'êtes pas autorisé à configurer cette app: {}"
+msgstr "Vous n'avez pas la permission de configurer cette app : {}"
 
 msgid "You are not allowed to edit this entity: {}"
-msgstr "Vous n'êtes pas autorisé à modifier cette fiche: {}"
+msgstr "Vous n'avez pas la permission de modifier cette fiche : {}"
 
 msgid "You are not allowed to create: {}"
 msgstr "Vous n'avez pas la permission de créer : {}"
 
 msgid "You are not allowed to delete this entity: {}"
-msgstr "Vous n'êtes pas autorisé à supprimer cette fiche: {}"
+msgstr "Vous n'avez pas la permission de supprimer cette fiche : {}"
 
 msgid "You are not allowed to export: {}"
 msgstr "Vous n'avez pas la permission d'exporter: {}"
 
 msgid "You are not allowed to link this entity: {}"
-msgstr "Vous n'êtes pas autorisé à relier cette fiche: {}"
+msgstr "Vous n'avez pas la permission de relier cette fiche : {}"
 
 msgid "You are not allowed to link: {}"
-msgstr "Vous n'avez pas la permission de lier: {}"
+msgstr "Vous n'avez pas la permission de relier : {}"
 
 msgid "You are not allowed to unlink this entity: {}"
-msgstr "Vous n'êtes pas autorisé à délier cette fiche: {}"
+msgstr "Vous n'avez pas la permission de délier cette fiche : {}"
 
 msgid "You are not allowed to view this entity: {}"
-msgstr "Vous n'êtes pas autorisé à voir cette fiche: {}"
+msgstr "Vous n'avez pas la permission de voir cette fiche : {}"
 
 msgid "Save"
 msgstr "Enregistrer"
@@ -2157,10 +2159,10 @@ msgid "You cannot edit/delete a system filter"
 msgstr "Vous ne pouvez pas modifier/supprimer un filtre système"
 
 msgid "You are not allowed to access to this app"
-msgstr "Vous n'êtes autorisé à accéder à cette application"
+msgstr "Vous n'avez pas la permission d'accéder à cette application"
 
 msgid "You are not allowed to view/edit/delete this filter"
-msgstr "Vous n'êtes pas autorisé à voir/modifier/supprimer ce filtre"
+msgstr "Vous n'avez pas la permission de voir/modifier/supprimer ce filtre"
 
 msgid "A condition can not reference its own filter."
 msgstr "Une condition ne peut pas référencer son propre filtre."
@@ -2293,7 +2295,7 @@ msgid "This view can't be deleted"
 msgstr "Cette vue ne peut être supprimée"
 
 msgid "You are not allowed to edit/delete this view"
-msgstr "Vous n'êtes pas autorisé à modifier/supprimer cette vue"
+msgstr "Vous n'avez pas la permission de modifier/supprimer cette vue"
 
 msgid "Creation"
 msgstr "Création"
@@ -3545,7 +3547,8 @@ msgstr "Envoyez moi les instructions"
 
 msgid "You are not allowed to use the «Lost password» feature."
 msgstr ""
-"Vous n'êtes pas autorisé à utiliser la fonctionnalité «Mot de passe perdu»."
+"Vous n'avez pas la permission d'utiliser la fonctionnalité «Mot de passe "
+"perdu»."
 
 msgid "Reset your password (Step 2/4)"
 msgstr "Réinitialiser votre mot de passe (Étape 2/4)"
@@ -3560,7 +3563,7 @@ msgid "Change your password"
 msgstr "Modifier votre mot de passe"
 
 msgid "You are not allowed to change your password."
-msgstr "Vous n'êtes autorisé à modifier votre mot de passe."
+msgstr "Vous n'avez pas la permission de modifier votre mot de passe."
 
 #, python-brace-format
 msgid "You lost your password? <a href=\"{url}\">You can reset it</a>"
@@ -3604,7 +3607,7 @@ msgid "No entity corresponding to your search was found."
 msgstr "Aucun élément correspondant à votre recherche n'a été trouvé."
 
 msgid "You are not allowed to edit this entity"
-msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
+msgstr "Vous n'avez pas la permission de modifier cette fiche"
 
 msgid "Full edition form"
 msgstr "Formulaire de modification complet"
@@ -3619,7 +3622,7 @@ msgid "Field to update"
 msgstr "Champ à mettre à jour"
 
 msgid "You are not allowed to edit these entities"
-msgstr "Vous n'êtes pas autorisé à modifier ces fiches"
+msgstr "Vous n'avez pas la permission de modifier ces fiches"
 
 #, python-brace-format
 msgid "Merge «{entity1}» with «{entity2}»"
@@ -3730,7 +3733,7 @@ msgstr ""
 "Le filtre ne peut être supprimé à cause de ses dépendances ({dependencies})."
 
 msgid "You are not allowed to access this view."
-msgstr "Vous n'êtes autorisé à accéder à cette page."
+msgstr "Vous n'avez pas la permission d'accéder à cette page."
 
 #, python-brace-format
 msgid ""

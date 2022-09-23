@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:41+0200\n"
+"POT-Creation-Date: 2022-09-23 18:05+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
@@ -673,7 +673,7 @@ msgid "You are not allowed to access to the app «Commercial strategy»"
 msgstr "Vous n'avez pas accès à l'application «Plan commercial»"
 
 msgid "You are not allowed to link this entity"
-msgstr "Vous n'êtes pas autorisé à lier cette fiche"
+msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 #, python-format
 msgid "The relationship type «%(predicate)s» is disabled"

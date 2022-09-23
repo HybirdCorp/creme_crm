@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:38+0200\n"
+"POT-Creation-Date: 2022-09-23 18:20+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -230,7 +230,7 @@ msgid "You are not allowed to access to the app «Tickets»"
 msgstr "Vous n'avez pas accès à l'application «Tickets»"
 
 msgid "You are not allowed to link this entity"
-msgstr "Vous n'êtes pas autorisé à relier cette fiche"
+msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 #, python-format
 msgid "The relationship type «%(predicate)s» is disabled"
@@ -242,12 +242,6 @@ msgstr "Lier à un ticket"
 #~ msgid "forbidden"
 #~ msgstr "interdit"
 
-#~ msgid "Portal of tickets"
-#~ msgstr "Portail des tickets"
-
-#~ msgid "All tickets"
-#~ msgstr "Lister les tickets"
-
 #~ msgid "Number of tickets"
 #~ msgstr "Nombre de ticket(s)"
 
@@ -257,17 +251,8 @@ msgstr "Lier à un ticket"
 #~ msgid "Percentage of closed tickets"
 #~ msgstr "Pourcentage de tickets fermés"
 
-#~ msgid "Information %s"
-#~ msgstr "Informations %s"
-
-#~ msgid "Information"
-#~ msgstr "Informations"
-
 #~ msgid "Copy"
 #~ msgstr "Copie"
-
-#~ msgid "Portal"
-#~ msgstr "Portail"
 
 #~ msgid "Status - Name"
 #~ msgstr "Statut - Nom"

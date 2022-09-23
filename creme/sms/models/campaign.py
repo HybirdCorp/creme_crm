@@ -34,7 +34,8 @@ class AbstractSMSCampaign(CremeEntity):
         verbose_name=_('Related messaging lists'), blank=True,
     )
 
-    creation_label = pgettext_lazy('sms', 'Create a campaign')
+    # creation_label = pgettext_lazy('sms', 'Create a campaign')
+    creation_label = _('Create a SMS campaign')
     save_label     = pgettext_lazy('sms', 'Save the campaign')
 
     class Meta:

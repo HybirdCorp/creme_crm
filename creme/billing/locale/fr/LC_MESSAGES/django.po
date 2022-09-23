@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-25 19:50+0200\n"
+"POT-Creation-Date: 2022-09-23 18:01+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -379,14 +379,14 @@ msgid "Sub-category"
 msgstr "Sous-catégorie"
 
 msgid "You are not allowed to create this entity"
-msgstr "Vous n'êtes pas autorisé à créer cette fiche"
+msgstr "Vous n'avez pas la permission de créer cette fiche"
 
 msgid ""
 "You are not allowed to add this item to the catalog because it is not on the "
 "fly"
 msgstr ""
-"Vous n'êtes pas autorisé à ajouter cet élément au catalogue car il ne s'agit "
-"pas d'une ligne à la volée"
+"Vous n'avez pas la permission d'à ajouter cet élément au catalogue car il ne "
+"s'agit pas d'une ligne à la volée"
 
 msgid "Update the billing address"
 msgstr "Mettre à jour l'adresse de facturation"
@@ -1181,13 +1181,13 @@ msgstr "Contact récepteur"
 
 #, python-format
 msgid "You are not allowed to create: «%(model)s»"
-msgstr "Vous n'êtes pas autorisé à créer : «%(model)s»"
+msgstr "Vous n'avez pas la permission de créer : «%(model)s»"
 
 msgid "You are not allowed to link this entity"
-msgstr "Vous n'êtes pas autorisé à relier cette fiche"
+msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 msgid "You are not allowed to change this entity"
-msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
+msgstr "Vous n'avez pas la permission de modifier cette fiche"
 
 #, python-format
 msgid "Errors on the line <strong>«%(item)s»:</strong>"

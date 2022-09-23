@@ -672,8 +672,5 @@ msgstr ""
 #~ msgid "This task has no parent"
 #~ msgstr "Cette tâche n'a aucun parent"
 
-#~ msgid "You are not allowed to create a %s"
-#~ msgstr "Vous n'êtes pas autorisé à créer une %s"
-
 #~ msgid "This resource is already assigned to this task"
 #~ msgstr "Cette ressource est déjà affectée à la tâche"
