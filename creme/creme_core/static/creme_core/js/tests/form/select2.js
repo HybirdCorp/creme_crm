@@ -345,6 +345,8 @@ QUnit.test('creme.form.Select2 (enum, pinned)', function(assert) {
     ], $('.select2-dropdown .select2-results__option').map(function() {
         return $(this).text();
     }).get().sort());
+
+    equal(1, $('.select2-dropdown .select2-results__option .select2-results__pin').length);
 });
 
 QUnit.parametrize('creme.form.Select2 (enum + more)', [

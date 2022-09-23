@@ -1,9 +1,8 @@
 {% load i18n %}<select class="lv-state-field" data-lv-search-widget="select" name="{{widget.name}}" {% include "django/forms/widgets/attrs.html" %}>
-<option>{{widget.all_label}}</option>
 {% for group_name, group_choices in enum.groups %}
     {% if group_name %}<optgroup label="{{group_name}}">{% endif %}
     {% for choice in group_choices %}
-    <option value="{{choice.value}}"{% if choice.selected %} selected{% endif %} {% if choice.pinned %}data-pinned{% endif %}>{{choice.text}}</option>
+    <option value="{{choice.value}}"{% if choice.selected %} selected{% endif %}{% if choice.pinned %} data-pinned{% endif %}>{{choice.text}}</option>
     {% endfor %}
     {% if group_name %}</optgroup>{% endif %}
 {% endfor %}

@@ -22,7 +22,7 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_choices__invalid_limit(self):
         self.login()
         url = self._build_choices_url(models.FakeContact, 'civility')
-        self.assertGET(400, url + '?limit=NaN')
+        self.assertGET(400, f'{url}?limit=NaN')
 
     def test_choices_success_fk(self):
         self.login()
@@ -36,21 +36,24 @@ class EnumerableViewsTestCase(ViewsTestCase):
         response = self.assertGET200(url)
 
         with self.assertNoException():
-            self.assertListEqual(expected, response.json())
+            choices = response.json()
+
+        self.assertListEqual(expected, choices)
 
         response = self.assertGET200(url + '?limit=2')
 
         with self.assertNoException():
             self.assertListEqual(expected[:2], response.json())
 
+        mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
         response = self.assertGET200(url + '?term=Mister')
 
         with self.assertNoException():
-            mister = models.FakeCivility.objects.get(title='Mister')
+            choices = response.json()
 
-            self.assertListEqual([
-                {'value': mister.id, 'label': str(mister)}
-            ], response.json())
+        self.assertListEqual([
+            {'value': mister.id, 'label': str(mister)}
+        ], response.json())
 
     def test_choices_success_m2m(self):
         self.login()

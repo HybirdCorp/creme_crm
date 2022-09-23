@@ -525,17 +525,21 @@ class SearchFieldsTestCase(CremeTestCase):
 
         expected_choices = [
             {'value': '',           'label': pgettext('creme_core-filter', 'All')},
-            {'value': lv_forms.NULL, 'label': _('* is empty *')},
+            {
+                'value': lv_forms.NULL,
+                'pinned': True,
+                'label': pgettext('creme_core-filter', 'Is empty')
+            },
             *(
                 {'value': pk, 'label': title}
                 for pk, title in FakeSector.objects.values_list('id', 'title')
             ),
         ]
-        self.assertEqual(expected_choices, field.choices)
+        self.assertEqual(expected_choices, field.enumerator.choices())
 
         widget = field.widget
-        self.assertIsInstance(widget, lv_forms.SelectLVSWidget)
-        self.assertEqual(expected_choices, widget.choices)
+        self.assertIsInstance(widget, lv_forms.EnumerableLVSWidget)
+        self.assertEqual(expected_choices, widget.enumerator.choices())
 
         to_python = field.to_python
         self.assertEqual(Q(), to_python(value=''))
@@ -563,7 +567,7 @@ class SearchFieldsTestCase(CremeTestCase):
                     for pk, name in FakeActivityType.objects.values_list('id', 'name')
                 ),
             ],
-            field.choices,
+            field.enumerator.choices(),
         )
 
     def test_regular_relatedfield03(self):
@@ -574,13 +578,17 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {'value': '',           'label': pgettext('creme_core-filter', 'All')},
-                {'value': lv_forms.NULL, 'label': _('* is empty *')},
+                {
+                    'value': lv_forms.NULL,
+                    'pinned': True,
+                    'label': pgettext('creme_core-filter', 'Is empty')
+                },
                 *(
                     {'value': pk, 'label': name}
                     for pk, name in FakeImageCategory.objects.values_list('id', 'name')
                 )
             ],
-            field.choices,
+            field.enumerator.choices(),
         )
 
     def test_regular_relatedfield04(self):
@@ -589,7 +597,11 @@ class SearchFieldsTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='sector')
         expected_choices = [
             {'value': '',           'label': pgettext('creme_core-filter', 'All')},
-            {'value': lv_forms.NULL, 'label': _('* is empty *')},
+            {
+                'value': lv_forms.NULL,
+                'pinned': True,
+                'label': pgettext('creme_core-filter', 'Is empty')
+            },
             *(
                 {'value': pk, 'label': title}
                 for pk, title in FakeSector.objects.values_list('id', 'title')
@@ -599,7 +611,7 @@ class SearchFieldsTestCase(CremeTestCase):
         FakeSector.objects.create(title='[INVALID]')  # Excluded
 
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(expected_choices, field.choices)
+        self.assertEqual(expected_choices, field.enumerator.choices())
 
     def test_regular_relatedfield05(self):
         "Enumerator registry."
@@ -610,7 +622,7 @@ class SearchFieldsTestCase(CremeTestCase):
         create_sector(title='Sector #2')
 
         class FakeSectorEnumerator(QSEnumerator):
-            def _queryset(this):
+            def _queryset(self, user):
                 return FakeSector.objects.exclude(id=s1.id)
 
         enum_registry = _EnumerableRegistry()
@@ -623,7 +635,11 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertListEqual(
             [
                 {'value': '',           'label': pgettext('creme_core-filter', 'All')},
-                {'value': lv_forms.NULL, 'label': _('* is empty *')},
+                {
+                    'value': lv_forms.NULL,
+                    'pinned': True,
+                    'label': pgettext('creme_core-filter', 'Is empty')
+                },
                 *(
                     {'value': pk, 'label': title}
                     for pk, title in FakeSector.objects
@@ -631,7 +647,7 @@ class SearchFieldsTestCase(CremeTestCase):
                                                .values_list('id', 'title')
                 )
             ],
-            field.choices,
+            field.enumerator.choices(),
         )
 
     def test_regular_relatedfield06(self):
@@ -639,11 +655,15 @@ class SearchFieldsTestCase(CremeTestCase):
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
         expected_choices = [
             {'value': '',           'label': pgettext('creme_core-filter', 'All')},
-            {'value': lv_forms.NULL, 'label': _('* is empty *')},
+            {
+                'value': lv_forms.NULL,
+                'pinned': True,
+                'label': pgettext('creme_core-filter', 'Is empty')
+            },
         ]
 
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(expected_choices, field.choices)
+        self.assertEqual(expected_choices, field.enumerator.choices())
 
     def test_regular_relatedfield07(self):
         "Field has a null_label."
@@ -652,12 +672,13 @@ class SearchFieldsTestCase(CremeTestCase):
             {'value': '', 'label': pgettext('creme_core-filter', 'All')},
             {
                 'value': lv_forms.NULL,
-                'label': '* {} *'.format(pgettext('persons-is_user', 'None')),
+                'pinned': True,
+                'label': pgettext('persons-is_user', 'None'),
             },
         ]
 
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
-        self.assertEqual(expected_choices, field.choices)
+        self.assertEqual(expected_choices, field.enumerator.choices())
 
     def test_entity_relatedfield(self):
         cell = EntityCellRegularField.build(model=FakeInvoiceLine, name='linked_invoice')
