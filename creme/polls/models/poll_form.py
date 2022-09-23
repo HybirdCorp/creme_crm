@@ -40,7 +40,7 @@ class AbstractPollForm(CremeEntity):
         verbose_name=_('Type'), null=True, blank=True, on_delete=models.SET_NULL,
     )
 
-    creation_label = _('Create a form')
+    creation_label = _('Create a form of poll')
     save_label     = _('Save the form of poll')
 
     class Meta:

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-08 15:15+0200\n"
+"POT-Creation-Date: 2022-09-23 18:18+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -277,7 +277,7 @@ msgid "If no organisation is found, a new one will be created."
 msgstr "Si aucune société ne porte ce nom, une fiche société sera aussi créée."
 
 msgid "You are not allowed to create an Organisation."
-msgstr "Vous n'êtes pas autorisé à créer une Société."
+msgstr "Vous n'avez pas la permission de créer une Société."
 
 msgid "No linkable Organisation found."
 msgstr "Aucune Société reliable n'a été trouvée."
@@ -286,10 +286,10 @@ msgid "Several Organisations with this name have been found."
 msgstr "Plusieurs Sociétés avec ce nom ont été trouvées."
 
 msgid "You are not allowed to link with a Contact"
-msgstr "Vous n'êtes pas autorisé à lier avec un Contact"
+msgstr "Vous n'avez pas la permission de relier avec un Contact"
 
 msgid "You are not allowed to link with an Organisation"
-msgstr "Vous n'êtes pas autorisé à lier avec une Société"
+msgstr "Vous n'avez pas la permission de relier avec une Société"
 
 msgid "Enter the name of an existing Organisation."
 msgstr "Entrez le nom d'une société existante"
@@ -728,9 +728,6 @@ msgid ""
 "enable it if it's still useful, or remove this block"
 msgstr ""
 
-msgid "Phone"
-msgstr "Téléphone"
-
 msgid "Actions"
 msgstr "Actions"
 
@@ -899,7 +896,7 @@ msgid "forbidden"
 msgstr ""
 
 msgid "You are not allowed to link this entity"
-msgstr "Vous n'êtes pas autorisé à lier cette fiche"
+msgstr "Vous n'avez pas la permission de relier cette fiche"
 
 #, python-format
 msgid "The relationship type «%(predicate)s» is disabled"

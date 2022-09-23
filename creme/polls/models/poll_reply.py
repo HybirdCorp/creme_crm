@@ -53,7 +53,7 @@ class AbstractPollReply(CremeEntity):
     )
     is_complete = models.BooleanField(_('Is complete'), default=False, editable=False)
 
-    creation_label = _('Create a reply')
+    creation_label = _('Create a poll reply')
     save_label     = _('Save the reply')
     multi_creation_label = _('Create replies')
     multi_save_label     = _('Save the replies')
