@@ -51,9 +51,8 @@ class EnumerableTestCase(CremeTestCase):
         self.assertEqual(expected, enum2.choices(user))
 
     def test_basic_choices_fk__limit(self):
-        user = self.login()
+        user = self.create_user()
         registry = _EnumerableRegistry()
-        self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
         expected = [
@@ -67,7 +66,6 @@ class EnumerableTestCase(CremeTestCase):
     def test_basic_choices_fk__term(self):
         user = self.login()
         registry = _EnumerableRegistry()
-        self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
 
@@ -95,7 +93,6 @@ class EnumerableTestCase(CremeTestCase):
     def test_basic_choices_m2m__limit(self):
         user = self.login()
         registry = _EnumerableRegistry()
-        self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
         expected = [
@@ -109,7 +106,6 @@ class EnumerableTestCase(CremeTestCase):
     def test_basic_choices_m2m__term(self):
         user = self.login()
         registry = _EnumerableRegistry()
-        self.assertEqual('_EnumerableRegistry:', str(registry))
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
 

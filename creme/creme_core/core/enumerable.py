@@ -39,7 +39,7 @@ class Enumerator:
         """
         self.field = field
 
-    def choices(self, user, *, term=None, values=None, limit=None) -> list[dict]:
+    def choices(self, user, *, term=None, only=None, limit=None) -> list[dict]:
         """Return the list of choices (see below) available for the given user.
         Abstract method.
 
@@ -88,37 +88,33 @@ class Enumerator:
 
 class QSEnumerator(Enumerator):
     """Specialisation of Enumerator to enumerate elements of a QuerySet."""
-    def _queryset(self):
+    def _queryset(self, user):
         field = self.field
         qs = field.remote_field.model.objects.all()
         limit_choices_to = field.get_limit_choices_to()
 
         return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
-    def filter_by_term(self, user, term, limit=None):
-        queryset = self._queryset()
+    def choices_by_term(self, queryset, term, limit=None):
         term = term.lower()
-
-        choices = filter(
-            lambda c: term in c['label'].lower(),
-            map(self.instance_as_dict, queryset)
+        choices = (
+            c for c in map(self.instance_as_dict, queryset) if term in c['label'].lower()
         )
 
         return list(islice(choices, limit) if limit else choices)
 
-    def filter_by_values(self, user, values, limit=None):
-        queryset = self._queryset().filter(id__in=values)
-        return list(
-            map(self.instance_as_dict, queryset[:limit] if limit else queryset)
-        )
+    def filter_only(self, queryset, values):
+        return queryset.filter(id__in=values)
 
-    def choices(self, user, *, term=None, values=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None):
+        queryset = self._queryset(user)
+
         if term:
-            return self.filter_by_term(user, term, limit)
-        elif values:
-            return self.filter_by_values(user, values, limit)
+            return self.choices_by_term(queryset, term, limit)
 
-        queryset = self._queryset()
+        if only:
+            queryset = self.filter_only(queryset, only)
+
         return list(
             map(self.instance_as_dict, queryset[:limit] if limit else queryset)
         )

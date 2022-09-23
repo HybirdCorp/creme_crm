@@ -31,6 +31,8 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
     response_class = CremeJsonResponse
     field_url_kwarg = 'field'
     registry = enumerable_registry
+    limit_arg = 'limit'
+    term_arg = 'term'
 
     def check_related_ctype(self, ctype):
         self.request.user.has_perm_to_access_or_die(ctype.app_label)
@@ -51,9 +53,9 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
 
     def get(self, request, *args, **kwargs):
         try:
-            limit = request.GET.get('limit')
+            limit = request.GET.get(self.limit_arg)
             limit = int(limit) if limit is not None else None
-            term = request.GET.get('term')
+            term = request.GET.get(self.term_arg)
         except ValueError as e:
             raise BadRequestError(e) from e
 

@@ -112,6 +112,16 @@ function convertToSelect2Data(data) {
     return options;
 }
 
+function renderSelect2Result(state) {
+    if (state.pinned) {
+        return $(
+           '<span class="select2-results__pin">${text}</span>'.template(state)
+        );
+    } else {
+        return state.text;
+    }
+}
+
 S2.define('select2/data/enum', [
     'select2/data/array',
     'select2/utils'
@@ -134,13 +144,19 @@ S2.define('select2/data/enum', [
 
     Utils.Extend(Adapter, ArrayAdapter);
 
+    Adapter.prototype.pinItem = function($options) {
+        var data = this.item($options);
+        data.pinned = true;
+        return data;
+    };
+
     Adapter.prototype.bind = function (container, $container) {
         Adapter.__super__.bind.call(this, container, $container);
 
         var self = this;
 
         this._pinItems = this.$element.find('option[data-pinned]')
-                                      .map(function() { return self.item($(this)); })
+                                      .map(function() { return self.pinItem($(this)); })
                                       .get();
 
         container.on('enum:more', function(params) {
@@ -217,7 +233,6 @@ S2.define('select2/data/enum', [
 
     return Adapter;
 });
-
 
 S2.define('select2/dropdown/enum', [], function () {
     function EnumMessage(decorated, $element, options, dataAdapter) {
@@ -317,6 +332,7 @@ creme.form.Select2 = creme.component.Component.sub({
                         limit: options.enumLimit,
                         cache: options.enumCache
                     },
+                    templateResult: renderSelect2Result,
                     dataAdapter: EnumAdapter,
                     resultsAdapter: resultsAdapter
                 });

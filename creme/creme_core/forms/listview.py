@@ -42,11 +42,8 @@ from creme.creme_core.forms.widgets import DatePickerMixin
 from creme.creme_core.models import Relation
 from creme.creme_core.utils.date_range import CustomRange
 
-# import unicodedata
-# from django.conf import settings
-# from django.utils.formats import get_format
-# from creme.creme_core.utils.dates import dt_from_str
 logger = logging.getLogger(__name__)
+
 NULL = 'NULL'
 
 
@@ -197,15 +194,17 @@ class SelectLVSWidget(ListViewSearchWidget):
 
 
 class LVSEnumerator:
-    null_label = _('* is empty *')
+    all_label = pgettext_lazy('creme_core-filter', 'All')
+    null_label = pgettext_lazy('creme_core-filter', 'Is empty')
     enumerable_registry = enumerable.enumerable_registry
-    limit = getattr(settings, 'LISTVIEW_ENUMERABLE_LIMIT', 50)
+    limit = 50
 
-    def __init__(self, user, field, registry=None):
+    def __init__(self, user, field, registry=None, limit=None):
         registry = registry or self.enumerable_registry
 
         self.user = user
         self.field = field
+        self.limit = limit or getattr(settings, 'LISTVIEW_ENUMERABLE_LIMIT', self.limit)
 
         try:
             self.enumerator = registry.enumerator_by_field(field)
@@ -219,10 +218,20 @@ class LVSEnumerator:
         except AttributeError:
             null_label = ''
 
-        return f'* {null_label} *' if null_label else self.null_label
+        return null_label or self.null_label
 
-    def choices(self, values):
-        choices = []
+    def clean_values(self, values):
+        clean = self.field.to_python
+
+        # NULL value is already in choices and NOT a valid pk
+        # if a QSEnumerator is used.
+        return [clean(v) for v in values if v != NULL] if values else None
+
+    def choices(self, only=None):
+        choices = [{
+            'value': '',
+            'label': self.all_label
+        }]
 
         field = self.field
 
@@ -230,15 +239,15 @@ class LVSEnumerator:
             choices.append({
                 'value': NULL,
                 'label': self.get_field_null_label(field),
-                'pinned': True
+                'pinned': True,
             })
 
         if self.enumerator:
             choices.extend(
                 self.enumerator.choices(
                     user=self.user,
-                    values=values,
-                    limit=self.limit
+                    only=self.clean_values(only),
+                    limit=self.limit,
                 )
             )
 
@@ -253,7 +262,6 @@ class LVSEnumerator:
 
 class EnumerableLVSWidget(ListViewSearchWidget):
     template_name = 'creme_core/listview/search-widgets/enumerable.html'
-    all_label = pgettext_lazy('creme_core-filter', 'All')
 
     def group_choices(self, choices, selected_value):
         groups = OrderedDict()
@@ -281,7 +289,7 @@ class EnumerableLVSWidget(ListViewSearchWidget):
         context = super().get_context(name, value, attrs)
         context['enum'] = {
             'groups': self.group_choices(
-                self.enumerator.choices(values=[value] if value else None),
+                self.enumerator.choices(only=[value] if value else None),
                 value
             )
         }
@@ -291,13 +299,17 @@ class EnumerableLVSWidget(ListViewSearchWidget):
     def build_attrs(self, base_attrs, extra_attrs=None):
         attrs = super().build_attrs(base_attrs, extra_attrs)
 
+        # TODO : LVS enumerator should have a 'more' flag to determine if
+        # all the options are within the limit and disable the ajax part
+        # if so.
+        # Use the limit + 1 trick to get the value of 'more'
         if self.enumerator:
             attrs.update({
                 'data-enum-url': self.enumerator.url,
                 'data-enum-limit': self.enumerator.limit,
                 'data-enum-cache': 'true',
                 'data-allow-clear': 'true',
-                'data-placeholder': self.all_label,
+                'data-placeholder': self.enumerator.all_label,
             })
 
         return attrs
@@ -657,7 +669,7 @@ class RegularRelatedField(ListViewSearchField):
 
     def to_python(self, value):
         if value:
-            for choice in self.enumerator.choices(values=[value]):
+            for choice in self.enumerator.choices(only=[value]):
                 pk = choice['value']
 
                 if value == str(pk):

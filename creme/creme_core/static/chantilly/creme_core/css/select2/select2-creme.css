@@ -221,6 +221,11 @@
     padding-left: 6em;
 }
 
+.select2-container--creme .select2-results__option .select2-results__pin {
+    font-style: italic;
+    font-weight: 400;
+}
+
 .select2-container--creme .select2-results__option--highlighted[aria-selected] {
     background-color: #5897fb;
     color: white;

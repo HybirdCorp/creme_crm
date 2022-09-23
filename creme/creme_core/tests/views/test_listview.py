@@ -68,6 +68,7 @@ from .. import fake_constants
 from .base import ViewsTestCase
 
 
+@override_settings(LISTVIEW_ENUMERABLE_LIMIT=50)
 class ListViewTestCase(ViewsTestCase):
     @classmethod
     def setUpClass(cls):
@@ -1814,7 +1815,7 @@ class ListViewTestCase(ViewsTestCase):
             )
             return self._get_lv_content(self._get_lv_node(response))
 
-        content = search(cat1.name[:5])  # Invalid we need an ID => no filter
+        content = search(self.UNUSED_PK)  # Invalid we need an ID => no filter
         self.assertIn(img1.name, content)
         self.assertIn(img3.name, content)
 

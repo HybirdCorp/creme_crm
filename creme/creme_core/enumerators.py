@@ -41,8 +41,8 @@ class UserEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def filter_by_term(self, user, term, limit=None):
-        queryset = self._queryset().filter(
+    def choices_by_term(self, queryset, term, limit=None):
+        queryset = queryset.filter(
             Q(first_name__icontains=term)
             | Q(last_name__icontains=term)
             | Q(username__icontains=term)
@@ -50,9 +50,9 @@ class UserEnumerator(enumerable.QSEnumerator):
 
         return list(map(self.instance_as_dict, queryset))
 
-    def choices(self, user, *, term=None, values=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None):
         # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, values=values)
+        choices = super().choices(user, term=term, only=only)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d.get('group', ''), d['label'])))
@@ -69,13 +69,13 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def filter_by_term(self, user, term, limit=None):
-        queryset = self._queryset().filter(name__icontains=term)
+    def choices_by_term(self, queryset, term, limit=None):
+        queryset = queryset.filter(name__icontains=term)
         return list(map(self.instance_as_dict, queryset))
 
-    def choices(self, user, *, term=None, values=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None):
         # Do not apply limits on queryset, because ordering is done later
-        choices = super().choices(user, term=term, values=values)
+        choices = super().choices(user, term=term, only=only)
 
         sort_key = collator.sort_key
         choices.sort(key=lambda d: sort_key('{}#{}'.format(d['group'], d['label'])))
@@ -84,16 +84,16 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
 
 
 class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
-    def choices(self, user, *, term=None, values=None, limit=None):
-        choices = [
-            {'value': ct_id, 'label': label}
-            for ct_id, label in ctype_choices(entity_ctypes())
-        ]
+    def choices(self, user, *, term=None, only=None, limit=None):
+        choices = ctype_choices(entity_ctypes())
 
-        if values:
-            choices = list(filter(lambda d: str(d['value']) in values, choices))
+        if only:
+            choices = [c for c in choices if c[0] in only]
         elif term:
             term = term.lower()
-            choices = list(filter(lambda d: term in d['label'].lower(), choices))
+            choices = [c for c in choices if term in c[1].lower()]
 
-        return choices[:limit] if limit else choices
+        return [
+            {'value': ct_id, 'label': label}
+            for ct_id, label in (choices[:limit] if limit else choices)
+        ]
