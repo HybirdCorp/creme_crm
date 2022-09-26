@@ -1,12 +1,19 @@
 from functools import partial
+from unittest.case import skipIf
 
 from django.core.exceptions import FieldDoesNotExist
+from django.db import connection, models
 from django.utils.translation import gettext as _
 
 from creme.creme_core import enumerators
 from creme.creme_core.core.entity_filter import EF_CREDENTIALS
-from creme.creme_core.core.enumerable import Enumerator, _EnumerableRegistry
+from creme.creme_core.core.enumerable import (
+    Enumerator,
+    _EnumerableRegistry,
+    get_enum_search_fields,
+)
 from creme.creme_core.models import (
+    CremeModel,
     CremeUser,
     EntityFilter,
     FakeAddress,
@@ -27,6 +34,69 @@ from ..base import CremeTestCase
 
 
 class EnumerableTestCase(CremeTestCase):
+    def test_get_enum_search_fields(self):
+        class FakeRelatedSearchFields(CremeModel):
+            _search_fields = ('field_a', 'field_b')
+
+            title = models.CharField('title', max_length=100)
+            help = models.CharField('help', max_length=100)
+
+        class FakeRelatedFirstCharField(CremeModel):
+            title = models.CharField('title', max_length=100)
+            help = models.CharField('help', max_length=100)
+
+        class FakeRelatedFirstVisibleCharField(CremeModel):
+            title = models.CharField('title', max_length=100).set_tags(viewable=False)
+            help = models.CharField('help', max_length=100)
+
+        class FakeRelatedNoCharField(CremeModel):
+            title = models.CharField('title', max_length=100).set_tags(viewable=False)
+
+        class FakeModel(CremeModel):
+            searchfields = models.ForeignKey(
+                FakeRelatedSearchFields, verbose_name=_('Related'),
+                blank=True, null=True, related_name='fakes',
+                on_delete=models.CASCADE,
+            )
+
+            first_charfield = models.ForeignKey(
+                FakeRelatedFirstCharField, verbose_name=_('Related'),
+                blank=True, null=True, related_name='fakes',
+                on_delete=models.CASCADE,
+            )
+
+            visible_charfield = models.ForeignKey(
+                FakeRelatedFirstVisibleCharField, verbose_name=_('Related'),
+                blank=True, null=True, related_name='fakes',
+                on_delete=models.CASCADE,
+            )
+
+            no_charfield = models.ForeignKey(
+                FakeRelatedNoCharField, verbose_name=_('Related'),
+                blank=True, null=True, related_name='fakes',
+                on_delete=models.CASCADE,
+            )
+
+        self.assertListEqual(
+            ['field_a', 'field_b'],
+            list(get_enum_search_fields(FakeModel._meta.get_field('searchfields')))
+        )
+
+        self.assertListEqual(
+            ['title'],
+            list(get_enum_search_fields(FakeModel._meta.get_field('first_charfield')))
+        )
+
+        self.assertListEqual(
+            ['help'],
+            list(get_enum_search_fields(FakeModel._meta.get_field('visible_charfield')))
+        )
+
+        self.assertListEqual(
+            [],
+            list(get_enum_search_fields(FakeModel._meta.get_field('no_charfield')))
+        )
+
     def test_basic_choices_fk(self):
         user = self.login()
         registry = _EnumerableRegistry()
@@ -64,14 +134,44 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_fk__term(self):
-        user = self.login()
+        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
 
         self.assertListEqual(
-            ['Madam', 'Miss', 'Mister'],
-            [c['label'] for c in enum.choices(user, term='M')]
+            ['Miss', 'Mister'],
+            [c['label'] for c in enum.choices(user, term='Mi')]
+        )
+
+    @skipIf(
+        connection.vendor != 'mysql',
+        'Skip if database does not support unaccent feature',
+    )
+    def test_basic_choices_fk__term__diacritics(self):
+        user = self.create_user()
+        registry = _EnumerableRegistry()
+
+        create_civility = FakeCivility.objects.create
+        create_civility(title='Môssïeur',  shortcut='Mr.')
+        create_civility(title='Mïssy',   shortcut='Ms.')
+        create_civility(title='Mâdâme', shortcut='Mme.')
+
+        enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
+
+        self.assertListEqual(
+            ['Madam', 'Mâdâme'],
+            [c['label'] for c in enum.choices(user, term='Mada')]
+        )
+
+        self.assertListEqual(
+            ['Miss', 'Mïssy', 'Mister'],
+            [c['label'] for c in enum.choices(user, term='Mi')]
+        )
+
+        self.assertListEqual(
+            ['Miss', 'Mïssy', 'Mister', 'Môssïeur'],
+            [c['label'] for c in enum.choices(user, term='ï')]
         )
 
     def test_basic_choices_m2m(self):

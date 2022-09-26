@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.db.models import Q
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core import enumerable
@@ -25,6 +24,8 @@ from creme.creme_core.utils.unicode_collation import collator
 
 
 class UserEnumerator(enumerable.QSEnumerator):
+    search_fields = ('first_name', 'last_name', 'username')
+
     @classmethod
     def instance_as_dict(cls, instance):
         d = {'value': instance.pk}
@@ -41,15 +42,6 @@ class UserEnumerator(enumerable.QSEnumerator):
 
         return d
 
-    def choices_by_term(self, queryset, term, limit=None):
-        queryset = queryset.filter(
-            Q(first_name__icontains=term)
-            | Q(last_name__icontains=term)
-            | Q(username__icontains=term)
-        )
-
-        return list(map(self.instance_as_dict, queryset))
-
     def choices(self, user, *, term=None, only=None, limit=None):
         # Do not apply limits on queryset, because ordering is done later
         choices = super().choices(user, term=term, only=only)
@@ -61,6 +53,8 @@ class UserEnumerator(enumerable.QSEnumerator):
 
 
 class EntityFilterEnumerator(enumerable.QSEnumerator):
+    search_fields = ('name',)
+
     @classmethod
     def instance_as_dict(cls, instance):
         d = super().instance_as_dict(instance)
@@ -68,10 +62,6 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
         d['help'] = _('Private ({})').format(instance.user) if instance.is_private else ''
 
         return d
-
-    def choices_by_term(self, queryset, term, limit=None):
-        queryset = queryset.filter(name__icontains=term)
-        return list(map(self.instance_as_dict, queryset))
 
     def choices(self, user, *, term=None, only=None, limit=None):
         # Do not apply limits on queryset, because ordering is done later

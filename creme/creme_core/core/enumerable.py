@@ -18,10 +18,10 @@
 
 from __future__ import annotations
 
-from itertools import islice
 from typing import Iterable, Iterator
 
-from django.db.models import Field, Model
+from django.db.models import CharField, Field, Model
+from django.db.models.query_utils import Q
 
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
@@ -86,7 +86,47 @@ class Enumerator:
                 yield {'value': k0, 'label': v0}
 
 
+def get_enum_search_fields(field):
+    search_fields = getattr(field.remote_field.model, '_search_fields', ())
+
+    if not search_fields:
+        remote_model_fields = field.remote_field.model._meta.get_fields()
+
+        for search_field in remote_model_fields:
+            if isinstance(search_field, CharField) and search_field.get_tag(FieldTag.VIEWABLE):
+                search_fields = (search_field.get_attname_column()[1],)
+                break
+
+    return search_fields
+
+
 class QSEnumerator(Enumerator):
+    search_fields = ()
+
+    def __init__(self, field: Field, search_fields=None):
+        super().__init__(field)
+
+        search_fields = search_fields or self.search_fields
+
+        if not search_fields:
+            search_fields = get_enum_search_fields(field)
+
+        if not search_fields:
+            raise ValueError(
+                f'This field has no search fields : the model {field.model} of {field} do not'
+                'have _search_fields attribute or visible CharField'
+            )
+
+        self.search_fields = search_fields
+
+    def search_q(self, term):
+        q = Q()
+
+        for name in self.search_fields:
+            q |= Q(**{f'{name}__icontains': term})
+
+        return q
+
     """Specialisation of Enumerator to enumerate elements of a QuerySet."""
     def _queryset(self, user):
         field = self.field
@@ -95,13 +135,8 @@ class QSEnumerator(Enumerator):
 
         return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
 
-    def choices_by_term(self, queryset, term, limit=None):
-        term = term.lower()
-        choices = (
-            c for c in map(self.instance_as_dict, queryset) if term in c['label'].lower()
-        )
-
-        return list(islice(choices, limit) if limit else choices)
+    def filter_term(self, queryset, term):
+        return queryset.filter(self.search_q(term))
 
     def filter_only(self, queryset, values):
         return queryset.filter(id__in=values)
@@ -110,9 +145,8 @@ class QSEnumerator(Enumerator):
         queryset = self._queryset(user)
 
         if term:
-            return self.choices_by_term(queryset, term, limit)
-
-        if only:
+            queryset = self.filter_term(queryset, term)
+        elif only:
             queryset = self.filter_only(queryset, only)
 
         return list(
