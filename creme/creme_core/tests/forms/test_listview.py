@@ -202,15 +202,17 @@ class SearchWidgetsTestCase(CremeTestCase):
 
         name = 'search-birthday'
         self.assertHTMLEqual(
-            '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">'
+            '<div class="lv-search-daterange" data-lv-search-widget="daterange">'
             ' <div class="date-start">'
             '    <label for="id_birth-start">{start_label}</label>'
-            '    <input data-format="{format}" id="id_birth-start" name="{name}-start" '
+            '    <input class="lv-state-field"'
+            '           data-format="{format}" id="id_birth-start" name="{name}-start" '
             '           value="12-02-2019" />'
             ' </div>'
             ' <div class="date-end">'
             '   <label for="id_birth-end">{end_label}</label>'
-            '   <input data-format="{format}" id="id_birth-end" name="{name}-end" '
+            '   <input class="lv-state-field"'
+            '          data-format="{format}" id="id_birth-end" name="{name}-end" '
             '          value="14-02-2019" />'
             ' </div>'
             '</div>'.format(
