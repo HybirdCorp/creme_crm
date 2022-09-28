@@ -1,5 +1,9 @@
 == Version 2.2.15 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Date search of the listview now kept on ordering change and cleared correctly
+
 
 == Version 2.2.14 ==
 
