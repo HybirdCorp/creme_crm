@@ -8,6 +8,7 @@
   Users side :
   ------------
     # Clearing search state of the listview now works correctly
+    # Date search of the listview now kept on ordering change and cleared correctly
     # Apps:
         * Persons :
             - A style issue with the edition buttons in address bricks has been fixed.
