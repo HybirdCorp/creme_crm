@@ -26,6 +26,7 @@ from django.db.models.query_utils import Q
 from creme.creme_core.core.field_tags import FieldTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.utils.collections import ClassKeyedMap
+from creme.creme_core.utils.db import is_db_supports_unaccent
 
 
 class Enumerator:
@@ -122,8 +123,12 @@ class QSEnumerator(Enumerator):
     def search_q(self, term):
         q = Q()
 
-        for name in self.search_fields:
-            q |= Q(**{f'{name}__icontains': term})
+        if is_db_supports_unaccent():
+            for name in self.search_fields:
+                q |= Q(**{f'{name}__unaccent__icontains': term})
+        else:
+            for name in self.search_fields:
+                q |= Q(**{f'{name}__icontains': term})
 
         return q
 

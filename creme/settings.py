@@ -317,6 +317,7 @@ INSTALLED_DJANGO_APPS = [
     'creme.creme_core.apps.ContentTypesConfig',  # Replaces 'django.contrib.contenttypes',
     'django.contrib.auth',
     'django.contrib.sessions',
+    'django.contrib.postgres',
 
     # EXTERNAL APPS
     'formtools',

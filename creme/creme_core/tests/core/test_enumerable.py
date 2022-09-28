@@ -29,6 +29,7 @@ from creme.creme_core.models.fields import (
     CTypeForeignKey,
     EntityCTypeForeignKey,
 )
+from creme.creme_core.utils.db import is_db_supports_unaccent
 
 from ..base import CremeTestCase
 
@@ -145,7 +146,7 @@ class EnumerableTestCase(CremeTestCase):
         )
 
     @skipIf(
-        connection.vendor != 'mysql',
+        not is_db_supports_unaccent() and connection.vendor != 'mysql',
         'Skip if database does not support unaccent feature',
     )
     def test_basic_choices_fk__term__diacritics(self):

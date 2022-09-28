@@ -282,6 +282,19 @@ def is_db_like_case_sensitive() -> bool:  # TODO: idem
     return not CaseSensitivity.objects.filter(text__contains='case').exists()
 
 
+@lru_cache(maxsize=None)
+def is_db_supports_unaccent(db_name: str = DEFAULT_DB_ALIAS) -> bool:
+    connection = connections[db_name]
+
+    if connection.vendor == 'postgresql':
+        try:
+            return CaseSensitivity.objects.filter(text__unaccent__icontains='çâsë').exists()
+        except Exception:
+            pass
+
+    return False
+
+
 # TODO: accept multiple/iterative order()/proceed() calls ?
 class PreFetcher:
     """Regroup queries on same model (to retrieve instances by their PK)
