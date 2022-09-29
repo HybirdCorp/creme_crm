@@ -16,6 +16,19 @@ QUnit.module("creme.widget.entity_cell.js", new QUnitMixin(QUnitEventMixin,
         creme.widget.shutdown($('body'));
     },
 
+    itemsDisplayStatus: function(element) {
+        var state = {};
+
+        element.find('.selector[data-column]').each(function() {
+            state[$(this).data('column')] = {
+                opacity: +($(this).css('opacity')),
+                visible: $(this).is(':visible')
+            };
+        });
+
+        return state;
+    },
+
     createHFilterHtml: function(options) {
         options = $.extend({
             id: 'test',
@@ -258,13 +271,42 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, ordering)', function(a
     deepEqual({}, widget.underlays);
 });
 
-QUnit.test('creme.entity_cell.EntityCellsWidget (regular, filtered)', function(assert) {
+QUnit.parametrize('creme.entity_cell.EntityCellsWidget (regular, filtered)', [
+    [
+        'name', {
+            'regular_field-email': {opacity: 0.4, visible: true},
+            'regular_field-firstname': {opacity: 1.0, visible: true},  // match "First Name"
+            'regular_field-lastname': {opacity: 1.0, visible: true}   // match "Last Name"
+         }
+    ],
+    [
+        'mail', {
+            'regular_field-email': {opacity: 1.0, visible: true},    // match "Email"
+            'regular_field-firstname': {opacity: 0.4, visible: true},
+            'regular_field-lastname': {opacity: 0.4, visible: true}
+         }
+    ],
+    [
+        'él', {
+            'regular_field-email': {opacity: 1.0, visible: true},    // match "Électronique"
+            'regular_field-firstname': {opacity: 0.4, visible: true},
+            'regular_field-lastname': {opacity: 0.4, visible: true}
+        }
+    ],
+    [
+        'pre', {
+            'regular_field-email': {opacity: 0.4, visible: true},
+            'regular_field-firstname': {opacity: 1.0, visible: true},  // match "Prénom"
+            'regular_field-lastname': {opacity: 0.4, visible: true}
+        }
+    ]
+], function(term, expected, assert) {
     var element = $(this.createHFilterHtml({
         id: 'test-id',
         regularfields: [
-            {name: 'regular_field-email', label: 'Email'},
-            {name: 'regular_field-firstname', label: 'First name'},
-            {name: 'regular_field-lastname', label: 'Last name'}
+            {name: 'regular_field-email', label: 'Email / Courrier Électronique'},
+            {name: 'regular_field-firstname', label: 'First Name / Prénom'},
+            {name: 'regular_field-lastname', label: 'Last Name'}
         ]
     })).appendTo(this.qunitFixture());
 
@@ -272,39 +314,30 @@ QUnit.test('creme.entity_cell.EntityCellsWidget (regular, filtered)', function(a
     var filter = element.find('.field_selector_filter[data-type="fields"]');
 
     deepEqual({
-        "regular_field-email": "Email",
-        "regular_field-firstname": "First name",
-        "regular_field-lastname": "Last name"
+        "regular_field-email": "Email / Courrier Électronique",
+        "regular_field-firstname": "First Name / Prénom",
+        "regular_field-lastname": "Last Name"
     }, widget.column_titles);
 
     equal(1, filter.length);
     equal('', filter.val());
 
-    equal(1.0, element.find('.selector[data-column="regular_field-email"]').css('opacity'));
-    equal(1.0, element.find('.selector[data-column="regular_field-firstname"]').css('opacity'));
-    equal(1.0, element.find('.selector[data-column="regular_field-lastname"]').css('opacity'));
+    deepEqual({
+        'regular_field-email': {opacity: 1.0, visible: true},
+        'regular_field-firstname': {opacity: 1.0, visible: true},
+        'regular_field-lastname': {opacity: 1.0, visible: true}
+    }, this.itemsDisplayStatus(element));
 
-    filter.val('name').trigger('propertychange');
+    filter.val(term).trigger('propertychange');
 
-    stop(2);
-
-    // waiting for animation end
-    setTimeout(function() {
-        equal(0.4, element.find('.selector[data-column="regular_field-email"]').css('opacity'), '"email" item is filtered');
-        equal(1.0, element.find('.selector[data-column="regular_field-firstname"]').css('opacity'));
-        equal(1.0, element.find('.selector[data-column="regular_field-lastname"]').css('opacity'));
-
-        filter.val('mail').trigger('propertychange');
-        start();
-    }, 500);
+    stop(1);
 
     // waiting for animation end
     setTimeout(function() {
-        equal(1.0, element.find('.selector[data-column="regular_field-email"]').css('opacity'));
-        equal(0.4, element.find('.selector[data-column="regular_field-firstname"]').css('opacity'), '"firstname" item is filtered');
-        equal(0.4, element.find('.selector[data-column="regular_field-lastname"]').css('opacity'), '"lastname" item is filtered');
+        var state = this.itemsDisplayStatus(element);
+        deepEqual(expected, state);
         start();
-    }, 1000);
+    }.bind(this), 500);
 });
 
 QUnit.test('creme.entity_cell.EntityCellsWidget (regular)', function(assert) {
@@ -531,66 +564,94 @@ QUnit.test('creme.entity_cell.EntityCellsWidget.select (relations)', function(as
 });
 
 
-QUnit.test('creme.entity_cell.EntityCellsWidget (relation, filtered)', function(assert) {
+QUnit.parametrize('creme.entity_cell.EntityCellsWidget (relation, filtered)', [
+    [
+        'is', {
+            summary: gettext('%s result(s) on %s').format(3, 4),
+            items: {
+                'relation-persons-object_competitor': {opacity: 1.0, visible: false},
+                'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true},
+                'relation-persons-small': {opacity: 1.0, visible: true},
+                'relation-persons-big': {opacity: 1.0, visible: true}
+            }
+        }
+    ],
+    [
+        'rê', {
+            summary: gettext('%s result(s) on %s').format(1, 4),
+            items: {
+                'relation-persons-object_competitor': {opacity: 1.0, visible: false},
+                'relation-persons-subject_subsidiary': {opacity: 1.0, visible: false},
+                'relation-persons-small': {opacity: 1.0, visible: true},   // match 'Frêle'
+                'relation-persons-big': {opacity: 1.0, visible: false}
+            }
+        }
+    ],
+    [
+        'à', {
+            summary: gettext('%s result(s) on %s').format(3, 4),
+            items: {
+                'relation-persons-object_competitor': {opacity: 1.0, visible: true},  // match 'Has'
+                'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true}, // à
+                'relation-persons-small': {opacity: 1.0, visible: true}, // match 'Small'
+                'relation-persons-big': {opacity: 1.0, visible: false}
+            }
+        }
+    ]
+], function(term, expected, assert) {
     var element = $(this.createHFilterHtml({
         id: 'test-id',
         regularfields: [
             {name: 'regular_field-email', label: 'Email'}
         ],
         relationfields: [
-            {name: 'relation-persons-object_competitor', label: 'Has for competitor'},
-            {name: 'relation-persons-subject_subsidiary', label: 'Is subsidiary'},
-            {name: 'relation-persons-small', label: 'Is small'},
-            {name: 'relation-persons-big', label: 'Is big'}
+            {name: 'relation-persons-object_competitor', label: 'Has for competitor / Est compétiteur de'},
+            {name: 'relation-persons-subject_subsidiary', label: 'Is subsidiary / Est subordonné à'},
+            {name: 'relation-persons-small', label: 'Is small / Frêle'},
+            {name: 'relation-persons-big', label: 'Is big / Énorme'}
         ]
     })).appendTo(this.qunitFixture());
 
     var widget = new creme.entity_cell.EntityCellsWidget().bind(element);
     var filter = element.find('.field_selector_filter[data-type="relationships"]');
     var filter_result = element.find('.relationship_selectors .filter_result');
+    var relationships = element.find('.relationship_selectors');
 
     deepEqual({
         "regular_field-email": "Email",
-        "relation-persons-object_competitor": 'Has for competitor',
-        "relation-persons-subject_subsidiary": 'Is subsidiary',
-        "relation-persons-small": 'Is small',
-        "relation-persons-big": 'Is big'
+        "relation-persons-object_competitor": 'Has for competitor / Est compétiteur de',
+        "relation-persons-subject_subsidiary": 'Is subsidiary / Est subordonné à',
+        "relation-persons-small": 'Is small / Frêle',
+        "relation-persons-big": 'Is big / Énorme'
     }, widget.column_titles);
 
     equal(1, filter.length);
     equal(1, filter_result.length);
 
     equal('', filter.val());
-
     equal('', filter_result.text());
-    equal(true, element.find('.selector[data-column="relation-persons-object_competitor"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-subject_subsidiary"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-small"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-big"]').is(':visible'));
 
-    filter.val('is').trigger('propertychange');
+    deepEqual({
+        'relation-persons-object_competitor': {opacity: 1.0, visible: true},
+        'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true},
+        'relation-persons-small': {opacity: 1.0, visible: true},
+        'relation-persons-big': {opacity: 1.0, visible: true}
+    }, this.itemsDisplayStatus(relationships));
 
-    equal(gettext('%s result(s) on %s').format(3, 4), filter_result.text());
-    equal(false, element.find('.selector[data-column="relation-persons-object_competitor"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-subject_subsidiary"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-small"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-big"]').is(':visible'));
+    filter.val(term).trigger('propertychange');
 
-    filter.val('competitor').trigger('propertychange');
-
-    equal(gettext('%s result(s) on %s').format(1, 4), filter_result.text());
-    equal(true, element.find('.selector[data-column="relation-persons-object_competitor"]').is(':visible'));
-    equal(false, element.find('.selector[data-column="relation-persons-subject_subsidiary"]').is(':visible'));
-    equal(false, element.find('.selector[data-column="relation-persons-small"]').is(':visible'));
-    equal(false, element.find('.selector[data-column="relation-persons-big"]').is(':visible'));
+    equal(expected.summary, filter_result.text());
+    deepEqual(expected.items, this.itemsDisplayStatus(relationships));
 
     filter.val('').trigger('propertychange');
 
     equal('', filter_result.text());
-    equal(true, element.find('.selector[data-column="relation-persons-object_competitor"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-subject_subsidiary"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-small"]').is(':visible'));
-    equal(true, element.find('.selector[data-column="relation-persons-big"]').is(':visible'));
+    deepEqual({
+        'relation-persons-object_competitor': {opacity: 1.0, visible: true},
+        'relation-persons-subject_subsidiary': {opacity: 1.0, visible: true},
+        'relation-persons-small': {opacity: 1.0, visible: true},
+        'relation-persons-big': {opacity: 1.0, visible: true}
+    }, this.itemsDisplayStatus(relationships));
 });
 
 

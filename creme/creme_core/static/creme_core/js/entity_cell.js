@@ -357,11 +357,11 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
 
                 elem.data('oldVal', val);
 
-                val = val.toLowerCase();
+                var term = val.removeDiacritics().toLowerCase();
 
                 // TODO: split-up field/relationships to be cleaned
                 if (type === 'relationships') {
-                    if (val === '') {
+                    if (term === '') {
 //                         TODO: when secondary_relationships
 //                         $('.secondary_relationship').css ('display', 'none');
 //                         $('.relationship_selectors .selector_list .selector:not(.secondary_relationship)').css ('display', 'inline-block');
@@ -374,9 +374,9 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
 
                         div.find('.relationship_selectors .selector_list .selector').each(function (i, element) {
                             var item = $(element);
-                            var text = item.text().toLowerCase();
+                            var text = item.text().removeDiacritics().toLowerCase();
 
-                            if (text.indexOf(val) === -1) {
+                            if (text.indexOf(term) === -1) {
                                 item.css('display', 'none');
                             } else {
                                 item.css('display', 'inline-block');
@@ -392,10 +392,10 @@ creme.entity_cell.EntityCellsWidget = creme.component.Component.sub({
                 } else {
                     div.find('.field_selectors .selector_list .selector').each(function(i, element) {
                        var item = $(element);
-                       var text = item.text().toLowerCase();
+                       var text = item.text().removeDiacritics().toLowerCase();
 
                        // TODO: probably better to add a css class defining the style of a matching item compared to one that doesn't match
-                       item.css('opacity', text.indexOf(val) === -1 ? 0.4 : 1);
+                       item.css('opacity', text.indexOf(term) === -1 ? 0.4 : 1);
 
      //                  var is_basic_field = item.parents ('.basic_field_selectors').length > 0;
      //                  item.css ('display', text.indexOf (val) == -1 ? 'none' : is_basic_field ? 'block' : 'inline-block');

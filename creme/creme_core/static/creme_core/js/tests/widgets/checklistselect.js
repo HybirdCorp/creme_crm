@@ -605,12 +605,55 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (readonly options)', function
     deepEqual(["12", "8"], widget.val());
 });
 
-QUnit.test('creme.widget.CheckListSelect.selectAll (filtered)', function(assert) {
+QUnit.parametrize('creme.widget.CheckListSelect.selectAll (filtered)', [
+    [
+        'C', {
+            visible: 1,
+            total: 3,
+            items: [
+                {label: 'itemAD / Élément Âù',  value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
+                {label: 'itemAB / Élément Â',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
+                {label: 'itemABC / Élément ÂùÖ', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false}
+            ],
+            selected: ["5"]
+        },
+        'B', {
+            visible: 2,
+            total: 3,
+            items: [
+                {label: 'itemAD / Élément Âù',  value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
+                {label: 'itemAB / Élément Â',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false},
+                {label: 'itemABC / Élément ÂùÖ', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false}
+            ],
+            selected: ["78", "5"]
+        },
+        'ü', {
+            visible: 2,
+            total: 3,
+            items: [
+                {label: 'itemAD / Élément Âù',  value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
+                {label: 'itemAB / Élément Â',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: false,  tags: [], selected: false},
+                {label: 'itemABC / Élément ÂùÖ', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false}
+            ],
+            selected: ["12", "5"]
+        },
+        'element', {
+            visible: 2,
+            total: 3,
+            items: [
+                {label: 'itemAD / Élément Âù',  value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
+                {label: 'itemAB / Élément Â',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false},
+                {label: 'itemABC / Élément ÂùÖ', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true,  tags: [], selected: false}
+            ],
+            selected: ["12", "78", "5"]
+        }
+    ]
+], function(term, expected, assert) {
     var element = this.createCheckListSelectElement();
     this.addCheckListSelectSearch(element, 'filter');
-    this.addCheckListSelectChoice(element, 'itemAD', 12);
-    this.addCheckListSelectChoice(element, 'itemAB', 78);
-    this.addCheckListSelectChoice(element, 'itemABC', 5);
+    this.addCheckListSelectChoice(element, 'itemAD / Élément Âù', 12);
+    this.addCheckListSelectChoice(element, 'itemAB / Élément Â', 78);
+    this.addCheckListSelectChoice(element, 'itemABC / Élément ÂùÖ', 5);
 
     var widget = creme.widget.create(element);
     equal(element.hasClass('widget-active'), true);
@@ -619,38 +662,22 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (filtered)', function(assert)
     var counter = element.find('.checklist-counter');
 
     equal('&nbsp;', counter.html());
-    deepEqual([{label: 'itemAD',   value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
-               {label: 'itemAB',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
-               {label: 'itemABC', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false}], widget.model().all());
+    deepEqual([{label: 'itemAD / Élément Âù',  value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
+               {label: 'itemAB / Élément Â',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
+               {label: 'itemABC / Élément ÂùÖ', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false}], widget.model().all());
 
-    element.find('.checklist-filter').val('C').trigger($.Event("keyup", {keyCode: 13}));
+    element.find('.checklist-filter').val(term).trigger($.Event("keyup", {keyCode: 13}));
 
-    equal(ngettext('%d result of %d', '%d results of %d', 1).format(1, 3) + '&nbsp;', counter.html());
-    deepEqual([{label: 'itemAD',   value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
-               {label: 'itemAB',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
-               {label: 'itemABC', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false}], widget.model().all());
-
-    widget.selectAll();
-
-    equal(ngettext('%d selection', '%d selections', 1).format(1) + '&nbsp;‒&nbsp;' +
-          ngettext('%d result of %d', '%d results of %d', 1).format(1, 3) + '&nbsp;', counter.html());
-
-    deepEqual(["5"], widget.val());
-
-    widget.unselectAll();
-    element.find('.checklist-filter').val('B').trigger($.Event("keyup", {keyCode: 13}));
-
-    equal(ngettext('%d result of %d', '%d results of %d', 2).format(2, 3) + '&nbsp;', counter.html());
-    deepEqual([{label: 'itemAD',   value: "12", group: undefined, help: undefined, disabled: false, readonly: false, visible: false, tags: [], selected: false},
-               {label: 'itemAB',  value: "78", group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false},
-               {label: 'itemABC', value: "5",  group: undefined, help: undefined, disabled: false, readonly: false, visible: true, tags: [], selected: false}], widget.model().all());
+    var summary = ngettext('%d result of %d', '%d results of %d', expected.visible).format(expected.visible, expected.total);
+    equal(summary + '&nbsp;', counter.html());
+    deepEqual(expected.items, widget.model().all());
 
     widget.selectAll();
 
-    deepEqual(["78", "5"], widget.val());
+    equal(ngettext('%d selection', '%d selections', expected.visible).format(expected.visible) + '&nbsp;‒&nbsp;' +
+          summary + '&nbsp;', counter.html());
 
-    equal(ngettext('%d selection', '%d selections', 2).format(2) + '&nbsp;‒&nbsp;' +
-          ngettext('%d result of %d', '%d results of %d', 2).format(2, 3) + '&nbsp;', counter.html());
+    deepEqual(expected.selected, widget.val());
 });
 
 QUnit.test('creme.widget.CheckListSelect.unselectAll', function(assert) {
