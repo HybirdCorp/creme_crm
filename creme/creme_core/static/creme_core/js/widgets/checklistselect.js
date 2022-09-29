@@ -73,28 +73,32 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         element.addClass('widget-ready');
     },
 
-    _getItemFilter: function(filter) {
+    _getItemFilter: function(term) {
+        term = term.removeDiacritics().toLowerCase();
+
         return function(item) {
-            return (!Object.isEmpty(item.label) && item.label.toLowerCase().indexOf(filter) !== -1) ||
-                   (!Object.isEmpty(item.help) && item.help.toLowerCase().indexOf(filter) !== -1);
+            var label = (item.label || '').removeDiacritics().toLowerCase();
+            var help = (item.help || '').removeDiacritics().toLowerCase();
+
+            return (label.indexOf(term) !== -1 || help.indexOf(term) !== -1);
         };
     },
 
-    _updateViewFilter: function(element, filter) {
-        var isfiltered = !Object.isEmpty(filter);
+    _updateViewFilter: function(element, term) {
+        var isfiltered = !Object.isEmpty(term);
         var content = this.content(element);
         var hide = content.is('.filter');
-        var filter_lambda = this._getItemFilter(filter);
+        var filter = this._getItemFilter(term);
 
         content.toggleClass('filtered', isfiltered);
 
         if (hide) {
             this._model.each(function(item) {
-                item.visible = filter_lambda(item);
+                item.visible = filter(item);
             });
         } else {
             this._model.each(function(item) {
-                item.disabled = !filter_lambda(item);
+                item.disabled = !filter(item);
             });
         }
 
