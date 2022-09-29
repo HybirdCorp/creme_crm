@@ -223,6 +223,10 @@ jobs:
       - create-creme-project
       - setup-creme-unit-tests:
           local_settings: 'pgsql_settings'
+      - run:
+          name: "PostgreSQL extensions"
+          command: |
+            echo "SELECT * FROM pg_available_extensions"|creme dbshell --settings=<< pipeline.parameters.instance_directory >>.settings
       - run-creme-unit-tests
 
 
