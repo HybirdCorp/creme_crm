@@ -762,8 +762,25 @@ else:
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
 
+    class FakeIngredientGroup(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+
+        def __str__(self):
+            return self.name
+
+        class Meta:
+            app_label = 'creme_core'
+            verbose_name = 'Test Ingredient Group'
+            verbose_name_plural = 'Test Ingredient Groups'
+            ordering = ('name',)
+
     class FakeIngredient(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
+        group = models.ForeignKey(
+            FakeIngredientGroup,  related_name='ingredients',
+            null=True, blank=True,
+            on_delete=models.SET_DEFAULT, default=None
+        )
 
         def __str__(self):
             return self.name

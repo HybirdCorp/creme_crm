@@ -16,13 +16,13 @@ from creme.creme_core.models import (
     CremeModel,
     CremeUser,
     EntityFilter,
-    FakeAddress,
     FakeCivility,
     FakeContact,
     FakeImage,
     FakeImageCategory,
     FakeOrganisation,
     FakeReport,
+    FakeTodo,
     Language,
 )
 from creme.creme_core.models.fields import (
@@ -133,6 +133,19 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected[:2], enum.choices(user, limit=2))
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
+    def test_basic_choices_fk__only(self):
+        user = self.create_user()
+        registry = _EnumerableRegistry()
+
+        enum = registry.enumerator_by_fieldname(model=FakeContact, field_name='civility')
+        only = [1, 3]
+        expected = [
+            {'value': id, 'label': title}
+            for id, title in FakeCivility.objects.filter(pk__in=only).values_list('id', 'title')
+        ]
+
+        self.assertListEqual(expected, enum.choices(user, only=only))
+
     def test_basic_choices_fk__term(self):
         user = self.create_user()
         registry = _EnumerableRegistry()
@@ -190,8 +203,22 @@ class EnumerableTestCase(CremeTestCase):
         enum2 = registry.enumerator_by_field(field)
         self.assertListEqual(expected, enum2.choices(user))
 
+    def test_basic_choices_m2m__only(self):
+        user = self.create_user()
+        registry = _EnumerableRegistry()
+
+        enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
+        only = [1, 3]
+        expected = [
+            {'value': id, 'label': title} for id, title in FakeImageCategory.objects.filter(
+                pk__in=only
+            ).values_list('id', 'name')
+        ]
+
+        self.assertListEqual(expected, enum.choices(user, only=only))
+
     def test_basic_choices_m2m__limit(self):
-        user = self.login()
+        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
@@ -204,7 +231,7 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(expected, enum.choices(user, limit=100))
 
     def test_basic_choices_m2m__term(self):
-        user = self.login()
+        user = self.create_user()
         registry = _EnumerableRegistry()
 
         enum = registry.enumerator_by_fieldname(model=FakeImage, field_name='categories')
@@ -238,21 +265,21 @@ class EnumerableTestCase(CremeTestCase):
         registry = _EnumerableRegistry()
 
         with self.assertRaises(ValueError) as error_ctxt1:
-            registry.enumerator_by_fieldname(model=FakeAddress, field_name='entity')
+            registry.enumerator_by_fieldname(model=FakeTodo, field_name='categories')
 
         self.assertEqual(
-            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeTodo',
             str(error_ctxt1.exception),
         )
 
         # --
-        field = FakeAddress._meta.get_field('entity')
+        field = FakeTodo._meta.get_field('categories')
 
         with self.assertRaises(ValueError) as error_ctxt2:
             registry.enumerator_by_field(field)
 
         self.assertEqual(
-            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeTodo',
             str(error_ctxt2.exception),
         )
 
@@ -514,6 +541,22 @@ class EnumerableTestCase(CremeTestCase):
         self.assertListEqual(all_choices[:2], enum.choices(user, limit=2))
         self.assertListEqual(all_choices, enum.choices(user, limit=100))
 
+    def test_user_enumerator__only(self):
+        user = self.login()
+
+        chloe = CremeUser.objects.create_user(
+            username='noir', email='chloe@noir.jp',
+            first_name='Chloe', last_name='Noir',
+            password='uselesspw',
+        )
+
+        enum = enumerators.UserEnumerator(FakeContact._meta.get_field('user'))
+
+        self.assertListEqual(
+            [{'value': chloe.pk, 'label': str(chloe)}],
+            enum.choices(user, only=[chloe.pk])
+        )
+
     def test_user_enumerator__term(self):
         user = self.login()
 
@@ -596,6 +639,48 @@ class EnumerableTestCase(CremeTestCase):
         self.assertFalse(
             [c for c in choices if c['value'] == efilter3.id]
         )
+
+    def test_efilter_enumerator__only(self):
+        user = CremeUser.objects.create_user(
+            username='Kanna', email='kanna@century.jp',
+            first_name='Kanna', last_name='Gendou',
+            password='uselesspw',
+        )
+
+        create_filter = partial(
+            EntityFilter.objects.create, entity_type=FakeContact,
+            is_custom=True,
+        )
+
+        filter_01 = create_filter(id='test-filter01', name='Filter 01')
+        create_filter(id='test-filter02', name='Filter 02')
+        filter_03 = create_filter(id='test-filter03', name='Filter 03')
+
+        enum = enumerators.EntityFilterEnumerator(FakeReport._meta.get_field('efilter'))
+
+        self.assertListEqual([
+            {
+                'value': filter_01.pk,
+                'label': filter_01.name,
+                'group': str(filter_01.entity_type),
+                'help': ''
+            }
+        ], enum.choices(user, only=['test-filter01']))
+
+        self.assertListEqual([
+            {
+                'value': filter_01.pk,
+                'label': filter_01.name,
+                'group': str(filter_01.entity_type),
+                'help': ''
+            },
+            {
+                'value': filter_03.pk,
+                'label': filter_03.name,
+                'group': str(filter_03.entity_type),
+                'help': ''
+            }
+        ], enum.choices(user, only=['test-filter01', 'test-filter03']))
 
     def test_efilter_enumerator__limit(self):
         user = CremeUser.objects.create_user(

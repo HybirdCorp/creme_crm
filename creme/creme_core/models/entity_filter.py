@@ -311,10 +311,12 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
     ).set_tags(viewable=False)
 
     is_custom = models.BooleanField(editable=False, default=True).set_tags(viewable=False)
+    # Even if we don't display this field, we have to keep it "viewable" in order to be able
+    # to "enumerate" it.
     user = core_fields.CremeUserForeignKey(
         verbose_name=_('Owner user'), blank=True, null=True,
         help_text=_('All users can see this filter, but only the owner can edit or delete it'),
-    ).set_tags(viewable=False)
+    )
     is_private = models.BooleanField(
         pgettext_lazy('creme_core-entity_filter', 'Is private?'),
         default=False,

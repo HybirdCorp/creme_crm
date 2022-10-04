@@ -185,8 +185,16 @@ class EnumerableViewsTestCase(ViewsTestCase):
     def test_choices_not_entity_model(self):
         self.login()
         self.assertContains(
+            self.client.get(self._build_choices_url(models.FakeIngredient, 'group')),
+            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeIngredient',
+            status_code=409,
+        )
+
+    def test_choices_not_viewable(self):
+        self.login()
+        self.assertContains(
             self.client.get(self._build_choices_url(models.FakeAddress, 'entity')),
-            'This model is not a CremeEntity: creme.creme_core.tests.fake_models.FakeAddress',
+            'This field is not viewable: creme_core.FakeAddress.entity',
             status_code=409,
         )
 

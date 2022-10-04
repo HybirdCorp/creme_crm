@@ -553,7 +553,14 @@ class CremeCoreConfig(CremeAppConfig):
         ).register_field_type(
             models.fields.EntityCTypeForeignKey,
             enumerators.EntityCTypeForeignKeyEnumerator,
+        ).register_field(
+            models.HeaderFilter, 'user',
+            enumerators.UserEnumerator
+        ).register_field(
+            models.EntityFilter, 'user',
+            enumerators.UserEnumerator
         )
+
         # TODO: register_related_model(models.HeaderFilter, ...) ?
 
     def register_function_fields(self, function_field_registry):
@@ -591,6 +598,7 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeTicketStatus,     'fake_ticket_status')
             register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
+            register_model(fake_models.FakeIngredientGroup,  'fake_ingredient_group')
 
             # NB: we just need another URLs for creation/edition/deletion
             # (even if these are stupid)
@@ -642,11 +650,11 @@ class CremeCoreConfig(CremeAppConfig):
 
         def new_fk_formfield(self, **kwargs):
             remote_field = self.remote_field
-            model = remote_field.model
+            remote_model = remote_field.model
             limit_choices_to = remote_field.limit_choices_to
 
-            if issubclass(model, CremeEntity):
-                if model is CremeEntity:
+            if issubclass(remote_model, CremeEntity):
+                if remote_model is CremeEntity:
                     if limit_choices_to is not None:
                         logger.warning(
                             'GenericEntityField currently does not manage "q_filter".'
@@ -659,7 +667,7 @@ class CremeCoreConfig(CremeAppConfig):
 
                 return CreatorEntityField(
                     label=self.verbose_name,
-                    model=model,
+                    model=remote_model,
                     required=not self.blank,
                     q_filter=limit_choices_to,
                     help_text=self.help_text,

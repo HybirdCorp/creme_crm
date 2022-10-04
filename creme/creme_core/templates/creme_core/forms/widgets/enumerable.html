@@ -1,0 +1,10 @@
+{% load i18n %}
+<select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum" autocomplete widget="ui-creme-dselect" name="{{widget.name}}" {% include "django/forms/widgets/attrs.html" %}>
+{% for group_name, group_choices in widget.choices %}
+    {% if group_name %}<optgroup label="{{group_name}}">{% endif %}
+    {% for choice in group_choices %}
+    <option value="{{choice.value}}"{% if choice.selected %} selected{% endif %}{% if choice.pinned %} data-pinned{% endif %}>{{choice.label}}</option>
+    {% endfor %}
+    {% if group_name %}</optgroup>{% endif %}
+{% endfor %}
+</select>

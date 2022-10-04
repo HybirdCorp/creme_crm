@@ -1743,10 +1743,33 @@ class Migration(migrations.Migration):
                 bases=('creme_core.cremeentity',),
             ),
             migrations.CreateModel(
+                name='FakeIngredientGroup',
+                fields=[
+                    ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Ingredient Group',
+                    'verbose_name_plural': 'Test Ingredient Groups',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
                 name='FakeIngredient',
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    (
+                        'group',
+                        models.ForeignKey(
+                            on_delete=models.SET_DEFAULT,
+                            null=True, blank=True,
+                            verbose_name='Group', default=None,
+                            to='creme_core.FakeIngredientGroup',
+                            related_name='fake_ingredients',
+                        )
+                    )
                 ],
                 options={
                     'ordering': ('name',),

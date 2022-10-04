@@ -46,6 +46,7 @@ from ..utils.date_period import date_period_registry
 from ..utils.date_range import date_range_registry
 from ..utils.serializers import json_encode
 from ..utils.unicode_collation import collator
+from . import enumerable as enum_fields
 from . import validators as f_validators
 from . import widgets as core_widgets
 
@@ -130,6 +131,22 @@ class CremeUserChoiceField(mforms.ModelChoiceField):
         # NB: we avoid the " (team)" suffix, because CremeUserChoiceIterator
         #     already creates an <optgroup> for teams.
         return str(obj) if not obj.is_team else obj.username
+
+
+class CremeUserEnumerableField(enum_fields.EnumerableChoiceField):
+    """Specialization of EnumerableChoiceField the User model.
+    The user set by the form (see CremeForm/CremeModelForm) is used as initial
+    choice by default.
+    """
+    @property
+    def user(self):
+        return self._user
+
+    @user.setter
+    def user(self, user):
+        self._user = user
+        if self.initial is None:
+            self.initial = None if user is None else user.id
 
 
 class JSONField(fields.CharField):
