@@ -343,6 +343,13 @@ creme.form.Select2 = creme.component.Component.sub({
             element.append($('<option>${placeholder}</option>'.template(select2Options)));
         }
 
+        /*
+         * Select2 Issue !
+         * Generate a 'data-select2-id' here or the element 'id' will be used EVEN if multiple ones
+         * are on the same page, for instance when you open a popup...
+         */
+        element.attr('data-select2-id', _.uniqueId('select2-'));
+
         var instance = element.select2(select2Options);
 
         if (options.multiple && options.sortable) {
@@ -378,13 +385,29 @@ creme.form.Select2 = creme.component.Component.sub({
     },
 
     refresh: function() {
+        /*
+         * If the "EnumAdapter" is enabled, we cannot refresh the data from the
+         * existing options because they are synced only when a item is selected
+         * and this cause a rendering conflict : we have the 'placeholder' twice and thats all...
+         * TODO : find a way to do it swiftly
+         */
+        if (Object.isEmpty(this.options().enumURL) === false) {
+            return this;
+        }
+
         var data = creme.model.ChoiceGroupRenderer.parse(this.element);
 
+        /*
+         * The "DataAdapter" is a bit stupid : <optgroup> are duplicated because they don't have any id...
+         * So we have to remove them
+         */
+        this.element.find('optgroup').remove();
         this.element.select2({
             data: convertToSelect2Data(data)
         });
 
         this.element.trigger('change.select2');
+
         return this;
     },
 
