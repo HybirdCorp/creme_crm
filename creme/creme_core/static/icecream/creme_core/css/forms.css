@@ -352,6 +352,10 @@ ul.multi-select {
     cursor: pointer;
 }
 
+.form-block-field-value .is-enum {
+    min-width: 259px;
+}
+
 .form-block-field-value .help-text {
     margin-bottom: 3px;
 
