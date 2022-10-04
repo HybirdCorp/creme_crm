@@ -19,6 +19,7 @@
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
     # The version of the shipped Closure compiler has been upgraded (2020-01-12 => 2022-09-05).
+    # Creme user selection fields now use paginated autocompletion.
     # Apps :
         * Creme_config :
             - The email addresses of active users must be unique.
@@ -133,6 +134,10 @@
             - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
             - The model 'FileRef' got a new JSONField called "extra_data" which can be used by third party code.
         # In 'creme_core.templatetags.creme_core_tags', the tag "print_field" can now store the output inside a variable with the classical keyword "as".
+        # In 'creme_core.fields':
+            - A new 'enumerable.EnumerableChoiceField' for combobox with both autocompletion and pagination.
+              Extremely useful to prevent issues with huge MinionModel or CremeUser database
+            - A new 'CremeUserEnumerableField' to replace 'CremeUserChoiceField'
         # In Javascript:
             - Added some convenience actions for the hatbarmenu widget
                 - 'creme_core-hatmenubar-view'
@@ -226,6 +231,7 @@
         # In the class 'creme_core.apps.CremeAppConfig', the method 'register_sanboxes()' has been renamed 'register_sandboxes()'.
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
+        # In the class 'creme_core.core.enumerable._EnumerableRegistry' the method '_check_model()' has been renamed '_check_is_entity()'
         # In 'creme_core.forms' :
             - The module 'bulk' has been removed
               (the class 'BulkDefaultEditForm' is useless now, use 'creme_core.gui.bulk_update.FieldOverrider' instead).
@@ -292,6 +298,7 @@
             - The field 'FieldsConfig.raw_descriptions' is now a JSONField.
             - The field 'CustomFormConfigItem.json_groups' is now a JSONField.
             - A mandatory field "entity_ctype" has been added to 'Imprint'.
+            - 'fields.CremeUserEnumerableField' replaces 'fields.CremeUserChoiceField' as default form-field for 'CremeUserForeignKey'
         # In 'creme_core.views' :
             - In 'entity', the class-views 'InnerEdition' & 'BulkUpdate' have been heavily reworked (the URLs changed too).
             - In the class 'search.FoundEntitiesBrick', the attribute "ctype" has been removed.

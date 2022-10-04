@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-07 17:59+0200\n"
+"POT-Creation-Date: 2022-10-13 06:29+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -897,6 +897,10 @@ msgstr "Aucun type de relation pour le moment."
 msgid "(no filter)"
 msgstr "(pas de filtre)"
 
+msgid "Select a valid choice. That choice is not one of the available choices."
+msgstr ""
+"Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
+
 msgid "Invalid format"
 msgstr "Format invalide"
 
@@ -972,10 +976,6 @@ msgstr "Entrez une valeur pour le choix \"Autre\""
 
 msgid "Other"
 msgstr "Autre"
-
-msgid "Select a valid choice. That choice is not one of the available choices."
-msgstr ""
-"Sélectionnez un choix valide. Ce choix n'est pas un des choix disponibles."
 
 #, python-format
 msgid "The choice %(value)s is mandatory."
@@ -2280,6 +2280,9 @@ msgstr ""
 
 msgid "HTML Color"
 msgstr "Couleur HTML"
+
+msgid "Select a user…"
+msgstr "Sélectionnez un utilisateur…"
 
 msgid "Create a fields configuration"
 msgstr "Créer une configuration de champs"

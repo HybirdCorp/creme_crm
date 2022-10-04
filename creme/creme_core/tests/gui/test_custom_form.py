@@ -19,7 +19,7 @@ from creme.creme_core.forms.base import (
     CremeEntityForm,
 )
 from creme.creme_core.forms.fields import (
-    CremeUserChoiceField,
+    CremeUserEnumerableField,
     EnhancedModelMultipleChoiceField,
     MultiRelationEntityField,
 )
@@ -599,7 +599,7 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertFalse(fname_field.required)
 
         user_field = formfields1.get('user')
-        self.assertIsInstance(user_field, CremeUserChoiceField)
+        self.assertIsInstance(user_field, CremeUserEnumerableField)
         self.assertEqual(_('Owner user'), user_field.label)
 
         self.assertIsInstance(formfields1.get('is_a_nerd'), forms.BooleanField)

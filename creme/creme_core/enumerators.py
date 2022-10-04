@@ -87,3 +87,6 @@ class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
             {'value': ct_id, 'label': label}
             for ct_id, label in (choices[:limit] if limit else choices)
         ]
+
+    def to_python(self, user, values):
+        return [c for c in entity_ctypes() if c.id in values]

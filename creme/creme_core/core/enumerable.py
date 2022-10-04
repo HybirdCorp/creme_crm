@@ -50,7 +50,19 @@ class Enumerator:
             group: Group of the choice (think <optgroup> in HTML). Optional.
 
         @param user: Instance of User.
+        @param term: Search words.
+        @param only: List only choices with these values
         @return: List of choice-dictionaries.
+        """
+        raise NotImplementedError
+
+    def to_python(self, user, values):
+        """Return the list of the model instances related to the given values
+        and available for the user.
+
+        @param user: Instance of User.
+        @param values: List of ids
+        @return: List of model instances
         """
         raise NotImplementedError
 
@@ -100,6 +112,16 @@ def get_enum_search_fields(field):
     return search_fields
 
 
+class EmptyEnumerator(Enumerator):
+    """Class which can enumerate nothing. Used as a placeholder if the enumerator
+    cannot be found in the registry"""
+    def choices(self, *args, **kwargs):
+        return ()
+
+    def to_python(self, user, values):
+        return ()
+
+
 class QSEnumerator(Enumerator):
     search_fields = ()
 
@@ -134,6 +156,9 @@ class QSEnumerator(Enumerator):
         limit_choices_to = field.get_limit_choices_to()
 
         return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
+
+    def to_python(self, user, values):
+        return list(self._queryset(user).filter(pk__in=values))
 
     def filter_term(self, queryset, term):
         return queryset.filter(self.search_q(term))
@@ -211,7 +236,8 @@ class _EnumerableRegistry:
         return res
 
     @staticmethod
-    def _check_model(model: type[Model]) -> None:
+    # def _check_model(model: type[Model]) -> None:
+    def _check_is_entity(model: type[Model]) -> None:
         # TODO: and registered as an entity ??
         if not issubclass(model, CremeEntity):
             raise ValueError(
@@ -220,7 +246,7 @@ class _EnumerableRegistry:
 
     @staticmethod
     def _check_field(field: Field) -> None:
-        if not field.get_tag(FieldTag.VIEWABLE):  # TODO: unit test (needs new field)
+        if not field.get_tag(FieldTag.VIEWABLE):
             raise ValueError(f'This field is not viewable: {field}')
 
         # TODO: we probably should manage fields with is_relation==False but with
@@ -239,8 +265,13 @@ class _EnumerableRegistry:
         enumerator_cls = (
             self._enums_4_fields.get(field)
             or self._enums_4_field_types[field.__class__]
-            or self._enums_4_models.get(field.remote_field.model, QSEnumerator)
+            or self._enums_4_models.get(field.remote_field.model)
         )
+
+        # Use QSEnumerator as default ONLY for a CremeEntity field
+        if enumerator_cls is None:
+            self._check_is_entity(field.model)
+            enumerator_cls = QSEnumerator
 
         return enumerator_cls(field)
 
@@ -251,9 +282,7 @@ class _EnumerableRegistry:
         @return: Instance of Enumerator.
         @raises: ValueError if the model or the field are invalid.
         """
-        self._check_model(field.model)
         self._check_field(field)
-
         return self._enumerator(field)
 
     def enumerator_by_fieldname(self,
@@ -268,19 +297,17 @@ class _EnumerableRegistry:
         @raises: ValueError if the model or the field are invalid.
         @raises: FieldDoesNotExist.
         """
-        self._check_model(model)
-
         return self._enumerator(self._get_field(model, field_name))
 
     def register_field(self,
-                       model: type[CremeEntity],
+                       model: type[Model],
                        field_name: str,
                        enumerator_class: type[Enumerator],
                        ) -> _EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods
         enumerator_by_field[name] for a specific field.
 
-        @param model: Model inheriting 'CremeEntity'.
+        @param model: a django Model.
         @param field_name: Name of a field of <model>.
         @param enumerator_class: Class inheriting 'Enumerator'.
         @return: self (to chain calls to register_*() methods).
@@ -317,7 +344,7 @@ class _EnumerableRegistry:
         return self
 
     def register_related_model(self,
-                               model: type[CremeEntity],
+                               model: type[Model],
                                enumerator_class: type[Enumerator],
                                ) -> _EnumerableRegistry:
         """Customise the class of the enumerator returned by the methods

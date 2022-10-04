@@ -25,7 +25,6 @@ from os.path import splitext
 from typing import TYPE_CHECKING
 
 from django import forms
-from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.validators import EMPTY_VALUES
@@ -63,6 +62,7 @@ from ..models import (
 from ..utils.meta import ModelFieldEnumerator
 from ..utils.url import TemplateURLBuilder
 from .base import _CUSTOM_NAME, CremeForm, CremeModelForm, FieldBlockManager
+from .enumerable import EnumerableChoiceField
 from .fields import CreatorEntityField, MultiRelationEntityField
 from .widgets import ChainedInput, SelectorList, UnorderedMultipleChoiceWidget
 
@@ -1412,9 +1412,10 @@ class ImportForm(CremeModelForm):
 
 
 class ImportForm4CremeEntity(ImportForm):
-    user = forms.ModelChoiceField(
+    # TODO : Replace by CremeUserChoiceField
+    user = EnumerableChoiceField(
         label=_('Owner user'), empty_label=None,
-        queryset=get_user_model().objects.filter(is_staff=False),
+        model=CremeEntity, field_name='user',
     )
     property_types = forms.ModelMultipleChoiceField(
         label=_('Properties'), required=False,
@@ -1575,14 +1576,21 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     if selected_column is None:
         selected_column = header_dict.get(slugify(modelfield.name), 0)
 
-    if formfield.required:
+    # Remove because it causes a conflict with EnumerableChoiceField
+    # which does not allows to set "choices"
+    #
+    # Originally force a default value when the related field is required
+    # (e.g minion models)
+    # This is not mandatory because the validation is done later anyway.
+    #
+    # if formfield.required:
         # We remove the '----' choice when it is useless
         # TODO: improve (hook) the regular behaviour of ModelChoiceField ??
-        options = getattr(formfield, 'choices', None)
+    #     options = getattr(formfield, 'choices', None)
 
-        if options is not None and len(options) > 1:
-            formfield.empty_label = None
-            formfield.choices = options  # we force the refreshing of widget's choices
+    #     if options is not None and len(options) > 1:
+    #         formfield.empty_label = None
+    #         formfield.choices = options  # we force the refreshing of widget's choices
 
     return RegularFieldExtractorField(
         choices=choices,

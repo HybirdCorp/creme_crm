@@ -25,11 +25,13 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.db.models.aggregates import Max
 from django.db.models.deletion import CASCADE, SET
+from django.db.models.fields import Field
 from django.db.models.fields.mixins import FieldCacheMixin
 from django.utils.timezone import now
 from django.utils.translation import gettext_lazy as _
 
 from ..core import validators
+from ..core.field_tags import FieldTag
 from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
 
@@ -128,9 +130,22 @@ class CremeUserForeignKey(models.ForeignKey):
         return name, path, args, kwargs
 
     def formfield(self, **kwargs):
-        from ..forms.fields import CremeUserChoiceField
+        from ..forms import fields as core_fields
 
-        return super().formfield(**{'form_class': CremeUserChoiceField, **kwargs})
+        if self.get_tag(FieldTag.ENUMERABLE):
+            return Field.formfield(
+                self,
+                form_class=core_fields.CremeUserEnumerableField,
+                model=self.model,
+                field_name=self.name,
+                required=not self.blank,
+                empty_label=_('Select a user…'),
+                **kwargs
+            )
+        else:
+            super().formfield(
+                **{'form_class': core_fields.CremeUserChoiceField, **kwargs}
+            )
 
     def get_internal_type(self):
         return 'ForeignKey'
