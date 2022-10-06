@@ -1,7 +1,7 @@
 {% load i18n creme_widgets %}{% translate 'Edit' as label %}
 {# TODO: transform into a 'true' action system (like in bricks) instead of using crappy onclick #}
 {% if edit_url %}
-<a class="listview-td-action{% if not edit_perm %} is-disabled{% endif %}" title="{{label}}" alt="{{label}}" href="{{edit_url}}" data-action="form">
+<a class="listview-td-action{% if not edit_perm %} is-disabled{% endif %}" title="{{label}}" href="{{edit_url}}" data-action="form">
     {% widget_icon name='edit' label=label size='listview-td-action' class='listview-td-action-icon' %}
 </a>
 {% endif %}

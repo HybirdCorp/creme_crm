@@ -169,7 +169,8 @@ class FileFieldPrinterForHTML:
             )
         else:
             return format_html(
-                '<a href="{url}" alt="{label}">{label}</a>',
+                # '<a href="{url}" alt="{label}">{label}</a>',
+                '<a href="{url}">{label}</a>',
                 url=url,
                 label=_('Download «{file}»').format(file=file_name),
             )

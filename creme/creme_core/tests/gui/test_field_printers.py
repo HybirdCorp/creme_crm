@@ -446,7 +446,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            '<a href="{url}" alt="{label}">{label}</a>'.format(
+            # '<a href="{url}" alt="{label}">{label}</a>'.format(
+            '<a href="{url}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
                     args=(
@@ -554,7 +555,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            '<a href="{url}" alt="{label}">{label}</a>'.format(
+            # '<a href="{url}" alt="{label}">{label}</a>'.format(
+            '<a href="{url}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
                     args=(

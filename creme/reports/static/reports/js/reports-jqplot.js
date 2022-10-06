@@ -85,7 +85,8 @@ creme.reports.ChartController = creme.component.Component.sub({
             choices = choices.map(function(choice) {
                 var value = choice[0], label = choice[1];
 
-                return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).on('click', function(e) {
+//                return $('<a class="popover-list-item" title="%s" alt="%s">%s</a>'.format(label, label, label)).on('click', function(e) {
+                return $('<a class="popover-list-item" title="%s">%s</a>'.format(label, label)).on('click', function(e) {
                     e.preventDefault();
                     popover.close(value);
                 });
