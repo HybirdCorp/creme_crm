@@ -19,22 +19,22 @@
 
 {% block brick_content %}
 {% has_perm_to change object as edit_perm %}
-    {% for image in object.images.all %}
+  {% for image in object.images.all %}
     <div class="brick-tile" data-type="image">{% has_perm_to view image as view_perm %}
         <span class="brick-tile-value">
-            {% if view_perm %}
-            <a href="{{image.get_absolute_url}}" title="{{image.image}}" alt="{{image.image}}">
+          {% if view_perm %}
+            <a href="{{image.get_absolute_url}}" title="{{image.image}}">
                 <img src="{{image.get_download_absolute_url}}"/>
             </a>
-            {% else %}
+          {% else %}
             {{HIDDEN_VALUE}}
-            {% endif %}
+          {% endif %}
         </span>
         <span class="brick-tile-name">
             {{image}}{% if edit_perm %}{% brick_tile_action id='delete' url='products__remove_image'|url:object.id __id=image.id type='unlink' label=_('Remove this image') %}{% endif %}
         </span>
     </div>
-    {% empty %}
+  {% empty %}
     <div class="brick-tiles-empty">{% translate 'No image for the moment' %}</div>
-    {% endfor %}
+  {% endfor %}
 {% endblock %}
