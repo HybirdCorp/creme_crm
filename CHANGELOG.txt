@@ -1,14 +1,17 @@
 == Version 2.3.7 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile .mo files (reports)
+  TODO: compile .mo files (creme_core, reports)
 
   UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.16 or more).
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :
   ------------
-    # Clearing search state of the listview now works correctly
-    # Date search of the listview now kept on ordering change and cleared correctly
+    # In the listview:
+        - Clearing the search state now works correctly.
+        - Date search now kept on ordering change and cleared correctly
+        - The searches on dates are now kept when order changes, and are cleared correctly.
     # Apps:
         * Persons :
             - A style issue with the edition buttons in address bricks has been fixed.
