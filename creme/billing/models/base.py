@@ -451,11 +451,14 @@ class Base(CremeEntity):
                 self.payment_info = None
 
             if self.payment_info is None:  # Optimization
-                source_pis = other_models.PaymentInformation.objects.filter(
+                # source_pis = other_models.PaymentInformation.objects.filter(
+                #     organisation=source.id,
+                # )[:2]
+                # if len(source_pis) == 1:
+                #     self.payment_info = source_pis[0]
+                self.payment_info = other_models.PaymentInformation.objects.filter(
                     organisation=source.id,
-                )[:2]
-                if len(source_pis) == 1:
-                    self.payment_info = source_pis[0]
+                ).order_by('-is_default').first()
 
     @atomic
     def save(self, *args, **kwargs):
@@ -467,7 +470,7 @@ class Base(CremeEntity):
 
         self._set_basic_payment_info()
 
-        if not self.pk:   # Creation
+        if not self.pk:  # Creation
             self._clean_source_n_target()
 
             if self.generate_number_in_create:
