@@ -83,13 +83,21 @@ class Populator(BasePopulator):
         # ---------------------------
         create_job = Job.objects.get_or_create
         create_job(
+            type_id=creme_jobs.sessions_cleaner_type.id,
+            defaults={
+                'language': settings.LANGUAGE_CODE,
+                'periodicity': date_period_registry.get_period('days', 1),
+                'status': Job.STATUS_OK,
+            },
+        )
+        create_job(
             type_id=creme_jobs.temp_files_cleaner_type.id,
             defaults={
                 'language': settings.LANGUAGE_CODE,
                 'periodicity': date_period_registry.get_period('days', 1),
                 'status': Job.STATUS_OK,
                 'data': {
-                    'delay': date_period_registry.get_period('days', 1).as_dict()
+                    'delay': date_period_registry.get_period('days', 1).as_dict(),
                 },
             },
         )

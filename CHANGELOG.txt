@@ -15,6 +15,7 @@
       It's used for example in the relationships-blocks (the blocks displaying the entities linked by a specific relationship type)
       when you configure the fields to display: all displayed fields are edited with one form (so you avoid many clicks).
     # In the History's block, lines related to entities from apps you cannot view are excluded.
+    # A periodic job which removes the deprecated users' sessions has been added.
     # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
     # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
     # The version of the shipped Closure compiler has been upgraded (2020-01-12 => 2022-09-05).
