@@ -505,8 +505,15 @@ creme.activities.CalendarController = creme.component.Component.sub({
         };
 
         creme.dialogs.form(this.eventCreateUrl(), {}, data)
-                     .onFormSuccess(function() {
-                         calendar.fullCalendar('refetchEvents');
+                     .onFormSuccess(function(event, response) {
+                         var redirect = response.content;
+
+                         if (redirect) {
+                            /* TODO: unit test this case */
+                            creme.utils.goTo(redirect);
+                         } else {
+                            calendar.fullCalendar('refetchEvents');
+                         }
                       })
                      .open({width: '80%'});
     },
