@@ -195,6 +195,10 @@ class AbstractOpportunity(core_models.CremeEntity):
                 relations__type=constants.REL_SUB_EMIT_ORGA,
                 relations__object_entity=self.id,
             )
+            # TODO ? (2 queries, but we could group with target maybe...)
+            # self._opp_emitter = self.get_related_entities(
+            #     constants.REL_OBJ_EMIT_ORGA,
+            # )[0]
 
         return self._opp_emitter
 
@@ -207,8 +211,10 @@ class AbstractOpportunity(core_models.CremeEntity):
     @property
     def target(self):
         if not self._opp_target:
-            self._opp_target_rel = rel = self.relations.get(type=constants.REL_SUB_TARGETS)
-            # self._opp_target = rel.object_entity.get_real_entity()
+            # self._opp_target_rel = rel = self.relations.get(type=constants.REL_SUB_TARGETS)
+            # # self._opp_target = rel.object_entity.get_real_entity()
+            # self._opp_target = rel.real_object
+            self._opp_target_rel = rel = self.get_relations(constants.REL_SUB_TARGETS)[0]
             self._opp_target = rel.real_object
 
         return self._opp_target
