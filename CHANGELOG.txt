@@ -29,6 +29,16 @@
             - A bug in the code which delete retrieved emails has been fixed.
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps:
+            * Activities :
+                - The calendar code now manages redirection-after-creation like classical actions.
+
+
 == Version 2.3.6 ==
 
   UPGRADE NOTE :
