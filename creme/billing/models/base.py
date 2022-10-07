@@ -183,8 +183,10 @@ class Base(CremeEntity):
     @property
     def source(self):
         if not self._source:
-            self._source_rel = rel = self.relations.get(type=REL_SUB_BILL_ISSUED)
-            # self._source = rel.object_entity.get_real_entity()
+            # self._source_rel = rel = self.relations.get(type=REL_SUB_BILL_ISSUED)
+            # # self._source = rel.object_entity.get_real_entity()
+            # self._source = rel.real_object
+            self._source_rel = rel = self.get_relations(REL_SUB_BILL_ISSUED)[0]
             self._source = rel.real_object
 
         return self._source
@@ -202,8 +204,10 @@ class Base(CremeEntity):
     @property
     def target(self):
         if not self._target:
-            self._target_rel = rel = self.relations.get(type=REL_SUB_BILL_RECEIVED)
-            # self._target = rel.object_entity.get_real_entity()
+            # self._target_rel = rel = self.relations.get(type=REL_SUB_BILL_RECEIVED)
+            # # self._target = rel.object_entity.get_real_entity()
+            # self._target = rel.real_object
+            self._target_rel = rel = self.get_relations(REL_SUB_BILL_RECEIVED)[0]
             self._target = rel.real_object
 
         return self._target
@@ -348,9 +352,10 @@ class Base(CremeEntity):
         )
 
         for relation in source.relations.filter(
-                type__is_internal=False,
-                type__is_copiable=True,
-                type__in=class_map.keys()):
+            type__is_internal=False,
+            type__is_copiable=True,
+            type__in=class_map.keys(),
+        ):
             relation_create(
                 user_id=relation.user_id,
                 subject_entity=self,
