@@ -19,6 +19,7 @@
             - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
               In Creme 2.5 an exception will be raised.
             - In the statistics block, a warning message about using 'ngettext()' with a float number has been removed.
+            - The style of the 'weeks' view of the calendar has been improved.
         * Billing :
             - When an entity is created, the default PaymentInformation instance of the source is used when there are several ones.
         * Geolocation :

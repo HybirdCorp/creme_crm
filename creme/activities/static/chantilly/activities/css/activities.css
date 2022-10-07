@@ -294,7 +294,12 @@
 }
 
 .calendar .fc-time-grid .fc-slats .fc-minor td {
-    border-top-style: none;
+/*    border-top-style: none; */
+    border-top-color: #efefef;
+}
+
+.calendar .fc-time-grid .fc-slats td:not(.fc-axis) {
+    cursor: pointer;
 }
 
 .calendar .loading-indicator {
