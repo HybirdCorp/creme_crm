@@ -165,7 +165,6 @@ S2.define('select2/data/enum', [
             this.trigger('query', params);
         }.bind(this));
 
-
         container.on('close', function() {
             // If some queries were already done, think to reset the limit !
             if (this._lastEnumParams) {

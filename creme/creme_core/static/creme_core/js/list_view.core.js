@@ -21,7 +21,11 @@
 
     var ListViewColumnFilterBuilders = creme.component.FactoryRegistry.sub({
         _build_select: function(element, options, list) {
-            element.data('lvselect2', new creme.form.Select2(element));
+            var select2 = new creme.form.Select2(element);
+
+            element.on('lvsearch:destroy', function() {
+                select2.destroy();
+            });
 
             this._element = element.on('change', function(e) {
                 e.stopPropagation();
@@ -33,6 +37,10 @@
 
         /* global creme_media_url */
         _build_daterange: function(element, options, list) {
+            element.on('lvsearch:destroy', function() {
+                $(this).datepicker('destroy');
+            });
+
             $(element).find('input').each(function() {
                 $(this).datepicker({
                     showOn: 'both',
@@ -572,6 +580,19 @@
             return this;
         },
 
+        unbind: function() {
+            if (!this.isBound()) {
+                throw new Error('Listview component is not bound');
+            }
+
+            var element = this._element;
+
+            this._unbindColumnFilters(element);
+            this._element = null;
+
+            return this;
+        },
+
         bind: function(element) {
             if (this.isBound()) {
                 throw new Error('Listview component is already bound');
@@ -612,6 +633,10 @@
             });
         },
 
+        _unbindColumnFilters: function(element) {
+            element.find('.lv-column [data-lv-search-widget]').trigger('lvsearch:destroy');
+        },
+
         _bindActions: function(element) {
             var self = this;
 
@@ -645,6 +670,9 @@
         name: 'list_view',
         create: function(options) {
             return new ListViewController(options).bind($(this));
+        },
+        destroy: function(controller) {
+            controller.unbind();
         },
         methods: [
             'selectedRowsCount', 'selectedRows', 'hasSelectedRows',

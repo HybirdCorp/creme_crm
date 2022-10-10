@@ -715,6 +715,7 @@ creme.lv_widget.ListViewLauncher = creme.widget.declare('ui-creme-listview', {
 
     _destroy: function(element) {
         $(document).off('scroll', this._scrollListener);
+        element.list_view('destroy');
         element.removeClass('widget-ready');
     },
 
