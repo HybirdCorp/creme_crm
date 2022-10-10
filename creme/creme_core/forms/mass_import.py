@@ -1597,9 +1597,9 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     )
 
 
-# NB: we use ModelForm to get the all the django machinery to build a form from a model
-#     bit we need to avoid the model validation, because we are are not building a true
-#    'self.instance', but a set of instances ; we just use the regular form validation.
+# NB: we use ModelForm to get the all the django machinery to build a form from a model,
+#     but we need to avoid the model validation, because we are not building a true
+#    'self.instance', but a set of instances; we just use the regular form validation.
 def form_factory(ct, header):
     choices = [(0, _('Not in the file'))]
     header_dict = {}
