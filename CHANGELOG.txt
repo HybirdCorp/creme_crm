@@ -2,7 +2,8 @@
 
   UPGRADE NOTES :
     - If you upgrade your MariaDB server to 10.7+, you have to convert all the UUID fields
-      (which were just CharFields before MariaDB 10.7) to real UUID fields.
+      (which were just CharFields before MariaDB 10.7) to real UUID fields
+      (see creme/creme_core/migrations/migrate_uuid.sql).
 
   Users side :
   ------------
