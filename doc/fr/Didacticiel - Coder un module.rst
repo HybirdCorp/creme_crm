@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 01-09-2022 pour la version 2.4 de Creme
+:Version: 11-10-2022 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2650,13 +2650,6 @@ un cas différent :
 divers moyens de modifier une vue existante depuis votre app, sans avoir besoin
 de la réécrire totalement.
 
-Dans la mesure où les URLs sont nommées dans les différents fichiers ``urls.py``,
-si votre app est avant (comprendre: dans ``settings.INSTALLED_APPS``) l'app qui
-contient l'URL que vous voulez re-router vers votre propre vue, il suffit de
-déclarer une URL avec le même nom (elle devra aussi prendre les mêmes arguments).
-Dans la mesure où le code de Creme récupère partout les URLs par leur nom,
-votre URL sera donc donc utilisée.
-
 Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
 ``creme/assistants/urls.py``, on trouve le code suivant : ::
 
@@ -2677,48 +2670,33 @@ Par exemple, vous voulez modifier la vue de création d'un mémo. Dans
         [...]
     ]
 
+Par défaut, les URLs d'une app sont préfixées par le nom de l'app en question,
+donc "assistants/" dans cet exemple. Nous allons donc devoir :
 
-Dans votre app (qui doit être avant ``creme.assistants.py`` dans
-``settings.INSTALLED_APPS``), vous déclarez donc l'URL suivante : ::
+- utiliser un préfixe identique.
+- utiliser un motif identique.
 
-    urlpatterns = [
-        re_path(
-            r'^my_memo/add/(?P<entity_id>\d+)[/]?$',
-            views.MyMemoCreation.as_view(),
-            name='assistants__create_memo',
-        ),
+Lorsque la liste des URLs est créée (voir ``creme/urls.py``), les apps sont
+ajoutées dans l'ordre où on les déclare dans ``settings.INSTALLED_APPS``.
+Et le solveur d'URLs va s'arrêter au premier motif qui correspond à l'URL dont
+on cherche la vue correspondante. Conclusion, notre app devra être **avant**
+(dans ``settings.INSTALLED_APPS``) l'app dont on veut masquer une URL.
 
-        [...]
-    ]
-
-Cela fonctionnera très bien, mais il existe un problème potentiel : l'URL
-d'origine existe toujours (c'est juste que l'interface de Creme se servira de
-la vôtre). Ce qui veut dire qu'on peut toujours accéder à la vue qu'on veut
-masquer. On peut penser à une application externe dont le code n'aurait pas été
-modifié, ou bien un utilisateur malveillant. Donc si par exemple la vue masquée
-permet des actions qui devraient être interdites (votre vue fait des
-vérifications supplémentaires), et ne se contente pas de proposer une ergonomie
-améliorée, alors il faut aller un peu plus loin, en utilisant exactement la
-même URL (et pas seulement son nom dans Creme).
-
-Par défaut, les URLs de votre app commencent par le nom de celle-ci. Mais nous
-pouvons préciser explicitement ce préfixe, pour utiliser le même que l'app
-``assistants``. Comme cela va concerner l'ensemble des URLs de votre app, il va
-être plus propre de faire une app minimale qui ne fera que ça. Créez donc une
-app ``my_assistants`` ; dans son fichier ``my_project/my_assistants/apps.py``,
-nous allons préciser le préfixe des URLs de cette manière : ::
+Nous pouvons préciser explicitement le préfixe d'URL d'une app, pour utiliser le
+même que l'app ``assistants``. Comme cela va concerner l'ensemble des URLs de
+votre app, il va être plus propre de faire une app minimale qui ne fera que ça.
+De plus, il faudra donc une app différente pour chaque app de base donc vous
+voudriez masquer des URLs. Créez donc une app ``my_assistants`` ; dans son
+fichier ``my_project/my_assistants/apps.py``, écrivez : ::
 
     [...]
 
     class MyAssistantsConfig(CremeAppConfig):
         name = 'my_project.my_assistants'
 
-        @property
-        def url_root(self):
-            return 'assistants/'
+        url_root = 'assistants/'
 
         [...]
-
 
 Puis dans ``my_project/my_assistants/urls.py`` : ::
 
@@ -2728,19 +2706,22 @@ Puis dans ``my_project/my_assistants/urls.py`` : ::
 
     urlpatterns = [
         # Notez que l'URL doit être la même que l'original.
-        # Dans notre cas, plus de 'my_memo/', remplacé par un 'memo/' comme dans "assistants"
         re_path(
             r'^memo/add/(?P<entity_id>\d+)[/]?$',
             views.MyMemoCreation.as_view(),
-            name='assistants__create_memo',
         ),
     ]
 
+**Note** nous n'avons pas donné de nom à notre URL. Si nous devions en donner un,
+ça serait le même que celui de l'URL masquée (à savoir
+``name='assistants__create_memo'``), mais ça serait inutile.
 
 Cette méthode reste fragile, puisque si l'URL masquée vient à changer lors
 d'une version (majeure) ultérieure de Creme, votre vue ne la masquera plus
 sans que cela ne déclenche d'erreur (les 2 URLs cohabiteront). Il faudra donc
-l'utiliser avec parcimonie et faire attention lors des mises à jour.
+l'utiliser avec parcimonie et faire attention lors des mises à jour. L'écriture
+de tests unitaires qui vérifient qu'un ``reverse('assistants__create_memo')``
+mène bien vers votre vue sera donc bien utile.
 
 **Cas spécifique: suppression d'une fonctionnalité** : dans certains cas vous
 voudrez qu'une vue définie de base par Creme soit désactivée.
