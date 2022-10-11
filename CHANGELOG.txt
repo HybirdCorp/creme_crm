@@ -2,7 +2,10 @@
 
   Users side :
   ------------
-    # Date search of the listview now kept on ordering change and cleared correctly
+    # Date search in the listview is now kept on ordering change and is cleared correctly.
+    # Apps:
+        * Activities :
+            - In mass-import, the field "My participation" took the owner as "me", which was incorrect.
 
 
 == Version 2.2.14 ==

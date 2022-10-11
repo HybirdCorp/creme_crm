@@ -258,7 +258,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         data = {
             **self.lv_import_data,
             'document': doc.id,
-            'user': user.id,
+            'user': other_user.id,
             'type_selector': self._acttype_field_value(
                 constants.ACTIVITYTYPE_MEETING,
                 constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
@@ -300,6 +300,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         job = self._execute_job(response)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
+        self.assertEqual(other_user, act1.user)
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, act1.type_id)
         self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_NETWORK, act1.sub_type_id)
 
