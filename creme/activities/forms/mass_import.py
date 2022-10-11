@@ -646,7 +646,7 @@ def get_massimport_form_builder(header_dict, choices):
             super()._post_instance_creation(instance, line, updated)
 
             cdata = self.cleaned_data
-            user = instance.user
+            owner = instance.user
             participant_ids = set()
 
             if updated:
@@ -663,7 +663,7 @@ def get_massimport_form_builder(header_dict, choices):
                     Relation.objects.safe_create(
                         subject_entity=participating_contact,
                         type_id=constants.REL_SUB_PART_2_ACTIVITY,
-                        object_entity=instance, user=user,
+                        object_entity=instance, user=owner,
                     )
                     participant_ids.add(participating_contact.id)
 
@@ -684,7 +684,8 @@ def get_massimport_form_builder(header_dict, choices):
 
             i_participate, my_calendar = cdata['my_participation']
             if i_participate:
-                add_participant(user.linked_contact)
+                # add_participant(user.linked_contact)
+                add_participant(self.user.linked_contact)
                 instance.calendars.add(my_calendar)
 
             for participant in self.user_participants:
@@ -714,7 +715,7 @@ def get_massimport_form_builder(header_dict, choices):
                     subject_entity=subject,
                     type_id=constants.REL_SUB_ACTIVITY_SUBJECT,
                     object_entity=instance,
-                    user=user,
+                    user=owner,
                 ) for subject in subjects
             )
 
