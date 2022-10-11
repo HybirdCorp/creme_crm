@@ -4,6 +4,27 @@
     margin-top: 10px;
 }
 
+.activities-mass_import-participants .activities-mass_import-participants-modes {
+    margin-top: 5px;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes > li {
+    margin-top: 10px;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes .activities-mass_import-participants-mode > ul {
+    list-style: none;
+}
+
+.activities-mass_import-participants .activities-mass_import-participants-modes .activities-mass_import-participants-mode li {
+    margin-top: 3px;
+}
+
+.activities-mass_import-participants input[name=participants_separator],
+.activities-mass_import-subjects input[name=subjects_separator] {
+    width: 25px;
+}
+
 /* Forms - end */
 
 /* Calendar sidebar */
