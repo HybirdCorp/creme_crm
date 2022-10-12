@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -27,15 +27,21 @@ from __future__ import annotations
 from typing import Container, Iterable, Iterator
 
 from django.contrib.contenttypes.models import ContentType
+from django.db.models import Model
 from django.http import Http404
 
 
-# TODO: python 3.8 '/' arguments
-def as_ctype(ct_or_model_or_instance) -> ContentType:
+# def as_ctype(ct_or_model_or_instance) -> ContentType:
+#     return (
+#         ct_or_model_or_instance
+#         if isinstance(ct_or_model_or_instance, ContentType) else
+#         ContentType.objects.get_for_model(ct_or_model_or_instance)
+#     )
+def as_ctype(value: ContentType | type[Model] | Model, /) -> ContentType:
     return (
-        ct_or_model_or_instance
-        if isinstance(ct_or_model_or_instance, ContentType) else
-        ContentType.objects.get_for_model(ct_or_model_or_instance)
+        value
+        if isinstance(value, ContentType) else
+        ContentType.objects.get_for_model(value)
     )
 
 
