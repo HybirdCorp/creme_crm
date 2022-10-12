@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2022 Hybird
+# Copyright (c) 2017-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ from django.utils.timezone import localtime
 logger = logging.getLogger(__name__)
 
 
-@lru_cache()
+@lru_cache
 def get_hg_info() -> dict:
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     info = {
@@ -101,7 +101,7 @@ def get_hg_info() -> dict:
 
 
 # TODO: factorise ?
-@lru_cache()
+@lru_cache
 def get_git_info() -> dict:
     repo_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     info = {
