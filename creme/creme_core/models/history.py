@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -957,12 +957,11 @@ class HistoryLine(Model):
     def populate_related_lines(cls, hlines: Sequence[HistoryLine]) -> None:
         pool = {hline.id: hline for hline in hlines}
         unpopulated = [hline for hline in hlines if hline._related_line is False]
-
-        missing_line_ids = []
-        for hline in unpopulated:
-            related_id = hline._get_related_line_id()
-            if related_id and related_id not in pool:
-                missing_line_ids.append(related_id)
+        missing_line_ids = [
+            related_id
+            for hline in unpopulated
+            if (related_id := hline._get_related_line_id()) and related_id not in pool
+        ]
 
         # NB: in_bulk() avoid query if missing_line_ids is empty
         pool.update(cls._default_manager.in_bulk(missing_line_ids))
