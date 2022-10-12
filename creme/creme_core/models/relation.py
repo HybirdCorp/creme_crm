@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -376,11 +376,11 @@ class RelationType(CremeModel):
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
-    # TODO: use the '/' (positional-only argument) in Python 3.8
-    def is_compatible(self, *args) -> bool:
+    # def is_compatible(self, value) -> bool:
+    def is_compatible(self, value, /) -> bool:
         """Can an instance of a given model be the subject of a Relation with this type.
 
-        @param args: A single argument, the model, which can be:
+        @param value: The model, which can be given as:
                - An instance of ContentType.
                - An ID of ContentType.
                - A model class (inheriting CremeEntity).
@@ -389,19 +389,16 @@ class RelationType(CremeModel):
 
         Hint: you should prefetch 'subject_ctypes' if you want to call it several times.
         """
-        assert len(args) == 1
+        if isinstance(value, ContentType):
+            ctype = value
+        elif isinstance(value, type):
+            assert issubclass(value, CremeEntity)
 
-        arg = args[0]
-        if isinstance(arg, ContentType):
-            ctype = arg
-        elif isinstance(arg, type):
-            assert issubclass(arg, CremeEntity)
-
-            ctype = ContentType.objects.get_for_model(arg)
-        elif isinstance(arg, CremeEntity):
-            ctype = arg.entity_type
+            ctype = ContentType.objects.get_for_model(value)
+        elif isinstance(value, CremeEntity):
+            ctype = value.entity_type
         else:
-            ctype = ContentType.objects.get_for_id(arg)
+            ctype = ContentType.objects.get_for_id(value)
 
         subject_ctypes = self.subject_ctypes.all()
 

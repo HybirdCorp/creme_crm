@@ -51,6 +51,12 @@
                 * Products :
                     - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
+        # The only argument of 'creme_core.gui.bricks._BrickRegistry.get_brick_4_object()' is now positional only.
+        # In 'creme_core.models', the only argument of the following methods is now positional only :
+            - RelationType.is_compatible()
+            - custom_field.CustomFieldManager.compatible()
+            - custom_field.CustomFieldManager.get_for_model()
+        # The only argument of the function 'creme_core.utils.content_type.as_ctype()' is now positional only.
 
     Internal breaking changes :
     ---------------------------

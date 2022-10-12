@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1001,9 +1001,9 @@ class _BrickRegistry:
             else:
                 yield brick_cls()
 
-    # TODO: python 3.8 => '/' argument ?
     def get_brick_4_object(self,
                            obj_or_ct: type[CremeEntity] | ContentType | CremeEntity,
+                           /,
                            ) -> Brick:
         """Return the Brick that displays fields for a CremeEntity instance.
         @param obj_or_ct: Model (class inheriting CremeEntity), or ContentType
