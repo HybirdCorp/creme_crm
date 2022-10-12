@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import logging
 from collections import defaultdict
-from typing import DefaultDict
+from typing import DefaultDict, Literal
 
 from creme.creme_core.core.entity_cell import (
     EntityCell,
@@ -70,8 +70,7 @@ class _ModelSmartColumnsRegistry:
 
         return cells
 
-    # TODO: Literal[False] ? (py 3.8)
-    def _get_relationtype(self, rtype_id: str) -> RelationType | bool:
+    def _get_relationtype(self, rtype_id: str) -> RelationType | Literal[False]:
         rtype = self._relationtype
 
         if rtype is None:  # Means: not retrieved yet

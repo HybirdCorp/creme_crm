@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -22,7 +22,7 @@ import logging
 from collections import OrderedDict
 from copy import copy
 from functools import partial
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Literal
 
 from django import forms
 from django.conf import settings
@@ -77,7 +77,7 @@ logger = logging.getLogger(__name__)
 # NB: we use a '-' to be sure that collision with a regular field is not possible
 _CUSTOM_NAME = 'custom_field-{}'
 
-LayoutType = str  # TODO: Literal?
+LayoutType = Literal['regular', 'dual_first', 'dual_second']
 LAYOUT_REGULAR: LayoutType = 'regular'
 LAYOUT_DUAL_FIRST: LayoutType = 'dual_first'
 LAYOUT_DUAL_SECOND: LayoutType = 'dual_second'

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -802,7 +802,7 @@ class CustomFormDescriptor:
 
     _excluded_fields: list[str]
     _extra_cells: list[CustomFormExtraSubCell]
-    _form_type: int  # TODO: Literal ?
+    _form_type: int  # see FORM_TYPES
 
     base_cell_registry = base_cell_registry
 
@@ -900,7 +900,7 @@ class CustomFormDescriptor:
         return self._form_type
 
     @form_type.setter
-    def form_type(self, form_type) -> None:
+    def form_type(self, form_type: int) -> None:
         if form_type not in self.FORM_TYPES:
             raise ValueError(f'form_type: {form_type} not in {self.FORM_TYPES}')
 
