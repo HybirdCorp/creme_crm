@@ -1,5 +1,8 @@
 == Version 2.5 Work in progress (not released -- this is a draft) ==
 
+  UPGRADE NOTE :
+    - You should create a all new virtual environment based on Python 3.8+ .
+
   Users side :
   ------------
 
@@ -11,6 +14,7 @@
 
     Breaking changes :
     ------------------
+        # The minimum version of Python has been upgraded to "3.8".
         # Deprecated stuffs which have been removed :
             - In 'creme_core.forms.fields.SelectorList', the constructor's parameter & attribute "enabled" has been removed ;
               The context variable "clonelast" is not injected anymore.
