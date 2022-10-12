@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2020-2021 Hybird
+# Copyright (c) 2020-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -57,13 +57,12 @@ class TemplateVariablesValidator:
         """
         Validate that the input contains only valid variables.
         """
-        invalid_vars = []
         allowed = self._allowed_variables
-
-        for var_node in Template(value).nodelist.get_nodes_by_type(VariableNode):
-            var_name = var_node.filter_expression.var.var
-            if var_name not in allowed:
-                invalid_vars.append(var_name)
+        invalid_vars = [
+            var_name
+            for var_node in Template(value).nodelist.get_nodes_by_type(VariableNode)
+            if (var_name := var_node.filter_expression.var.var) not in allowed
+        ]
 
         if invalid_vars:
             raise ValidationError(

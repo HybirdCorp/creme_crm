@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -367,12 +367,6 @@ class _LinkedPeopleBrick(QuerysetBrick):
         raise NotImplementedError
 
     def detailview_display(self, context):
-        cells = []
-        for cell_class, cell_name in self.cells_desc:
-            cell = cell_class.build(Contact, cell_name)
-            if cell is not None and not cell.is_excluded:
-                cells.append(cell)
-
         return self._render(self.get_template_context(
             context,
             # TODO: better system to know which field(s) to select_related()
@@ -380,7 +374,13 @@ class _LinkedPeopleBrick(QuerysetBrick):
             self._get_people_qs(context['object']).select_related('civility'),
             relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
             add_title=self.creation_label,
-            cells=cells,
+            cells=[
+                cell
+                for cell_class, cell_name in self.cells_desc
+                if (
+                    cell := cell_class.build(Contact, cell_name)
+                ) is not None and not cell.is_excluded
+            ],
         ))
 
 

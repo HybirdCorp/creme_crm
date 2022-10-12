@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,11 +69,11 @@ class FetcherChoiceIterator:
         yield from choices
 
         # Grouped choices ---
-        fetcher_classes_by_group = []
-        for fetcher_cls in registry.fetcher_classes:
-            group_name = str(fetcher_cls.choices_group_name)
-            if group_name:
-                fetcher_classes_by_group.append((group_name, fetcher_cls))
+        fetcher_classes_by_group = [
+            (group_name, fetcher_cls)
+            for fetcher_cls in registry.fetcher_classes
+            if (group_name := str(fetcher_cls.choices_group_name))
+        ]
         fetcher_classes_by_group.sort(key=lambda c: sort_key(c[0]))
 
         for group_name, fetcher_cls in fetcher_classes_by_group:
