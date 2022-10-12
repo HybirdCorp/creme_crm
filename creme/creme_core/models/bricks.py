@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 # import warnings
 from functools import partial
-from typing import TYPE_CHECKING, Any, Iterable, Iterator, Sequence
+from typing import TYPE_CHECKING, Iterable, Iterator, Sequence, TypedDict
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -78,14 +78,19 @@ class BrickDetailviewLocationManager(models.Manager):
         @param role: Can be None (i.e. 'Default configuration'), a UserRole instance,
                or the string 'superuser'.
         """
-        # TODO: typing TypedDict in py 3.8
-        kwargs: dict[str, Any] = {'role': None, 'superuser': False}
+        class Kwargs(TypedDict):
+            role: UserRole | None
+            superuser: bool
+
+        kwargs: Kwargs = {'role': None, 'superuser': False}
 
         if role:
             if model is None:
                 raise ValueError('The default configuration cannot have a related role.')
 
-            if role == 'superuser':
+            # if role == 'superuser':
+            if isinstance(role, str):
+                assert role == 'superuser'
                 kwargs['superuser'] = True
             else:
                 kwargs['role'] = role

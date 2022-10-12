@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -47,9 +47,6 @@ class ButtonMenuItemManager(models.Manager):
         @param order: Order of the button if the menu (see ButtonMenuItem.order).
         @return A ButtonMenuItem instance.
         """
-        # TODO: py 3.8
-        # class ButtonItemDefaultDict(TypedDict):
-        #     order: int
         ct = ContentType.objects.get_for_model(model) if model else None
 
         return self.get_or_create(
