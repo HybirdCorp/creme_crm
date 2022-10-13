@@ -407,7 +407,10 @@ class VcfImportForm(CremeModelForm):
 
             if prefix:
                 # TODO: find in title too ?
-                civ = Civility.objects.filter(shortcut__icontains=prefix).first()
+                # civ = Civility.objects.filter(shortcut__icontains=prefix).first()
+                # TODO: test __iexact
+                # TODO: should use levenshtein distance
+                civ = Civility.objects.filter(shortcut__iexact=prefix).first()
                 if civ:
                     fields['civility'].initial = civ.id
                 else:
