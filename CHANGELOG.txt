@@ -27,6 +27,8 @@
               Deleted entities are avoided too.
         * Crudity :
             - A bug in the code which delete retrieved emails has been fixed.
+        * VCFs :
+            - The civility could be badly initialised when importing a file.
 
   Developers side :
   -----------------
