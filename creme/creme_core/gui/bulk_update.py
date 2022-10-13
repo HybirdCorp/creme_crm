@@ -671,10 +671,11 @@ class _BulkUpdateRegistry:
 
                 error_dict = getattr(errors, 'error_dict', None)
                 if error_dict:
-                    keys_to_remap = []
-                    for field in error_dict.keys():
-                        if field != NON_FIELD_ERRORS and field not in this.fields:
-                            keys_to_remap.append(field)
+                    keys_to_remap = [
+                        field
+                        for field in error_dict.keys()
+                        if field != NON_FIELD_ERRORS and field not in this.fields
+                    ]
 
                     for key in keys_to_remap:
                         messages = error_dict.pop(key)
