@@ -116,7 +116,7 @@ class LastViewedItem:
             updated = False
 
             if len(old_items) > MAX_LAST_ITEMS:
-                # The settings has change since the list has been stored
+                # The 'settings' value has changed since the list has been stored
                 updated = True
 
                 del old_items[MAX_LAST_ITEMS:]

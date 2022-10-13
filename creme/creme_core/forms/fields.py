@@ -590,7 +590,7 @@ class MultiGenericEntityField(GenericEntityField):
         return [*map(super()._value_to_jsonifiable, value)]
 
     def _value_from_unjsonfied(self, data):
-        # We want to to keep the global order (left by defaultdict)
+        # We want to keep the global order (left by defaultdict)
         if self.unique:
             entities_pks = OrderedSet()
             entities_pks_append = entities_pks.add

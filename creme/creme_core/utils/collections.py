@@ -215,10 +215,11 @@ class InheritedDataChain(Generic[T]):
      - values are instances built by the collection itself
        (with a given factory -- like standard <collections.defaultdict>).
 
-    The main feature is the 'chain()' method, which yields, for a given key-class, the values
-    of this class _and_ of the parent class.
-    So its useful to retrieved accumulated data, like a method which would use too
-    the super()'s data, but in a way external to some classes (it's more 'hookable'/extensible).
+    The main feature is the 'chain()' method, which yields, for a given key-class,
+    the values of this class _and_ of the parent class.
+    So it's useful to retrieve accumulated data, like a method which would use
+    the super()'s data too, but in a way external to some classes
+    (it's more 'hookable'/extensible).
     """
     def __init__(self, default_factory: Callable[[], T]):
         """@param default_factory: A callable which returns an instance (typically a class)."""
