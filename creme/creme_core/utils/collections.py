@@ -263,11 +263,11 @@ class InheritedDataChain(Generic[T]):
         @return: Instances of 'default_factory' (see __init__).
         """
         get_order = {cls: i for i, cls in enumerate(key_class.mro())}.get
-        pondered_values = []
-
-        for kls, value in self._data.items():
-            if issubclass(key_class, kls):
-                pondered_values.append((get_order(kls), value))
+        pondered_values = [
+            (get_order(kls), value)
+            for kls, value in self._data.items()
+            if issubclass(key_class, kls)
+        ]
 
         pondered_values.sort(key=lambda t: t[0], reverse=parent_first)
 
