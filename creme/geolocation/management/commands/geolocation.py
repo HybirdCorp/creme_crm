@@ -64,7 +64,7 @@ class CSVPopulator:
                Raises an error if a column is neither in file nor in defaults.
         @param defaults: dict of default values.
         @param chunksize: Number of lines in same transaction.
-               By default sqlite supports 999 entries for each transaction,
+               By default, sqlite supports 999 entries for each transaction,
                so use 999/fields as max chunksize value.
         """
         self.columns = columns
@@ -91,20 +91,23 @@ class CSVPopulator:
         column_keys = OrderedSet(h.lower() for h in columns)  # TODO: OrderedFrozenSet
         row_keys = frozenset(k.lower() for k in header)
 
-        missings = []
+        missing_keys = []
         constants = {}
-        indices = [(key, index) for index, key in enumerate(header) if key in column_keys]
+        indices = [
+            (key, index) for index, key in enumerate(header) if key in column_keys
+        ]
 
         for key in column_keys:
             if key not in row_keys:
                 try:
                     constants[key] = defaults[key]
                 except KeyError:
-                    missings.append(key)
+                    missing_keys.append(key)
 
-        if missings:
+        if missing_keys:
             raise self.ParseError(
-                f"Following columns are missing and haven't got any default value : {missings}"
+                f"Following columns are missing and haven't got any default"
+                f" value: {missing_keys}"
             )
 
         def _aux(row):

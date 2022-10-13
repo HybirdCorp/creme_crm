@@ -74,7 +74,7 @@ class CSVPopulatorTestCase(CremeTestCase):
         self.assertEqual(
             str(error.exception),
             "Following columns are missing and haven't got any default "
-            "value : {}".format(['code', 'value'])
+            "value: {}".format(['code', 'value'])
         )
 
     def test_chunk_error(self):
@@ -165,7 +165,7 @@ class CSVPopulatorTestCase(CremeTestCase):
 
         self.assertEqual(
             str(error.exception),
-            f"Following columns are missing and haven't got any default value : {columns}",
+            f"Following columns are missing and haven't got any default value: {columns}",
         )
 
     def test_populate_from_invalid_protocol(self):
