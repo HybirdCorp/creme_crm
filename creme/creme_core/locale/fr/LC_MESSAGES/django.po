@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-07-19 17:01+0200\n"
+"POT-Creation-Date: 2022-10-13 20:03+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3026,9 +3026,6 @@ msgstr "Recherche"
 msgid "More"
 msgstr "Plus"
 
-msgid "Information"
-msgstr "Informations"
-
 #, python-format
 msgid "Conditions of «%(efilter)s»"
 msgstr "Conditions du filtre «%(efilter)s»"
@@ -3273,6 +3270,9 @@ msgstr "Type de propriété"
 msgid "Disabled"
 msgstr "Désactivé"
 
+msgid "Information"
+msgstr "Informations"
+
 msgid "Collapse block"
 msgstr "Replier le bloc"
 
@@ -3432,11 +3432,9 @@ msgstr "Vous n'êtes pas autorisé à modifier cette fiche"
 
 #, python-brace-format
 msgid "{count} «{model}» has been selected."
-msgstr "{count} «{model}» a été sélectionné(e)"
-
-#, python-brace-format
-msgid "{count} «{model}» have been selected."
-msgstr "{count} «{model}» ont été sélectionné(e)s."
+msgid_plural "{count} «{model}» have been selected."
+msgstr[0] "{count} «{model}» a été sélectionné(e)"
+msgstr[1] "{count} «{model}» ont été sélectionné(e)s"
 
 #, python-brace-format
 msgid "{success} «{model}» has been successfully modified."
@@ -3659,6 +3657,9 @@ msgstr "Veuillez entrer au moins {count} caractères"
 
 msgid "Empty search…"
 msgstr "Recherche vide…"
+
+#~ msgid "{count} «{model}» have been selected."
+#~ msgstr "{count} «{model}» ont été sélectionné(e)s."
 
 #~ msgid "Code"
 #~ msgstr "Code"
