@@ -25,6 +25,36 @@
     width: 25px;
 }
 
+.activities-activity_range {
+    display: flex;
+    justify-content: space-between;
+}
+
+.activities-activity_range label {
+    text-transform: uppercase;
+    font-size: 12px;
+    font-weight: 600;
+    color: #777;
+}
+
+.activities-activity_range .activities-activity_range-start,
+.activities-activity_range .activities-activity_range-end {
+    display: inline-flex;
+}
+
+.activities-activity_range .activities-field-datetime {
+    padding-left: 10px;
+}
+
+.activities-activity_range .activities-activity_range-extra {
+    display: flex;
+    flex-direction: column;
+}
+
+.activities-activity_range .activities-activity_range-extra label+label {
+    margin-top: 5px;
+}
+
 /* Forms - end */
 
 /* Calendar sidebar */

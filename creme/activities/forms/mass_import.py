@@ -41,7 +41,7 @@ from creme.persons.models import Civility
 from .. import constants
 from ..models import ActivityType, Calendar
 from . import fields as act_fields
-from .activity_type import ActivityTypeField
+from .fields import ActivityTypeField
 
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()

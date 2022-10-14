@@ -97,15 +97,17 @@ class _ActivitiesTestCase(CremeTestCase):
 
         return self.get_object_or_fail(Activity, title=title)
 
-    def _create_meeting(
-            self,
-            title='Meeting01',
-            subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
-            hour=14):
+    def _create_meeting(self,
+                        title='Meeting01',
+                        subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
+                        hour=14,
+                        **kwargs
+                        ):
         create_dt = self.create_datetime
         return Activity.objects.create(
             user=self.user, title=title,
             type_id=ACTIVITYTYPE_MEETING, sub_type_id=subtype_id,
             start=create_dt(year=2013, month=4, day=1, hour=hour,     minute=0),
             end=create_dt(year=2013,   month=4, day=1, hour=hour + 1, minute=0),
+            **kwargs
         )

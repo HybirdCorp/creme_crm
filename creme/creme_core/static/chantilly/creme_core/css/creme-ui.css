@@ -321,6 +321,10 @@ button[type="button"].ui-creme-actionbutton img {
 }
 
 /*-------------------------*/
+input.ui-creme-datepicker {
+    width: 115px;
+}
+
 span.ui-creme-datepicker-trigger {
 	vertical-align: middle;
 }

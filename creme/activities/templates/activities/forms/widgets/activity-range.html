@@ -1,0 +1,25 @@
+{% load i18n %}
+<div class="activities-activity_range" {% include 'django/forms/widgets/attrs.html' %}>
+    <div class="activities-activity_range-start">
+      {% with widget=widget.subwidgets.0 %}
+        <label for="{{widget.attrs.id}}">{% translate 'Start' %}</label>
+        {% include widget.template_name %}
+      {% endwith %}
+    </div>
+    <div class="activities-activity_range-end">
+      {% with widget=widget.subwidgets.1 %}
+        <label for="{{widget.attrs.id}}">{% translate 'End' %}</label>
+        {% include widget.template_name %}
+      {% endwith %}
+    </div>
+    <div class="activities-activity_range-extra">
+        <label>
+            {% with widget=widget.subwidgets.2 %}{% include widget.template_name %}{% endwith %}
+            {% translate 'All day?' %}
+        </label>
+        <label>
+            {% with widget=widget.subwidgets.3 %}{% include widget.template_name %}{% endwith %}
+            {% translate 'Busy?' %}
+        </label>
+    </div>
+</div>
