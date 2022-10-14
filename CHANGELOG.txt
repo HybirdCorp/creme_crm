@@ -1,3 +1,45 @@
+== Version 2.3.7 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.16 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # In the listview:
+        - Clearing the search state now works correctly.
+        - Date search now kept on ordering change and cleared correctly
+        - The searches on dates are now kept when order changes, and are cleared correctly.
+    # Apps:
+        * Persons :
+            - A style issue with the edition buttons in address bricks has been fixed.
+        * Activities :
+            - In mass-import, the field "My participation" took the owner as "me", which was incorrect.
+            - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
+              In Creme 2.5 an exception will be raised.
+            - In the statistics block, a warning message about using 'ngettext()' with a float number has been removed.
+            - The style of the 'weeks' view of the calendar has been improved.
+        * Billing :
+            - When an entity is created, the default PaymentInformation instance of the source is used when there are several ones.
+        * Geolocation :
+            - Addresses which belong to billing models are now avoided with filter "All Contacts & Organisations",
+              which can improve performances with a lot of addresses.
+              Deleted entities are avoided too.
+        * Crudity :
+            - A bug in the code which delete retrieved emails has been fixed.
+        * VCFs :
+            - The civility could be badly initialised when importing a file.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps:
+            * Activities :
+                - The calendar code now manages redirection-after-creation like classical actions.
+
+
 == Version 2.3.6 ==
 
   UPGRADE NOTE :

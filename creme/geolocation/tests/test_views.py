@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from functools import partial
+
 from django.urls import reverse
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_filter import condition_handler, operators
-from creme.creme_core.models.auth import SetCredentials
-from creme.creme_core.models.entity_filter import EntityFilter
+from creme.creme_core.models import EntityFilter, FakeInvoice, SetCredentials
 from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomContact,
@@ -375,14 +376,14 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
     GET_NEIGHBOURS_URL = reverse('geolocation__neighbours')
 
     def populate_addresses(self, user):
-        orga  = create_orga(name='A', user=user)
+        orga1 = create_orga(name='A', user=user)
         orga2 = create_orga(name='B', user=user)
         orga3 = create_orga(name='C', user=user)
         orga4 = create_orga(name='D', user=user)
 
         create_baddr = self.create_billing_address
         self.MARSEILLE_LA_MAJOR = create_baddr(
-            orga,  address='La Major', zipcode='13002', town='Marseille',
+            orga1,  address='La Major', zipcode='13002', town='Marseille',
             geoloc=(43.299991, 5.364832),
         )
         self.MARSEILLE_MAIRIE = create_baddr(
@@ -400,48 +401,77 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         orga5 = create_orga(name='E', user=user)
         self.AUBAGNE_MAIRIE = create_baddr(
-            orga5, address='Maire Aubagne', zipcode='13400', town='Aubagne',
+            orga5, address='Mairie Aubagne', zipcode='13400', town='Aubagne',
             geoloc=(43.295783, 5.565589),
         )
 
     @skipIfCustomOrganisation
+    @skipIfCustomContact
     @skipIfCustomAddress
     def test_get_neighbours(self):
-        self.login()
+        "No filter -> all Contacts & Organisations."
+        user = self.login()
         self.populate_addresses(self.user)
 
+        create_contact = partial(Contact.objects.create, user=user)
+        contact = create_contact(last_name='Contact 1')
+        contact_address = self.create_billing_address(
+            contact,
+            address='Commanderie', zipcode='13011', town='Marseille',
+            geoloc=(43.295784, 5.565590),
+        )
+
+        # Should not be used (deleted)
+        deleted_contact = create_contact(last_name='Contact 2', is_deleted=True)
+        self.create_billing_address(
+            deleted_contact,
+            address='Commanderie', zipcode='13011', town='Marseille',
+            geoloc=(43.295786, 5.565595),
+        )
+
+        # Should not be used (not Contact/Organisation)
+        invoice = FakeInvoice.objects.create(user=user, name='Invoice#1')
+        self.create_billing_address(
+            invoice,
+            address='Commanderie', zipcode='13011', town='Marseille',
+            geoloc=(43.295782, 5.565588),
+        )
+
         url = self.GET_NEIGHBOURS_URL
-        response = self.assertGET200(url, data={'address_id': self.MARSEILLE_MAIRIE.id})
-        data = response.json()
-        self.assertEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        response1 = self.assertGET200(url, data={'address_id': self.MARSEILLE_MAIRIE.id})
+        data1 = response1.json()
+        self.assertEqual(data1['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data1['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),
         )
 
-        response = self.assertGET200(url, data={'address_id': self.AUBAGNE_MAIRIE.id})
-        self.assertDictEqual(
-            response.json(),
-            {
-                'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
-                'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
-            },
+        # ---
+        response2 = self.assertGET200(url, data={'address_id': self.AUBAGNE_MAIRIE.id})
+        data2 = response2.json()
+        self.assertDictEqual(data2['source_address'], address_as_dict(self.AUBAGNE_MAIRIE))
+        self.assertListAddressAsDict(
+            data2['addresses'],
+            address_as_dict(self.MARSEILLE_COMMANDERIE),
+            address_as_dict(contact_address),
         )
 
-        response = self.assertGET200(
+        # ---
+        response3 = self.assertGET200(
             url,
             data={'address_id': self.MARSEILLE_COMMANDERIE.id, 'filter_id': ''},
         )
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
+        data3 = response3.json()
+        self.assertDictEqual(data3['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data3['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_MAIRIE),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.AUBAGNE_MAIRIE),
+            address_as_dict(contact_address),
         )
 
     @skipIfCustomOrganisation
@@ -452,31 +482,33 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
 
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'address_id': self.MARSEILLE_MAIRIE.id}
-        response = self.assertGET200(url, data={**GET_data, 'distance': 1000})
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        response1 = self.assertGET200(url, data={**GET_data, 'distance': 1000})
+        data1 = response1.json()
+        self.assertDictEqual(data1['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data1['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
         )
 
-        response = self.assertGET200(url, data={**GET_data, 'distance': 20000})
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        # ---
+        response2 = self.assertGET200(url, data={**GET_data, 'distance': 20000})
+        data2 = response2.json()
+        self.assertDictEqual(data2['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data2['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),
             address_as_dict(self.AUBAGNE_MAIRIE),
         )
 
-        response = self.assertGET200(url, data={**GET_data, 'distance': 'NaN'})
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        # ---
+        response3 = self.assertGET200(url, data={**GET_data, 'distance': 'NaN'})
+        data3 = response3.json()
+        self.assertDictEqual(data3['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data3['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),
@@ -499,39 +531,49 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
             ],  # filter ST-VICTOR
         )
 
+        # Should not be used
+        deleted_orga = create_orga(name='F', user=user, is_deleted=True)
+        self.create_billing_address(
+            deleted_orga,
+            address='Commanderie', zipcode='13011', town='Marseille',
+            geoloc=(43.301965, 5.462411),
+        )
+
         url = self.GET_NEIGHBOURS_URL
         GET_data = {'filter_id': efilter.id}
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             url,
             data={**GET_data, 'address_id': self.MARSEILLE_MAIRIE.id},
         )
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        data1 = response1.json()
+        self.assertDictEqual(data1['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data1['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),
         )
 
-        response = self.assertGET200(url, data={**GET_data, 'address_id': self.AUBAGNE_MAIRIE.id})
+        # ---
+        response2 = self.assertGET200(url, data={**GET_data, 'address_id': self.AUBAGNE_MAIRIE.id})
         self.assertDictEqual(
-            response.json(),
+            response2.json(),
             {
                 'source_address': address_as_dict(self.AUBAGNE_MAIRIE),
                 'addresses': [address_as_dict(self.MARSEILLE_COMMANDERIE)],
             },
         )
 
-        response = self.assertGET200(
+        # ---
+        response3 = self.assertGET200(
             url,
             data={**GET_data, 'address_id': self.MARSEILLE_COMMANDERIE.id},
         )
-        data = response.json()
+        data3 = response3.json()
         self.assertDictEqual(
-            data['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE),
+            data3['source_address'], address_as_dict(self.MARSEILLE_COMMANDERIE),
         )
         self.assertListAddressAsDict(
-            data['addresses'],
+            data3['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_MAIRIE),
             address_as_dict(self.AUBAGNE_MAIRIE),
@@ -570,23 +612,24 @@ class GetNeighboursTestCase(GeoLocationBaseTestCase):
         GET_data = {'address_id': self.MARSEILLE_MAIRIE.id}
 
         # "la major" is filtered (owned by different user)
-        response = self.assertGET200(url, data=GET_data)
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        response1 = self.assertGET200(url, data=GET_data)
+        data1 = response1.json()
+        self.assertDictEqual(data1['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data1['addresses'],
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),
         )
 
+        # ---
         self.client.logout()
         self.client.login(username=self.other_user.username, password='test')
 
-        response = self.assertGET200(url, data=GET_data)
-        data = response.json()
-        self.assertDictEqual(data['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
+        response2 = self.assertGET200(url, data=GET_data)
+        data2 = response2.json()
+        self.assertDictEqual(data2['source_address'], address_as_dict(self.MARSEILLE_MAIRIE))
         self.assertListAddressAsDict(
-            data['addresses'],
+            data2['addresses'],
             address_as_dict(self.MARSEILLE_LA_MAJOR),
             address_as_dict(self.MARSEILLE_ST_VICTOR),
             address_as_dict(self.MARSEILLE_COMMANDERIE),

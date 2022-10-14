@@ -389,7 +389,7 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(pi, invoice.payment_info)
 
     def test_createview_payment_info02(self):
-        "Two PaymentInformation in the source => not used."
+        "Several PaymentInformation in the source => default one is used."
         user = self.login()
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -398,10 +398,15 @@ class InvoiceTestCase(_BillingTestCase):
 
         create_pi = partial(PaymentInformation.objects.create, organisation=source)
         create_pi(name='RIB 1')
-        create_pi(name='RIB 2')
+        pi2 = create_pi(name='RIB 2', is_default=True)
+        create_pi(name='RIB 3')
+        self.assertCountEqual(
+            [pi2], PaymentInformation.objects.filter(organisation=source, is_default=True),
+        )
 
         invoice = self.create_invoice('Invoice001', source, target)
-        self.assertIsNone(invoice.payment_info)
+        # self.assertIsNone(invoice.payment_info)
+        self.assertEqual(pi2, invoice.payment_info)
 
     def test_create_related01(self):
         user = self.login()
@@ -824,14 +829,14 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertEqual(pi, invoice.payment_info)
 
     def test_editview_payment_info03(self):
-        "Two PaymentInformation in the source => not used."
+        "Several PaymentInformation in the source => default one is used."
         user = self.login()
 
         invoice, source, target = self.create_invoice_n_orgas('Invoice001')
 
         create_pi = partial(PaymentInformation.objects.create, organisation=source)
         create_pi(name='RIB 1')
-        create_pi(name='RIB 2')
+        pi2 = create_pi(name='RIB 2', is_default=True)
 
         response = self.client.post(
             invoice.get_edit_absolute_url(), follow=True,
@@ -850,7 +855,8 @@ class InvoiceTestCase(_BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
-        self.assertIsNone(invoice.payment_info)
+        # self.assertIsNone(invoice.payment_info)
+        self.assertEqual(pi2, invoice.payment_info)
 
     def test_inner_edit01(self):
         user = self.login()

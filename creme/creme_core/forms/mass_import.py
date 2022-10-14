@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1647,9 +1647,9 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     )
 
 
-# NB: we use ModelForm to get the all the django machinery to build a form from a model
-#     bit we need to avoid the model validation, because we are are not building a true
-#    'self.instance', but a set of instances ; we just use the regular form validation.
+# NB: we use ModelForm to get the all the django machinery to build a form from a model,
+#     but we need to avoid the model validation, because we are not building a true
+#    'self.instance', but a set of instances; we just use the regular form validation.
 def form_factory(ct, header):
     choices = [(0, _('Not in the file'))]
     header_dict = {}

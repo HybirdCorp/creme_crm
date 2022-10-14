@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -592,7 +592,7 @@ class MultiGenericEntityField(GenericEntityField):
         return [*map(super()._value_to_jsonifiable, value)]
 
     def _value_from_unjsonfied(self, data):
-        # We want to to keep the global order (left by defaultdict)
+        # We want to keep the global order (left by defaultdict)
         if self.unique:
             entities_pks = OrderedSet()
             entities_pks_append = entities_pks.add

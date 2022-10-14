@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-07-2022 for Creme 2.3
+:Version: 11-10-2022 for Creme 2.3
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -2549,12 +2549,6 @@ case :
 **Remark**: with class-based views, there are (as seen before), many ways to
 modify an existing view from your app, without needing to re-write it totally.
 
-As URLs are named in the different files ``urls.py``, if your app is installed
-before the app (ie: in ``settings.INSTALLED_APPS``) which contains the URL you
-want to redirect to your own view, you jst have to declare an URL with the same
-name (and with the same arguments). Creme always retrieve URLs by their name,
-so your URL will be used.
-
 In this example, we modify the creation view for memo. In
 ``creme/assistants/urls.py``, we find this code: ::
 
@@ -2575,47 +2569,34 @@ In this example, we modify the creation view for memo. In
         [...]
     ]
 
+By default, the URLs of an app are prefixed by the name of the app itself,
+so "assistants/" in our example. We have to :
 
-In your app (which must be before ``creme.assistants.py`` in
-``settings.INSTALLED_APPS``), declare this URL: ::
+- use an identical prefix.
+- use an identical pattern.
 
-    urlpatterns = [
-        re_path(
-            r'^my_memo/add/(?P<entity_id>\d+)[/]?$',
-            views.MyMemoCreation.as_view(),
-            name='assistants__create_memo',
-        ),
+When the URL list is created (see ``creme/urls.py``), apps are added in the order
+of their declaration in ``settings.INSTALLED_APPS``. And the URL resolver will
+stop on the first pattern which matches the searched URL. Conclusion, our app
+must be **before** (in ``settings.INSTALLED_APPS``) the app containing the URL
+we want to mask.
 
-        [...]
-    ]
-
-It works well, but there is a potential issue: the original URL still exists
-(it's just not used in the GUI). It means we can still reach the masked view.
-It could happen with an external une application software which does has not
-been modified to use the new URL, or with a malicious user. So if the masked
-view allows some actions which should be forbidden (your own view performs some
-additional checking), and is not just a new UI, we must improve our solution,
-by using exactly the same URL (not only its name in Creme).
-
-By default, the URLs in your app start by the app's name nom. But we can give
-explicitly this prefix, to use the same than the app ``assistants``. It will
-impact all URLs in your app, so it's better to write a small app which is use
-only for this job. Create an app ``my_assistants`` ; in its file
-``my_project/my_assistants/apps.py``, set the URL prefix like: ::
+We can set explicitly the URL prefix of an app, to use the same as the app
+``assistants``. It will impact all the URLs in our app, so it's cleaner to build
+a minimal ap which only do this. And a different app has to be created for each
+base app your want to URL-mask. Create an app ``my_assistants``; in the file
+``my_project/my_assistants/apps.py``, write : ::
 
     [...]
 
     class MyAssistantsConfig(CremeAppConfig):
         name = 'my_project.my_assistants'
 
-        @property
-        def url_root(self):
-            return 'assistants/'
+        url_root = 'assistants/'
 
         [...]
 
-
-Then in ``my_project/my_assistants/urls.py``: ::
+Then, in ``my_project/my_assistants/urls.py`` : ::
 
     from django.urls import re_path
 
@@ -2623,19 +2604,21 @@ Then in ``my_project/my_assistants/urls.py``: ::
 
     urlpatterns = [
         # Notice the URL must be the same than the original one.
-        # In our case, not 'my_memo/', replaced by a 'memo/' as in "assistants"
         re_path(
             r'^memo/add/(?P<entity_id>\d+)[/]?$',
             views.MyMemoCreation.as_view(),
-            name='assistants__create_memo',
         ),
     ]
 
+**Note** we did not give a name to our URL. We could name it with the same name
+as the masked URL (so``name='assistants__create_memo'``), but it would be useless.
 
 This method remains fragile, because if the masked URL changes in a future
 (major) version of Creme, your view does not mask it anymore without
 triggering error (the 2 URLs just cohabit). So you must use this method
-carefully, and be careful when you upgrade Creme.
+carefully, and be careful when you upgrade Creme. Writing some unit tests which
+check that ``reverse('assistants__create_memo')`` leads to our own view would
+be a good idea.
 
 **Specific case: removing a feature**: in some case you may want to disable an
 existing base view. For example, you want Memos to be only created by a Job
