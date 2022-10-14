@@ -16,20 +16,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.core.exceptions import ValidationError
+# from django.core.exceptions import ValidationError
 # from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
 
 import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.forms import CremeModelForm
 # from creme.creme_core.forms.bulk import BulkDefaultEditForm
-from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-from ..constants import ACTIVITYTYPE_INDISPO
+# from ..constants import ACTIVITYTYPE_INDISPO
+# from .fields import ActivityTypeField
 from ..models import ActivitySubType, ActivityType
-from .fields import ActivityTypeField
 
 
 class ActivityTypeForm(CremeModelForm):
@@ -116,49 +114,3 @@ class ActivitySubTypeForm(CremeModelForm):
 #         entity.type, entity.sub_type = values.get(self.field_name)
 #
 #         return entity
-class TypeOverrider(FieldOverrider):
-    field_names = ['type', 'sub_type']
-
-    error_messages = {
-        'immutable': _('The type of an unavailability cannot be changed.'),
-    }
-
-    _mixed_unavailability = False
-
-    def formfield(self, instances, user, **kwargs):
-        field = ActivityTypeField(
-            label=_('Type'),
-            types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
-        )
-        unavailability_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in instances)
-
-        if unavailability_count:
-            if unavailability_count == len(instances):
-                # All entities are Unavailability, so we propose to change the subtype.
-                field.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
-            else:
-                self._mixed_unavailability = True
-
-                field.help_text = ngettext(
-                    'Beware! The type of {count} activity cannot be changed '
-                    'because it is an unavailability.',
-                    'Beware! The type of {count} activities cannot be changed '
-                    'because they are unavailability.',
-                    unavailability_count
-                ).format(count=unavailability_count)
-
-        if len(instances) == 1:
-            first = instances[0]
-            field.initial = first.type_id, first.sub_type_id
-
-        return field
-
-    def post_clean_instance(self, *, instance, value, form):
-        if self._mixed_unavailability and instance.type_id == ACTIVITYTYPE_INDISPO:
-            raise ValidationError(
-                self.error_messages['immutable'],
-                code='immutable',
-            )
-
-        if value:
-            instance.type, instance.sub_type = value

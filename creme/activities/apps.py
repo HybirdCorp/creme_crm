@@ -62,7 +62,7 @@ class ActivitiesConfig(CremeAppConfig):
 
     def register_bulk_update(self, bulk_update_registry):
         # from .forms.activity_type import BulkEditTypeForm
-        from .forms.activity_type import TypeOverrider
+        from .forms import bulk_update
 
         # bulk_update_registry.register(
         #     self.Activity,
@@ -74,10 +74,9 @@ class ActivitiesConfig(CremeAppConfig):
         # )
         bulk_update_registry.register(
             self.Activity
-        ).exclude(
-            'start', 'end', 'busy', 'is_all_day',
         ).add_overriders(
-            TypeOverrider,
+            bulk_update.RangeOverrider,
+            bulk_update.TypeOverrider,
         )
 
     def register_buttons(self, button_registry):

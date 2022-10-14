@@ -39,6 +39,8 @@
             - In creation form, when an Alert with a trigger date relative to the Activity's start is created,
               the new feature <Alert with relative trigger date> is used.
               So the trigger date is finally updated when the Activity's start is modified (a very old annoying behaviour disappears).
+            - The inner-edition is now available for these fields: start, end, is_all_day, busy.
+              Notice that their are always edited all together with a composite widget.
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch emails from some mailboxes to potentially create true Email entities

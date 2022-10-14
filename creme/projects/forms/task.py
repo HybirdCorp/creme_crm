@@ -23,7 +23,7 @@ from django.forms import BooleanField, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
-from creme.activities.forms.activity_type import ActivityTypeField
+from creme.activities.forms.fields import ActivityTypeField
 from creme.activities.models import Activity, Calendar
 from creme.activities.utils import check_activity_collisions
 from creme.creme_core.core.exceptions import ConflictError

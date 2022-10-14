@@ -39,8 +39,11 @@ from .. import constants, get_activity_model
 from ..models import AbstractActivity, ActivitySubType, ActivityType, Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
-from .activity_type import ActivityTypeField
-from .fields import DateWithOptionalTimeField, UserParticipationField
+from .fields import (
+    ActivityTypeField,
+    DateWithOptionalTimeField,
+    UserParticipationField,
+)
 
 logger = logging.getLogger(__name__)
 Contact = get_contact_model()
@@ -444,7 +447,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
             floating_type = (
                 constants.NARROW
-                if start_time or end_time or is_all_day else
+                # if start_time or end_time or is_all_day else
+                if start_time or is_all_day else
                 constants.FLOATING_TIME
             )
 
