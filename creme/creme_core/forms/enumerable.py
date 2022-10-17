@@ -181,10 +181,13 @@ class EnumerableChoiceSet:
 class EnumerableSelect(widgets.Select):
     template_name = 'creme_core/forms/widgets/enumerable.html'
     option_template_name = 'creme_core/forms/widgets/enhanced-option.html'
+    create_url = None
 
-    def __init__(self, enumerable: EnumerableChoiceSet = None, attrs=None):
+    def __init__(self, enumerable: EnumerableChoiceSet = None,
+                 attrs=None, create_url=None):
         super().__init__(attrs=attrs, choices=())  # TODO: options or ()
         self.enumerable = enumerable
+        self.create_url = create_url or self.create_url
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
@@ -210,6 +213,9 @@ class EnumerableSelect(widgets.Select):
 
         if self.enumerable.empty_label:
             attrs['data-placeholder'] = self.enumerable.empty_label
+
+        if self.create_url:
+            attrs['data-create-url'] = self.create_url
 
         return attrs
 

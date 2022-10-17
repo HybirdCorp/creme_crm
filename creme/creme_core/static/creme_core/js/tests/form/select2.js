@@ -4,27 +4,47 @@
 
 var S2 = {};
 
-QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin, {
+QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
+                                                  QUnitDialogMixin, {
     buildMockBackend: function() {
         return new creme.ajax.MockAjaxBackend({sync: true});
     },
 
     beforeEach: function() {
+        var backend = this.backend;
+
         this.setMockBackendGET({
-            'mock/enum': this.backend.responseJSON(200, [
+            'mock/enum': backend.responseJSON(200, [
                 {value: 1, label: 'a'},
                 {value: 15, label: 'b'},
                 {value: 12.5, label: 'c'}
              ]),
-            'mock/enum/42': this.backend.responseJSON(200, [
+            'mock/enum/42': backend.responseJSON(200, [
                 {value: 1, label: 'a'},
                 {value: 15, label: 'b'},
                 {value: 12.5, label: 'c'},
                 {value: 42, label: 'd'}
              ]),
-            'mock/enum/empty': this.backend.responseJSON(200, []),
-            'mock/forbidden': this.backend.response(403, 'HTTP - Error 403'),
-            'mock/error': this.backend.response(500, 'HTTP - Error 500')
+            'mock/enum/empty': backend.responseJSON(200, []),
+            'mock/create': backend.response(200, (
+                '<form action="mock/create">' +
+                    '<input type="text" name="title"></input>' +
+                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                '</form>'
+            )),
+            'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
+            'mock/error': backend.response(500, 'HTTP - Error 500')
+        });
+
+        this.setMockBackendPOST({
+            'mock/create': function(url, data, options) {
+                return backend.responseJSON(200, {
+                    value: 99,
+                    added: [
+                        [99, data.title]
+                    ]
+                });
+            }
         });
 
         /* Import synchronously (the 'true' at the end) the Options class of Select2 */
@@ -214,6 +234,154 @@ QUnit.test('creme.form.Select2 (multiple, sortable)', function(assert) {
     select.select2('open');
     equal(2, $('.select2-dropdown .select2-results__option').length);
 });
+
+QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
+    ['', false],
+    ['Item E', false],
+    ['Item', true]
+], function(term, expected, assert) {
+    var select = this.createSelect([
+        {value: 5, label: 'Item E'},
+        {value: 1, label: 'Item A'}
+    ]);
+
+    select.attr('data-create-url', 'mock/create');
+
+    var select2 = new creme.form.Select2(select);
+
+    deepEqual({
+        createURL: 'mock/create',
+        multiple: false,
+        sortable: false
+    }, select2.options());
+
+    select.select2('open');
+
+    $('.select2-search__field').val(term).trigger('input');
+
+    if (expected) {
+        equal(1, $('.select2-results__create-title').size());
+        equal(
+            gettext('Create new item «%s»').format(term),
+            $('.select2-results__create-title').text()
+        );
+    } else {
+        equal(0, $('.select2-results__create-title').size());
+    }
+});
+
+QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
+    var select = this.createSelect([
+        {value: 5, label: 'Item E'},
+        {value: 1, label: 'Item A'}
+    ]);
+
+    var select2 = new creme.form.Select2(select, {
+        createURL: 'mock/create'
+    });
+
+    deepEqual({
+        createURL: 'mock/create',
+        multiple: false,
+        sortable: false
+    }, select2.options());
+
+    select.select2('open');
+
+    var term = 'Item C';
+
+    $('.select2-search__field').val(term).trigger('input');
+
+    equal(1, $('.select2-results__create-title').size());
+    equal(
+        gettext('Create new item «%s»').format(term),
+        $('.select2-results__create-title').text()
+    );
+
+    this.assertClosedDialog();
+
+    $('.select2-results__create').trigger('click');
+
+    var dialog = this.assertOpenedDialog();
+    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+
+    equal(term, dialog.find('[name="title"]').val());
+
+    // Submit the new item
+    this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {title: [term]}]
+    ], this.mockBackendUrlCalls('mock/create'));
+
+    this.assertClosedDialog();
+
+    // New item is added
+    deepEqual([
+        {value: '5', label: 'Item E'},
+        {value: '1', label: 'Item A'},
+        {value: '99', label: term}
+    ], select.find('option').map(function() {
+        return {
+            value: $(this).attr('value'),
+            label: $(this).text()
+        };
+    }).get());
+});
+
+QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
+    var select = this.createSelect([
+        {value: 5, label: 'Item E'},
+        {value: 1, label: 'Item A'}
+    ]);
+
+    var select2 = new creme.form.Select2(select, {
+        createURL: 'mock/create'
+    });
+
+    deepEqual({
+        createURL: 'mock/create',
+        multiple: false,
+        sortable: false
+    }, select2.options());
+
+    select.select2('open');
+
+    $('.select2-search__field').val('Item C').trigger('input');
+
+    equal(1, $('.select2-results__create-title').size());
+    equal(
+        gettext('Create new item «%s»').format('Item C'),
+        $('.select2-results__create-title').text()
+    );
+
+    this.assertClosedDialog();
+
+    $('.select2-results__create').trigger('click');
+
+    var dialog = this.assertOpenedDialog();
+    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    equal('Item C', dialog.find('[name="title"]').val());
+
+    // Cancel the creation
+    this.findDialogButtonsByLabel(gettext('Cancel'), dialog).trigger('click');
+
+    this.assertClosedDialog();
+
+    // Nothing changes
+    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create'));
+    deepEqual([
+        {value: '5', label: 'Item E'},
+        {value: '1', label: 'Item A'}
+    ], select.find('option').map(function() {
+        return {
+            value: $(this).attr('value'),
+            label: $(this).text()
+        };
+    }).get());
+});
+
 
 QUnit.test('creme.form.Select2 (enum)', function(assert) {
     var select = this.createSelect([

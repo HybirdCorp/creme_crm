@@ -245,10 +245,42 @@
     color: #aaa;
     border-top: 1px solid #aaa;
     padding: 6px;
+    transition: all 0.15s ease-in-out;
 }
 
 .select2-container--creme .select2-results .select2-results__more:hover {
     text-decoration: underline;
     color: #5897fb;
     cursor: pointer;
+}
+
+.select2-container--creme .select2-results .select2-results__create {
+    text-transform: uppercase;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-align: center;
+    color: #aaa;
+    border-top: 1px solid #aaa;
+    padding: 6px;
+    transition: all 0.15s ease-in-out;
+    display: flex;
+}
+
+.select2-container--creme .select2-results .select2-results__create:hover {
+    color: #3bab07;
+    cursor: pointer;
+}
+
+.select2-container--creme .select2-results .select2-results__create-icon {
+    padding-right: 6px;
+}
+
+.select2-container--creme .select2-results .select2-results__create-title {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.select2-container--creme .select2-results .select2-results__create-title:hover {
+    text-decoration: underline;
 }
