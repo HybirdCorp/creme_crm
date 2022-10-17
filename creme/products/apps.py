@@ -91,6 +91,19 @@ class ProductsConfig(CremeAppConfig):
             custom_forms.SERVICE_EDITION_CFORM,
         )
 
+    def register_enumerable(self, enumerable_registry):
+        from . import enumerators, models
+
+        enumerable_registry.register_field(
+            models.SubCategory, 'category',
+            enumerators.QSEnumerator,
+        )
+
+        enumerable_registry.register_related_model(
+            models.SubCategory,
+            enumerators.SubCategoryEnumerator,
+        )
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Product, self.Service)
 

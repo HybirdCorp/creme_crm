@@ -1,5 +1,4 @@
 from functools import partial
-from json import dumps as json_dump
 from unittest import skipIf
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -24,9 +23,6 @@ def skipIfCustomService(test_func):
 
 class _ProductsTestCase(_DocumentsTestCase, MassImportBaseTestCaseMixin):
     EXTRA_CATEGORY_KEY = 'cform_extra-products_subcategory'
-
-    def _cat_field(self, category, sub_category):
-        return json_dump({'category': category.id, 'subcategory': sub_category.id})
 
     def login_as_basic_user(self, creatable_model):
         user = self.login(

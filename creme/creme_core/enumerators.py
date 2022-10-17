@@ -90,3 +90,7 @@ class EntityCTypeForeignKeyEnumerator(enumerable.Enumerator):
 
     def to_python(self, user, values):
         return [c for c in entity_ctypes() if c.id in values]
+
+
+class VatEnumerator(enumerable.QSEnumerator):
+    search_fields = ('value',)

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,12 +16,14 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import warnings
 from functools import partial
 
 from django.db.models.query import QuerySet
 from django.forms.utils import ValidationError
 from django.utils.translation import gettext as _
 
+from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
 from creme.creme_config.registry import config_registry
 from creme.creme_core.forms.fields import ChoiceModelIterator, JSONField
 from creme.creme_core.forms.widgets import ActionButtonList, ChainedInput
@@ -88,6 +90,10 @@ class CategoryField(JSONField):
     value_type = dict
 
     def __init__(self, *, categories=Category.objects.all(), **kwargs):
+        warnings.warn(
+            'CategoryField is deprecated; Use SubCategoryField instead',
+            DeprecationWarning
+        )
         super().__init__(**kwargs)
         self.categories = categories
         self._update_creation_info()
@@ -179,3 +185,10 @@ class CategoryField(JSONField):
             clean_value(data, 'category', int),
             clean_value(data, 'subcategory', int),
         )
+
+
+class SubCategoryField(CreatorEnumerableChoiceField):
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        attrs['data-selection-show-group'] = 'true'
+        return attrs

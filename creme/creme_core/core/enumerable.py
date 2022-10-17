@@ -245,10 +245,12 @@ class _EnumerableRegistry:
             )
 
     @staticmethod
-    def _check_field(field: Field) -> None:
+    def _check_viewable(field: Field) -> None:
         if not field.get_tag(FieldTag.VIEWABLE):
             raise ValueError(f'This field is not viewable: {field}')
 
+    @staticmethod
+    def _check_field(field: Field) -> None:
         # TODO: we probably should manage fields with is_relation==False but with
         #       a 'choices' attribute. Wait to add the feature in EntityFilterForm too.
 
@@ -268,8 +270,9 @@ class _EnumerableRegistry:
             or self._enums_4_models.get(field.remote_field.model)
         )
 
-        # Use QSEnumerator as default ONLY for a CremeEntity field
+        # Use QSEnumerator as default ONLY for a VIEWABLE CremeEntity field
         if enumerator_cls is None:
+            self._check_viewable(field)
             self._check_is_entity(field.model)
             enumerator_cls = QSEnumerator
 

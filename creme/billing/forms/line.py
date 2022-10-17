@@ -32,12 +32,13 @@ from creme import billing, products
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 from creme.creme_core.forms.widgets import CremeTextarea
 from creme.creme_core.models import Relation, Vat
-from creme.products.forms.fields import CategoryField
+from creme.products.forms.fields import SubCategoryField
 
 from .. import constants
 
 ProductLine = billing.get_product_line_model()
 ServiceLine = billing.get_service_line_model()
+Product = products.get_product_model()
 
 
 class _LineMultipleAddForm(core_forms.CremeForm):
@@ -188,7 +189,13 @@ class LineEditForm(core_forms.CremeModelForm):
 
 
 class AddToCatalogForm(core_forms.CremeForm):
-    sub_category = CategoryField(label=_('Sub-category'), required=False)
+    # sub_category = CategoryField(label=_('Sub-category'), required=False)
+    sub_category = SubCategoryField(
+        model=Product,
+        field_name='sub_category',
+        label=_('Sub-category'),
+        required=False
+    )
 
     error_messages = {
         'forbidden_creation': _('You are not allowed to create this entity'),
@@ -202,6 +209,17 @@ class AddToCatalogForm(core_forms.CremeForm):
         super().__init__(user, *args, **kwargs)
         self.line = line
         self.related_item_class = related_item_class
+
+        # HACK : We need to handle the case of SubCategoryField for Service or
+        # any other line type and the EnumerableChoiceField does not give any
+        # tool for this (rare) usecase.
+        if related_item_class != Product:
+            sub_cat = self.fields['sub_category']
+            sub_cat.enum = sub_cat.enumerable(
+                field=related_item_class._meta.get_field('sub_category'),
+                user=user,
+                limit=sub_cat.limit,
+            )
 
     def clean(self):
         if not self.user.has_perm_to_create(self.related_item_class):

@@ -1,3 +1,4 @@
+from decimal import Decimal
 from functools import partial
 from unittest.case import skipIf
 
@@ -20,10 +21,12 @@ from creme.creme_core.models import (
     FakeContact,
     FakeImage,
     FakeImageCategory,
+    FakeInvoiceLine,
     FakeOrganisation,
     FakeReport,
     FakeTodo,
     Language,
+    Vat,
 )
 from creme.creme_core.models.fields import (
     CTypeForeignKey,
@@ -283,6 +286,21 @@ class EnumerableTestCase(CremeTestCase):
             str(error_ctxt2.exception),
         )
 
+    def test_choices_field_not_entity_model__registered(self):
+        class FakeTodoCategoriesEnumerator(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+
+        registry.register_field(
+            FakeTodo, 'categories', FakeTodoCategoriesEnumerator
+        )
+
+        field = FakeTodo._meta.get_field('categories')
+        enum = registry.enumerator_by_field(field)
+
+        self.assertIsInstance(enum, FakeTodoCategoriesEnumerator)
+
     def test_choices_field_does_not_exist(self):
         registry = _EnumerableRegistry()
 
@@ -309,6 +327,33 @@ class EnumerableTestCase(CremeTestCase):
             'This field is not enumerable: creme_core.FakeContact.address',
             str(error_ctxt2.exception),
         )
+
+    def test_choices_field_not_visible(self):
+        registry = _EnumerableRegistry()
+
+        field = FakeTodo._meta.get_field('entity')
+        with self.assertRaises(ValueError) as error:
+            registry.enumerator_by_field(field)
+
+        self.assertEqual(
+            'This field is not viewable: creme_core.FakeTodo.entity',
+            str(error.exception),
+        )
+
+    def test_choices_field_not_visible__registered(self):
+        class FakeTodoEntityEnumerator(Enumerator):
+            pass
+
+        registry = _EnumerableRegistry()
+
+        registry.register_field(
+            FakeTodo, 'entity', FakeTodoEntityEnumerator
+        )
+
+        field = FakeTodo._meta.get_field('entity')
+        enum = registry.enumerator_by_field(field)
+
+        self.assertIsInstance(enum, FakeTodoEntityEnumerator)
 
     def test_register_related_model(self):
         class FakeCivilityEnumerator1(Enumerator):
@@ -752,3 +797,21 @@ class EnumerableTestCase(CremeTestCase):
             ['Filter 03'],
             [c['label'] for c in enum.choices(user, term='03')]
         )
+
+    def test_vat_enumerator(self):
+        user = self.create_user()
+        enum = enumerators.VatEnumerator(FakeInvoiceLine._meta.get_field('vat_value'))
+
+        vats = Vat.objects.order_by('value')
+
+        self.assertListEqual([
+            {'label': str(vat), 'value': vat.pk} for vat in vats
+        ], list(enum.choices(user)))
+
+        vat_200 = Vat.objects.get(value=Decimal('20.00'))
+        vat_212 = Vat.objects.get(value=Decimal('21.20'))
+
+        self.assertListEqual([
+            {'label': '20.00', 'value': vat_200.pk},
+            {'label': '21.20', 'value': vat_212.pk},
+        ], list(enum.choices(user, term='20')))

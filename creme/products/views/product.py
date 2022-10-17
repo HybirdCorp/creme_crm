@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+import warnings
 
 from django.shortcuts import get_object_or_404
 
@@ -36,6 +38,12 @@ Service = products.get_service_model()
 @jsonify
 @login_required
 def get_subcategories(request, category_id):
+    warnings.warn(
+        "The view 'products__subcategories' is deprecated ; "
+        "use the generic one 'creme_core__enumerable_choices' instead.",
+        DeprecationWarning,
+    )
+
     get_object_or_404(Category, pk=category_id)
     return [
         *SubCategory.objects

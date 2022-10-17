@@ -91,6 +91,7 @@ class EnumerableChoiceSet:
             logger.warning(
                 'Unable to find an enumerator for the field "%s"', field
             )
+            # TODO : field.related_model.all() ?
             self.enumerator = enumerable.EmptyEnumerator(field)
 
     def choices(self, selected_values=None, limit=None):
