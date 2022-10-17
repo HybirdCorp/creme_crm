@@ -24,6 +24,7 @@ else:
         CremeModel,
         EntityFilter,
         Language,
+        Vat,
         deletion,
     )
     from ..models import fields as core_fields
@@ -635,6 +636,10 @@ else:
             _('Discount Unit'), blank=True, null=True,
             # choices=FAKE_DISCOUNT_UNIT.items(), default=FAKE_PERCENT_UNIT,
             choices=Discount.choices, default=Discount.PERCENT,
+        )
+        vat_value = models.ForeignKey(
+            Vat, verbose_name=_('VAT'), blank=True, null=True,
+            on_delete=models.PROTECT,
         )
 
         class Meta:

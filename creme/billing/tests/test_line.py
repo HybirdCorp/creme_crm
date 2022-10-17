@@ -675,10 +675,6 @@ class LineTestCase(_BillingTestCase):
     def _build_add2catalog_url(line):
         return reverse('billing__add_to_catalog', args=(line.id,))
 
-    @staticmethod
-    def _build_dict_cat_subcat(cat, subcat):
-        return {'sub_category': json_dump({'category': cat.id, 'subcategory': subcat.id})}
-
     def test_convert_on_the_fly_line_to_real_item_error(self):
         "Entity is not a line."
         user = self.login()
@@ -709,12 +705,22 @@ class LineTestCase(_BillingTestCase):
         )
         self.assertEqual(_('Add to the catalog'), context.get('submit_label'))
 
+        enum_choiceset = response.context['form'].fields['sub_category'].enum
+        self.assertEqual(enum_choiceset.field.model, Product)
+
         # ---
-        response = self.client.post(url, data=self._build_dict_cat_subcat(cat, subcat))
+        response = self.client.post(url, data={"sub_category": subcat.pk})
         self.assertNoFormError(response)
         self.assertTrue(Product.objects.exists())
 
-        self.get_object_or_fail(Product, name=product_name, unit_price=unit_price, user=user)
+        self.get_object_or_fail(
+            Product,
+            name=product_name,
+            unit_price=unit_price,
+            user=user,
+            category=cat,
+            sub_category=subcat,
+        )
 
     @skipIfCustomServiceLine
     def test_convert_on_the_fly_line_to_real_item02(self):
@@ -730,14 +736,28 @@ class LineTestCase(_BillingTestCase):
         )
         cat, subcat = self.create_cat_n_subcat()
 
+        url = self._build_add2catalog_url(service_line)
+        response = self.assertGET200(url)
+
+        enum_choiceset = response.context['form'].fields['sub_category'].enum
+        self.assertEqual(enum_choiceset.field.model, Service)
+
+        # Submit new service
         response = self.client.post(
             self._build_add2catalog_url(service_line),
-            data=self._build_dict_cat_subcat(cat, subcat),
+            data={"sub_category": subcat.pk},
         )
         self.assertNoFormError(response)
         self.assertTrue(Service.objects.exists())
 
-        self.get_object_or_fail(Service, name=service_name, unit_price=unit_price, user=user)
+        self.get_object_or_fail(
+            Service,
+            name=service_name,
+            unit_price=unit_price,
+            user=user,
+            category=cat,
+            sub_category=subcat,
+        )
 
     @skipIfCustomProductLine
     def test_convert_on_the_fly_line_to_real_item03(self):
@@ -764,10 +784,10 @@ class LineTestCase(_BillingTestCase):
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0')
         )
-        cat, subcat = self.create_cat_n_subcat()
+        subcat = self.create_cat_n_subcat()[1]
         self.assertPOST403(
             self._build_add2catalog_url(product_line),
-            data=self._build_dict_cat_subcat(cat, subcat),
+            data={"sub_category": subcat.pk},
         )
 
         self.assertFalse(Product.objects.exists())
@@ -797,10 +817,10 @@ class LineTestCase(_BillingTestCase):
             user=user, related_document=invoice,
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
-        cat, subcat = self.create_cat_n_subcat()
+        subcat = self.create_cat_n_subcat()[1]
         self.assertPOST403(
             self._build_add2catalog_url(service_line),
-            data=self._build_dict_cat_subcat(cat, subcat),
+            data={"sub_category": subcat.pk},
         )
 
         self.assertFalse(Service.objects.exists())
@@ -816,10 +836,10 @@ class LineTestCase(_BillingTestCase):
             user=user, related_document=invoice,
             related_item=product, unit_price=Decimal('50.0')
         )
-        cat, subcat = self.create_cat_n_subcat()
+        subcat = self.create_cat_n_subcat()[1]
         response = self.assertPOST200(
             self._build_add2catalog_url(product_line),
-            data=self._build_dict_cat_subcat(cat, subcat),
+            data={"sub_category": subcat.pk},
         )
 
         self.assertFormError(
@@ -842,10 +862,10 @@ class LineTestCase(_BillingTestCase):
             user=user, related_document=invoice,
             related_item=service, unit_price=Decimal('50.0'),
         )
-        cat, subcat = self.create_cat_n_subcat()
+        subcat = self.create_cat_n_subcat()[1]
         response = self.assertPOST200(
             self._build_add2catalog_url(service_line),
-            data=self._build_dict_cat_subcat(cat, subcat),
+            data={"sub_category": subcat.pk},
         )
 
         self.assertFormError(

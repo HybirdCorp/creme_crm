@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,12 +30,22 @@ class SubCategoryForm(CremeModelForm):
         instance = self.instance
         category = instance.category
 
+        # return {
+        #     'value': {'category': str(category.id), 'subcategory': str(instance.id)},
+        #     'added': [
+        #         {
+        #             'category': (str(category.id), str(category)),
+        #             'subcategory': (str(instance.id), str(instance)),
+        #         },
+        #     ],
+        # }
         return {
-            'value': {'category': str(category.id), 'subcategory': str(instance.id)},
+            'value': str(instance.id),
             'added': [
                 {
-                    'category': (str(category.id), str(category)),
-                    'subcategory': (str(instance.id), str(instance)),
-                },
-            ],
+                    'value': str(instance.id),
+                    'label': str(instance),
+                    'group': str(category)
+                }
+            ]
         }

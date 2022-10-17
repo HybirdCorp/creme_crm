@@ -23,7 +23,7 @@ from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.documents.forms.fields import MultiImageEntityField
 
-from .fields import CategoryField
+from .fields import SubCategoryField
 
 
 class SubCategorySubCell(CustomFormExtraSubCell):
@@ -31,7 +31,14 @@ class SubCategorySubCell(CustomFormExtraSubCell):
     verbose_name = _('Category & sub-category')
 
     def formfield(self, instance, user, **kwargs):
-        field = CategoryField(label=self.verbose_name, user=user, **kwargs)
+        # field = CategoryField(label=self.verbose_name, user=user, **kwargs)
+        field = SubCategoryField(
+            model=type(instance),
+            field_name='sub_category',
+            label=self.verbose_name,
+            user=user,
+            **kwargs
+        )
 
         if instance.sub_category_id:
             field.initial = instance.sub_category

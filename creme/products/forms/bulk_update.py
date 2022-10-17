@@ -21,7 +21,7 @@ from django.utils.translation import gettext as _
 # from creme.creme_core.forms.bulk import BulkForm
 from creme.creme_core.gui.bulk_update import FieldOverrider
 
-from .fields import CategoryField
+from .fields import SubCategoryField
 
 
 # class ProductInnerEditCategory(BulkForm):
@@ -55,7 +55,12 @@ class CategoryOverrider(FieldOverrider):
     field_names = ['category', 'sub_category']
 
     def formfield(self, instances, user, **kwargs):
-        field = CategoryField(label=_('Sub-category'))
+        field = SubCategoryField(
+            model=type(instances[0]),
+            field_name='sub_category',
+            label=_('Sub-category'),
+            user=user
+        )
 
         if len(instances) == 1:
             instance = instances[0]

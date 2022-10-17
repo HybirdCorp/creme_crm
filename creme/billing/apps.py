@@ -216,6 +216,13 @@ class BillingConfig(CremeAppConfig):
             custom_forms.BTEMPLATE_EDITION_CFORM,
         )
 
+    def register_enumerable(self, enumerable_registry):
+        from creme.creme_core import enumerators, models
+
+        enumerable_registry.register_related_model(
+            models.Vat, enumerators.VatEnumerator,
+        )
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Invoice,

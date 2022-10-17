@@ -70,7 +70,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
                 'unit':         unit,
                 'unit_price':   unit_price,
 
-                self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
+                self.EXTRA_CATEGORY_KEY: str(sub_cat.pk),
             },
         )
         self.assertNoFormError(response)
@@ -117,9 +117,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
                 'unit_price':   unit_price,
                 'unit':         service.unit,
 
-                self.EXTRA_CATEGORY_KEY: self._cat_field(
-                    service.category, service.sub_category,
-                ),
+                self.EXTRA_CATEGORY_KEY: str(sub_cat.pk),
             },
         )
         self.assertNoFormError(response)

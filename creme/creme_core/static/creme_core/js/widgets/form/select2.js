@@ -84,40 +84,90 @@ function djangoLocalisation(options) {
     };
 }
 
-function convertToSelect2Data(data) {
-    data = data || [];
-
-    var groups = {};
-    var options = [];
-
-    data.filter(function(item) {
-        return item.visible !== false;
-    }).forEach(function(item) {
-        var option = {
-            id: item.value,
-            text: item.label,
+function normalizeSelect2Item(item) {
+    if (Array.isArray(item)) {
+        return {
+            id: item[0],
+            text: item[1],
+            disabled: false,
+            selected: false
+        };
+    } else {
+        var output = {
+            id: item.value || item.id,
+            text: item.label || item.text,
             disabled: item.disabled || false,
             selected: item.selected || false
         };
 
         if (item.group) {
-            var group = groups[item.group] = (groups[item.group] || {
-                text: item.group,
+            output['group'] = item.group;
+        }
+
+        return output;
+    }
+};
+
+function convertToSelect2Data(data) {
+    data = data || [];
+
+    var optgroups = {};
+    var options = [];
+
+    data.filter(function(item) {
+        return item.visible !== false;
+    }).forEach(function(item) {
+        var option = normalizeSelect2Item(item);
+
+        if (option.group) {
+            var optgroup = optgroups[option.group] = (optgroups[option.group] || {
+                text: option.group,
                 children: []
             });
 
-            group.children.push(option);
+            optgroup.children.push(option);
         } else {
             options.push(option);
         }
     });
 
-    if (!_.isEmpty(groups)) {
-        options = options.concat(_.values(groups));
+    if (!_.isEmpty(optgroups)) {
+        options = options.concat(_.values(optgroups));
     }
 
     return options;
 }
+
+/*
+function mergeSelect2Data(initial, items) {
+    var output = [];
+    var groups = {};
+
+    initial.forEach(function (item) {
+        if (item.children) {
+            groups[item.text] = item;
+        }
+
+        output.push(item);
+    });
+
+    items.forEach(function(item) {
+        if (item.children) {
+            var group = groups[item.text];
+
+            if (group) {
+                group.children = group.children.concat(item.children);
+            } else {
+                output.push(item);
+            }
+        } else {
+            output.push(item);
+        }
+    });
+
+    return output;
+}
+*/
 
 function renderSelect2Result(state) {
     if (state.pinned) {
@@ -127,6 +177,20 @@ function renderSelect2Result(state) {
     } else {
         return state.text;
     }
+}
+
+function selectionRenderer(options) {
+    function renderer(state, container) {
+        if (options.selectionShowGroup) {
+            var group = $(state.element).parent('optgroup').get();
+            return group.length ? group[0].label + ' − ' + state.text : state.text;
+        } else {
+            return state.text;
+        }
+    }
+
+    renderer.options = options;
+    return renderer;
 }
 
 S2.define('select2/data/enum', [
@@ -167,9 +231,24 @@ S2.define('select2/data/enum', [
                                       .get();
 
         container.on('enum:more', function(params) {
+            /*
+             * Trigger a new query if we get an event from the "more" button
+             */
             params = $.extend({}, this._lastEnumParams);
             params.limit += this.enumOptions.limit;
             this.trigger('query', params);
+        }.bind(this));
+
+        container.on('enum:add', function(params) {
+            /*
+             * Reset cache if items have been added with the "create" button
+             *
+             * TODO : This will remove the ENTIRE cache, so it should be a a good
+             * idea to improve this part.
+             */
+            if (this._queryBackend instanceof creme.ajax.CacheBackend) {
+                this._queryBackend.reset();
+            }
         }.bind(this));
 
         container.on('close', function() {
@@ -313,24 +392,30 @@ S2.define('select2/dropdown/creator', [], function () {
 
             form.onFormSuccess(function(event, response, dataType) {
                 var items = ((response.data() || {}).added || []);
-
-                self.addItems(items.map(function(item) {
-                    return {
-                        id: item[0],
-                        text: item[1]
-                    };
-                }));
+                self.addItems(convertToSelect2Data(items || []), container);
             });
 
             self.trigger('close');
             form.open();
         });
 
+        function extractTerms(items) {
+            var terms = [];
+
+            items.forEach(function(item) {
+                if (item.children) {
+                    terms.push.apply(terms, extractTerms(item.children));
+                } else {
+                    terms.push(item.text);
+                }
+            });
+
+            return terms;
+        }
+
         container.on('results:all', function(params) {
             var term = params.query.term;
-            var texts = params.data.results.map(function(item) {
-                return item.text;
-            });
+            var texts = extractTerms(params.data.results);
 
             if (term && texts.indexOf(term) === -1) {
                 var message = this.options.get('translations').get('createItem');
@@ -351,17 +436,101 @@ S2.define('select2/dropdown/creator', [], function () {
             this._lastCreatorText = null;
         }.bind(this));
     };
-
-    CreatorButton.prototype.addItems = function(decorated, items) {
+/*
+    CreatorButton.prototype.addItems = function(decorated, items, container) {
         var dataAdapter = this._dataAdapter;
+        var initial = this.$element.children().map(function() {
+            return dataAdapter.item($(this));
+        }).get();
 
-        var options = (items || []).map(function(item) {
-            var $option = dataAdapter.option(dataAdapter._normalizeItem(item));
-            $option[0].selected = true;
-            return $option;
+        container.trigger('results:all', {
+            query: {
+                term: ''
+            },
+            data: {
+                results: mergeSelect2Data(initial, items)
+            }
+        });
+    };
+*/
+    CreatorButton.prototype.allItems = function(decorated) {
+        var dataAdapter = this._dataAdapter;
+        return this.$element.children().map(function () {
+          return dataAdapter.item($(this));
+        }).get();
+    };
+
+    CreatorButton.prototype.addItems = function(decorated, items, container) {
+        var options = [];
+        var dataAdapter = this._dataAdapter;
+        var existingItems = this.allItems();
+
+        // Select first item or the first group item
+        if (items.length) {
+            if (items[0].children) {
+                items[0].children[0].selected = true;
+            } else {
+                items[0].selected = true;
+            }
+        }
+
+        // Populate <select> and Select2 storage with the new items
+        items.forEach(function(item) {
+            var $option;
+
+            if (item.children) {
+                var existingGroup = existingItems.find(function(existing) {
+                    return existing.children && item.text === existing.text;
+                });
+
+                if (existingGroup) {
+                    /* Merge group item data with existing */
+                    item = $.extend(true, {}, existingGroup, item, {
+                        children: existingGroup.children.concat(item.children)
+                    });
+
+                    /* Create a NEW option with a NEW storage (the exising one cannot be updated -_-) */
+                    $option = dataAdapter.option(item);
+
+                    /* Replace <optgroup> element within the DOM.
+                     * We have to do it to make the internal ids match between the DOM and the dropdown
+                     */
+                    $(existingGroup.element).replaceWith($option);
+                } else {
+                    $option = dataAdapter.option(item);
+                }
+
+                $option.append(
+                    item.children.map(function(item) {
+                        return dataAdapter.option(item);
+                    })
+                );
+            } else {
+                var existingItem = existingItems.find(function(existing) {
+                    return item.id === existing.id;
+                });
+
+                if (existingItem) {
+                    $option = dataAdapter.option($.extend(true, {}, existingItem, item));
+                    $(existingItem.element).replaceWith();
+                } else {
+                    $option = dataAdapter.option(item);
+                }
+            }
+
+            options.push($option);
         });
 
+        // Add the new <option>/<optgroup> to the DataAdapter.
         dataAdapter.addOptions(options);
+
+        // Trigger selection change
+        this.$element.trigger('change.select2');
+
+        // Sync the dropdown content with the new <select> options
+        container.trigger('enum:add', {
+            data: items
+        });
     };
 
     CreatorButton.prototype.createButton = function(label) {
@@ -384,6 +553,7 @@ creme.form.Select2 = creme.component.Component.sub({
             multiple: element.is('[multiple]'),
             sortable: element.is('[sortable]'),
             allowClear: element.data('allowClear'),
+            selectionShowGroup: element.data('selectionShowGroup'),
             placeholder: element.data('placeholder'),
             placeholderMultiple: element.data('placeholderMultiple'),
             createURL: element.data('createUrl'),
@@ -401,9 +571,7 @@ creme.form.Select2 = creme.component.Component.sub({
             debug: true,
             theme: 'creme',
             language: this.localisation(),
-            templateSelection: function(data) {
-                return data.text;
-            }
+            templateSelection: selectionRenderer(options)
         };
 
         S2.require([

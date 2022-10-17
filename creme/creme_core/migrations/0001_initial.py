@@ -1526,6 +1526,7 @@ class Migration(migrations.Migration):
                     ('quantity', models.DecimalField(default=Decimal('1.00'), verbose_name='Quantity', max_digits=10, decimal_places=2)),
                     ('unit_price', models.DecimalField(default=Decimal('0'), verbose_name='Unit price', max_digits=10, decimal_places=2)),
                     ('discount', models.DecimalField(default=Decimal('0'), verbose_name='Discount', max_digits=10, decimal_places=2)),
+                    ('vat_value', models.ForeignKey(to='creme_core.Vat', blank=True, null=True, on_delete=models.PROTECT)),
                     (
                         'discount_unit',
                         models.PositiveIntegerField(

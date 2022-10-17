@@ -32,6 +32,13 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
                     '<input type="submit" class="ui-creme-dialog-action"></input>' +
                 '</form>'
             )),
+            'mock/create/group': backend.response(200, (
+                '<form action="mock/create/group">' +
+                    '<input type="text" name="title"></input>' +
+                    '<input type="text" name="group"></input>' +
+                    '<input type="submit" class="ui-creme-dialog-action"></input>' +
+                '</form>'
+            )),
             'mock/forbidden': backend.response(403, 'HTTP - Error 403'),
             'mock/error': backend.response(500, 'HTTP - Error 500')
         });
@@ -41,7 +48,15 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
                 return backend.responseJSON(200, {
                     value: 99,
                     added: [
-                        [99, data.title]
+                        [99, data.title[0]]
+                    ]
+                });
+            },
+            'mock/create/group': function(url, data, options) {
+                return backend.responseJSON(200, {
+                    value: 99,
+                    added: [
+                        {value: 99, label: data.title[0], group: data.group[0]}
                     ]
                 });
             }
@@ -187,6 +202,36 @@ QUnit.test('creme.form.Select2 (single)', function(assert) {
     equal('E', select.next('.select2').find('.select2-selection__rendered').text());
 });
 
+QUnit.parametrize('creme.form.Select2 (single, group)', [
+    [false, 1, 'Item A'],
+    [false, 2, 'Item AB'],
+    [true, 1, 'Item A'],
+    [true, 2, 'Group A − Item AB']
+], function(showGroup, value, expected, assert) {
+    var select = $(
+        '<select>' +
+            '<option value="1">Item A</option>' +
+            '<optgroup label="Group A">' +
+                '<option value="2">Item AB</option>' +
+            '</optgroup>' +
+        '</select>'
+    ).appendTo(this.qunitFixture('field'));
+
+    var select2 = new creme.form.Select2(select, {
+        selectionShowGroup: showGroup
+    });
+
+    deepEqual({
+        multiple: false,
+        selectionShowGroup: showGroup,
+        sortable: false
+    }, select2.options());
+
+    select.val(value).trigger('change');
+
+    equal(expected, select.next('.select2').find('.select2-selection__rendered').text());
+});
+
 QUnit.test('creme.form.Select2 (multiple)', function(assert) {
     var select = this.createSelect([
         {value: 5, label: 'E', selected: true},
@@ -330,6 +375,123 @@ QUnit.test('creme.form.Select2 (create popup, submit)', function(assert) {
     }).get());
 });
 
+QUnit.parametrize('creme.form.Select2 (create popup, submit, group)', [
+    [
+        {title: 'Item C'},
+        [
+            {id: '1', text: 'Item A'},
+            {
+                text: 'Group A',
+                children: [
+                    {id: '2', text: 'Item AB'}
+                ]
+            },
+            {id: '99', text: 'Item C'}
+        ]
+    ],
+    [
+        {title: 'Item D', group: 'Group D'},
+        [
+            {id: '1', text: 'Item A'},
+            {
+                text: 'Group A',
+                children: [
+                    {id: '2', text: 'Item AB'}
+                ]
+            },
+            {
+                text: 'Group D',
+                children: [
+                    {id: '99', text: 'Item D'}
+                ]
+            }
+        ]
+    ], [
+        {title: 'Item AF', group: 'Group A'},
+        [
+            {id: '1', text: 'Item A'},
+            {
+                text: 'Group A',
+                children: [
+                    {id: '2', text: 'Item AB'},
+                    {id: '99', text: 'Item AF'}
+                ]
+            }
+        ]
+    ]
+], function(formData, expected, assert) {
+    var select = $(
+        '<select>' +
+            '<option value="1">Item A</option>' +
+            '<optgroup label="Group A">' +
+                '<option value="2">Item AB</option>' +
+            '</optgroup>' +
+        '</select>'
+    ).appendTo(this.qunitFixture('field'));
+
+    var select2 = new creme.form.Select2(select, {
+        createURL: 'mock/create/group'
+    });
+
+    deepEqual({
+        createURL: 'mock/create/group',
+        multiple: false,
+        sortable: false
+    }, select2.options());
+
+    select.select2('open');
+
+    var term = formData.title;
+
+    $('.select2-search__field').val(term).trigger('input');
+
+    equal(1, $('.select2-results__create-title').size());
+    equal(
+        gettext('Create new item «%s»').format(term),
+        $('.select2-results__create-title').text()
+    );
+
+    this.assertClosedDialog();
+
+    $('.select2-results__create').trigger('click');
+
+    var dialog = this.assertOpenedDialog();
+    deepEqual([['GET', {}]], this.mockBackendUrlCalls('mock/create/group'));
+
+    dialog.find('[name="title"]').val(formData.title);
+    dialog.find('[name="group"]').val(formData.group);
+
+    // Submit the new item
+    this.findDialogButtonsByLabel(gettext('Save'), dialog).trigger('click');
+
+    deepEqual([
+        ['GET', {}],
+        ['POST', {title: [term], group: [formData.group || '']}]
+    ], this.mockBackendUrlCalls('mock/create/group'));
+
+    this.assertClosedDialog();
+
+    // New item is added
+    deepEqual(expected, select.children().map(function() {
+        if ($(this).is('option')) {
+            return {
+                id: $(this).attr('value'),
+                text: $(this).text()
+            };
+        } else {
+            return {
+                text: $(this).attr('label'),
+                children: $(this).find('option').map(function() {
+                    return {
+                        id: $(this).attr('value'),
+                        text: $(this).text()
+                    };
+                }).get()
+            };
+        }
+    }).get());
+});
+
 QUnit.test('creme.form.Select2 (create popup, cancel)', function(assert) {
     var select = this.createSelect([
         {value: 5, label: 'Item E'},
@@ -407,7 +569,7 @@ QUnit.test('creme.form.Select2 (enum)', function(assert) {
 
     deepEqual([['GET', {limit: 51}]], this.mockBackendUrlCalls('mock/enum'));
 
-    /* <select> state is still the same, loaded entries are only in the dropdown */
+    // <select> state is still the same, loaded entries are only in the dropdown
     equal(5, select.val());
     deepEqual([
         {value: '5', label: 'E'},
@@ -536,7 +698,7 @@ QUnit.parametrize('creme.form.Select2 (enum + more)', [
         {value: 4, label: 'd'}
     ];
 
-    /* set custom response */
+    // set custom response
     this.setMockBackendGET({
         'mock/enum': this.backend.responseJSON(200, responseData)
     });
@@ -569,7 +731,7 @@ QUnit.test('creme.form.Select2 (enum + more + reload)', function(assert) {
         {value: 11, label: 'k'}
     ];
 
-    /* set custom response */
+    // set custom response
     this.setMockBackendGET({
         'mock/enum': this.backend.responseJSON(200, responseData)
     });
@@ -591,7 +753,7 @@ QUnit.test('creme.form.Select2 (enum + more + reload)', function(assert) {
 
     $('.select2-dropdown .select2-results__more').trigger('click');
 
-    /* all options are now displayed */
+    // all options are now displayed
     equal(11, $('.select2-dropdown .select2-results__option').length);
     equal(0, $('.select2-dropdown .select2-results__more').length);
 });
@@ -804,7 +966,7 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query)', [false, true], [
     deepEqual([], this.mockBackendUrlCalls(params.url));
     deepEqual([], callback.calls());
 
-    /* ignore events triggered by the adapter */
+    // ignore events triggered by the adapter
     this.withFakeMethod({instance: adapter, method: 'trigger'}, function(faker) {
         adapter.query(params, callback.wrap());
     });
@@ -825,8 +987,8 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
                 {
                     text: 'Group I',
                     children: [
-                        {id: 1, text: 'I.a', disabled: false, selected: false},
-                        {id: 2, text: 'I.b', disabled: false, selected: false}
+                        {id: 1, text: 'I.a', group: 'Group I', disabled: false, selected: false},
+                        {id: 2, text: 'I.b', group: 'Group I', disabled: false, selected: false}
                     ]
                 }
             ]
@@ -851,22 +1013,22 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
                 {
                     text: 'Group I',
                     children: [
-                        {id: 1, text: 'I.a', disabled: false, selected: false},
-                        {id: 2, text: 'I.b', disabled: false, selected: false},
-                        {id: 6, text: 'I.f', disabled: false, selected: false}
+                        {id: 1, text: 'I.a', group: 'Group I', disabled: false, selected: false},
+                        {id: 2, text: 'I.b', group: 'Group I', disabled: false, selected: false},
+                        {id: 6, text: 'I.f', group: 'Group I', disabled: false, selected: false}
                     ]
                 },
                 {
                     text: 'Group II',
                     children: [
-                        {id: 3, text: 'II.c', disabled: false, selected: false},
-                        {id: 4, text: 'II.d', disabled: false, selected: false}
+                        {id: 3, text: 'II.c', group: 'Group II', disabled: false, selected: false},
+                        {id: 4, text: 'II.d', group: 'Group II', disabled: false, selected: false}
                     ]
                 },
                 {
                     text: 'Group III',
                     children: [
-                        {id: 5, text: 'III.e', disabled: false, selected: false}
+                        {id: 5, text: 'III.e', group: 'Group III', disabled: false, selected: false}
                     ]
                 }
             ]
@@ -882,12 +1044,12 @@ QUnit.parametrize('creme.Select2EnumerableAdapter (query + groups)', [
         }
     }));
 
-    /* set custom response */
+    // set custom response
     this.setMockBackendGET({
         'mock/enum/groups': this.backend.responseJSON(200, responseData)
     });
 
-    /* ignore events triggered by the adapter */
+    // ignore events triggered by the adapter
     this.withFakeMethod({instance: adapter, method: 'trigger'}, function(faker) {
         adapter.query({term: '', limit: 6}, callback.wrap());
     });
