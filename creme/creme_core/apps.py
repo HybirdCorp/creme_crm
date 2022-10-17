@@ -28,6 +28,8 @@ from django.contrib.contenttypes.apps import (
 from django.core import checks
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.core.field_tags import FieldTag
+
 from .checks import (  # NB: it registers other checks too
     Tags,
     check_uninstalled_apps,
@@ -641,7 +643,7 @@ class CremeCoreConfig(CremeAppConfig):
     def hook_fk_formfield():
         from django.db.models import ForeignKey
 
-        from creme.creme_config.forms.fields import CreatorModelChoiceField
+        from creme.creme_config.forms import fields as config_fields
 
         from .forms.fields import CreatorEntityField, GenericEntityField
         from .models import CremeEntity
@@ -672,9 +674,18 @@ class CremeCoreConfig(CremeAppConfig):
                     q_filter=limit_choices_to,
                     help_text=self.help_text,
                 )
+            elif self.get_tag(FieldTag.ENUMERABLE):
+                return config_fields.CreatorEnumerableChoiceField(
+                    model=self.model,
+                    field_name=self.name,
+                    required=not self.blank,
+                    label=self.verbose_name,
+                    help_text=self.help_text,
+                    **kwargs
+                )
 
             return original_fk_formfield(
-                self, **{'form_class': CreatorModelChoiceField, **kwargs}
+                self, **{'form_class': config_fields.CreatorModelChoiceField, **kwargs}
             )
 
         ForeignKey.formfield = new_fk_formfield

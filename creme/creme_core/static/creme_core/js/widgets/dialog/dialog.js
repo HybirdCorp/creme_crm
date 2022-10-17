@@ -510,6 +510,11 @@ creme.dialog.Dialog = creme.component.Component.sub({
         return this;
     },
 
+    one: function(event, listener, decorator) {
+        this._events.one(event, listener, decorator);
+        return this;
+    },
+
     on: function(event, listener, decorator) {
         this._events.bind(event, listener, decorator);
         return this;

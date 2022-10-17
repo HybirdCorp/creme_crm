@@ -53,6 +53,22 @@
                     }).slice(0, limit);
 
                     return backend.responseJSON(200, results);
+                },
+                'mock/create/form': function(url, data, options) {
+                    return backend.response(200, $('#mock-create-form').text().template({
+                        action: 'mock/create/form'
+                    }));
+                }
+            };
+
+            backend.POST = {
+                'mock/create/form': function(url, data, options) {
+                    var id = _.uniqueId();
+
+                    return backend.responseJSON(200, {
+                        value: id,
+                        added: [[id, data.title]]
+                    });
                 }
             };
 
@@ -63,7 +79,8 @@
                     element.data('cremeSelect2').destroy();
                 }
 
-                element.data('cremeSelect2', new creme.form.Select2(element, options));
+                var select2 = new creme.form.Select2(element, options);
+                element.data('cremeSelect2', select2);
             }
 
             $('.creme-test-body select').each(function() {
@@ -81,13 +98,27 @@
     </script>
 {% endblock %}
 {% block test_content %}
+    <script type="text/html" id="mock-create-form">
+    <div class="form-container">
+        <form action="${action}" method="POST">
+            <div class="form-block">
+                <div class="form-block-fields">
+                     <label for="id_title">Intitulé <span class="required-mark">*</span></label>
+                        <div class="form-block-field-value">
+                            <input type="text" name="title" maxlength="100" required="" id="id_title">
+                        </div>
+                </div>
+            </div>
+            <input type="submit" value="Enregistrer" class="ui-creme-dialog-action" disabled="disabled">
+        </form>
+    </div>
+    </script>
     <ul>
         <li>
             <h4>Static single select</h4>
             <ul class="ui-layout vbox">
                 <li class="select2-test-item">
-                    <select data-allow-clear="true"
-                            data-placeholder="Choisissez un champ...">
+                    <select data-placeholder="Choisissez un champ...">
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -118,7 +149,6 @@
                 <li class="select2-test-item">
                     <select data-allow-clear="true"
                             data-placeholder="Choisissez un champ...">
-                        <option>&nbsp;</option>
                         <option value="email">Adresse e-mail</option>
                         <option value="description">Description</option>
                         <option value="fax">Fax</option>
@@ -130,6 +160,13 @@
                         <option value="skype">Skype</option>
                     </select>
                     <span>Allow reset choice</span>
+                </li>
+                <li>
+                <li class="select2-test-item">
+                    <select data-create-url="mock/create/form"
+                            data-placeholder="Choisissez un champ...">
+                    </select>
+                    <span>Creator</span>
                 </li>
             </ul>
         </li>
@@ -184,6 +221,17 @@
                         <option value="10">10</option>
                         <option value="10">100</option>
                     </select>
+                </li>
+            </ul>
+            <ul class="ui-layout vbox">
+                <li class="select2-test-item">
+                    <select id="select2-enum"
+                            data-enum-url="mock/enum"
+                            data-enum-limit="5"
+                            data-create-url="mock/create/form"
+                            data-placeholder="Choisissez un champ...">
+                    </select>
+                    <span>Creator</span>
                 </li>
             </ul>
         </li>

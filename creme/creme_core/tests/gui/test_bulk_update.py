@@ -7,9 +7,10 @@ from django.core.exceptions import ValidationError
 # from django.db.models.query_utils import Q
 # from django.forms.models import ModelMultipleChoiceField
 # from django.urls import reverse
+from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
-from creme.creme_config.forms.fields import CreatorModelChoiceField
+from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
 from creme.creme_core.core import entity_cell
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
@@ -1639,7 +1640,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
 
         fields1 = form1.fields
         self.assertCountEqual([field_name], fields1.keys())
-        self.assertIsInstance(fields1[field_name], CreatorModelChoiceField)
+        self.assertIsInstance(fields1[field_name], CreatorEnumerableChoiceField)
         self.assertDictEqual({field_name: civ1.id}, form1.initial)
 
         # POST ---
@@ -1651,6 +1652,7 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         form2.save()
         self.assertEqual(civ2, getattr(self.refresh(contact), field_name))
 
+    @override_settings(FORM_ENUMERABLE_LIMIT=100)
     def test_build_form_class_fk_limit_choices(self):
         "limit_choices_to: callable yielding Q."
         user = self.create_user()
@@ -1671,9 +1673,14 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
         contact = FakeContact.objects.create(first_name='A', last_name='B', user=user)
 
         with self.assertNoException():
-            qs = form_cls(user=user, instance=contact).fields[field_name].queryset
+            form_field = form_cls(user=user, instance=contact).fields[field_name]
+            choices = [(c.value, c.label) for c in form_field.choices]
 
-        self.assertCountEqual(FakeSector.objects.exclude(title='[INVALID]'), qs)
+        expected = [('', form_field.empty_label)] + list(
+            FakeSector.objects.exclude(title='[INVALID]').values_list('pk', 'title')
+        )
+
+        self.assertEqual(expected, choices)
 
     def test_build_form_class_fk_sub_field(self):
         model = FakeContact

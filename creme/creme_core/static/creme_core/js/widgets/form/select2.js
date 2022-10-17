@@ -71,6 +71,13 @@ function djangoLocalisation(options) {
         removeItem: function () {
             return options.removeItemMsg || gettext('Remove item');
         },
+        createItem: function (args) {
+            if (options.createItemMsg) {
+                return options.createItemMsg(args);
+            } else {
+                return gettext('Create new item «%s»').format(args.label);
+            }
+        },
         search: function() {
             return options.searchMsg || gettext('Search');
         }
@@ -280,17 +287,106 @@ S2.define('select2/dropdown/enum', [], function () {
     return EnumMessage;
 });
 
+S2.define('select2/dropdown/creator', [], function () {
+    function CreatorButton(decorated, $element, options, dataAdapter) {
+        decorated.call(this, $element, options, dataAdapter);
+        this.$button = this.createButton();
+        this._dataAdapter = dataAdapter;
+    }
+
+    CreatorButton.prototype.bind = function (decorated, container, $container) {
+        decorated.call(this, container, $container);
+
+        var self = this;
+
+        this.$results.parent().on('click', '.select2-results__create', function(e) {
+            e.stopPropagation();
+
+            var text = self._lastCreatorText;
+            var form = new creme.dialog.FormDialog({
+                url: self.options.get('creatorURL')
+            });
+
+            form.one('frame-update', function(event, frame) {
+                frame.delegate().find('input[type="text"]:first').val(text);
+            });
+
+            form.onFormSuccess(function(event, response, dataType) {
+                var items = ((response.data() || {}).added || []);
+
+                self.addItems(items.map(function(item) {
+                    return {
+                        id: item[0],
+                        text: item[1]
+                    };
+                }));
+            });
+
+            self.trigger('close');
+            form.open();
+        });
+
+        container.on('results:all', function(params) {
+            var term = params.query.term;
+            var texts = params.data.results.map(function(item) {
+                return item.text;
+            });
+
+            if (term && texts.indexOf(term) === -1) {
+                var message = this.options.get('translations').get('createItem');
+
+                this.$button.find('.select2-results__create-title')
+                            .html(message({label: term}));
+
+                this.$results.parent().append(self.$button);
+                this._lastCreatorText = term;
+            } else {
+                this.$button.remove();
+                this._lastCreatorText = null;
+            }
+        }.bind(this));
+
+        container.on('close', function() {
+            this.$button.remove();
+            this._lastCreatorText = null;
+        }.bind(this));
+    };
+
+    CreatorButton.prototype.addItems = function(decorated, items) {
+        var dataAdapter = this._dataAdapter;
+
+        var options = (items || []).map(function(item) {
+            var $option = dataAdapter.option(dataAdapter._normalizeItem(item));
+            $option[0].selected = true;
+            return $option;
+        });
+
+        dataAdapter.addOptions(options);
+    };
+
+    CreatorButton.prototype.createButton = function(label) {
+        return $(
+            '<div class="select2-results__create">' +
+                '<span class="select2-results__create-icon">+</span>' +
+                '<span class="select2-results__create-title"></span>' +
+            '</div>'
+        );
+    };
+
+    return CreatorButton;
+});
 
 creme.form.Select2 = creme.component.Component.sub({
     _init_: function(element, options) {
         Assert.not(element.is('.select2-hidden-accessible'), 'Select2 instance is already active');
 
-        options = this._options = $.extend({
+        options = this._options = $.extend(true, {
             multiple: element.is('[multiple]'),
             sortable: element.is('[sortable]'),
             allowClear: element.data('allowClear'),
             placeholder: element.data('placeholder'),
             placeholderMultiple: element.data('placeholderMultiple'),
+            createURL: element.data('createUrl'),
             enumURL: element.data('enumUrl'),
             enumLimit: element.data('enumLimit'),
             enumDebounce: element.data('enumDebounce'),
@@ -310,19 +406,26 @@ creme.form.Select2 = creme.component.Component.sub({
             }
         };
 
-        if (options.enumURL) {
-            S2.require([
-                'select2/utils',
-                'select2/results',
-                'select2/data/enum',
-                'select2/dropdown/enum',
-                'select2/dropdown/hidePlaceholder'
-            ], function(Utils, ResultsAdapter, EnumAdapter, EnumMessage, HidePlaceholder) {
-                var resultsAdapter = Utils.Decorate(ResultsAdapter, EnumMessage);
+        S2.require([
+            'select2/utils',
+            'select2/results',
+            'select2/data/enum',
+            'select2/dropdown/enum',
+            'select2/dropdown/creator',
+            'select2/dropdown/hidePlaceholder'
+        ], function(Utils, ResultsAdapter, EnumAdapter, EnumMessage, CreatorButton, HidePlaceholder) {
+            var resultsAdapter = ResultsAdapter;
 
-                if (select2Options.placeholder) {
-                    resultsAdapter = Utils.Decorate(resultsAdapter, HidePlaceholder);
-                }
+            if (placeholder) {
+                resultsAdapter = Utils.Decorate(resultsAdapter, HidePlaceholder);
+            }
+
+            if (options.createURL) {
+                resultsAdapter = Utils.Decorate(resultsAdapter, CreatorButton);
+            }
+
+            if (options.enumURL) {
+                resultsAdapter = Utils.Decorate(resultsAdapter, EnumMessage);
 
                 $.extend(select2Options, {
                     'enum': {
@@ -331,15 +434,19 @@ creme.form.Select2 = creme.component.Component.sub({
                         limit: options.enumLimit,
                         cache: options.enumCache
                     },
-                    templateResult: renderSelect2Result,
-                    dataAdapter: EnumAdapter,
-                    resultsAdapter: resultsAdapter
+                    dataAdapter: EnumAdapter
                 });
-            }, undefined, true);
-        }
+            }
 
-        if (select2Options.placeholder && Object.isEmpty(element.find('option[value=""]'))) {
-            element.append($('<option>${placeholder}</option>'.template(select2Options)));
+            $.extend(select2Options, {
+                creatorURL: options.createURL,
+                templateResult: renderSelect2Result,
+                resultsAdapter: resultsAdapter
+            });
+        }, undefined, true);
+
+        if (options.allowClear && Object.isEmpty(element.find('option[value=""]'))) {
+            element.append($('<option value="">${placeholder}</option>'.template({placeholder: placeholder})));
         }
 
         /*
@@ -394,18 +501,25 @@ creme.form.Select2 = creme.component.Component.sub({
             return this;
         }
 
-        var data = creme.model.ChoiceGroupRenderer.parse(this.element);
+        // var data = creme.model.ChoiceGroupRenderer.parse(this.element);
 
         /*
          * The "DataAdapter" is a bit stupid : <optgroup> are duplicated because they don't have any id...
          * So we have to remove them
          */
+        /*
         this.element.find('optgroup').remove();
         this.element.select2({
             data: convertToSelect2Data(data)
         });
+        */
 
-        this.element.trigger('change.select2');
+        /*
+         * Calling $(element).select2({data: ...}) it will create a NEW instance
+         * with default options even if Select2 is already active... Not really what we want.
+         * But the 'change' event seems to do the magic itself in this case.
+        */
+        this.element.trigger('change');
 
         return this;
     },

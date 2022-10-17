@@ -20,6 +20,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 
+from django.db.models.base import Model
 from django.forms import ValidationError, fields
 from django.forms import models as modelforms
 from django.forms.fields import CallableChoiceIterator
@@ -27,6 +28,7 @@ from django.urls import reverse
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from creme.creme_core.forms import enumerable as enum_forms
 from creme.creme_core.forms.widgets import UnorderedMultipleChoiceWidget
 from creme.creme_core.gui import menu
 
@@ -109,6 +111,43 @@ class CreatorModelChoiceField(modelforms.ModelChoiceField,
     def __init__(self, *, queryset, create_action_url='', user=None, **kwargs):
         super().__init__(queryset, **kwargs)
         self.creation_info(create_action_url, user)
+
+
+class CreatorEnumerableChoiceField(enum_forms.EnumerableChoiceField,
+                                   CreatorChoiceMixin):
+    def __init__(self, model: type[Model], field_name: str, *, user=None,
+                 create_action_url='', **kwargs):
+        super().__init__(model, field_name, user=user, **kwargs)
+        self.creation_info(create_action_url, user)
+
+    @property
+    def user(self):
+        return self._enum.user
+
+    @user.setter
+    def user(self, user):
+        self._enum.user = user
+        self._update_creation_info()
+
+    @property
+    def creation_url_n_allowed(self):
+        allowed = False
+        url = self._create_action_url
+        user = self.user
+        model = self._enum.field.related_model
+
+        if user:
+            if url:
+                app_name = model._meta.app_label
+                allowed = user.has_perm_to_admin(app_name)
+            else:
+                url, allowed = config_registry.get_model_creation_info(model, user)
+
+        return url, allowed
+
+    def _update_creation_info(self):
+        url, allowed = self.creation_url_n_allowed
+        self.widget.create_url = url if allowed else None
 
 
 class CreatorModelMultipleChoiceField(modelforms.ModelMultipleChoiceField,
