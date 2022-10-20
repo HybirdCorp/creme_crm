@@ -39,8 +39,9 @@ class SubCategorySubCell(CustomFormExtraSubCell):
         return field
 
     def post_clean_instance(self, *, instance, value, form):
-        instance.category = value.category
-        instance.sub_category = value
+        if value:
+            instance.category = value.category
+            instance.sub_category = value
 
 
 class AddImagesForm(CremeForm):
