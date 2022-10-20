@@ -72,7 +72,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         clean = ActivityTypeField(required=False).clean
         self.assertFieldValidationError(
             ActivityTypeField, 'invalidformat', clean,
-            '{"type":"12", "sub_type":"1"'
+            '{"type":"12", "sub_type":"1"',
         )
 
     def test_clean_invalid_data_type(self):
@@ -123,7 +123,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
 
         self.assertTupleEqual(
             (atype, subtype),
-            field.clean(self._build_value(atype.id, subtype.id))
+            field.clean(self._build_value(atype.id, subtype.id)),
         )
 
     def test_clean02(self):
@@ -134,7 +134,7 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         field.types = ActivityType.objects.filter(pk=atype.id)
         self.assertTupleEqual(
             (atype, subtype),
-            field.clean(self._build_value(atype.id, subtype.id))
+            field.clean(self._build_value(atype.id, subtype.id)),
         )
 
     def test_clean03(self):
@@ -144,9 +144,13 @@ class ActivityTypeFieldTestCase(FieldTestCase):
             types=ActivityType.objects.filter(pk=atype.id),
             required=False,
         )
-        self.assertTupleEqual(
-            (atype, None),
-            field.clean(self._build_value(atype.id))
+        # self.assertTupleEqual(
+        #     (atype, None),
+        #     field.clean(self._build_value(atype.id))
+        # )
+        self.assertFieldValidationError(
+            ActivityTypeField, 'subtyperequired', field.clean,
+            self._build_value(atype.id),
         )
 
     def test_clean04(self):
@@ -159,9 +163,13 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         field = ActivityTypeField(
             types=ActivityType.objects.filter(pk__in=[self.atype.id, atype2.id]),
         )
-        self.assertTupleEqual(
-            (atype2, None),
-            field.clean(self._build_value(atype2.id))
+        # self.assertTupleEqual(
+        #     (atype2, None),
+        #     field.clean(self._build_value(atype2.id))
+        # )
+        self.assertFieldValidationError(
+            ActivityTypeField, 'subtyperequired', field.clean,
+            self._build_value(atype2.id),
         )
 
 

@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
+    ACTIVITYSUBTYPE_MEETING_OTHER,
     ACTIVITYTYPE_MEETING,
     REL_SUB_ACTIVITY_SUBJECT,
 )
@@ -1150,7 +1151,9 @@ class ActTestCase(CommercialBaseTestCase):
 
         create_dt = self.create_datetime
         meeting = Activity.objects.create(
-            user=user, title='Meeting #01', type_id=ACTIVITYTYPE_MEETING,
+            user=user, title='Meeting #01',
+            type_id=ACTIVITYTYPE_MEETING,
+            sub_type_id=ACTIVITYSUBTYPE_MEETING_OTHER,
             start=create_dt(year=2011, month=5, day=20, hour=14, minute=0),
             end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
         )

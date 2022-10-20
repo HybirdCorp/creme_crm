@@ -316,7 +316,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_act = partial(
             Activity.objects.create, user=user,
-            type_id=constants.ACTIVITYTYPE_TASK, floating_type=constants.FLOATING,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            floating_type=constants.FLOATING,
         )
         act1 = create_act(title='Act#1')
         act2 = create_act(
@@ -374,7 +377,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         def create_act(i):
             act = Activity.objects.create(
                 user=user, title=f'Floating Act#{i}',
-                type_id=constants.ACTIVITYTYPE_TASK,
+                # type_id=constants.ACTIVITYTYPE_TASK,
+                type_id=constants.ACTIVITYTYPE_MEETING,
+                sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 floating_type=constants.FLOATING,
             )
             Relation.objects.create(
@@ -538,7 +543,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         act = Activity.objects.create(
-            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
         act.calendars.add(cal)
 
@@ -676,7 +684,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
         act = Activity.objects.create(
-            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
         )
         act.calendars.add(default_calendar)
         self.assertListEqual([default_calendar], [*act.calendars.all()])
@@ -712,7 +723,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal2 = create_cal(name='Cal #2')
 
         act = Activity.objects.create(
-            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
         )
         act.calendars.set([default_calendar, cal1])
 
@@ -742,7 +756,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
 
         act = Activity.objects.create(
-            user=self.other_user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=self.other_user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
         )
         self.assertFalse(user.has_perm_to_change(act))
         self.assertFalse(user.has_perm_to_link(act))
@@ -764,7 +781,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         )
 
         act = Activity.objects.create(
-            user=self.other_user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=self.other_user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
         act.calendars.add(Calendar.objects.get_default_calendar(user))
         self.assertGET403(self.build_link_url(act.id))
@@ -814,7 +834,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         activity = Activity.objects.create(
             title='Act#1',
             user=user,
-            type_id=constants.ACTIVITYTYPE_TASK,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             start=start,
             end=end,
             is_all_day=is_all_day,
@@ -841,7 +863,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':    f'#{calendar.color}',
                 'url':      reverse('activities__view_activity_popup', args=(activity.id,)),
                 'editable': True,
-                'type':     _('Task'),
+                # 'type':     _('Task'),
+                'type':     _('Phone call'),
             }],
             response.json()
         )
@@ -859,7 +882,9 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create = partial(
             Activity.objects.create,
-            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+            user=user,
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
         )
         act0 = create(title='Act#0', start=start, end=start)
         act1 = create(
@@ -875,7 +900,8 @@ class CalendarTestCase(_ActivitiesTestCase):
         act3 = create(
             title='Act#3',
             start=start + timedelta(days=2), end=end + timedelta(days=1),
-            is_all_day=True, type_id=constants.ACTIVITYTYPE_MEETING,
+            is_all_day=True,
+            type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
         )
         # End OK
@@ -939,7 +965,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act1),
                 'editable':   True,
-                'type':       _('Task'),
+                # 'type':       _('Task'),
+                'type':       _('Phone call'),
             },
             data[1],
         )
@@ -954,7 +981,8 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act0),
                 'editable':   True,
-                'type':       _('Task'),
+                # 'type':       _('Task'),
+                'type':       _('Phone call'),
             },
             data[2],
         )
@@ -979,7 +1007,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create = partial(
             Activity.objects.create,
-            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+            user=user,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
         )
         act1 = create(
             title='Act#1', start=start + timedelta(days=1), end=start + timedelta(days=2),
@@ -1003,7 +1034,9 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create_ind = partial(
             Activity.objects.create,
-            user=user, type_id=constants.ACTIVITYTYPE_INDISPO,
+            user=user,
+            type_id=constants.ACTIVITYTYPE_INDISPO,
+            sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
         )
         act6 = create_ind(
             title='Ind#1', start=start + timedelta(days=5), end=start + timedelta(days=6),
@@ -1053,7 +1086,10 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         create = partial(
             Activity.objects.create,
-            user=user, type_id=constants.ACTIVITYTYPE_TASK,
+            user=user,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
         act1 = create(
             title='Act#1', start=start + timedelta(days=1),  end=start + timedelta(days=2),
@@ -1175,7 +1211,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(
-            user=user, type_id=constants.ACTIVITYTYPE_TASK, title='Act#1',
+            user=user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             start=start, end=end, floating_type=constants.FLOATING,
         )
 
@@ -1207,8 +1246,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         contact = user.linked_contact
 
         create_act = partial(
-            Activity.objects.create, user=user,
-            type_id=constants.ACTIVITYTYPE_TASK, busy=True,
+            Activity.objects.create, user=user, busy=True,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
         create_dt = self.create_datetime
         act1 = create_act(
@@ -1246,8 +1287,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         start = self.create_datetime(year=2013, month=4, day=1, hour=9)
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(
-            user=user, type_id=constants.ACTIVITYTYPE_TASK,
-            title='Act#1', start=start, end=end,
+            user=user, title='Act#1', start=start, end=end,
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
 
         url = self.UPDATE_URL
@@ -1376,7 +1419,10 @@ class CalendarTestCase(_ActivitiesTestCase):
         Calendar.objects.get_default_calendar(self.other_user)  # Not in choices
 
         act = Activity.objects.create(
-            user=user, title='Act#1', type_id=constants.ACTIVITYTYPE_TASK,
+            user=user, title='Act#1',
+            # type_id=constants.ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
         act.calendars.add(cal3)
 

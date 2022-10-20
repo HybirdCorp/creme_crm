@@ -292,6 +292,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         meeting = Activity.objects.create(
             user=user, title=title, description=description,
             type_id=ACTIVITYTYPE_MEETING,
+            sub_type_id=ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             start=create_dt(year=2011, month=5, day=18, hour=14, minute=0),
             end=create_dt(year=2011,   month=6, day=1,  hour=15, minute=0),
         )

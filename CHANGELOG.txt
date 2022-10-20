@@ -36,6 +36,8 @@
               Relative trigger dates are automatically updated when the date field changes.
             - The owner of Alerts & ToDos can now be dynamic, to always send emails to the entity's owner.
         * Activities :
+            - The sub-type of Activities must now be filled.
+              Notice that a migration creates sub-types for types which are used in Activities with NULL sub-type.
             - The relationships type "is subject of the activity" is now internal.
             - In creation form, when an Alert with a trigger date relative to the Activity's start is created,
               the new feature <Alert with relative trigger date> is used.
@@ -349,6 +351,7 @@
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Activities :
                 - The class 'forms.activity_type.BulkEditTypeForm' has been removed.
+                - The field 'models.AbstractActivity.sub_type' is not <null=True, blank=True> anymore (the attribute "on_delete" changed too).
                 - The URL named "activities__create_indispo" has been renamed "activities__create_unavailability" ;
                   the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").
             * Products :

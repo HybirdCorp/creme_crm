@@ -830,6 +830,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = Activity.objects.create(
             user=user,
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -853,7 +854,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
     @skipIfCustomActivity
     def test_neglected_brick03(self):
-        "Past activity => orga is still neglected"
+        "Past activity => organisation is still neglected."
         user = self.user
         mng_orga = Organisation.objects.all()[0]
         user_contact = user.linked_contact
@@ -863,7 +864,9 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         yesterday = now() - timedelta(days=1)  # So in the past
         meeting = Activity.objects.create(
-            user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01', start=yesterday,
             end=yesterday + timedelta(hours=2),
         )
@@ -887,6 +890,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = Activity.objects.create(
             user=user,
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -930,11 +934,13 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = create_activity(
             title='meet01',
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             end=tomorrow + timedelta(hours=2),
         )
         phonecall = create_activity(
             title='call01',
             type_id=act_constants.ACTIVITYTYPE_PHONECALL,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             end=tomorrow + timedelta(minutes=15),
         )
 
@@ -983,7 +989,9 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
 
         tomorrow = now() + timedelta(days=1)  # So in the future
         meeting = Activity.objects.create(
-            user=user, type_id=act_constants.ACTIVITYTYPE_MEETING,
+            user=user,
+            type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_MEETING,
             title='meet01', start=tomorrow,
             end=tomorrow + timedelta(hours=2),
         )
@@ -1051,6 +1059,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = Activity.objects.create(
             user=user,
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01',
             start=one_month_ago,
             end=one_month_ago + timedelta(hours=2),
@@ -1079,6 +1088,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = Activity.objects.create(
             user=user,
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01',
             start=one_week_ago,
             end=one_week_ago + timedelta(hours=2),
@@ -1104,6 +1114,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
         meeting = Activity.objects.create(
             user=user,
             type_id=act_constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=act_constants.ACTIVITYSUBTYPE_MEETING_OTHER,
             title='meet01',
             start=one_month_ago,
             end=one_month_ago + timedelta(hours=2),

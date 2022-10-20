@@ -38,6 +38,7 @@ from ..bricks import (
 )
 from ..constants import (
     ACTIVITYSUBTYPE_MEETING_NETWORK,
+    ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
     ACTIVITYTYPE_MEETING,
     ACTIVITYTYPE_PHONECALL,
     FLOATING,
@@ -719,9 +720,10 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         dt_now = now()
         phone_call = Activity.objects.create(
-            title='a random activity',
+            title='A random activity',
             start=dt_now, end=dt_now,
-            user=user, type_id=ACTIVITYTYPE_PHONECALL,
+            user=user,
+            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
 
         self.assertPOST200(
@@ -792,7 +794,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         phone_call = Activity.objects.create(
             title='A random activity',
-            user=user, type_id=ACTIVITYTYPE_PHONECALL,
+            user=user,
+            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
         self.assertTrue(user.has_perm_to_unlink(phone_call))
 
@@ -828,7 +831,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         phone_call = Activity.objects.create(
             title='A random activity',
-            user=self.other_user, type_id=ACTIVITYTYPE_PHONECALL,
+            user=self.other_user,
+            type_id=ACTIVITYTYPE_PHONECALL, sub_type_id=ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
         self.assertFalse(user.has_perm_to_unlink(phone_call))
 

@@ -17,7 +17,7 @@ from creme.activities.constants import (
     NARROW,
     REL_SUB_PART_2_ACTIVITY,
 )
-from creme.activities.models import Activity, Calendar
+from creme.activities.models import Activity, ActivitySubType, Calendar
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
@@ -100,8 +100,13 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         return reverse('projects__edit_activity', args=(activity.id,))
 
     @staticmethod
-    def _build_type_value(atype=ACTIVITYTYPE_TASK, sub_type=None):
-        return json_dump({'type': atype, 'sub_type': sub_type})
+    # def _build_type_value(atype=ACTIVITYTYPE_TASK, sub_type=None):
+    def _build_type_value(type_id=ACTIVITYTYPE_TASK, sub_type_id=None):
+        if not sub_type_id:
+            sub_type_id = ActivitySubType.objects.filter(type=type_id).first().id
+
+        # return json_dump({'type': atype, 'sub_type': sub_type})
+        return json_dump({'type': type_id, 'sub_type': sub_type_id})
 
     def create_resource(self, task, contact, hourly_cost=100, error=False):
         response = self.client.post(
@@ -124,7 +129,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                         duration='8', atype=None, busy='', errors=False,
                         ):
         response = self.client.post(
-            self._build_add_activity_url(resource.task), follow=True,
+            self._build_add_activity_url(resource.task),
+            follow=True,
             data={
                 'resource':      resource.linked_contact_id,
                 # 'start':         start,
@@ -1636,9 +1642,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.create_activity(resource, '2015-05-22', '2015-05-23')
         self.create_activity(resource, start=date(2015, 5, 20), end=date(2015, 5, 21))
         self.create_activity(resource, start=date(2015, 5, 22), end=date(2015, 5, 23))
-        self.assertSetEqual(
-            {'Eva00 - head - 001', 'Eva00 - head - 002'},
-            {a.title for a in task.related_activities},
+        self.assertCountEqual(
+            ['Eva00 - head - 001', 'Eva00 - head - 002'],
+            [a.title for a in task.related_activities],
         )
 
     @skipIfCustomActivity
@@ -1754,9 +1760,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_edit_activity_error(self):
         "Activity not related to a project task."
         user = self.login()
-
         activity = Activity.objects.create(
-            user=user, title='My task', type_id=ACTIVITYTYPE_TASK,
+            user=user, title='My task',
+            type_id=ACTIVITYTYPE_TASK,
+            sub_type=ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first(),
         )
         self.assertGET409(self._build_edit_activity_url(activity))
 
@@ -1767,6 +1774,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         activity = Activity.objects.create(
             user=user, title='My task', type_id=ACTIVITYTYPE_TASK,
+            sub_type=ActivitySubType.objects.filter(type_id=ACTIVITYTYPE_TASK).first(),
         )
         url = self.DELETE_ACTIVITY_URL
         data = {'id': activity.id}

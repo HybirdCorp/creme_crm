@@ -4,24 +4,23 @@ from unittest import skipIf
 
 from django.urls import reverse
 
-from creme.activities.constants import (
+from creme import persons
+from creme.activities.constants import (  # ACTIVITYTYPE_TASK
     ACTIVITYSUBTYPE_MEETING_NETWORK,
     ACTIVITYTYPE_MEETING,
-    ACTIVITYTYPE_TASK,
 )
 from creme.activities.models import Calendar
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.base import CremeTestCase
-from creme.persons import get_contact_model, get_organisation_model
 
 from .. import activity_model_is_custom, get_activity_model
 
 skip_activities_tests = activity_model_is_custom()
 Activity = get_activity_model()
 
-Contact = get_contact_model()
-Organisation = get_organisation_model()
+Contact = persons.get_contact_model()
+Organisation = persons.get_organisation_model()
 
 
 def skipIfCustomActivity(test_func):
@@ -76,7 +75,9 @@ class _ActivitiesTestCase(CremeTestCase):
         )
 
     def _create_activity_by_view(self, title='My task',
-                                 atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
+                                 # atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
+                                 atype_id=ACTIVITYTYPE_MEETING,
+                                 subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
                                  **kwargs):
         user = self.login()
 

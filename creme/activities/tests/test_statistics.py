@@ -9,11 +9,7 @@ from django.utils.translation import ngettext
 from creme.activities.statistics import AveragePerMonthStatistics
 from creme.creme_core.tests.base import CremeTestCase
 
-from ..constants import (
-    ACTIVITYTYPE_MEETING,
-    ACTIVITYTYPE_PHONECALL,
-    ACTIVITYTYPE_TASK,
-)
+from .. import constants
 from .base import Activity, skipIfCustomActivity
 
 
@@ -35,7 +31,8 @@ class StatisticsTestCase(CremeTestCase):
         create_activity = partial(
             Activity.objects.create,
             user=self.create_user(),
-            type_id=ACTIVITYTYPE_MEETING,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
 
         for i in range(1, 13):
@@ -71,7 +68,8 @@ class StatisticsTestCase(CremeTestCase):
         create_activity = partial(
             Activity.objects.create,
             user=self.create_user(),
-            type_id=ACTIVITYTYPE_MEETING,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
 
         for i in range(1, 13):
@@ -91,7 +89,8 @@ class StatisticsTestCase(CremeTestCase):
             create_activity(
                 title=f'Task #{i}',
                 start=now_value - relativedelta(months=i),
-                type_id=ACTIVITYTYPE_TASK,
+                type_id=constants.ACTIVITYTYPE_TASK,
+                sub_type_id='activities-activitysubtype_task',
             )
 
         self.assertListEqual(
@@ -113,21 +112,26 @@ class StatisticsTestCase(CremeTestCase):
     def test_average_per_month04(self):
         "0.5 phone call per month."
         now_value = now()
-        create_activity = partial(
-            Activity.objects.create,
-            user=self.create_user(),
-            type_id=ACTIVITYTYPE_PHONECALL,
-        )
+        create_activity = partial(Activity.objects.create, user=self.create_user())
 
         create_activity(
             title='Task', start=now_value - relativedelta(months=1),
-            type_id=ACTIVITYTYPE_TASK,
+            type_id=constants.ACTIVITYTYPE_TASK,
+            sub_type_id='activities-activitysubtype_task',
         )  # Should not be counted
 
+        sub_type_ids = [
+            constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+            constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+            constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
+            constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
+        ]
         for i in range(1, 7):
             create_activity(
                 title=f'Phone call#{i}',
                 start=now_value - relativedelta(months=i),
+                type_id=constants.ACTIVITYTYPE_PHONECALL,
+                sub_type_id=sub_type_ids[i % len(sub_type_ids)],
             )
 
         self.assertListEqual(

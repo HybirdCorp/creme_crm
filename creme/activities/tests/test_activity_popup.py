@@ -10,7 +10,7 @@ from parameterized import parameterized
 from creme.creme_core.tests.base import CremeTestCase  # skipIfNotInstalled
 
 from .. import constants
-from ..models import ActivityType, Calendar
+from ..models import ActivitySubType, ActivityType, Calendar
 from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
@@ -232,6 +232,12 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             default_hour_duration='00:15:00',
             is_custom=True,
         )
+        custom_sub_type = ActivitySubType.objects.create(
+            id='activities-test_createview_popup3',
+            name='Kick session',
+            type=custom_type,
+            is_custom=True,
+        )
 
         response = self.assertPOST200(
             self.ACTIVITY_POPUP_CREATION_URL,
@@ -242,7 +248,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(custom_type.id),
+                    # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(custom_type.id),
+                    self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
+                        custom_type.id, custom_sub_type.id,
+                    ),
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -258,7 +267,8 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=9, minute=30), activity.start)
         self.assertEqual(create_dt(hour=9, minute=45), activity.end)
         self.assertEqual(custom_type.id, activity.type_id)
-        self.assertIsNone(activity.sub_type_id)
+        # self.assertIsNone(activity.sub_type_id)
+        self.assertEqual(custom_sub_type.id, activity.sub_type_id)
 
     @parameterized.expand([
         (CremeTestCase.create_datetime(2013, 10, 27),),  # Timezone DST change for Europe/Paris
