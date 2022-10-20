@@ -74,7 +74,8 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
 class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
     sub_type_id = 'activities_unavailability_subtype'
     verbose_name = _('Unavailability type')
-    is_required = False
+    # is_required = False
+    is_required = True
 
     def formfield(self, instance, user, **kwargs):
         return forms.ModelChoiceField(

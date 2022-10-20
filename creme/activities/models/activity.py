@@ -95,7 +95,8 @@ class AbstractActivity(CremeEntity):
     )
     sub_type = models.ForeignKey(
         other_models.ActivitySubType, verbose_name=_('Activity sub-type'),
-        blank=True, null=True, on_delete=models.SET_NULL,
+        # blank=True, null=True, on_delete=models.SET_NULL,
+        on_delete=models.PROTECT,
     )
 
     status = models.ForeignKey(

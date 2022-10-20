@@ -8,7 +8,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.activities import get_activity_model
-from creme.activities.models import ActivityType
+from creme.activities.models import ActivitySubType, ActivityType
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms.fields import GenericEntityField
@@ -278,11 +278,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
 
     def _create_activity(self):
         atype = ActivityType.objects.create(
-            pk='polls-test-actype', name="Queen's blade",
+            pk='polls-test-type', name="Queen's blade",
             default_day_duration=7, default_hour_duration="00:00:00",
             is_custom=True,
         )
-        return Activity.objects.create(user=self.user, type=atype)
+        sub_type = ActivitySubType.objects.create(
+            pk='polls-test-sub_type', name='Pool',
+            type=atype, is_custom=True,
+        )
+
+        return Activity.objects.create(user=self.user, type=atype, sub_type=sub_type)
 
     def _edit_answer(self, preply, rline, answer, is_complete):
         self.assertPOST200(

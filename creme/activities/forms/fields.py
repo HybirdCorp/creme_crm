@@ -106,22 +106,29 @@ class ActivityTypeField(core_fields.JSONField):
                 code='typenotallowed',
             ) from e
 
-        related_types = ActivitySubType.objects.filter(type=atype)
-        subtype = None
-
-        if subtype_pk:
-            try:
-                subtype = related_types.get(pk=subtype_pk)
-            except ActivitySubType.DoesNotExist as e:
-                raise ValidationError(
-                    self.error_messages['subtyperequired'],
-                    code='subtyperequired',
-                ) from e
-        elif self.required and related_types.exists():
+        # related_types = ActivitySubType.objects.filter(type=atype)
+        # subtype = None
+        #
+        # if subtype_pk:
+        #     try:
+        #         subtype = related_types.get(pk=subtype_pk)
+        #     except ActivitySubType.DoesNotExist as e:
+        #         raise ValidationError(
+        #             self.error_messages['subtyperequired'],
+        #             code='subtyperequired',
+        #         ) from e
+        # elif self.required and related_types.exists():
+        #     raise ValidationError(
+        #         self.error_messages['subtyperequired'],
+        #         code='subtyperequired',
+        #     )
+        try:
+            subtype = ActivitySubType.objects.filter(type=atype).get(pk=subtype_pk)
+        except ActivitySubType.DoesNotExist as e:
             raise ValidationError(
                 self.error_messages['subtyperequired'],
                 code='subtyperequired',
-            )
+            ) from e
 
         return atype, subtype
 

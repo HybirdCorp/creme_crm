@@ -9,13 +9,13 @@ REL_OBJ_ACTIVITY_SUBJECT = 'activities-object_activity_subject'
 REL_SUB_PART_2_ACTIVITY = 'activities-subject_participates_to_activity'
 REL_OBJ_PART_2_ACTIVITY = 'activities-object_participates_to_activity'
 
+ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'  # TODO: rename
 ACTIVITYTYPE_TASK      = 'activities-activitytype_task'
 ACTIVITYTYPE_MEETING   = 'activities-activitytype_meeting'
 ACTIVITYTYPE_PHONECALL = 'activities-activitytype_phonecall'
 ACTIVITYTYPE_GATHERING = 'activities-activitytype_gathering'
 ACTIVITYTYPE_SHOW      = 'activities-activitytype_show'
 ACTIVITYTYPE_DEMO      = 'activities-activitytype_demo'
-ACTIVITYTYPE_INDISPO   = 'activities-activitytype_indispo'  # TODO: rename
 
 CREATION_LABELS = {
     ACTIVITYTYPE_TASK:       _('Create a task'),
@@ -32,16 +32,18 @@ ICONS = {
     ACTIVITYTYPE_TASK:      ('task',    _('Task')),
 }
 
-ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
-ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'
-ACTIVITYSUBTYPE_PHONECALL_CONFERENCE = 'activities-activitysubtype_conference'
-ACTIVITYSUBTYPE_PHONECALL_FAILED     = 'activities-activitysubtype_failed'
+ACTIVITYSUBTYPE_UNAVAILABILITY = 'activities-activitysubtype_unavailability'
 
 ACTIVITYSUBTYPE_MEETING_MEETING       = 'activities-activitysubtype_meeting'
 ACTIVITYSUBTYPE_MEETING_QUALIFICATION = 'activities-activitysubtype_qualification'
 ACTIVITYSUBTYPE_MEETING_REVIVAL       = 'activities-activitysubtype_revival'
 ACTIVITYSUBTYPE_MEETING_NETWORK       = 'activities-activitysubtype_network'
 ACTIVITYSUBTYPE_MEETING_OTHER         = 'activities-activitysubtype_other'
+
+ACTIVITYSUBTYPE_PHONECALL_INCOMING   = 'activities-activitysubtype_incoming'
+ACTIVITYSUBTYPE_PHONECALL_OUTGOING   = 'activities-activitysubtype_outgoing'
+ACTIVITYSUBTYPE_PHONECALL_CONFERENCE = 'activities-activitysubtype_conference'
+ACTIVITYSUBTYPE_PHONECALL_FAILED     = 'activities-activitysubtype_failed'
 
 STATUS_PLANNED     = 1
 STATUS_IN_PROGRESS = 2

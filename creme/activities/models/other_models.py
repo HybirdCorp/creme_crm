@@ -46,6 +46,7 @@ class ActivityType(CremeModel):
 
     # Used by creme_config
     is_custom = models.BooleanField(default=True, editable=False).set_tags(viewable=False)
+
     extra_data = models.JSONField(editable=False, default=dict).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-type', 'Create a type')

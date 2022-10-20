@@ -9,7 +9,7 @@ from creme.creme_core.tests.forms.base import FieldTestCase
 
 from .. import constants
 from ..forms.bulk_update import ActivityRangeField
-from ..models import ActivityType
+from ..models import ActivitySubType, ActivityType
 from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
 
 
@@ -329,11 +329,16 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             default_day_duration=2,
             default_hour_duration='00:00:00',
         )
+        sub_type = ActivitySubType.objects.create(
+            id='test-activity_contest',
+            name='Karate contest',
+            type=atype,
+        )
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
             user=user, title='My Activity',
-            type=atype,
+            type=atype, sub_type=sub_type,
             start=create_dt(year=2022, month=10, day=19, hour=8),
             end=create_dt(year=2022,   month=10, day=20, hour=20),
         )
@@ -372,11 +377,16 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             default_day_duration=2,
             default_hour_duration='05:00:00',
         )
+        sub_type = ActivitySubType.objects.create(
+            id='test-activity_contest',
+            name='Karate contest',
+            type=atype,
+        )
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
             user=user, title='My Activity',
-            type=atype,
+            type=atype, sub_type=sub_type,
             start=create_dt(year=2022, month=10, day=19, hour=8),
             end=create_dt(year=2022,   month=10, day=20, hour=20),
         )
@@ -413,11 +423,16 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             default_day_duration=2,
             default_hour_duration='00:00:00',
         )
+        sub_type = ActivitySubType.objects.create(
+            id='test-activity_contest',
+            name='Karate contest',
+            type=atype,
+        )
 
         create_dt = self.create_datetime
         activity = Activity.objects.create(
             user=user, title='My Activity',
-            type=atype,  # sub_type_id=None,
+            type=atype,  sub_type=sub_type,
             start=create_dt(year=2022, month=10, day=19, hour=8),
             end=create_dt(year=2022,   month=10, day=20, hour=20),
         )

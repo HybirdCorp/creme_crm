@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-23 17:57+0200\n"
+"POT-Creation-Date: 2022-10-24 12:24+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -298,6 +298,15 @@ msgstr ""
 msgid "Duration"
 msgstr "Durée"
 
+#, python-format
+msgid "This entity is already a subject: %(duplicates)s"
+msgid_plural "These entities are already subjects: %(duplicates)s"
+msgstr[0] "Cette fiche est déjà un sujet: %(duplicates)s"
+msgstr[1] "Ces fiches sont déjà des sujets: %(duplicates)s"
+
+msgid "When"
+msgstr "Quand"
+
 msgid "The type of an unavailability cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
 
@@ -314,12 +323,6 @@ msgstr[0] ""
 msgstr[1] ""
 "Attention ! Le type de {count} activités ne peut pas être modifié parce que "
 "ce sont des indisponibilités."
-
-#, python-format
-msgid "This entity is already a subject: %(duplicates)s"
-msgid_plural "These entities are already subjects: %(duplicates)s"
-msgstr[0] "Cette fiche est déjà un sujet: %(duplicates)s"
-msgstr[1] "Ces fiches sont déjà des sujets: %(duplicates)s"
 
 msgid "User"
 msgstr "Utilisateur"
@@ -394,6 +397,15 @@ msgstr "Appels téléphoniques"
 
 msgid "Meetings"
 msgstr "Rendez-vous"
+
+msgid "Gathering"
+msgstr "Réunion"
+
+msgid "Show"
+msgstr "Salon"
+
+msgid "Demonstration"
+msgstr "Démonstration"
 
 msgid "Title"
 msgstr "Titre"
@@ -556,15 +568,6 @@ msgctxt "activities-status"
 msgid "Cancelled"
 msgstr "Annulée"
 
-msgid "Gathering"
-msgstr "Réunion"
-
-msgid "Show"
-msgstr "Salon"
-
-msgid "Demonstration"
-msgstr "Démonstration"
-
 msgid "Qualification"
 msgstr "Qualification"
 
@@ -590,6 +593,38 @@ msgstr "Conférence"
 msgid "Outgoing - Failed"
 msgstr "Sortant - Échoué"
 
+msgid "Holidays"
+msgstr "Vacances"
+
+msgid "Ill"
+msgstr "Malade"
+
+msgctxt "activities-gathering"
+msgid "Team"
+msgstr "equipe"
+
+msgctxt "activities-gathering"
+msgid "Internal"
+msgstr "Interne"
+
+msgid "On the site"
+msgstr "Sur site"
+
+msgid "Remote"
+msgstr "À distance"
+
+msgid "Outside"
+msgstr "À l'extérieur"
+
+msgid "Exhibitor"
+msgstr "Exposant"
+
+msgid "Visitor"
+msgstr "Visiteur"
+
+msgid "Videoconference"
+msgstr "En visioconférence"
+
 msgid "Activity view"
 msgstr "Vue d'Activité"
 
@@ -599,12 +634,11 @@ msgstr "Tâches"
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
 
-msgid "When"
-msgstr "Quand"
-
+# Already in creme_core
 msgid "Custom fields"
 msgstr ""
 
+# Already in creme_core
 msgid "Properties"
 msgstr ""
 
@@ -612,6 +646,7 @@ msgstr ""
 msgid "Relationships"
 msgstr ""
 
+# Already in creme_core
 msgid "General information"
 msgstr ""
 
