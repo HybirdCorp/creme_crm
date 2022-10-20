@@ -1,5 +1,11 @@
 == Version 2.2.16 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps:
+        * Products :
+            - A crash in the creation forms has been fixed (Category without SubCategory).
+
 
 == Version 2.2.15 ==
 
