@@ -89,7 +89,8 @@ class EnumerableChoiceSet:
             self.enumerator = registry.enumerator_by_field(field)
         except ValueError:
             logger.warning(
-                'Unable to find an enumerator for the field "%s"', field
+                'Unable to find an enumerator for the field "%s" '
+                "(ignore this if it's at startup)", field
             )
             # TODO : field.related_model.all() ?
             self.enumerator = enumerable.EmptyEnumerator(field)

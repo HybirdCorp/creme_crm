@@ -100,6 +100,15 @@ class CommercialConfig(CremeAppConfig):
             custom_forms.STRATEGY_EDITION_CFORM,
         )
 
+    def register_enumerable(self, enumerable_registry):
+        from creme.creme_core.core import enumerable
+
+        from . import models
+
+        enumerable_registry.register_related_model(
+            models.MarketSegment, enumerable.QSEnumerator
+        )
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(
             self.Act, self.Pattern, self.Strategy,

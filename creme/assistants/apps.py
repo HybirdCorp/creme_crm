@@ -44,6 +44,15 @@ class AssistantsConfig(CremeAppConfig):
             bricks.UserMessagesBrick,
         )
 
+    def register_enumerable(self, enumerable_registry):
+        from creme.creme_core.core import enumerable
+
+        from . import models
+
+        enumerable_registry.register_field(
+            models.UserMessage, 'priority', enumerable.QSEnumerator
+        )
+
     def register_fields_config(self, fields_config_registry):
         from . import models
 
