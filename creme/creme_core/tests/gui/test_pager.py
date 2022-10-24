@@ -219,3 +219,60 @@ class PagerContextTestCase(CremeTestCase):
             PagerLink(100, help=_('To last page')),
             PagerLink(51, label=_('Next page'), group='next')
         ], pager.links)
+
+    def test_middlepage_at_show_all_limit(self):
+        """Non-regression test for pager bug around the old size limits.
+        A single page in the high overflow shouldn't show the chooser: when there are 5 pages, on
+        page 3 there shouldn't be "4, ..., 5" in the pager.
+        """
+        page = Paginator([*range(5)], 1).page(3)
+        pager = PagerContext(page)
+
+        self.assertEqual(5, pager.count)
+
+        self.assertEqual(1, pager.first)
+        self.assertEqual(5, pager.last)
+
+        self.assertEqual(2, pager.previous)
+        self.assertEqual(3, pager.current)
+        self.assertEqual(4, pager.next)
+
+        # <previous|1|2|3|4|5|next>
+        self.assertPagerLinks([
+            PagerLink(2, label=_('Previous page'), group='previous'),
+            PagerLink(1, help=_('To first page')),
+            PagerLink(2, label='2'),
+            PagerLink(3, label='3', is_current=True),
+            PagerLink(4, label='4'),
+            PagerLink(5, label='5', help=_('To last page')),
+            PagerLink(4, label=_('Next page'), group='next')
+        ], pager.links)
+
+    def test_penultimate_page_at_show_all_limit(self):
+        """Non-regression test for pager bug around the old size limits.
+        In this situation, in addition to showing the chooser like in
+        `test_middlepage_at_show_all_limit`, the next and last pages are also duplicated: when
+        there are 5 pages, on page 4 there shouldn't be "4, 5, ..., 5" in the pager.
+        """
+        page = Paginator([*range(5)], 1).page(4)
+        pager = PagerContext(page)
+
+        self.assertEqual(5, pager.count)
+
+        self.assertEqual(1, pager.first)
+        self.assertEqual(5, pager.last)
+
+        self.assertEqual(3, pager.previous)
+        self.assertEqual(4, pager.current)
+        self.assertEqual(5, pager.next)
+
+        # <previous|1|2|3|4|5|next>
+        self.assertPagerLinks([
+            PagerLink(3, label=_('Previous page'), group='previous'),
+            PagerLink(1, help=_('To first page')),
+            PagerLink(2, label='2'),
+            PagerLink(3, label='3'),
+            PagerLink(4, label='4', is_current=True),
+            PagerLink(5, label='5', help=_('To last page')),
+            PagerLink(5, label=_('Next page'), group='next')
+        ], pager.links)
