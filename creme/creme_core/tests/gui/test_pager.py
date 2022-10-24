@@ -68,9 +68,9 @@ class PagerContextTestCase(CremeTestCase):
         # <previous|1|2|3|next>
         self.assertPagerLinks([
             PagerLink(None, label=_('Previous page'), group='previous', enabled=False),
-            PagerLink(1, label='1', is_current=True),
+            PagerLink(1, label='1', is_current=True, help=_('To first page')),
             PagerLink(2, label='2'),
-            PagerLink(3, label='3'),
+            PagerLink(3, label='3', help=_('To last page')),
             PagerLink(2, label=_('Next page'), group='next')
         ], pager.links)
 
@@ -90,9 +90,9 @@ class PagerContextTestCase(CremeTestCase):
         # <previous|1|2|3|next>
         self.assertPagerLinks([
             PagerLink(1, label=_('Previous page'), group='previous'),
-            PagerLink(1, label='1'),
+            PagerLink(1, label='1', help=_('To first page')),
             PagerLink(2, label='2', is_current=True),
-            PagerLink(3, label='3'),
+            PagerLink(3, label='3', help=_('To last page')),
             PagerLink(3, label=_('Next page'), group='next')
         ], pager.links)
 
@@ -112,9 +112,9 @@ class PagerContextTestCase(CremeTestCase):
         # <previous|1|2|3|next>
         self.assertPagerLinks([
             PagerLink(2, label=_('Previous page'), group='previous'),
-            PagerLink(1, label='1'),
+            PagerLink(1, label='1', help=_('To first page')),
             PagerLink(2, label='2'),
-            PagerLink(3, label='3', is_current=True),
+            PagerLink(3, label='3', is_current=True, help=_('To last page')),
             PagerLink(None, label=_('Next page'), group='next', enabled=False)
         ], pager.links)
 
@@ -134,7 +134,7 @@ class PagerContextTestCase(CremeTestCase):
         # <previous|1|2|3|4|...|10|next>
         self.assertPagerLinks([
             PagerLink(2, label=_('Previous page'), group='previous'),
-            PagerLink(1, label='1'),
+            PagerLink(1, label='1', help=_('To first page')),
             PagerLink(2, label='2'),
             PagerLink(3, label='3', is_current=True),
             PagerLink(4, label='4'),
@@ -164,7 +164,7 @@ class PagerContextTestCase(CremeTestCase):
             PagerLink(7, label='7'),
             PagerLink(8, label='8', is_current=True),
             PagerLink(9, label='9'),
-            PagerLink(10, label='10'),
+            PagerLink(10, label='10', help=_('To last page')),
             PagerLink(9, label=_('Next page'), group='next')
         ], pager.links)
 
