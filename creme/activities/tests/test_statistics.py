@@ -98,7 +98,8 @@ class StatisticsTestCase(CremeTestCase):
                 ngettext(
                     '{count} meeting per month',
                     '{count} meetings per month',
-                    1.5
+                    # 1.5
+                    2
                 ).format(
                     # count=number_format(1.5, decimal_pos=1, use_l10n=True),
                     count=number_format(1.5, decimal_pos=1),
@@ -140,7 +141,8 @@ class StatisticsTestCase(CremeTestCase):
                 ngettext(
                     '{count} phone call per month',
                     '{count} phone calls per month',
-                    0.5
+                    # 0.5
+                    0
                 ).format(
                     # count=number_format(0.5, decimal_pos=1, use_l10n=True),
                     count=number_format(0.5, decimal_pos=1),
