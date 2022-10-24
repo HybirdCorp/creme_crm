@@ -112,7 +112,9 @@ QUnit.test('creme.D3Chart.draw (not bound)', function(assert) {
 });
 
 QUnit.test('creme.D3Chart.draw (not implemented)', function(assert) {
-    var sketch = new creme.D3Sketch().bind($('<div>'));
+    // Note : ignore resize here or the observer will trigger a draw() later
+    // that throws an 'Not implement' excaption and trash the other test execution.
+    var sketch = new creme.D3Sketch({ignoreResize: true}).bind($('<div>'));
     var chart = new creme.D3Chart().sketch(sketch);
 
     this.assertRaises(function() {
