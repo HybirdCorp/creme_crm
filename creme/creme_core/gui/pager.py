@@ -119,6 +119,16 @@ class PagerContext:
         if page_count < 1:
             return []
 
+        # We want to dynamically display links to the most interesting places in the dataset:
+        # - around the current page: the previous and next pages
+        # - to the beginning and end pages
+        # - to an arbitrary page to choose from when there are gaps between the above, but only if
+        #   these gaps are big enough: we don't need to display a page chooser if there's a single
+        #   page in the gap
+        #
+        # We'll also unconditionally display text links to the previous and next pages, and disable
+        # them when they are not usable.
+
         links = [
             PagerLink(
                 page_previous, label=_('Previous page'),
@@ -127,44 +137,80 @@ class PagerContext:
             ),
         ]
 
+        # So the shape we have for the numerical page links is:
+        #
+        #    first ... previous current next ... last
+        #          ^^^                       ^^^
+        #          low overflow area         high overflow area
+        #
+        # The overflow areas model the gaps between the surrounding signposts, and can be empty,
+        # show a single page, or a page chooser. Overflow starts to happen above 3 pages. We now
+        # handle these 7 parts.
+
+        # 1. We'll always show the first page, whether it's the current, previous, or last pages
+        # (for a single page), or we want it displayed because there are enough pages. If there's a
+        # single page, we don't use the "first" or "last" labels.
         first_page_help = None if page_count == 1 else _('To first page')
         links.append(PagerLink(1, help=first_page_help, is_current=is_current(1)))
 
+        # 2. The low overflow is the space between the first page excluded, and the previous page
+        # excluded. The amount of overflow will decide whether we'll display a page chooser or
+        # regular page link.
         lo_overflow = page_current - 3
         if lo_overflow == 1:
             assert page_previous == 3
+            # By definition, a singular low overflow can only point to page 2: there's a single
+            # page between the first and the previous page 3.
             links.append(PagerLink(2))
         elif lo_overflow >= 2:
             assert page_previous >= 4
+            # We have at least 2 pages to choose from, so we display a page chooser.
             links.append(
                 PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE)
             )
 
+        # 3. The link to the previous page is shown when the current page is not the first page
+        # (there are no prior pages), and when the previous page itself is not the first (the
+        # "first page" handling code above will take care of that).
         if page_current >= 3:
             links.append(
                 PagerLink(page_previous)
             )
 
+        # 4. The link to the current page is shown when the current page is not the first or last
+        # page (their respective handling code will take care of that).
         if page_current > 1 and page_current < page_count:
             links.append(
                 PagerLink(page_current, is_current=True)
             )
 
+        # 5. The link to the next page is shown when the current page is not the last page (there
+        # are no later pages), and when the next page itself is not the last (the "last page"
+        # handling code below will take care of that).
         if page_current <= page_count - 2:
             links.append(
                 PagerLink(page_next)
             )
 
+        # 6. The high overflow is the space between the next page excluded, and the last page
+        # excluded. The amount of overflow will decide whether we'll display a page chooser or
+        # regular page link.
         hi_overflow = page_count - page_current - 2
         if hi_overflow == 1:
             assert page_next is not None
+            # By definition, a singular high overflow can only point to the page following the
+            # next: there's a single page between it and the last page.
             links.append(PagerLink(page_next + 1))
         elif hi_overflow >= 2:
             assert page_next is not None
+            # We have at least 2 pages to choose from, so we display a page chooser.
             links.append(
                 PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE)
             )
 
+        # 7. Unless we only have a single page (in which case the "first page" handling code above
+        # took care of that), we always show the last page, whether it's the current or next pages,
+        # or we want it displayed because there are enough pages.
         if page_count > 1:
             links.append(
                 PagerLink(page_count, help=_('To last page'), is_current=is_current(page_count))
