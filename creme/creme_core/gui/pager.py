@@ -78,10 +78,6 @@ class PagerLink:
 
 
 class PagerContext:
-    SHOW_ALL_PAGES_LIMIT: int = 5
-    SHOW_LAST_PAGE_LIMIT: int = 4
-    SHOW_FIRST_PAGE_LIMIT: int = 4
-
     count: int
     current: int
     previous: int | None
@@ -131,49 +127,48 @@ class PagerContext:
             ),
         ]
 
-        if page_count < self.SHOW_ALL_PAGES_LIMIT:
-            links.extend(
-                PagerLink(index, is_current=is_current(index))
-                for index in range(1, page_count + 1)
-            )
-        elif page_current <= self.SHOW_LAST_PAGE_LIMIT:
-            assert page_next is not None
+        first_page_help = None if page_count == 1 else _('To first page')
+        links.append(PagerLink(1, help=first_page_help, is_current=is_current(1)))
 
-            links.extend(
-                PagerLink(index, is_current=is_current(index))
-                for index in range(1, page_next + 1)
-            )
-            links.append(
-                PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE)
-            )
-            links.append(PagerLink(page_count, help=_('To last page')))
-        elif page_current >= page_count - self.SHOW_FIRST_PAGE_LIMIT:
-            assert page_previous is not None
-
-            links.append(PagerLink(1, help=_('To first page')))
+        lo_overflow = page_current - 3
+        if lo_overflow == 1:
+            assert page_previous == 3
+            links.append(PagerLink(2))
+        elif lo_overflow >= 2:
+            assert page_previous >= 4
             links.append(
                 PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE)
             )
-            links.extend(
-                PagerLink(index, is_current=is_current(index))
-                for index in range(page_previous, page_count + 1)
-            )
-        else:
-            assert page_previous is not None
-            assert page_next is not None
 
-            links.append(PagerLink(1, help=_('To first page')))
+        if page_current >= 3:
             links.append(
-                PagerLink(page_previous - 1, help=_('To another page'), group=PagerLink.CHOOSE)
+                PagerLink(page_previous)
             )
-            links.extend(
-                PagerLink(index, is_current=is_current(index))
-                for index in range(page_previous, page_next + 1)
+
+        if page_current > 1 and page_current < page_count:
+            links.append(
+                PagerLink(page_current, is_current=True)
             )
+
+        if page_current <= page_count - 2:
+            links.append(
+                PagerLink(page_next)
+            )
+
+        hi_overflow = page_count - page_current - 2
+        if hi_overflow == 1:
+            assert page_next is not None
+            links.append(PagerLink(page_next + 1))
+        elif hi_overflow >= 2:
+            assert page_next is not None
             links.append(
                 PagerLink(page_next + 1, help=_('To another page'), group=PagerLink.CHOOSE)
             )
-            links.append(PagerLink(page_count, help=_('To last page')))
+
+        if page_count > 1:
+            links.append(
+                PagerLink(page_count, help=_('To last page'), is_current=is_current(page_count))
+            )
 
         links.append(
             PagerLink(
