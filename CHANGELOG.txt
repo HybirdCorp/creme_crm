@@ -133,6 +133,9 @@
                     - The function-view 'views.graph.dl_png()' is deprecated.
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
+                * Products :
+                    - 'fields.CategoryField' is deprecated; Use 'fields.SubCategoryField' instead
+                    - The view 'products__subcategories' is deprecated ; use the generic one 'creme_core__enumerable_choices' instead
         # In the class 'creme_core.auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
           can now be called with a combination of permissions (like 'VIEW | CHANGE').
         # In 'creme_core.models' :
@@ -157,6 +160,8 @@
                 - Displays a toggle link if there is only 2 options
                 - Displays a link that opens a popover with the unselected options
         # Apps :
+            - Creme_config:
+                - A new 'enumerable.CreatorEnumerableChoiceField' allowing the creation 'on-the-fly' of entries.
             - Activities :
                 - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
                   In Creme 2.5 an exception will be raised.
@@ -242,6 +247,8 @@
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
         # In the class 'creme_core.core.enumerable._EnumerableRegistry' the method '_check_model()' has been renamed '_check_is_entity()'
+        # For ForeignKey fields with ENUMERABLE tags:
+            - Use 'CreatorEnumerableChoiceField' as default formfield instead of 'CreatorModelChoiceField'
         # In 'creme_core.forms' :
             - The module 'bulk' has been removed
               (the class 'BulkDefaultEditForm' is useless now, use 'creme_core.gui.bulk_update.FieldOverrider' instead).
@@ -360,6 +367,9 @@
                 - The field 'models.AbstractActivity.sub_type' is not <null=True, blank=True> anymore (the attribute "on_delete" changed too).
                 - The URL named "activities__create_indispo" has been renamed "activities__create_unavailability" ;
                   the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").
+                - 'fields.ActivitySubTypeField' replaces 'fields.ActivityTypeField' as default form-field for 'CremeUserForeignKey'
+                - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype' has been renamed '_get_activity_subtype' and
+                  returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'
                   & the class 'ProductInnerEditCategory' has been removed.
@@ -412,9 +422,6 @@
         # Apps :
             * Billing :
                 - In 'models.AbstractTemplateBase', the protected attribute '_verbose_status_cache' has been removed (was useless since years).
-            * Activities :
-                - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype' has been renamed '_get_activity_subtype' and
-                  returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
 
 
 == Version 2.3 ==
