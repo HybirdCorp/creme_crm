@@ -371,17 +371,13 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual([], field.widget.choices)
 
         expected = [
-            (None, [
-                EnumerableChoice('', '---------').as_dict(),
-                EnumerableChoice(farming.pk, str(farming)).as_dict(),
-                EnumerableChoice(industry.pk, str(industry)).as_dict(),
-                EnumerableChoice(software.pk, str(software)).as_dict(),
-            ])
+            EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
         ]
 
-        self.assertListEqual(expected, [
-            (group, [c.as_dict() for c in choices]) for group, choices in field.choices
-        ])
+        self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_initial(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
@@ -397,16 +393,12 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual([], field.widget.choices)
 
         expected = [
-            (None, [
-                EnumerableChoice(farming.pk, str(farming)).as_dict(),
-                EnumerableChoice(industry.pk, str(industry)).as_dict(),
-                EnumerableChoice(software.pk, str(software)).as_dict(),
-            ])
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
+            EnumerableChoice(software.pk, str(software)).as_dict(),
         ]
 
-        self.assertListEqual(expected, [
-            (group, [c.as_dict() for c in choices]) for group, choices in field.choices
-        ])
+        self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_clean_value(self):
         farming = FakeSector.objects.order_by('pk').first()
@@ -421,17 +413,12 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         field = EnumerableChoiceField(FakeContact, 'sector', required=False)
 
         expected = [
-            (None, [
-                EnumerableChoice('', '---------').as_dict(),
-                EnumerableChoice(farming.pk, str(farming)).as_dict(),
-                EnumerableChoice(industry.pk, str(industry)).as_dict(),
-            ])
+            EnumerableChoice('', '---------').as_dict(),
+            EnumerableChoice(farming.pk, str(farming)).as_dict(),
+            EnumerableChoice(industry.pk, str(industry)).as_dict(),
         ]
 
-        self.assertListEqual(expected, [
-            (group, [c.as_dict() for c in choices]) for group, choices in field.choices
-        ])
-
+        self.assertListEqual(expected, [c.as_dict() for c in field.choices])
         self.assertIsNone(field.to_python(''))
         self.assertEqual(software, field.to_python(software.pk))
 

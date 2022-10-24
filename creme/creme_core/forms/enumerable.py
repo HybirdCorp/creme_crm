@@ -276,7 +276,7 @@ class EnumerableChoiceField(mforms.ChoiceField):
 
     @property
     def choices(self):
-        return self._enum.groups()[0]
+        return self._enum.choices()[0]
 
     @property
     def user(self):
