@@ -20,6 +20,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext, pgettext_lazy  # gettext
 
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 # from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.forms.fields import ReadonlyMessageField
 from creme.creme_core.gui.bulk_update import FieldOverrider
@@ -127,10 +128,24 @@ class ReportFilterOverrider(FieldOverrider):
         first = instances[0]
         model = type(first)
         model_field = model._meta.get_field(self.field_names[0])
-        field = model_field.formfield()
+
+        # Use legacy form field because of filtering issues with the EnumeratorChoiceField
+        # TODO: Fix it later
+        # field = model_field.formfield()
+        field = CreatorModelChoiceField(
+            queryset=model_field.related_model.objects.all(),
+            empty_label=pgettext_lazy('creme_core-filter', 'All'),
+            user=user,
+            limit_choices_to=model_field.get_limit_choices_to(),
+            required=FieldsConfig.objects.get_for_model(model).is_field_required(model_field),
+            label=model_field.verbose_name,
+            help_text=model_field.help_text
+        )
+
         # TODO: in constructor?
-        field.empty_label = pgettext_lazy('creme_core-filter', 'All')
-        field.required = FieldsConfig.objects.get_for_model(model).is_field_required(model_field)
+#         field.empty_label = pgettext_lazy('creme_core-filter', 'All')
+#         field.required = FieldsConfig.objects.get_for_model(model).is_field_required(model_field)
+#         field.user = user
 
         first_ct = first.ct
         self._has_same_report_ct = all(e.ct == first_ct for e in instances)

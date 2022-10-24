@@ -616,6 +616,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertNoFormError(response2)
         self.assertIsNone(self.refresh(report).filter)
 
+    @override_settings(FORM_ENUMERABLE_LIMIT=100)
     def test_report_inneredit_filter01(self):
         self.login()
 
@@ -644,6 +645,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         with self.assertNoException():
             filter_f1 = response1.context['form'].fields[form_field_name]
             choices = [*filter_f1.choices]
+
+        self.assertIsInstance(filter_f1, CreatorModelChoiceField)
 
         self.assertInChoices(value=contact_filter.id, label=contact_filter.name, choices=choices)
         self.assertInChoices(value='', label=pgettext('creme_core-filter', 'All'), choices=choices)

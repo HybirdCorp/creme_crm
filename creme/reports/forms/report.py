@@ -34,6 +34,7 @@ from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.forms.fields as core_fields
 import creme.creme_core.forms.header_filter as hf_forms
+from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
 from creme.creme_core.forms import CremeForm  # CremeEntityForm
@@ -90,8 +91,18 @@ class FilterSubCell(CustomFormExtraSubCell):
 
         mfield = type(instance)._meta.get_field(field_name)
 
-        choice_field = mfield.formfield()
-        choice_field.empty_label = pgettext_lazy('creme_core-filter', 'All')
+        # choice_field = mfield.formfield()
+        # TODO : Use legacy form field because of filtering issues with the EnumeratorChoiceField
+        choice_field = CreatorModelChoiceField(
+            queryset=mfield.related_model.objects.all(),
+            empty_label=pgettext_lazy('creme_core-filter', 'All'),
+            user=user,
+            limit_choices_to=mfield.get_limit_choices_to(),
+            required=not mfield.blank,
+            label=mfield.verbose_name,
+            help_text=mfield.help_text
+        )
+
         choice_field.queryset = choice_field.queryset.filter(
             entity_type=getattr(instance, self.ctype_field_name),
         )
