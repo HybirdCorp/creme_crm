@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -170,6 +170,23 @@ class CredentialsDeletion(generic.CheckedView):
         ).delete()
 
         return HttpResponse()
+
+
+class RoleCloning(generic.CremeModelEditionPopup):
+    model = UserRole
+    pk_url_kwarg = 'role_id'
+    permissions = SUPERUSER_PERM
+    form_class = role_forms.UserRoleCloningForm
+    template_name = 'creme_core/generics/blockform/add-popup.html'  # TODO: clone-popup.html
+    title = _('Clone the role «{object}»')
+    submit_label = _('Clone')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['instance'] = None
+        kwargs['role_to_clone'] = self.object
+
+        return kwargs
 
 
 class RoleDeletion(generic.CremeModelEditionPopup):

@@ -25,6 +25,7 @@ from creme.creme_core.models import (
     EntityFilter,
     EntityFilterCondition,
     FakeContact,
+    FakeDocument,
     FakeOrganisation,
     Job,
     RelationType,
@@ -2204,3 +2205,106 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIn('form', response.context)
         self.assertDoesNotExist(job)
         self.assertDoesNotExist(dcom)
+
+    def test_clone(self):
+        self.login()
+
+        role1 = UserRole.objects.create(
+            name='CEO',
+            allowed_apps=['creme_core', 'documents', 'persons'],
+            admin_4_apps=['persons'],
+        )
+        get_ct = ContentType.objects.get_for_model
+        role1.creatable_ctypes.set(map(get_ct, (FakeContact, FakeDocument)))
+        role1.exportable_ctypes.set(map(get_ct, (FakeContact, FakeOrganisation)))
+
+        efilter1 = EntityFilter.objects.create(
+            id='creme_core-test_credentials_edition02',
+            name='Agencies',
+            entity_type=FakeContact,
+            filter_type=EF_CREDENTIALS,
+            use_or=True,
+        )
+        efilter1.set_conditions(
+            [
+                condition_handler.RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.ISTARTSWITH,
+                    field_name='last_name', values=['Agency of'],
+                    filter_type=EF_CREDENTIALS,
+                ),
+            ],
+            check_cycles=False,   # There cannot be a cycle without sub-filter.
+            check_privacy=False,  # No sense here.
+        )
+
+        create_creds = partial(SetCredentials.objects.create, role=role1)
+        create_creds(
+            set_type=SetCredentials.ESET_OWN,
+            value=EntityCredentials.VIEW,
+        )
+        create_creds(
+            set_type=SetCredentials.ESET_FILTER,
+            value=EntityCredentials.CHANGE,
+            ctype=FakeContact,
+            forbidden=True,
+            efilter=efilter1,
+        )
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        context1 = self.assertGET200(url).context
+        self.assertEqual(
+            _('Clone the role «{object}»').format(object=role1.name),
+            context1.get('title'),
+        )
+        self.assertEqual(_('Clone'), context1.get('submit_label'))
+
+        with self.assertNoException():
+            form = context1['form']
+            fields = form.fields
+            name_f = fields['name']
+
+        self.assertEqual(1, len(fields), fields)
+        self.assertIsInstance(name_f, CharField)
+        self.assertEqual(_('Copy of «{role}»').format(role=role1.name), name_f.initial)
+
+        # ---
+        old_count = UserRole.objects.count()
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
+        self.assertEqual(old_count + 1, UserRole.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+        self.assertSetEqual({'creme_core', 'documents', 'persons'}, role2.allowed_apps)
+        self.assertSetEqual({'persons'},                            role2.admin_4_apps)
+        self.assertCountEqual(
+            [FakeContact, FakeDocument],
+            [ct.model_class() for ct in role2.creatable_ctypes.all()],
+        )
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation],
+            [ct.model_class() for ct in role2.exportable_ctypes.all()],
+        )
+
+        all_credentials = role2.credentials.order_by('id')
+        self.assertEqual(2, len(all_credentials))
+
+        creds1 = all_credentials[0]
+        self.assertIsNotNone(creds1)
+        self.assertEqual(EntityCredentials.VIEW, creds1.value)
+        self.assertIsNone(creds1.ctype)
+        self.assertFalse(creds1.forbidden)
+        self.assertIsNone(creds1.efilter)
+
+        creds2 = all_credentials[1]
+        self.assertIsNotNone(creds2)
+        self.assertEqual(EntityCredentials.CHANGE, creds2.value)
+        self.assertEqual(get_ct(FakeContact), creds2.ctype)
+        self.assertTrue(creds2.forbidden)
+
+        efilter2 = creds2.efilter
+        self.assertIsNotNone(efilter2)
+        self.assertNotEqual(efilter1.id, efilter2.id)
+        self.assertEqual(efilter1.name,  efilter2.name)
+        self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
+        self.assertEqual(1, efilter2.conditions.count())

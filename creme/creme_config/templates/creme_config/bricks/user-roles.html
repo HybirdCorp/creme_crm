@@ -19,7 +19,7 @@
     {% brick_table_column title=_('Creation credentials')       status='nowrap' class='role-creation-creds' %}
     {% brick_table_column title=_('Export credentials')         status='nowrap' class='role-export-creds' %}
     {% brick_table_column title=_('Entities credentials')       status='nowrap' class='role-creds' %}
-    {% brick_table_column title=_('Actions') status='action' colspan=2 %}
+    {% brick_table_column title=_('Actions') status='action' colspan=3 %}
 {% endblock %}
 
 {% block brick_table_rows %}
@@ -57,6 +57,9 @@
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='edit' url='creme_config__delete_role'|url:role.id label=_('Delete') icon='delete' enabled=admin_perm %}
+        </td>
+        <td {% brick_table_data_status action %}>
+            {% brick_table_action id='add' url='creme_config__clone_role'|url:role.id label=_('Clone this role') icon='clone' enabled=admin_perm %}
         </td>
     </tr>
     {% endfor %}

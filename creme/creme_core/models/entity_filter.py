@@ -42,6 +42,7 @@ from ..core.entity_filter import (
 )
 from ..global_info import get_global_info
 from ..utils import update_model_instance
+from ..utils.id_generator import generate_string_id_and_save
 from ..utils.serializers import json_encode
 from . import CremeEntity
 from . import fields as core_fields
@@ -598,6 +599,27 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
         self._check_privacy_sub_filters(conditions, is_private, owner)
         self._check_privacy_parent_filters(is_private, owner)
 
+    def clone(self):
+        cls = type(self)
+        cloned = cls(
+            name=self.name,
+            filter_type=self.filter_type,
+            is_custom=self.is_custom,
+            user=self.user,
+            is_private=self.is_private,
+            entity_type=self.entity_type,
+            use_or=self.use_or,
+        )
+        generate_string_id_and_save(
+            cls, [cloned],
+            self.id[:self.id.rfind('-') + 1] or 'creme_core-cloned-',
+        )
+
+        for condition in self.conditions.order_by('id'):
+            condition.clone(efilter=cloned)
+
+        return cloned
+
     def delete(self, check_orphan=True, *args, **kwargs):
         if check_orphan:
             parents = {str(cond.filter) for cond in self._iter_parent_conditions()}
@@ -859,6 +881,14 @@ class EntityFilterCondition(models.Model):
                 sorted(conditions1, key=key),
                 sorted(conditions2, key=key),
             )
+        )
+
+    def clone(self, efilter):
+        return type(self).objects.create(
+            filter=efilter,
+            type=self.type,
+            name=self.name,
+            raw_value=self.raw_value,
         )
 
     def description(self, user):
