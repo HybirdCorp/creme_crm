@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-19 15:53+0200\n"
+"POT-Creation-Date: 2022-10-26 16:43+0200\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -827,6 +827,10 @@ msgstr ""
 
 msgid "No filter, no condition."
 msgstr "Pas de filtre, pas de condition."
+
+#, python-brace-format
+msgid "Copy of «{role}»"
+msgstr "Copie de «{role}»"
 
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"
@@ -1755,6 +1759,9 @@ msgstr "Nouveaux droits"
 msgid "Edit this role"
 msgstr "Modifier ce rôle"
 
+msgid "Clone this role"
+msgstr "Cloner ce rôle"
+
 msgid "No role for the moment"
 msgstr "Aucun rôle pour le moment"
 
@@ -2400,9 +2407,6 @@ msgstr "Vous ne pouvez pas désactiver un super administrateur."
 msgid "You can't activate a staff user."
 msgstr "Vous ne pouvez pas activer un super administrateur."
 
-msgid "An active user with the same email address already exists."
-msgstr "Un utilisateur activé avec la même adresse e-mail existe déjà."
-
 #, python-brace-format
 msgid "Add credentials to «{object}»"
 msgstr "Ajouter des droits à «{object}»"
@@ -2413,6 +2417,14 @@ msgstr "Ajouter les droits"
 #, python-brace-format
 msgid "Edit credentials for «{role}»"
 msgstr "Modifier les droits de «{role}»"
+
+#, python-brace-format
+msgid "Clone the role «{object}»"
+msgstr "Cloner le rôle «{object}»"
+
+# Already in creme_core
+msgid "Clone"
+msgstr ""
 
 #, python-brace-format
 msgid "Delete role «{object}»"

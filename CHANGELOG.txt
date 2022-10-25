@@ -29,6 +29,7 @@
                 - Non-internal types can now be disabled.
                 - A new kind of constraints has been added : forbidden properties (on subject & object of course).
             - An edition view for semi-fixed relationship types has been added.
+            - The roles can now be cloned.
             - The old password is required when changing a user's password.
             - The configurations of CustomForms are collapsed by default, & can be expanded separately.
         * Assistants :

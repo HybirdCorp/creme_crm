@@ -3624,6 +3624,80 @@ class EntityFiltersTestCase(CremeTestCase):
         )
         self.assertIs(efilter4.applicable_on_entity_base, False)
 
+    def test_clone01(self):
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            pk='test-ef_orga1', name='My name filter',
+            model=FakeOrganisation, is_custom=False, use_or=False,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    operator=operators.STARTSWITH,
+                    field_name='name', values=['House'],
+                ),
+                DateRegularFieldConditionHandler.build_condition(
+                    model=FakeOrganisation,
+                    field_name='creation_date',
+                    date_range='current_year',
+                ),
+            ],
+        )
+        conds_count = EntityFilterCondition.objects.count()
+
+        efilter2 = efilter1.clone()
+        self.assertIsInstance(efilter2, EntityFilter)
+        self.assertEqual('test-1',      efilter2.pk)
+        self.assertEqual(efilter1.name, efilter2.name)
+        self.assertEqual(EF_USER,       efilter2.filter_type)
+        self.assertFalse(efilter2.is_custom)
+        self.assertIsNone(efilter2.user)
+        self.assertFalse(efilter2.use_or)
+        self.assertFalse(efilter2.is_private)
+
+        self.assertEqual(conds_count + 2, EntityFilterCondition.objects.count())
+        conditions2 = efilter2.conditions.all()
+        self.assertEqual(2, len(conditions2))
+
+        condition21 = conditions2[0]
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition21.type)
+        self.assertEqual('name',                               condition21.name)
+        self.assertDictEqual(
+            {'operator': operators.STARTSWITH, 'values': ['House']},
+            condition21.value,
+        )
+
+        condition22 = conditions2[1]
+        self.assertEqual(DateRegularFieldConditionHandler.type_id, condition22.type)
+        self.assertEqual('creation_date',                          condition22.name)
+        self.assertDictEqual({'name': 'current_year'}, condition22.value)
+
+    def test_clone02(self):
+        "Other values for attributes."
+        user = self.user
+        efilter1 = EntityFilter.objects.smart_update_or_create(
+            pk='test', name='My great filter',
+            model=FakeContact, is_custom=True, use_or=True,
+            is_private=True, user=user,
+            conditions=[
+                RegularFieldConditionHandler.build_condition(
+                    model=FakeContact,
+                    operator=operators.CONTAINS,
+                    field_name='description', values=['Foobar'],
+                ),
+            ],
+        )
+        efilter1.filter_type = EF_CREDENTIALS
+
+        efilter2 = efilter1.clone()
+        self.assertEqual('creme_core-cloned-1', efilter2.pk)
+        self.assertEqual(efilter1.name,         efilter2.name)
+        self.assertEqual(EF_CREDENTIALS,        efilter2.filter_type)
+        self.assertTrue(efilter2.is_custom)
+        self.assertEqual(user, efilter2.user)
+        self.assertTrue(efilter2.use_or)
+        self.assertTrue(efilter2.is_private)
+
+        self.assertEqual(1, efilter2.conditions.count())
+
     def test_filterlist01(self):
         user = self.user
         create_ef = partial(

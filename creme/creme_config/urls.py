@@ -139,6 +139,11 @@ role_patterns = [
         name='creme_config__edit_role',
     ),
     re_path(
+        r'^clone/(?P<role_id>\d+)[/]?$',
+        user_role.RoleCloning.as_view(),
+        name='creme_config__clone_role',
+    ),
+    re_path(
         r'^delete/(?P<role_id>\d+)[/]?$',
         user_role.RoleDeletion.as_view(),
         name='creme_config__delete_role',

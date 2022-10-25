@@ -329,6 +329,42 @@ class CredentialsFilterStep(CremeModelForm):
         return instance
 
 
+class UserRoleCloningForm(CremeModelForm):
+    class Meta:
+        model = UserRole
+        fields = ('name',)
+
+    def __init__(self, role_to_clone: UserRole, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.role_to_clone = role_to_clone
+        self.fields['name'].initial = gettext('Copy of «{role}»').format(role=role_to_clone)
+
+    def save(self, *args, **kwargs):
+        instance: UserRole = self.instance
+        # TODO UserRole.clone() ?
+        role_to_clone = self.role_to_clone
+        instance.allowed_apps = role_to_clone.allowed_apps
+        instance.admin_4_apps = role_to_clone.admin_4_apps
+        instance.save()
+
+        instance.creatable_ctypes.set(role_to_clone.creatable_ctypes.all())
+        instance.exportable_ctypes.set(role_to_clone.exportable_ctypes.all())
+
+        for credentials in role_to_clone.credentials.order_by('id'):
+            efilter = credentials.efilter
+            # TODO SetCredentials.clone()
+            SetCredentials.objects.create(
+                role=instance,
+                set_type=credentials.set_type,
+                value=credentials.value,
+                ctype=credentials.ctype,
+                forbidden=credentials.forbidden,
+                efilter=efilter.clone() if efilter else None,
+            )
+
+        return instance
+
+
 class UserRoleDeletionForm(CremeModelForm):
     class Meta:
         model = DeletionCommand
