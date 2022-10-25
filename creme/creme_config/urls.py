@@ -8,6 +8,7 @@ from .views import (
     custom_form,
     entity_filter,
     fields_config,
+    flags,
     generics_views,
     header_filter,
     history,
@@ -337,6 +338,29 @@ custom_fields_patterns = [
         custom_field.CustomEnumBrickReloading.as_view(),
         name='creme_config__reload_custom_enum_brick',
     ),
+]
+
+flags_patterns = [
+    re_path(
+        r'^portal[/]?$',
+        flags.Portal.as_view(),
+        name='creme_config__flags',
+    ),
+    # re_path(
+    #     r'^wizard[/]?$',
+    #     fields_config.FieldsConfigWizard.as_view(),
+    #     name='creme_config__create_fields_config',
+    # ),
+    # re_path(
+    #     r'^edit/(?P<fconf_id>\d+)[/]?$',
+    #     fields_config.FieldsConfigEdition.as_view(),
+    #     name='creme_config__edit_fields_config',
+    # ),
+    # re_path(
+    #     r'^delete[/]?$',
+    #     fields_config.FieldsConfigDeletion.as_view(),
+    #     name='creme_config__delete_fields_config',
+    # ),
 ]
 
 custom_forms_patterns = [
@@ -686,6 +710,7 @@ urlpatterns = [
     re_path(r'^custom_fields/', include(custom_fields_patterns)),
     re_path(r'^custom_forms/',  include(custom_forms_patterns)),
     re_path(r'^fields/',        include(fields_config_patterns)),
+    re_path(r'^flags/',         include(flags_patterns)),
     re_path(r'^history/',       include(history_patterns)),
     re_path(r'^menu/',          include(menu_patterns)),
     re_path(r'^my_settings/',   include(user_settings_patterns)),

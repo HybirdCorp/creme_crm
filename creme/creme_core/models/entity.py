@@ -63,18 +63,17 @@ class CremeEntity(CremeModel):
     is_deleted = models.BooleanField(default=False, editable=False).set_tags(viewable=False)
 
     user = CremeUserForeignKey(verbose_name=_('Owner user'))
-
     description = models.TextField(_('Description'), blank=True).set_tags(optional=True)
 
     uuid = models.UUIDField(
         unique=True, editable=False, default=uuid.uuid4,
     ).set_tags(viewable=False)
-
     sandbox = models.ForeignKey(
         'creme_core.Sandbox',
         null=True, on_delete=models.PROTECT,
         editable=False,
     ).set_tags(viewable=False)
+    flags = models.PositiveBigIntegerField(default=0, editable=False).set_tags(viewable=False)
 
     objects = CremeEntityManager()
 

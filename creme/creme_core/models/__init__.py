@@ -25,6 +25,7 @@ from .entity import CremeEntity  # NOQA
 from .entity_filter import EntityFilter, EntityFilterCondition  # NOQA
 from .fields_config import FieldsConfig  # NOQA
 from .file_ref import FileRef  # NOQA
+from .flags import FlagsConfigItem  # NOQA
 from .header_filter import HeaderFilter  # NOQA
 from .history import HistoryConfigItem, HistoryLine  # NOQA
 from .i18n import Language  # NOQA

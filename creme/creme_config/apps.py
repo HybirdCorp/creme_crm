@@ -71,6 +71,7 @@ class CremeConfigConfig(CremeAppConfig):
             bricks.InstanceBricksConfigBrick,
             bricks.ExportButtonBrick,
             bricks.FieldsConfigsBrick,
+            bricks.FlagsConfigBrick,
             bricks.CustomBricksConfigBrick,
             bricks.MenuBrick,
             bricks.ButtonMenuBrick,

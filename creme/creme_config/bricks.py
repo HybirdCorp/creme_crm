@@ -283,6 +283,21 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
         ))
 
 
+class FlagsConfigBrick(PaginatedBrick):
+    id_ = _ConfigAdminBrick.generate_id('creme_config', 'flags_config')
+    verbose_name = _('Flags')
+    # dependencies = (User,)  TODO
+    page_size = _PAGE_SIZE
+    template_name = 'creme_config/bricks/flags-config.html'
+    configurable = False
+
+    def detailview_display(self, context):
+        return self._render(self.get_template_context(
+            context,
+            [],  # TODO
+        ))
+
+
 class FieldsConfigsBrick(PaginatedBrick):
     id_ = PaginatedBrick.generate_id('creme_config', 'fields_configs')
     verbose_name = 'Fields configuration'
