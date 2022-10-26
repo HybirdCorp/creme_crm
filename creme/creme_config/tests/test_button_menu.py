@@ -6,6 +6,7 @@ from creme.creme_core.gui.button_menu import Button, button_registry
 from creme.creme_core.models import (
     ButtonMenuItem,
     FakeContact,
+    FakeInvoiceLine,
     FakeOrganisation,
 )
 from creme.creme_core.tests.base import CremeTestCase
@@ -59,6 +60,8 @@ class ButtonMenuConfigTestCase(CremeTestCase):
             ctypes = ctxt1['form'].fields['ctype'].ctypes
 
         self.assertIn(ct, ctypes)
+        # FakeInvoiceLine is registered in brick_registry as invalid (cannot have a detail-view)
+        self.assertNotIn(ContentType.objects.get_for_model(FakeInvoiceLine), ctypes)
 
         # ---
         step_key = 'button_menu_wizard-current_step'
