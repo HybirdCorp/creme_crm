@@ -707,6 +707,12 @@
     text-align: center;
 }
 
+.listview tbody .lv-cell-content ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
 .listview tbody .lv-cell-content a img {
     width: 64px;
     height: 64px;
