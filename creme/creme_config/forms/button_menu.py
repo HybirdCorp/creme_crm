@@ -24,6 +24,7 @@ from creme.creme_core.forms import CremeForm
 from creme.creme_core.forms.fields import EntityCTypeChoiceField
 from creme.creme_core.forms.widgets import DynamicSelect
 from creme.creme_core.gui import button_menu
+from creme.creme_core.gui.bricks import brick_registry
 from creme.creme_core.models import ButtonMenuItem
 from creme.creme_core.utils.unicode_collation import collator
 
@@ -44,8 +45,13 @@ class ButtonMenuAddForm(CremeForm):
                                    .distinct()
                                    .values_list('content_type_id', flat=True)
         }
+        is_invalid = brick_registry.is_model_invalid
         ct_field = self.fields['ctype']
-        ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
+        ct_field.ctypes = (
+            ct
+            for ct in ct_field.ctypes
+            if ct.id not in used_ct_ids and not is_invalid(ct.model_class())
+        )
 
     # NB: never called
     def save(self, commit=True):
