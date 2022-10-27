@@ -132,6 +132,16 @@ class ActivitiesConfig(CremeAppConfig):
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 
+    def register_enumerable(self, enumerable_registry):
+        from . import enumerators, models
+
+        enumerable_registry.register_related_model(
+            models.ActivityType, enumerators.QSEnumerator,
+        ).register_related_model(
+            models.ActivitySubType,
+            enumerators.ActivitySubTypeEnumerator,
+        )
+
     def register_fields_config(self, fields_config_registry):
         fields_config_registry.register_models(self.Activity)
 

@@ -10,6 +10,7 @@ from creme.creme_core import enumerators
 from creme.creme_core.core.entity_filter import EF_CREDENTIALS
 from creme.creme_core.core.enumerable import (
     Enumerator,
+    QSEnumerator,
     _EnumerableRegistry,
     get_enum_search_fields,
 )
@@ -99,6 +100,41 @@ class EnumerableTestCase(CremeTestCase):
             [],
             list(get_enum_search_fields(FakeModel._meta.get_field('no_charfield')))
         )
+
+    def test_qs_enumerable_limit_choices_to(self):
+        user = self.create_user()
+
+        class _Enumerator(QSEnumerator):
+            limit_choices_to = {'title__icontains': 'Mi'}
+
+        enum = QSEnumerator(FakeContact._meta.get_field('civility'))
+
+        self.assertEqual(None, enum.limit_choices_to)
+        self.assertEqual([
+            {'value': id, 'label': title}
+            for id, title in FakeCivility.objects.values_list('id', 'title')
+        ], enum.choices(user))
+
+        limited_enum = _Enumerator(FakeContact._meta.get_field('civility'))
+
+        self.assertEqual({'title__icontains': 'Mi'}, limited_enum.limit_choices_to)
+        self.assertEqual([
+            {'value': id, 'label': title}
+            for id, title in FakeCivility.objects.filter(title__icontains='Mi')
+                                                 .values_list('id', 'title')
+        ], limited_enum.choices(user))
+
+        limited_enum = _Enumerator(
+            FakeContact._meta.get_field('civility'),
+            limit_choices_to={'title': 'Miss'}
+        )
+
+        self.assertEqual({'title': 'Miss'}, limited_enum.limit_choices_to)
+        self.assertEqual([
+            {'value': id, 'label': title}
+            for id, title in FakeCivility.objects.filter(title='Miss')
+                                                 .values_list('id', 'title')
+        ], limited_enum.choices(user))
 
     def test_basic_choices_fk(self):
         user = self.login()
@@ -290,9 +326,7 @@ class EnumerableTestCase(CremeTestCase):
         class FakeTodoCategoriesEnumerator(Enumerator):
             pass
 
-        registry = _EnumerableRegistry()
-
-        registry.register_field(
+        registry = _EnumerableRegistry().register_field(
             FakeTodo, 'categories', FakeTodoCategoriesEnumerator
         )
 

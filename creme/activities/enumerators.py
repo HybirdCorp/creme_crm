@@ -20,15 +20,15 @@ from creme.creme_core.core.enumerable import QSEnumerator
 from creme.creme_core.utils.unicode_collation import collator
 
 
-class SubCategoryEnumerator(QSEnumerator):
-    search_fields = ('name', 'category__name')
+class ActivitySubTypeEnumerator(QSEnumerator):
+    search_fields = ('name', 'type__name')
 
     @classmethod
     def instance_as_dict(cls, instance):
         return {
             'value': instance.pk,
             'label': str(instance),
-            'group': str(instance.category)
+            'group': str(instance.type),
         }
 
     def choices(self, user, *, term=None, only=None, limit=None):

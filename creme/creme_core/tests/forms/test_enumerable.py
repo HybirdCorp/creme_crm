@@ -9,6 +9,8 @@ from parameterized import parameterized
 
 from creme.creme_core.core.enumerable import EmptyEnumerator
 from creme.creme_core.forms.enumerable import (
+    DEFAULT_LIMIT,
+    NO_LIMIT,
     EnumerableChoice,
     EnumerableChoiceField,
     EnumerableChoiceSet,
@@ -27,7 +29,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
     maxDiff = None
 
     @parameterized.expand([
-        (None, '', EnumerableChoiceSet.limit),
+        (None, '', DEFAULT_LIMIT),
         (None, 10, 10),
         (20, '', 20),
     ])
@@ -76,6 +78,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         ], [c.as_dict() for c in choices])
 
     @parameterized.expand([
+        (NO_LIMIT, False),
         (10, False),
         (3, False),
         (2, True)
@@ -94,7 +97,9 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('user'), limit=limit)
         choices, more = enumerable.choices()
 
-        self.assertListEqual(available_choices[:limit], [c.as_dict() for c in choices])
+        expected = available_choices if limit == NO_LIMIT else available_choices[:limit]
+
+        self.assertListEqual(expected, [c.as_dict() for c in choices])
         self.assertEqual(more, has_more)
 
     def test_choices__selected(self):
@@ -253,12 +258,17 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
             EnumerableChoice(team_B.pk, 'BTeam', group=_('Teams')),
         ]
 
+        if limit == NO_LIMIT:
+            expected = available_choices
+        else:
+            expected = available_choices[:limit]
+
         groups, more = enumerable.groups()
 
         self.assertListEqual(
             [
                 (group, [c.as_dict() for c in choices])
-                for group, choices in enumerable.group_choices(available_choices[:limit])
+                for group, choices in enumerable.group_choices(expected)
             ],
             [
                 (group, [c.as_dict() for c in choices])

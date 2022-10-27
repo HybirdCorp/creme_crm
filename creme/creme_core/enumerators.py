@@ -47,7 +47,7 @@ class UserEnumerator(enumerable.QSEnumerator):
         choices = super().choices(user, term=term, only=only)
 
         sort_key = collator.sort_key
-        choices.sort(key=lambda d: sort_key('{}#{}'.format(d.get('group', ''), d['label'])))
+        choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
 
         return choices[:limit] if limit else choices
 
@@ -68,7 +68,7 @@ class EntityFilterEnumerator(enumerable.QSEnumerator):
         choices = super().choices(user, term=term, only=only)
 
         sort_key = collator.sort_key
-        choices.sort(key=lambda d: sort_key('{}#{}'.format(d['group'], d['label'])))
+        choices.sort(key=lambda d: sort_key(f"{d.get('group', '')}#{d['label']}"))
 
         return choices[:limit] if limit else choices
 

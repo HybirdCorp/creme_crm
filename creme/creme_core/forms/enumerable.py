@@ -35,6 +35,15 @@ from ..core import enumerable
 logger = logging.getLogger(__name__)
 
 NULL = 'NULL'
+NO_LIMIT = -1
+DEFAULT_LIMIT = 50
+
+
+def get_form_enumerable_limit():
+    try:
+        return int(getattr(settings, 'FORM_ENUMERABLE_LIMIT', DEFAULT_LIMIT))
+    except ValueError:
+        return DEFAULT_LIMIT
 
 
 class EnumerableChoice:
@@ -67,33 +76,39 @@ class EnumerableChoice:
 
 class EnumerableChoiceSet:
     enumerable_registry = enumerable.enumerable_registry
-    limit = 50
 
     def __init__(self, field, *,
                  user=None, empty_label=None,
                  registry: enumerable._EnumerableRegistry | None = None,
                  limit: int | None = None):
         registry = registry or self.enumerable_registry
-        limit = limit or getattr(settings, 'FORM_ENUMERABLE_LIMIT', self.limit)
+        limit = limit or get_form_enumerable_limit()
 
         self.field = field
         self.user = user
         self.empty_label = empty_label
-
-        try:
-            self.limit = max(int(limit), 1)
-        except ValueError:
-            pass
+        self.limit = limit
 
         try:
             self.enumerator = registry.enumerator_by_field(field)
         except ValueError:
-            logger.warning(
+            logger.debug(
                 'Unable to find an enumerator for the field "%s" '
                 "(ignore this if it's at startup)", field
             )
             # TODO : field.related_model.all() ?
             self.enumerator = enumerable.EmptyEnumerator(field)
+
+    @property
+    def limit(self):
+        return self._limit
+
+    @limit.setter
+    def limit(self, limit: int | None):
+        if limit is not None and limit != NO_LIMIT:
+            limit = max(limit, 1)
+
+        self._limit = limit
 
     def choices(self, selected_values=None, limit=None):
         selected_values = set(selected_values or ())
@@ -109,7 +124,16 @@ class EnumerableChoiceSet:
             except KeyError:
                 return False
 
-        if selected_count < limit:
+        if limit == NO_LIMIT:
+            # Get all the elements
+            more = False
+            choices = [
+                EnumerableChoice(**choice, selected=pop_selected(choice['value']))
+                for choice in self.enumerator.choices(
+                    user=self.user,
+                )
+            ]
+        elif selected_count < limit:
             # Get the first "page" with one more item
             choices = [
                 EnumerableChoice(**choice, selected=pop_selected(choice['value']))
@@ -273,6 +297,14 @@ class EnumerableChoiceField(mforms.ChoiceField):
     @enum.setter
     def enum(self, enum: EnumerableChoiceSet):
         self.widget.enumerable = self._enum = enum
+
+    @property
+    def limit(self):
+        return self._enum.limit
+
+    @limit.setter
+    def limit(self, limit: int | None):
+        self._enum.limit = limit
 
     @property
     def choices(self):

@@ -20,6 +20,7 @@ from datetime import datetime, time, timedelta
 
 from django import forms
 from django.core.exceptions import ValidationError
+from django.db.models.query_utils import Q
 from django.utils.timezone import localtime
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
@@ -28,7 +29,6 @@ from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import constants
-from ..models import ActivityType
 from ..utils import check_activity_collisions
 from . import fields
 
@@ -190,10 +190,18 @@ class TypeOverrider(FieldOverrider):
     _mixed_unavailability = False
 
     def formfield(self, instances, user, **kwargs):
-        field = fields.ActivityTypeField(
+        # field = fields.ActivityTypeField(
+        #     label=_('Type'),
+        #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+        # )
+
+        field = fields.ActivitySubTypeField(
+            model=type(instances[0]),
+            field_name='sub_type',
             label=_('Type'),
-            types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+            limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO)
         )
+
         unavailability_count = sum(
             a.type_id == constants.ACTIVITYTYPE_INDISPO for a in instances
         )
@@ -201,7 +209,8 @@ class TypeOverrider(FieldOverrider):
         if unavailability_count:
             if unavailability_count == len(instances):
                 # All entities are Unavailability, so we propose to change the subtype.
-                field.types = ActivityType.objects.filter(pk=constants.ACTIVITYTYPE_INDISPO)
+                # field.types = ActivityType.objects.filter(pk=constants.ACTIVITYTYPE_INDISPO)
+                field.limit_choices_to = Q(type__id=constants.ACTIVITYTYPE_INDISPO)
             else:
                 self._mixed_unavailability = True
 
@@ -215,7 +224,7 @@ class TypeOverrider(FieldOverrider):
 
         if len(instances) == 1:
             first = instances[0]
-            field.initial = first.type_id, first.sub_type_id
+            field.initial = first.sub_type_id
 
         return field
 
@@ -230,4 +239,4 @@ class TypeOverrider(FieldOverrider):
             )
 
         if value:
-            instance.type, instance.sub_type = value
+            instance.type, instance.sub_type = value.type, value

@@ -160,6 +160,7 @@
             - Activities :
                 - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
                   In Creme 2.5 an exception will be raised.
+                - New 'fields.ActivitySubTypeField' that adds queryset filter feature (limit_choice_to) to 'CreatorEnumerableChoiceField'
             - Sketch : New application that integrates D3js tools for creme
                 * Added base bricks for the most common usecases.
                    - BarChartBrick
@@ -411,6 +412,9 @@
         # Apps :
             * Billing :
                 - In 'models.AbstractTemplateBase', the protected attribute '_verbose_status_cache' has been removed (was useless since years).
+            * Activities :
+                - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype' has been renamed '_get_activity_subtype' and
+                  returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
 
 
 == Version 2.3 ==

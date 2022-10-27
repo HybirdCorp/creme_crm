@@ -1,6 +1,5 @@
 from datetime import timedelta
 from functools import partial
-from json import dumps as json_dump
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -202,10 +201,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 # 'cform_extra-activities_start_0': '2011-5-18',
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                'cform_extra-activities_subtype': json_dump({
-                    'type':     ACTIVITYTYPE_MEETING,
-                    'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                }),
+                'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,
@@ -246,10 +242,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                 # 'cform_extra-activities_start_0': '2011-5-18',
                 'cform_extra-activities_start_0': self.formfield_value_date(2011, 5, 18),
 
-                'cform_extra-activities_subtype': json_dump({
-                    'type': ACTIVITYTYPE_MEETING,
-                    'sub_type': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                }),
+                'cform_extra-activities_subtype': ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 'cform_extra-activities_my_participation_0': True,
                 'cform_extra-activities_my_participation_1': my_calendar.id,

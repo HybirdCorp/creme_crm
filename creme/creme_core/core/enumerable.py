@@ -124,11 +124,13 @@ class EmptyEnumerator(Enumerator):
 
 class QSEnumerator(Enumerator):
     search_fields = ()
+    limit_choices_to = None
 
-    def __init__(self, field: Field, search_fields=None):
+    def __init__(self, field: Field, search_fields=None, limit_choices_to=None):
         super().__init__(field)
 
         search_fields = search_fields or self.search_fields
+        limit_choices_to = limit_choices_to or self.limit_choices_to
 
         if not search_fields:
             search_fields = get_enum_search_fields(field)
@@ -140,6 +142,7 @@ class QSEnumerator(Enumerator):
             )
 
         self.search_fields = search_fields
+        self.limit_choices_to = limit_choices_to
 
     def search_q(self, term):
         q = Q()
@@ -155,7 +158,10 @@ class QSEnumerator(Enumerator):
         qs = field.remote_field.model.objects.all()
         limit_choices_to = field.get_limit_choices_to()
 
-        return qs.complex_filter(limit_choices_to) if limit_choices_to else qs
+        qs = qs.complex_filter(limit_choices_to) if limit_choices_to else qs
+        qs = qs.complex_filter(self.limit_choices_to) if self.limit_choices_to else qs
+
+        return qs
 
     def to_python(self, user, values):
         return list(self._queryset(user).filter(pk__in=values))

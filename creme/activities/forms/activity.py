@@ -24,6 +24,7 @@ from django import forms
 from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models import Q
 from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -36,11 +37,11 @@ from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model
-from ..models import AbstractActivity, ActivitySubType, ActivityType, Calendar
+from ..models import AbstractActivity, Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
 from .fields import (
-    ActivityTypeField,
+    ActivitySubTypeField,
     DateWithOptionalTimeField,
     UserParticipationField,
 )
@@ -57,17 +58,33 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
 
     def formfield(self, instance, user, **kwargs):
         type_id = instance.type_id
+        # if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
+        #     # TODO: improve help_text of end (we know the type default duration)
+        #     types = ActivityType.objects.filter(pk=type_id)
+        # else:
+        #     types = ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO)
+        #
+        # return ActivityTypeField(
+        #     label=self.verbose_name,
+        #     initial=(instance.type_id, instance.sub_type_id),
+        #     user=user,
+        #     types=types,
+        # )
+
         if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
             # TODO: improve help_text of end (we know the type default duration)
-            types = ActivityType.objects.filter(pk=type_id)
+            limit_choices_to = Q(type_id=type_id)
         else:
-            types = ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO)
+            limit_choices_to = ~Q(type_id=constants.ACTIVITYTYPE_INDISPO)
 
-        return ActivityTypeField(
-            label=self.verbose_name,
-            initial=(instance.type_id, instance.sub_type_id),
+        return ActivitySubTypeField(
+            model=type(instance),
+            field_name='sub_type',
+            initial=instance.sub_type_id,
             user=user,
-            types=types,
+            label=self.verbose_name,
+            required=True,
+            limit_choices_to=limit_choices_to,
         )
 
 
@@ -78,10 +95,19 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
     is_required = True
 
     def formfield(self, instance, user, **kwargs):
-        return forms.ModelChoiceField(
+        # return forms.ModelChoiceField(
+        #     label=self.verbose_name,
+        #     queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
+        #     **kwargs
+        # )
+        return ActivitySubTypeField(
+            model=type(instance),
+            field_name='sub_type',
+            initial=instance.sub_type_id,
+            user=user,
             label=self.verbose_name,
-            queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
-            **kwargs
+            required=True,
+            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
         )
 
 
@@ -409,7 +435,8 @@ class BaseCustomForm(core_forms.CremeEntityForm):
 
         if not self._errors:
             instance = self.instance
-            instance.type, instance.sub_type = self._get_activity_type_n_subtype()
+            instance.sub_type = self._get_activity_subtype()
+            instance.type = instance.sub_type.type
 
             self._clean_temporal_data(activity_type=instance.type)
 
@@ -497,7 +524,7 @@ class BaseCustomForm(core_forms.CremeEntityForm):
         instance.end = end
         instance.floating_type = floating_type
 
-    def _get_activity_type_n_subtype(self):
+    def _get_activity_subtype(self):
         return self.cleaned_data[self.subcell_key(ActivitySubTypeSubCell)]
 
     def _get_participants_2_check(self):
@@ -603,8 +630,11 @@ class BaseUnavailabilityCreationCustomForm(BaseCreationCustomForm):
         self.cleaned_data['busy'] = True
         return super().clean()
 
-    def _get_activity_type_n_subtype(self):
-        return (
-            ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
-            self.cleaned_data.get(self.subcell_key(UnavailabilityTypeSubCell)),
-        )
+    # def _get_activity_type_n_subtype(self):
+        # return (
+        #     ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
+        #     self.cleaned_data.get(self.subcell_key(UnavailabilityTypeSubCell)),
+        # )
+
+    def _get_activity_subtype(self):
+        return self.cleaned_data.get(self.subcell_key(UnavailabilityTypeSubCell))
