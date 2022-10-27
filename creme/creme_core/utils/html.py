@@ -23,6 +23,7 @@ from html.entities import entitydefs as html_entities
 from typing import TYPE_CHECKING
 
 import bleach
+from bleach.css_sanitizer import CSSSanitizer
 from django.conf import settings
 from django.utils.encoding import force_str
 from django.utils.html import mark_safe
@@ -102,7 +103,9 @@ def sanitize_html(html: str, allow_external_img: bool = False) -> str:
     return bleach.clean(
         html,
         tags=ALLOWED_TAGS, attributes=attributes,
-        styles=ALLOWED_STYLES, strip=True,
+        # styles=ALLOWED_STYLES,
+        css_sanitizer=CSSSanitizer(allowed_css_properties=ALLOWED_STYLES),
+        strip=True,
     )
 
 
