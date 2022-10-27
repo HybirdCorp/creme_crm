@@ -68,6 +68,19 @@ class ActivitySubTypeForm(CremeModelForm):
 
         return instance
 
+    def update_from_widget_response_data(self):
+        instance = self.instance
+
+        return {
+            'value': str(instance.id),
+            'added': [
+                {
+                    'value': str(instance.id),
+                    'label': str(instance),
+                    'group': str(instance.type)
+                }
+            ]
+        }
 
 # class BulkEditTypeForm(BulkDefaultEditForm):
 #     error_messages = {

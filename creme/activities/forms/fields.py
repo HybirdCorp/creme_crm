@@ -27,7 +27,9 @@ from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
 import creme.creme_core.forms.widgets as core_widgets
+from creme.creme_config.forms.fields import CreatorEnumerableChoiceField
 from creme.creme_core.forms import validators
+from creme.creme_core.forms.enumerable import NO_LIMIT
 from creme.creme_core.utils.url import TemplateURLBuilder
 from creme.persons import get_contact_model
 
@@ -149,6 +151,33 @@ class ActivityTypeField(core_fields.JSONField):
 
         for instance in types:
             yield instance.id, str(instance)
+
+
+class ActivitySubTypeField(CreatorEnumerableChoiceField):
+
+    def __init__(self, model, field_name, *, limit_choices_to=None, **kwargs):
+        super().__init__(model, field_name, **kwargs)
+        self.limit_choices_to = limit_choices_to
+        # Bypass limits here to prevent usage of "more" feature that does not
+        # support the "limit_choice_to" yet
+        self.limit = NO_LIMIT
+
+    @property
+    def limit_choices_to(self):
+        return self.enum.enumerator.limit_choices_to
+
+    @limit_choices_to.setter
+    def limit_choices_to(self, limit_choices_to):
+        """
+        limit_choices_to can be a Q object or a dictionary of keyword lookup
+        arguments.
+        """
+        self.enum.enumerator.limit_choices_to = limit_choices_to
+
+    def widget_attrs(self, widget):
+        attrs = super().widget_attrs(widget)
+        attrs['data-selection-show-group'] = 'true'
+        return attrs
 
 
 class DateWithOptionalTimeWidget(widgets.MultiWidget):

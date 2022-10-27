@@ -308,6 +308,10 @@
     max-width: 300px;
 }
 
+.listview thead th.lv-column.hd_cl_lv .select2 {
+    font-weight: normal;
+}
+
 .listview thead th.lv-column.hd_cl_lv.right_align input {
     padding-right: 5px;
     text-align: right;

@@ -243,7 +243,7 @@ S2.define('select2/data/enum', [
             /*
              * Reset cache if items have been added with the "create" button
              *
-             * TODO : This will remove the ENTIRE cache, so it should be a a good
+             * TODO : This will remove the ENTIRE cache, so it should be a good
              * idea to improve this part.
              */
             if (this._queryBackend instanceof creme.ajax.CacheBackend) {

@@ -1676,9 +1676,10 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             form_field = form_cls(user=user, instance=contact).fields[field_name]
             choices = [(c.value, c.label) for c in form_field.choices]
 
-        expected = [('', form_field.empty_label)] + list(
-            FakeSector.objects.exclude(title='[INVALID]').values_list('pk', 'title')
-        )
+        expected = [
+            ('', form_field.empty_label),
+            *FakeSector.objects.exclude(title='[INVALID]').values_list('pk', 'title'),
+        ]
 
         self.assertEqual(expected, choices)
 

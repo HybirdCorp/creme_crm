@@ -3,13 +3,18 @@ from json import dumps as json_dump
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
+from django.db.models.expressions import Q
 from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
+from creme.activities.forms.fields import ActivitySubTypeField
+from creme.activities.models.activity import Activity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.forms.enumerable import NO_LIMIT
 from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.forms.base import FieldTestCase
 
+from .. import constants
 from ..forms.fields import (
     ActivityTypeField,
     DateWithOptionalTimeField,
@@ -171,6 +176,76 @@ class ActivityTypeFieldTestCase(FieldTestCase):
             ActivityTypeField, 'subtyperequired', field.clean,
             self._build_value(atype2.id),
         )
+
+
+class ActivitySubTypeFieldTestCase(FieldTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+
+        cls.atype = ActivityType.objects.create(
+            id='meeting', name='Meeting',
+            default_day_duration=0,
+            default_hour_duration='01:00:00',
+        )
+        cls.subtype = ActivitySubType.objects.create(
+            id='rendezvous', name='Rendez-vous', type=cls.atype,
+        )
+
+    def test_choices(self):
+        field = ActivitySubTypeField(Activity, 'sub_type')
+        self.assertEqual(field.limit, NO_LIMIT)
+        self.assertListEqual(sorted([
+            ('', field.empty_label, None),
+            *(
+                (c.pk, str(c), str(c.type))
+                for c in ActivitySubType.objects.all()
+            )
+        ]), sorted(
+            [(c.value, c.label, c.group) for c in field.choices]
+        ))
+
+    def test_limit_choices_to(self):
+        field = ActivitySubTypeField(
+            Activity, 'sub_type',
+            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+        )
+
+        self.assertEqual(field.limit, NO_LIMIT)
+        self.assertListEqual(sorted([
+            ('', field.empty_label, None),
+            *(
+                (c.pk, str(c), str(c.type))
+                for c in ActivitySubType.objects.filter(type_id=constants.ACTIVITYTYPE_INDISPO)
+            )
+        ]), sorted(
+            [(c.value, c.label, c.group) for c in field.choices]
+        ))
+
+    def test_clean(self):
+        field = ActivitySubTypeField(Activity, 'sub_type')
+
+        self.assertEqual(self.subtype, field.clean(self.subtype.pk))
+        with self.assertRaises(ValidationError):
+            field.clean(None)
+
+    def test_clean__not_required(self):
+        field = ActivitySubTypeField(Activity, 'sub_type', required=False)
+        self.assertIsNone(field.clean(None))
+
+    def test_clean__limit_choices_to(self):
+        field = ActivitySubTypeField(
+            Activity, 'sub_type',
+            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+        )
+
+        self.assertEqual(
+            ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
+            field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY)
+        )
+
+        with self.assertRaises(ValidationError):
+            field.clean(constants.ACTIVITYSUBTYPE_MEETING_MEETING)
 
 
 class DateWithOptionalTimeFieldTestCase(FieldTestCase):

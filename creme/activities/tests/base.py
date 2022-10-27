@@ -76,7 +76,7 @@ class _ActivitiesTestCase(CremeTestCase):
 
     def _create_activity_by_view(self, title='My task',
                                  # atype_id=ACTIVITYTYPE_TASK, subtype_id=None,
-                                 atype_id=ACTIVITYTYPE_MEETING,
+                                 # atype_id=ACTIVITYTYPE_MEETING,
                                  subtype_id=ACTIVITYSUBTYPE_MEETING_NETWORK,
                                  **kwargs):
         user = self.login()
@@ -85,7 +85,7 @@ class _ActivitiesTestCase(CremeTestCase):
             'user': user.pk,
             'title': title,
 
-            self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype_id, subtype_id),
+            self.EXTRA_SUBTYPE_KEY: subtype_id,
 
             f'{self.EXTRA_MYPART_KEY}_0': True,
             f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,

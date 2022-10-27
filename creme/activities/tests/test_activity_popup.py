@@ -23,10 +23,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         return {
             'user': user.pk,
             'title': self.TITLE,
-            self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                constants.ACTIVITYTYPE_MEETING,
-                constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-            ),
+            self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             **kwargs
         }
 
@@ -249,9 +246,10 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
                     # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(custom_type.id),
-                    self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                        custom_type.id, custom_sub_type.id,
-                    ),
+                    # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
+                    #     custom_type.id, custom_sub_type.id,
+                    # ),
+                    self.EXTRA_SUBTYPE_KEY: custom_type.id,
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
                     f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,

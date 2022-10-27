@@ -55,7 +55,7 @@ from ..forms.activity import (
     UnavailabilityTypeSubCell,
     UserMessagesSubCell,
 )
-from ..forms.fields import ActivityTypeField
+from ..forms.fields import ActivitySubTypeField
 from ..models import ActivitySubType, ActivityType, Calendar, Status
 from ..utils import check_activity_collisions
 from .base import (
@@ -85,6 +85,14 @@ class ActivityTestCase(_ActivitiesTestCase):
     @staticmethod
     def _build_get_types_url(type_id):
         return reverse('activities__get_types', args=(type_id,))
+
+    @staticmethod
+    def get_types_of_choices(choices):
+        return ActivityType.objects.filter(
+            pk__in=ActivitySubType.objects.filter(
+                pk__in=[c.value for c in choices]
+            ).values_list('type_id', flat=True)
+        )
 
     def _create_phonecall(
             self,
@@ -261,9 +269,9 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
 
                 # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
-
-                'status': status.pk,
+                # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
+                self.EXTRA_SUBTYPE_KEY: sub_type_id,
+                'status':               status.pk,
 
                 # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
@@ -345,10 +353,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': 'Fight !!',
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
@@ -451,7 +456,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo_s),
 
                 # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(a_type.id),
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(a_type.id, sub_type.id),
+                # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(a_type.id, sub_type.id),
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
             },
         )
         self.assertNoFormError(response2)
@@ -640,10 +646,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'status': Status.objects.all()[0].pk,
 
                 # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-                ),
+                # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
+                #    constants.ACTIVITYTYPE_MEETING,
+                #     constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+                # ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_MEETING,
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
@@ -691,10 +698,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
                 self.EXTRA_PARTUSERS_KEY: [team.id],
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
             },
         )
         self.assertNoFormError(response)
@@ -785,7 +789,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     'status': Status.objects.all()[0].pk,
 
                     # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
-                    self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
+                    # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
+                    self.EXTRA_SUBTYPE_KEY: sub_type_id,
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
                     f'{self.EXTRA_MYPART_KEY}_1': def_calendar.pk,
@@ -798,6 +803,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                     ),
                 },
             )
+
             self.assertNoFormError(response2)
 
             act = self.get_object_or_fail(Activity, type=type_id, title=title)
@@ -818,10 +824,11 @@ class ActivityTestCase(_ActivitiesTestCase):
             'title': 'My task',
 
             # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-            self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                constants.ACTIVITYTYPE_MEETING,
-                constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-            ),
+            # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
+            #     constants.ACTIVITYTYPE_MEETING,
+            #     constants.ACTIVITYSUBTYPE_MEETING_OTHER,
+            # ),
+            self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
             # f'{self.EXTRA_END_KEY}_0': '2013-3-29',
             f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 3, 29),
@@ -870,7 +877,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': 'My task',
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_MEETING,
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -896,7 +903,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':               user.id,
                 'title':              'My task',
 
-                self.EXTRA_SUBTYPE_KEY:  self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                self.EXTRA_SUBTYPE_KEY:  constants.ACTIVITYTYPE_TASK,
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -923,7 +930,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':               user.id,
                 'title':              'My task',
 
-                self.EXTRA_SUBTYPE_KEY:  self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                self.EXTRA_SUBTYPE_KEY:  constants.ACTIVITYTYPE_TASK,
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': Calendar.objects.get_default_calendar(user).pk,
@@ -951,10 +958,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
                 # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
 
@@ -1020,10 +1024,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.pk,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 # f'{self.EXTRA_START_KEY}_0': '2013-3-28',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 28),
@@ -1054,10 +1055,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 f'{self.EXTRA_MYPART_KEY}_0': True,
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
@@ -1122,10 +1120,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
 
@@ -1205,7 +1200,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title':  title,
                 'status': status.pk,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(atype.id, subtype.id),
+                self.EXTRA_SUBTYPE_KEY: subtype.id,
 
                 # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
@@ -1262,7 +1257,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, subtype.id),
+                self.EXTRA_SUBTYPE_KEY: subtype.id,
 
                 # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
@@ -1279,29 +1274,27 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.login()
         self.assertGET404(reverse('activities__create_activity', args=('invalid',)))
 
-    def test_create_view_unallowedtype(self):
-        user = self.login()
-
-        response = self.assertPOST200(
-            reverse('activities__create_activity', args=('phonecall',)),
-            follow=True,
-            data={
-                'user': user.pk,
-                'title': 'My meeting',
-
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
-
-                # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
-                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
-                f'{self.EXTRA_START_KEY}_1': '10:00:00',
-            },
-        )
-        self.assertFormError(
-            response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
-        )
+    # No more constraint error with ActivitySubTypeField
+    # def test_create_view_unallowedtype(self):
+    #     user = self.login()
+    #
+    #     response = self.assertPOST200(
+    #         reverse('activities__create_activity', args=('phonecall',)),
+    #         follow=True,
+    #         data={
+    #             'user': user.pk,
+    #             'title': 'My meeting',
+    #
+    #             self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+    #
+    #             # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
+    #             f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
+    #             f'{self.EXTRA_START_KEY}_1': '10:00:00',
+    #         },
+    #     )
+    #     self.assertFormError(
+    #         response, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
+    #     )
 
     def test_create_view_task(self):
         user = self.login()
@@ -1316,7 +1309,8 @@ class ActivityTestCase(_ActivitiesTestCase):
             'user': user.pk,
             'title': title,
 
-            self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
+            # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id),
+            # self.EXTRA_SUBTYPE_KEY: type_id,
 
             # f'{self.EXTRA_START_KEY}_0': '2013-4-12',
             f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 4, 12),
@@ -1327,7 +1321,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         }
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', self.EXTRA_SUBTYPE_KEY, _('Sub-type is required.'),
+            response1, 'form', self.EXTRA_SUBTYPE_KEY, _('This field is required.'),
         )
 
         # ---
@@ -1337,7 +1331,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             follow=True,
             data={
                 **data,
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type.id),
+                self.EXTRA_SUBTYPE_KEY: sub_type.id,
             },
         )
         self.assertNoFormError(response2)
@@ -1368,10 +1362,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user':  user.id,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
 
                 # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
@@ -1494,10 +1485,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'user': user.pk,
                 'title': title,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_REVIVAL,
 
                 # f'{self.EXTRA_START_KEY}_0': '2013-5-21',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
@@ -1519,26 +1507,27 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertRedirects(response1, meeting.get_absolute_url())
 
+        # No more constraint error with ActivitySubTypeField
         # ---
-        response2 = self.assertPOST200(
-            uri, follow=True,
-            data={
-                'user':  user.pk,
-                'title': 'Other meeting',
-
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-
-                # f'{self.EXTRA_START_KEY}_0': '2013-5-21',
-                f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
-                f'{self.EXTRA_START_KEY}_1': '9:30:00',
-
-                f'{self.EXTRA_MYPART_KEY}_0': True,
-                f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
-            },
-        )
-        self.assertFormError(
-            response2, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
-        )
+        # response2 = self.assertPOST200(
+        #     uri, follow=True,
+        #     data={
+        #         'user':  user.pk,
+        #         'title': 'Other meeting',
+        #
+        #         self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+        #
+        #         # f'{self.EXTRA_START_KEY}_0': '2013-5-21',
+        #         f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 5, 21),
+        #         f'{self.EXTRA_START_KEY}_1': '9:30:00',
+        #
+        #         f'{self.EXTRA_MYPART_KEY}_0': True,
+        #         f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
+        #     },
+        # )
+        # self.assertFormError(
+        #     response2, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.'),
+        # )
 
     @skipIfCustomContact
     def test_createview_related_other(self):
@@ -1600,7 +1589,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(1,  end_f.initial[0].day)
         self.assertEqual(23, end_f.initial[1].hour)
 
-        self.assertTupleEqual((type_id, sub_type_id), subtype_f.initial)
+        self.assertEqual(sub_type_id, subtype_f.initial)
 
         # ---
         title += '_edited'
@@ -1612,7 +1601,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
                 # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
+                self.EXTRA_SUBTYPE_KEY: sub_type_id,
             },
         ))
 
@@ -1649,10 +1638,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
                 # f'{self.EXTRA_START_KEY}_0': '2011-2-22',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2011, 2, 22),
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             },
         ))
 
@@ -1711,10 +1697,11 @@ class ActivityTestCase(_ActivitiesTestCase):
                 f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2013, 4, 17),
                 f'{self.EXTRA_END_KEY}_1': '16:00:00',
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    meeting01.type_id,
-                    meeting01.sub_type_id,
-                ),
+                # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
+                #     meeting01.type_id,
+                #     meeting01.sub_type_id,
+                # ),
+                self.EXTRA_SUBTYPE_KEY: meeting01.sub_type_id,
             }
         )
         self.assertFormError(
@@ -1764,7 +1751,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         url = activity.get_edit_absolute_url()
-        fvalue = self._acttype_field_value
         data = {
             'user':       user.pk,
             'title':      activity.title,
@@ -1783,14 +1769,15 @@ class ActivityTestCase(_ActivitiesTestCase):
             follow=True,
             data={
                 **data,
-                self.EXTRA_SUBTYPE_KEY: fvalue(
-                    constants.ACTIVITYTYPE_PHONECALL,
-                    constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                ),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             },
         )
+        # self.assertFormError(
+        #     response1, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.')
+        # )
         self.assertFormError(
-            response1, 'form', self.EXTRA_SUBTYPE_KEY, _('This type causes constraint error.')
+            response1, 'form', self.EXTRA_SUBTYPE_KEY,
+            ActivitySubTypeField.default_error_messages['invalid_choice']
         )
 
         # ---
@@ -1802,7 +1789,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             follow=True,
             data={
                 **data,
-                self.EXTRA_SUBTYPE_KEY: fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id),
+                self.EXTRA_SUBTYPE_KEY: subtype.id,
             },
         )
         self.assertNoFormError(response2)
@@ -1945,10 +1932,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         with self.assertNoException():
             type_f = response1.context['form'].fields[form_field_name]
 
-        self.assertTupleEqual(
-            (activity.type_id, activity.sub_type_id),
-            type_f.initial,
-        )
+        self.assertEqual(activity.sub_type_id, type_f.initial)
 
         # POST ---
         a_type_id    = constants.ACTIVITYTYPE_MEETING
@@ -1958,7 +1942,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             uri,
             data={
                 # 'field_value': self._acttype_field_value(a_type_id, a_subtype_id),
-                form_field_name: self._acttype_field_value(a_type_id, a_subtype_id),
+                form_field_name: a_subtype_id,
             },
         ))
 
@@ -1994,14 +1978,13 @@ class ActivityTestCase(_ActivitiesTestCase):
             self.build_inneredit_uri(activity, field_name),
             data={
                 # 'field_value': self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO, ''),
-                form_field_name: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_INDISPO, '',
-                ),
+                form_field_name: constants.ACTIVITYTYPE_INDISPO,
             },
         )
         self.assertFormError(
             # response, 'form', 'field_value', _('This type causes constraint error.')
-            response, 'form', form_field_name, _('This type causes constraint error.'),
+            response, 'form', form_field_name,
+            ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
     def test_inner_edit_type04(self):
@@ -2022,7 +2005,6 @@ class ActivityTestCase(_ActivitiesTestCase):
             sub_type_id=constants.ACTIVITYSUBTYPE_UNAVAILABILITY,
         )
 
-        fvalue = self._acttype_field_value
         # url = self.build_inneredit_url(activity, 'type')
         field_name = 'type'
         form_field_name = f'override-{field_name}'
@@ -2032,22 +2014,20 @@ class ActivityTestCase(_ActivitiesTestCase):
             uri,
             data={
                 # 'field_value': fvalue(
-                form_field_name: fvalue(
-                    constants.ACTIVITYTYPE_PHONECALL,
-                    constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                ),
+                form_field_name: constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
             },
         )
         self.assertFormError(
             # response, 'form', 'field_value', _('This type causes constraint error.')
-            response, 'form', form_field_name, _('This type causes constraint error.')
+            response, 'form', form_field_name,
+            ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
         self.assertNoFormError(self.client.post(
             # url,
             uri,
             # data={'field_value': fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
-            data={form_field_name: fvalue(constants.ACTIVITYTYPE_INDISPO, subtype.id)},
+            data={form_field_name: subtype.id},
         ))
         activity = self.refresh(activity)
         self.assertEqual(constants.ACTIVITYTYPE_INDISPO, activity.type_id)
@@ -2083,9 +2063,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         with self.assertNoException():
             type_f = response1.context['form'].fields[formfield_name]
 
-        self.assertIsInstance(type_f, ActivityTypeField)
+        self.assertIsInstance(type_f, ActivitySubTypeField)
 
-        type_ids = {atype.id for atype in type_f.types}
+        type_ids = {atype.id for atype in self.get_types_of_choices(type_f.choices)}
         self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
         self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
         self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
@@ -2097,10 +2077,7 @@ class ActivityTestCase(_ActivitiesTestCase):
             build_uri(),
             data={
                 'entities': [activity1.pk, activity2.pk],
-                formfield_name: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                formfield_name: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             },
         ))
 
@@ -2144,9 +2121,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         with self.assertNoException():
             type_f = response1.context['form'].fields[formfield_name]
 
-        self.assertIsInstance(type_f, ActivityTypeField)
+        self.assertIsInstance(type_f, ActivitySubTypeField)
 
-        type_ids = {atype.id for atype in type_f.types}
+        type_ids = {atype.id for atype in self.get_types_of_choices(type_f.choices)}
         self.assertIn(constants.ACTIVITYTYPE_PHONECALL, type_ids)
         self.assertIn(constants.ACTIVITYTYPE_MEETING,   type_ids)
         self.assertNotIn(constants.ACTIVITYTYPE_INDISPO, type_ids)
@@ -2173,10 +2150,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 #     constants.ACTIVITYTYPE_MEETING,
                 #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
                 # ),
-                formfield_name: self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                formfield_name: constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
             },
         ))
         self.assertEqual(constants.ACTIVITYTYPE_MEETING, self.refresh(activity2).type_id)
@@ -2221,7 +2195,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertListEqual(
             [constants.ACTIVITYTYPE_INDISPO],
-            [atype.id for atype in type_f.types],
+            [atype.id for atype in self.get_types_of_choices(type_f.choices)],
         )
         self.assertFalse(type_f.help_text)
 
@@ -2235,9 +2209,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 # 'field_value': self._acttype_field_value(
                 #     ACTIVITYTYPE_INDISPO, subtype.id,
                 # ),
-                formfield_name: self._acttype_field_value(
-                    ACTIVITYTYPE_INDISPO, subtype.id,
-                ),
+                formfield_name: subtype.id,
             },
         ))
         activity1 = self.refresh(activity1)
@@ -2457,7 +2429,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': 'Away',
                 'status': status.pk,
 
-                self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_INDISPO),
+                self.EXTRA_SUBTYPE_KEY: constants.ACTIVITYTYPE_INDISPO,
 
                 # f'{self.EXTRA_START_KEY}_0': '2013-3-27',
                 f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 27),
@@ -2473,7 +2445,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
         self.assertFormError(
             response, 'form', self.EXTRA_SUBTYPE_KEY,
-            _('This type causes constraint error.'),
+            ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
     def test_unavailability_createview02(self):
