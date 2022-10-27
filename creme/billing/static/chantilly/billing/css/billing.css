@@ -392,12 +392,27 @@ select.line-vat {
 
 /* Forms */
 
+.billing-exporter-select > li {
+    margin-bottom: 5px;
+}
+
+.billing-exporter-select > li > label {
+    display: flex;
+}
+
+.billing-exporter-select .billing-exporter-choice {
+    padding: 6px;
+    min-width: 400px;
+
+    background-color: #edf6f9;
+}
+
 .billing-exporter-select .billing-exporter-choice .billing-exporter-choice-images {
     padding-left: 20px;
 }
 
 .billing-exporter-select .billing-exporter-choice .billing-exporter-choice-label {
-    padding-left: 50px;
+    padding-left: 8px;
 
     opacity: .7;
 
