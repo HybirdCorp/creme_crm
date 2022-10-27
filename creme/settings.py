@@ -1317,7 +1317,7 @@ BILLING_EXPORTERS = [
     # (see FLAVOURS_INFO in 'creme/billing/exporters/latex.py')
     # 'creme.billing.exporters.latex.LatexExportEngine',
 
-    # Need the package "weasyprint" (pip install weasyprint) (tested with weasyprint == 51).
+    # Need the package "weasyprint" (pip install creme-crm[billing_weasyprint]).
     # 'creme.billing.exporters.weasyprint.WeasyprintExportEngine',
 
     # Other possibilities:
