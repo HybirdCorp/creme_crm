@@ -309,7 +309,8 @@ class IconRegistry:
                             model: type[Model],
                             info_function: IconInfoFunc,
                             ) -> IconRegistry:
-        """Set up the registry in order to retrieve an Icon corresponding to an instance of a model.
+        """Set up the registry in order to retrieve an Icon corresponding to an
+        instance of a model.
         Ie: instances of a same type can have different Icons.
 
         @param model: Class inheriting django.db.models.Model.
