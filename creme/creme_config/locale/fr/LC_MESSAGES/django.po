@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-26 16:43+0200\n"
+"POT-Creation-Date: 2022-11-02 13:05+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -831,6 +831,18 @@ msgstr "Pas de filtre, pas de condition."
 #, python-brace-format
 msgid "Copy of «{role}»"
 msgstr "Copie de «{role}»"
+
+msgid "Copy the configuration of menu"
+msgstr "Copier la configuration du menu"
+
+msgid "Copy the configuration of blocks"
+msgstr "Copier la configuration des blocs"
+
+msgid "Copy the custom forms"
+msgstr "Copier les formulaires personnalisés"
+
+msgid "Copy the configuration of search"
+msgstr "Copier la configuration de la recherche"
 
 msgid "Choose a role to transfer to"
 msgstr "Choisissez un rôle auquel transférer"

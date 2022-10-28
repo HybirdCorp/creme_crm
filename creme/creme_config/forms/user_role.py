@@ -47,11 +47,16 @@ from creme.creme_core.forms import (
     MultiEntityCTypeChoiceField,
 )
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
     CremeEntity,
     CremeUser,
+    CustomFormConfigItem,
     DeletionCommand,
     EntityFilter,
     Job,
+    MenuConfigItem,
+    SearchConfigItem,
     SetCredentials,
     UserRole,
 )
@@ -337,9 +342,41 @@ class UserRoleCloningForm(CremeModelForm):
     def __init__(self, role_to_clone: UserRole, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.role_to_clone = role_to_clone
-        self.fields['name'].initial = gettext('Copy of «{role}»').format(role=role_to_clone)
+
+        fields = self.fields
+        fields['name'].initial = gettext('Copy of «{role}»').format(role=role_to_clone)
+
+        self._menu_items = MenuConfigItem.objects.filter(role=role_to_clone)
+        if self._menu_items.exists():
+            fields['copy_menu'] = forms.BooleanField(
+                label=_('Copy the configuration of menu'),
+                required=False,
+            )
+
+        self._brick_detail_locations = BrickDetailviewLocation.objects.filter(role=role_to_clone)
+        self._brick_home_locations = BrickHomeLocation.objects.filter(role=role_to_clone)
+        if self._brick_detail_locations or self._brick_home_locations:
+            fields['copy_bricks'] = forms.BooleanField(
+                label=_('Copy the configuration of blocks'),
+                required=False,
+            )
+
+        self._cform_items = CustomFormConfigItem.objects.filter(role=role_to_clone)
+        if self._cform_items:
+            fields['copy_forms'] = forms.BooleanField(
+                label=_('Copy the custom forms'),
+                required=False,
+            )
+
+        self._search_items = SearchConfigItem.objects.filter(role=role_to_clone)
+        if self._search_items:
+            fields['copy_search'] = forms.BooleanField(
+                label=_('Copy the configuration of search'),
+                required=False,
+            )
 
     def save(self, *args, **kwargs):
+        cdata = self.cleaned_data
         instance: UserRole = self.instance
         # TODO UserRole.clone() ?
         role_to_clone = self.role_to_clone
@@ -361,6 +398,47 @@ class UserRoleCloningForm(CremeModelForm):
                 forbidden=credentials.forbidden,
                 efilter=efilter.clone() if efilter else None,
             )
+
+        if cdata.get('copy_menu', False):
+            MenuConfigItem.clone_for_role(qs=self._menu_items, role=instance)
+
+        if cdata.get('copy_bricks', False):
+            for location in self._brick_detail_locations:
+                # TODO: BrickDetailviewLocation.clone() ?
+                BrickDetailviewLocation.objects.create(
+                    content_type=location.content_type,
+                    role=instance,
+                    brick_id=location.brick_id,
+                    zone=location.zone,
+                    order=location.order,
+                )
+
+            for location in self._brick_home_locations:
+                # TODO: BrickHomeLocation.clone() ?
+                BrickHomeLocation.objects.create(
+                    role=instance,
+                    brick_id=location.brick_id,
+                    order=location.order,
+                )
+
+        if cdata.get('copy_search', False):
+            for sc_item in self._search_items:
+                # TODO: SearchConfigItem.clone() ?
+                SearchConfigItem.objects.create(
+                    content_type=sc_item.content_type,
+                    role=instance,
+                    json_cells=sc_item.json_cells,
+                    disabled=sc_item.disabled,
+                )
+
+        if cdata.get('copy_forms', False):
+            for cf_item in self._cform_items:
+                # TODO: CustomFormConfigItem.clone() ?
+                CustomFormConfigItem.objects.create(
+                    descriptor_id=cf_item.descriptor_id,
+                    role=instance,
+                    json_groups=cf_item.json_groups,
+                )
 
         return instance
 

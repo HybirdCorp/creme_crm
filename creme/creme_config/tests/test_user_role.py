@@ -2,13 +2,15 @@ from functools import partial
 from json import dumps as json_dump
 
 from django.contrib.contenttypes.models import ContentType
-from django.forms import CharField
+from django.forms import BooleanField, CharField
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
+import creme.creme_core.bricks as core_bricks
 from creme.activities.models import Activity
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
     condition_handler,
@@ -16,11 +18,18 @@ from creme.creme_core.core.entity_filter import (
     operators,
 )
 from creme.creme_core.creme_jobs.deletor import deletor_type
+from creme.creme_core.forms.base import LAYOUT_REGULAR
 from creme.creme_core.forms.widgets import Label
-from creme.creme_core.models import CremeEntity, CremePropertyType
-from creme.creme_core.models import CremeUser as User
+from creme.creme_core.gui.menu import ContainerEntry, Separator0Entry
+from creme.creme_core.menu import CremeEntry, JobsEntry
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    BrickHomeLocation,
+    CremeEntity,
+    CremePropertyType,
+    CremeUser,
     CustomField,
+    CustomFormConfigItem,
     DeletionCommand,
     EntityFilter,
     EntityFilterCondition,
@@ -28,11 +37,16 @@ from creme.creme_core.models import (
     FakeDocument,
     FakeOrganisation,
     Job,
+    MenuConfigItem,
     RelationType,
+    SearchConfigItem,
     SetCredentials,
     UserRole,
 )
 from creme.creme_core.tests.base import CremeTestCase, skipIfNotInstalled
+from creme.creme_core.tests.fake_custom_forms import (
+    FAKEORGANISATION_CREATION_CFORM,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.models import Document
 from creme.persons.models import Address, Contact, Organisation
@@ -513,7 +527,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         role.allowed_apps = ['creme_core']
         role.save()
 
-        other_user = User.objects.create(username='chloe', role=role)
+        other_user = CremeUser.objects.create(username='chloe', role=role)
         contact = FakeContact.objects.create(
             user=user, first_name='Yuki', last_name='Kajiura',
         )
@@ -2124,7 +2138,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         replacing_role = self.role
         role_2_del = UserRole.objects.create(name='CEO')
         other_role = UserRole.objects.create(name='Coder')
-        user_2_update = User.objects.create(username='chloe', role=role_2_del)  # <= role is used
+        # Role is used
+        user_2_update = CremeUser.objects.create(username='chloe', role=role_2_del)
 
         url = self._build_del_role_url(role_2_del)
         response = self.assertGET200(url)
@@ -2168,7 +2183,7 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.login()
 
         role = UserRole.objects.create(name='CEO')
-        User.objects.create(username='chloe', role=role)  # <= role is used
+        CremeUser.objects.create(username='chloe', role=role)  # <= role is used
 
         response = self.assertPOST200(self._build_del_role_url(role))
         self.assertFormError(response, 'form', 'to_role', _('This field is required.'))
@@ -2308,3 +2323,374 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual(efilter1.name,  efilter2.name)
         self.assertEqual(EF_CREDENTIALS, efilter2.filter_type)
         self.assertEqual(1, efilter2.conditions.count())
+
+    def test_clone_detailview_brick_config01(self):
+        "No copy."
+        self.login()
+        role1 = self.role
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'model': FakeContact,
+                'zone': BrickDetailviewLocation.LEFT,
+                'role': role1,
+            },
+            data=[
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
+                {'brick': core_bricks.PropertiesBrick, 'order': 450},
+            ],
+        )
+        old_count = BrickDetailviewLocation.objects.count()
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            copy_f = fields['copy_bricks']
+
+        self.assertEqual(2, len(fields), fields)
+        self.assertIsInstance(copy_f, BooleanField)
+        self.assertFalse(copy_f.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(url, data={'name': 'My new role'}))
+        self.assertEqual(old_count, BrickDetailviewLocation.objects.count())
+
+    def test_clone_detailview_brick_config02(self):
+        "Copy."
+        self.login()
+        role1 = self.role
+
+        BrickDetailviewLocation.objects.multi_create(
+            defaults={
+                'model': FakeContact,
+                'zone': BrickDetailviewLocation.LEFT,
+                'role': role1,
+            },
+            data=[
+                {'order': 5},
+                {'brick': core_bricks.CustomFieldsBrick, 'order': 40},
+
+                {
+                    'brick': core_bricks.PropertiesBrick,
+                    'order': 450,
+                    'zone': BrickDetailviewLocation.RIGHT,
+                },
+            ],
+        )
+        old_count = BrickDetailviewLocation.objects.count()
+
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__clone_role', args=(role1.id,)),
+            data={'name': name, 'copy_bricks': 'on'},
+        ))
+        self.assertEqual(old_count + 3, BrickDetailviewLocation.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+        locations = BrickDetailviewLocation.objects.filter(role=role2)
+        self.assertEqual(3, len(locations))
+
+        ct = ContentType.objects.get_for_model(FakeContact)
+        location1 = locations[0]
+        self.assertEqual(5,                            location1.order)
+        self.assertEqual(ct,                           location1.content_type)
+        self.assertEqual('modelblock',                 location1.brick_id)
+        self.assertEqual(BrickDetailviewLocation.LEFT, location1.zone)
+
+        location2 = locations[1]
+        self.assertEqual(40,                                location2.order)
+        self.assertEqual(ct,                                location2.content_type)
+        self.assertEqual(core_bricks.CustomFieldsBrick.id_, location2.brick_id)
+        self.assertEqual(BrickDetailviewLocation.LEFT,      location2.zone)
+
+        self.assertEqual(BrickDetailviewLocation.RIGHT, locations[2].zone)
+
+    def test_clone_home_brick_config01(self):
+        "No copy."
+        self.login()
+        role1 = self.role
+
+        create_loc = partial(BrickHomeLocation.objects.create, role=role1)
+        create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
+        create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+
+        old_count = BrickHomeLocation.objects.count()
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            copy_f = fields['copy_bricks']
+
+        self.assertEqual(2, len(fields), fields)
+        self.assertIsInstance(copy_f, BooleanField)
+        self.assertFalse(copy_f.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(url, data={'name': 'My new role'}))
+        self.assertEqual(old_count, BrickHomeLocation.objects.count())
+
+    def test_clone_home_brick_config02(self):
+        "Copy."
+        self.login()
+        role1 = self.role
+
+        create_loc = partial(BrickHomeLocation.objects.create, role=role1)
+        create_loc(brick_id=core_bricks.HistoryBrick.id_,    order=15)
+        create_loc(brick_id=core_bricks.StatisticsBrick.id_, order=45)
+
+        old_count = BrickHomeLocation.objects.count()
+
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__clone_role', args=(role1.id,)),
+            data={'name': name, 'copy_bricks': 'on'},
+        ))
+        self.assertEqual(old_count + 2, BrickHomeLocation.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+        locations = BrickHomeLocation.objects.filter(role=role2, superuser=False)
+        self.assertEqual(2, len(locations))
+
+        location1 = locations[0]
+        self.assertEqual(15,                           location1.order)
+        self.assertEqual(core_bricks.HistoryBrick.id_, location1.brick_id)
+
+        location2 = locations[1]
+        self.assertEqual(45,                              location2.order)
+        self.assertEqual(core_bricks.StatisticsBrick.id_, location2.brick_id)
+
+    def test_clone_search_config01(self):
+        "No copy."
+        self.login()
+        role1 = self.role
+
+        SearchConfigItem.objects.create_if_needed(
+            model=FakeContact,
+            fields=['first_name', 'last_name'],
+            role=role1,
+        )
+
+        old_count = SearchConfigItem.objects.count()
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            copy_f = fields['copy_search']
+
+        self.assertEqual(2, len(fields), fields)
+        self.assertIsInstance(copy_f, BooleanField)
+        self.assertFalse(copy_f.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(url, data={'name': 'My new role'}))
+        self.assertEqual(old_count, SearchConfigItem.objects.count())
+
+    def test_clone_search_config02(self):
+        "Copy."
+        self.login()
+        role1 = self.role
+
+        SearchConfigItem.objects.create_if_needed(
+            role=role1, model=FakeContact, fields=['first_name', 'last_name'],
+        )
+        SearchConfigItem.objects.create_if_needed(
+            role=role1, model=FakeOrganisation, fields=[], disabled=True,
+        )
+
+        old_count = SearchConfigItem.objects.count()
+
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__clone_role', args=(role1.id,)),
+            data={'name': name, 'copy_search': 'on'}
+        ))
+        self.assertEqual(old_count + 2, SearchConfigItem.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+
+        get_ct = ContentType.objects.get_for_model
+        item1 = self.get_object_or_fail(
+            SearchConfigItem, role=role2, content_type=get_ct(FakeContact),
+        )
+        self.assertFalse(item1.disabled)
+        self.assertListEqual(
+            ['regular_field-first_name', 'regular_field-last_name'],
+            [c.key for c in item1.cells],
+        )
+
+        item2 = self.get_object_or_fail(
+            SearchConfigItem, role=role2, content_type=get_ct(FakeOrganisation),
+        )
+        self.assertTrue(item2.disabled)
+        self.assertFalse([*item2.cells])
+
+    def test_clone_menu01(self):
+        "No copy."
+        self.login()
+        role1 = self.role
+
+        create_mitem = partial(MenuConfigItem.objects.create, role=role1)
+        create_mitem(entry_id=CremeEntry.id, order=1)
+        create_mitem(entry_id=Separator0Entry.id, order=2)
+
+        tools = create_mitem(
+            entry_id=ContainerEntry.id, entry_data={'label': 'Tools'},
+            order=100,
+        )
+        create_mitem(entry_id=JobsEntry.id, parent=tools, order=5)
+
+        old_count = MenuConfigItem.objects.count()
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            copy_f = fields['copy_menu']
+
+        self.assertEqual(2, len(fields), fields)
+        self.assertIsInstance(copy_f, BooleanField)
+        self.assertFalse(copy_f.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(url, data={'name': 'My new role'}))
+        self.assertEqual(old_count, MenuConfigItem.objects.count())
+
+    def test_clone_menu02(self):
+        "Copy."
+        self.login()
+        role1 = self.role
+
+        create_mitem = partial(MenuConfigItem.objects.create, role=role1)
+        create_mitem(entry_id=CremeEntry.id, order=1)
+        create_mitem(entry_id=Separator0Entry.id, order=2)
+
+        tools = create_mitem(
+            entry_id=ContainerEntry.id, entry_data={'label': 'Tools'},
+            order=100,
+        )
+        create_mitem(entry_id=JobsEntry.id, parent=tools, order=5)
+
+        old_count = MenuConfigItem.objects.count()
+
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__clone_role', args=(role1.id,)),
+            data={'name': name, 'copy_menu': 'on'},
+        ))
+        self.assertEqual(old_count + 4, MenuConfigItem.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+
+        item1 = self.get_object_or_fail(
+            MenuConfigItem, role=role2, entry_id=CremeEntry.id,
+        )
+        self.assertEqual(1, item1.order)
+        self.assertIsNone(item1.parent)
+        self.assertFalse(item1.entry_data)
+
+        item2 = self.get_object_or_fail(
+            MenuConfigItem, role=role2, entry_id=Separator0Entry.id,
+        )
+        self.assertEqual(2, item2.order)
+
+        item3 = self.get_object_or_fail(
+            MenuConfigItem, role=role2, entry_id=ContainerEntry.id,
+        )
+        self.assertEqual(100, item3.order)
+        self.assertDictEqual({'label': 'Tools'}, item3.entry_data)
+
+        item4 = self.get_object_or_fail(
+            MenuConfigItem, role=role2, entry_id=JobsEntry.id,
+        )
+        self.assertEqual(5,     item4.order)
+        self.assertEqual(item3, item4.parent)
+
+    def test_clone_custom_forms01(self):
+        "No copy."
+        self.login()
+        role1 = self.role
+
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=FAKEORGANISATION_CREATION_CFORM,
+            role=role1,
+            groups_desc=[
+                {
+                    'name': 'General',
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                    ],
+                },
+            ],
+        )
+
+        old_count = CustomFormConfigItem.objects.count()
+
+        url = reverse('creme_config__clone_role', args=(role1.id,))
+        response1 = self.assertGET200(url)
+
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+            copy_f = fields['copy_forms']
+
+        self.assertEqual(2, len(fields), fields)
+        self.assertIsInstance(copy_f, BooleanField)
+        self.assertFalse(copy_f.initial)
+
+        # ---
+        self.assertNoFormError(self.client.post(url, data={'name': 'My new role'}))
+        self.assertEqual(old_count, CustomFormConfigItem.objects.count())
+
+    def test_clone_custom_forms02(self):
+        "Copy."
+        self.login()
+        role1 = self.role
+
+        g_name = 'General'
+        CustomFormConfigItem.objects.create_if_needed(
+            descriptor=FAKEORGANISATION_CREATION_CFORM,
+            role=role1,
+            groups_desc=[
+                {
+                    'name': g_name,
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                    ],
+                },
+            ],
+        )
+
+        old_count = CustomFormConfigItem.objects.count()
+
+        name = 'My new role'
+        self.assertNoFormError(self.client.post(
+            reverse('creme_config__clone_role', args=(role1.id,)),
+            data={'name': name, 'copy_forms': 'on'}
+        ))
+        self.assertEqual(old_count + 1, CustomFormConfigItem.objects.count())
+
+        role2 = self.get_object_or_fail(UserRole, name=name)
+        item = self.get_object_or_fail(CustomFormConfigItem, role=role2, superuser=False)
+        self.assertEqual(FAKEORGANISATION_CREATION_CFORM.id, item.descriptor_id)
+        self.assertListEqual(
+            [
+                {
+                    'name': g_name,
+                    'layout': LAYOUT_REGULAR,
+                    'cells': [
+                        {'type': 'regular_field', 'value': 'user'},
+                        {'type': 'regular_field', 'value': 'name'},
+                    ],
+                },
+            ],
+            item.groups_as_dicts(),
+        )
