@@ -16,7 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+from functools import partial
+
 from django.db import models
+from django.db.transaction import atomic
 
 from .auth import UserRole
 from .base import CremeModel
@@ -62,3 +67,24 @@ class MenuConfigItem(CremeModel):
 
     def __str__(self):
         return self.entry_data.get('label', '??')
+
+    @staticmethod
+    @atomic
+    def clone_for_role(qs: models.QuerySet, role: UserRole | None = None):
+        model = qs.model
+        create_item = partial(model.objects.create, role=role, superuser=role is None)
+
+        # We must translate the parent<->children relation in cloned menu
+        ids_translation = {}
+
+        # We order by ID to get parents first (so the cloned parents exists
+        # when we clone the children)
+        for item in qs.order_by('id'):
+            cloned = create_item(
+                entry_id=item.entry_id,
+                entry_data=item.entry_data,
+
+                parent=ids_translation.get(item.parent_id),
+                order=item.order,
+            )
+            ids_translation[item.id] = cloned

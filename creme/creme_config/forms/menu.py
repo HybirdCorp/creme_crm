@@ -17,11 +17,9 @@
 ################################################################################
 
 import logging
-from functools import partial
 
 from django import forms
 from django.db.models.aggregates import Max
-from django.db.transaction import atomic
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -223,25 +221,8 @@ class MenuCloningForm(CremeForm):
 
         role_f.queryset = UserRole.objects.exclude(pk__in=used_role_ids)
 
-    @atomic
     def save(self, *args, **kwargs):
-        role = self.cleaned_data['role']
-        create_item = partial(
-            MenuConfigItem.objects.create, role=role, superuser=role is None,
+        MenuConfigItem.clone_for_role(
+            qs=MenuConfigItem.objects.filter(role=None, superuser=False),
+            role=self.cleaned_data['role'],
         )
-        # We must translate the parent<->children relation in cloned menu
-        ids_translation = {}
-
-        # We order by ID to get parents first (so the cloned parents exists
-        # when we clone the children)
-        for item in MenuConfigItem.objects.filter(
-            role=None, superuser=False,
-        ).order_by('id'):
-            cloned = create_item(
-                entry_id=item.entry_id,
-                entry_data=item.entry_data,
-
-                parent=ids_translation.get(item.parent_id),
-                order=item.order,
-            )
-            ids_translation[item.id] = cloned
