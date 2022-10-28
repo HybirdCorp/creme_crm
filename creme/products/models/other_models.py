@@ -27,7 +27,7 @@ from creme.creme_core.models import MinionModel
 # class Category(CremeModel):
 class Category(MinionModel):
     name = models.CharField(_('Name of the category'), max_length=100)
-    description = models.CharField(_('Description'), max_length=100)
+    description = models.CharField(_('Description'), max_length=100, blank=True)
 
     creation_label = pgettext_lazy('products-category', 'Create a category')
 

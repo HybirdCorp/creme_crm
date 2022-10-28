@@ -58,6 +58,8 @@
                       in your settings (it's not supported anymore) & re-create it in the GUI.
         * Persons :
             - The Organisation's bricks "Managers" & "Employees" propose now to edit the related contacts, using the new multi-fields inner-edition feature.
+        * Products :
+            - The field 'models.Category.description' is not mandatory anymore.
         * Opportunities :
             - The bricks "Linked Contacts" & "Business managers" display now these fields for the related contacts: position, email, phone, mobile.
               They propose to edit them too, using the new multi-fields inner-edition feature.
