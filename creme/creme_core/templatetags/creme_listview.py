@@ -20,13 +20,16 @@ import logging
 from collections import defaultdict
 
 from django.contrib.auth import get_user_model
+from django.db.models.query_utils import Q
 from django.template import Library
 from django.template.loader import get_template
 
 from ..core.paginator import FlowPaginator
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.pager import PagerContext
+from ..utils.queries import QSerializer
 from ..utils.unicode_collation import collator
+from ..views.generic import EntitiesList
 
 logger = logging.getLogger(__name__)
 register = Library()
@@ -189,3 +192,22 @@ def listview_header_actions(*, cell, user):
     return {
         'actions': cell.bulk_actions(user),
     }
+
+
+@register.simple_tag
+def listview_q_argument(**kwargs):
+    """Build the GET argument to pass to a list-view which encodes an arbitrary
+    filter query (i.e. to limit the listed entities).
+
+    @param kwargs: Items in the form <field=value>.
+
+    Example:
+        <a href="{% url 'my_app__list_my_entities' %}?{% listview_q_argument relations__type=REL_SUB_FOOBAR relations__object_entity=object.id %}">
+            Linked entities
+        </a>
+    """  # NOQA
+    return '{arg}={value}'.format(
+        arg=EntitiesList.requested_q_arg,
+        # TODO: possibility to use OR?
+        value=QSerializer().dumps(Q(**kwargs)),
+    )

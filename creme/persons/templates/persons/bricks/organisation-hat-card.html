@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks persons_tags %}
+{% load i18n creme_bricks creme_listview persons_tags %}
 {% load has_perm_to url url_join from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-organisation-card-brick{% endblock %}
@@ -36,25 +36,25 @@
 {#    <div class="card-employees{% if total_count > 3 and total_count < 15 %} card-employees-wide{% endif %}"> #}
     <div class="card-employees{% if total_count > 3 and total_count < max_contacts %} card-employees-wide{% endif %}">
 {#    {% if total_count >= 15 %} #}
-    {% if total_count >= max_contacts %}
-        <span class="card-function">
-        {% if managers_count %}{% blocktranslate count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktranslate %}{% endif %}
-        {% if managers_count and employees_count %}, {% endif %}
-        {% if employees_count %}{% blocktranslate count count=employees_count %}{{count}} Employee{% plural %}{{count}} Employees{% endblocktranslate %}{% endif %}
+      {% if total_count >= max_contacts %}
+        <span class="card-function">{% url 'persons__list_contacts' as lv_url %}
+          {% if managers_count %}<a href="{{lv_url}}?{% listview_q_argument relations__type=REL_SUB_MANAGES relations__object_entity=object.id %}">{% blocktranslate count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktranslate %}</a>{% endif %}
+          {% if managers_count and employees_count %}, {% endif %}
+          {% if employees_count %}<a href="{{lv_url}}?{% listview_q_argument relations__type=REL_SUB_EMPLOYED_BY relations__object_entity=object.id %}">{% blocktranslate count count=employees_count %}{{count}} Employee{% plural %}{{count}} Employees{% endblocktranslate %}</a>{% endif %}
         </span>
-    {% elif position_is_hidden %}
+      {% elif position_is_hidden %}
         {% for manager in managers %}
-        <span class="card-function">{% translate 'Manager' %}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
+          <span class="card-function">{% translate 'Manager' %}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
         {% endfor %}
         {% for employee in employees %}
-        <span class="card-function">{% translate 'Employee' %}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
+          <span class="card-function">{% translate 'Employee' %}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
-    {% else %}
+      {% else %}
         {% for manager in managers %}
-        <span class="card-function">{{manager.position|default:_('Manager')}}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
+          <span class="card-function">{{manager.position|default:_('Manager')}}</span> <a href='{{manager.get_absolute_url}}'>{{manager|persons_pretty_contact}}</a>{% if not forloop.last or employees %}, {% endif %}
         {% endfor %}
         {% for employee in employees %}
-        <span class="card-function">{{employee.position|default:_('Employee')}}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
+          <span class="card-function">{{employee.position|default:_('Employee')}}</span> <a href='{{employee.get_absolute_url}}'>{{employee|persons_pretty_contact}}</a>{% if not forloop.last %}, {% endif %}
         {% endfor %}
     {% endif %}
     </div>

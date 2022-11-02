@@ -1,5 +1,5 @@
 {% extends 'creme_core/bricks/base/hat-card.html' %}
-{% load i18n creme_bricks creme_widgets persons_tags %}
+{% load i18n creme_bricks creme_listview creme_widgets persons_tags %}
 {% load has_perm_to url from creme_core_tags %}
 
 {% block brick_extra_class %}{{block.super}} persons-contact-card-brick{% endblock %}
@@ -37,12 +37,20 @@
 {% with total_count=managed_count|add:employers_count %}
     <div class="card-jobs{# TODO? {% if total_count > 3 and total_count < max_organisations %} card-jobs-wide{% endif %} #}">
       {% if total_count >= max_organisations %}
-        <div class="card-job">
+        <div class="card-job">{% url 'persons__list_organisations' as lv_url %}
           {% if managed_count %}
-            {% blocktranslate count count=managed_count %}Manages {{count}} organisation{% plural %}Manages {{count}} organisations{% endblocktranslate %}
-            {% if employers_count %}, {% blocktranslate count count=employers_count %}employed by {{count}} organisation{% plural %}employed by {{count}} organisations{% endblocktranslate %}{% endif %}
+            <a href="{{lv_url}}?{% listview_q_argument relations__type=REL_OBJ_MANAGES relations__object_entity=object.id %}">
+                {% blocktranslate count count=managed_count %}Manages {{count}} organisation{% plural %}Manages {{count}} organisations{% endblocktranslate %}
+            </a>
+            {% if employers_count %},
+            <a href="{{lv_url}}?{% listview_q_argument relations__type=REL_OBJ_EMPLOYED_BY relations__object_entity=object.id %}">
+                {% blocktranslate count count=employers_count %}employed by {{count}} organisation{% plural %}employed by {{count}} organisations{% endblocktranslate %}
+            </a>
+            {% endif %}
           {% elif employers_count %}
-            {% blocktranslate count count=employers_count %}Employed by {{count}} organisation{% plural %}Employed by {{count}} organisations{% endblocktranslate %}
+            <a href="{{lv_url}}?{% listview_q_argument relations__type=REL_OBJ_EMPLOYED_BY relations__object_entity=object.id %}">
+                {% blocktranslate count count=employers_count %}Employed by {{count}} organisation{% plural %}Employed by {{count}} organisations{% endblocktranslate %}
+            </a>
           {% endif %}
         </div>
       {% elif total_count %}

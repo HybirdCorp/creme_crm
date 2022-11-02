@@ -340,6 +340,9 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
                 arg=EntitiesList.requested_q_arg,
                 value=QSerializer.dumps(Q(last_name='Smith')),
             )
+
+        Hint: in templates, you can use the templatetag 'listview_q_argument'
+              (from the library 'creme_listview') to generate this argument.
         """
         arg_name = self.requested_q_arg
         json_q_filter = self.arguments.get(arg_name)
