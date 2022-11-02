@@ -256,8 +256,10 @@ class ContactCardHatBrick(Brick):
             max_organisations=max_organisations,
             managed=managed,
             managed_count=managed_count,
+            REL_OBJ_MANAGES=constants.REL_OBJ_MANAGES,
             employers=employers,
             employers_count=employers_count,
+            REL_OBJ_EMPLOYED_BY=constants.REL_OBJ_EMPLOYED_BY,
 
             activities=Activities4Card.get(context, contact),
             neglected_indicator=NeglectedContactIndicator(context, contact),
@@ -334,8 +336,10 @@ class OrganisationCardHatBrick(Brick):
             max_contacts=max_contacts,
             managers=managers,
             managers_count=managers_count,
+            REL_SUB_MANAGES=constants.REL_SUB_MANAGES,
             employees=employees,
             employees_count=employees_count,
+            REL_SUB_EMPLOYED_BY=constants.REL_SUB_EMPLOYED_BY,
 
             activities=Activities4Card.get(context, organisation),
             opportunities=Opportunities4Card.get(context, organisation),
