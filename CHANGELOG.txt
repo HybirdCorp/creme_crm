@@ -3,6 +3,8 @@
   Users side :
   ------------
     # Apps:
+        * Persons :
+            - The count of managers/employees in hat card for Organisations could be wrong (when it was greater than 16).
         * Products :
             - A crash in the creation forms has been fixed (Category without SubCategory).
 
