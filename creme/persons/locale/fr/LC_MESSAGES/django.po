@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-11 14:47+0200\n"
+"POT-Creation-Date: 2022-11-02 18:12+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -753,6 +753,24 @@ msgstr "Adresses supplémentaires"
 
 msgid "No other address set for the moment"
 msgstr "Aucune adresse supplémentaire enregistrée pour le moment"
+
+#, python-format
+msgid "Manages %(count)s organisation"
+msgid_plural "Manages %(count)s organisations"
+msgstr[0] "Responsable de %(count)s société"
+msgstr[1] "Responsable de %(count)s sociétés"
+
+#, python-format
+msgid "employed by %(count)s organisation"
+msgid_plural "employed by %(count)s organisations"
+msgstr[0] "salarié de %(count)s société"
+msgstr[1] "salarié de %(count)s sociétés"
+
+#, python-format
+msgid "Employed by %(count)s organisation"
+msgid_plural "Employed by %(count)s organisations"
+msgstr[0] "Salarié de %(count)s société"
+msgstr[1] "Salarié de %(count)s sociétés"
 
 msgid "Manager"
 msgstr "Responsable"

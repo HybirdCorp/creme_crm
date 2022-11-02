@@ -87,6 +87,7 @@ def persons_pretty_contact(contact):
     return last_name or ''
 
 
+# NB: only used in opportunities?
 @register.simple_tag
 def persons_contact_first_employer(contact, user):
     info = {}
