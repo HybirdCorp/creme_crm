@@ -218,9 +218,32 @@ class ContactCardHatBrick(Brick):
     ]
     template_name = 'persons/bricks/contact-hat-card.html'
 
+    max_related_organisations = 8
+
     def detailview_display(self, context):
         contact = context['object']
+        user = context['user']
         is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
+        max_organisations = self.max_related_organisations
+
+        def retrieve_organisations_n_count(rtype_id):
+            qs = EntityCredentials.filter(
+                user,
+                Organisation.objects.filter(
+                    is_deleted=False,
+                    relations__object_entity=contact,
+                    relations__type=rtype_id,
+                ),
+            )
+            organisations = qs[:max_organisations]
+            count = len(organisations)
+            if count == max_organisations:
+                count = qs.count()
+
+            return organisations, count
+
+        managed, managed_count = retrieve_organisations_n_count(constants.REL_OBJ_MANAGES)
+        employers, employers_count = retrieve_organisations_n_count(constants.REL_OBJ_EMPLOYED_BY)
 
         return self._render(self.get_template_context(
             context,
@@ -229,6 +252,13 @@ class ContactCardHatBrick(Brick):
                 for fname in ('phone', 'mobile', 'email', 'position')
                 if is_hidden(fname)
             },
+
+            max_organisations=max_organisations,
+            managed=managed,
+            managed_count=managed_count,
+            employers=employers,
+            employers_count=employers_count,
+
             activities=Activities4Card.get(context, contact),
             neglected_indicator=NeglectedContactIndicator(context, contact),
             opportunities=Opportunities4Card.get(context, contact),
