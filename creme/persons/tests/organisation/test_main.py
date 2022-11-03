@@ -1,6 +1,7 @@
 from datetime import date
 from functools import partial
 
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -811,6 +812,7 @@ class OrganisationTestCase(_BaseTestCase):
                 rtype.enabled = True
                 rtype.save()
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         user = self.login()
         orga01 = Organisation.objects.create(user=user, name='Nerv')
@@ -825,6 +827,7 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertPOST200(url, follow=True)
         self.assertDoesNotExist(orga01)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Cannot delete the last managed organisation."
         self.login()
@@ -836,8 +839,9 @@ class OrganisationTestCase(_BaseTestCase):
         self.assertPOST409(managed_orga.get_delete_absolute_url())  # follow=True
         self.assertStillExists(managed_orga)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete03(self):
-        "A managed organisation ac be deleted if it's not the last one."
+        "A managed organisation can be deleted if it's not the last one."
         user = self.login()
 
         managed_orga = Organisation.objects.create(user=user, name='Nerv', is_managed=True)

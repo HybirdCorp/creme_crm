@@ -392,6 +392,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         self.assertEqual(1, tickets_page.paginator.count)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview(self):
         user = self.login()
 

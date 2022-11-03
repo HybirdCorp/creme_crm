@@ -1,14 +1,14 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2021 Hybird
+# Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Projects 2.3\n"
+"Project-Id-Version: Creme Projects 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-12-17 10:12+0100\n"
+"POT-Creation-Date: 2022-11-04 10:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -488,46 +488,11 @@ msgstr "Aucune tâche dans ce projet pour le moment"
 msgid "Back to the project"
 msgstr "Retour au projet"
 
-msgid "Some entities are not linkable: {}"
-msgstr ""
-
-#, python-brace-format
-msgid "Entity #{id} (not viewable)"
-msgstr ""
-
-#, python-brace-format
-msgid "Create a task for «{entity}»"
-msgstr "Créer une tâche à «{entity}»"
-
-msgid "This field is required."
-msgstr ""
-
-msgid "This entity does not exist."
-msgstr ""
-
-#, python-brace-format
-msgid "Adding parents to «{object}»"
-msgstr "Ajouter des tâches parentes à «{object}»"
+msgid "Project is already closed."
+msgstr "Le projet est déjà fermé."
 
 msgid "Allocation of a new resource"
 msgstr "Affectation d'une nouvelle ressource"
-
-#, python-brace-format
-msgid "New activity related to «{entity}»"
-msgstr "Nouvelle activité liée à «{entity}»"
-
-#, python-brace-format
-msgid ""
-"{participant} already participates to the activity «{activity}» between "
-"{start} and {end}."
-msgstr ""
-
-#, python-brace-format
-msgid "Resource for «{entity}»"
-msgstr "Ressource pour «{entity}»"
-
-msgid "Project is already closed."
-msgstr "Le projet est déjà fermé."
 
 msgid ""
 "You can't add a resource or a working period to a task which has status «{}»"
@@ -535,10 +500,30 @@ msgstr ""
 "Vous ne pouvez pas ajouter de ressource ou de période travaillée à une tâche "
 "en statut «{}»"
 
+#, python-brace-format
+msgid "Resource for «{entity}»"
+msgstr "Ressource pour «{entity}»"
+
 msgid "This resource cannot be deleted, because it is linked to activities."
 msgstr ""
 "Cette ressource ne peut pas être supprimée, car elle est liée à des "
 "activités."
+
+#, python-brace-format
+msgid "Create a task for «{entity}»"
+msgstr "Créer une tâche à «{entity}»"
+
+#, python-brace-format
+msgid "Adding parents to «{object}»"
+msgstr "Ajouter des tâches parentes à «{object}»"
+
+#, python-brace-format
+msgid "New activity related to «{entity}»"
+msgstr "Nouvelle activité liée à «{entity}»"
+
+# Already in creme_core
+msgid "The definitive deletion has been disabled by the administrator."
+msgstr ""
 
 #~ msgid "Start date"
 #~ msgstr "Date de début"
@@ -549,26 +534,11 @@ msgstr ""
 #~ msgid "Resource view"
 #~ msgstr "Vue de Ressource"
 
-#~ msgid "Can not be deleted because of its dependencies."
-#~ msgstr "Ne peut pas être supprimé à cause des ses dépendances."
-
-#~ msgid "The deletion caused an unexpected error [{}]."
-#~ msgstr "La suppression a provoqué une erreur inattendue [{}]."
-
 #~ msgid "Create a task for «%s»"
 #~ msgstr "Créer une tâche à «%s»"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"
-
-#~ msgid "Portal of projects"
-#~ msgstr "Portail des projets"
-
-#~ msgid "All projects"
-#~ msgstr "Lister les projets"
-
-#~ msgid "Projects portal"
-#~ msgstr "Portail Projet"
 
 #~ msgid "Number of projects"
 #~ msgstr "Nombre de projet(s)"
@@ -585,26 +555,11 @@ msgstr ""
 #~ msgid "Tasks"
 #~ msgstr "Tâches"
 
-#~ msgid "Unlink"
-#~ msgstr "Délier"
-
 #~ msgid "Information"
 #~ msgstr "Informations"
 
 #~ msgid "Resource"
 #~ msgstr "Ressource"
-
-#~ msgid "You can't add a resource because this task is %(status)s"
-#~ msgstr ""
-#~ "Vous ne pouvez pas ajouter de ressources car cette tâche est %(status)s"
-
-#~ msgid "On %(start_date)s from %(start_hour)s to %(end_hour)s"
-#~ msgstr "Le %(start_date)s de %(start_hour)s à %(end_hour)s"
-
-#~ msgid ""
-#~ "From %(start_date)s at %(start_hour)s to %(end_date)s at %(end_hour)s"
-#~ msgstr ""
-#~ "De %(start_date)s à %(start_hour)s jusqu'à %(end_date)s à %(end_hour)s"
 
 #~ msgid "Back to the project: '%(project)s'"
 #~ msgstr "Retour au projet: '%(project)s'"
@@ -618,23 +573,11 @@ msgstr ""
 #~ msgid "Statuses of task"
 #~ msgstr "Statuts de tâche"
 
-#~ msgid "Add a resource from an existing contact"
-#~ msgstr "Ajouter une ressource à partir d'un contact existant"
-
 #~ msgid "Periods"
 #~ msgstr "Périodes"
 
 #~ msgid "New working period"
 #~ msgstr "Nouvelle période travaillée"
-
-#~ msgid "No working period record for this task"
-#~ msgstr "Aucune période travaillée n'a été saisie concernant cette tâche"
-
-#~ msgid "Task's nomenclature"
-#~ msgstr "Nomenclature de tâche"
-
-#~ msgid "Participating users"
-#~ msgstr "Utilisateurs participants"
 
 #~ msgid "Period duration"
 #~ msgstr "Durée de la période"
@@ -657,17 +600,11 @@ msgstr ""
 #~ msgid "Description of the task"
 #~ msgstr "Description de la tâche"
 
-#~ msgid "Portal"
-#~ msgstr "Portail"
-
 #~ msgid "A task can't be its own parent"
 #~ msgstr "Une tâche ne peut pas être parente d'elle même"
 
 #~ msgid "Parent task(s)"
 #~ msgstr "Tâche(s) parente(s)"
-
-#~ msgid "Delete"
-#~ msgstr "Supprimer"
 
 #~ msgid "This task has no parent"
 #~ msgstr "Cette tâche n'a aucun parent"

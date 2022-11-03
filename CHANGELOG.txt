@@ -20,6 +20,8 @@
     # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
     # The version of the shipped Closure compiler has been upgraded (2020-01-12 => 2022-09-05).
     # Creme user selection fields now use paginated autocompletion.
+    # A new variable ENTITIES_DELETION_ALLOWED has been added in 'settings.py' to disabled the definitive deletion of entities.
+      It's true by default (deletion is allowed), & staff user can always delete entities (to fix privacy issue for example).
     # Apps :
         * Creme_config :
             - The email addresses of active users must be unique.

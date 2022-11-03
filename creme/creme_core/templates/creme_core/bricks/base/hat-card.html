@@ -121,7 +121,9 @@
                     {% endif %}
                 {% else %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-restore' label=_('Restore')            url='creme_core__restore_entity'|url:object.id icon='restore' confirm=_('Do you really want to restore this entity?')           enabled=delete_perm %}</div>
+                    {% if ENTITIES_DELETION_ALLOWED %}
                     <div class='card-action'>{% brick_card_button action='creme_core-detailview-delete'  label=_('Delete permanently') url=object.get_delete_absolute_url             icon='delete'  confirm=_('Do you really want to delete this entity definitely?') enabled=delete_perm %}</div>
+                    {% endif %}
                 {% endif %}
             {% endblock %}
             </div>

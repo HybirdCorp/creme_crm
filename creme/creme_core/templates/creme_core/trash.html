@@ -1,5 +1,5 @@
 {% extends 'creme_core/base.html' %}
-{% load i18n creme_widgets creme_bricks %}
+{% load i18n creme_bricks creme_widgets %}
 
 {% block page_title %}{% translate 'Trash' %} - {% endblock %}
 
@@ -10,6 +10,10 @@
             <div class="bar-title"><h1>{{title}}</h1></div>
         </div>
     </div>
+
+    {% if not ENTITIES_DELETION_ALLOWED %}
+        {% widget_help_sign message=_('The definitive deletion has been disabled by the administrator.') %}
+    {% endif%}
 
     {% brick_import app='creme_core' name='trash' as trash_brick %}
     {% brick_display trash_brick %}

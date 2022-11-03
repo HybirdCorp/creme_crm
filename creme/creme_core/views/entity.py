@@ -907,6 +907,14 @@ class TrashCleaning(generic.base.TitleMixin, generic.CheckedView):
     confirmation_template_name = 'creme_core/forms/confirmation.html'
     job_template_name = 'creme_core/job/trash-cleaning-popup.html'
 
+    def dispatch(self, request, *args, **kwargs):
+        if not settings.ENTITIES_DELETION_ALLOWED:
+            raise ConflictError(
+                gettext('The definitive deletion has been disabled by the administrator.')
+            )
+
+        return super().dispatch(request, *args, **kwargs)
+
     # TODO: add a new brick action type (with confirmation + display of a result form)
     #       and remove these get() method ??
     def get(self, request, *args, **kwargs):
@@ -1048,8 +1056,23 @@ class EntityDeletionMixin:
                 )
 
     def delete_entity(self, entity, user):
+        to_trash = self.move_to_trash(entity)
+
+        if (
+            not to_trash
+            and not settings.ENTITIES_DELETION_ALLOWED
+            and not user.is_staff
+            and not hasattr(entity, 'get_related_entity')
+        ):
+            raise ConflictError(
+                gettext(
+                    '«{entity}» can not be deleted because the deletion has '
+                    'been disabled by the administrator.'
+                ).format(entity=entity.allowed_str(user)),
+            )
+
         try:
-            if self.move_to_trash(entity):
+            if to_trash:
                 entity.trash()
             else:
                 entity.delete()

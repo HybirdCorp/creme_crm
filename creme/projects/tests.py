@@ -4,10 +4,12 @@ from json import dumps as json_dump
 from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 import creme.projects.bricks as proj_bricks
 from creme.activities.constants import (
@@ -1768,6 +1770,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertGET409(self._build_edit_activity_url(activity))
 
     @skipIfCustomActivity
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_activity01(self):
         "Activity not related to a project task."
         user = self.login()
@@ -1783,8 +1786,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomActivity
     @skipIfCustomTask
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_activity02(self):
-        "Activity not related to a project task."
+        "Activity is related to a project task."
         self.login()
 
         project = self.create_project('Eva02')[0]
@@ -1801,13 +1805,14 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(activity)
 
     @skipIfCustomActivity
-    @skipIfCustomTask
-    def test_delete_task(self):
+    @override_settings(ENTITIES_DELETION_ALLOWED=False)
+    def test_delete_activity03(self):
+        "Deletion is forbidden."
         self.login()
 
         project = self.create_project('Eva02')[0]
-        task = self.create_task(project, 'arms')
-        worker = self.other_user.linked_contact
+        task    = self.create_task(project, 'arms')
+        worker  = self.other_user.linked_contact
 
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
@@ -1815,10 +1820,41 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.create_activity(resource)
         activity = task.related_activities[0]
 
-        response = self.client.post(task.get_delete_absolute_url())
-        self.assertDoesNotExist(task)
-        self.assertDoesNotExist(resource)
+        response = self.client.post(
+            self.DELETE_ACTIVITY_URL, data={'id': activity.id}, follow=True,
+        )
+        self.assertContains(
+            response,
+            _('The definitive deletion has been disabled by the administrator.'),
+            status_code=409,
+            html=True,
+        )
         self.assertStillExists(activity)
-        self.assertRedirects(response, project.get_absolute_url())
+
+    @parameterized.expand([
+        (True, ),
+        (False, ),
+    ])
+    @skipIfCustomActivity
+    @skipIfCustomTask
+    def test_delete_task(self, deletion_allowed):
+        with override_settings(ENTITIES_DELETION_ALLOWED=deletion_allowed):
+            self.login()
+
+            project = self.create_project('Eva02')[0]
+            task = self.create_task(project, 'arms')
+            worker = self.other_user.linked_contact
+
+            self.create_resource(task, worker)
+            resource = task.resources_set.all()[0]
+
+            self.create_activity(resource)
+            activity = task.related_activities[0]
+
+            response = self.client.post(task.get_delete_absolute_url())
+            self.assertDoesNotExist(task)
+            self.assertDoesNotExist(resource)
+            self.assertStillExists(activity)
+            self.assertRedirects(response, project.get_absolute_url())
 
     # TODO: test better get_project_cost(), get_effective_duration(), get_delay()

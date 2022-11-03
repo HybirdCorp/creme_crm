@@ -1,6 +1,7 @@
 from functools import partial
 
 from django.conf import settings
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -692,6 +693,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             self.assertNotEqual(stack[-1].title, clone.title)
             stack_append(clone)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview01(self):
         "No doc inside."
         user = self.login()
@@ -703,6 +705,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertDoesNotExist(folder)
         self.assertRedirects(response, self.LIST_URL)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview02(self):
         "A doc inside protect from deletion."
         user = self.login()
@@ -718,6 +721,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertPOST409(folder.get_delete_absolute_url())
         self.assertStillExists(folder)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview03(self):
         "Un deletable folder: 'Creme'."
         self.login()
@@ -725,6 +729,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         self.assertPOST409(folder.get_delete_absolute_url())
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview04(self):
         "Un deletable folder: 'Images'."
         self.login()

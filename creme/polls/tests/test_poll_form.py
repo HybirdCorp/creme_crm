@@ -3,6 +3,7 @@ from json import dumps as json_dump
 from json import loads as json_load
 
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
@@ -208,6 +209,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(2, pform_page.paginator.count)
         self.assertSetEqual({pform1, pform2}, {*pform_page.object_list})
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview01(self):
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
@@ -221,6 +223,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertRedirects(self.client.post(url), redirection)
         self.assertDoesNotExist(pform)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview02(self):
         self.login()
         line1, line2, line3 = self.create_3_lines_4_conditions()

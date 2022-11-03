@@ -18,8 +18,10 @@
 
 import logging
 
+from django.conf import settings
 from django.db.models import ProtectedError, Q
 from django.db.transaction import atomic
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import projects
@@ -138,6 +140,12 @@ class ActivityDeletion(generic.CremeModelDeletion):
         return relations
 
     def perform_deletion(self, request):
+        # TODO: factorise
+        if not settings.ENTITIES_DELETION_ALLOWED:
+            raise ConflictError(
+                gettext('The definitive deletion has been disabled by the administrator.')
+            )
+
         activity = self.object = self.get_object()
         relations = self.get_relations(activity)
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-10-24 15:38+0200\n"
+"POT-Creation-Date: 2022-11-04 10:08+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1601,14 +1601,14 @@ msgstr "À la page {}"
 msgid "Previous page"
 msgstr "Page précédente"
 
+msgid "To first page"
+msgstr "À la première page"
+
 msgid "To another page"
 msgstr "Aller à une autre page"
 
 msgid "To last page"
 msgstr "À la dernière page"
-
-msgid "To first page"
-msgstr "À la première page"
 
 msgid "Next page"
 msgstr "Page suivante"
@@ -3412,6 +3412,9 @@ msgstr "Première page"
 msgid "%(count)s items"
 msgstr "%(count)s éléments"
 
+msgid "The definitive deletion has been disabled by the administrator."
+msgstr "La suppression définitive a été désactivée par l'administrateur."
+
 msgid "Go to the configuration of types"
 msgstr "Aller à la configuration des types"
 
@@ -3680,6 +3683,14 @@ msgstr "«{entity}» n'utilise pas la vue de suppression générique."
 #, python-brace-format
 msgid "{entity} : <b>Permission denied</b>"
 msgstr "{entity} : <b>Permission refusée</b>"
+
+#, python-brace-format
+msgid ""
+"«{entity}» can not be deleted because the deletion has been disabled by the "
+"administrator."
+msgstr ""
+"«{entity}» ne peut être supprimé car la suppression a été désactivée par "
+"l'administrateur."
 
 #, python-brace-format
 msgid "«{entity}» can not be deleted."
@@ -3988,9 +3999,6 @@ msgstr "Recherche vide…"
 #~ msgstr ""
 #~ "Erreur lors de l'extraction de valeur: a essayé de retrouver le choix "
 #~ "«{value}» (colonne {column}). Erreur brute: [{raw_error}]"
-
-#~ msgid "«{entity}» can not be deleted because of its dependencies."
-#~ msgstr "«{entity}» ne peut être supprimé à cause de ses dépendances."
 
 #~ msgid "The following entity cannot be deleted:"
 #~ msgid_plural "The following entities cannot be deleted:"
