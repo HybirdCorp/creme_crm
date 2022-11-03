@@ -2,6 +2,7 @@ from datetime import date
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import number_format
 from django.utils.translation import gettext as _
@@ -711,6 +712,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertSetEqual({opp1, opp2}, {*opps_page.object_list})
 
     @skipIfCustomOrganisation
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         "Cannot delete the target & the source."
         self.login()
@@ -730,6 +732,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(emitter, self.refresh(opp).emitter)
 
     @skipIfCustomOrganisation
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Can delete the Opportunity."
         self.login()

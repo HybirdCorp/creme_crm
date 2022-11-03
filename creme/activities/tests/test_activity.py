@@ -6,6 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
 from django.forms.utils import ValidationError
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str  # force_text
 from django.utils.timezone import now
@@ -1815,6 +1816,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertEqual(subtype, activity.sub_type)
 
     @skipIfCustomContact
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         "Cannot delete a participant."
         user = self.login()
@@ -1835,6 +1837,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertStillExists(rel)
 
     @skipIfCustomContact
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the Activity is deleted."
         user = self.login()
@@ -1855,6 +1858,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertStillExists(musashi)
 
     @skipIfCustomContact
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_all01(self):
         """Relations constants.REL_SUB_PART_2_ACTIVITY are removed when the
         Activity is deleted (empty_trash).
@@ -1880,6 +1884,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         self.assertStillExists(musashi)
 
     @skipIfCustomContact
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete_all02(self):
         """If an Activity & its participants are in the trash, the relationships
         cannot avoid the trash emptying.

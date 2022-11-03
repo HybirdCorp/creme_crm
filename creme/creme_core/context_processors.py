@@ -83,3 +83,7 @@ def get_repository(request):
 
 def get_world_settings(request):
     return {'world_settings': get_world_settings_model().objects.instance()}
+
+
+def get_entities_deletion_allowed(request):
+    return {'ENTITIES_DELETION_ALLOWED': settings.ENTITIES_DELETION_ALLOWED}

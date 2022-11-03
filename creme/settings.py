@@ -271,6 +271,7 @@ TEMPLATES = [
                 'creme.creme_core.context_processors.get_site_domain',
                 'creme.creme_core.context_processors.get_today',
                 'creme.creme_core.context_processors.get_world_settings',
+                'creme.creme_core.context_processors.get_entities_deletion_allowed',
                 'creme.creme_core.context_processors.get_css_theme',
                 'creme.creme_core.context_processors.get_bricks_manager',
                 'creme.creme_core.context_processors.get_fields_configs',
@@ -656,6 +657,11 @@ ESLINT = {
 
 # GUI ##########################################################################
 
+# Is the definitive deletion allowed?
+# <False> means entities can only be sent to the trash ; notice that staff users
+# are still allowed to delete entities (in order to respect GDPR).
+ENTITIES_DELETION_ALLOWED = True
+
 # Concrete model used to store WorldSettings
 CREME_CORE_WSETTINGS_MODEL = 'creme_core.WorldSettings'
 
@@ -725,7 +731,7 @@ CSS_DATE_HEADER_LISTVIEW = 'hd_date_cl_lv'
 
 JQUERY_MIGRATE_MUTE = True
 
-# Allows to fallback to JQPlot for the reports bricks. This flag will disappear
+# Allows to fall back to JQPlot for the reports bricks. This flag will disappear
 # along JQPlot resources in the release 2.5
 USE_JQPLOT = False
 
@@ -1169,7 +1175,7 @@ TEST_CREME_OPT_JS = [
 ]
 
 # Optional js/css bundles for extending projects.
-# Beware to clashes with existing bundles ('main.js', 'l10n.js').
+# Beware of clashes with existing bundles ('main.js', 'l10n.js').
 CREME_OPT_MEDIA_BUNDLES = []
 
 ROOT_MEDIA_FILTERS = {

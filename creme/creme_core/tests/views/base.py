@@ -130,6 +130,31 @@ class BrickTestCaseMixin:
         if button_node is not None:
             self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
 
+    def assertBrickHasAction(self, brick_node, url, action_type='edit'):
+        action_node = brick_node.find(f'.//a[@href="{url}"]')
+        if action_node is None:
+            self.fail(
+                'The <a> markup with href="{url}" has not been found '
+                '(URLs found: {found}).'.format(
+                    url=url,
+                    found=', '.join(
+                        '"{}"'.format(a.attrib.get('href'))
+                        for a in brick_node.findall('.//a')
+                    ),
+                )
+            )
+
+        css_class = action_node.attrib.get('class')
+        self.assertIsNotNone(css_class, 'No attribute "class" found.')
+        self.assertIn('brick-action', css_class)
+        self.assertIn(f'action-type-{action_type}', css_class)
+
+    def assertBrickHasNoAction(self, brick_node, url):
+        for action_node in brick_node.findall(f'.//a[@href="{url}"]'):
+            css_class = action_node.attrib.get('class')
+            if css_class and 'brick-action' in css_class:
+                self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
+
 
 class ButtonTestCaseMixin:
     def get_instance_buttons_node(self, tree):

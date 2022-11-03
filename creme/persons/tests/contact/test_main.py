@@ -1023,6 +1023,7 @@ class ContactTestCase(_BaseTestCase):
             self.assertIsNotNone(address2, ident)
             self.assertAddressOnlyContentEqual(address, address2)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete01(self):
         user = self.login()
         naruto = Contact.objects.create(user=user, first_name='Naruto', last_name='Uzumaki')
@@ -1037,14 +1038,16 @@ class ContactTestCase(_BaseTestCase):
         self.assertPOST200(url, follow=True)
         self.assertDoesNotExist(naruto)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete02(self):
         "Can not delete if the Contact corresponds to an user."
         user = self.login()
         contact = user.linked_contact
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
+    @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_delete03(self):
-        "Can not trash if the Contact corresponds to an user."
+        "Can not trash if the Contact corresponds to a user."
         user = self.login()
         contact = user.linked_contact
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
