@@ -476,6 +476,10 @@ span.create-group-entry {
     word-break: break-all;
 }
 
+.search-results a.is_deleted {
+    text-decoration: line-through;
+}
+
 .search-result-reason {opacity: 0.8; font-weight: 400;}
 
 .search-result {margin-bottom: 7px;}
