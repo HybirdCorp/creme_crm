@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -81,7 +81,7 @@ class SearchConfigItemManager(models.Manager):
                          role: Union[UserRole, str, None] = None,
                          disabled: bool = False,
                          ) -> 'SearchConfigItem':
-        """Create a config item & its fields if one does not already exists.
+        """Create a config item & its fields if one does not already exist.
         @param model: Model class the configuration is related to.
         @param fields: Sequence of strings representing regular field names.
         @param role: UserRole instance; or 'superuser'; or None, for default configuration.
