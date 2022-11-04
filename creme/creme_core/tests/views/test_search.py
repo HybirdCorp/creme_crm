@@ -638,3 +638,43 @@ class SearchViewTestCase(ViewsTestCase, BrickTestCaseMixin):
             },
             response.json(),
         )
+
+    def test_light_search04(self):
+        "Deleted entities are ignored."
+        self.login()
+        self._setup_contacts()
+        response = self.assertGET200(self.LIGHT_URL, data={'value': 'Linu'})
+
+        linus = self.linus
+        linus2 = self.linus2
+        andrew = self.andrew
+        self.maxDiff = None
+        self.assertDictEqual(
+            {
+                'best': {
+                    'label': str(andrew),
+                    'url':   andrew.get_absolute_url(),
+                },
+                'results': [
+                    {
+                        'count':   3,
+                        'id':      linus.entity_type_id,
+                        'label':   'Test Contact',
+                        'results': [
+                            {
+                                'label':   str(linus2),
+                                'url':     linus2.get_absolute_url(),
+                                'deleted': True,
+                            }, {
+                                'label': str(andrew),
+                                'url':   andrew.get_absolute_url(),
+                            }, {
+                                'label': str(linus),
+                                'url':   linus.get_absolute_url(),
+                            },
+                        ],
+                    },
+                ],
+            },
+            response.json(),
+        )

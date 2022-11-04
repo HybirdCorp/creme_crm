@@ -238,16 +238,19 @@ creme.search.SearchBox = creme.component.Component.sub({
         if (resultCount > 0) {
             if (resultCount > 1) {
                 var best = data.best;
-                var bestResult = ("<div class='search-results-group best-results-group'>" +
-                                      "<span class='search-results-group-title'>${title}</span>" +
-                                      "<ul class='search-results'>" +
-                                          "<li class='search-result'><a href='${url}'>${label}</a></li>" +
-                                      "</ul>" +
-                                  "</div>").template({
-                                      title: gettext('Best result'),
-                                      url: best.url,
-                                      label: $('<div>').text(best.label).html()  // NB: HTML escaping
-                                  });
+                var bestResult = (
+                    "<div class='search-results-group best-results-group'>" +
+                        "<span class='search-results-group-title'>${title}</span>" +
+                        "<ul class='search-results'>" +
+                            "<li class='search-result'><a href='${url}'${attrs}>${label}</a></li>" +
+                        "</ul>" +
+                    "</div>"
+                ).template({
+                    title: gettext('Best result'),
+                    url: best.url,
+                    attrs: best.deleted ? " class='is_deleted'" : '',
+                    label: $('<div>').text(best.label).html()  // NB: HTML escaping
+                });
 
                 results.push(bestResult);
             }
@@ -260,21 +263,24 @@ creme.search.SearchBox = creme.component.Component.sub({
 
                 var ctResultsUrl = searchUrl.searchData({ct_id: ct.id, research: query}).toString();
                 var ctResults = ct.results.map(function(ctResult) {
-                    return "<li class='search-result'><a href='${url}'>${label}</a></li>".template({
+                    return "<li class='search-result'><a href='${url}'${attrs}>${label}</a></li>".template({
                         url: ctResult.url,
+                        attrs: ctResult.deleted ? " class='is_deleted'" : '',
                         label: $('<div>').text(ctResult.label).html()
                     });
                 });
 
                 var ctGroupTitle = ct.label;
-                var ctGroup = ("<div class='search-results-group'>" +
-                                   "<span class='search-results-group-title'><a href='${url}'>${title}</a></span>" +
-                                   "<ul class='search-results'>${results}</ul>" +
-                               "</div>").template({
-                                   url: ctResultsUrl,
-                                   title: ctGroupTitle,
-                                   results: ctResults.join('\n')
-                               });
+                var ctGroup = (
+                    "<div class='search-results-group'>" +
+                        "<span class='search-results-group-title'><a href='${url}'>${title}</a></span>" +
+                        "<ul class='search-results'>${results}</ul>" +
+                    "</div>"
+                ).template({
+                    url: ctResultsUrl,
+                    title: ctGroupTitle,
+                    results: ctResults.join('\n')
+                });
 
                 results.push(ctGroup);
             }

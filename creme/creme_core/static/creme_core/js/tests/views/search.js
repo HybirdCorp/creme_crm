@@ -26,7 +26,8 @@ var MOCK_GROUP_BEST_RESPONSE = {
                 label: 'Contact A'
             }, {
                 url: '/mock/contact/2',
-                label: 'Contact B'
+                label: 'Contact B',
+                deleted: true
             }]
         }]
     };
@@ -391,8 +392,14 @@ QUnit.test('creme.search.SearchBox.search (1 result group + best result)', funct
 
     equal(gettext('Contacts'), others_group.find('.search-results-group-title').text());
     equal(2, others_group.find('.search-result a').length);
-    equal(gettext('Contact A'), $(others_group.find('.search-result a').get(0)).text());
-    equal(gettext('Contact B'), $(others_group.find('.search-result a').get(1)).text());
+
+    var contactA = $(others_group.find('.search-result a').get(0));
+    equal(gettext('Contact A'), contactA.text());
+    equal(contactA.hasClass('is_deleted'), false);
+
+    var contactB = $(others_group.find('.search-result a').get(1));
+    equal(gettext('Contact B'), contactB.text());
+    equal(contactB.hasClass('is_deleted'), true);
 });
 
 QUnit.test('creme.search.SearchBox.search (N result groups + best result)', function() {

@@ -51,7 +51,7 @@ class FoundEntitiesBrick(QuerysetBrick):
         ctype = ContentType.objects.get_for_model(model)
         self.id_ = id or self.generate_id(
             'creme_core',
-            # We generate an unique ID for each research, in order
+            # We generate a unique ID for each research, in order
             # to avoid sharing state (e.g. page number) between researches.
             f'found-{ctype.app_label}-{ctype.model}-{int(time())}',
         )
@@ -233,7 +233,12 @@ class LightSearch(SearcherMixin, base.CheckedView):
     limit = 5
 
     def build_entry(self, entity):
-        return {'label': str(entity), 'url': entity.get_absolute_url()}
+        entry = {'label': str(entity), 'url': entity.get_absolute_url()}
+
+        if entity.is_deleted:
+            entry['deleted'] = True
+
+        return entry
 
     def build_model_label(self, model):
         return str(model._meta.verbose_name)
@@ -280,7 +285,10 @@ class LightSearch(SearcherMixin, base.CheckedView):
                     entities = []
 
                     for e in query:
-                        score = e.search_score
+                        # TODO: add the columns 'is_deleted' to the order of the query
+                        #       to get not-deleted entities first (& so avoid as much
+                        #       as possible to get them in our limited query).
+                        score = 0 if e.is_deleted else e.search_score
                         entry = self.build_entry(e)
 
                         if score > best_score:
