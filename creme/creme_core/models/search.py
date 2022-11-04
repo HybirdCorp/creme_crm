@@ -48,7 +48,7 @@ class SearchConfigItemManager(models.Manager):
                          role: UserRole | str | None = None,
                          disabled: bool = False,
                          ) -> SearchConfigItem:
-        """Create a config item & its fields if one does not already exists.
+        """Create a config item & its fields if one does not already exist.
         @param model: Model class the configuration is related to.
         @param fields: Sequence of strings representing regular field names.
         @param role: UserRole instance; or 'superuser'; or None, for default configuration.
