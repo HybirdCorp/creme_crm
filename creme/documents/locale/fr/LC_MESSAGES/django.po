@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Documents 2.3\n"
+"Project-Id-Version: Creme Documents 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-07 19:00+0200\n"
+"POT-Creation-Date: 2022-11-04 15:06+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -43,7 +43,8 @@ msgstr "Documents contenus"
 msgid ""
 "Displays the documents contained by the current Folder.\n"
 "App: Documents"
-msgstr "Affiche les Documents contenus dans le Classeur courant.\n"
+msgstr ""
+"Affiche les Documents contenus dans le Classeur courant.\n"
 "App : Documents"
 
 msgid "Child Folders"
@@ -60,12 +61,6 @@ msgstr ""
 "Permet d'ajouter des Documents, reliés avec des relations «concerne le "
 "document».\n"
 "App : Documents"
-
-msgid "Documents related to entities"
-msgstr "Documents crées à partir des fiches"
-
-msgid "Documents received by email"
-msgstr "Documents reçus par e-mail"
 
 msgid "Creation form for folder"
 msgstr "Formulaire de création de classeur"
@@ -180,6 +175,12 @@ msgstr "concerne le document"
 msgid "document related to"
 msgstr "document concerné par"
 
+msgid "Documents related to entities"
+msgstr "Documents crées à partir des fiches"
+
+msgid "Documents received by email"
+msgstr "Documents reçus par e-mail"
+
 msgid "Product image"
 msgstr "Image de produit"
 
@@ -252,8 +253,8 @@ msgstr "Actions"
 msgid "Edit this document"
 msgstr "Modifier ce document"
 
-msgid "Delete this document"
-msgstr "Supprimer ce document"
+msgid "Send this document to the trash"
+msgstr "Envoyer ce document à la corbeille"
 
 msgid "No document in this folder for the moment"
 msgstr "Pas de document dans le classeur pour le moment"
@@ -268,6 +269,13 @@ msgstr "{count} Documents liés"
 
 msgid "Link to an existing document"
 msgstr "Lier à un document existant"
+
+# Already in creme_core
+#, python-format
+msgid ""
+"Beware: the relationship type «%(predicate)s» is disabled. You should re-"
+"enable it if it's still useful, or remove this block"
+msgstr ""
 
 msgid "Unlink this document"
 msgstr "Délier ce document"
@@ -296,6 +304,9 @@ msgstr "Liste des sous-dossiers pour «{parent}»"
 
 msgid "Save the image"
 msgstr "Enregistrer l'image"
+
+#~ msgid "Delete this document"
+#~ msgstr "Supprimer ce document"
 
 #~ msgid "Folder documents"
 #~ msgstr "Documents du classeur"
