@@ -53,7 +53,8 @@ class Migration(migrations.Migration):
                         to='creme_core.CremeEntity', on_delete=CASCADE,
                     ),
                 ),
-                ('name', models.CharField(max_length=80, verbose_name='Name of the messaging list')),
+                # ('name', models.CharField(max_length=80, verbose_name='Name of the messaging list')),
+                ('name', models.CharField(max_length=80, verbose_name='Name')),
                 (
                     'contacts',
                     models.ManyToManyField(
