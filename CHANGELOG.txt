@@ -2,9 +2,14 @@
 
   TODO: compile messages (billing)
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
   Users side :
   ------------
-    # The action columns in the search blocks of advanced search has been improved (in theme 'icecream', 'chantilly' was OK).
+    # In the advanced global search page:
+        - The display of the "View" column has been fixed (in theme 'icecream', 'chantilly' was OK).
+        - The display of deleted entities has been improved.
     # Apps:
         * Persons :
             - The count of managers/employees in hat card for Organisations could be wrong (when it was greater than 16).
