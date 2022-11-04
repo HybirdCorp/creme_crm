@@ -4,6 +4,7 @@
 
   Users side :
   ------------
+    # The action columns in the search blocks of advanced search has been improved (in theme 'icecream', 'chantilly' was OK).
     # Apps:
         * Persons :
             - The count of managers/employees in hat card for Organisations could be wrong (when it was greater than 16).
