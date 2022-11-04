@@ -22,3 +22,7 @@
     text-align: left;
     padding-left: 10px;
 }
+
+.creme_core-search-brick .brick-table-content .advanced-search-result div.is_deleted {
+    text-decoration: line-through;
+}
