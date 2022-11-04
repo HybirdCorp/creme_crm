@@ -28,7 +28,9 @@
             {% brick_table_action id='redirect' url=doc.get_edit_absolute_url label=_('Edit this document') icon='edit' enabled=edit_perm %}
         </td>
         <td {% brick_table_data_status action %}>
-            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Delete this document') enabled=delete_perm %}
+          {% if not doc.is_deleted %}
+            {% brick_table_action id='delete' url=doc.get_delete_absolute_url label=_('Send this document to the trash') enabled=delete_perm %}
+          {% endif %}
         </td>
     </tr>
     {% endfor %}
