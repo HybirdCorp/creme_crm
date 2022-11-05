@@ -4,7 +4,7 @@ from itertools import count
 
 from dateutil.relativedelta import relativedelta
 from django.urls import reverse
-from django.utils.timezone import localtime, now
+from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
 
 from creme.activities.constants import (
@@ -272,7 +272,11 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         other_contact = self.other_user.linked_contact
 
         now_val = now()
-        yesterday = now_val - timedelta(days=1)
+        today_noon = make_aware(
+            datetime(now_val.year, now_val.month, now_val.day, hour=12)
+        )
+        yesterday_noon = today_noon - timedelta(days=1)
+        tomorrow_noon = today_noon + timedelta(days=1)
 
         # Phone calls ----------------------------------------------------------
         i = count(1)
@@ -282,30 +286,32 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 title=f'Pcall#{next(i)}', participant=participant, **kwargs
             )
 
-        pc1 = create_pc(start=yesterday, status_id=STATUS_PLANNED)
-        pc2 = create_pc(start=now_val - timedelta(hours=25))  # Older than pc1 -> before
-        create_pc(start=yesterday, status_id=STATUS_DONE)  # Done -> excluded
-        create_pc(start=yesterday, status_id=STATUS_CANCELLED)  # Cancelled -> excluded
+        pc1 = create_pc(start=yesterday_noon, status_id=STATUS_PLANNED)
+        pc2 = create_pc(start=yesterday_noon - timedelta(hours=1))  # 1h older than pc1 -> before
+        create_pc(start=yesterday_noon, status_id=STATUS_DONE)  # Done -> excluded
+        create_pc(start=yesterday_noon, status_id=STATUS_CANCELLED)  # Cancelled -> excluded
         create_pc(
-            start=yesterday, status_id=STATUS_PLANNED,
+            start=yesterday_noon, status_id=STATUS_PLANNED,
             participant=other_contact,
         )  # I do not participate
         tom1 = create_pc(
-            start=now_val + timedelta(days=1, hours=0 if now_val.hour >= 1 else 1),
+            start=tomorrow_noon,
             status_id=STATUS_PLANNED,
         )  # Tomorrow
 
         expected_pcalls = [
-            pc2, pc1,
-            *(
+            pc2,  # yesterday at 11:00
+            pc1,  # yesterday at 12:00
+            *(    # yesterday from 12:01 to 12:08
                 create_pc(
-                    start=now_val - timedelta(hours=23, minutes=60 - minute),
+                    start=yesterday_noon + timedelta(minutes=minute),
                     participant=contact,
                 ) for minute in range(1, 9)
             ),
         ]
 
-        create_pc(start=now_val - timedelta(hours=23, minutes=7))  # Already 10 PhoneCalls
+        # Do not display more than 10 activities !
+        create_pc(start=yesterday_noon + timedelta(minutes=53))  # yesterday at 12:53
 
         # Floating activities --------------------------------------------------
         create_floating = self._create_floating
@@ -320,11 +326,11 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         # Tomorrow activities --------------------------------------------------
         create_m = partial(
             self._create_meeting, participant=contact,
-            start=now_val + timedelta(hours=23 if now_val.hour >= 1 else 24),
+            start=tomorrow_noon - timedelta(hours=1),  # tomorrow at 11:00
         )
         tom2 = create_m('Meeting #1')
-        create_m('Meeting #2', participant=other_contact)
-        create_m('Meeting #3', start=now_val + timedelta(days=2))
+        create_m('Meeting #2', participant=other_contact)  # I do not participate
+        create_m('Meeting #3', start=tomorrow_noon + timedelta(days=1))  # day after tomorrow
 
         # Assertions -----------------------------------------------------------
         response = self.assertGET200(self.ACTIVITIES_PORTAL_URL)
