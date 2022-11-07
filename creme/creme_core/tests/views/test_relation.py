@@ -1030,6 +1030,7 @@ class RelationViewsTestCase(ViewsTestCase):
                 'predicate': rtype.predicate,
             },
             status_code=409,
+            html=True,
         )
 
         # OK ---

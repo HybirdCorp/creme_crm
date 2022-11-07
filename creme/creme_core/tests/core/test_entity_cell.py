@@ -720,7 +720,7 @@ class EntityCellTestCase(CremeTestCase):
         cell = EntityCellRelation(model=FakeContact, rtype=hated)
         self.assertEqual(hated, cell.relation_type)
         self.assertEqual(FakeContact, cell.model)
-        self.assertEqual(('{} [disabled]').format(hated.predicate), cell.title)
+        self.assertEqual(_('{} [disabled]').format(hated.predicate), cell.title)
         self.assertFalse(cell.is_hidden)
         self.assertTrue(cell.is_excluded)
 
