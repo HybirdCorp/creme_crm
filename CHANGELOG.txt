@@ -319,6 +319,9 @@
         # In 'creme_core.views' :
             - In 'entity', the class-views 'InnerEdition' & 'BulkUpdate' have been heavily reworked (the URLs changed too).
             - In the class 'search.FoundEntitiesBrick', the attribute "ctype" has been removed.
+        # In the templatetag "menu_buttons_display" (from library "creme_menu"), the context is a fresh one for each rendered button ;
+          this is the same behavior as bricks rendering for example (this is made to avoid annoying side effects).
+          Be careful if you shared data between several buttons by storing them in the context during the rendering of buttons.
         # In templates:
             - In "creme/templates/authent/base.html", {% block form_username %} & {% block form_password %} have been replaced by {% block form_fields %}.
             - In "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed

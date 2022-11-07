@@ -125,7 +125,7 @@ class BricksReloading(generic.CheckedView):
                 )
             else:
                 # NB: the context is copied is order to a 'fresh' one for each
-                # brick, & so avoid annoying side-effects
+                # brick, & so avoid annoying side effects.
                 # Notice that build_context() creates a shared dictionary with
                 # the "shared" key in order to explicitly share data between 2+ bricks.
                 brick_renders.append((brick.id_, render_func({**context})))

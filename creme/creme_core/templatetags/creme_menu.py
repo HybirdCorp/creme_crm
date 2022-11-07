@@ -74,7 +74,9 @@ def menu_buttons_display(context):
 
     for button in button_menu.button_registry.get_buttons(bmi, entity):
         # buttons[button.id_] = button.render(button_ctxt)
-        buttons[button.id] = button.render(button_ctxt)
+        # NB: the context is copied is order to a 'fresh' one for each button,
+        #     & so avoid annoying side-effects.
+        buttons[button.id] = button.render({**button_ctxt})
 
     context['buttons'] = [*buttons.values()]
 
