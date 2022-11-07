@@ -510,9 +510,9 @@ class OrganisationTestCase(_BaseTestCase):
             rtype.save()
 
         self.assertEqual(
-            _('List of my {related1} & {related2}').format(
-                related1=_('customers'),
-                related2=_('prospects'),
+            _('List of my {related_items} & {last_related}').format(
+                related_items=_('customers'),
+                last_related=_('prospects'),
             ),
             title,
         )
@@ -537,9 +537,9 @@ class OrganisationTestCase(_BaseTestCase):
             rtype.save()
 
         self.assertEqual(
-            _('List of my {related1} & {related2}').format(
-                related1=_('customers'),
-                related2=_('suspects'),
+            _('List of my {related_items} & {last_related}').format(
+                related_items=_('customers'),
+                last_related=_('suspects'),
             ),
             title,
         )

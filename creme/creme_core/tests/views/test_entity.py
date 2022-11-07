@@ -1001,6 +1001,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
             self.client.post(self.EMPTY_TRASH_URL),
             _('The definitive deletion has been disabled by the administrator.'),
             status_code=409,
+            html=True,
         )
 
     @staticmethod
