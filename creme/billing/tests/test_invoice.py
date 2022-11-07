@@ -8,6 +8,7 @@ from django.db.models.deletion import ProtectedError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.billing import bricks
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
@@ -19,6 +20,8 @@ from creme.creme_core.models import (
     Vat,
 )
 from creme.creme_core.tests.base import CremeTransactionTestCase
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+from creme.creme_core.utils import currency_format
 from creme.persons.constants import REL_SUB_CUSTOMER_SUPPLIER
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -56,14 +59,14 @@ from .base import (
 
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
-class InvoiceTestCase(_BillingTestCase):
+class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_gennumber_url(invoice):
         return reverse('billing__generate_invoice_number', args=(invoice.id,))
 
     def test_source_n_target01(self):
         "Creation."
-        user = self.create_user()
+        user = self.login()
         name = 'Invoice001'
         source, target = self.create_orgas(user=user)
         invoice = Invoice.objects.create(
@@ -88,6 +91,15 @@ class InvoiceTestCase(_BillingTestCase):
 
         self.assertEqual(source, gotten_source)
         self.assertEqual(target, gotten_target)
+
+        # ---
+        response = self.assertGET200(invoice.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.TargetBrick.id_,
+        )
+        self.assertInstanceLink(brick_node, source)
+        self.assertInstanceLink(brick_node, target)
 
     def test_source_n_target02(self):
         "Errors at creation."
@@ -689,7 +701,7 @@ class InvoiceTestCase(_BillingTestCase):
         "User changes => lines user changes."
         user = self.login()
 
-        # Simpler to test with 2 super users (do not have to create SetCredentials etc...)
+        # Simpler to test with 2 superusers (do not have to create SetCredentials etc...)
         other_user = self.other_user
         other_user.superuser = True
         other_user.save()
@@ -1063,6 +1075,29 @@ class InvoiceTestCase(_BillingTestCase):
         invoice = self.refresh(invoice)
         self.assertEqual(expected, invoice._get_total_with_tax())
         self.assertEqual(expected, invoice.total_vat)
+
+        # ---
+        response = self.assertGET200(invoice.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.TotalBrick.id_,
+        )
+
+        exc_total_node = self.get_html_node_or_fail(
+            brick_node, './/h1[@name="total_no_vat"]'
+        )
+        self.assertIn(
+            currency_format.currency(invoice.total_no_vat, invoice.currency),
+            exc_total_node.text,
+        )
+
+        inc_total_node = self.get_html_node_or_fail(
+            brick_node, './/h1[@name="total_vat"]'
+        )
+        self.assertIn(
+            currency_format.currency(invoice.total_vat, invoice.currency),
+            inc_total_node.text,
+        )
 
     @skipIfCustomAddress
     @skipIfCustomProductLine
