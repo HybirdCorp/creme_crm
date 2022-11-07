@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils.functional import partition
 from django.utils.html import escape
 from django.utils.translation import gettext as _
+from django.utils.translation import pgettext
 
 from creme.creme_core.gui.menu import (
     ContainerEntry,
@@ -153,10 +154,10 @@ class MenuEntriesTestCase(CremeTestCase):
 
     def test_search_entry(self):
         entry = SearchConfigEntry()
-        self.assertEqual('creme_config-search',           entry.id)
-        self.assertEqual(_('Search'),                     entry.label)
-        self.assertEqual(reverse('creme_config__search'), entry.url)
-        self.assertEqual('creme_config',                  entry.permissions)
+        self.assertEqual('creme_config-search',                 entry.id)
+        self.assertEqual(pgettext('creme_core-noun', 'Search'), entry.label)
+        self.assertEqual(reverse('creme_config__search'),       entry.url)
+        self.assertEqual('creme_config',                        entry.permissions)
 
     def test_roles_entry(self):
         entry = RolesConfigEntry()
@@ -331,7 +332,7 @@ class MenuEntriesTestCase(CremeTestCase):
                 (reverse('creme_config__history'),        _('History')),
                 (reverse('creme_config__menu'),           _('Menu')),
                 (reverse('creme_config__buttons'),        _('Button menu')),
-                (reverse('creme_config__search'),         _('Search')),
+                (reverse('creme_config__search'),         pgettext('creme_core-noun', 'Search')),
                 (reverse('creme_config__ptypes'),         _('Types of property')),
                 (reverse('creme_config__rtypes'),         _('Types of relationship')),
                 (reverse('creme_config__users'),          _('Users')),

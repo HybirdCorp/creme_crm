@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Reports 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-09-06 12:51+0200\n"
+"POT-Creation-Date: 2022-11-07 15:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -78,9 +78,6 @@ msgstr ""
 "Factures créées par mois par exemple.\n"
 "App : Rapports"
 
-msgid "Blocks"
-msgstr "Blocs"
-
 #, python-brace-format
 msgid ""
 "This block displays the graph «{graph}», contained by the report "
@@ -89,6 +86,12 @@ msgid ""
 msgstr ""
 "Ce bloc affiche le graphe «{graph}», contenu par le rapport «{report}».\n"
 "App : Rapports"
+
+msgid "Report's graph"
+msgstr "Graphique de rapport"
+
+msgid "Blocks"
+msgstr "Blocs"
 
 msgid "By days"
 msgstr "Par jours"
@@ -382,9 +385,6 @@ msgctxt "reports-graphs"
 msgid "Save the graph"
 msgstr "Enregistrer le graphique"
 
-msgid "Report's graph"
-msgstr "Graphique de rapport"
-
 msgid "Reports' graphs"
 msgstr "Graphiques de rapport"
 
@@ -596,6 +596,13 @@ msgstr "Aperçu ({count} lignes)"
 msgid "Preview of the {count} first lines"
 msgstr "Aperçu des {count} premières lignes"
 
+# Already in creme_core
+msgid "Download"
+msgstr ""
+
+msgid "Scale"
+msgstr "Échelle"
+
 msgid "Download CSV"
 msgstr "Télécharger CSV"
 
@@ -649,17 +656,6 @@ msgstr "Télécharger en tant que fichier"
 msgid "Regenerate"
 msgstr "Générer à nouveau"
 
-#, python-format
-msgid "Rendered %(object)s"
-msgstr "Aperçu %(object)s"
-
-#, python-format
-msgid "Rendered %(verbose_name)s : %(title)s"
-msgstr "Aperçu %(verbose_name)s : %(title)s"
-
-msgid "deleted"
-msgstr "supprimé"
-
 #, python-brace-format
 msgid "Create an instance block for «{entity}»"
 msgstr "Créer un bloc d'instance pour «{entity}»"
@@ -705,6 +701,15 @@ msgstr "Lier"
 #, python-brace-format
 msgid "Edit columns of «{object}»"
 msgstr "Modifier les colonnes de «{object}»"
+
+#~ msgid "Rendered %(object)s"
+#~ msgstr "Aperçu %(object)s"
+
+#~ msgid "Rendered %(verbose_name)s : %(title)s"
+#~ msgstr "Aperçu %(verbose_name)s : %(title)s"
+
+#~ msgid "deleted"
+#~ msgstr "supprimé"
 
 #~ msgid "Beware !"
 #~ msgstr "Attention !"
