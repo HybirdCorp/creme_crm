@@ -31,7 +31,17 @@ class Migration(migrations.Migration):
                         verbose_name='ID', serialize=False, auto_created=True, primary_key=True,
                     )
                 ),
-                ('name', models.CharField(max_length=100, verbose_name='Name')),
+                (
+                    'name',
+                    models.CharField(
+                        max_length=100, verbose_name='Name',
+                        help_text=(
+                            "The name is only used to select the signature you want to use (in "
+                            "an email or an email template), it is not display in the email's "
+                            "body."
+                        ),
+                    )
+                ),
                 ('body', models.TextField(verbose_name='Body')),
                 (
                     'images',

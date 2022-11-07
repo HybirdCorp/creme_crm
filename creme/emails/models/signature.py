@@ -27,7 +27,15 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class EmailSignature(CremeModel):  # TODO: MinionModel?
-    name = models.CharField(_('Name'), max_length=100)
+    name = models.CharField(
+        _('Name'),
+        max_length=100,
+        help_text=_(
+            "The name is only used to select the signature you want to use (in "
+            "an email or an email template), it is not display in the email's "
+            "body."
+        ),
+    )
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL, verbose_name=_('User'), on_delete=models.CASCADE,
     )
