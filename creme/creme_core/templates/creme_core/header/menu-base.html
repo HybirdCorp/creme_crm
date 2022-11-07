@@ -17,11 +17,11 @@
     {% block accessories %}
     <div class="accessories-box">
         {% block search %}
-        <div class="search-box">
-            <input type="text" placeholder="{% translate 'Search' %}">
+        <div class="search-box">{% translate 'Search' context 'creme_core-noun' as search_label %}
+            <input type="text" placeholder="{{search_label}}">
             <span class="search-box-icon default">
                 {% widget_icon name='wait' size='header-menu' label=_('Loading…') class='search-icon-loading' %}
-                {% widget_icon name='search' size='header-menu' label=_('Search') class='search-icon-default' %}
+                {% widget_icon name='search' size='header-menu' label=search_label class='search-icon-default' %}
             </span>
 
             <div class="inline-search-results">

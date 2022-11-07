@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Graphs 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-04-14 17:36+0200\n"
+"POT-Creation-Date: 2022-11-07 15:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -22,6 +22,9 @@ msgstr "Graphes"
 
 msgid "Analysis"
 msgstr "Analyse"
+
+msgid "Relationship graph"
+msgstr "Graphe de relations"
 
 msgid "Root nodes"
 msgstr "Nœuds racines"

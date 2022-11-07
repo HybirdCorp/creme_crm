@@ -8,19 +8,13 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-09-23 18:13+0200\n"
+"POT-Creation-Date: 2022-11-07 15:38+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-msgid "Format: Day-Month-Year (Ex:31-12-2022)"
-msgstr "Format : Jour-Mois-Année (Ex:31-12-2022)"
-
-msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)"
-msgstr "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2022 23:59:59)"
 
 msgid "Ice cream"
 msgstr "Crème glacée"
@@ -106,12 +100,6 @@ msgstr "Connexion"
 msgid "Log to <span class=\"app-label\">Crème CRM</span>"
 msgstr "Se connecter à <span class=\"app-label\">Crème CRM</span>"
 
-msgid "Username"
-msgstr "Nom d'utilisateur"
-
-msgid "Password"
-msgstr "Mot de passe"
-
 msgid "Log in"
 msgstr "Se connecter"
 
@@ -134,3 +122,16 @@ msgstr "À propos"
 
 msgid "Forum"
 msgstr "Forum"
+
+#~ msgid "Format: Day-Month-Year (Ex:31-12-2022)"
+#~ msgstr "Format : Jour-Mois-Année (Ex:31-12-2022)"
+
+#~ msgid "Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)"
+#~ msgstr ""
+#~ "Format : Jour-Mois-Année Heure:Minute:Seconde (Ex:31-12-2022 23:59:59)"
+
+#~ msgid "Username"
+#~ msgstr "Nom d'utilisateur"
+
+#~ msgid "Password"
+#~ msgstr "Mot de passe"

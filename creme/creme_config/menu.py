@@ -20,6 +20,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
+from django.utils.translation import pgettext_lazy
 
 from creme.creme_core import models
 from creme.creme_core.gui import menu
@@ -162,7 +163,7 @@ class ButtonsConfigEntry(_ConfigURLEntry):
 
 class SearchConfigEntry(_ConfigURLEntry):
     id = 'creme_config-search'
-    label = _('Search')
+    label = pgettext_lazy('creme_core-noun', 'Search')
     url_name = 'creme_config__search'
 
 
