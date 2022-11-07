@@ -977,7 +977,7 @@ class CalendarWidget(DatePickerMixin, widgets.TextInput):
     is_localized = True
     template_name = 'creme_core/forms/widgets/date.html'
     # default_help_text = settings.DATE_FORMAT_VERBOSE
-    default_help_text = _('E.g. {}')
+    default_help_text = gettext_lazy('E.g. {}')
 
     def get_default_help_text(self, date_format):
         return self.default_help_text.format(
