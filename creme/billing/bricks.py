@@ -364,7 +364,6 @@ class BillingExportersBrick(Brick):
     template_name = 'billing/bricks/exporters.html'
     dependencies = (ExporterConfigItem,)
     configurable = False
-    # permission = 'billing'
     permissions = 'billing'
 
     def detailview_display(self, context):

@@ -7,6 +7,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.billing import bricks
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import (
     FakeOrganisation,
@@ -14,6 +15,7 @@ from creme.creme_core.models import (
     SetCredentials,
     Vat,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Contact, Organisation
 from creme.persons.tests.base import skipIfCustomOrganisation
 from creme.products.models import Product, Service, SubCategory
@@ -36,7 +38,7 @@ from .base import (
 
 @skipIfCustomOrganisation
 @skipIfCustomInvoice
-class LineTestCase(_BillingTestCase):
+class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_msave_url(bdocument):
         return reverse('billing__multi_save_lines', args=(bdocument.id,))
@@ -189,10 +191,10 @@ class LineTestCase(_BillingTestCase):
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_product_lines', args=(invoice.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Add one or more product to «{entity}»').format(entity=invoice),
             context.get('title'),
@@ -206,7 +208,7 @@ class LineTestCase(_BillingTestCase):
         product2 = self.create_product()
         vat = Vat.objects.get_or_create(value=Decimal('5.5'))[0]
         quantity = 2
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'items': self.formfield_value_multi_creator_entity(product1, product2),
@@ -214,8 +216,7 @@ class LineTestCase(_BillingTestCase):
                 'discount_value': Decimal('20'),
                 'vat':            vat.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         invoice = self.refresh(invoice)  # Refresh lines cache
         lines = invoice.get_lines(ProductLine)
@@ -232,9 +233,21 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal('3.2'),  invoice.total_no_vat)  # 2 * 0.8 + 2 * 0.8
         self.assertEqual(Decimal('3.38'), invoice.total_vat)  # 3.2 * 1.07 = 3.38
 
-        self.assertEqual(invoice.get_absolute_url(), line0.get_absolute_url())
-
         self.assertEqual(Product, line0.related_item_class())
+
+        # ---
+        detail_url = invoice.get_absolute_url()
+        self.assertEqual(detail_url, line0.get_absolute_url())
+
+        response3 = self.assertGET200(detail_url)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            bricks.ProductLinesBrick.id_,
+        )
+        self.assertEqual(
+            _('{count} Products').format(count=2),
+            self.get_brick_title(brick_node),
+        )
 
     def test_addlines_not_superuser(self):
         self.login(
@@ -382,10 +395,10 @@ class LineTestCase(_BillingTestCase):
         invoice = self.create_invoice_n_orgas('Invoice001', user=self.other_user)[0]
         url = reverse('billing__create_service_lines', args=(invoice.id,))
         self.assertGET200(url)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('Add one or more service to «{entity}»').format(entity=invoice),
             context.get('title'),
@@ -399,7 +412,7 @@ class LineTestCase(_BillingTestCase):
         service2 = self.create_service()
         vat = Vat.objects.get_or_create(value=Decimal('19.6'))[0]
         quantity = 2
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'items': self.formfield_value_multi_creator_entity(service1, service2),
@@ -407,8 +420,7 @@ class LineTestCase(_BillingTestCase):
                 'discount_value': Decimal('10'),
                 'vat':            vat.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         invoice = self.refresh(invoice)  # Refresh lines cache
         lines = invoice.get_lines(ServiceLine)
@@ -427,6 +439,20 @@ class LineTestCase(_BillingTestCase):
         self.assertEqual(Decimal('25.84'), invoice.total_vat)  # 21.6 * 1.196 = 25.84
 
         self.assertEqual(Service, line0.related_item_class())
+
+        # ---
+        detail_url = invoice.get_absolute_url()
+        self.assertEqual(detail_url, line0.get_absolute_url())
+
+        response3 = self.assertGET200(detail_url)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            bricks.ServiceLinesBrick.id_,
+        )
+        self.assertEqual(
+            _('{count} Services').format(count=2),
+            self.get_brick_title(brick_node),
+        )
 
     @skipIfCustomProductLine
     def test_related_document01(self):
