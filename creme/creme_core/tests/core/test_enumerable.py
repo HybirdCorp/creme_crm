@@ -845,7 +845,15 @@ class EnumerableTestCase(CremeTestCase):
         vat_200 = Vat.objects.get(value=Decimal('20.00'))
         vat_212 = Vat.objects.get(value=Decimal('21.20'))
 
-        self.assertListEqual([
-            {'label': '20.00', 'value': vat_200.pk},
-            {'label': '21.20', 'value': vat_212.pk},
-        ], list(enum.choices(user, term='20')))
+        # SQLite seems to compare the floating value so '20' will match '20.00' only
+        if connection.vendor == 'sqlite':
+            self.assertListEqual([
+                {'label': '20.00', 'value': vat_200.pk},
+            ], list(enum.choices(user, term='20')))
+        # The other databases are using a native decimal value so '20' will match
+        # both '20.00' & '21.20'
+        else:
+            self.assertListEqual([
+                {'label': '20.00', 'value': vat_200.pk},
+                {'label': '21.20', 'value': vat_212.pk},
+            ], list(enum.choices(user, term='20')))

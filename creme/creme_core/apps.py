@@ -552,6 +552,8 @@ class CremeCoreConfig(CremeAppConfig):
         ).register_related_model(
             models.EntityFilter,
             enumerators.EntityFilterEnumerator,
+        ).register_related_model(
+            models.Vat, enumerators.VatEnumerator,
         ).register_field_type(
             models.fields.EntityCTypeForeignKey,
             enumerators.EntityCTypeForeignKeyEnumerator,
