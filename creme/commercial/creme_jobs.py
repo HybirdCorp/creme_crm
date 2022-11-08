@@ -35,7 +35,7 @@ class _ComApproachesEmailsSendType(JobType):
     id = JobType.generate_id('commercial', 'com_approaches_emails_send')
     verbose_name = _('Send emails for commercials approaches')
 
-    # It would be too difficult/inefficient to compute the next wake up,
+    # It would be too difficult/inefficient to compute the next wake-up,
     # so it is not PSEUDO_PERIODIC.
     periodic = JobType.PERIODIC
 
