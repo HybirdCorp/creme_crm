@@ -22,6 +22,7 @@ from functools import partial
 
 from django import forms
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
@@ -387,7 +388,10 @@ class UserMessagesSubCell(_AssistantSubCell):
             from creme.assistants.constants import PRIO_NOT_IMP_PK
             from creme.assistants.models import UserMessage
 
-            title = gettext('[Creme] Activity created: {activity}').format(activity=instance)
+            title = gettext('[{software}] Activity created: {activity}').format(
+                software=settings.SOFTWARE_LABEL,
+                activity=instance,
+            )
             body = gettext("""A new activity has been created: {activity}.
     Description: {description}.
     Start: {start}.

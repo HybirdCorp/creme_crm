@@ -1071,7 +1071,8 @@ class ActivityTestCase(_ActivitiesTestCase):
 
     @skipIfNotInstalled('creme.assistants')
     @skipIfCustomContact
-    def test_createview_usermsg(self):
+    @override_settings(SOFTWARE_LABEL='My CRM')
+    def test_createview_usermessage(self):
         "UserMessage creation."
         user = self.login()
         other_user = self.other_user
@@ -1150,6 +1151,13 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         message = messages[0]
         self.assertEqual(user, message.sender)
+        self.assertEqual(
+            _('[{software}] Activity created: {activity}').format(
+                software='My CRM',
+                activity=meeting,
+            ),
+            message.title,
+        )
         self.assertDatetimesAlmostEqual(now(), message.creation_date)
         self.assertEqual(PRIO_NOT_IMP_PK,  message.priority_id)
         self.assertFalse(message.email_sent)

@@ -17,8 +17,12 @@
 <div class="footer">
     <div class="footer-baseline">
     {% block baseline %}
+      {% if SOFTWARE_LABEL == 'Crème' %}
         {% blocktranslate with software='<a href="https://cremecrm.com">Crème</a>' creator='<a href="https://hybird.org">Hybird</a>' %}<strong>{{software}}</strong> is free/OpenSource software, cooked in France since 2008, by <strong>{{creator}}</strong>{% endblocktranslate %}
         <span class='footer-baseline-version'>— {% blocktranslate %}Version {{creme_version}}{% endblocktranslate %}{# {% if THEME_VERBOSE_NAME %} / {{THEME_VERBOSE_NAME}}{% endif %} #}</span>
+      {% else %}
+        {% blocktranslate with software=SOFTWARE_LABEL %}<strong>{{software}}</strong> is based on <strong><a href="https://cremecrm.com">Crème {{creme_version}}</a></strong>{% endblocktranslate %}
+      {% endif %}
     {% endblock %}
     </div>
 

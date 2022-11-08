@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -115,6 +116,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(1, len(jobs))
         self.assertEqual(self._get_usermessages_job(), jobs[0][0])
 
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_create02(self):
         now_value = now()
         priority = UserMessagePriority.objects.create(title='Important')
@@ -146,7 +148,11 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(len(messages), 2)
 
         message = messages[0]
-        self.assertEqual(_('User message from Creme: {}').format(title), message.subject)
+        software = 'My CRM'
+        self.assertEqual(
+            _('User message from {software}: {title}').format(software=software, title=title),
+            message.subject,
+        )
         self.assertEqual(
             _('{user} sent you the following message:\n{body}').format(
                 user=self.user,

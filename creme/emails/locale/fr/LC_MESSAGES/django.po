@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 15:48+0100\n"
+"POT-Creation-Date: 2022-11-09 14:45+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -130,8 +130,9 @@ msgstr "Envoyer les e-mails des campagnes"
 msgid "Send entity emails"
 msgstr "Envoyer les fiches e-mail"
 
-msgid "Synchronize externals emails with Creme"
-msgstr "Synchroniser des e-mails externes avec Creme"
+#, python-brace-format
+msgid "Synchronize externals emails with {software}"
+msgstr "Synchroniser des e-mails externes avec {software}"
 
 #, python-brace-format
 msgid "There was no message on \"{host}\" for the user \"{user}\""
@@ -542,8 +543,9 @@ msgctxt "emails"
 msgid "Sending of «{campaign}» on {date}"
 msgstr "Envoi de «{campaign}» du {date}"
 
-msgid "[CremeCRM] Campaign email sending error."
-msgstr "[CremeCRM] Erreur d'envoi de campagne d'e-mail."
+#, python-brace-format
+msgid "[{software}] Campaign email sending error."
+msgstr "[{software}] Erreur d'envoi de campagne d'e-mail."
 
 #, python-brace-format
 msgid ""

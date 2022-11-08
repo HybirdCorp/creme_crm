@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.core import mail
 from django.core.mail.backends.locmem import EmailBackend
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
@@ -453,6 +454,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         return mngd_orga, customer
 
     @skipIfCustomOrganisation
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_job01(self):
         "Customer has no CommercialApproach."
         self._send_mails()
@@ -466,7 +468,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         message = messages[0]
         self.assertEqual(
-            _('[CremeCRM] The organisation «{}» seems neglected').format(customer),
+            _('[{software}] The organisation «{organisation}» seems neglected').format(
+                software='My CRM', organisation=customer,
+            ),
             message.subject,
         )
         self.assertEqual(

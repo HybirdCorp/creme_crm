@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 15:38+0100\n"
+"POT-Creation-Date: 2022-11-09 14:47+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -429,8 +429,8 @@ msgid "You cannot create a call to yourself."
 msgstr "Vous ne pouvez pas créer un appel vers vous-même."
 
 #, python-brace-format
-msgid "{status} call to {person} from Creme Mobile"
-msgstr "Appel {status} vers {person} depuis Creme Mobile"
+msgid "{status} call to {person} from {software} Mobile"
+msgstr "Appel {status} vers {person} depuis {software} Mobile"
 
 msgid "Successful"
 msgstr "réussi"
@@ -438,8 +438,9 @@ msgstr "réussi"
 msgid "Failed"
 msgstr "échoué"
 
-msgid "Call to {} from Creme Mobile"
-msgstr "Appel vers {} depuis Creme Mobile"
+#, python-brace-format
+msgid "Call to {person} from {software} Mobile"
+msgstr "Appel vers {} depuis {software} Mobile"
 
 #~ msgid "This contact is a favorite for %s user"
 #~ msgstr "Ce contact est un favori pour %s utilisateur"

@@ -108,7 +108,9 @@ class EmailSending(CremeModel):
             sender = LightWeightEmailSender(sending=self)
         except ImageFromHTMLError as e:
             send_mail(
-                gettext('[CremeCRM] Campaign email sending error.'),
+                gettext('[{software}] Campaign email sending error.').format(
+                    software=settings.SOFTWARE_LABEL,
+                ),
                 gettext(
                     "Emails in the sending of the campaign «{campaign}» on {date} weren't sent "
                     "because the image «{image}» is no longer available in the template."

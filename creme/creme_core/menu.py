@@ -21,6 +21,7 @@ from __future__ import annotations
 import logging
 import math
 
+from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.html import format_html, format_html_join
@@ -116,7 +117,7 @@ class PasswordChangeEntry(menu.FixedURLEntry):
 class CremeEntry(menu.ContainerEntry):
     """Special Entry 'Creme' with hard coded children."""
     id = 'creme_core-creme'
-    label = 'Creme'
+    # label = 'Creme'
     is_required = True
     single_instance = True
     accepts_children = False
@@ -141,6 +142,7 @@ class CremeEntry(menu.ContainerEntry):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self._children[:] = (cls() for cls in self.child_classes)
+        self.label = settings.SOFTWARE_LABEL
 
 
 class QuickFormsEntries(menu.MenuEntrySequence):

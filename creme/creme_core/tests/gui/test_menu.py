@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxLengthValidator
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.html import escape
 from django.utils.translation import gettext as _
@@ -653,7 +654,8 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(_('Log out'), entry.label)
         self.assertEqual(reverse('creme_logout'), entry.url)
 
-    def test_creme_entry(self):
+    @override_settings(SOFTWARE_LABEL='Creme')
+    def test_creme_entry01(self):
         self.login()
         self.assertTrue(CremeEntry.single_instance)
 
@@ -696,6 +698,10 @@ class MenuTestCase(CremeTestCase):
         # ---
         entry.children = [HomeEntry()]  # Should not be set
         self.assertGreater(len([*entry.children]), 1)
+
+    @override_settings(SOFTWARE_LABEL='My amazing CRM')
+    def test_creme_entry02(self):
+        self.assertEqual('My amazing CRM', CremeEntry().label)
 
     def test_recent_entities_entry01(self):
         user = self.login()

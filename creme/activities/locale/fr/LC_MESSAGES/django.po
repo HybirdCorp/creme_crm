@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 15:38+0100\n"
+"POT-Creation-Date: 2022-11-09 13:16+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -252,8 +252,8 @@ msgid "Users to keep informed"
 msgstr "Utilisateurs à tenir informés"
 
 #, python-brace-format
-msgid "[Creme] Activity created: {activity}"
-msgstr "[Creme] Activité créée : {activity}"
+msgid "[{software}] Activity created: {activity}"
+msgstr "[{software}] Activité créée : {activity}"
 
 #, python-brace-format
 msgid ""

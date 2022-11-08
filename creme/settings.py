@@ -266,6 +266,7 @@ TEMPLATES = [
 
                 'creme.creme_core.context_processors.get_version',
                 'creme.creme_core.context_processors.get_django_version',
+                'creme.creme_core.context_processors.get_software_label',
                 'creme.creme_core.context_processors.get_hidden_value',
                 'creme.creme_core.context_processors.get_repository',
                 'creme.creme_core.context_processors.get_site_domain',
@@ -658,6 +659,8 @@ ESLINT = {
 }
 
 # GUI ##########################################################################
+
+SOFTWARE_LABEL = 'Crème'
 
 # Is the definitive deletion allowed?
 # <False> means entities can only be sent to the trash ; notice that staff users

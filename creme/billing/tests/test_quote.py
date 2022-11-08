@@ -4,6 +4,7 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -91,6 +92,7 @@ class QuoteTestCase(_BillingTestCase):
             ],
         )
 
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_createview01(self):
         "Source is not managed + no number given."
         self.login()
@@ -110,9 +112,9 @@ class QuoteTestCase(_BillingTestCase):
         self.assertFalse(number_f.required)
         self.assertEqual(
             _(
-                'If you chose an organisation managed by Creme (like «{}») '
+                'If you chose an organisation managed by {software} (like «{organisation}») '
                 'as source organisation, a number will be automatically generated.'
-            ).format(managed_orga),
+            ).format(software='My CRM', organisation=managed_orga),
             number_f.help_text,
         )
 

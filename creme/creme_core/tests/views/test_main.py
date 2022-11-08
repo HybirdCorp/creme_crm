@@ -45,6 +45,7 @@ class MiscViewsTestCase(ViewsTestCase):
         img = Image.open(f)
         self.assertEqual('PNG', img.format)
 
+    @override_settings(SOFTWARE_LABEL='Creme')
     def test_home01(self):
         self.login()
         response = self.assertGET200(reverse('creme_core__home'))
@@ -65,6 +66,9 @@ class MiscViewsTestCase(ViewsTestCase):
         i2 = self.assertIndex(HistoryBrick.id_,    brick_ids)
         self.assertLess(i1, i2)
 
+        self.assertContains(response, _('Home') + ' - Creme', html=True)
+
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_home02(self):
         "Superuser bricks configuration."
         self.login()
@@ -82,6 +86,8 @@ class MiscViewsTestCase(ViewsTestCase):
         brick = bricks[0]
         self.assertIsInstance(brick, StatisticsBrick)
         self.assertEqual(brick_id, brick.id_)
+
+        self.assertContains(response, _('Home') + ' - My CRM', html=True)
 
     def test_home03(self):
         "Superuser bricks configuration"

@@ -127,22 +127,22 @@ class UserMessage(core_models.CremeModel):
         from django.conf import settings
         from django.core.mail import EmailMessage, get_connection
 
-        usermessages = [*cls.objects.filter(email_sent=False)]
+        user_messages = [*cls.objects.filter(email_sent=False)]
 
-        if not usermessages:
+        if not user_messages:
             return
 
-        subject_format = gettext('User message from Creme: {}')
+        subject_format = gettext('User message from {software}: {title}')
         body_format    = gettext('{user} sent you the following message:\n{body}')
         EMAIL_SENDER   = settings.EMAIL_SENDER
 
         messages = [
             EmailMessage(
-                subject_format.format(msg.title),
+                subject_format.format(software=settings.SOFTWARE_LABEL, title=msg.title),
                 body_format.format(user=msg.sender, body=msg.body),
                 EMAIL_SENDER,
                 [msg.recipient.email],
-            ) for msg in usermessages if msg.recipient.email
+            ) for msg in user_messages if msg.recipient.email
         ]
 
         try:
@@ -159,5 +159,5 @@ class UserMessage(core_models.CremeModel):
             )
 
         cls.objects.filter(
-            pk__in=[m.id for m in usermessages],
+            pk__in=[m.id for m in user_messages],
         ).update(email_sent=True)

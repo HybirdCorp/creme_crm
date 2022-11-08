@@ -17,6 +17,7 @@
 ################################################################################
 
 import django.contrib.auth.views as auth_views
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.urls import reverse, reverse_lazy
 from django.utils.safestring import mark_safe
@@ -29,6 +30,9 @@ from .generic import base
 
 
 class PasswordReset(base.SubmittableMixin, auth_views.PasswordResetView):
+    extra_email_context = {
+        'software': settings.SOFTWARE_LABEL,
+    }
     template_name = 'creme_core/auth/password_reset/form.html'
     subject_template_name = 'creme_core/auth/password_reset/email/subject.txt'
     email_template_name = 'creme_core/auth/password_reset/email/body.txt'

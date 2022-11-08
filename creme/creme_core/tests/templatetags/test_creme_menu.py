@@ -1,6 +1,8 @@
 from copy import deepcopy
 
+from django.conf import settings
 from django.template import Context, Template
+from django.test.utils import override_settings
 from django.utils.safestring import mark_safe
 
 from creme.creme_core.gui import button_menu
@@ -43,7 +45,7 @@ class MenuDisplayTestCase(CremeTestCase):
             f".//li[@class='{class_prefix}-level0 {class_prefix}-id_creme_core-creme']"
         )
         self.assertIsNotNone(creme_li_node)
-        self.assertEqual('Creme', creme_li_node.text)
+        self.assertEqual(settings.SOFTWARE_LABEL, creme_li_node.text)
 
         home_li_node = creme_li_node.find(
             f".//li[@class='{class_prefix}-level1 {class_prefix}-id_creme_core-home']"
@@ -116,12 +118,14 @@ class MenuDisplayTestCase(CremeTestCase):
 
         return containers
 
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_regular_config01(self):
         "Logged as superuser."
         user = self.create_user()
         render = self._render(user)
         self._assert_vanilla_menu(self.get_html_tree(render))
 
+    @override_settings(SOFTWARE_LABEL='Amazing CRM')
     def test_regular_config02(self):
         "Logged as not super-user."
         create_role = UserRole.objects.create

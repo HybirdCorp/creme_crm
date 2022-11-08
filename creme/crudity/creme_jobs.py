@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,10 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
+from django.utils.functional import lazy
+from django.utils.translation import gettext, ngettext
 
 from creme.creme_core.creme_jobs.base import JobType
 from creme.creme_core.models import JobResult
@@ -31,7 +31,12 @@ CremeUser = get_user_model()
 
 class _CruditySynchronizeType(JobType):
     id = JobType.generate_id('crudity', 'synchronization')
-    verbose_name = _('Synchronize externals data sent to Creme')
+    verbose_name = lazy(
+        lambda: gettext(
+            'Synchronize externals data sent to {software}'
+        ).format(software=settings.SOFTWARE_LABEL),
+        str
+    )()
     periodic = JobType.PERIODIC
 
     crudity_registry = crudity_registry

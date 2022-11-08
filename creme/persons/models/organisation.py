@@ -16,8 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from django.conf import settings
 from django.db import models
 from django.urls import reverse
+from django.utils.functional import lazy
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -41,7 +43,13 @@ class OrganisationManager(CremeEntityManager):
 class AbstractOrganisation(CremeEntity, base.PersonWithAddressesMixin):
     name = models.CharField(_('Name'), max_length=200)
 
-    is_managed = models.BooleanField(_('Managed by Creme'), default=False, editable=False)
+    is_managed = models.BooleanField(
+        lazy(
+            lambda: gettext('Managed by {software}').format(software=settings.SOFTWARE_LABEL),
+            str
+        )(),
+        default=False, editable=False,
+    )
 
     phone    = PhoneField(_('Phone'), max_length=100, blank=True).set_tags(optional=True)
     fax      = models.CharField(_('Fax'), max_length=100, blank=True).set_tags(optional=True)

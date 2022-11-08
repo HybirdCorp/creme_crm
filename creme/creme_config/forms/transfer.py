@@ -37,7 +37,7 @@ class ImportForm(CremeForm):
         label=_('Configuration file'),
         help_text=_(
             'A JSON file created with the export button '
-            '(generally in another Creme instance).'
+            '(generally in another Creme instance).'  # TODO: settings.SOFTWARE_LABEL
         ),
         # max_length=
     )

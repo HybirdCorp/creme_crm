@@ -20,6 +20,7 @@ import logging
 from functools import partial
 
 from django.apps import apps
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.utils.translation import gettext as _
 
@@ -132,9 +133,11 @@ class Populator(BasePopulator):
                 uuid=constants.UUID_FOLDER_RELATED2ENTITIES,
                 defaults={
                     'user':        user,
-                    'title':       'Creme',
+                    'title':       settings.SOFTWARE_LABEL,
                     'category':    entities_cat,
-                    'description': _('Folder containing all the documents related to entities'),
+                    'description': _(
+                        'Folder containing all the documents related to entities'
+                    ),
                 },
             )
             get_create_folder(

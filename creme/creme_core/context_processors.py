@@ -26,6 +26,10 @@ from .gui.bricks import BricksManager
 from .models import FieldsConfig
 
 
+def get_software_label(request):
+    return {'SOFTWARE_LABEL': settings.SOFTWARE_LABEL}
+
+
 def get_css_theme(request):
     # NB: AnonymousUser has no 'theme_info' attribute (we need it for the login view)
     theme_info = getattr(request.user, 'theme_info', settings.THEMES[0])

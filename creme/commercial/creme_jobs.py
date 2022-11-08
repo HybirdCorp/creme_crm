@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -105,7 +105,12 @@ class _ComApproachesEmailsSendType(JobType):
                     continue
 
                 emails.append(EmailMessage(
-                    gettext('[CremeCRM] The organisation «{}» seems neglected').format(orga),
+                    gettext(
+                        '[{software}] The organisation «{organisation}» seems neglected'
+                    ).format(
+                        software=settings.SOFTWARE_LABEL,
+                        organisation=orga,
+                    ),
                     gettext(
                         "It seems you haven't created a commercial approach for "
                         "the organisation «{orga}» since {delay} days."
