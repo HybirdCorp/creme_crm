@@ -363,6 +363,7 @@ INSTALLED_CREME_APPS = [
 
     # Manages the Graphs entities ; they are used to generated images to
     # visualize all the entities which are linked to given entities.
+    # BEWARE: needs the app "sketch".
     'creme.graphs',
 
     # Manages the Reports entities:
@@ -371,6 +372,7 @@ INSTALLED_CREME_APPS = [
     #   - they can be used by special blocks to display some statistics
     #     (e.g. number of related Invoices per month in the current year) as
     #     histograms/pie-charts...
+    # BEWARE: needs the app "sketch".
     'creme.reports',
 
     # Manages Products & Services entities, to represent what an Organisation
