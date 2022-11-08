@@ -88,11 +88,11 @@ karma-clean:
 
 ## Run the Javascript test suite
 .PHONY: karma
-karma: media karma-clean
+karma: karma-clean
 	node_modules/.bin/karma start .karma.conf.js --browsers=FirefoxHeadless --targets=$(filter-out $@,$(MAKECMDGOALS))
 	@echo "file://$(shell pwd)/artifacts/karma_coverage/html/index.html"
 
-karma-browsers: media karma-clean
+karma-browsers: karma-clean
 	CHROME_BIN=/usr/bin/google-chrome \
 		node_modules/.bin/karma start .karma.conf.js \
 			--browsers=FirefoxHeadless,ChromiumHeadless,ChromeHeadless \
