@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -55,7 +55,7 @@ logger = logging.getLogger(__name__)
 
 
 class MenuEntry:
-    """ Base class for entries of of main-menu (displayed on top of all pages).
+    """ Base class for entries of main-menu (displayed on top of all pages).
 
     The menu has 2 level of entries:
      - level 0 is for root entries (the ones you always see on top)
@@ -76,7 +76,7 @@ class MenuEntry:
     # Hint: use the classical pattern 'my_app-my_entry' if you set it.
     type: str = ''
 
-    # The label is a human readable string (generally a gettext_lazy object).
+    # The label is a human-readable string (generally a gettext_lazy object).
     # The label of the class is used by 'creme_config' to provide its UI.
     # An instance of entry can override the label using the data given by the
     # related instance of MenuConfigItem (see __init__()).
