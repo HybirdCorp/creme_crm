@@ -18,6 +18,7 @@
 
 import logging
 
+from django.conf import settings
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -94,9 +95,9 @@ class BaseCustomForm(CremeEntityForm):
             managed_orga = first_managed_organisation()
             if managed_orga:
                 self.fields['number'].help_text = gettext(
-                    'If you chose an organisation managed by Creme (like «{}») '
+                    'If you chose an organisation managed by {software} (like «{organisation}») '
                     'as source organisation, a number will be automatically generated.'
-                ).format(managed_orga)
+                ).format(software=settings.SOFTWARE_LABEL, organisation=managed_orga)
 
     def clean(self):
         cdata = super().clean()

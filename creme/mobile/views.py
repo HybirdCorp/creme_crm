@@ -23,6 +23,7 @@ from copy import deepcopy
 from datetime import datetime, time, timedelta
 from functools import partial, wraps
 
+from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
@@ -605,9 +606,10 @@ def _phonecall_workflow_set_end(request, end_function):
 
         pcall = done_activity_creator(
             user=user,
-            title=_('{status} call to {person} from Creme Mobile').format(
+            title=_('{status} call to {person} from {software} Mobile').format(
                 status=_('Successful'),
                 person=person,
+                software=settings.SOFTWARE_LABEL,
             ),
             type_id=act_constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
@@ -643,9 +645,10 @@ def _create_failed_pcall(request):
 
     pcall = failed_activity_creator(
         user=user,
-        title=_('{status} call to {person} from Creme Mobile').format(
+        title=_('{status} call to {person} from {software} Mobile').format(
             status=_('Failed'),
             person=person,
+            software=settings.SOFTWARE_LABEL,
         ),
         type_id=act_constants.ACTIVITYTYPE_PHONECALL,
         sub_type_id=act_constants.ACTIVITYSUBTYPE_PHONECALL_FAILED,
@@ -703,7 +706,9 @@ def phonecall_workflow_postponed(request):
         pcall, me, person = _create_failed_pcall(request)
 
         postponed = deepcopy(pcall)  # NB: idem
-        postponed.title = _('Call to {} from Creme Mobile').format(person)
+        postponed.title = _('Call to {person} from {software} Mobile').format(
+            person=person, software=settings.SOFTWARE_LABEL,
+        )
         postponed.sub_type_id = act_constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING
         postponed.status = None
 

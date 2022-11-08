@@ -23,8 +23,10 @@ from functools import partial
 from typing import Sequence
 
 from django.apps import apps
+from django.conf import settings
 from django.db.models.query_utils import FilteredRelation, Q
-from django.utils.functional import cached_property
+from django.utils.functional import cached_property, lazy
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme import persons
@@ -616,15 +618,19 @@ if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
         id_ = PaginatedBrick.generate_id('persons', 'neglected_orgas')
         verbose_name = _('Neglected organisations')
-        description = _(
-            'Displays customers/prospects organisations (for the Organisations managed by Creme) '
-            'which have no Activity in the future. Expected Activities are related to:\n'
-            '- The Organisations with a relationship «is subject of the activity» or '
-            '«related to the activity»\n'
-            '- The managers & employees with a relationship «participates to the activity» '
-            '(plus the above ones)\n'
-            'App: Accounts and Contacts'
-        )
+        description = lazy(
+            lambda: gettext(
+                'Displays customers/prospects organisations (for the Organisations '
+                'managed by {software}) which have no Activity in the future. '
+                'Expected Activities are related to:\n'
+                '- The Organisations with a relationship «is subject of the activity» or '
+                '«related to the activity»\n'
+                '- The managers & employees with a relationship «participates to the activity» '
+                '(plus the above ones)\n'
+                'App: Accounts and Contacts'
+            ).format(software=settings.SOFTWARE_LABEL),
+            str
+        )()
         dependencies = (Activity,)
         template_name = 'persons/bricks/neglected-organisations.html'
 

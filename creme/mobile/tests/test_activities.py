@@ -3,6 +3,7 @@ from functools import partial
 from itertools import count
 
 from dateutil.relativedelta import relativedelta
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
@@ -645,6 +646,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertPOST404(self.WF_FAILED_URL, data={'pcall_id': meeting.id})
 
     @skipIfCustomActivity
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_phone_call_wf_failed03(self):
         "Phone call is created (with contact)."
         user = self.login()
@@ -682,9 +684,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(start, pcall.end)
 
         self.assertEqual(
-            _('{status} call to {person} from Creme Mobile').format(
+            _('{status} call to {person} from {software} Mobile').format(
                 status=_('Failed'),
                 person=other_contact,
+                software='My CRM',
             ),
             pcall.title,
         )
@@ -794,6 +797,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(tomorrow, end.day)
 
     @skipIfCustomContact
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_phone_call_wf_postponed02(self):
         "Phone calls are created (with contact)."
         user = self.login()
@@ -826,10 +830,12 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
                 for r in failed_pcall.get_participant_relations()
             },
         )
+        software = 'My CRM'
         self.assertEqual(
-            _('{status} call to {person} from Creme Mobile').format(
+            _('{status} call to {person} from {software} Mobile').format(
                 status=_('Failed'),
                 person=other_part,
+                software=software,
             ),
             failed_pcall.title,
         )
@@ -866,7 +872,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(tomorrow, end.day)
 
         self.assertEqual(
-            _('Call to {} from Creme Mobile').format(other_part),
+            _('Call to {person} from {software} Mobile').format(
+                person=other_part,
+                software=software,
+            ),
             pp_pcall.title,
         )
 
@@ -917,6 +926,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_phone_call_wf_lasted5min03(self):
         "Phone call is created (with contact)."
         self.login()
@@ -953,9 +963,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(create_dt(minute=22, second=28), pcall.end)
 
         self.assertEqual(
-            _('{status} call to {person} from Creme Mobile').format(
+            _('{status} call to {person} from {software} Mobile').format(
                 status=_('Successful'),
                 person=other_contact,
+                software='My CRM',
             ),
             pcall.title,
         )
@@ -1036,6 +1047,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
     @skipIfCustomActivity
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_phone_call_wf_just_done02(self):
         user = self.login()
         other_contact = self.other_user.linked_contact
@@ -1065,9 +1077,10 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertDatetimesAlmostEqual(now(), pcall.end)
 
         self.assertEqual(
-            _('{status} call to {person} from Creme Mobile').format(
+            _('{status} call to {person} from {software} Mobile').format(
                 status=_('Successful'),
                 person=other_contact,
+                software='My CRM',
             ),
             pcall.title
         )

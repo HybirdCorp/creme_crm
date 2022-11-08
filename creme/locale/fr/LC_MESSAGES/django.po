@@ -2,13 +2,13 @@
 # Copyright (C) 2022 Hybird
 # This file is distributed under the same license as the Creme package.
 #
-# > django-admin makemessages -l fr  --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
+# > django-admin makemessages -l fr  --no-location -i "activities/*" -i "assistants/*" -i "billing/*" -i "commercial/*" -i "creme_config/*" -i "creme_core/*" -i "crudity/*" -i "cti/*" -i "documents/*" -i "emails/*" -i "events/*" -i "geolocation/*" -i "graphs/*" -i "mobile/*" -i "opportunities/*" -i "persons/*" -i "polls/*" -i "products/*" -i "projects/*" -i "recurrents/*" -i "reports/*" -i "sketch/*" -i "sms/*" -i "static/*" -i "tickets/*" -i "vcfs/*"
 #
 msgid ""
 msgstr ""
 "Project-Id-Version: Creme 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 15:38+0100\n"
+"POT-Creation-Date: 2022-11-10 15:11+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -97,8 +97,9 @@ msgstr "Discuter avec nous"
 msgid "Connection"
 msgstr "Connexion"
 
-msgid "Log to <span class=\"app-label\">Crème CRM</span>"
-msgstr "Se connecter à <span class=\"app-label\">Crème CRM</span>"
+#, python-format
+msgid "Log to <span class=\"app-label\">%(software)s</span>"
+msgstr "Se connecter à <span class=\"app-label\">%(software)s</span>"
 
 msgid "Log in"
 msgstr "Se connecter"
@@ -116,6 +117,14 @@ msgid ""
 msgstr ""
 "<strong>%(software)s</strong> est un logiciel libre, cuisiné en France "
 "depuis 2008, par <strong>%(creator)s</strong>"
+
+#, python-format
+msgid ""
+"<strong>%(software)s</strong> is based on <strong><a href=\"https://cremecrm."
+"com\">Crème %(creme_version)s</a></strong>"
+msgstr ""
+"<strong>%(software)s</strong> est basé sur <strong><a href=\"https://"
+"cremecrm.com\">Crème %(creme_version)s</a></strong>"
 
 msgid "About"
 msgstr "À propos"

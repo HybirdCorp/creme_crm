@@ -114,6 +114,8 @@ def get_ical(activities):
     BEWARE: each parameter has to be separated by \n ONLY no spaces allowed!
     Example : BEGIN:VCALENDAR\nVERSION:2.0
     """
+    # TODO: language ?
+    # TODO: settings.SOFTWARE_LABEL ?
     return """BEGIN:VCALENDAR
 VERSION:2.0
 PRODID:-//CremeCRM//CremeCRM//EN

@@ -47,7 +47,7 @@ class ReminderAlert(AssistantReminder):
     id = Reminder.generate_id('assistants', 'alert')
     model = Alert
     body = _(
-        """This mail is automatically sent by Crème CRM to remind you that an alert concerning {entity} will expire.
+        """This mail is automatically sent by {software} to remind you that an alert concerning {entity} will expire.
             Alert : {title}.
             which description is : {description}.
 
@@ -58,13 +58,16 @@ class ReminderAlert(AssistantReminder):
         return timedelta(minutes=getattr(settings, 'DEFAULT_TIME_ALERT_REMIND', 30))
 
     def generate_email_subject(self, object):
-        return _('Reminder concerning a Creme CRM alert related to {entity}').format(
-            # entity=object.creme_entity,
-            entity=object.real_entity,
+        # return _('Reminder concerning a Creme CRM alert related to {entity}').format(
+        #     entity=object.creme_entity,
+        # )
+        return _('Reminder concerning a {software} alert related to {entity}').format(
+            software=settings.SOFTWARE_LABEL, entity=object.real_entity,
         )
 
     def generate_email_body(self, object):
         return self.body.format(
+            software=settings.SOFTWARE_LABEL,
             # entity=object.creme_entity,
             entity=object.real_entity,
             title=object.title,
@@ -89,7 +92,7 @@ class ReminderTodo(AssistantReminder):
     id = Reminder.generate_id('assistants', 'todo')
     model = ToDo
     body = _(
-        """This mail is automatically sent by Crème CRM to remind you that a todo concerning {entity} will expire.
+        """This mail is automatically sent by {software} to remind you that a todo concerning {entity} will expire.
             Todo : {title}.
             which description is : {description}.
 
@@ -103,13 +106,17 @@ class ReminderTodo(AssistantReminder):
         return SettingValue.objects.get_4_key(key=todo_reminder_key, default=9).value
 
     def generate_email_subject(self, object):
-        return _('Reminder concerning a Creme CRM todo related to {entity}').format(
-            # entity=object.creme_entity,
+        # return _('Reminder concerning a Creme CRM todo related to {entity}').format(
+        #     entity=object.creme_entity,
+        # )
+        return _('Reminder concerning a {software} todo related to {entity}').format(
+            software=settings.SOFTWARE_LABEL,
             entity=object.real_entity,
         )
 
     def generate_email_body(self, object):
         return self.body.format(
+            software=settings.SOFTWARE_LABEL,
             # entity=object.creme_entity,
             entity=object.real_entity,
             title=object.title,

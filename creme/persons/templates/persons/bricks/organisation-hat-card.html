@@ -18,7 +18,7 @@
         </span>
         <div class='business-card-indicators'>
         {% if object.is_managed %}
-            <div class='business-card-indicator'>{% translate 'Managed by Creme' %}</div>
+            <div class='business-card-indicator'>{% blocktranslate with software=SOFTWARE_LABEL %}Managed by {{software}}{% endblocktranslate %}</div>
         {% endif %}
         {% if is_customer %}
             <div class='business-card-indicator'>{% translate 'Customer' %}</div>

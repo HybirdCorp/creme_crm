@@ -494,6 +494,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def test_reminder01(self):
         user = self.user
         now_value = now()
@@ -534,13 +535,16 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
+
+        software = 'My CRM'
         self.assertEqual(
-            _('Reminder concerning a Creme CRM todo related to {entity}').format(
-                entity=self.entity,
+            _('Reminder concerning a {software} todo related to {entity}').format(
+                software=software, entity=self.entity,
             ),
             message.subject,
         )
         self.assertIn(todo1.title, message.body)
+        self.assertIn(software,    message.body)
 
         self.assertFalse(JobResult.objects.filter(job=job))
 

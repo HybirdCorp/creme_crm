@@ -4,6 +4,7 @@ from functools import partial
 from unittest import skipIf
 
 # from django.conf import settings
+from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
@@ -317,6 +318,7 @@ class _BillingTestCase(_BillingTestCaseMixin,
                        base.ButtonTestCaseMixin,
                        base.MassImportBaseTestCaseMixin,
                        CremeTestCase):
+    @override_settings(SOFTWARE_LABEL='My CRM')
     def _aux_test_csv_import(self, model, status_model, update=False, number_help_text=True):
         count = model.objects.count()
         create_orga = partial(Organisation.objects.create, user=self.user)
@@ -412,9 +414,9 @@ class _BillingTestCase(_BillingTestCaseMixin,
         if number_help_text:
             self.assertEqual(
                 _(
-                    'If you chose an organisation managed by Creme as source organisation, '
-                    'a number will be automatically generated for created «{}».'
-                ).format(model._meta.verbose_name_plural),
+                    'If you chose an organisation managed by {software} as source organisation, '
+                    'a number will be automatically generated for created «{models}».'
+                ).format(software='My CRM', models=model._meta.verbose_name_plural),
                 number_f.help_text,
             )
         else:

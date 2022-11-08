@@ -917,7 +917,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.aux_test_merge(creator, assertor)
 
-    @override_settings(DEFAULT_TIME_ALERT_REMIND=60)
+    @override_settings(DEFAULT_TIME_ALERT_REMIND=60, SOFTWARE_LABEL='My CRM')
     def test_reminder1(self):
         user = self.user
         now_value = now()
@@ -955,13 +955,16 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         message = messages[0]
         self.assertEqual([user.email], message.to)
+
+        software = 'My CRM'
         self.assertEqual(
-            _('Reminder concerning a Creme CRM alert related to {entity}').format(
-                entity=self.entity,
+            _('Reminder concerning a {software} alert related to {entity}').format(
+                software=software, entity=self.entity,
             ),
             message.subject,
         )
         self.assertIn(alert1.title, message.body)
+        self.assertIn(software,     message.body)
 
         # Reminders are not recreated if they already exist
         self.execute_reminder_job(job)

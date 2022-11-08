@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+from django.conf import settings
 from django.forms.fields import BooleanField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
@@ -80,9 +80,12 @@ def get_import_form_builder(header_dict, choices):
             model = self._meta.model
             if model.generate_number_in_create:
                 self.fields['number'].help_text = _(
-                    'If you chose an organisation managed by Creme as source organisation, '
-                    'a number will be automatically generated for created «{}».'
-                ).format(model._meta.verbose_name_plural)
+                    'If you chose an organisation managed by {software} as source organisation, '
+                    'a number will be automatically generated for created «{models}».'
+                ).format(
+                    software=settings.SOFTWARE_LABEL,
+                    models=model._meta.verbose_name_plural,
+                )
 
         def _pre_instance_save(self, instance, line):
             cdata = self.cleaned_data

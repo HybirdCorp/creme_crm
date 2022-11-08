@@ -356,7 +356,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         user = self.login()
         root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
 
-        Folder.objects.create(user=user, title='Creme')  # Should not be used
+        Folder.objects.create(user=user, title=root_folder.title)  # Should not be used
 
         entity = FakeOrganisation.objects.create(user=user, name='NERV')
         url = self._build_addrelated_url(entity)
@@ -591,10 +591,9 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         "Collision with Folder titles."
         user = self.login()
         entity = CremeEntity.objects.create(user=user)
+        root_folder = self.get_object_or_fail(Folder, uuid=UUID_FOLDER_RELATED2ENTITIES)
 
-        creme_folder = self.get_object_or_fail(Folder, title='Creme')
-
-        # NB : collision with folders created by the view
+        # NB: collision with folders created by the view
         create_folder = partial(Folder.objects.create, user=user)
         my_ct_folder = create_folder(title=str(entity.entity_type))
         my_entity_folder = create_folder(title=f'{entity.id}_{entity}')
@@ -626,7 +625,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(my_ct_folder.title, ct_folder.title)
         self.assertNotEqual(my_ct_folder, ct_folder)
 
-        self.assertEqual(creme_folder, ct_folder.parent_folder)
+        self.assertEqual(root_folder, ct_folder.parent_folder)
 
     def test_listview(self):
         self.login()

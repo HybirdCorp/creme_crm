@@ -26,9 +26,8 @@ from os.path import basename, join
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db.transaction import atomic
-from django.utils.translation import gettext
-from django.utils.translation import gettext_lazy as _
-from django.utils.translation import ngettext
+from django.utils.functional import lazy
+from django.utils.translation import gettext, ngettext
 
 from creme import persons
 from creme.creme_core.auth import EntityCredentials
@@ -96,7 +95,12 @@ class _EmailAsKeyDict:
 # TODO: refresh the job when the configuration is edited?
 class _EntityEmailsSyncType(JobType):
     id = JobType.generate_id('emails', 'entity_emails_sync')
-    verbose_name = _('Synchronize externals emails with Creme')
+    verbose_name = lazy(
+        lambda: gettext(
+            'Synchronize externals emails with {software}'
+        ).format(software=settings.SOFTWARE_LABEL),
+        str
+    )()
     periodic = JobType.PERIODIC
 
     # TODO: split ?

@@ -425,7 +425,7 @@
         <div class="main-content">
           {% block container_title %}
             <div class="title">
-                {% blocktranslate %}Log to <span class="app-label">Crème CRM</span>{% endblocktranslate %}
+                {% blocktranslate with software=SOFTWARE_LABEL %}Log to <span class="app-label">{{software}}</span>{% endblocktranslate %}
             </div>
           {% endblock %}
 

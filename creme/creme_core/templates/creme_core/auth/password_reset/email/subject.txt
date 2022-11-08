@@ -1,1 +1,1 @@
-{% load i18n %}{% translate 'Creme CRM > Reinitialisation of your password' %}
+{% load i18n %}{% blocktranslate %}{{software}} > Reinitialisation of your password{% endblocktranslate %}

@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core import get_world_settings_model
+from creme.creme_core.views.auth import PasswordReset
 
 from .base import ViewsTestCase
 
@@ -15,6 +16,9 @@ class AuthViewsTestCase(ViewsTestCase):
     def test_reset_password01(self):
         "Feature is enabled."
         user = self.create_user()
+
+        software = 'My CRM'
+        PasswordReset.extra_email_context['software'] = software
 
         w_settings = WorldSettings.objects.get()
         self.assertTrue(w_settings.password_reset_enabled)
@@ -43,7 +47,7 @@ class AuthViewsTestCase(ViewsTestCase):
         self.assertListEqual([], message.alternatives)
         self.assertFalse(message.attachments)
         self.assertEqual(
-            _('Creme CRM > Reinitialisation of your password'),
+            _('%(software)s > Reinitialisation of your password') % {'software': software},
             message.subject,
         )
 
@@ -69,12 +73,13 @@ class AuthViewsTestCase(ViewsTestCase):
             _(
                 'Hi,\n\n'
                 'You receive this email because a reset of your password for '
-                'Crème CRM has been requested.\n\n'
+                '%(software)s has been requested.\n\n'
                 'Click on the following link to choose a new password: %(url)s\n\n'
                 'Here your username in case you forgot it too: %(username)s\n\n'
-                'Thanks for show an interest in Crème CRM.\n\n'
-                'Your Crème administrator\n'
+                'Thanks for show an interest in %(software)s.\n\n'
+                'Your %(software)s administrator\n'
             ) % {
+                'software': software,
                 'username': user.username,
                 'url': raw_confirm_url,
             },
