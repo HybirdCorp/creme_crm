@@ -77,9 +77,11 @@ creme.search.SearchBox = creme.component.Component.sub({
 
         this._element = element;
 
+        var _onInput = this._onInput.bind(this);
+
         this._input = element.find('input');
         this._input.on('focus', this._onShow.bind(this))
-                   .on('input paste', this.debounceDelay ? _.debounce(this._onInput.bind(this), this.debounceDelay) : this._onInput.bind(this))
+                   .on('input paste', this.debounceDelay ? _.debounce(_onInput, this.debounceDelay, false) : _onInput)
                    .on('keydown', this._onKeyDown.bind(this));
 
         this._resultsRoot = element.find('.inline-search-results');
@@ -138,9 +140,11 @@ creme.search.SearchBox = creme.component.Component.sub({
         var query = (this._input.val() || '').trim();
         var isValidQuery = query.length >= this.minSearchLength;
 
+        // console.log('_onInput', query, isValidQuery, new Date().getTime() - this._debugTimestamp);
+
         if (isValidQuery === false) {
             this._cancelSearch();
-        } else if (this.isLoading() === false) {
+        } else {
             this._startSearch(query);
         }
     },
@@ -201,6 +205,8 @@ creme.search.SearchBox = creme.component.Component.sub({
                 sync: false
             }
         };
+
+        // console.log('_startSearch', timestamp - this._debugTimestamp);
 
         creme.ajax.query(this.searchUrl, queryOptions, {value: query})
                   .onStart(function() {
