@@ -2,26 +2,26 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg7396"
    sodipodi:version="0.32"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="recurrent_doc.svg"
    inkscape:export-filename="recurrent_doc_22.png"
    inkscape:export-xdpi="15.46875"
    inkscape:export-ydpi="15.46875"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   style="display:inline">
+   style="display:inline"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs7398">
     <linearGradient
@@ -139,7 +139,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3357">
+       id="filter3357"
+       x="-0.049960381"
+       y="-0.083079797"
+       width="1.0999208"
+       height="1.1661596">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.4799212"
@@ -197,7 +201,11 @@
        gradientTransform="matrix(0.9898033,-0.1631319,0.1631311,0.989787,-15.637436,6.015068)" />
     <filter
        inkscape:collect="always"
-       id="filter3438">
+       id="filter3438"
+       x="-0.057709756"
+       y="-0.094637417"
+       width="1.1154195"
+       height="1.1892748">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.3299002"
@@ -233,14 +241,6 @@
        y2="47.126503"
        gradientUnits="userSpaceOnUse"
        gradientTransform="matrix(1.0407284,-0.171525,0.171526,1.0407223,-13.68067,8.8316305)" />
-    <filter
-       id="filter4246"
-       inkscape:collect="always">
-      <feGaussianBlur
-         id="feGaussianBlur4248"
-         stdDeviation="0.52898426"
-         inkscape:collect="always" />
-    </filter>
     <mask
        id="mask4035"
        maskUnits="userSpaceOnUse">
@@ -294,7 +294,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter3811-1"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.053429591"
+       y="-0.045345282"
+       width="1.1068592"
+       height="1.0906906">
       <feGaussianBlur
          id="feGaussianBlur3813-6"
          stdDeviation="2.2121988"
@@ -335,7 +339,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4302-9"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.012927012"
+       y="-0.011197047"
+       width="1.025854"
+       height="1.0223941">
       <feGaussianBlur
          id="feGaussianBlur4304-0"
          stdDeviation="0.46203273"
@@ -344,7 +352,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4398-7"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.025668742"
+       y="-0.027206147"
+       width="1.0513375"
+       height="1.0544123">
       <feGaussianBlur
          id="feGaussianBlur4400-8"
          stdDeviation="0.30357341"
@@ -373,7 +385,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4326-1"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.045868561"
+       y="-0.037906941"
+       width="1.0917371"
+       height="1.0758139">
       <feGaussianBlur
          id="feGaussianBlur4328-0"
          stdDeviation="0.21343635"
@@ -382,7 +398,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4450-3"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.056514387"
+       y="-0.056693446"
+       width="1.1130288"
+       height="1.1133869">
       <feGaussianBlur
          id="feGaussianBlur4452-6"
          stdDeviation="0.17018926"
@@ -411,7 +431,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4298-2"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.049650818"
+       y="-0.049650818"
+       width="1.0993016"
+       height="1.0993016">
       <feGaussianBlur
          id="feGaussianBlur4300-2"
          stdDeviation="1.9505678"
@@ -420,7 +444,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4366-1"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.033228731"
+       y="-0.043657517"
+       width="1.0664575"
+       height="1.087315">
       <feGaussianBlur
          id="feGaussianBlur4368-5"
          stdDeviation="0.16103794"
@@ -429,7 +457,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4602-3"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.045322207"
+       y="-0.075363095"
+       width="1.0906444"
+       height="1.1507262">
       <feGaussianBlur
          id="feGaussianBlur4604-3"
          stdDeviation="0.12412895"
@@ -459,7 +491,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4210-8"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.013815789"
+       y="-0.016633663"
+       width="1.0276316"
+       height="1.0332673">
       <feGaussianBlur
          id="feGaussianBlur4212-0"
          stdDeviation="0.328125"
@@ -766,7 +802,11 @@
     <filter
        color-interpolation-filters="sRGB"
        id="filter4246-8"
-       inkscape:collect="always">
+       inkscape:collect="always"
+       x="-0.015758951"
+       y="-0.014483517"
+       width="1.0315179"
+       height="1.028967">
       <feGaussianBlur
          id="feGaussianBlur4248-1"
          stdDeviation="0.52898426"
@@ -776,8 +816,8 @@
        color-interpolation-filters="sRGB"
        height="1.2426587"
        y="-0.12132935"
-       width="1.1176744"
-       x="-0.058837142"
+       width="1.1176743"
+       x="-0.058837141"
        id="filter4096-3"
        inkscape:collect="always">
       <feGaussianBlur
@@ -813,17 +853,12 @@
        inkscape:vp_x="0 : 0.5 : 1"
        sodipodi:type="inkscape:persp3d" />
     <filter
-       color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter3357-1">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="2.4799212"
-         id="feGaussianBlur3359-6" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       id="filter4935">
+       id="filter4935"
+       x="-0.022352529"
+       y="-0.020896491"
+       width="1.0447051"
+       height="1.041793">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.7639693"
@@ -838,18 +873,21 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.6387532"
-     inkscape:cx="34.675759"
-     inkscape:cy="26.354303"
+     inkscape:cx="26.717163"
+     inkscape:cy="26.717163"
      inkscape:document-units="px"
      inkscape:current-layer="layer4"
-     inkscape:window-width="1440"
-     inkscape:window-height="826"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="false"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7401">
     <rdf:RDF>
@@ -858,7 +896,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -868,8 +906,8 @@
      inkscape:label="shadow"
      style="display:none">
     <path
-       style="fill:#22210e;fill-opacity:0.08970098;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;visibility:visible;display:inline;overflow:visible;filter:url(#filter3357);enable-background:accumulate"
-       d="M 61.690911,92.930533 C 33.08248,103.37134 13.638955,82.612084 16.733265,108.88874 c 20.788913,9.2703 50.188522,20.33911 71.229649,29.37473 14.723916,0.88352 22.430986,-11.03114 21.340946,-25.99616 3.0982,-1.59993 34.13182,-14.639844 24.331,-29.71891 L 102.63089,69.788059 C 83.98136,64.790771 73.883575,67.420678 72.451617,66.944794 73.203795,74.308201 92.29344,80.821303 61.690911,92.930533 z"
+       style="display:inline;overflow:visible;visibility:visible;fill:#22210e;fill-opacity:0.089701;fill-rule:nonzero;stroke:none;stroke-width:1;marker:none;filter:url(#filter3357);enable-background:accumulate"
+       d="M 61.690911,92.930533 C 33.08248,103.37134 13.638955,82.612084 16.733265,108.88874 c 20.788913,9.2703 50.188522,20.33911 71.229649,29.37473 14.723916,0.88352 22.430986,-11.03114 21.340946,-25.99616 3.0982,-1.59993 34.13182,-14.639844 24.331,-29.71891 L 102.63089,69.788059 C 83.98136,64.790771 73.883575,67.420678 72.451617,66.944794 73.203795,74.308201 92.29344,80.821303 61.690911,92.930533 Z"
        id="path3321"
        sodipodi:nodetypes="cccccccc"
        transform="matrix(0.9350412,0,0,0.7129445,-7.975361,28.606203)" />

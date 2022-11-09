@@ -2,25 +2,25 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.91 r13725"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="config.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="config_48.png"
    inkscape:export-xdpi="33.75"
-   inkscape:export-ydpi="33.75">
+   inkscape:export-ydpi="33.75"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -143,10 +143,10 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       x="-0.12294187"
-       width="1.2458837"
-       y="-0.021087425"
-       height="1.0421748"
+       x="-0.23889313"
+       width="1.4778096"
+       y="-0.03476009"
+       height="1.0695202"
        id="filter4317">
       <feGaussianBlur
          inkscape:collect="always"
@@ -155,7 +155,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter4374">
+       id="filter4374"
+       x="-0.094116977"
+       y="-0.044036846"
+       width="1.188234"
+       height="1.0880737">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="7.9958246"
@@ -322,7 +326,11 @@
        y2="471.32822" />
     <filter
        inkscape:collect="always"
-       id="filter3426">
+       id="filter3426"
+       x="-0.011927075"
+       y="-0.012073822"
+       width="1.0238542"
+       height="1.0241476">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.28295744"
@@ -345,19 +353,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="224.17663"
-     inkscape:cy="151.06035"
+     inkscape:zoom="5.6568544"
+     inkscape:cx="99.436889"
+     inkscape:cy="75.041705"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      width="512px"
      height="512px"
-     inkscape:window-width="1920"
-     inkscape:window-height="1030"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showgrid="false"
-     inkscape:window-maximized="1" />
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -601,6 +612,7 @@
        style="opacity:1;fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#c1c3c4;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        d="M 120.9375,106.625 C 120.09864,103.26824 117.79676,101.32667 114.4375,101.3125 C 111.5798,101.30045 109.77792,103.51718 108.90625,106.15625"
        id="path3400"
-       sodipodi:nodetypes="csc" />
+       sodipodi:nodetypes="csc"
+       inkscape:label="path3400" />
   </g>
 </svg>

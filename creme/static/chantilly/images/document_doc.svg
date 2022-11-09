@@ -2,26 +2,26 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg7396"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="document_doc.svg"
-   inkscape:export-filename="/home/guitouze/HG/cremecrm/creme/media/images/document_doc_22.png"
+   inkscape:export-filename="document_doc_22.png"
    inkscape:export-xdpi="15.46875"
    inkscape:export-ydpi="15.46875"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   style="display:inline">
+   style="display:inline"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs7398">
     <inkscape:perspective
@@ -115,7 +115,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3357">
+       id="filter3357"
+       x="-0.049960381"
+       y="-0.083079797"
+       width="1.0999208"
+       height="1.1661596">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.4799212"
@@ -173,7 +177,11 @@
        gradientTransform="matrix(0.9898033,-0.1631319,0.1631311,0.989787,-15.637436,6.015068)" />
     <filter
        inkscape:collect="always"
-       id="filter3438">
+       id="filter3438"
+       x="-0.057709756"
+       y="-0.094637417"
+       width="1.1154195"
+       height="1.1892748">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.3299002"
@@ -218,18 +226,21 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.6387532"
-     inkscape:cx="22.702927"
-     inkscape:cy="42.294026"
+     inkscape:cx="14.590224"
+     inkscape:cy="42.633771"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
-     inkscape:window-width="1430"
-     inkscape:window-height="821"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showguides="true"
      inkscape:guide-bbox="true"
      showgrid="false"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7401">
     <rdf:RDF>
@@ -238,7 +249,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -336,13 +347,14 @@
      inkscape:label="text">
     <text
        xml:space="preserve"
-       style="font-size:43.10070419px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Serif;-inkscape-font-specification:DejaVu Serif Bold"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';display:inline;fill:#000000;fill-opacity:1;stroke:none"
        x="5.1902199"
        y="123.23907"
        id="text2429"><tspan
          sodipodi:role="line"
          id="tspan2431"
          x="5.1902199"
-         y="123.23907">.DOC</tspan></text>
+         y="123.23907"
+         style="font-size:43.1007px;line-height:1.25">.DOC</tspan></text>
   </g>
 </svg>

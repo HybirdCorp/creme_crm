@@ -2,25 +2,25 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.48.3.1 r9886"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="calendar.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="calendar_32.png"
    inkscape:export-xdpi="22.5"
-   inkscape:export-ydpi="22.5">
+   inkscape:export-ydpi="22.5"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <linearGradient
@@ -99,7 +99,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3594">
+       id="filter3594"
+       x="-0.08363516"
+       y="-0.056500384"
+       width="1.1672703"
+       height="1.1130008">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.982385"
@@ -244,7 +248,11 @@
        gradientTransform="matrix(0.964914,0,0,0.9796346,4.8322339,0.7222623)" />
     <filter
        inkscape:collect="always"
-       id="filter3818">
+       id="filter3818"
+       x="-0.020781208"
+       y="-0.017277244"
+       width="1.0415624"
+       height="1.0345545">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.18370165"
@@ -267,19 +275,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="22.757408"
-     inkscape:cy="95.357965"
+     inkscape:zoom="4"
+     inkscape:cx="40.625"
+     inkscape:cy="80"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer5"
      showgrid="false"
      inkscape:window-width="1440"
      inkscape:window-height="825"
-     inkscape:window-x="0"
+     inkscape:window-x="52"
      inkscape:window-y="31"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="0"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -288,7 +299,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -525,6 +536,7 @@
        style="opacity:1;fill:none;fill-rule:evenodd;stroke:#545851;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;display:inline"
        d="M 72.569562,60.487183 C 73.808654,57.882251 77.865634,55.661371 80.530103,53.201151"
        id="path3511"
-       sodipodi:nodetypes="cc" />
+       sodipodi:nodetypes="cc"
+       inkscape:label="path3511" />
   </g>
 </svg>

@@ -2,24 +2,24 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    sodipodi:docname="batch_process.svg"
    inkscape:export-filename="batch_process_64.png"
    inkscape:export-xdpi="45"
    inkscape:export-ydpi="45"
-   enable-background="new">
+   enable-background="new"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <linearGradient
@@ -285,7 +285,11 @@
        gradientUnits="userSpaceOnUse" />
     <filter
        inkscape:collect="always"
-       id="filter3867">
+       id="filter3867"
+       x="-0.039284661"
+       y="-0.030415376"
+       width="1.0785693"
+       height="1.0608308">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.34732143"
@@ -293,7 +297,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3893">
+       id="filter3893"
+       x="-0.05043262"
+       y="-0.044256006"
+       width="1.1008652"
+       height="1.088512">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.2112338"
@@ -302,7 +310,11 @@
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter5253-0">
+       id="filter5253-0"
+       x="-0.019089694"
+       y="-0.019253381"
+       width="1.0381794"
+       height="1.0385068">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.65347444"
@@ -311,7 +323,11 @@
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter5253-0-9">
+       id="filter5253-0-9"
+       x="-0.081956487"
+       y="-0.16275644"
+       width="1.163913"
+       height="1.3255129">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.65347444"
@@ -320,7 +336,11 @@
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter5253-0-5-6-1">
+       id="filter5253-0-5-6-1"
+       x="-0.21700807"
+       y="-1.129704"
+       width="1.4340161"
+       height="3.259408">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.65347444"
@@ -389,7 +409,7 @@
        id="filter5587"
        x="-0.10491409"
        width="1.2098282"
-       y="-0.089029117"
+       y="-0.089029118"
        height="1.1780582">
       <feGaussianBlur
          inkscape:collect="always"
@@ -400,10 +420,10 @@
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
        id="filter5587-4"
-       x="-0.10491409"
-       width="1.2098283"
-       y="-0.089029118"
-       height="1.1780581">
+       x="-0.07467537"
+       width="1.1493507"
+       y="-0.075191278"
+       height="1.1503826">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.89608734"
@@ -411,7 +431,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter5634">
+       id="filter5634"
+       x="-0.034999021"
+       y="-0.077186988"
+       width="1.069998"
+       height="1.154374">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.423288"
@@ -420,10 +444,10 @@
     <filter
        inkscape:collect="always"
        id="filter5784"
-       x="-0.05784659"
+       x="-0.057846588"
        width="1.1156932"
-       y="-0.15520588"
-       height="1.3104118">
+       y="-0.15520587"
+       height="1.3104117">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.958612"
@@ -431,7 +455,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter5804">
+       id="filter5804"
+       x="-0.024546611"
+       y="-0.023631314"
+       width="1.0490932"
+       height="1.0472626">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.99848453"
@@ -470,19 +498,22 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284272"
-     inkscape:cx="70.373566"
-     inkscape:cy="72.580477"
+     inkscape:cx="63.109279"
+     inkscape:cy="72.65522"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1920"
-     inkscape:window-height="1006"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:snap-global="false" />
+     inkscape:snap-global="false"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -491,7 +522,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1014,7 +1045,8 @@
          sodipodi:cx="42.25"
          id="path3897"
          style="color:#000000;fill:none;stroke:#547d99;stroke-width:7.52247047;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;stroke-dashoffset:0;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
-         sodipodi:type="arc" />
+         sodipodi:type="arc"
+         inkscape:label="path3897" />
     </g>
   </g>
 </svg>

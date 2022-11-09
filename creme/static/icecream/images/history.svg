@@ -2,23 +2,23 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    version="1.1"
-   inkscape:version="0.91 r13725"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    sodipodi:docname="history.svg"
    inkscape:export-filename="history_22.png"
    inkscape:export-xdpi="15.46875"
-   inkscape:export-ydpi="15.46875">
+   inkscape:export-ydpi="15.46875"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <linearGradient
@@ -34,7 +34,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3784">
+       id="filter3784"
+       x="-0.014414414"
+       y="-0.014414414"
+       width="1.0288288"
+       height="1.0288288">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.74109996"
@@ -54,7 +58,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3839">
+       id="filter3839"
+       x="-0.090019872"
+       y="-0.090160418"
+       width="1.1800397"
+       height="1.1803208">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="4.5115428"
@@ -138,7 +146,11 @@
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter3822-9-6-4-3-9-8-7-5-5-2-9-7">
+       id="filter3822-9-6-4-3-9-8-7-5-5-2-9-7"
+       x="-0.061307926"
+       y="-0.065980057"
+       width="1.1226159"
+       height="1.1319601">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.8610366"
@@ -147,7 +159,11 @@
     <filter
        color-interpolation-filters="sRGB"
        inkscape:collect="always"
-       id="filter3822-2-7-6-8-3-1-3-7-0-8-5-7">
+       id="filter3822-2-7-6-8-3-1-3-7-0-8-5-7"
+       x="-0.061307926"
+       y="-0.061358764"
+       width="1.1226159"
+       height="1.1227175">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.8610366"
@@ -172,19 +188,22 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4142136"
-     inkscape:cx="70.127931"
-     inkscape:cy="85.137405"
+     inkscape:cx="54.800774"
+     inkscape:cy="85.206365"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1030"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:snap-global="false">
+     inkscape:snap-global="false"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        type="xygrid"
        id="grid3901"
@@ -193,28 +212,34 @@
        enabled="false"
        snapvisiblegridlinesonly="true"
        dotted="false"
-       spacingx="4px"
-       spacingy="4px"
+       spacingx="4"
+       spacingy="4"
        color="#ff00bf"
        opacity="0.1254902"
        empcolor="#ff00cb"
-       empopacity="0.25098039" />
+       empopacity="0.25098039"
+       originx="0"
+       originy="0" />
     <sodipodi:guide
        orientation="0,1"
        position="82.074894,122.481"
-       id="guide3803" />
+       id="guide3803"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="1,0"
        position="5.5,70.963216"
-       id="guide3805" />
+       id="guide3805"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="1,0"
        position="120,22.728432"
-       id="guide3807" />
+       id="guide3807"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="-33.335,8"
-       id="guide3811" />
+       id="guide3811"
+       inkscape:locked="false" />
     <inkscape:grid
        type="xygrid"
        id="grid3852"
@@ -222,8 +247,10 @@
        visible="true"
        enabled="true"
        snapvisiblegridlinesonly="true"
-       spacingx="8px"
-       spacingy="8px" />
+       spacingx="8"
+       spacingy="8"
+       originx="0"
+       originy="0" />
   </sodipodi:namedview>
   <metadata
      id="metadata7">

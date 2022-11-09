@@ -1,27 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
-   sodipodi:docname="telescope.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   sodipodi:docname="header_filter.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <filter
        inkscape:collect="always"
-       id="filter3637">
+       id="filter3637"
+       x="-0.028500932"
+       y="-0.052662621"
+       width="1.0570019"
+       height="1.1053252">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.5945116"
@@ -29,7 +34,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3698">
+       id="filter3698"
+       x="-0.061534935"
+       y="-0.19980422"
+       width="1.1230699"
+       height="1.3996084">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.055228"
@@ -152,7 +161,7 @@
        id="filter3478"
        x="-0.15288722"
        width="1.3057744"
-       y="-0.040591497"
+       y="-0.040591496"
        height="1.081183">
       <feGaussianBlur
          inkscape:collect="always"
@@ -161,7 +170,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3566">
+       id="filter3566"
+       x="-0.038641502"
+       y="-0.067157733"
+       width="1.077283"
+       height="1.1343155">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.49781169"
@@ -269,10 +282,10 @@
     <filter
        inkscape:collect="always"
        id="filter4206"
-       x="-0.19413391"
-       width="1.3882678"
-       y="-0.055978303"
-       height="1.1119566">
+       x="-0.1102305"
+       width="1.220461"
+       y="-0.10602824"
+       height="1.2120565">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.8069381"
@@ -370,19 +383,11 @@
        y2="92.64286" />
     <filter
        inkscape:collect="always"
-       id="filter4371"
-       x="-0.029995162"
-       width="1.0599903"
-       y="-0.50134772"
-       height="2.0026954">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="1.4771099"
-         id="feGaussianBlur4373" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       id="filter4418">
+       id="filter4418"
+       x="-0.049026862"
+       y="-0.049086383"
+       width="1.0980537"
+       height="1.0981728">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.3925979"
@@ -396,16 +401,20 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.979899"
-     inkscape:cx="-9.0399585"
-     inkscape:cy="43.412136"
+     inkscape:zoom="3.959798"
+     inkscape:cx="91.292536"
+     inkscape:cy="43.057752"
      inkscape:document-units="px"
      inkscape:current-layer="layer8"
      showgrid="false"
-     inkscape:window-width="1440"
-     inkscape:window-height="825"
-     inkscape:window-x="0"
-     inkscape:window-y="25" />
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:window-maximized="1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
