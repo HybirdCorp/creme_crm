@@ -2,26 +2,26 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2690"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="refresh2.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/guitouze/HG/cremecrm/creme/media/images/refresh_22.png"
+   inkscape:export-filename="refresh_22.png"
    inkscape:export-xdpi="15.46875"
    inkscape:export-ydpi="15.46875"
-   enable-background="new">
+   enable-background="new"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2692">
     <linearGradient
@@ -130,26 +130,6 @@
          offset="1"
          id="stop4345" />
     </linearGradient>
-    <filter
-       inkscape:collect="always"
-       id="filter3769">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="3.01883"
-         id="feGaussianBlur3771" />
-    </filter>
-    <filter
-       inkscape:collect="always"
-       id="filter4567"
-       x="-0.19814741"
-       width="1.3962948"
-       y="-0.26791762"
-       height="1.5358352">
-      <feGaussianBlur
-         inkscape:collect="always"
-         stdDeviation="1.3205318"
-         id="feGaussianBlur4569" />
-    </filter>
     <linearGradient
        inkscape:collect="always"
        xlink:href="#linearGradient4341"
@@ -288,9 +268,9 @@
     <filter
        inkscape:collect="always"
        id="filter4499"
-       x="-0.033907929"
+       x="-0.033907928"
        width="1.0678159"
-       y="-0.60792074"
+       y="-0.60792073"
        height="2.2158415">
       <feGaussianBlur
          inkscape:collect="always"
@@ -306,27 +286,32 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.1220448"
-     inkscape:cx="112.3204"
-     inkscape:cy="48.805099"
+     inkscape:cx="102.49548"
+     inkscape:cy="49.244955"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
-     inkscape:window-width="1440"
-     inkscape:window-height="825"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showgrid="false"
      showguides="false"
      inkscape:guide-bbox="true"
      inkscape:snap-global="false"
-     inkscape:window-maximized="1">
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <sodipodi:guide
        orientation="1,0"
        position="62.557589,109.68195"
-       id="guide3605" />
+       id="guide3605"
+       inkscape:locked="false" />
     <sodipodi:guide
        orientation="0,1"
        position="210.59475,65.311029"
-       id="guide3607" />
+       id="guide3607"
+       inkscape:locked="false" />
   </sodipodi:namedview>
   <metadata
      id="metadata2695">
@@ -336,7 +321,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -344,16 +329,14 @@
      inkscape:groupmode="layer"
      id="shadow"
      style="display:inline">
-    <path
-       sodipodi:type="arc"
-       style="color:#000000;fill:#0d380d;fill-opacity:0.28278689000000001;fill-rule:nonzero;stroke:none;stroke-width:0.79772401000000004;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate;filter:url(#filter4499)"
+    <ellipse
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:#0d380d;fill-opacity:0.282787;fill-rule:nonzero;stroke:none;stroke-width:0.797724;marker:none;filter:url(#filter4499);enable-background:accumulate"
        id="path4489"
-       sodipodi:cx="65.73848"
-       sodipodi:cy="124.70129"
-       sodipodi:rx="59.141071"
-       sodipodi:ry="3.2987051"
-       d="m 124.87955,124.70129 a 59.141071,3.2987051 0 1 1 -118.2821417,0 59.141071,3.2987051 0 1 1 118.2821417,0 z"
-       transform="matrix(0.86363637,0,0,1.3571429,10.142447,-48.306122)" />
+       transform="matrix(0.86363637,0,0,1.3571429,10.142447,-48.306122)"
+       cx="65.73848"
+       cy="124.70129"
+       rx="59.141071"
+       ry="3.2987051" />
   </g>
   <g
      inkscape:label="main"
@@ -362,7 +345,8 @@
      style="display:inline;">
     <g
        id="g4420"
-       transform="matrix(0.77082686,0,0,0.72305322,19.132086,0.30007701)">
+       transform="matrix(0.77082686,0,0,0.72305322,19.132086,0.30007701)"
+       inkscape:label="top_arrow">
       <path
          style="color:#000000;fill:none;stroke:#0b310b;stroke-width:5.35792255;stroke-miterlimit:10;stroke-opacity:1;stroke-dasharray:none;marker:none;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
          d="M 23.828125,29.171875 C 0.542859,41.902181 5.3539548,64.216695 15.25,80.25 c 1.009799,1.702448 2.124362,3.399536 3.375,5.09375 -3.601806,-10.098365 -5.513569,-40.003689 14.34375,-56.1875 13.787756,-0.350691 32.528645,7.913229 50.4375,21.65625 l -16.28125,14.25 1.5,6.375 56.59375,-1.03125 -1.875,-59.9375 -2,-4 -13.84375,18 C 89.272053,12.147746 77.321646,9.612769 64.59375,9.84375 53.64088,14.289371 47.650109,15.178202 23.828125,29.171875 z"
@@ -409,7 +393,8 @@
     </g>
     <g
        transform="matrix(-0.77082686,0,0,-0.72305322,109.99124,127.53361)"
-       id="g4441">
+       id="g4441"
+       inkscape:label="bottom_arrow">
       <path
          sodipodi:nodetypes="ccccccccccccc"
          id="path4443"

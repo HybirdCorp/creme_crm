@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
-   sodipodi:docname="contacts.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   sodipodi:docname="contact.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <linearGradient
@@ -66,7 +67,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3347">
+       id="filter3347"
+       x="-0.041413728"
+       y="-0.072874731"
+       width="1.0828275"
+       height="1.1457495">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.9460542"
@@ -83,7 +88,11 @@
        gradientUnits="userSpaceOnUse" />
     <filter
        inkscape:collect="always"
-       id="filter3404">
+       id="filter3404"
+       x="-0.02499822"
+       y="-0.020690874"
+       width="1.0499964"
+       height="1.0413817">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.31880537"
@@ -102,7 +111,11 @@
        r="10.667334" />
     <filter
        inkscape:collect="always"
-       id="filter3465">
+       id="filter3465"
+       x="-0.025384168"
+       y="-0.073500432"
+       width="1.0507683"
+       height="1.1470009">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.18136289"
@@ -110,7 +123,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3508">
+       id="filter3508"
+       x="-0.024972254"
+       y="-0.038159848"
+       width="1.0499445"
+       height="1.0763197">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.17688679"
@@ -118,7 +135,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter3607">
+       id="filter3607"
+       x="-0.026153846"
+       y="-0.019960861"
+       width="1.0523077"
+       height="1.0399217">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.265625"
@@ -154,17 +175,21 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="107.99668"
-     inkscape:cy="87.040996"
+     inkscape:zoom="4"
+     inkscape:cx="57.375"
+     inkscape:cy="62.5"
      inkscape:document-units="px"
      inkscape:current-layer="layer5"
      showgrid="false"
      width="128px"
      inkscape:window-width="1440"
      inkscape:window-height="825"
-     inkscape:window-x="0"
-     inkscape:window-y="25" />
+     inkscape:window-x="52"
+     inkscape:window-y="27"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -269,14 +294,15 @@
        transform="matrix(0.9711846,-0.1147663,0.1147807,0.9710626,-5.0364479,9.1855501)" />
     <text
        xml:space="preserve"
-       style="font-size:6.36728764px;font-style:normal;font-weight:normal;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"
+       style="font-style:normal;font-weight:normal;line-height:0%;font-family:'Bitstream Vera Sans';fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        x="49.751793"
        y="73.073586"
        id="text3268"><tspan
          sodipodi:role="line"
          id="tspan3270"
          x="49.751793"
-         y="73.073586" /></text>
+         y="73.073586"
+         style="font-size:6.36729px;line-height:1.25"> </tspan></text>
     <path
        style="opacity:1;fill:url(#radialGradient3433);fill-opacity:1;fill-rule:evenodd;stroke:#e86ddd;stroke-width:0.99999994;stroke-linecap:round;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        d="M 30.371758,59.054858 C 22.723387,59.958678 17.249119,66.900456 18.153176,74.54892 C 18.760902,79.690381 22.090262,83.828734 26.53505,85.728142 L 40.286529,84.103111 C 42.68134,82.323372 44.458777,79.819696 45.329875,76.943289 L 44.02289,65.885982 C 41.306325,61.242773 36.052522,58.383558 30.371758,59.054858 z"
@@ -367,6 +393,7 @@
        style="fill:none;fill-opacity:1;fill-rule:evenodd;stroke:#a2b9c4;stroke-width:4.09047127000000010;stroke-linecap:round;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:0.53156146000000004;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        inkscape:original="M 14.75 35.5 C 10.929237 35.500001 7.8313999 38.535515 7.78125 42.34375 L 7.75 42.34375 L 7.75 85.8125 L 7.75 87.71875 C 7.75 91.570857 10.866643 94.687496 14.71875 94.6875 L 108.65625 94.6875 C 112.50836 94.6875 115.625 91.570854 115.625 87.71875 L 115.625 85.8125 L 115.625 42.71875 L 115.625 42.4375 C 115.625 38.585394 112.53961 35.5 108.6875 35.5 L 14.75 35.5 z "
        inkscape:radius="4.641294"
-       sodipodi:type="inkscape:offset" />
+       sodipodi:type="inkscape:offset"
+       inkscape:label="path3619" />
   </g>
 </svg>

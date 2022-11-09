@@ -1,22 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
-   sodipodi:docname="bell.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+   sodipodi:docname="alert.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <linearGradient
@@ -45,7 +46,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3329">
+       id="filter3329"
+       x="-0.05843663"
+       y="-0.093762677"
+       width="1.1168733"
+       height="1.1875254">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.44199024"
@@ -64,10 +69,10 @@
     <filter
        inkscape:collect="always"
        id="filter3827"
-       x="-0.014495243"
-       width="1.0289905"
-       y="-0.14867064"
-       height="1.2973413">
+       x="-0.041570829"
+       width="1.0831417"
+       y="-0.33439067"
+       height="1.9223211">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.48934083"
@@ -105,7 +110,7 @@
     <filter
        inkscape:collect="always"
        id="filter4148"
-       x="-0.23039551"
+       x="-0.23039552"
        width="1.460791"
        y="-0.13924907"
        height="1.2784981">
@@ -116,7 +121,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter4564">
+       id="filter4564"
+       x="-0.036614602"
+       y="-0.031668238"
+       width="1.0732292"
+       height="1.0633365">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="1.3125"
@@ -124,7 +133,11 @@
     </filter>
     <filter
        inkscape:collect="always"
-       id="filter4607">
+       id="filter4607"
+       x="-0.068822144"
+       y="-0.060073536"
+       width="1.1376443"
+       height="1.1201471">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.7185155"
@@ -145,7 +158,7 @@
        id="filter4653"
        x="-0.11155467"
        width="1.2231093"
-       y="-0.081727488"
+       y="-0.081727489"
        height="1.163455">
       <feGaussianBlur
          inkscape:collect="always"
@@ -193,7 +206,11 @@
        y2="87.372536" />
     <filter
        inkscape:collect="always"
-       id="filter4788">
+       id="filter4788"
+       x="-0.076167075"
+       y="-0.050010082"
+       width="1.1523342"
+       height="1.1000202">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.44429481"
@@ -202,7 +219,7 @@
     <filter
        inkscape:collect="always"
        id="filter4872"
-       x="-0.099620897"
+       x="-0.099620896"
        width="1.1992418"
        y="-0.12139152"
        height="1.242783">
@@ -219,18 +236,22 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.70710678"
-     inkscape:cx="-396.44391"
-     inkscape:cy="303.89188"
+     inkscape:zoom="4"
+     inkscape:cx="17.875"
+     inkscape:cy="64.25"
      inkscape:document-units="px"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer3"
      showgrid="false"
      inkscape:window-width="1440"
      inkscape:window-height="825"
-     inkscape:window-x="0"
-     inkscape:window-y="25"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showguides="true"
-     inkscape:guide-bbox="true" />
+     inkscape:guide-bbox="true"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -439,7 +460,8 @@
        sodipodi:nodetypes="ccc"
        id="path4586"
        d="M 34.080434,90.240186 C 19.594126,80.390484 11.934558,65.439081 15.020177,47.203599 C 7.2963911,63.768709 16.685859,83.602406 34.080434,90.240186 z"
-       style="opacity:1;fill:#413500;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate" />
+       style="opacity:1;fill:#413500;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
+       inkscape:label="path4586" />
     <path
        style="opacity:1;fill:#413500;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:5;stroke-linecap:butt;stroke-linejoin:miter;marker:none;marker-start:none;marker-mid:none;marker-end:none;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;visibility:visible;display:inline;overflow:visible;enable-background:accumulate"
        d="M 35.348166,101.32701 C 13.228213,88.853381 0.93148621,68.70665 8.6930425,41.141807 C -5.89932,64.355713 7.4708865,92.174401 35.348166,101.32701 z"

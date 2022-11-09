@@ -2,25 +2,25 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    width="128"
    height="128"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.47 r22583"
+   inkscape:version="1.2.1 (1:1.2.1+202210291244+9c6d41e410)"
    version="1.0"
    sodipodi:docname="calendar_ical.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/raph/Projets/creme/cremecrm/creme/media/images/calendar_ical_22.png"
+   inkscape:export-filename="calendar_ical_22.png"
    inkscape:export-xdpi="15.46875"
-   inkscape:export-ydpi="15.46875">
+   inkscape:export-ydpi="15.46875"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs4">
     <inkscape:perspective
@@ -106,7 +106,11 @@
     </linearGradient>
     <filter
        inkscape:collect="always"
-       id="filter3594">
+       id="filter3594"
+       x="-0.08363516"
+       y="-0.056500384"
+       width="1.1672703"
+       height="1.1130008">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="2.982385"
@@ -251,7 +255,11 @@
        gradientTransform="matrix(0.964914,0,0,0.9796346,4.8322339,0.7222623)" />
     <filter
        inkscape:collect="always"
-       id="filter3818">
+       id="filter3818"
+       x="-0.020781208"
+       y="-0.017277244"
+       width="1.0415624"
+       height="1.0345545">
       <feGaussianBlur
          inkscape:collect="always"
          stdDeviation="0.18370165"
@@ -282,18 +290,21 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284271"
-     inkscape:cx="93.513105"
-     inkscape:cy="39.698107"
+     inkscape:cx="91.747106"
+     inkscape:cy="40.12831"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="false"
-     inkscape:window-width="772"
-     inkscape:window-height="897"
-     inkscape:window-x="876"
-     inkscape:window-y="31"
+     inkscape:window-width="1868"
+     inkscape:window-height="1016"
+     inkscape:window-x="52"
+     inkscape:window-y="27"
      showguides="true"
      inkscape:guide-bbox="true"
-     inkscape:window-maximized="0" />
+     inkscape:window-maximized="1"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -302,7 +313,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -409,14 +420,16 @@
        sodipodi:nodetypes="cccccccccccccccccc" />
     <text
        xml:space="preserve"
-       style="font-size:43.10070419px;font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:DejaVu Serif;-inkscape-font-specification:DejaVu Serif Bold"
+       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;line-height:0%;font-family:'DejaVu Serif';-inkscape-font-specification:'DejaVu Serif Bold';display:inline;fill:#000000;fill-opacity:1;stroke:none"
        x="-1.8095142"
        y="123.23869"
-       id="text2429"><tspan
+       id="text2429"
+       inkscape:label="text2429"><tspan
          sodipodi:role="line"
          id="tspan2431"
          x="-1.8095142"
-         y="123.23869">.iCAL</tspan></text>
+         y="123.23869"
+         style="font-size:43.1007px;line-height:1.25">.iCAL</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
