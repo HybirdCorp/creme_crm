@@ -68,6 +68,13 @@ class PopFetcher(CrudityFetcher):
         CREME_GET_EMAIL_SERVER = settings.CREME_GET_EMAIL_SERVER
         CREME_GET_EMAIL_PORT   = settings.CREME_GET_EMAIL_PORT
 
+        if not CREME_GET_EMAIL_SERVER:
+            logger.info(
+                'PopFetcher.fetch(): POP server is not configured '
+                '(see CREME_GET_EMAIL_SERVER etc...).'
+            )
+            return emails
+
         try:
             if settings.CREME_GET_EMAIL_SSL:
                 client = poplib.POP3_SSL(
@@ -84,7 +91,10 @@ class PopFetcher(CrudityFetcher):
             client.stat()  # TODO: useful ?
             response, messages, total_size = client.list()
         except Exception:  # TODO: Define better exception
-            logger.exception("PopFetcher.fetch: POP connection error")
+            logger.exception(
+                'PopFetcher.fetch(): POP connection error with server=%s',
+                CREME_GET_EMAIL_SERVER,
+            )
 
             if client is not None:
                 client.quit()
