@@ -43,7 +43,7 @@ logger = logging.getLogger(__name__)
 
 
 class QuerySortInfo:
-    """Information on how to sort (ie: order_by()) a Query(Set).
+    """Information on how to sort (i.e. order_by()) a Query(Set).
 
     It contains 3 attributes:
         - main_cell_key: the key of the EntityCell used as main ordering "field" (string).
@@ -476,7 +476,7 @@ class QuerySorter:
                 If the natural ordering fields of the model are not present within the
                 cells, they are not used in the result (excepted if it allows to use a
                 DB-index).
-        @param cell_key: Key of the main (ie: first) ordering cell (string).
+        @param cell_key: Key of the main (i.e. first) ordering cell (string).
         @param order: <creme_core.utils.meta.Order> instance (or None, meaning "ASC order").
         @param fast_mode: Boolean ; <True> means "There are lots of entities, use
                a faster/simpler ordering".

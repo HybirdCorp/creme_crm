@@ -40,7 +40,7 @@ def dependence_sort(iterable, get_key, get_dependencies):
     @throws DependenciesLoopError.
     """
     ordered_list = []  # Sorted elements
-    resolved = set()  # Dependencies that have been resolved (ie: sorted)
+    resolved = set()  # Dependencies that have been resolved (i.e. sorted)
 
     while True:
         unordered_list = []  # Elements that are not sorted yet

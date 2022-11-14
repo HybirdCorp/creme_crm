@@ -312,9 +312,9 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
 
     # This separated method makes overriding easier
     def _regular_fields_enum(self, model: type[CremeEntity]) -> ModelFieldEnumerator:
-        # NB: we enumerate all the fields of the model, with a deep=1 (ie: we
-        # get also the sub-fields of ForeignKeys for example). We take care of
-        # the FieldsConfig which can hide fields (ie: have to be removed from
+        # NB: we enumerate all the fields of the model, with a deep=1 (i.e. we
+        # get also the subfields of ForeignKeys for example). We take care of
+        # the FieldsConfig which can hide fields (i.e. have to be removed from
         # the choices) ; but if a field was already selected (e.g. the field
         # has been hidden _after_), it is not hidden, in order to not remove it
         # from the configuration (of HeaderFilter, CustomBlock...) silently

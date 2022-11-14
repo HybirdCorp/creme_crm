@@ -21,6 +21,7 @@
 # SOFTWARE.
 #
 ################################################################################
+
 import array
 import glob
 import os
@@ -74,12 +75,13 @@ class CremePoTokenizer:
         ("%s", ""),
         ("%%d", ""),
         ("%d", ""),
+        ("0$d", ""),
         ("➔", ""),
-        ("- ", ""),
-        (" & ", " "),
-        ("@/./+/-/_", ""),
-        ("creme@crm.org", ""),
-        ("creme@crm.com", ""),
+        # ("- ", ""),
+        # (" & ", " "),
+        # ("@/./+/-/_", ""),
+        # ("creme@crm.org", ""),
+        # ("creme@crm.com", ""),
         ("\n", " "),
     ]
 
@@ -108,18 +110,21 @@ class CremePoTokenizer:
         text = self._text
         if self.looks_like_html(text):
             text = self.parse_html(text)
+
         for part, string in self.replace_text:
             text = text.replace(part, string)
+
         for pattern, string in self.replace_patterns:
             previous_text = ""
             new_text = text
+
             while previous_text != new_text:
                 previous_text = new_text
                 new_text = re.sub(pattern, string, previous_text)
+
             text = new_text
-        text = re.split(self.delimiters, text)
-        text = [word for word in text if word]
-        self._text = text
+
+        self._text = [word for word in re.split(self.delimiters, text) if word]
 
     def next(self):
         offset = self._offset
@@ -172,6 +177,7 @@ class ErrorDict(dict):
 
         sort_key = collator.sort_key
         self.stderr.write(f"Found a total of {self['errors_count']} errors")
+
         for language_code, language_errors in self["languages"].items():
             self.stderr.write(f"Language «{language_code}» ({language_errors['errors_count']}):")
 
@@ -181,8 +187,10 @@ class ErrorDict(dict):
             for word in words:
                 word_errors = language_errors["words"][word]
                 self.stderr.write(f"\t «{word}» ({word_errors['errors_count']}):")
+
                 for filename, lines in word_errors["files"].items():
                     self.stderr.write(f"\t\t{filename} : {', '.join(lines)}")
+
         if raise_exception:
             exit(1)
 
@@ -209,11 +217,13 @@ class Command(BaseCommand):
             return self.checkers[language]
 
         # File containing words to consider valid
+        # TODO: a file per app/language?
         personal_word_list = os.path.join(settings.CREME_ROOT, "locale", f"pwl.{language}.txt")
         language_dict = DictWithPWL(language, pwl=personal_word_list)
 
         self.stdout.write(
-            f"Spellchecking language «{language}» with {language_dict.provider.desc}")
+            f"Spellchecking language «{language}» with {language_dict.provider.desc}"
+        )
 
         checker = SpellChecker(language_dict, tokenize=CremePoTokenizer)
         self.checkers[language] = checker
@@ -227,6 +237,7 @@ class Command(BaseCommand):
     def check_entry(self, *, language, checker, filename, message, linenum):
         if message:
             checker.set_text(message)
+
             for err in checker:
                 self.errors.add_error(
                     language=language,
@@ -271,7 +282,8 @@ class Command(BaseCommand):
             except KeyError:
                 self.error(
                     f"{relative_po_file_path} is missing the 'Language' metadata",
-                    raise_exception)
+                    raise_exception,
+                )
                 target_language = None
                 target_language_checker = None
 
@@ -284,10 +296,13 @@ class Command(BaseCommand):
             for entry in po_file:
                 if entry.obsolete:
                     continue
+
                 check_source(message=entry.msgid, linenum=entry.linenum)
                 check_source(message=entry.msgid_plural, linenum=entry.linenum)
+
                 if target_language_checker is not None:
                     check_target(message=entry.msgstr, linenum=entry.linenum)
+
                     for message in entry.msgstr_plural.values():
                         check_target(message=message, linenum=entry.linenum)
 

@@ -138,5 +138,5 @@ def to_utc(dt: datetime) -> datetime:
 
 
 def round_hour(dt: datetime) -> datetime:
-    "Returns a datetime truncated to the passed hour (ie: minutes, seconds, ... are set to 0)."
+    "Returns a datetime truncated to the passed hour (i.e. minutes, seconds, … are set to 0)."
     return dt - timedelta(minutes=dt.minute, seconds=dt.second, microseconds=dt.microsecond)

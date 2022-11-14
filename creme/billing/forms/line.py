@@ -123,7 +123,7 @@ class ServiceLineMultipleAddForm(_LineMultipleAddForm):
         return ServiceLine
 
 
-# NB: model (ie: _meta.model) is set later, because this class is only used as base class
+# NB: model (i.e. _meta.model) is set later, because this class is only used as base class
 class LineEditForm(core_forms.CremeModelForm):
     # TODO: we want to disabled CreatorChoiceField ;
     #       should we disabled globally this feature with Vat model ??

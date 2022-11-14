@@ -53,9 +53,9 @@ class FieldNotAllowed(Exception):
 class FieldOverrider:
     """In inner/bulk edition forms, this class is used to manage the model
     fields which cannot just be edited with their regular form-field & the
-    ModelForm behaviour (ie: the fields that you'd manage manually if you write
+    ModelForm behaviour (i.e. the fields that you'd manage manually if you write
     a form class, with special initialisation code in <__init__()>, special
-    validation code etc...).
+    validation code etc…).
     See the parameter "overriders" of <_BulkUpdateRegistry.register()>.
     """
     # Each FieldOverrider must declare at least one field which is overridden.

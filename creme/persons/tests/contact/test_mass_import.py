@@ -262,7 +262,7 @@ class ContactMassImportTestCase(_BaseTestCase, MassImportBaseTestCaseMixin):
     @skipIfCustomAddress
     def test_address_fields_config_update(self):
         """Does not update invalid Address
-        (ie: already invalid, because empty values are filtered).
+        (i.e. already invalid, because empty values are filtered).
         """
         user = self.login()
 

@@ -8,7 +8,7 @@
     {% url 'creme_config__app_portal' 'emails' as config_url %}
     {% with config_items=conf_item_ctype.model_class.objects.all %}
       {% if config_items %}
-        {% blocktranslate with email=user.email asvar help_msg %}If an email is sent to one of the <a href="{{config_url}}">configured addresses</a> (Carbon Copy & Blind Carbon Copy work too), and your email address "{{email}}" is found (as sender or recipient), the email can be synchronized (ie: transformed as a Creme Email entity).{% endblocktranslate %}
+        {% blocktranslate with email=user.email asvar help_msg %}If an email is sent to one of the <a href="{{config_url}}">configured addresses</a> (Carbon Copy & Blind Carbon Copy work too), and your email address "{{email}}" is found (as sender or recipient), the email can be synchronized (i.e. transformed as a Creme Email entity).{% endblocktranslate %}
       {% else %}
         {% blocktranslate asvar help_msg %}You have no email server configured; you can configure them <a href="{{config_url}}">here</a>.{% endblocktranslate %}
       {% endif %}

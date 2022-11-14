@@ -295,9 +295,9 @@ class JobScheduler:
 
         # XXX: this is an UGLY HACK. We have received a REFRESH command, but the
         #  data which should be used to compute the next wake up could be not
-        #  available because of a transaction (ie: the command has been sent during
-        #  this transaction) ; we force a wake up in a short time & pray that the
-        #  migration is finished.
+        #  available because of a transaction (i.e. the command has been sent
+        #  during this transaction) ; we force a wake up in a short time & pray
+        #  that the migration is finished.
         #  TODO: improve this.
         #    => IDEA: create a transaction marker within the transaction, send
         #       its ID in the command, & wait for them to be reachable (so we

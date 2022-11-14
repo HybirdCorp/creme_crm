@@ -296,7 +296,7 @@ def ellipsis_multi(strings: Iterable[str], length: int) -> list[str]:
     Strings are shortened in a way which tends to make them of the same length.
 
     @param strings: Iterable of str instances.
-    @param length: Global (maximum) length (ie: integer).
+    @param length: Global (maximum) length (i.e. integer).
     @return: A list of str instances.
 
     >> ellipsis_multi(['123456', '12', '12'], 9)

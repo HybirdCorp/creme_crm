@@ -1170,14 +1170,14 @@ class ImportForm(CremeModelForm):
         help_text=_(
             'Select at least one field if you want to use the "update" mode. '
             'If an entity already exists with the same field values, it will '
-            'be simply updated (ie: a new entity will not be created).\n'
+            'be simply updated (i.e. a new entity will not be created).\n'
             'But if several entities are found, a new entity is created '
             '(in order to avoid errors).'
         ),
     )
 
     error_messages = {
-        'invalid_document': _("This document doesn't exist or doesn't exist any more."),
+        'invalid_document': _('This document does not exist or does not exist any more.'),
         'forbidden_read': _('You have not the credentials to read this document.'),
     }
 

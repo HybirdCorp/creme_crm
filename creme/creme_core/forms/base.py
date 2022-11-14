@@ -637,8 +637,8 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         @param forced_ptypes: Sequence of CremePropertyType IDs/instances ;
                CremeProperties with these types will be added to the instance.
         @param forced_relations: Sequence of (unsaved) Relations instances ;
-               These relations will be added to the instance. Notice that :
-                - <instance> will be used as subject (ie: you do not have to
+               These Relations will be added to the instance. Notice that:
+                - <instance> will be used as subject (i.e. you do not have to
                   fill the attribute 'subject_entity').
                 - The attribute <user> will be set automatically too.
                 - So just fill the attributes <type> & <object_entity>.

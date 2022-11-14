@@ -33,21 +33,21 @@ class UIAction:
     Attributes:
         - id: Unique ID used to register & retrieve the UIAction (see ActionsRegistry) ;
             use generate_id() to build it.
-        - model: Class inheriting <django.db.model.Model> ; indicates what kind of
-            model is concerned by this UIAction.
-        - type: Used by the GUI (ie: JavaScript) to use the good behaviour.
-            The built-in type "redirect" can be to redirect the page to a new URL
-            (it's to make download view too).
-            Other existing types: "delete", "clone", "edit-selection"...
-        - url_name: String to reverse() the URL to use (see @url).
+        - model: Class inheriting <django.db.model.Model> ; indicates what kind
+          of model is concerned by this UIAction.
+        - type: Used by the GUI (i.e. JavaScript) to use the good behaviour.
+          The built-in type "redirect" can be to redirect the page to a new URL
+          (it's to make download view too).
+          Other existing types: "delete", "clone", "edit-selection"…
+        - url_name: String to 'reverse()' the URL to use (see @url).
         - label: String displayed to the user for this UIAction.
-            Should be translatable (ie: ugettext_lazy) .
+          Should be translatable (i.e. you should use something like 'gettext_lazy()').
         - icon: Name of the icon used in the UI with our Icon system. Eg: "edit".
-        - help_text: Should be translatable (ie: ugettext_lazy).
+        - help_text: Should be translatable (like 'label').
         - is_default: Boolean. True means the UIAction should be the one the user see first.
         - is_visible: Boolean. If False, the user should not see this action.
-        - is_enabled: Boolean. If False, this UIAction cannot be activated by the user
-            (not allowed, some business logic not OK...).
+        - is_enabled: Boolean. If False, this UIAction cannot be activated by
+          the user (not allowed, some business logic not OK…).
     """
     id: str = ''
     model: type[Model] = Model
@@ -246,7 +246,7 @@ class ActionsChain(InheritedDataChain):
         """Mask several inherited UIActions.
 
         If a model inherits some UIActions classes from one of its parent model,
-        you can mask them (ie: the method action() will not return them).
+        you can mask them (i.e. the method action() will not return them).
 
         @param model: Class inheriting <django.db.model.Model>.
         @param action_classes: Classes inheriting the base_class (see __init__).
@@ -369,11 +369,11 @@ class ActionsRegistry:
         """Mask several instance actions for a specific model.
 
         If a model inherits some UIActions classes from one of its parent model,
-        you can mask them (ie: the method instance_actions() will not return
+        you can mask them (i.e. the method instance_actions() will not return
         instance of them).
 
         @param model: Class inheriting <django.db.model.Model>.
-        @param action_classes: Classes inheriting UIAction.
+        @param action_classes: Classes inheriting <UIAction>.
         @return Self to chain calls.
         """
         self._instance_action_classes.void_actions(model, *action_classes)

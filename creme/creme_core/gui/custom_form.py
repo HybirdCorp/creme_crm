@@ -224,7 +224,7 @@ class AbstractFieldGroup:
 
 class ExtraFieldGroup(ABC, AbstractFieldGroup):
     """Base class to create hard coded group of fields with specific behaviour
-    (ie: users cannot configure the fields).
+    (i.e. users cannot configure the fields).
     See <CustomFormDescriptor.extra_group_classes>.
 
     Hint: you should probably avoid this way & use CustomFormExtraSubCell if

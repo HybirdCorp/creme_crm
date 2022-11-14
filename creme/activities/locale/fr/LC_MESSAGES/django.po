@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-09 13:16+0100\n"
+"POT-Creation-Date: 2022-11-15 11:41+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -354,7 +354,7 @@ msgstr "Plusieurs contacts ont été trouvés pour la recherche «{}»"
 msgid "No linkable contact found for the search «{}»"
 msgstr "Aucun contact reliable n'a été trouvé pour la recherche «{}»"
 
-msgid "The participant «{}» is unfoundable"
+msgid "The participant «{}» cannot be found"
 msgstr "Le participant «{}» est introuvable"
 
 msgid "Civility FirstName LastName"
@@ -380,7 +380,7 @@ msgstr "Plusieurs «{models}» ont été trouvés pour la recherche «{search}»
 msgid "No linkable entity found for the search «{}»"
 msgstr "Aucune fiche reliable trouvée pour la recherche «{}»"
 
-msgid "The subject «{}» is unfoundable"
+msgid "The subject «{}» cannot be found"
 msgstr "Le sujet «{}» est introuvable"
 
 msgid "Subjects (organisations only)"

@@ -5,7 +5,7 @@
 {% block brick_extra_class %}{{block.super}} emails-recipients-brick{% endblock %}
 
 {% block brick_header_title %}
-    {% brick_header_title title=_('{count} Unlinked recipient') plural=_('{count} Unlinked recipients') empty=verbose_name icon='info' %}
+    {% brick_header_title title=_('{count} Not linked recipient') plural=_('{count} Not linked recipients') empty=verbose_name icon='info' %}
 {% endblock %}
 
 {% block brick_header_actions %}
@@ -33,5 +33,5 @@
 {% endblock %}
 
 {% block brick_table_empty %}
-    {% translate 'No unlinked recipient for the moment' %}
+    {% translate 'No recipient for the moment' %}
 {% endblock %}

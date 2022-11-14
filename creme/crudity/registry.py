@@ -320,7 +320,7 @@ class CRUDityRegistry:
                         raise ImproperlyConfigured(
                             f'settings.CRUDITY_BACKENDS: '
                             f'the backend for "{model}" cannot be used as fallback '
-                            f'(ie: subject="*").'
+                            f'(i.e. subject="*").'
                         )
 
                     backend_instance.fetcher_name = fetcher_source

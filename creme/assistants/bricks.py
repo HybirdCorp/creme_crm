@@ -82,12 +82,12 @@ class TodosBrick(_AssistantsBrick):
     id_ = QuerysetBrick.generate_id('assistants', 'todos')
     verbose_name = _('Todos')
     description = _(
-        'Allows to add ToDos to the current entity, which help you to remind '
+        'Allows to add Todos to the current entity, which help you to remind '
         'some things to achieve.\n'
-        'Hint #1: ToDos can have a deadline ; emails are sent to the owners of the '
-        'ToDos which are not marked as done and near of their deadline (see the '
+        'Hint #1: Todos can have a deadline ; emails are sent to the owners of the '
+        'Todos which are not marked as done and near of their deadline (see the '
         'job «Reminders»).\n'
-        'Hint #2: if the owner of a ToDo is a team, emails are sent to all the '
+        'Hint #2: if the owner of a Todo is a team, emails are sent to all the '
         'teammates.\n'
         'App: Assistants'
     )

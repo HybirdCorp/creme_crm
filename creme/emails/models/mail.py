@@ -131,7 +131,7 @@ class AbstractEntityEmail(_Email, CremeEntity):
                 return
 
     def __str__(self):
-        return gettext('EMail <from: {sender}> <to: {to}> <status: {status}>').format(
+        return gettext('Email <from: {sender}> <to: {to}> <status: {status}>').format(
             sender=self.sender,
             to=self.recipient,
             status=self.get_status_display(),

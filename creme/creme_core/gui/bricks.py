@@ -124,7 +124,7 @@ class Brick:
     # Tips: use gettext_lazy()
     description: str = ''
 
-    # List of the models on which the brick depends (ie: generally the brick
+    # List of the models on which the brick depends (i.e. generally the brick
     # displays instances of these models) ; it also can be the '*' string,
     # which is a wildcard meaning 'All models used in the page'.
     dependencies: BrickDependencies = ()
@@ -135,7 +135,7 @@ class Brick:
 
     # 'True' means that the brick will never be used to change the instances
     # of its dependencies models.
-    # (ie: the brick is only used to display these instances ;
+    # (i.e. the brick is only used to display these instances ;
     # there is no inner-popup to create/edit/delete/...)
     #   ---> so when this brick is reloaded (e.g. to change the pagination),
     #   it does not cause the dependant bricks to be reloaded
@@ -145,9 +145,9 @@ class Brick:
     template_name: str = 'OVERRIDE_ME.html'  # Used to render the brick of course
     context_class = _BrickContext  # Class of the instance which stores the context in the session.
 
-    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (ie: in creme_config) ----------
+    # ATTRIBUTES USED ONLY BY THE CONFIGURATION GUI FOR THE BRICKS (i.e. in creme_config) ---------
     # True means that the Brick appears in the configuration IHM
-    # (ie: it appears on classical detail-views/portals)
+    # (i.e. it appears on classical detail-views/portals)
     configurable: bool = True
 
     # Sequence of classes inheriting CremeEntity which can have this

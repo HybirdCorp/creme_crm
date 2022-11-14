@@ -10,7 +10,7 @@ payment_info_key = SettingKey(
     description=lazy(
         lambda: gettext(
             'Display payment information block only on the '
-            'detailview of organisations managed by {software}'
+            'detailed view of organisations managed by {software}'
         ).format(software=settings.SOFTWARE_LABEL),
         str
     )(),
@@ -19,9 +19,9 @@ payment_info_key = SettingKey(
 button_redirection_key = SettingKey(
     id='billing-button_redirection',
     description=_(
-        'Go the detailview of the billing document created '
+        'Go the detailed view of the billing document created '
         'with the button (of the button bar) after the creation? '
-        '(ie: «No» means «remain on the Contact/Organisation detailview»)'
+        '(i.e. «No» means «remain on the Contact/Organisation detailed view»)'
     ),
     app_label='billing', type=SettingKey.BOOL,
 )

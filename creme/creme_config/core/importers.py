@@ -271,7 +271,7 @@ class Importer:
     """A base class for object which import model-instances from another
     deployment of Creme.
 
-    These importers are fed with deserialized-JSON data (ie: data is list of
+    These importers are fed with deserialized-JSON data (i.e. data is list of
     dictionaries with string/int...).
 
     The import is done in 2 phases (validation then save) in order to be cleanly
@@ -294,7 +294,7 @@ class Importer:
                  deserialized_data: DeserializedData,
                  validated_data: ValidatedData) -> None:
         """Validate some deserialized data before saving them
-        (ie: call save() _after_)).
+        (i.e. call save() _after_)).
 
         Internal data are built using deserialized_data ; it can raise various
         exception types during this process (ValueError, KeyError) which

@@ -49,10 +49,10 @@ class JobManager(models.Manager):
 
 
 class Job(models.Model):
-    """A job represents a work which has to be done in the 'background' (ie:
-    another process than the processes which respond to the clients). They are
-    useful for periodic tasks (e.g. polling data, like emails, from another server)
-    or long tasks (e.g. generating a lot of data).
+    """A job represents a work which has to be done in the 'background'
+    (i.e. another process than the processes which respond to the clients).
+    They are useful for periodic tasks (e.g. polling data, like emails, from
+    another server) or long tasks (e.g. generating a lot of data).
 
     The type of the job (see creme_core.creme_jobs.base.JobType) determines if
     the job is periodic, pseudo-periodic or not periodic.

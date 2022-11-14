@@ -71,7 +71,7 @@ def get_by_index(sequence, index):
 @register.filter
 def get_value(dic, key, default=''):
     """Get a a value from its key in a dictionary-like object, with a default
-    value as fallback (ie: like dict.get())
+    value as fallback (i.e. like dict.get())
 
     Usage:
       View (context):

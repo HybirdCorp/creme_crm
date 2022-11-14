@@ -243,7 +243,7 @@ class ActObjectivesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('commercial', 'objectives')
     verbose_name = _('Objectives of a Commercial Action')
     # NB: would be cool to add the Relation dependency only if needed
-    #     (ie: one of the listed objectives uses relationships), but
+    #     (i.e. one of the listed objectives uses relationships), but
     #     modifying self.dependencies during the render is ugly.
     dependencies = (ActObjective, Relation)
     relation_type_deps = (REL_OBJ_COMPLETE_GOAL,)

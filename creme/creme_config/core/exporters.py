@@ -81,7 +81,7 @@ class ExportersRegistry:
     """
     Exporters are function which read data in the RDBMS, and return
     "JSONifiable" data.
-    These data can be imported (ie: writen in the RDBMS) by a related Importer
+    These data can be imported (i.e. writen in the RDBMS) by a related Importer
     (see importers.py).
     Generally each exporter is related to a model.
 

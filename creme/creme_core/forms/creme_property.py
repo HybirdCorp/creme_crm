@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -74,7 +74,7 @@ class AddPropertiesBulkForm(_AddPropertiesForm):
 
         if forbidden_entities:
             fields['bad_entities_lbl'] = ReadonlyMessageField(
-                label=gettext('Uneditable entities'),
+                label=gettext('Not editable entities'),
                 initial=entities_to_str(forbidden_entities, user),
             )
 

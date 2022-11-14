@@ -449,7 +449,7 @@ class CremeFormView(CancellableMixin,
                     TitleMixin,
                     SubmittableMixin,
                     django_generic.FormView):
-    """ Base class for views with a simple form (ie: not a model form) in Creme.
+    """ Base class for views with a simple form (i.e. not a model form) in Creme.
     You'll have to override at least the attribute 'form_class' because the
     default one is just abstract place-holders.
 

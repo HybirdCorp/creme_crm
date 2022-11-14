@@ -459,7 +459,7 @@ class GenericEntityField(EntityCredsJSONField):
 
     @allowed_models.setter
     def allowed_models(self, allowed):
-        """@param allowed: An iterable of models (ie: classes inheriting django.db.Model)."""
+        """@param allowed: An iterable of models (i.e. classes inheriting django.db.Model)."""
         self._allowed_models = [*allowed]
         self._update_widget_choices()
 
@@ -2203,7 +2203,7 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
     def __init__(self, *, forced_values=(), iterator=None, **kwargs):
         """Constructor.
 
-        @param forced_values: Iterable of values (ie: the "value" part of choices).
+        @param forced_values: Iterable of values (i.e. the "value" part of choices).
         @param iterator: Class with the interface of <EnhancedChoiceIterator>.
         @param kwargs: See <MultipleChoiceField>.
         """
@@ -2238,7 +2238,7 @@ class EnhancedMultipleChoiceField(fields.MultipleChoiceField):
 
     @forced_values.setter
     def forced_values(self, values):
-        """@param values: Iterable of values (ie: the "value" part of choices)."""
+        """@param values: Iterable of values (i.e. the "value" part of choices)."""
         self._forced_values = frozenset(values or ())
         self.choices = self._raw_choices
 
@@ -2410,7 +2410,7 @@ class OrderedMultipleChoiceField(fields.MultipleChoiceField):
           Optional keys:
             - "help": an help-text/description of the item
             - "disabled": a boolean ; <True> means that the state of the choice
-               (ie: selected or not selected) cannot be changed.
+               (i.e. selected or not selected) cannot be changed.
         - Note: groups are not managed yet. Currently, you can prefix the label
           of the items you want to group (with "my group: " for example) and/or
           use disabled item as group separators.

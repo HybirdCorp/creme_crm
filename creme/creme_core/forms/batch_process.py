@@ -125,7 +125,6 @@ class BatchActionsField(JSONField):
             #     if field.editable and isinstance(field, managed_fields):
             #         fname = field.name
             #
-            #         # Not a specific form (ie: specific business logic)
             #         if updatable(field_name=fname) and get_form(fname) is None:
             #             fields.append((field.name, field))
             #
@@ -153,7 +152,7 @@ class BatchActionsField(JSONField):
                 if field.editable and isinstance(field, managed_fields):
                     fname = field.name
 
-                    # Not a specific form (ie: specific business logic)
+                    # Not a specific form (i.e. specific business logic)
                     if updatable(field=field) and fname not in overrider_classes:
                         fields.append((field.name, field))
 

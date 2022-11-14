@@ -1017,7 +1017,7 @@ class CustomFieldConditionHandler(OperatorConditionHandlerMixin,
     def get_q(self, user):
         # NB: Sadly we retrieve the ids of the entity that match with this condition
         #     instead of use a 'JOIN', in order to avoid the interaction between
-        #     several conditions on the same type of CustomField (ie: same table).
+        #     several conditions on the same type of CustomField (i.e. same table).
         operator = self.get_operator(self._operator_id)
         related_name = self._related_name
         fname = f'{related_name}__value'

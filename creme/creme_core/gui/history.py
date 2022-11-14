@@ -157,7 +157,7 @@ class FieldChangeExplainer:
 
 
 class HTMLFieldChangeExplainer(FieldChangeExplainer):
-    """Specialization of FieldChangeExplainer which produce HTMl descriptions.
+    """Specialization of FieldChangeExplainer which produce HTML descriptions.
     Used by the History brick for example.
     """
     field_decorator = '<span class="field-change-field_name">{field}</span>'
@@ -739,7 +739,7 @@ class HistoryRegistry:
                         user,
                         ) -> list[HistoryLineExplainer]:
         """Get the explainers corresponding to a sequence of HistoryLines
-        Notice that the order is kept (ie: you can zip()).
+        Notice that the order is kept (i.e. you can zip()).
         """
         class EmptyExplainer(HistoryLineExplainer):
             def render(this):

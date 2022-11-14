@@ -131,7 +131,7 @@ class GraphFetcher:
         @param order: 'ASC' or 'DESC'.
         @return: see <ReportGraphHand.fetch()>.
         @raise GraphFetcher.IncompatibleContentType if the ContentType of 'entity'
-               is wrong (ie: the configuration should probably be fixed).
+               is wrong (i.e. the configuration should probably be fixed).
         @raise GraphFetcher.UselessResult if fetching data for 'entity' is useless
                (e.g. it does mean anything in the business logic).
         """
@@ -144,7 +144,7 @@ class GraphFetcher:
     @property
     def linked_models(self) -> list[type[CremeEntity]]:
         """List of models which are compatible for the volatile link.
-        (ie: the argument 'entity' of 'fetch_4_entity()' should be an instance
+        (i.e. the argument 'entity' of 'fetch_4_entity()' should be an instance
         of one of this model).
         An empty list means <all types of CremeEntity are accepted>.
         """

@@ -882,7 +882,7 @@ class Merge(MergeFormMixin, generic.CremeFormView):
     def form_valid(self, form):
         form.save()
 
-        # NB: we get the entity1 attribute (ie: not the attribute),
+        # NB: we get the entity1 attribute (i.e. not the attribute),
         #     because the entities can be swapped in the form (but form.entity1
         #     is always kept & form.entity2 deleted).
         return redirect(form.entity1)

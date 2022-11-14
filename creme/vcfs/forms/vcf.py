@@ -511,7 +511,7 @@ class VcfImportForm(CremeModelForm):
             image_data = ''
 
             if encoded_image.startswith(URL_START):
-                # TODO: only retrieve once (ie: what if several validation errors) ?
+                # TODO: only retrieve once (i.e. what if several validation errors) ?
 
                 try:
                     # TODO: smaller timeout than our own web server?

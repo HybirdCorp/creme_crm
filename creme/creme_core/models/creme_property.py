@@ -204,7 +204,7 @@ class CremePropertyType(CremeModel):
     is_custom = models.BooleanField(default=False, editable=False)
 
     # If True, the properties with this type can be copied
-    # (ie: when cloning or converting an entity).
+    # (i.e. when cloning or converting an entity).
     is_copiable = models.BooleanField(_('Is copiable'), default=True)
 
     # A disabled type should not be proposed for adding (and a property with
@@ -300,7 +300,7 @@ class CremeProperty(CremeModel):
 
 @receiver(signals.pre_merge_related)
 def _handle_merge(sender, other_entity, **kwargs):
-    """Delete 'Duplicated' CremeProperties (ie: exist in the removed entity &
+    """Delete 'Duplicated' CremeProperties (i.e. exist in the removed entity &
     the remaining entity).
     """
     from .history import HistoryLine
@@ -317,7 +317,7 @@ def _handle_merge(sender, other_entity, **kwargs):
 
 @receiver(signals.pre_replace_related, sender=CremePropertyType)
 def _handle_replacement(sender, old_instance, new_instance, **kwargs):
-    """Delete 'Duplicated' CremeProperties (ie: one entity has 2 properties
+    """Delete 'Duplicated' CremeProperties (i.e. one entity has 2 properties
     with the old & the new types).
     """
     from django.db.models import Count

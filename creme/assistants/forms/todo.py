@@ -48,9 +48,9 @@ class ToDoForm(CremeModelForm):
                 'send the email to the owner of the entity, even if it is changed.'
             ),
             'deadline': _(
-                'If you set a deadline, an email is sent to the owner of the ToDo '
+                'If you set a deadline, an email is sent to the owner of the Todo '
                 'when it is about to expire (the job «Reminders» must be enabled), '
-                'if the ToDO is not marked as done before.\n'
+                'if the Todo is not marked as done before.\n'
                 'Hint: if the owner is a team, every teammate receives an email.'
             ),
         }

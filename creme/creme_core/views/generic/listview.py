@@ -72,8 +72,8 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
     """Base class for list-view of CremeEntities with a given type.
 
     List of features saved in session :
-     - Choice of HeaderFilters (ie: columns of the list).
-     - Choice of EntityFilters (ie: which entities to display).
+     - Choice of HeaderFilters (i.e. columns of the list).
+     - Choice of EntityFilters (i.e. which entities to display).
      - Pagination, with a fast pagination mode when there is a lot of entities
        Related settings : PAGE_SIZES, DEFAULT_PAGE_SIZE_IDX, FAST_QUERY_MODE_THRESHOLD.
      - Ordering: some columns can be used to order the list ; the chosen column
@@ -87,7 +87,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
        'get_actions_registry()' to override the list of actions in a view inheriting this class.
      - Buttons (e.g. creation of an entity, CSV export...). See the method
        'get_buttons(self)' to override the displayed button in a view inheriting this class.
-     - Additional queries to filter the rows/content (ie: entities displayed):
+     - Additional queries to filter the rows/content (i.e. entities displayed):
         - from the HTTP request with the parameter "q_filter" (see the class
           attribute "requested_q_arg", & the method 'get_requested_q()' for examples).
         - customised by a view inheriting this class (see the attribute 'internal_q'
