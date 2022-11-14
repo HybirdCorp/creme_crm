@@ -54,12 +54,12 @@ class LastPage(InvalidPage):
 class FlowPaginator:
     """Paginates a Queryset on CremeEntities.
 
-    It should be fast on big data bases, because it avoids SQL's OFFSET most of the time,
-    because we use a KEYSET way (ex: the page is the X first items with name >= "foobar").
+    It should be fast on big databases, because it avoids SQL's OFFSET most of the time,
+    because we use a KEYSET way (eg: the page is the X first items with name >= "foobar").
     Disadvantage is that you can only go to the next & previous pages.
 
     Beware: if you use a nullable key, NULL values must be ordered as the lowest values
-            (ie: first in ASC order, last in DESC order).
+            (i.e. first in ASC order, last in DESC order).
             Tip: you can use creme.models.manager.LowNullsQuerySet.
     """
     queryset: QuerySet
@@ -77,7 +77,7 @@ class FlowPaginator:
                same order when sub-set queries are performed, or the paginated
                content won't be consistent.
                Tip: use the 'PK' as the (last) ordering field.
-        @param key: Name of the field used as key (ie: first ordering field).
+        @param key: Name of the field used as key (i.e. first ordering field).
                It can be a composed field name like 'user__username'.
                ManyToManyFields are not managed ; ForeignKeys must reference
                models with a Meta option 'ordering'.
@@ -347,7 +347,7 @@ class FlowPage(Sequence):
         @param key: See FlowPaginator.
         @param key_field_info: Instance of FieldInfo corresponding to the key.
         @param attr_name: (Composite) attribute name corresponding to the key
-               (ie: key without the '-' prefix).
+               (i.e. key without the '-' prefix).
         @param offset: Positive integer indicating the offset used with the key
                to get the object_list.
         @param max_size: Maximum size of pages with the paginator.

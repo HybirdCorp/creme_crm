@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2019  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from .models import UserMessage
 
 class _UserMessagesSendType(JobType):
     id           = JobType.generate_id('assistants', 'usermessages_send')
-    verbose_name = _('Send usermessages emails')
+    verbose_name = _('Send user-messages emails')
     periodic     = JobType.PSEUDO_PERIODIC
 
     def _execute(self, job):

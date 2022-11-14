@@ -147,7 +147,7 @@ def brick_action(context, id, url='',
                  enabled=True,
                  confirm=None, loading=None, help_text=None,
                  **kwargs):
-    """Create a Creme-action (ie: link/button related to JavaScript code) made
+    """Create a Creme-action (i.e. link/button related to JavaScript code) made
     for use in a brick.
     (see  creme/creme_core/static/creme_core/js/bricks.js).
 
@@ -430,8 +430,8 @@ def brick_menu_reduce_action(context, state):
 @register.inclusion_tag('creme_core/templatetags/bricks/table-column.html')
 def brick_table_column(title, status='', **attrs):
     """Column header for table-bricks
-    (ie: template which extends creme_core/bricks/base/table.html or
-    creme_core/bricks/base/paginated-table.html, or which contains a <table>).
+    (i.e. template which extends 'creme_core/bricks/base/table.html' or
+    'creme_core/bricks/base/paginated-table.html', or which contains a <table>).
 
     @param title: Title of the column (string).
     @param status: String use to tag the HTML node. Classical ones: 'primary', 'action'.

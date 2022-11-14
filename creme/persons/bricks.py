@@ -567,7 +567,7 @@ class DetailedOtherAddressesBrick(_OtherAddressesBrick):
     dependencies = (Address,)
     verbose_name = _('Other addresses (detailed)')
     description = _(
-        'Displays the additional addresses (ie: not billing & shipping ones).\n'
+        'Displays the additional addresses (i.e. not billing & shipping ones).\n'
         'In this version of the block, all the visible fields of the addresses '
         'are shown.\n'
         'App: Accounts and Contacts'
@@ -580,7 +580,7 @@ class PrettyOtherAddressesBrick(_OtherAddressesBrick):
     id_ = QuerysetBrick.generate_id('persons', 'other_addresses_pretty')
     verbose_name = _('Other addresses (pretty)')
     description = _(
-        'Displays the additional addresses (ie: not billing & shipping ones).\n'
+        'Displays the additional addresses (i.e. not billing & shipping ones).\n'
         'In this version of the block, the addresses are shown in a pretty way '
         '(some fields can be ignored).\n'
         'App: Accounts and Contacts'

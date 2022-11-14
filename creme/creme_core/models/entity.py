@@ -201,7 +201,7 @@ class CremeEntity(CremeModel):
         return reverse('creme_core__delete_entity', args=(self.id,))
 
     def get_html_attrs(self, context) -> dict[str, str]:
-        """Extra HTMl attributes for this entity.
+        """Extra HTML attributes for this entity.
         @param context: Context of the template (useful to stores re-usable values).
         @return A dictionary.
 
@@ -257,7 +257,7 @@ class CremeEntity(CremeModel):
         """Faster than calling get_real_entity() of each CremeEntity object,
         because it groups queries by ContentType.
         @param entities: Sequence of CremeEntity instances.
-               Beware it can be iterated twice (ie: can't be a generator).
+               Beware it can be iterated twice (i.e. can't be a generator).
         """
         entities_by_ct: DefaultDict[int, list] = defaultdict(list)
 

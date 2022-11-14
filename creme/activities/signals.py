@@ -114,6 +114,6 @@ def _transfer_default_calendar(sender, instance, **kwargs):
     # NB: when a User is deleted, his Calendars are given to another User, who
     #     has at this moment 2 default Calendars. When get_user_default_calendar()
     #     fixes the problem, the Calendar chosen to be the default one can be
-    #     different from the original default Calendar (ie: the default Calendar
+    #     different from the original default Calendar (i.e. the default Calendar
     #     of this User can change 'silently').
     Calendar.objects.filter(user=instance, is_default=True).update(is_default=False)

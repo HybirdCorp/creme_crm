@@ -124,7 +124,7 @@ class MailingListsBrick(_RelatedEntitesBrick):
 
 class EmailRecipientsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('emails', 'recipients')
-    verbose_name = _('Unlinked recipients')
+    verbose_name = _('Not linked recipients')
     description = _(
         'Allows to add simple email addresses to the current Mailing list. '
         'These addresses are not related to a Contact or an Organisation.\n'

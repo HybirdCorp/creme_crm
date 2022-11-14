@@ -20,7 +20,7 @@
 "use strict";
 
 /* TODO: unit test */
-/* TODO: button to de-select all? */
+/* TODO: button to deselect all? */
 /* TODO: input to search/filter in choices? */
 creme.widget.SelectOrInputWidget = creme.widget.declare('ui-creme-ordered', {
     _create: function(element, options) {
@@ -33,7 +33,7 @@ creme.widget.SelectOrInputWidget = creme.widget.declare('ui-creme-ordered', {
 
         var choices = JSON.parse(creme.utils.JSON.readScriptText(element.find('.ordered-widget-choices')));
 
-        // We compute the order to use when a chosen element is de-selected, to re-insert it among available elements.
+        // We compute the order to use when a chosen element is deselected, to re-insert it among available elements.
         choices.forEach(function(choice, index) {
             choice.originalOrder = index;
         });
@@ -114,7 +114,7 @@ creme.widget.SelectOrInputWidget = creme.widget.declare('ui-creme-ordered', {
     _asEnabledEntry: function(entryDiv) {
         var deselectButton = $(
             '<button type="button" class="deselect-choice">${label}</button>'.template({
-                label: gettext('De-select')
+                label: gettext('Deselect')
             })
         );
 

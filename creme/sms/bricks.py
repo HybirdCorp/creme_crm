@@ -56,7 +56,7 @@ class MessagingListsBlock(_RelatedEntitesBrick):
 
 class RecipientsBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('sms', 'recipients')
-    verbose_name = _('Unlinked recipients')
+    verbose_name = _('Not linked recipients')
     description = _(
         'Allows to add simple phone number to the current Messaging list. '
         'These numbers are not related to a Contact.\n'

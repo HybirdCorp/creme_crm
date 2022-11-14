@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme SMS 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-07 15:38+0100\n"
+"POT-Creation-Date: 2022-11-15 11:41+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -25,7 +25,7 @@ msgstr "Marketing"
 msgid "Messaging lists"
 msgstr "Listes de diffusion"
 
-msgid "Unlinked recipients"
+msgid "Not linked recipients"
 msgstr "Destinataires manuels"
 
 msgid ""
@@ -387,11 +387,11 @@ msgid "No related messaging list for the moment"
 msgstr "Aucune liste de diffusion associée pour le moment"
 
 #, python-brace-format
-msgid "{count} Unlinked recipient"
+msgid "{count} Not linked recipient"
 msgstr "{count} Destinataire manuel"
 
 #, python-brace-format
-msgid "{count} Unlinked recipients"
+msgid "{count} Not linked recipients"
 msgstr "{count} Destinataires manuels"
 
 msgid "Add from a CSV file"
@@ -404,7 +404,7 @@ msgctxt "sms"
 msgid "Delete this recipient"
 msgstr "Supprimer ce destinataire"
 
-msgid "No unlinked recipient for the moment"
+msgid "No recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
 #, python-brace-format

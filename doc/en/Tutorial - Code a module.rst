@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 11-10-2022 for Creme 2.4
+:Version: 14-11-2022 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1480,7 +1480,7 @@ In order our brick class is used by Creme, we must register it with ``beavers/ap
 Now the brick is available in the configuration UI of bricks, when we create
 or edit a configuration of beavers' detailed view.
 
-If we want the brick to be present in the default configuration (ie: at
+If we want the brick to be present in the default configuration (i.e. at
 deployment), we have to improve our file ``beavers/populate.py``: ::
 
     [...]
@@ -1660,7 +1660,7 @@ is not proposed (as we expected). On the other hand, it is proposed if we
 create a configuration for the le type Beaver. Add the button on this new
 configuration.
 
-When we go to the page of a sick beaver (ie: with the status "Sick"), the
+When we go to the page of a sick beaver (i.e. with the status "Sick"), the
 button is appeared. If we click on it, we get a partially pre-filled form.
 
 
@@ -1728,7 +1728,7 @@ generally for its own entity types some forms which users can configure
 with a GUI : customisable forms (CustomForms).
 
 Let's add a simple CustomForm to create our beavers. First, in the root of our
-app (ie: ``my_project/beavers/``), we create le file ``custom_forms.py``: ::
+app (i.e. ``my_project/beavers/``), we create le file ``custom_forms.py``: ::
 
     # -*- coding: utf-8 -*-
 
@@ -2496,7 +2496,7 @@ not correctly. So use these variables carefully.
 
 **How-to swap a model in a second time?** imagine you have a production
 instance of Creme, and then you realise that to do want you want you have to
-swap a model (ie: it's the not swapped version of this model which is currently
+swap a model (i.e. it's the not swapped version of this model which is currently
 used in your code/DB).
 
 Beware! You should test the following step on a copy of your production DB, and

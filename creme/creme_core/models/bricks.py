@@ -77,8 +77,8 @@ class BrickDetailviewLocationManager(models.Manager):
                - A class inheriting CremeEntity.
                - An instance of ContentType (corresponding to a model inheriting CremeEntity).
                - None, which means <default configuration>.
-        @param role: Can be None (ie: 'Default configuration'), a UserRole instance,
-                     or the string 'superuser'.
+        @param role: Can be None (i.e. 'Default configuration'), a UserRole instance,
+               or the string 'superuser'.
         """
         # TODO: typing TypedDict in py 3.8
         kwargs: dict[str, Any] = {'role': None, 'superuser': False}

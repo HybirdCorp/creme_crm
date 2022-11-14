@@ -139,7 +139,7 @@ class _ComApproachesEmailsSendType(JobType):
         return [
             gettext(
                 "For each customer organisation, an email is sent to its owner "
-                "(ie: a Creme user), if there is no commercial approach since "
+                "(i.e. a Creme user), if there is no commercial approach since "
                 "{} days linked to: the organisation, one of its managers/employees, "
                 "or an Opportunity which targets this organisation."
             ).format(self.list_target_orga[0][1]),

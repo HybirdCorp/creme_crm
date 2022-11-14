@@ -373,7 +373,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         jr_error = jr_errors[0]
         self.assertEqual(
-            [_('The participant «{}» is unfoundable').format(unfoundable)],
+            [_('The participant «{}» cannot be found').format(unfoundable)],
             jr_error.messages,
         )
         self.assertEqual(act3, jr_error.entity.get_real_entity())
@@ -487,7 +487,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertEqual(1, len(jr_errors))
 
         jr_error = jr_errors[0]
-        err_fmt = _('The participant «{}» is unfoundable').format
+        err_fmt = _('The participant «{}» cannot be found').format
         self.assertListEqual(
             [
                 err_fmt(f'{unfoundable1} {unfoundable1}'),
@@ -839,7 +839,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         jr_error = jr_errors[0]
         self.assertEqual(task3, jr_error.entity.get_real_entity())
         self.assertListEqual(
-            [_('The subject «{}» is unfoundable').format(name)],
+            [_('The subject «{}» cannot be found').format(name)],
             jr_error.messages,
         )
 
@@ -1177,7 +1177,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertTupleEqual((), contacts)
         self.assertTupleEqual(
             tuple([
-                _('The participant «{}» is unfoundable').format(
+                _('The participant «{}» cannot be found').format(
                     _('{first_name} {last_name}').format(
                         first_name=first_name,
                         last_name=last_name,
@@ -1259,7 +1259,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         contacts, err_msg = extract()
         self.assertFalse(contacts)
         self.assertTupleEqual(
-            (_('The participant «{}» is unfoundable').format(last_name),),
+            (_('The participant «{}» cannot be found').format(last_name),),
             err_msg,
         )
 
@@ -1311,7 +1311,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         contacts, err_msg = ext.extract_value([searched], user)
         self.assertFalse(contacts)
         self.assertEqual(
-            [_('The participant «{}» is unfoundable').format(searched)],
+            [_('The participant «{}» cannot be found').format(searched)],
             err_msg,
         )
 
@@ -1428,7 +1428,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         contacts, err_msg = extract()
         self.assertFalse(contacts)
         self.assertListEqual(
-            [_('The subject «{}» is unfoundable').format(last_name)],
+            [_('The subject «{}» cannot be found').format(last_name)],
             err_msg,
         )
 

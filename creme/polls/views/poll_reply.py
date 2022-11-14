@@ -303,7 +303,7 @@ class LinkingRepliesToPerson(generic.RelatedToEntityFormPopup):
 
 
 # Beware: if we use RelatedToEntityEdition(), & transform PollReplyLine in a True
-#         auxiliary model (ie: has a get_related_entity() method), the generic
+#         auxiliary model (i.e. has a get_related_entity() method), the generic
 #         delete view could be called without our consent.
 # TODO: if not line's type.editable ??
 # TODO: help_text (cleared answers + conditions etc...) ??

@@ -48,7 +48,7 @@ class Status(MinionModel):
         default=False,
         help_text=_(
             'If you set as closed, existing tickets which use this status will '
-            'not be updated automatically (ie: closing dates will not be set).'
+            'not be updated automatically (i.e. closing dates will not be set).'
         ),
     )
     # is_custom = models.BooleanField(default=True).set_tags(viewable=False)

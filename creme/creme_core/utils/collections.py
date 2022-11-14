@@ -70,7 +70,7 @@ class LimitedList:
 
 
 class FluentList(list):
-    "Enhanced list with fluent methods (ie: can be chained) and a new method."
+    "Enhanced list with fluent methods (i.e. can be chained) and a new method."
     def append(self, x):
         super().append(x)
         return self

@@ -726,7 +726,7 @@ def _handle_merge(sender, other_entity, **kwargs):
         (because with the symmetric relationships feature, its tricky).
 
     So this handler does the job i the right way:
-      - it deletes the 'duplicated' Relations (ie: exist in the removed entity
+      - it deletes the 'duplicated' Relations (i.e. exist in the removed entity
         & the remaining entity), without creating HistoryLines at all.
       - it updates the relationships which reference the removed entity to
         reference the remaining entity (History is managed by hand).

@@ -126,7 +126,7 @@ class RelatedExtractor:
             ]
         else:
             err_msg = _(
-                'The participant «{}» is unfoundable'
+                'The participant «{}» cannot be found'
             ).format(self._searched_contact(first_name, last_name))
 
         return extracted, (err_msg,) if err_msg else ()
@@ -475,7 +475,7 @@ class SubjectsExtractor(RelatedExtractor):
                         _('No linkable entity found for the search «{}»').format(search)
                     )
                 else:
-                    err_msg.append(_('The subject «{}» is unfoundable').format(search))
+                    err_msg.append(_('The subject «{}» cannot be found').format(search))
 
         return extracted, err_msg
 

@@ -213,16 +213,17 @@ def populate_related(instances: Sequence[Model],
                     if attr_id and attr_id not in cached:
                         new_ids.add(attr_id)
 
-        # Step 2: we retrieve all the new instances (ie: not already cached) needed by this level
-        #         with our grouped queries, & fill the cache.
+        # Step 2: we retrieve all the new instances (i.e. not already cached)
+        #         needed by this level with our grouped queries, & fill the cache.
         for rel_model, ids in new_ids_per_model.items():
             global_cache[rel_model].update(
                 (o.pk, o)
                 for o in rel_model._default_manager.filter(pk__in=ids)
             )
 
-        # Step 3: we store the retrieved instances (level N+1) in our given instances (level N+1).
-        #         & we build the works for the level N+1 for these new instances.
+        # Step 3: we store the retrieved instances (level N+1) in our given
+        #         instances (level N+1) & we build the works for the level N+1
+        #         for these new instances.
         for instances, field_info, field in _iter_works(works):
             fname = field.name
             attr_name = field.get_attname()

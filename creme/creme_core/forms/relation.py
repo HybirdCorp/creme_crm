@@ -283,6 +283,6 @@ class MultiEntitiesRelationCreateForm(_RelationsCreateForm):
 
         if forbidden_subjects:
             fields['bad_entities_lbl'] = core_fields.ReadonlyMessageField(
-                label=gettext('Unlinkable entities'),
+                label=gettext('Not linkable entities'),
                 initial=entities_to_str(forbidden_subjects, user),
             )

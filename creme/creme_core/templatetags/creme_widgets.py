@@ -168,7 +168,7 @@ _WIDGET_ICON_NODES: dict[str, tuple[str, type[IconNode]]] = {
 
 @register.tag(name='widget_icon')
 def do_icon(parser, token):
-    """ Get an Icon (ie: <img>).
+    """ Get an Icon (i.e. <img>).
 
     A. The icon can be rendered immediately:
             {% widget_icon name='add' %}
@@ -352,8 +352,8 @@ def widget_enumerator(items, threshold=3, empty='', summary=None):
     @param items: Sequence of objects.
     @param threshold: Integer >= 2.
     @param empty: Message (string) used when <items> is empty.
-    @param summary: Format string used when there are too much items.
-           It used the brace format with "count" name (ie: '{count} foobars').
+    @param summary: Format string used when there are too many items.
+           It used the brace format with "count" name (i.e. '{count} foobars').
            If not given default one is provided.
     """
     return {
@@ -371,7 +371,7 @@ def widget_help_sign(message, icon='info'):
 
 @register.tag(name='widget_join')
 def do_join(parser, token):
-    """ Joins the items of an enumeration (ie: for loop) in a pretty way.
+    """ Joins the items of an enumeration (i.e. for loop) in a pretty way.
     Must be used inside a for loop.
 
     Example:

@@ -346,7 +346,7 @@ class Separator0Entry(MenuEntry):
 
 class Separator1Entry(MenuEntry):
     """Level-1 separator ; it can have a label stored in DB.
-    Currently (ie: theme "icecream" & "chantilly") an horizontal line is
+    Currently, (i.e. theme "icecream" & "chantilly") a horizontal line is
     displayed when it's needed (when the separator is placed between 2
     level-1 entries).
     """

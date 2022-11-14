@@ -346,7 +346,7 @@ class SetCredentials(models.Model):
     )
     ctype = EntityCTypeForeignKey(
         verbose_name=_('Apply to a specific type'),
-        # NB: NULL means "No specific type" (ie: any kind of CremeEntity)
+        # NB: NULL means "No specific type" (i.e. any kind of CremeEntity)
         null=True, blank=True,
     )
     # entity  = models.ForeignKey(CremeEntity, null=True) ??

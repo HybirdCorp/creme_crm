@@ -38,7 +38,7 @@ CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
 
 # NB: it's recommended to :
 #   - use a database engine that supports transactions
-#     (ie: not MyISAM for MySQL, which uses now INNODB by default).
+#     (i.e. not MyISAM for MySQL, which uses now INNODB by default).
 #   - configure your database to use utf8 (e.g. with MySQL, 'utf8_general_ci' is OK).
 DATABASES = {
     'default': {
@@ -153,7 +153,7 @@ USE_TZ = True
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'fr'  # Choose in the LANGUAGES values
 
-# Available languages (ie: with a translation), proposed in each user settings.
+# Available languages (i.e. with a translation), proposed in each user settings.
 LANGUAGES = [
     ('en', 'English'),
     ('fr', 'Français'),
@@ -354,7 +354,7 @@ INSTALLED_CREME_APPS = [
     'creme.activities',
 
     # Manage the following auxiliary models (related to an entity):
-    # Alert, ToDO, Memo, Action, UserMessage
+    # Alert, Todo, Memo, Action, UserMessage
     # They can be created through specific blocks in detailed views of entities.
     'creme.assistants',
 
@@ -1387,7 +1387,7 @@ CREME_SAMOUSSA_USERNAME = ''
 CREME_SAMOUSSA_PASSWORD = ''
 
 # CRUDITY -----------------------------------------------------------------------
-# EMail parameters to sync external emails in Creme
+# Email parameters to sync external emails in Creme
 # email address where to send the emails to sync (used in email templates)
 # For example: creme@cremecrm.org
 CREME_GET_EMAIL              = ''

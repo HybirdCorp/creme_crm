@@ -4,6 +4,12 @@ $
 USD
 %
 
+@
+-
+_
+"
+'
+
 CSV
 PNG
 INI
@@ -15,10 +21,20 @@ xls
 XLS
 XLSX
 Excel
+Workbook
+SSL
 
 PKs
 UUID
 uuid
+on_delete
+
+BCC
+From
+iCalendar
+
+NC
+NB
 
 creme
 Creme
@@ -29,17 +45,26 @@ CremeEntity
 RemplacezParVotreSociété
 remplacezMoi@parVotreAdresse
 completez@Moi
+mon_domaine
+moi@mon_domaine
+creme@crm
+
+Ok
+créables
 
 ContentType
 App
 app
 apps
+settings
+Changeset
 
 CRUDITY_BACKENDS
 
 Iphone
 Blackberry
 Netbook
+Maps
 
 NAF
 SIRET
@@ -48,3 +73,15 @@ IBAN
 RCS
 RM
 OPCA
+Egalim
+Télécom
+
+CTI
+
+DF8177
+abc56def
+
+todo
+todos
+Todo
+Todos

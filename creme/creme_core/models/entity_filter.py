@@ -164,8 +164,8 @@ class EntityFilterManager(models.Manager):
                                conditions=()
                                ) -> EntityFilter:
         """Creation helper ; useful for populate.py scripts.
-        @param user: Can be None (ie: 'All users'), a User instance, or the string
-                     'admin', which means 'the first admin user'.
+        @param user: Can be None (i.e. 'All users'), a User instance, or the
+               string 'admin', which means 'the first admin user'.
         """
         forbidden = {'[', ']', '#', '?'}  # '&'
 
@@ -374,7 +374,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
                the current user (& so is used to retrieve it & it's teams by the
                operand <CurrentUserOperand>.
         @return: A boolean ; True means the entity is accepted
-                (ie: pass the conditions).
+                (i.e. pass the conditions).
         """
         accepted = (
             condition.accept(entity=entity, user=user)
@@ -793,7 +793,7 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
 class EntityFilterCondition(models.Model):
     """Component of EntityFilter containing of data for conditions.
 
-    Code for filtering (ie: building Q instances) is in 'core.entity_filter.condition_handler'
+    Code for filtering (i.e. building Q instances) is in 'core.entity_filter.condition_handler'
     in the child-classes of 'FilterConditionHandler'.
 
     Attributes/fields:
@@ -852,9 +852,9 @@ class EntityFilterCondition(models.Model):
         @param entity: Instance of <CremeEntity>.
         @param user: Instance of <django.contrib.auth.get_user_model()> ; it's
                the current user (& so is used to retrieve it & it's teams by the
-               operand <CurrentUserOperand>.
+               operand <CurrentUserOperand>).
         @return: A boolean ; True means the entity is accepted
-                (ie: pass the condition).
+                (i.e. pass the condition).
         """
         return self.handler.accept(entity=entity, user=user)
 

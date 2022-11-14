@@ -421,7 +421,7 @@ creme.bricks.BrickTable = creme.component.Component.sub({
 * Notice that the dependency string '*' is special ; it's a wildcard. If you build a Dependencies instance
 * with a wildcard in the list, this instance's intersect() will always return <true>.
 *
-* @param deps: - A sequence (ie: indexing + 'length' attribute) of strings.
+* @param deps: - A sequence (i.e. indexing + 'length' attribute) of strings.
                - An instance of creme.bricks.Dependencies.
 */
 creme.bricks.Dependencies = function(deps) {

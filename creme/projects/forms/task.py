@@ -234,7 +234,7 @@ class RelatedActivityCreateForm(RelatedActivityEditForm):
         task = self._task
         p_name, t_name = ellipsis_multi(
             (task.linked_project.name, task.title),
-            # 9 is the length of ' -  - XYZ' (ie: the 'empty' format string)
+            # 9 is the length of ' -  - XYZ' (i.e. the 'empty' format string)
             Activity._meta.get_field('title').max_length - 9
         )
         self.instance.title = '{project} - {task} - {count:03}'.format(

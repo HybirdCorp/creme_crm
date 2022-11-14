@@ -4,6 +4,15 @@ $
 USD
 %
 
+@
+-
+_
+"
+'
+&
+
+'s
+
 CSV
 PNG
 INI
@@ -16,10 +25,15 @@ XLS
 XLSX
 Excel
 JSON
+SSL
 
 PKs
 UUID
 uuid
+on_delete
+
+BCC
+iCalendar
 
 creme
 Creme
@@ -30,8 +44,13 @@ CremeEntity
 ReplaceByYourSociety
 replaceMe@byYourAddress
 complete@Me
+mydomain
+me@mydomain
+creme@crm
 
 ContentType
+Changeset
+DataBase
 
 CRUDITY_BACKENDS
 
@@ -48,6 +67,24 @@ RCS
 RM
 OPCA
 
+CTI
+
+copiable
+Creatable
 unlink
+linkable
 detailview
 uncheck
+draggable
+Draggable
+
+FirstName
+LastName
+
+DF8177
+abc56def
+
+todo
+todos
+Todo
+Todos

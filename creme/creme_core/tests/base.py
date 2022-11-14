@@ -324,7 +324,7 @@ class _CremeTestCase:
 
     def assertInChoices(self, value, label, choices):
         """Search a choice among a classical sequence of Django's choices
-        (ie: tuples (value, label).
+        (i.e. tuples (value, label)).
         """
         for i, (choice_value, choice_label) in enumerate(choices):
             if value == choice_value:
@@ -345,7 +345,7 @@ class _CremeTestCase:
 
     def assertNotInChoices(self, value, choices):
         """Check a choice's value is not found in a classical sequence of
-        Django's choices (ie: tuples (value, label).
+        Django's choices (i.e. tuples (value, label)).
         """
         for choice_value, choice_label in choices:
             if choice_value == value:

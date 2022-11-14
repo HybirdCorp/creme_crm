@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                         verbose_name='Is a "closed" status?',
                         help_text=(
                             'If you set as closed, existing tickets which use this status will '
-                            'not be updated automatically (ie: closing dates will not be set).'
+                            'not be updated automatically (i.e. closing dates will not be set).'
                         ),
                     )
                 ),

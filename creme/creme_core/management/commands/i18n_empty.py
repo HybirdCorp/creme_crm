@@ -72,7 +72,7 @@ class Command(BaseCommand):
         add_arg(
             '--js',
             action='store_true', dest='javascript', default=False,
-            help='Work with po file for javascript (ie: djangojs.po instead of djangojs.po) '
+            help='Work with po file for javascript (i.e. djangojs.po instead of djangojs.po) '
                  '[default: %(default)s]',
         )
 

@@ -87,7 +87,7 @@ class AbstractReport(CremeEntity):
 
     def _build_columns(self, allow_selected: bool) -> list[Field]:
         """@param allow_selected: Boolean, 'True' allows columns to be 'selected'
-                  (ie: expanded sub-report).
+                  (i.e. expanded sub-report).
         """
         self._columns = columns = []
         selected_found = False
@@ -244,7 +244,7 @@ class Field(CremeModel):
 
     def _build_children(self, allow_selected: bool) -> None:
         """Force the tree to be built, and fix the 'selected' attributes.
-        Only root fields (ie: deep==0), or children a selected root field,
+        Only root fields (i.e. deep==0), or children a selected root field,
         can be selected.
         """
         self.selected &= allow_selected

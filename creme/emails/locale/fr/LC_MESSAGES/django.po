@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-09 14:45+0100\n"
+"POT-Creation-Date: 2022-11-15 11:41+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -34,7 +34,7 @@ msgstr "Corps HTML"
 msgid "Mailing lists"
 msgstr "Listes de diffusion d'e-mails"
 
-msgid "Unlinked recipients"
+msgid "Not linked recipients"
 msgstr "Destinataires manuels"
 
 msgid ""
@@ -452,7 +452,7 @@ msgid "Emails"
 msgstr "E-mails"
 
 #, python-brace-format
-msgid "EMail <from: {sender}> <to: {to}> <status: {status}>"
+msgid "Email <from: {sender}> <to: {to}> <status: {status}>"
 msgstr "E-Mail <de: {sender}> <à: {to}> <statut: {status}>"
 
 msgid "Name of the mailing list"
@@ -861,7 +861,7 @@ msgstr "Voir le corps"
 msgid "Details"
 msgstr "Détails"
 
-msgid "View the HTMl body"
+msgid "View the HTML body"
 msgstr "Voir le corps HTML"
 
 msgid "Delete this email"
@@ -1000,11 +1000,11 @@ msgid "No parent list for the moment"
 msgstr "Aucune liste parente pour le moment"
 
 #, python-brace-format
-msgid "{count} Unlinked recipient"
+msgid "{count} Not linked recipient"
 msgstr "{count} Destinataire manuel"
 
 #, python-brace-format
-msgid "{count} Unlinked recipients"
+msgid "{count} Not linked recipients"
 msgstr "{count} Destinataires manuels"
 
 msgid "Add from a CSV file"
@@ -1017,7 +1017,7 @@ msgctxt "emails"
 msgid "Delete this recipient"
 msgstr "Supprimer ce destinataire"
 
-msgid "No unlinked recipient for the moment"
+msgid "No recipient for the moment"
 msgstr "Aucun destinataire pour le moment"
 
 #, python-brace-format
@@ -1092,7 +1092,7 @@ msgstr "Nouvelle configuration de serveur"
 
 #, python-format
 msgid ""
-"Emails sent to these servers can be synchronized (ie: transformed as Creme "
+"Emails sent to these servers can be synchronized (i.e. transformed as Creme "
 "Email entities).\n"
 "The emails are retrieved and stored in a sandbox. Then users can choose to "
 "transform them as entities (or to drop them) in the view <a href="
@@ -1137,13 +1137,13 @@ msgid ""
 "If an email is sent to one of the <a href=\"%(config_url)s\">configured "
 "addresses</a> (Carbon Copy & Blind Carbon Copy work too), and your email "
 "address \"%(email)s\" is found (as sender or recipient), the email can be "
-"synchronized (ie: transformed as a Creme Email entity)."
+"synchronized (i.e. transformed as a Creme Email entity)."
 msgstr ""
 "Si un e-mail est envoyé à une des <a href=\"%(config_url)s\">adresses "
 "configurées</a> (les Copies Carbone & Copies Cachées fonctionne aussi), et "
 "que votre adresse e-mail \"%(email)s\" est trouvée (comme émetteur ou "
 "destinataire), l'e-mail peut être synchronisés (c-à-d : transformé en une "
-"fiche Email Creme)."
+"fiche E-mail Creme)."
 
 #, python-format
 msgid ""

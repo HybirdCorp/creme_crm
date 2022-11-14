@@ -2192,7 +2192,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_user(self):
         """Fix a bug with the field list when bulk editing user
-        (ie: a field of the parent class CremeEntity).
+        (i.e. a field of the parent class CremeEntity).
         """
         self.login()
 

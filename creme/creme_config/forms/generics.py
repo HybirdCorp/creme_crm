@@ -44,7 +44,7 @@ class ReplacingHandler:
 
     Attributes:
         - field: the ForeignKey we want to update.
-        - field_is_hidden: is the ForeignKey hidden (ie: Creme's FieldsConfig feature).
+        - field_is_hidden: is the ForeignKey hidden (i.e. Creme's FieldsConfig feature).
         - instance_to_delete
         - blocking: True means "the deletion cannot be performed".
         - key: a string identifying the handler (tips: used as form-field name).
@@ -110,7 +110,7 @@ class ReplacingHandler:
 
 class LabelReplacingHandler(ReplacingHandler):
     """Specialization of ReplacingHandler to display a message to the user
-    (ie: no choice about the replacement).
+    (i.e. no choice about the replacement).
     """
     empty_message = _('OK: no instance of «{model}».')
     instances_message = ngettext_lazy(

@@ -246,7 +246,7 @@ class Populator(BasePopulator):
 
             vehicle = create_cat(name=_('Vehicle'))
             create_subcat(name=_('Car'),   category=vehicle)
-            create_subcat(name=_('Moto'),  category=vehicle)
+            create_subcat(name=_('Bike'),  category=vehicle)
             create_subcat(name=_('Boat'),  category=vehicle)
             create_subcat(name=_('Plane'), category=vehicle)
 

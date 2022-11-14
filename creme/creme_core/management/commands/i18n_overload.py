@@ -61,14 +61,14 @@ class Command(BaseCommand):
             '-u', '--comment_useless',
             action='store_true', dest='comment_useless', default=False,
             help='Search messages which are useless in the overloading file '
-                 '(ie: these messages are not found in overloaded files) '
-                 'and mark them as obsolete (ie: start with "#~" in the po file).'
+                 '(i.e. these messages are not found in overloaded files) '
+                 'and mark them as obsolete (i.e. start with "#~" in the po file).'
                  '[default: %(default)s]',
         )
         add_arg(
             '--js',
             action='store_true', dest='javascript', default=False,
-            help='Work with po file for javascript (ie: djangojs.po instead of django.po) '
+            help='Work with po file for javascript (i.e. djangojs.po instead of django.po) '
                  '[default: %(default)s]',
         )
         add_arg(

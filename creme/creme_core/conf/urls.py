@@ -30,16 +30,16 @@ class Swappable:
     r"""Wrapper for django.conf.urls.url(...) which indicates this path can be
      swapped on some reason (see _PatternSwapManager).
 
-     A swapped URL is an URL which is not given to the Django's resolver & must
+     A swapped URL is a URL which is not given to the Django's resolver & must
      be defined in another place. It's useful when you define a view related to
      a swappable model, & you want your vanilla view to be defined only if the
      model is the vanilla one.
 
      Eg: we want to wrap
         re_path(
-        r'^my_stuff/(?P<id>\d+)/edit[/]?$',
-        my_app.views.my_stuff.StuffEdition.as_view(),
-        name='my_app__create_my_stuff',
+            r'^my_stuff/(?P<id>\d+)/edit[/]?$',
+            my_app.views.my_stuff.StuffEdition.as_view(),
+            name='my_app__create_my_stuff',
         )
 
      It could give (notice the integer argument which corresponds to our URL):
@@ -56,7 +56,7 @@ class Swappable:
 
         @param pattern: Should be an object returned by url().
         @param check_args: Tuple used as arguments to reverse() the <pattern>.
-                           Empty tuple by default (ie: OK for URL without argument).
+               Empty tuple by default (i.e. OK for URL without argument).
         """
         self.pattern = pattern
         self.check_args = check_args

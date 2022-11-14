@@ -34,7 +34,7 @@ class AbstractListViewSearchFieldRegistry:
     The idea is to have a tree of registries ; each node is calling the child node the
     most adapted to the given EntityCell.
     Classically the root registry is a ListViewSearchFieldRegistry which has a child
-    for each type of cell (regular-field, custom-field...).
+    for each type of cell (regular-field, custom-field…).
 
     The interface of this class is :
      - mainly the method 'get_field()'.
@@ -43,9 +43,10 @@ class AbstractListViewSearchFieldRegistry:
 
     Nomenclature:
      - A "builder" is an object which can instantiate a ListViewSearchField ; so it can be:
-        - A class of search-field (ie: inheriting <creme_core.forms.listview.ListViewSearchField>).
+        - A class of search-field
+          (i.e. inheriting <creme_core.forms.listview.ListViewSearchField>).
         - An instance of a search-field registry class
-          (ie: inheriting <AbstractListViewSearchFieldRegistry>).
+          (i.e. inheriting <AbstractListViewSearchFieldRegistry>).
     """
     def get_field(self, *, cell: entity_cell.EntityCell, user, **kwargs):
         """Get an instance of (a class inheriting) <creme_core.forms.listview.ListViewSearchField>.

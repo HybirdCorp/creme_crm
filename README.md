@@ -5,7 +5,7 @@ adapting Creme to many workflows.
 
 ![Detailed view of a contact](https://github.com/HybirdCorp/creme_crm/raw/main/screenshot.png)
 
-It provides apps (ie: modules) to manage:
+It provides apps (i.e. modules) to manage:
  - Contacts & organisations.
  - Documents & folders.
  - Activities (meetings, phone calls, tasks...) with a calendar.
