@@ -9,6 +9,8 @@
             - The count of managers/employees in hat card for Organisations could be wrong (when it was greater than 16).
         * Products :
             - A crash in the creation forms has been fixed (Category without SubCategory).
+        * Crudity :
+            - A scary ERROR log, when the POP server is not configured, is now avoided (an INFO log is used instead).
 
 
 == Version 2.3.7 ==
