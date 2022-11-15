@@ -14,7 +14,6 @@ from creme.creme_core.models import (
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.fake_models import FakeActivity, FakeSector
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
-from creme.creme_core.utils.translation import plural
 
 
 class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
@@ -58,14 +57,11 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         count = FieldsConfig.objects.count()
-        msg = (
-            _('{count} Configured types of resource')
-            if plural(count) else
-            _('{count} Configured type of resource')
-        )
-        self.assertEqual(
-            msg.format(count=count),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=count,
+            title='{count} Configured type of resource',
+            plural_title='{count} Configured types of resource',
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(brick_node),

@@ -8,13 +8,15 @@ from creme.creme_core.models import (
     CremePropertyType,
     RelationType,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
+from ..bricks import SegmentsBrick
 from ..models import MarketSegment
 from .base import CommercialBaseTestCase, Organisation, Strategy
 
 
-class MarketSegmentTestCase(CommercialBaseTestCase):
+class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @staticmethod
     def _build_delete_url(segment):
         return reverse('commercial__delete_segment', args=(segment.id,))
@@ -72,7 +74,7 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         )
 
     def test_create04(self):
-        "Not allowed"
+        "Not allowed."
         self.login(is_superuser=False)
         self.assertGET403(self.ADD_SEGMENT_URL)
 
@@ -84,6 +86,16 @@ class MarketSegmentTestCase(CommercialBaseTestCase):
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
             response.context.get('bricks_reload_url'),
+        )
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick_id=SegmentsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Market segment',
+            plural_title='{count} Market segments',
         )
 
     def test_listview02(self):

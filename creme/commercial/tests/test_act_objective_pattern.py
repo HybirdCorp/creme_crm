@@ -4,9 +4,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
-from creme.creme_core.models import EntityFilter
-from creme.creme_core.tests.fake_models import FakeContact, FakeOrganisation
+from creme.creme_core.models import EntityFilter, FakeContact, FakeOrganisation
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
+from ..bricks import PatternComponentsBrick
 from ..models import ActObjectivePatternComponent
 from .base import (
     ActObjectivePattern,
@@ -16,7 +17,7 @@ from .base import (
 
 
 @skipIfCustomPattern
-class ActObjectivePatternTestCase(CommercialBaseTestCase):
+class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def setUp(self):
         super().setUp()
         self.login()
@@ -127,15 +128,14 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
 
         # ---
         name = 'Signed opportunities'
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'name':            name,
                 'success_rate':    10,
                 'entity_counting': self.formfield_value_filtered_entity_type(),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         components = pattern.components.all()
         self.assertEqual(1, len(components))
@@ -144,6 +144,16 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
         self.assertEqual(name, component.name)
         self.assertIsNone(component.parent)
         self.assertIsNone(component.ctype)
+
+        # ---
+        detail_response = self.assertGET200(pattern.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(detail_response.content),
+            brick_id=PatternComponentsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node, count=1, title='{count} Objective', plural_title='{count} Objectives',
+        )
 
     def test_add_root_pattern_component02(self):
         "Counted relation (no parent component)."
@@ -248,6 +258,15 @@ class ActObjectivePatternTestCase(CommercialBaseTestCase):
             comp03 = comp01.children.get(name=name)
 
         self.assertEqual(ct, comp03.ctype)
+
+        # ---
+        detail_response = self.assertGET200(pattern.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(detail_response.content), brick_id=PatternComponentsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node, count=3, title='{count} Objective', plural_title='{count} Objectives',
+        )
 
     def test_add_parent_pattern_component01(self):
         pattern = self._create_pattern()
