@@ -65,11 +65,15 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
         response = self.assertGET200(reverse('creme_config__app_portal', args=('emails',)))
 
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, bricks.EmailSyncConfigItemsBrick.id_)
-        self.assertEqual(
-            _('{count} Configured server').format(count=1),
-            self.get_brick_title(brick_node),
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=bricks.EmailSyncConfigItemsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Configured server',
+            plural_title='{count} Configured servers',
         )
 
     def test_server_config_creation01(self):
@@ -288,11 +292,15 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response = self.assertGET200(reverse('emails__sync_portal'))
 
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, bricks.EmailsToSyncBrick.id_)
-        self.assertEqual(
-            _('{count} Email to synchronise').format(count=1),
-            self.get_brick_title(brick_node),
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=bricks.EmailsToSyncBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Email to synchronise',
+            plural_title='{count} Emails to synchronise',
         )
 
     def test_sync_portal02(self):
@@ -306,11 +314,15 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         EmailToSync.objects.create(user=self.other_user, subject='I want a swordfish')
 
         response = self.assertGET200(reverse('emails__sync_portal'))
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, bricks.EmailsToSyncBrick.id_)
-        self.assertEqual(
-            _('{count} Email to synchronise').format(count=1),
-            self.get_brick_title(brick_node),
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick_id=bricks.EmailsToSyncBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Email to synchronise',
+            plural_title='{count} Emails to synchronise',
         )
 
     def test_delete_email_to_sync01(self):

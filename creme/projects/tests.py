@@ -281,9 +281,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ---
         task_brick_node = self.get_brick_node(tree, proj_bricks.ProjectTasksBrick.id_)
-        self.assertEqual(
-            _('{count} Related task').format(count=1),
-            self.get_brick_title(task_brick_node),
+        self.assertBrickTitleEqual(
+            task_brick_node,
+            count=1, title='{count} Related task', plural_title='{count} Related tasks',
         )
         self.assertInstanceLink(task_brick_node, task)
 
@@ -912,15 +912,19 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         tree = self.get_html_tree(detail_response.content)
 
         resources_brick_node = self.get_brick_node(tree, proj_bricks.TaskResourcesBrick.id_)
-        self.assertEqual(
-            _('{count} Resource assigned to this task').format(count=1),
-            self.get_brick_title(resources_brick_node),
+        self.assertBrickTitleEqual(
+            resources_brick_node,
+            count=1,
+            title='{count} Resource assigned to this task',
+            plural_title='{count} Resources assigned to this task',
         )
 
         activities_brick_node = self.get_brick_node(tree, proj_bricks.TaskActivitiesBrick.id_)
-        self.assertEqual(
-            _('{count} Related activity').format(count=1),
-            self.get_brick_title(activities_brick_node),
+        self.assertBrickTitleEqual(
+            activities_brick_node,
+            count=1,
+            title='{count} Related activity',
+            plural_title='{count} Related activities',
         )
         self.assertInstanceLink(activities_brick_node, worker)
 

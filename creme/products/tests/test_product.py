@@ -129,11 +129,11 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         response = self.assertGET200(product.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            ImagesBrick.id_,
+            brick_id=ImagesBrick.id_,
         )
-        self.assertEqual(
-            _('{count} Images').format(count=2),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Image', plural_title='{count} Images',
         )
         self.get_html_node_or_fail(
             brick_node, f".//a[@href='{img_1.get_absolute_url()}']"

@@ -89,11 +89,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), UserRolesBrick.id_,
+            self.get_html_tree(response.content), brick_id=UserRolesBrick.id_,
         )
-        self.assertEqual(
-            _('{count} Role').format(count=1),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1, title='{count} Role', plural_title='{count} Roles',
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(brick_node),

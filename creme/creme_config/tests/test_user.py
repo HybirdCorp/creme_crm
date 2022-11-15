@@ -97,25 +97,24 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         # ---
         doc = self.get_html_tree(response.content)
         users_brick_node = self.get_brick_node(doc, UsersBrick.id_)
-        self.assertEqual(
-            _('{count} Users').format(count=3),
-            self.get_brick_title(users_brick_node),
+        self.assertBrickTitleEqual(
+            users_brick_node,
+            count=3, title='{count} User', plural_title='{count} Users',
         )
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            ['root', user.username, other_user.username],
+            [
                 n.text
                 for n in users_brick_node.findall('.//td[@class="user-username"]')
-            },
-            {'root', user.username, other_user.username},
+            ],
         )
-
         self.assertIsNone(users_brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
 
         # ---
         teams_brick_node = self.get_brick_node(doc, TeamsBrick.id_)
-        self.assertEqual(
-            _('{count} Team').format(count=1),
-            self.get_brick_title(teams_brick_node),
+        self.assertBrickTitleEqual(
+            teams_brick_node,
+            count=1, title='{count} Team', plural_title='{count} Teams',
         )
 
     def test_portal_hide_inactive(self):

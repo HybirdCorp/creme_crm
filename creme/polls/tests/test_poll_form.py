@@ -278,8 +278,9 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # ---
         response = self.assertGET200(pform.get_absolute_url())
 
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, PollFormLinesBrick.id_)
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick_id=PollFormLinesBrick.id_,
+        )
         self.assertEqual(
             ngettext(
                 '{count} Section',
@@ -358,7 +359,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
     def test_add_sub_section03(self):
-        "CHA?GE credentials needed"
+        "CHANGE credentials needed."
         user = self.login(is_superuser=False, allowed_apps=['polls'])
         SetCredentials.objects.create(
             role=self.role,

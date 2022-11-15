@@ -46,20 +46,17 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_portal01(self):
         self.login()
-
         self._create_fconf()
 
         response = self.assertGET200(reverse('creme_config__fields'))
         self.assertTemplateUsed(response, 'creme_config/portals/fields-config.html')
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), FieldsConfigsBrick.id_,
+            self.get_html_tree(response.content), brick_id=FieldsConfigsBrick.id_,
         )
-
-        count = FieldsConfig.objects.count()
         self.assertBrickTitleEqual(
             brick_node,
-            count=count,
+            count=FieldsConfig.objects.count(),
             title='{count} Configured type of resource',
             plural_title='{count} Configured types of resource',
         )
