@@ -467,9 +467,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
-        self.assertEqual(
-            _('{count} Configured menu').format(count=1),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Configured menu',
+            plural_title='{count} Configured menus',
         )
         self.assertBrickHeaderHasButton(
             self.get_brick_header_buttons(brick_node),
@@ -486,9 +488,11 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(self.PORTAL_URL)
         brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
-        self.assertEqual(
-            _('{count} Configured menus').format(count=3),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=3,
+            title='{count} Configured menu',
+            plural_title='{count} Configured menus',
         )
         self.assertBrickHeaderHasNoButton(
             self.get_brick_header_buttons(brick_node),

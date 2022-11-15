@@ -57,16 +57,18 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             self.get_html_tree(response.content),
             bricks.CustomFieldsBrick.id_,
         )
-        self.assertEqual(
-            _('{count} Configured types of resource').format(count=2),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Configured type of resource',
+            plural_title='{count} Configured types of resource',
         )
-        self.assertSetEqual(
-            {cfield1.name, cfield2.name, cfield3.name},
-            {
+        self.assertCountEqual(
+            [cfield1.name, cfield2.name, cfield3.name],
+            [
                 n.text
                 for n in brick_node.findall('.//td[@class="cfields-config-name"]')
-            },
+            ],
         )
 
         def choices_node(cfield):
@@ -101,12 +103,13 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(reverse('creme_config__custom_fields'))
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick_id,
+            self.get_html_tree(response.content), brick_id,
         )
-        self.assertEqual(
-            _('{count} Configured type of resource').format(count=1),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Configured type of resource',
+            plural_title='{count} Configured types of resource',
         )
         self.assertListEqual(
             [cfield.name],

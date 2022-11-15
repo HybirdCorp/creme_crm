@@ -1110,12 +1110,14 @@ better &amp; lighter than the previous one.
         email = self.get_object_or_fail(EntityEmail, subject=subject)
 
         response = self.assertGET200(contact.get_absolute_url())
-
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, MailsHistoryBrick.id_)
-        self.assertEqual(
-            _('{count} Email in the history').format(count=1),
-            self.get_brick_title(brick_node),
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick_id=MailsHistoryBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Email in the history',
+            plural_title='{count} Emails in the history',
         )
 
         subject_td = brick_node.find('.//td[@class="email-subject"]')

@@ -119,7 +119,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
         self.assertEqual(
             _('Information on the ticket'),
-            self.get_brick_title(brick_node)
+            self.get_brick_title(brick_node),
         )
         self.assertEqual(
             priority.name,

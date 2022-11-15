@@ -242,11 +242,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         response3 = self.assertGET200(detail_url)
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content),
-            bricks.ProductLinesBrick.id_,
+            brick_id=bricks.ProductLinesBrick.id_,
         )
-        self.assertEqual(
-            _('{count} Products').format(count=2),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Product', plural_title='{count} Products',
         )
 
     def test_addlines_not_superuser(self):
@@ -447,11 +447,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         response3 = self.assertGET200(detail_url)
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content),
-            bricks.ServiceLinesBrick.id_,
+            brick_id=bricks.ServiceLinesBrick.id_,
         )
-        self.assertEqual(
-            _('{count} Services').format(count=2),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Service', plural_title='{count} Services',
         )
 
     @skipIfCustomProductLine

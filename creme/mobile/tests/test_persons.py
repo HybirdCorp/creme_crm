@@ -481,10 +481,11 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             self.get_html_tree(response.content),
             brick_id=FavoritePersonsBrick.id_,
         )
-        title = self.get_brick_title(brick_node)
-        self.assertEqual(
-            _('This contact is a favorite for {count} user').format(count=1),
-            title,
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='This contact is a favorite for {count} user',
+            plural_title='This contact is a favorite for {count} users',
         )
 
         buttons_node = self.get_brick_header_buttons(brick_node)
@@ -541,10 +542,11 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
             self.get_html_tree(response.content),
             brick_id=FavoritePersonsBrick.id_,
         )
-        title = self.get_brick_title(brick_node)
-        self.assertEqual(
-            _('This organisation is a favorite for {count} user').format(count=1),
-            title,
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='This organisation is a favorite for {count} user',
+            plural_title='This organisation is a favorite for {count} users',
         )
 
 # TODO: search with smart word splitting ? special chars like " ??
