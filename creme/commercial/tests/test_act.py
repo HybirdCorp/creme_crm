@@ -22,6 +22,7 @@ from creme.creme_core.models import (
     RelationType,
     SetCredentials,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities.models import SalesPhase
 from creme.opportunities.tests.base import skipIfCustomOpportunity
 from creme.persons.constants import FILTER_MANAGED_ORGA
@@ -30,6 +31,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
+from .. import bricks
 from ..constants import REL_SUB_COMPLETE_GOAL
 from ..models import ActObjective, ActObjectivePatternComponent, ActType
 from .base import (
@@ -46,7 +48,7 @@ from .base import (
 
 
 @skipIfCustomAct
-class ActTestCase(CommercialBaseTestCase):
+class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -69,7 +71,7 @@ class ActTestCase(CommercialBaseTestCase):
     def _build_incr_url(objective):
         return reverse('commercial__incr_objective_counter', args=(objective.id,))
 
-    def test_create(self):
+    def test_create01(self):
         user = self.login()
 
         url = self.ADD_URL
@@ -107,7 +109,7 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertRedirects(response, act.get_absolute_url())
 
     def test_create02(self):
-        "Error: due date < start"
+        "Error: due date < start."
         user = self.login()
 
         atype = ActType.objects.create(title='Show')
@@ -447,15 +449,14 @@ class ActTestCase(CommercialBaseTestCase):
 
         name = 'Objective#1'
         counter_goal = 20
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'name':            name,
                 'counter_goal':    counter_goal,
                 'entity_counting': self.formfield_value_filtered_entity_type(),
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         objectives = ActObjective.objects.filter(act=act)
         self.assertEqual(1, len(objectives))
@@ -477,8 +478,16 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual(counter_goal, objective.get_count())
         self.assertTrue(objective.reached)
 
+        # ---
+        detail_response = self.assertGET200(act.get_absolute_url())
+        tree = self.get_html_tree(detail_response.content)
+        brick_node = self.get_brick_node(tree, bricks.ActObjectivesBrick.id_)
+        self.assertBrickTitleEqual(
+            brick_node, count=1, title='{count} Objective', plural_title='{count} Objectives',
+        )
+
     def test_add_objective02(self):
-        "Count by content type only"
+        "Count by content type only."
         self.login()
         act = self.create_act()
 
@@ -1073,6 +1082,13 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertEqual([], act.get_related_opportunities())
         self.assertEqual(0,  act.get_made_sales())
 
+        detail_response1 = self.assertGET200(act.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(detail_response1.content), bricks.RelatedOpportunitiesBrick.id_
+        )
+        self.assertEqual(_('Opportunities'), self.get_brick_title(brick_node1))
+
+        # ---
         sales_phase = SalesPhase.objects.create(name='Foresale')
 
         create_orga = partial(Organisation.objects.create, user=user)
@@ -1111,6 +1127,19 @@ class ActTestCase(CommercialBaseTestCase):
         self.assertSetEqual({opp01, opp02}, {*opps})
         self.assertEqual(2000, self.refresh(act).get_made_sales())
         self.assertEqual(5000, self.refresh(act).get_estimated_sales())
+
+        # ---
+        detail_response2 = self.assertGET200(act.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(detail_response2.content),
+            brick_id=bricks.RelatedOpportunitiesBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2,
+            count=2,
+            title='{count} Related opportunity',
+            plural_title='{count} Related opportunities',
+        )
 
         # --
         opp01.trash()

@@ -2,10 +2,12 @@ from tempfile import NamedTemporaryFile
 
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
+from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.creme_jobs.mass_import import mass_import_type
 from creme.creme_core.models import MassImportJobResult, SetCredentials
+from creme.creme_core.utils.translation import plural
 from creme.creme_core.utils.xlwt_utils import XlwtWriter
 from creme.documents.models import Document, Folder, FolderCategory
 
@@ -154,6 +156,12 @@ class BrickTestCaseMixin:
             css_class = action_node.attrib.get('class')
             if css_class and 'brick-action' in css_class:
                 self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
+
+    def assertBrickTitleEqual(self, brick_node, count, title, plural_title):
+        self.assertEqual(
+            _(plural_title if plural(count) else title).format(count=count),
+            self.get_brick_title(brick_node),
+        )
 
 
 class ButtonTestCaseMixin:

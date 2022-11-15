@@ -113,7 +113,8 @@ class SegmentsBrick(QuerysetBrick):
     order_by = 'name'
     template_name = 'commercial/bricks/segments.html'
     configurable = False
-    permissions = 'commercial'  # NB: used by the view creme_core.views.blocks.reload_basic
+    # NB: used by the view <creme_core.views.bricks.BricksReloading>
+    permissions = 'commercial'
 
     def detailview_display(self, context):
         return self._render(self.get_template_context(

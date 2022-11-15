@@ -9,11 +9,7 @@ from creme.creme_core.models import CremePropertyType, SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
-from ..bricks import (
-    AssetsCharmsMatrixBrick,
-    AssetsMatrixBrick,
-    CharmsMatrixBrick,
-)
+from .. import bricks
 from ..models import (
     CommercialAsset,
     CommercialAssetScore,
@@ -107,7 +103,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         place = 'Description about place'
         price = 'Description about price'
         promotion = 'Description about promotion'
-        self.assertPOST200(
+        self.assertNoFormError(self.client.post(
             url,
             data={
                 'name':      name,
@@ -116,7 +112,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 'price':     price,
                 'promotion': promotion,
             },
-        )
+        ))
 
         segment_info = strategy.segment_info.all()
         self.assertEqual(1, len(segment_info))
@@ -128,6 +124,19 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(price,     description.price)
         self.assertEqual(promotion, description.promotion)
         self.assertIn(name, description.segment.property_type.text)
+
+        # ---
+        response3 = self.assertGET200(strategy.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            brick_id=bricks.SegmentDescriptionsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Market segment',
+            plural_title='{count} Market segments',
+        )
 
     def test_segment_create01(self):
         user = self.login()
@@ -336,8 +345,20 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         # ---
         name = 'Size'
-        self.assertPOST200(url, data={'name': name})
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertListEqual([name], [*strategy.assets.values_list('name', flat=True)])
+
+        # ---
+        response3 = self.assertGET200(strategy.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=bricks.AssetsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Commercial asset',
+            plural_title='{count} Commercial assets',
+        )
 
     def test_asset_edit(self):
         user = self.login()
@@ -386,8 +407,20 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(MarketSegmentCharm.save_label, context.get('submit_label'))
 
         name = 'Size'
-        self.assertPOST200(url, data={'name': name})
+        self.assertNoFormError(self.client.post(url, data={'name': name}))
         self.assertListEqual([name], [*strategy.charms.values_list('name', flat=True)])
+
+        # ---
+        response3 = self.assertGET200(strategy.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=bricks.CharmsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Segment charm',
+            plural_title='{count} Segment charms',
+        )
 
     def test_charm_edit(self):
         user = self.login()
@@ -435,10 +468,10 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         charm = MarketSegmentCharm.objects.create(name='Celebrity', strategy=strategy)
 
         url = reverse('commercial__add_evaluated_orgas', args=(strategy.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New organisation(s) for «{entity}»').format(entity=strategy),
             context.get('title'),
@@ -446,27 +479,28 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self.assertEqual(_('Link the organisation(s)'), context.get('submit_label'))
 
         # ---
-        self.assertPOST200(
+        self.assertNoFormError(self.client.post(
             url, data={'organisations': self.formfield_value_multi_creator_entity(orga)},
-        )
+        ))
         self.assertListEqual([orga], [*strategy.evaluated_orgas.all()])
 
-        response = self.assertGET200(
+        # ---
+        evaluation_response = self.assertGET200(
             reverse('commercial__orga_evaluation', args=(strategy.id, orga.id)),
         )
-        self.assertTemplateUsed(response, 'commercial/orga_evaluation.html')
-        self.assertTemplateUsed(response, 'commercial/templatetags/widget-score.html')
+        self.assertTemplateUsed(evaluation_response, 'commercial/orga_evaluation.html')
+        self.assertTemplateUsed(evaluation_response, 'commercial/templatetags/widget-score.html')
 
-        get = response.context.get
-        self.assertEqual(orga,     get('orga'))
-        self.assertEqual(strategy, get('strategy'))
+        get_from_eval = evaluation_response.context.get
+        self.assertEqual(orga,     get_from_eval('orga'))
+        self.assertEqual(strategy, get_from_eval('strategy'))
         self.assertEqual(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-            get('bricks_reload_url'),
+            get_from_eval('bricks_reload_url'),
         )
 
         self.assertContains(
-            response,
+            evaluation_response,
             """<select onchange="creme.commercial.setScore(this, '{url}', """
             """{asset_id}, {segment_id}, {orga_id});">""".format(
                 url=reverse('commercial__set_asset_score', args=(strategy.id,)),
@@ -476,7 +510,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             ),
         )
         self.assertContains(
-            response,
+            evaluation_response,
             """<select onchange="creme.commercial.setScore(this, '{url}', """
             """{asset_id}, {segment_id}, {orga_id});">""".format(
                 url=reverse('commercial__set_charm_score', args=(strategy.id,)),
@@ -487,23 +521,36 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
         # ---
-        response = self.assertGET200(
+        synthesis_response = self.assertGET200(
             reverse('commercial__orga_synthesis', args=(strategy.id, orga.id))
         )
-        self.assertTemplateUsed(response, 'commercial/orga_synthesis.html')
-        self.assertContains(response, f'<li data-segment="{segment_desc.id}"')
+        self.assertTemplateUsed(synthesis_response, 'commercial/orga_synthesis.html')
+        self.assertContains(synthesis_response, f'<li data-segment="{segment_desc.id}"')
 
-        get = response.context.get
-        self.assertEqual(orga,     get('orga'))
-        self.assertEqual(strategy, get('strategy'))
+        get_from_synth = synthesis_response.context.get
+        self.assertEqual(orga,     get_from_synth('orga'))
+        self.assertEqual(strategy, get_from_synth('strategy'))
         self.assertEqual(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
-            get('bricks_reload_url'),
+            get_from_synth('bricks_reload_url'),
+        )
+
+        # ---
+        detail_response = self.assertGET200(strategy.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(detail_response.content),
+            brick_id=bricks.EvaluatedOrgasBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Evaluated organisation',
+            plural_title='{count} Evaluated organisations',
         )
 
     @skipIfCustomOrganisation
     def test_view_evaluated_orga01(self):
-        "Unrelated organisation"
+        "Unrelated organisation."
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')
         orga = Organisation.objects.create(user=user, name='Nerv')
@@ -511,7 +558,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
     @skipIfCustomOrganisation
     def test_view_evaluated_orga02(self):
-        "Not super-user"
+        "Not super-user."
         user = self.login(is_superuser=False, allowed_apps=['commercial', 'persons'])
 
         SetCredentials.objects.create(
@@ -1004,7 +1051,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         strategy.evaluated_orgas.add(orga)
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
 
-        brick_id = AssetsMatrixBrick.id_
+        brick_id = bricks.AssetsMatrixBrick.id_
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},
@@ -1029,7 +1076,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         strategy.evaluated_orgas.add(orga)
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        brick_id = CharmsMatrixBrick.id_
+        brick_id = bricks.CharmsMatrixBrick.id_
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},
@@ -1053,7 +1100,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self._set_asset_score(strategy, orga, asset, segment_desc, 1)
         self._set_charm_score(strategy, orga, charm, segment_desc, 1)
 
-        brick_id = AssetsCharmsMatrixBrick.id_
+        brick_id = bricks.AssetsCharmsMatrixBrick.id_
         response = self.assertGET200(
             reverse('commercial__reload_matrix_brick', args=(strategy.id, orga.id)),
             data={'brick_id': brick_id},

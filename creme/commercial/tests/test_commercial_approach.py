@@ -23,7 +23,6 @@ from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
-    CremeEntity,
     CustomFormConfigItem,
     Job,
     JobResult,
@@ -78,7 +77,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         return {elt.text for elt in brick_node.findall('.//td[@data-table-primary-column]')}
 
     def test_createview(self):
-        entity = CremeEntity.objects.create(user=self.user)
+        entity = self.other_user.linked_contact
         url = reverse('commercial__create_approach', args=(entity.id,))
 
         context = self.assertGET200(url).context
@@ -406,9 +405,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         commapp4 = create_commapp(title='Commapp - opp',      creme_entity=opp)
 
         url = orga.get_absolute_url()
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
-        titles = self._get_commap_titles(response)
+        titles = self._get_commap_titles(response1)
         self.assertIn(commapp1.title, titles)
         self.assertNotIn(commapp2.title, titles)
         self.assertNotIn(commapp3.title, titles)
@@ -418,8 +417,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         sv.value = False
         sv.save()
 
-        response = self.assertGET200(url)
-        titles = self._get_commap_titles(response)
+        response2 = self.assertGET200(url)
+        titles = self._get_commap_titles(response2)
         self.assertIn(commapp1.title, titles)
         self.assertIn(commapp2.title, titles)
         self.assertIn(commapp3.title, titles)
@@ -429,7 +428,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         "Home."
         BrickHomeLocation.objects.create(brick_id=ApproachesBrick.id_, order=100)
 
-        response = self.assertGET200('/')
+        response = self.assertGET200(reverse('creme_core__home'))
         self._get_commap_brick_node(response)
 
     def _send_mails(self):
@@ -490,7 +489,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_job02(self):
-        "A commapp is linked to the customer"
+        "A Commercial Approach is linked to the customer."
         mngd_orga, customer = self._build_orgas()
 
         CommercialApproach.objects.create(
@@ -504,7 +503,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_job03(self):
-        "The linked Commapp is to old"
+        "The linked Commercial Approach is too old."
         mngd_orga, customer = self._build_orgas()
 
         commapp = CommercialApproach.objects.create(
@@ -523,7 +522,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_job04(self):
-        "A commapp is linked to a manager."
+        "A Commercial Approach is linked to a manager."
         mngd_orga, customer = self._build_orgas()
 
         manager = Contact.objects.create(
@@ -547,7 +546,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomContact
     def test_job05(self):
-        "A commapp is linked to a employee."
+        "A Commercial Approach is linked to an employee."
         mngd_orga, customer = self._build_orgas()
 
         employee = Contact.objects.create(
@@ -571,7 +570,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
     @skipIfCustomOrganisation
     @skipIfCustomOpportunity
     def test_job06(self):
-        "A CommercialApproach is linked to an Opportunity."
+        "A Commercial Approach is linked to an Opportunity."
         mngd_orga, customer = self._build_orgas()
 
         opp = Opportunity.objects.create(
@@ -591,7 +590,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     @skipIfCustomOrganisation
     def test_job07(self):
-        "Ignore the managed organisations that are customer of another managed organisation."
+        "Ignore the managed organisations which are customer of another managed organisation."
         mngd_orga, customer = self._build_orgas()
 
         customer.is_managed = True
@@ -619,12 +618,10 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
         jresults = JobResult.objects.filter(job=job)
         self.assertEqual(1, len(jresults))
-
-        jresult = jresults[0]
         self.assertListEqual(
             [
                 _('An error has occurred while sending emails'),
                 _('Original error: {}').format(err_msg),
             ],
-            jresult.messages
+            jresults[0].messages,
         )
