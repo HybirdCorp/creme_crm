@@ -38,10 +38,10 @@ from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
-from .. import constants
-from ..models import ActivityType, Calendar
+from .. import constants, get_activity_model
+from ..models import Calendar  # ActivityType
 from . import fields as act_fields
-from .fields import ActivityTypeField
+from .fields import ActivitySubTypeField  # ActivityTypeField
 
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()
@@ -576,9 +576,15 @@ class SubjectsExtractorField(Field):
 # Main -------------------------------------------------------------------------
 def get_massimport_form_builder(header_dict, choices):
     class ActivityMassImportForm(ImportForm4CremeEntity):
-        type_selector = ActivityTypeField(
+        # type_selector = ActivityTypeField(
+        #     label=_('Type'),
+        #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+        # )
+        type_selector = ActivitySubTypeField(
+            model=get_activity_model(),
+            field_name='sub_type',
             label=_('Type'),
-            types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
+            limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO)
         )
 
         my_participation = act_fields.UserParticipationField(
@@ -623,7 +629,10 @@ def get_massimport_form_builder(header_dict, choices):
             return {contact.is_user for contact in user_contacts}
 
         def _pre_instance_save(self, instance, line):
-            instance.type, instance.sub_type = self.cleaned_data['type_selector']
+            # instance.type, instance.sub_type = self.cleaned_data['type_selector']
+            sub_type = self.cleaned_data['type_selector']
+            instance.type, instance.sub_type = sub_type.type, sub_type
+
             instance.floating_type = constants.NARROW
             start = instance.start
             end = instance.end

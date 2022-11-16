@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
-
+import warnings
 from functools import partial
 
 from django import forms
@@ -38,8 +38,13 @@ from ..models import ActivitySubType, ActivityType, Calendar
 
 class ActivityTypeWidget(core_widgets.ChainedInput):
     def __init__(self, types=(), attrs=None, creation_allowed=True):
+        warnings.warn(
+            'The widget activities.forms.fields.ActivityTypeWidget is deprecated',
+            DeprecationWarning,
+        )
+
         super().__init__(attrs)
-        self.creation_allowed = creation_allowed  # TODO: useless at the moment ...
+        self.creation_allowed = creation_allowed
         self.types = types
 
     def get_context(self, name, value, attrs):
@@ -67,6 +72,12 @@ class ActivityTypeField(core_fields.JSONField):
                  types=ActivityType.objects.all(),
                  empty_label='---------',
                  **kwargs):
+        warnings.warn(
+            'The field activities.forms.fields.ActivityTypeField is deprecated ; '
+            'use ActivitySubTypeField instead.',
+            DeprecationWarning,
+        )
+
         self.empty_label = empty_label
 
         super().__init__(**kwargs)
@@ -154,7 +165,7 @@ class ActivityTypeField(core_fields.JSONField):
 
 
 class ActivitySubTypeField(CreatorEnumerableChoiceField):
-
+    # TODO: default values for 'model' & 'field_name'?
     def __init__(self, model, field_name, *, limit_choices_to=None, **kwargs):
         super().__init__(model, field_name, **kwargs)
         self.limit_choices_to = limit_choices_to

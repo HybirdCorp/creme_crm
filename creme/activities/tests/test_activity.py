@@ -269,7 +269,6 @@ class ActivityTestCase(_ActivitiesTestCase):
                 'title': title,
 
                 # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
-                # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(type_id, sub_type_id),
                 self.EXTRA_SUBTYPE_KEY: sub_type_id,
                 'status':               status.pk,
 

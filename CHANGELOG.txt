@@ -122,6 +122,9 @@
                 - The function 'imports.import_object()' is deprecated ;
                   use 'django.utils.module_loading.import_string()' instead.
             - Apps :
+                * Activities :
+                    - In 'forms.fields', the classes 'ActivitySubTypeField' & 'ActivityTypeWidget' are deprecated.
+                    - The view class 'views.activity.TypeChoices' (corresponding teh URL named "activities__get_types") is deprecated.
                 * Emails :
                     - In the class 'emails.models._Email':
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.

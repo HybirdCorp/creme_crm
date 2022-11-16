@@ -1,6 +1,6 @@
 from datetime import date, datetime, timedelta
 from functools import partial
-from json import dumps as json_dump
+# from json import dumps as json_dump
 from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
@@ -101,14 +101,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def _build_edit_activity_url(activity):
         return reverse('projects__edit_activity', args=(activity.id,))
 
-    @staticmethod
+    # @staticmethod
     # def _build_type_value(atype=ACTIVITYTYPE_TASK, sub_type=None):
-    def _build_type_value(type_id=ACTIVITYTYPE_TASK, sub_type_id=None):
-        if not sub_type_id:
-            sub_type_id = ActivitySubType.objects.filter(type=type_id).first().id
-
-        # return json_dump({'type': atype, 'sub_type': sub_type})
-        return json_dump({'type': type_id, 'sub_type': sub_type_id})
+    #     return json_dump({'type': atype, 'sub_type': sub_type})
 
     def create_resource(self, task, contact, hourly_cost=100, error=False):
         response = self.client.post(
@@ -128,8 +123,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def create_activity(self, resource,
                         start=date(2015, 5, 19), end=date(2015, 6, 3),
-                        duration='8', atype=None, busy='', errors=False,
+                        # duration='8', atype=None, busy='', errors=False,
+                        duration='8', sub_type_id=None, busy='', errors=False,
                         ):
+        if not sub_type_id:
+            sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+
         response = self.client.post(
             self._build_add_activity_url(resource.task),
             follow=True,
@@ -140,7 +139,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'start':         self.formfield_value_datetime(start),
                 'end':           self.formfield_value_datetime(end),
                 'duration':      duration,
-                'type_selector': atype or self._build_type_value(),
+                # 'type_selector': atype or self._build_type_value(),
+                'type_selector': sub_type_id,
                 'user':          self.user.id,
                 'busy':          busy,
             },
@@ -193,8 +193,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         return self.get_object_or_fail(Project, name=name), manager
 
     def create_task(self, project, title,
-                    status=None, atype=ACTIVITYTYPE_TASK, sub_type=None,
+                    # status=None, atype=ACTIVITYTYPE_TASK, sub_type=None,
+                    status=None, sub_type_id=None,
                     ):
+        if not sub_type_id:
+            sub_type_id = ActivitySubType.objects.filter(type=ACTIVITYTYPE_TASK).first().id
+
         status = status or TaskStatus.objects.get(pk=NOT_STARTED_PK)
         response = self.client.post(
             self._build_add_task_url(project), follow=True,
@@ -207,7 +211,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'end':           self.formfield_value_date(2010, 10, 30),
                 'duration':      50,
                 'tstatus':       status.id,
-                'type_selector': self._build_type_value(atype, sub_type),
+                # 'type_selector': self._build_type_value(atype, sub_type),
+                'type_selector': sub_type_id,
             },
         )
         self.assertNoFormError(response)
@@ -880,7 +885,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         atype = ACTIVITYTYPE_MEETING
         stype = ACTIVITYSUBTYPE_MEETING_MEETING
-        self.create_activity(resource, duration='8', atype=self._build_type_value(atype, stype))
+        # self.create_activity(resource, duration='8', atype=self._build_type_value(atype, stype))
+        self.create_activity(resource, duration='8', sub_type_id=stype)
 
         activity = self.get_object_or_fail(Activity, title='Eva02 - legs - 001')
 
@@ -983,7 +989,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'end':           self.formfield_value_date(2010, 10, 12),
                 'duration':      10,
                 'user':          user.id,
-                'type_selector': self._build_type_value(),
+                # 'type_selector': self._build_type_value(),
+                'type_selector': activity.sub_type_id,
             },
         )
         self.assertNoFormError(response)
@@ -1076,7 +1083,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             'end':          self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            'type_selector': self._build_type_value(),
+            # 'type_selector': self._build_type_value(),
+            'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activities = task.related_activities
@@ -1126,7 +1134,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            'type_selector': self._build_type_value(),
+            # 'type_selector': self._build_type_value(),
+            'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
         activities = task.related_activities
@@ -1158,7 +1167,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     @skipIfCustomActivity
     @skipIfCustomTask
     def test_resource_n_activity07(self):
-        "Resource must ne related to the task."
+        "Resource must be related to the task."
         user = self.login()
 
         project = self.create_project('Eva01')[0]
@@ -1182,7 +1191,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'start':         self.formfield_value_date(2016, 5, 19),
                 'end':           self.formfield_value_date(2016, 6,  3),
                 'duration':      8,
-                'type_selector': self._build_type_value(),
+                # 'type_selector': self._build_type_value(),
+                'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
                 'user':          user.id,
             },
         )
@@ -1236,7 +1246,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'end':           self.formfield_value_date(2020, 12, 31),
                 'duration':      100,
                 'user':          user.id,
-                'type_selector': self._build_type_value(),
+                # 'type_selector': self._build_type_value(),
+                'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
             },
         )
         self.assertFormError(
