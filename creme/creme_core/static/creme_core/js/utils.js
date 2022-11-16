@@ -280,4 +280,19 @@ creme.utils.clickOnce = function(element, func) {
     }
 };
 
+creme.utils.jQueryToMomentDateFormat = function(format) {
+    /*
+     * Converts a format string for ui.datepicker into a MomentJS one.
+     * https://momentjs.com/docs/#/parsing/string-format/
+     * https://api.jqueryui.com/datepicker/
+     */
+    return format.replace(/y+/g, function(match) {
+        return match.length > 1 ? 'YYYY' : 'YY';
+    }).replace(/d+/g, function(match) {
+        return match.length > 1 ? 'DD' : 'D';
+    }).replace(/m+/g, function(match) {
+        return match.length > 1 ? 'MM' : 'M';
+    });
+};
+
 }(jQuery));
