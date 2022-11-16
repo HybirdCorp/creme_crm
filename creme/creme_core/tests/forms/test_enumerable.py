@@ -313,7 +313,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
 class EnumerableSelectTestCase(CremeTestCase):
     maxDiff = None
 
-    def test_render(self):
+    def test_render_no_url(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
         sector_A = FakeSector.objects.create(title='Sector A')
         sector_B = FakeSector.objects.create(title='Sector B')
@@ -336,7 +336,31 @@ class EnumerableSelectTestCase(CremeTestCase):
                 <option value="{sector_C.pk}">Sector C</option>
             </select>
             ''',
-            widget.render('testfield', value=industry.pk)
+            widget.render('testfield', value=industry.pk),
+        )
+
+    def test_render_url(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')
+
+        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        widget = EnumerableSelect(enumerable)
+        widget.create_url = url = reverse(
+            'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
+        )
+
+        self.assertHTMLEqual(
+            f'''
+            <select class="ui-creme-input ui-creme-widget ui-creme-dselect widget-auto is-enum"
+                    widget="ui-creme-dselect"
+                    name="testfield" autocomplete
+                    data-create-url="{url}"
+                    data-allow-clear="true">
+                <option value="{farming.pk}">Farming</option>
+                <option selected value="{industry.pk}">Industry</option>
+                <option value="{software.pk}">Software</option>
+            </select>
+            ''',
+            widget.render('testfield', value=industry.pk),
         )
 
     def test_render__more(self):
@@ -363,7 +387,7 @@ class EnumerableSelectTestCase(CremeTestCase):
                 <option value="{sector_A.pk}">Sector A</option>
             </select>
             ''',
-            widget.render('testfield', value=industry.pk)
+            widget.render('testfield', value=industry.pk),
         )
 
 
