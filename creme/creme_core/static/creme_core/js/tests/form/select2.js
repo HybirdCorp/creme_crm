@@ -156,8 +156,8 @@ QUnit.parametrize('creme.form.Select2.localisation (inputTooLong)', [
 });
 
 QUnit.parametrize('creme.form.Select2.localisation (inputTooShort)', [
-    [{}, {input: 'ab', minimum: 3}, gettext('Please enter %d or more characters').format(1)],
-    [{}, {input: 'a', minimum: 3}, gettext('Please enter %d or more characters').format(2)],
+    [{}, {input: 'ab', minimum: 3}, ngettext('Please enter %d or more character', 'Please enter %d or more characters', 1).format(1)],
+    [{}, {input: 'a', minimum: 3}, ngettext('Please enter %d or more character', 'Please enter %d or more characters', 2).format(2)],
     [{inputTooShortMsg: function() { return 'Trop court !'; }}, {input: 'a', minimum: 3}, 'Trop court !']
 ], function(options, args, expected, assert) {
     var select2 = new creme.form.Select2($('select'));
@@ -290,12 +290,13 @@ QUnit.parametrize('creme.form.Select2 (search + toggle create)', [
         {value: 1, label: 'Item A'}
     ]);
 
-    select.attr('data-create-url', 'mock/create');
+    var url = 'mock/create';
+    select.attr('data-create-url', url);
 
     var select2 = new creme.form.Select2(select);
 
     deepEqual({
-        createURL: 'mock/create',
+        createURL: url,
         multiple: false,
         sortable: false
     }, select2.options());

@@ -43,7 +43,7 @@ function djangoLocalisation(options) {
             if (options.inputTooShortMsg) {
                 return options.inputTooShortMsg(args);
             } else {
-                return ngettext('Please enter %d or more characters', 'Please enter %d or more characters', remainingChars).format(remainingChars);
+                return ngettext('Please enter %d or more character', 'Please enter %d or more characters', remainingChars).format(remainingChars);
             }
         },
         loadingMore: function () {
