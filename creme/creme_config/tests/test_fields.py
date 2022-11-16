@@ -39,6 +39,7 @@ from creme.creme_core.tests.forms.base import FieldTestCase
 
 from ..forms.fields import (
     BricksConfigField,
+    CreatorEnumerableChoiceField,
     CreatorModelChoiceField,
     CreatorModelMultipleChoiceField,
     CustomEnumChoiceField,
@@ -66,10 +67,26 @@ def create_user(admin=True):
     )
 
 
-class CreatorModelChoiceFieldTestCase(CremeTestCase):
+class CreatorModelChoiceFieldTestCase(FieldTestCase):
     ADD_URL = reverse(
         'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
     )
+
+    def test_ok(self):
+        field = CreatorModelChoiceField(queryset=FakeSector.objects.all())
+        sector = FakeSector.objects.first()
+        self.assertEqual(sector, field.clean(str(sector.id)))
+
+    def test_empty_required(self):
+        kls = partial(CreatorModelChoiceField, queryset=FakeSector.objects.all())
+        field = kls()
+        self.assertTrue(field.required)
+        self.assertFieldValidationError(kls, 'required', field.clean, '')
+
+    def test_empty_not_required(self):
+        field = CreatorModelChoiceField(queryset=FakeSector.objects.all(), required=False)
+        self.assertFalse(field.required)
+        self.assertIsNone(field.clean(''))
 
     def test_actions_not_admin(self):
         with self.assertNumQueries(0):
@@ -313,6 +330,71 @@ class CreatorModelChoiceFieldTestCase(CremeTestCase):
             '</div>'.format(name=name),
             widget.render(name, 1, attrs={'readonly': True}),
         )
+
+
+class CreatorEnumerableChoiceFieldTestCase(FieldTestCase):
+    ADD_URL = reverse(
+        'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
+    )
+
+    def test_ok(self):
+        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        sector = FakeSector.objects.first()
+        self.assertEqual(sector, field.clean(str(sector.id)))
+
+    def test_empty_required(self):
+        kls = partial(CreatorEnumerableChoiceField, model=FakeContact, field_name='sector')
+        field = kls()
+        self.assertTrue(field.required)
+        self.assertFieldValidationError(kls, 'required', field.clean, '')
+
+    def test_empty_not_required(self):
+        field = CreatorEnumerableChoiceField(
+            model=FakeContact, field_name='sector', required=False,
+        )
+        self.assertFalse(field.required)
+        self.assertIsNone(field.clean(''))
+
+    def test_create_action_url(self):
+        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+        widget = field.widget
+
+        self.assertEqual('', field.create_action_url)
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+        self.assertIsNone(widget.create_url)
+
+        field.create_action_url = url = self.ADD_URL
+        self.assertTupleEqual((url, False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual((url, True), field.creation_url_n_allowed)
+        self.assertEqual(url, widget.create_url)
+
+    def test_creation_url_n_allowed(self):
+        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+
+        self.assertTupleEqual(('', False), field.creation_url_n_allowed)
+
+        field.user = create_user()
+        self.assertTupleEqual((self.ADD_URL, True), field.creation_url_n_allowed)
+
+    def test_creation_not_allowed(self):
+        field = CreatorEnumerableChoiceField(model=FakeContact, field_name='sector')
+
+        role = UserRole(name='Industry')
+        role.allowed_apps = ['persons']  # Not admin
+        role.save()
+
+        user = get_user_model().objects.create_user(
+            username='averagejoe',
+            first_name='Joe',
+            last_name='Average',
+            email='averagejoe@company.com',
+            role=role,
+        )
+
+        field.user = user
+        self.assertTupleEqual((self.ADD_URL, False), field.creation_url_n_allowed)
 
 
 class CreatorModelMultipleChoiceFieldTestCase(CremeTestCase):
