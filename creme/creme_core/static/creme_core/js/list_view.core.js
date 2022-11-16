@@ -46,25 +46,51 @@
         /* global creme_media_url */
         _build_daterange: function(element, options, list) {
             $(element).find('input').each(function() {
-                $(this).datepicker({
-                    showOn: 'both',
-                    dateFormat: $(this).data('format'),
+                var input = $(this);
+                input.datepicker({
+                    showOn: 'button',
+                    dateFormat: input.data('format'),
                     buttonImage: creme_media_url('images/icon_calendar.gif'),
-                    buttonImageOnly: true
+                    buttonImageOnly: true,
+                    onSelect: function() {
+                        /*
+                         * When a date is selected with ui.datepicker, TWO change events are
+                         * triggered.
+                         *    - A native one : element.val(newval)
+                         *    - Another by ui.datepicker which contains the "final" value.
+                         * So handling directly the 'onSelect' event is more reliable
+                         */
+                        if (validate(input)) {
+                            list.submitState(creme.ajax.serializeFormAsDict());
+                        }
+                    }
                 });
             });
 
-            $(element).on('change', 'input', function(e) {
-                list.submitState(creme.ajax.serializeFormAsDict(
-                    $(element).find('input')
-                ));
-            });
+            /*
+             * Adds a validation step to prevent sending an invalid date as
+             * filter.
+             * TODO : Refactor this and move all validations to creme.form
+             */
+            function validate(input) {
+                var text = input.val();
+                var isValid = (text.length === 0) || moment(
+                    text,
+                    // ui.datepicker has its own format... once more... sigh
+                    creme.utils.jQueryToMomentDateFormat(input.data('format')),
+                    true
+                ).isValid();
 
-            $(element).on('keydown', 'input', function(e) {
-                if (e.keyCode === list.submitOnKey()) {
-                    list.submitState(creme.ajax.serializeFormAsDict(
-                        $(element).find('input')
-                    ));
+                input.toggleClass('invalid', !isValid);
+                return isValid;
+            }
+
+            $(element).on('input paste keydown', 'input', function(e) {
+                var isValid = validate($(e.target));
+
+                if (e.keyCode === list.submitOnKey() && isValid) {
+                    e.preventDefault();
+                    list.submitState();
                 }
             });
 
@@ -453,7 +479,7 @@
         },
 
         state: function() {
-            var fields = this._element.find('.lv-state-field');
+            var fields = this._element.find('.lv-state-field:not(.invalid)');
             var names = Array.copy(arguments);
 
             if (names.length > 0) {
