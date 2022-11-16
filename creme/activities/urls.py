@@ -53,6 +53,7 @@ urlpatterns = [
         r'^activities/ical[/]?$', activity.download_ical, name='activities__dl_ical',
     ),
 
+    # DEPRECATED
     re_path(
         r'^type/(?P<type_id>[\w-]*)/json[/]?$',
         activity.TypeChoices.as_view(),

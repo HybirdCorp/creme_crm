@@ -128,11 +128,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'start_colselect': 2,
                 'end_colselect': 3,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
                 # Should not be used
                 'busy_colselect': 0,
@@ -288,10 +285,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': other_user.id,
-            'type_selector': self._acttype_field_value(
-                constants.ACTIVITYTYPE_MEETING,
-                constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-            ),
+            # 'type_selector': self._acttype_field_value(
+            #     constants.ACTIVITYTYPE_MEETING,
+            #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # ),
+            'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
 
             'my_participation_0': True,
             'participating_users': [other_user.id, team.id],
@@ -438,10 +436,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                # 'type_selector': self._acttype_field_value(
+                #     constants.ACTIVITYTYPE_MEETING,
+                #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # ),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
 
                 'participants_mode': '2',  # Search with pattern
                 'participants_separator': '/',
@@ -521,10 +520,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             **self.lv_import_data,
             'document': doc.id,
             'user': user.id,
-            'type_selector': self._acttype_field_value(
-                constants.ACTIVITYTYPE_MEETING,
-                constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-            ),
+            # 'type_selector': self._acttype_field_value(
+            #     constants.ACTIVITYTYPE_MEETING,
+            #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+            # ),
+            'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
 
             'participants_mode': 2,  # Search with pattern
             'participants_separator': '/',
@@ -563,11 +563,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK
-                    constants.ACTIVITYTYPE_PHONECALL,
-                    constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -604,11 +601,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_MEETING,
 
                 'participants_mode': 2,  # Search with pattern
                 'participants_separator': '#',
@@ -650,11 +644,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': self.user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_PHONECALL,
-                    constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -684,11 +675,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
 
                 'property_types': [ptype.id],
             },
@@ -730,10 +718,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                # 'type_selector': self._acttype_field_value(
+                #     constants.ACTIVITYTYPE_MEETING,
+                #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # ),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
 
                 'my_participation_0': True,
                 'my_participation_1': my_calendar.pk,
@@ -794,11 +783,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
                 'subjects_colselect': 2,
                 'subjects_separator': '/',
@@ -879,11 +865,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
                 'subjects_colselect': 2,
                 'subjects_create': True,
@@ -918,11 +901,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
                 'subjects_colselect': 2,
                 'subjects_create': True,  # Should not be used
@@ -962,11 +942,8 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 **self.lv_import_data,
                 'document': doc.id,
                 'user': user.id,
-                'type_selector': self._acttype_field_value(
-                    # constants.ACTIVITYTYPE_TASK,
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_OTHER,
-                ),
+                # 'type_selector': self._acttype_field_value(constants.ACTIVITYTYPE_TASK),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_OTHER,
 
                 'subjects_colselect': 2,
             },
@@ -1028,10 +1005,11 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'user': user.id,
                 'key_fields': ['title'],
 
-                'type_selector': self._acttype_field_value(
-                    constants.ACTIVITYTYPE_MEETING,
-                    constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-                ),
+                # 'type_selector': self._acttype_field_value(
+                #     constants.ACTIVITYTYPE_MEETING,
+                #     constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
+                # ),
+                'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
 
                 'participants_mode': 1,  # Search with 1 or 2 columns
                 'participants_first_name_colselect': 2,
@@ -1085,10 +1063,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
     #                 [constants.REL_OBJ_ACTIVITY_SUBJECT, subject],
     #             ),
     #
-    #             'type_selector': self._acttype_field_value(
-    #                 constants.ACTIVITYTYPE_MEETING,
-    #                 constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
-    #             ),
+    #             'type_selector': constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
     #
     #             'participants_mode': 1,  # Search with 1 or 2 columns
     #             'participants_first_name_colselect': 2,

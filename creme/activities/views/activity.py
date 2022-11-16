@@ -18,6 +18,7 @@
 
 from __future__ import annotations
 
+import warnings
 from datetime import time
 from functools import partial
 
@@ -306,7 +307,6 @@ def download_ical(request):
 
 class TypeChoices(base.CheckedView):
     response_class = CremeJsonResponse
-    # permissions = 'activities' TODO ?
     type_id_url_kwarg = 'type_id'
 
     def get_choices(self):
@@ -322,6 +322,11 @@ class TypeChoices(base.CheckedView):
         ]
 
     def get(self, request, *args, **kwargs):
+        warnings.warn(
+            'The view activities.views.activity.TypeChoices is deprecated.',
+            DeprecationWarning,
+        )
+
         return self.response_class(
             self.get_choices(),
             safe=False,  # Result is not a dictionary
