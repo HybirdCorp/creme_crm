@@ -116,7 +116,7 @@ class TaskAddParentForm(CremeForm):
 class RelatedActivityEditForm(CremeEntityForm):
     resource = CreatorEntityField(label=_('Allocated resource'), model=get_contact_model())
     # type_selector = ActivityTypeField(label=_('Type'))
-    type_selector = ActivitySubTypeField(label=_('Type'), model=Activity, field_name='sub_type')
+    type_selector = ActivitySubTypeField(label=_('Type'))
 
     class Meta(CremeEntityForm.Meta):
         model = Activity
