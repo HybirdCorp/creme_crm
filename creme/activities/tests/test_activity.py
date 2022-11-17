@@ -1784,7 +1784,7 @@ class ActivityTestCase(_ActivitiesTestCase):
         # )
         self.assertFormError(
             response1, 'form', self.EXTRA_SUBTYPE_KEY,
-            ActivitySubTypeField.default_error_messages['invalid_choice']
+            ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
         # ---

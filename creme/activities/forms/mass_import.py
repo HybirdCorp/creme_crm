@@ -38,7 +38,7 @@ from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
-from .. import constants, get_activity_model
+from .. import constants
 from ..models import Calendar  # ActivityType
 from . import fields as act_fields
 from .fields import ActivitySubTypeField  # ActivityTypeField
@@ -581,10 +581,7 @@ def get_massimport_form_builder(header_dict, choices):
         #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
         # )
         type_selector = ActivitySubTypeField(
-            model=get_activity_model(),
-            field_name='sub_type',
-            label=_('Type'),
-            limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO)
+            label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
         )
 
         my_participation = act_fields.UserParticipationField(

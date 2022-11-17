@@ -193,55 +193,59 @@ class ActivitySubTypeFieldTestCase(FieldTestCase):
         )
 
     def test_choices(self):
-        field = ActivitySubTypeField(Activity, 'sub_type')
-        self.assertEqual(field.limit, NO_LIMIT)
-        self.assertListEqual(sorted([
-            ('', field.empty_label, None),
-            *(
-                (c.pk, str(c), str(c.type))
-                for c in ActivitySubType.objects.all()
-            )
-        ]), sorted(
-            [(c.value, c.label, c.group) for c in field.choices]
-        ))
+        field = ActivitySubTypeField()
+        self.assertEqual(Activity._meta.get_field('sub_type'), field.enum.field)
+        self.assertEqual(NO_LIMIT, field.limit)
+        self.assertListEqual(
+            sorted([
+                ('', field.empty_label, None),
+                *(
+                    (c.pk, str(c), str(c.type))
+                    for c in ActivitySubType.objects.all()
+                ),
+            ]),
+            sorted((c.value, c.label, c.group) for c in field.choices),
+        )
 
     def test_limit_choices_to(self):
         field = ActivitySubTypeField(
-            Activity, 'sub_type',
+            model=Activity, field_name='sub_type',
             limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
         )
 
         self.assertEqual(field.limit, NO_LIMIT)
-        self.assertListEqual(sorted([
-            ('', field.empty_label, None),
-            *(
-                (c.pk, str(c), str(c.type))
-                for c in ActivitySubType.objects.filter(type_id=constants.ACTIVITYTYPE_INDISPO)
-            )
-        ]), sorted(
-            [(c.value, c.label, c.group) for c in field.choices]
-        ))
+        self.assertListEqual(
+            sorted([
+                ('', field.empty_label, None),
+                *(
+                    (c.pk, str(c), str(c.type))
+                    for c in ActivitySubType.objects.filter(
+                        type_id=constants.ACTIVITYTYPE_INDISPO,
+                    )
+                ),
+            ]),
+            sorted((c.value, c.label, c.group) for c in field.choices),
+        )
 
     def test_clean(self):
-        field = ActivitySubTypeField(Activity, 'sub_type')
+        field = ActivitySubTypeField()
 
         self.assertEqual(self.subtype, field.clean(self.subtype.pk))
         with self.assertRaises(ValidationError):
             field.clean(None)
 
     def test_clean__not_required(self):
-        field = ActivitySubTypeField(Activity, 'sub_type', required=False)
+        field = ActivitySubTypeField(required=False)
         self.assertIsNone(field.clean(None))
 
     def test_clean__limit_choices_to(self):
         field = ActivitySubTypeField(
-            Activity, 'sub_type',
-            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO)
+            limit_choices_to=Q(type_id=constants.ACTIVITYTYPE_INDISPO),
         )
 
         self.assertEqual(
             ActivitySubType.objects.get(pk=constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
-            field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY)
+            field.clean(constants.ACTIVITYSUBTYPE_UNAVAILABILITY),
         )
 
         with self.assertRaises(ValidationError):
