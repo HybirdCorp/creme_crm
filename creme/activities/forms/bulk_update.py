@@ -194,12 +194,8 @@ class TypeOverrider(FieldOverrider):
         #     label=_('Type'),
         #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
         # )
-
         field = fields.ActivitySubTypeField(
-            model=type(instances[0]),
-            field_name='sub_type',
-            label=_('Type'),
-            limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO)
+            label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
         )
 
         unavailability_count = sum(

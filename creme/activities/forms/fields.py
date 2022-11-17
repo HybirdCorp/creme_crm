@@ -15,6 +15,7 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
 import warnings
 from functools import partial
 
@@ -33,6 +34,7 @@ from creme.creme_core.forms.enumerable import NO_LIMIT
 from creme.creme_core.utils.url import TemplateURLBuilder
 from creme.persons import get_contact_model
 
+from .. import get_activity_model
 from ..models import ActivitySubType, ActivityType, Calendar
 
 
@@ -165,8 +167,10 @@ class ActivityTypeField(core_fields.JSONField):
 
 
 class ActivitySubTypeField(CreatorEnumerableChoiceField):
-    # TODO: default values for 'model' & 'field_name'?
-    def __init__(self, model, field_name, *, limit_choices_to=None, **kwargs):
+    def __init__(self, *,
+                 model=get_activity_model(), field_name='sub_type',
+                 limit_choices_to=None,
+                 **kwargs):
         super().__init__(model, field_name, **kwargs)
         self.limit_choices_to = limit_choices_to
         # Bypass limits here to prevent usage of "more" feature that does not
