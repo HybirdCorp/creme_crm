@@ -1,8 +1,18 @@
 .select2-container--creme .select2-selection--single {
-    background-color: #fff;
-    border: 1px solid #aaa;
-    border-radius: 2px;
     height: 24px;
+
+    background: linear-gradient(#fcfcfc, #f0f0f0);
+
+    border: 1px solid #d7d7d7;
+    border-bottom: 1px solid #bdbdbd;
+    border-radius: 3px;
+
+    box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
+}
+
+.select2-container--creme .select2-selection--single:hover {
+    background: linear-gradient(#ffffff, #f3f3f3);
+    color: #4d4d4d;
 }
 
 .select2-container--creme .select2-selection--single .select2-selection__rendered {
@@ -57,8 +67,13 @@
 }
 
 .select2-container--creme.select2-container--disabled .select2-selection--single {
-    background-color: #eee;
+    opacity: .50;
+    filter: Alpha(Opacity=50);
+
+    box-shadow: none;
+
     cursor: default;
+    cursor: not-allowed;
 }
 
 .select2-container--creme.select2-container--disabled .select2-selection--single .select2-selection__clear {
