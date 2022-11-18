@@ -25,7 +25,11 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
+from ..constants import (
+    REL_SUB_BILL_ISSUED,
+    REL_SUB_BILL_RECEIVED,
+    REL_SUB_INVOICE_FROM_QUOTE,
+)
 from ..core import get_models_for_conversion
 from ..models import (
     AdditionalInformation,
@@ -76,7 +80,8 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomAddress
     @skipIfCustomQuote
     @skipIfCustomInvoice
-    def test_convert01(self):
+    def test_with_address(self):
+        "Quote -> Invoice ; 2 addresses."
         user = self.login()
 
         currency = Currency.objects.create(
@@ -157,9 +162,10 @@ class ConvertTestCase(_BillingTestCase):
         self.assertIsNone(invoice.additional_info)
         self.assertIsNone(invoice.payment_terms)
 
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,       source)
-        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,     object_entity=target)
-        self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER, object_entity=source)
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,        source)
+        self.assertRelationCount(1, invoice, REL_SUB_INVOICE_FROM_QUOTE, quote)
+        self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED,      target)
+        self.assertRelationCount(1, target,  REL_SUB_CUSTOMER_SUPPLIER,  source)
 
         # Addresses are cloned
         self.assertEqual(address_count + 4, Address.objects.count())
@@ -179,9 +185,35 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(quote_s_addr.zipcode,    shipping_address.zipcode)
 
     @skipIfCustomQuote
+    @skipIfCustomInvoice
+    def test_disabled_rtype(self):
+        "The RelationType 'Quote -> Invoice' is disabled."
+        user = self.login()
+
+        create_orga = partial(Organisation.objects.create, user=user)
+        source = create_orga(name='Source Orga')
+        target = create_orga(name='Target Orga')
+
+        quote = self.create_quote('My Quote', source, target)
+
+        rtype = RelationType.objects.get(id=REL_SUB_INVOICE_FROM_QUOTE)
+        rtype.enabled = False
+        rtype.save()
+
+        try:
+            self._convert(200, quote, 'invoice')
+        finally:
+            rtype.enabled = True
+            rtype.save()
+
+        invoices = Invoice.objects.all()
+        self.assertEqual(1, len(invoices))
+        self.assertRelationCount(0, invoices[0], REL_SUB_INVOICE_FROM_QUOTE, quote)
+
+    @skipIfCustomQuote
     @skipIfCustomSalesOrder
     @override_settings(SALESORDER_NUMBER_PREFIX='ORD')
-    def test_convert02(self):
+    def test_not_super_user(self):
         "SalesOrder + not superuser."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
@@ -209,11 +241,14 @@ class ConvertTestCase(_BillingTestCase):
 
         orders = SalesOrder.objects.all()
         self.assertEqual(1, len(orders))
-        self.assertEqual('ORD1', orders[0].number)
+
+        order = orders[0]
+        self.assertEqual('ORD1', order.number)
+        self.assertRelationCount(0, order, REL_SUB_INVOICE_FROM_QUOTE, quote)
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
-    def test_convert02_ajax(self):
+    def test_ajax(self):
         "SalesOrder + not superuser."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
@@ -243,7 +278,7 @@ class ConvertTestCase(_BillingTestCase):
         )
 
     @skipIfCustomQuote
-    def test_convert03(self):
+    def test_creation_forbidden(self):
         "Credentials (creation) errors."
         self.login(is_superuser=False, allowed_apps=['billing', 'persons'])
 
@@ -266,7 +301,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertFalse(Invoice.objects.exists())
 
     @skipIfCustomQuote
-    def test_convert04(self):
+    def test_view_forbidden(self):
         "Credentials (view) errors."
         user = self.login(
             is_superuser=False, allowed_apps=['billing', 'persons'],
@@ -304,7 +339,7 @@ class ConvertTestCase(_BillingTestCase):
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     @skipIfCustomServiceLine
-    def test_convert05(self):
+    def test_with_lines(self):
         "Quote to Invoice with lines."
         self.login()
 
@@ -378,13 +413,14 @@ class ConvertTestCase(_BillingTestCase):
         self.assertRelationCount(1, invoice, REL_SUB_BILL_ISSUED,   source)
         self.assertRelationCount(1, invoice, REL_SUB_BILL_RECEIVED, target)
 
-        properties = invoice.properties.all()
-        self.assertEqual(1, len(properties))
-        self.assertEqual(quote_property.type, properties[0].type)
+        self.assertCountEqual(
+            [quote_property.type_id],
+            invoice.properties.values_list('type', flat=True),
+        )
 
     @skipIfCustomQuote
     @skipIfCustomSalesOrder
-    def test_convert06(self):
+    def test_status01(self):
         "Quote -> SalesOrder: status id can not be converted (bugfix)."
         self.login()
 
@@ -403,7 +439,7 @@ class ConvertTestCase(_BillingTestCase):
 
     @skipIfCustomQuote
     @skipIfCustomInvoice
-    def test_convert07(self):
+    def test_status02(self):
         "Quote -> Invoice : status id can not be converted (bugfix)."
         self.login()
 
@@ -509,7 +545,7 @@ class ConvertTestCase(_BillingTestCase):
         self.assertEqual(1, Relation.objects.filter(type=rtype4).count())
 
     @skipIfCustomOrganisation
-    def test_convert_error01(self):
+    def test_error_invalid_source(self):
         "Source is not a billing document."
         user = self.login()
         orga = Organisation.objects.create(user=user, name='Arcadia')
@@ -517,14 +553,14 @@ class ConvertTestCase(_BillingTestCase):
         self._convert(409, orga, 'sales_order')
 
     @skipIfCustomSalesOrder
-    def test_convert_error02(self):
+    def test_error_bad_combination(self):
         "Some combinations are forbidden."
         self.login()
         order = self.create_salesorder_n_orgas('Order for Arcadia')[0]
         self._convert(409, order, 'sales_order')
 
     @skipIfCustomQuote
-    def test_convert_error03(self):
+    def test_convert_deleted_entity(self):
         "Deleted entity."
         self.login()
 

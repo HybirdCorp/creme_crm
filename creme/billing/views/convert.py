@@ -16,17 +16,22 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+import logging
+
 from django import http
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import is_ajax
+from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
 
 from ..core import CLASS_MAP as _CLASS_MAP
-from ..core import CONVERT_MATRIX
+from ..core import CONVERT_MATRIX, RTYPE_MATRIX
+
+logger = logging.getLogger(__name__)
 
 
 class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
@@ -67,15 +72,35 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
 
         return dest_class
 
+    def get_conversion_relation_type(self, source_model, dest_model):
+        rtype_id = RTYPE_MATRIX.get((source_model, dest_model))
+        if not rtype_id:
+            return None
+
+        rtype = RelationType.objects.get(id=rtype_id)
+        if not rtype.enabled:
+            logger.info(
+                'Billing conversion: the relation type "%s" is disabled, '
+                'no relationship is created.',
+                rtype,
+            )
+            return None
+
+        return rtype
+
     def post(self, *args, **kwargs):
         src = self.get_related_entity()
         dest_class = self.get_destination_model(src)
 
         # TODO: build() copy the number (it's a feature for recurrent generation
-        #       to fallback to the TemplateBase instance's number)
+        #       to fall back to the TemplateBase instance's number)
         #       but here copy a Quote number into an Invoice number does not mean anything.
         #  => add a argument 'copy_number=False'? do not use 'build()'?
         src.number = ''
+
+        rtype = self.get_conversion_relation_type(
+            source_model=type(src), dest_model=dest_class,
+        )
 
         with atomic():
             dest = dest_class()
@@ -83,6 +108,14 @@ class Conversion(generic.base.EntityRelatedMixin, generic.CheckedView):
             dest.name = self.dest_title.format(src=src, dest=dest)
             # dest.generate_number()
             dest.save()
+
+            if rtype:
+                Relation.objects.create(
+                    user=self.request.user,
+                    subject_entity=dest,
+                    type=rtype,
+                    object_entity=src,
+                )
 
         url = dest.get_absolute_url()
 

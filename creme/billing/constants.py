@@ -21,6 +21,9 @@ REL_OBJ_LINE_RELATED_ITEM = 'billing-object_line_related_item'
 REL_SUB_CREDIT_NOTE_APPLIED = 'billing-subject_credit_note_applied'
 REL_OBJ_CREDIT_NOTE_APPLIED = 'billing-object_credit_note_applied'
 
+REL_SUB_INVOICE_FROM_QUOTE = 'billing-subject_invoice_from_quote'
+REL_OBJ_INVOICE_FROM_QUOTE = 'billing-object_invoice_from_quote'
+
 DEFAULT_DRAFT_INVOICE_STATUS = 1
 DEFAULT_INVOICE_STATUS = 2
 
