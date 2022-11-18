@@ -64,6 +64,8 @@
             - The Organisation's bricks "Managers" & "Employees" propose now to edit the related contacts, using the new multi-fields inner-edition feature.
         * Products :
             - The field 'models.Category.description' is not mandatory anymore.
+        * Billing :
+            - When a Quote is converted to an Invoice, a relationship is now created between them.
         * Opportunities :
             - The bricks "Linked Contacts" & "Business managers" display now these fields for the related contacts: position, email, phone, mobile.
               They propose to edit them too, using the new multi-fields inner-edition feature.

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2019  Hybird
+#    Copyright (C) 2018-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
 ################################################################################
 
 from creme import billing
+
+from .constants import REL_SUB_INVOICE_FROM_QUOTE
 
 CreditNote   = billing.get_credit_note_model()
 Quote        = billing.get_quote_model()
@@ -44,6 +46,11 @@ CONVERT_MATRIX = {
     Invoice:    {'quote'},
     Quote:      {'sales_order', 'invoice'},
     SalesOrder: {'invoice'},
+}
+
+# RelationTypes which link a converted instance & its source.
+RTYPE_MATRIX = {
+    (Quote, Invoice): REL_SUB_INVOICE_FROM_QUOTE,
 }
 
 

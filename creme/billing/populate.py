@@ -134,6 +134,19 @@ class Populator(BasePopulator):
             minimal_display=(True, True),
         )
 
+        create_rtype(
+            (
+                constants.REL_SUB_INVOICE_FROM_QUOTE,
+                _('(Invoice) converted from the Quote'),
+                [Invoice],
+            ),
+            (
+                constants.REL_OBJ_INVOICE_FROM_QUOTE,
+                _('(Quote) converted to the Invoice'),
+                [Quote],
+            ),
+        )
+
         if apps.is_installed('creme.activities'):
             logger.info(
                 'Activities app is installed '

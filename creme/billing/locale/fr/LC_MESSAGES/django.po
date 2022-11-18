@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-15 11:41+0100\n"
+"POT-Creation-Date: 2022-11-18 17:59+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -811,6 +811,12 @@ msgstr "est consommé dans le document comptable"
 
 msgid "uses the credit note"
 msgstr "consomme l'avoir"
+
+msgid "(Invoice) converted from the Quote"
+msgstr "(Facture) convertie depuis le Devis"
+
+msgid "(Quote) converted to the Invoice"
+msgstr "(Devis) converti en Facture"
 
 msgid "Deposit"
 msgstr "Acompte"
