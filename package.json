@@ -33,7 +33,6 @@
         "minimist": "1.2.6",
         "qunitjs": "1.23.1",
         "set-value": "^4",
-        "socket.io": "^3",
         "which": "^2.0.2",
         "yarn": "1.22.19"
     }
