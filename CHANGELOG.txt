@@ -3,6 +3,9 @@
   Users side :
   ------------
     # Apps:
+        * Creme_config :
+            - A crash, when trying to delete an instance of a model with a M2M field, has been fixed.
+              Notice it was not happening in vanilla code.
         * Products :
             - A crash in the creation forms has been fixed (Category without SubCategory).
 
