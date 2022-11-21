@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -35,7 +35,7 @@ from creme.creme_core.models import (
 )
 
 from . import bricks, constants, custom_forms, get_report_model
-from .forms.report import FilteredCTypeSubCell, FilterSubCell
+# from .forms.report import FilteredCTypeSubCell, FilterSubCell
 from .menu import ReportsEntry
 
 logger = logging.getLogger(__name__)
@@ -57,75 +57,75 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        common_groups_desc = [
-            {
-                'name': _('Description'),
-                'cells': [
-                    (EntityCellRegularField, {'name': 'description'}),
-                ],
-            }, {
-                'name': _('Custom fields'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                    ),
-                ],
-            },
-        ]
+        # common_groups_desc = [
+        #     {
+        #         'name': _('Description'),
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'description'}),
+        #         ],
+        #     }, {
+        #         'name': _('Custom fields'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #             ),
+        #         ],
+        #     },
+        # ]
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.REPORT_CREATION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'name'}),
-                        FilteredCTypeSubCell(model=Report).into_cell(),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                *common_groups_desc,
-                {
-                    'name': _('Properties'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                        ),
-                    ],
-                }, {
-                    'name': _('Relationships'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.RELATIONS},
-                        ),
-                    ],
-                },
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'name'}),
+            #             FilteredCTypeSubCell(model=Report).into_cell(),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     *common_groups_desc,
+            #     {
+            #         'name': _('Properties'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+            #             ),
+            #         ],
+            #     }, {
+            #         'name': _('Relationships'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
+            #             ),
+            #         ],
+            #     },
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.REPORT_EDITION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'name'}),
-                        FilterSubCell(model=Report).into_cell(),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                *common_groups_desc,
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'name'}),
+            #             FilterSubCell(model=Report).into_cell(),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     *common_groups_desc,
+            # ],
         )
 
         # ---------------------------

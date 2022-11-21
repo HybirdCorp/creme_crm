@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Config 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-03 20:00+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1178,6 +1178,18 @@ msgstr "Montrer ce formulaire"
 
 msgid "Hide this form"
 msgstr "Cacher ce formulaire"
+
+msgid "Reset this form"
+msgstr "Réinitialiser ce formulaire"
+
+msgid "Set the configuration the form gets after a fresh installation"
+msgstr "Remettre la configuration que le formaulaire a après une nouvelle installation"
+
+msgid "Delete this form"
+msgstr "Supprimer ce formulaire"
+
+msgid "Delete this configuration of the form"
+msgstr "Supprimer cette configuration du formulaire"
 
 msgid "Display this group on the second half only"
 msgstr "Afficher ce groupe sur la seconde moitié seulement"

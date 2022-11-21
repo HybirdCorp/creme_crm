@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Products 2.3\n"
+"Project-Id-Version: Creme Products 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -45,24 +45,6 @@ msgstr "Images"
 
 msgid "Sub-category"
 msgstr "Sous-catégorie"
-
-msgid "Create"
-msgstr ""
-
-msgid "Can't create"
-msgstr ""
-
-msgid "Category"
-msgstr "Catégorie"
-
-msgid "This category doesn't exist."
-msgstr "Cette catégorie n'existe pas."
-
-msgid "This category causes constraint error."
-msgstr "Cette catégorie cause une erreur de contrainte."
-
-msgid "This sub-category causes constraint error."
-msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
 msgid "The category «{}» does not exist"
 msgstr "La catégorie «{}»  n'existe pas."
@@ -129,6 +111,9 @@ msgstr "Nom"
 msgid "Code"
 msgstr "Code"
 
+msgid "Category"
+msgstr "Catégorie"
+
 msgid "Unit price"
 msgstr "Prix Unitaire"
 
@@ -182,19 +167,6 @@ msgstr "Vue de Produit"
 
 msgid "Service view"
 msgstr "Vue de Service"
-
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "General information"
-msgstr ""
-
-msgid "Properties"
-msgstr ""
-
-msgid "Relationships"
-msgstr ""
 
 msgid "Jewelry"
 msgstr "Bijoux"
@@ -332,6 +304,15 @@ msgstr "Nouvelles images pour «{entity}»"
 
 msgid "Link the images"
 msgstr "Lier les images"
+
+#~ msgid "This category doesn't exist."
+#~ msgstr "Cette catégorie n'existe pas."
+
+#~ msgid "This category causes constraint error."
+#~ msgstr "Cette catégorie cause une erreur de contrainte."
+
+#~ msgid "This sub-category causes constraint error."
+#~ msgstr "Cette sous-catégorie cause une erreur de contrainte."
 
 #~ msgid "Portal of products and services"
 #~ msgstr "Portail des produits et services"

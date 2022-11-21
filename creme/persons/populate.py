@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,8 +34,8 @@ from creme.creme_core.core.entity_filter import (
     operands,
     operators,
 )
-from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
+# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -54,7 +54,7 @@ from creme.creme_core.models import (
 from creme.creme_core.utils import create_if_needed
 
 from . import bricks, buttons, constants, custom_forms, menu
-from .forms.address import AddressesGroup
+# from .forms.address import AddressesGroup
 from .models import Civility, LegalForm, Position, Sector, StaffSize
 
 logger = logging.getLogger(__name__)
@@ -198,135 +198,135 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        creation_only_groups_desc = [
-            {
-                'name': _('Properties'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                    ),
-                ],
-            }, {
-                'name': _('Relationships'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.RELATIONS},
-                    ),
-                ],
-            },
-        ]
-        description_group_desc = {
-            'name': _('Description'),
-            'layout': LAYOUT_DUAL_SECOND,
-            'cells': [
-                (EntityCellRegularField, {'name': 'description'}),
-            ],
-        }
-        cfields_group_desc = {
-            'name': _('Custom fields'),
-            'layout': LAYOUT_DUAL_SECOND,
-            'cells': [
-                (
-                    EntityCellCustomFormSpecial,
-                    {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                ),
-            ],
-        }
-        contact_groups_desc = [
-            {
-                'name': _('General information'),
-                'layout': LAYOUT_DUAL_FIRST,
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'civility'}),
-                    (EntityCellRegularField, {'name': 'last_name'}),
-                    (EntityCellRegularField, {'name': 'first_name'}),
-                    (EntityCellRegularField, {'name': 'position'}),
-                    (EntityCellRegularField, {'name': 'full_position'}),
-                    (EntityCellRegularField, {'name': 'sector'}),
-                    (EntityCellRegularField, {'name': 'birthday'}),
-                    (EntityCellRegularField, {'name': 'image'}),
-                    (EntityCellRegularField, {'name': 'languages'}),
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    ),
-                ],
-            },
-            description_group_desc,
-            {
-                'name': _('Contact details'),
-                'layout': LAYOUT_DUAL_SECOND,
-                'cells': [
-                    (EntityCellRegularField, {'name': 'skype'}),
-                    (EntityCellRegularField, {'name': 'phone'}),
-                    (EntityCellRegularField, {'name': 'mobile'}),
-                    (EntityCellRegularField, {'name': 'fax'}),
-                    (EntityCellRegularField, {'name': 'email'}),
-                    (EntityCellRegularField, {'name': 'url_site'}),
-                ],
-            },
-            cfields_group_desc,
-            AddressesGroup(model=Contact),
-        ]
-        orga_groups_desc = [
-            {
-                'name': _('General information'),
-                'layout': LAYOUT_DUAL_FIRST,
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'name'}),
-                    (EntityCellRegularField, {'name': 'phone'}),
-                    (EntityCellRegularField, {'name': 'fax'}),
-                    (EntityCellRegularField, {'name': 'email'}),
-                    (EntityCellRegularField, {'name': 'url_site'}),
-                    (EntityCellRegularField, {'name': 'sector'}),
-                    (EntityCellRegularField, {'name': 'legal_form'}),
-                    (EntityCellRegularField, {'name': 'staff_size'}),
-                    (EntityCellRegularField, {'name': 'capital'}),
-                    (EntityCellRegularField, {'name': 'annual_revenue'}),
-                    (EntityCellRegularField, {'name': 'siren'}),
-                    (EntityCellRegularField, {'name': 'naf'}),
-                    (EntityCellRegularField, {'name': 'siret'}),
-                    (EntityCellRegularField, {'name': 'rcs'}),
-                    (EntityCellRegularField, {'name': 'tvaintra'}),
-                    (EntityCellRegularField, {'name': 'subject_to_vat'}),
-                    (EntityCellRegularField, {'name': 'creation_date'}),
-                    (EntityCellRegularField, {'name': 'image'}),
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    ),
-                ],
-            },
-            description_group_desc,
-            cfields_group_desc,
-            AddressesGroup(model=Organisation),
-        ]
+        # creation_only_groups_desc = [
+        #     {
+        #         'name': _('Properties'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+        #             ),
+        #         ],
+        #     }, {
+        #         'name': _('Relationships'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
+        #             ),
+        #         ],
+        #     },
+        # ]
+        # description_group_desc = {
+        #     'name': _('Description'),
+        #     'layout': LAYOUT_DUAL_SECOND,
+        #     'cells': [
+        #         (EntityCellRegularField, {'name': 'description'}),
+        #     ],
+        # }
+        # cfields_group_desc = {
+        #     'name': _('Custom fields'),
+        #     'layout': LAYOUT_DUAL_SECOND,
+        #     'cells': [
+        #         (
+        #             EntityCellCustomFormSpecial,
+        #             {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #         ),
+        #     ],
+        # }
+        # contact_groups_desc = [
+        #     {
+        #         'name': _('General information'),
+        #         'layout': LAYOUT_DUAL_FIRST,
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'civility'}),
+        #             (EntityCellRegularField, {'name': 'last_name'}),
+        #             (EntityCellRegularField, {'name': 'first_name'}),
+        #             (EntityCellRegularField, {'name': 'position'}),
+        #             (EntityCellRegularField, {'name': 'full_position'}),
+        #             (EntityCellRegularField, {'name': 'sector'}),
+        #             (EntityCellRegularField, {'name': 'birthday'}),
+        #             (EntityCellRegularField, {'name': 'image'}),
+        #             (EntityCellRegularField, {'name': 'languages'}),
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             ),
+        #         ],
+        #     },
+        #     description_group_desc,
+        #     {
+        #         'name': _('Contact details'),
+        #         'layout': LAYOUT_DUAL_SECOND,
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'skype'}),
+        #             (EntityCellRegularField, {'name': 'phone'}),
+        #             (EntityCellRegularField, {'name': 'mobile'}),
+        #             (EntityCellRegularField, {'name': 'fax'}),
+        #             (EntityCellRegularField, {'name': 'email'}),
+        #             (EntityCellRegularField, {'name': 'url_site'}),
+        #         ],
+        #     },
+        #     cfields_group_desc,
+        #     AddressesGroup(model=Contact),
+        # ]
+        # orga_groups_desc = [
+        #     {
+        #         'name': _('General information'),
+        #         'layout': LAYOUT_DUAL_FIRST,
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'name'}),
+        #             (EntityCellRegularField, {'name': 'phone'}),
+        #             (EntityCellRegularField, {'name': 'fax'}),
+        #             (EntityCellRegularField, {'name': 'email'}),
+        #             (EntityCellRegularField, {'name': 'url_site'}),
+        #             (EntityCellRegularField, {'name': 'sector'}),
+        #             (EntityCellRegularField, {'name': 'legal_form'}),
+        #             (EntityCellRegularField, {'name': 'staff_size'}),
+        #             (EntityCellRegularField, {'name': 'capital'}),
+        #             (EntityCellRegularField, {'name': 'annual_revenue'}),
+        #             (EntityCellRegularField, {'name': 'siren'}),
+        #             (EntityCellRegularField, {'name': 'naf'}),
+        #             (EntityCellRegularField, {'name': 'siret'}),
+        #             (EntityCellRegularField, {'name': 'rcs'}),
+        #             (EntityCellRegularField, {'name': 'tvaintra'}),
+        #             (EntityCellRegularField, {'name': 'subject_to_vat'}),
+        #             (EntityCellRegularField, {'name': 'creation_date'}),
+        #             (EntityCellRegularField, {'name': 'image'}),
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             ),
+        #         ],
+        #     },
+        #     description_group_desc,
+        #     cfields_group_desc,
+        #     AddressesGroup(model=Organisation),
+        # ]
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.CONTACT_CREATION_CFORM,
-            groups_desc=[
-                *contact_groups_desc,
-                *creation_only_groups_desc,
-            ],
+            # groups_desc=[
+            #     *contact_groups_desc,
+            #     *creation_only_groups_desc,
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.CONTACT_EDITION_CFORM,
-            groups_desc=contact_groups_desc,
+            # groups_desc=contact_groups_desc,
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.ORGANISATION_CREATION_CFORM,
-            groups_desc=[
-                *orga_groups_desc,
-                *creation_only_groups_desc,
-            ],
+            # groups_desc=[
+            #     *orga_groups_desc,
+            #     *creation_only_groups_desc,
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.ORGANISATION_EDITION_CFORM,
-            groups_desc=orga_groups_desc,
+            # groups_desc=orga_groups_desc,
         )
 
         # ---------------------------

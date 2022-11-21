@@ -101,6 +101,7 @@ def ready():
 
     customform_descriptor_registry.register(
         fake_custom_forms.FAKEORGANISATION_CREATION_CFORM,
+        fake_custom_forms.FAKEORGANISATION_EDITION_CFORM,
 
         fake_custom_forms.FAKEACTIVITY_CREATION_CFORM,
         fake_custom_forms.FAKEACTIVITY_EDITION_CFORM,

@@ -24,6 +24,7 @@ from creme.creme_core.forms.fields import (
     MultiRelationEntityField,
 )
 from creme.creme_core.gui.custom_form import (
+    CustomFormDefault,
     CustomFormDescriptor,
     CustomFormDescriptorRegistry,
     CustomFormExtraSubCell,
@@ -2162,6 +2163,154 @@ class FieldGroupListTestCase(CremeTestCase):
         self.assertFalse(self.refresh(form2.save()).description)
 
 
+class CustomFormDefaultTestCase(CremeTestCase):
+    def test_creation_type(self):
+        form_desc = CustomFormDescriptor(
+            id='creme_core-fakecontact_creation',
+            model=FakeContact,
+            verbose_name='Creation form for FakeContact',
+        )
+
+        cfd = CustomFormDefault(descriptor=form_desc)
+        groups_desc = cfd.groups_desc()
+        self.assertIsList(groups_desc, length=5)
+
+        # self.maxDiff = None
+        self.assertDictEqual(
+            {
+                'name': _('General information'),
+                'layout': LAYOUT_DUAL_FIRST,
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                    ),
+                ],
+            },
+            groups_desc[0],
+        )
+        self.assertDictEqual(
+            {
+                'name': _('Description'),
+                'layout': LAYOUT_DUAL_SECOND,
+                'cells': [(EntityCellRegularField, {'name': 'description'})],
+            },
+            groups_desc[1],
+        )
+        self.assertDictEqual(
+            {
+                'name': _('Description'),
+                'layout': LAYOUT_DUAL_SECOND,
+                'cells': [(EntityCellRegularField, {'name': 'description'})],
+            },
+            groups_desc[1],
+        )
+        self.assertDictEqual(
+            {
+                'name': _('Custom fields'),
+                'layout': LAYOUT_DUAL_SECOND,
+                'cells': [(
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                )],
+            },
+            groups_desc[2],
+        )
+        self.assertDictEqual(
+            {
+                'name': _('Properties'),
+                'cells': [(
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                )],
+            },
+            groups_desc[3],
+        )
+        self.assertDictEqual(
+            {
+                'name': _('Relationships'),
+                'cells': [(
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.RELATIONS},
+                )],
+            },
+            groups_desc[4],
+        )
+
+    def test_edition_type(self):
+        form_desc = CustomFormDescriptor(
+            id='creme_core-fakecontact_edition',
+            model=FakeContact,
+            form_type=CustomFormDescriptor.EDITION_FORM,
+            verbose_name='Edition form for FakeContact',
+        )
+
+        cfd = CustomFormDefault(descriptor=form_desc)
+
+        self.assertListEqual(
+            [
+                _('General information'),
+                _('Description'),
+                _('Custom fields'),
+                # _('Properties'),
+                # _('Relationships'),
+            ],
+            [d.get('name') for d in cfd.groups_desc()],
+        )
+
+    def test_fields(self):
+        form_desc = CustomFormDescriptor(
+            id='creme_core-fakecontact_creation',
+            model=FakeContact,
+            verbose_name='Creation form for FakeContact',
+        )
+
+        cfd = CustomFormDefault(descriptor=form_desc)
+        self.assertDictEqual(
+            {
+                'name': _('General information'),
+                'layout': LAYOUT_DUAL_FIRST,
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                    ),
+                ],
+            },
+            cfd.groups_desc()[0],
+        )
+
+    def test_main_fields(self):
+        form_desc = CustomFormDescriptor(
+            id='creme_core-fakecontact_creation',
+            model=FakeContact,
+            verbose_name='Creation form for FakeContact',
+        )
+
+        class MyCustomFormDefault(CustomFormDefault):
+            main_fields = ['user', 'first_name', 'last_name']
+
+        cfd = MyCustomFormDefault(descriptor=form_desc)
+        self.assertDictEqual(
+            {
+                'name': _('General information'),
+                'layout': LAYOUT_DUAL_FIRST,
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (EntityCellRegularField, {'name': 'first_name'}),
+                    (EntityCellRegularField, {'name': 'last_name'}),
+                    (
+                        EntityCellCustomFormSpecial,
+                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+                    ),
+                ],
+            },
+            cfd.groups_desc()[0],
+        )
+
+
 class CustomFormDescriptorTestCase(CremeTestCase):
     def test_init(self):
         id_value1 = 'creme_core-fakecontact_creation'
@@ -2180,6 +2329,16 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         self.assertListEqual([], [*form_desc1.excluded_fields])
         self.assertListEqual([], [*form_desc1.extra_sub_cells])
         self.assertListEqual([], [*form_desc1.extra_group_classes])
+        self.assertListEqual(
+            [
+                _('General information'),
+                _('Description'),
+                _('Custom fields'),
+                _('Properties'),
+                _('Relationships'),
+            ],
+            [d.get('name') for d in form_desc1.default_groups_desc],
+        )
 
         registry1 = form_desc1.build_cell_registry()
         self.assertIsInstance(registry1, EntityCellsRegistry)
@@ -2206,6 +2365,22 @@ class CustomFormDescriptorTestCase(CremeTestCase):
 
         id_value2 = 'creme_core-fakeorga_creation'
         verbose_name2 = 'Creation form for FakeOrganisation'
+
+        default_groups_desc2 = [
+            {
+                'name': 'General',
+                'cells': [
+                    (EntityCellRegularField, {'name': 'user'}),
+                    (EntityCellRegularField, {'name': 'name'}),
+                    (EntityCellRegularField, {'name': 'description'}),
+                ],
+            },
+        ]
+
+        class FakeOrgaFormDefault(CustomFormDefault):
+            def groups_desc(this, fields=()):
+                return default_groups_desc2
+
         form_desc2 = CustomFormDescriptor(
             id=id_value2,
             model=FakeOrganisation,
@@ -2217,6 +2392,7 @@ class CustomFormDescriptorTestCase(CremeTestCase):
                 TestSubCell1(model=FakeOrganisation),
                 TestSubCell2(model=FakeOrganisation),
             ],
+            default=FakeOrgaFormDefault,
         )
         self.assertEqual(id_value2, form_desc2.id)
         self.assertIs(FakeOrganisation, form_desc2.model)
@@ -2226,6 +2402,10 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         self.assertListEqual(
             [TestSubCell1(model=FakeOrganisation), TestSubCell2(model=FakeOrganisation)],
             [*form_desc2.extra_sub_cells],
+        )
+        self.assertListEqual(
+            default_groups_desc2,
+            form_desc2.default_groups_desc,
         )
 
         registry2 = form_desc2.build_cell_registry()

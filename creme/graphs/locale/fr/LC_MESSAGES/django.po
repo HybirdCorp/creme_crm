@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Graphs 2.4\n"
+"Project-Id-Version: Creme Graphs 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-26 18:31+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -86,29 +86,6 @@ msgstr "Graphe"
 msgid "Graph view"
 msgstr "Vue de Graphe"
 
-# Already in creme_core
-msgid "General information"
-msgstr ""
-
-# Already in creme_core
-msgid "Description"
-msgstr ""
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "Properties"
-msgstr ""
-
-# Already in creme_core
-msgid "Relationships"
-msgstr ""
-
-msgid "Download as PNG file"
-msgstr "Télécharger sous forme de fichier PNG"
-
 #, python-brace-format
 msgid "{count} Peripheral type of relationship"
 msgstr "{count} Type de relation périphérique"
@@ -171,16 +148,6 @@ msgstr "Enlever ce nœud"
 msgid "No root node for the moment"
 msgstr "Pas de nœud racine pour le moment"
 
-msgid ""
-"The package \"pygraphviz\" is not installed ; please contact your "
-"administrator."
-msgstr ""
-"Le paquet \"pygraphviz\" n'est pas installé ; veuillez contacter votre "
-"administrateur."
-
-msgid "This graph is too big!"
-msgstr "Ce graphe est trop gros !"
-
 #, python-brace-format
 msgid "Add relation types to «{entity}»"
 msgstr "Ajouter des types de relation à «{entity}»"
@@ -192,6 +159,19 @@ msgstr "Ajouter des nœuds racines à «{entity}»"
 #, python-brace-format
 msgid "Edit root node for «{entity}»"
 msgstr "Modifier le nœud racine pour «{entity}»"
+
+#~ msgid "Download as PNG file"
+#~ msgstr "Télécharger sous forme de fichier PNG"
+
+#~ msgid ""
+#~ "The package \"pygraphviz\" is not installed ; please contact your "
+#~ "administrator."
+#~ msgstr ""
+#~ "Le paquet \"pygraphviz\" n'est pas installé ; veuillez contacter votre "
+#~ "administrateur."
+
+#~ msgid "This graph is too big!"
+#~ msgstr "Ce graphe est trop gros !"
 
 #~ msgid "Roots nodes of a graph"
 #~ msgstr "Nœuds racines d'un graphe"

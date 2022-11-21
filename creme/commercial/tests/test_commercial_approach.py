@@ -166,8 +166,8 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
                         IsCommercialApproachSubCell(model=Activity).into_cell(),
                     ],
                     layout=LAYOUT_REGULAR,
-                )
-            ]
+                ),
+            ],
         )
         cfci.store_groups(new_groups)
         cfci.save()

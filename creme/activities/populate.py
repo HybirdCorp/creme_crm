@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,8 +29,8 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
-from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
+# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -57,7 +57,7 @@ from . import (
     menu,
     setting_keys,
 )
-from .forms import activity as act_forms
+# from .forms import activity as act_forms
 from .models import ActivitySubType, ActivityType, Status
 
 logger = logging.getLogger(__name__)
@@ -278,190 +278,190 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        when_group = {
-            'name': _('When'),
-            'layout': LAYOUT_DUAL_SECOND,
-            'cells': [
-                act_forms.StartSubCell(model=Activity).into_cell(),
-                act_forms.EndSubCell(model=Activity).into_cell(),
-                (EntityCellRegularField, {'name': 'is_all_day'}),
-            ],
-        }
-        alerts_groups = [
-            {
-                'name': _('Generate an alert on a specific date'),
-                'layout': LAYOUT_DUAL_SECOND,
-                'cells': [
-                    act_forms.DatetimeAlertSubCell(model=Activity).into_cell(),
-                ],
-            }, {
-                'name': _('Generate an alert in a while'),
-                'layout': LAYOUT_DUAL_SECOND,
-                'cells': [
-                    act_forms.PeriodAlertSubCell(model=Activity).into_cell(),
-                ],
-            },
-        ]
-        participants_group = {
-            'name': _('Participants & subjects'),
-            'cells': [
-                act_forms.MyParticipationSubCell(model=Activity).into_cell(),
-                act_forms.ParticipatingUsersSubCell(model=Activity).into_cell(),
-                act_forms.OtherParticipantsSubCell(model=Activity).into_cell(),
-                act_forms.ActivitySubjectsSubCell(model=Activity).into_cell(),
-                act_forms.LinkedEntitiesSubCell(model=Activity).into_cell(),
-            ],
-        }
-        common_groups_desc = [
-            {
-                'name': _('Description'),
-                'cells': [
-                    (EntityCellRegularField, {'name': 'description'}),
-                ],
-            }, {
-                'name': _('Custom fields'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                    ),
-                ],
-            },
-        ]
-        relations_n_properties_groups = [
-            {
-                'name': _('Properties'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                    ),
-                ],
-            }, {
-                'name': _('Relationships'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.RELATIONS},
-                    ),
-                ],
-            },
-        ]
+        # when_group = {
+        #     'name': _('When'),
+        #     'layout': LAYOUT_DUAL_SECOND,
+        #     'cells': [
+        #         act_forms.StartSubCell(model=Activity).into_cell(),
+        #         act_forms.EndSubCell(model=Activity).into_cell(),
+        #         (EntityCellRegularField, {'name': 'is_all_day'}),
+        #     ],
+        # }
+        # alerts_groups = [
+        #     {
+        #         'name': _('Generate an alert on a specific date'),
+        #         'layout': LAYOUT_DUAL_SECOND,
+        #         'cells': [
+        #             act_forms.DatetimeAlertSubCell(model=Activity).into_cell(),
+        #         ],
+        #     }, {
+        #         'name': _('Generate an alert in a while'),
+        #         'layout': LAYOUT_DUAL_SECOND,
+        #         'cells': [
+        #             act_forms.PeriodAlertSubCell(model=Activity).into_cell(),
+        #         ],
+        #     },
+        # ]
+        # participants_group = {
+        #     'name': _('Participants & subjects'),
+        #     'cells': [
+        #         act_forms.MyParticipationSubCell(model=Activity).into_cell(),
+        #         act_forms.ParticipatingUsersSubCell(model=Activity).into_cell(),
+        #         act_forms.OtherParticipantsSubCell(model=Activity).into_cell(),
+        #         act_forms.ActivitySubjectsSubCell(model=Activity).into_cell(),
+        #         act_forms.LinkedEntitiesSubCell(model=Activity).into_cell(),
+        #     ],
+        # }
+        # common_groups_desc = [
+        #     {
+        #         'name': _('Description'),
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'description'}),
+        #         ],
+        #     }, {
+        #         'name': _('Custom fields'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #             ),
+        #         ],
+        #     },
+        # ]
+        # relations_n_properties_groups = [
+        #     {
+        #         'name': _('Properties'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+        #             ),
+        #         ],
+        #     }, {
+        #         'name': _('Relationships'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
+        #             ),
+        #         ],
+        #     },
+        # ]
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.ACTIVITY_CREATION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'title'}),
-                        (EntityCellRegularField, {'name': 'minutes'}),
-                        (EntityCellRegularField, {'name': 'place'}),
-                        (EntityCellRegularField, {'name': 'duration'}),
-                        (EntityCellRegularField, {'name': 'status'}),
-                        (EntityCellRegularField, {'name': 'busy'}),
-                        act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
-                        # act_forms.CommercialApproachSubCell(model=Activity).into_cell(),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                when_group,
-                *alerts_groups,
-                participants_group,
-                *common_groups_desc,
-                *relations_n_properties_groups,
-                # {
-                #     'name': _('Users to keep informed'),
-                #     'cells': [
-                #         (
-                #             act_forms.UserMessagesSubCell(model=Activity).into_cell(),
-                #         ),
-                #     ],
-                # },
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'layout': LAYOUT_DUAL_FIRST,
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'title'}),
+            #             (EntityCellRegularField, {'name': 'minutes'}),
+            #             (EntityCellRegularField, {'name': 'place'}),
+            #             (EntityCellRegularField, {'name': 'duration'}),
+            #             (EntityCellRegularField, {'name': 'status'}),
+            #             (EntityCellRegularField, {'name': 'busy'}),
+            #             act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
+            #             # act_forms.CommercialApproachSubCell(model=Activity).into_cell(),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     when_group,
+            #     *alerts_groups,
+            #     participants_group,
+            #     *common_groups_desc,
+            #     *relations_n_properties_groups,
+            #     # {
+            #     #     'name': _('Users to keep informed'),
+            #     #     'cells': [
+            #     #         (
+            #     #             act_forms.UserMessagesSubCell(model=Activity).into_cell(),
+            #     #         ),
+            #     #     ],
+            #     # },
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'title'}),
-                        # (EntityCellRegularField, {'name': 'minutes'}),
-                        (EntityCellRegularField, {'name': 'place'}),
-                        (EntityCellRegularField, {'name': 'duration'}),
-                        (EntityCellRegularField, {'name': 'status'}),
-                        (EntityCellRegularField, {'name': 'busy'}),
-                        act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
-                        # act_forms.CommercialApproachSubCell(model=Activity).into_cell(),
-                        # NB: we do not want 'minutes' in the default form
-                        # (
-                        #     EntityCellCustomFormSpecial,
-                        #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        # ),
-                    ],
-                },
-                when_group,
-                *alerts_groups,
-                participants_group,
-                *common_groups_desc,
-                *relations_n_properties_groups,
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'layout': LAYOUT_DUAL_FIRST,
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'title'}),
+            #             # (EntityCellRegularField, {'name': 'minutes'}),
+            #             (EntityCellRegularField, {'name': 'place'}),
+            #             (EntityCellRegularField, {'name': 'duration'}),
+            #             (EntityCellRegularField, {'name': 'status'}),
+            #             (EntityCellRegularField, {'name': 'busy'}),
+            #             act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
+            #             # act_forms.CommercialApproachSubCell(model=Activity).into_cell(),
+            #             # NB: we do not want 'minutes' in the default form
+            #             # (
+            #             #     EntityCellCustomFormSpecial,
+            #             #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             # ),
+            #         ],
+            #     },
+            #     when_group,
+            #     *alerts_groups,
+            #     participants_group,
+            #     *common_groups_desc,
+            #     *relations_n_properties_groups,
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.UNAVAILABILITY_CREATION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'title'}),
-                        act_forms.UnavailabilityTypeSubCell(model=Activity).into_cell(),
-                    ],
-                },
-                when_group,
-                {
-                    'name': _('Unavailable users'),
-                    'cells': [
-                        act_forms.ParticipatingUsersSubCell(model=Activity).into_cell(),
-                    ],
-                },
-                *common_groups_desc,
-                *relations_n_properties_groups,
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'layout': LAYOUT_DUAL_FIRST,
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'title'}),
+            #             act_forms.UnavailabilityTypeSubCell(model=Activity).into_cell(),
+            #         ],
+            #     },
+            #     when_group,
+            #     {
+            #         'name': _('Unavailable users'),
+            #         'cells': [
+            #             act_forms.ParticipatingUsersSubCell(model=Activity).into_cell(),
+            #         ],
+            #     },
+            #     *common_groups_desc,
+            #     *relations_n_properties_groups,
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.ACTIVITY_EDITION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'title'}),
-                        (EntityCellRegularField, {'name': 'minutes'}),
-                        (EntityCellRegularField, {'name': 'place'}),
-                        (EntityCellRegularField, {'name': 'duration'}),
-                        (EntityCellRegularField, {'name': 'status'}),
-                        (EntityCellRegularField, {'name': 'busy'}),
-                        act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                when_group,
-                *common_groups_desc,
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'layout': LAYOUT_DUAL_FIRST,
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'title'}),
+            #             (EntityCellRegularField, {'name': 'minutes'}),
+            #             (EntityCellRegularField, {'name': 'place'}),
+            #             (EntityCellRegularField, {'name': 'duration'}),
+            #             (EntityCellRegularField, {'name': 'status'}),
+            #             (EntityCellRegularField, {'name': 'busy'}),
+            #             act_forms.ActivitySubTypeSubCell(model=Activity).into_cell(),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     when_group,
+            #     *common_groups_desc,
+            # ],
         )
 
         # ---------------------------

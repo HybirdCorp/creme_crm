@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,8 +30,8 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.entity_filter import condition_handler, operators
-from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+# from creme.creme_core.forms import LAYOUT_DUAL_FIRST, LAYOUT_DUAL_SECOND
+# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -57,7 +57,7 @@ from . import (
     setting_keys,
 )
 from .buttons import LinkedOpportunityButton
-from .forms.opportunity import OppEmitterSubCell, OppTargetSubCell
+# from .forms.opportunity import OppEmitterSubCell, OppTargetSubCell
 from .models import Origin, SalesPhase
 
 logger = logging.getLogger(__name__)
@@ -257,99 +257,99 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        common_groups_desc = [
-            {
-                'name': _('Description'),
-                'layout': LAYOUT_DUAL_SECOND,
-                'cells': [
-                    (EntityCellRegularField, {'name': 'description'}),
-                ],
-            }, {
-                'name': _('Custom fields'),
-                'layout': LAYOUT_DUAL_SECOND,
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                    ),
-                ],
-            },
-        ]
-        common_field_names = [
-            'reference',
-            'estimated_sales',
-            'made_sales',
-            'currency',
-            'sales_phase',
-            'chance_to_win',
-            'expected_closing_date',
-            'closing_date',
-            'origin',
-            'first_action_date',
-        ]
+        # common_groups_desc = [
+        #     {
+        #         'name': _('Description'),
+        #         'layout': LAYOUT_DUAL_SECOND,
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'description'}),
+        #         ],
+        #     }, {
+        #         'name': _('Custom fields'),
+        #         'layout': LAYOUT_DUAL_SECOND,
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #             ),
+        #         ],
+        #     },
+        # ]
+        # common_field_names = [
+        #     'reference',
+        #     'estimated_sales',
+        #     'made_sales',
+        #     'currency',
+        #     'sales_phase',
+        #     'chance_to_win',
+        #     'expected_closing_date',
+        #     'closing_date',
+        #     'origin',
+        #     'first_action_date',
+        # ]
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.OPPORTUNITY_CREATION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'name'}),
-                        OppEmitterSubCell().into_cell(),
-                        OppTargetSubCell().into_cell(),
-                        *(
-                            (EntityCellRegularField, {'name': fname})
-                            for fname in common_field_names
-                        ),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                *common_groups_desc,
-                {
-                    'name': _('Properties'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                        ),
-                    ],
-                }, {
-                    'name': _('Relationships'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.RELATIONS},
-                        ),
-                    ],
-                },
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'layout': LAYOUT_DUAL_FIRST,
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'name'}),
+            #             OppEmitterSubCell().into_cell(),
+            #             OppTargetSubCell().into_cell(),
+            #             *(
+            #                 (EntityCellRegularField, {'name': fname})
+            #                 for fname in common_field_names
+            #             ),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     *common_groups_desc,
+            #     {
+            #         'name': _('Properties'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+            #             ),
+            #         ],
+            #     }, {
+            #         'name': _('Relationships'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
+            #             ),
+            #         ],
+            #     },
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.OPPORTUNITY_EDITION_CFORM,
-            groups_desc=[
-                {
-                    'name': _('General information'),
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'user'}),
-                        (EntityCellRegularField, {'name': 'name'}),
-                        OppTargetSubCell().into_cell(),
-                        *(
-                            (EntityCellRegularField, {'name': fname})
-                            for fname in common_field_names
-                        ),
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                        ),
-                    ],
-                },
-                *common_groups_desc,
-            ],
+            # groups_desc=[
+            #     {
+            #         'name': _('General information'),
+            #         'cells': [
+            #             (EntityCellRegularField, {'name': 'user'}),
+            #             (EntityCellRegularField, {'name': 'name'}),
+            #             OppTargetSubCell().into_cell(),
+            #             *(
+            #                 (EntityCellRegularField, {'name': fname})
+            #                 for fname in common_field_names
+            #             ),
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            #             ),
+            #         ],
+            #     },
+            #     *common_groups_desc,
+            # ],
         )
 
         # ---------------------------

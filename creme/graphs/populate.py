@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -23,7 +23,7 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.bricks as core_bricks
 from creme.creme_core.core.entity_cell import EntityCellRegularField
-from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
+# from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
 from creme.creme_core.gui.menu import ContainerEntry
 from creme.creme_core.management.commands.creme_populate import BasePopulator
 from creme.creme_core.models import (
@@ -53,59 +53,59 @@ class Populator(BasePopulator):
         )
 
         # ---------------------------
-        base_groups_desc = [
-            {
-                'name': _('General information'),
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'name'}),
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    ),
-                ],
-            }, {
-                'name': _('Description'),
-                'cells': [
-                    (EntityCellRegularField, {'name': 'description'}),
-                ],
-            }, {
-                'name': _('Custom fields'),
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                    ),
-                ],
-            },
-        ]
+        # base_groups_desc = [
+        #     {
+        #         'name': _('General information'),
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'name'}),
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             ),
+        #         ],
+        #     }, {
+        #         'name': _('Description'),
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'description'}),
+        #         ],
+        #     }, {
+        #         'name': _('Custom fields'),
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #             ),
+        #         ],
+        #     },
+        # ]
 
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.GRAPH_CREATION_CFORM,
-            groups_desc=[
-                *base_groups_desc,
-                {
-                    'name': _('Properties'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                        ),
-                    ],
-                }, {
-                    'name': _('Relationships'),
-                    'cells': [
-                        (
-                            EntityCellCustomFormSpecial,
-                            {'name': EntityCellCustomFormSpecial.RELATIONS},
-                        ),
-                    ],
-                },
-            ],
+            # groups_desc=[
+            #     *base_groups_desc,
+            #     {
+            #         'name': _('Properties'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+            #             ),
+            #         ],
+            #     }, {
+            #         'name': _('Relationships'),
+            #         'cells': [
+            #             (
+            #                 EntityCellCustomFormSpecial,
+            #                 {'name': EntityCellCustomFormSpecial.RELATIONS},
+            #             ),
+            #         ],
+            #     },
+            # ],
         )
         CustomFormConfigItem.objects.create_if_needed(
             descriptor=custom_forms.GRAPH_EDITION_CFORM,
-            groups_desc=base_groups_desc,
+            # groups_desc=base_groups_desc,
         )
 
         # ---------------------------

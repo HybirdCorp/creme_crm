@@ -1043,8 +1043,8 @@ class ActivityTestCase(_ActivitiesTestCase):
                     name='user_messages',
                     cells=[umsg_cell],
                     layout=LAYOUT_REGULAR,
-                )
-            ]
+                ),
+            ],
         )
         cfci.store_groups(new_groups)
         cfci.save()

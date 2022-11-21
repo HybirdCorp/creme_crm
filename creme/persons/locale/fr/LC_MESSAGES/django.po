@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -243,6 +243,9 @@ msgstr ""
 "C'est utile pour créer des salariés par exemple (cela peut aussi être fait "
 "depuis le bloc des salariés).\n"
 "App : Comptes et Contacts"
+
+msgid "Contact details"
+msgstr "Coordonnées du contact"
 
 msgid "Creation form for contact"
 msgstr "Formulaire de création de contact"
@@ -608,27 +611,6 @@ msgstr "Vue de Société"
 
 msgid "Prospect/Suspect view"
 msgstr "Vue Prospect/Suspect"
-
-msgid "Properties"
-msgstr ""
-
-msgid "Relationships"
-msgstr "Relations"
-
-# Already in creme_core
-msgid "Description"
-msgstr ""
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "General information"
-msgstr ""
-
-msgid "Contact details"
-msgstr "Coordonnées du contact"
 
 msgid "Madam"
 msgstr "Madame"
@@ -1039,6 +1021,10 @@ msgstr "Créer un : {}"
 
 msgid "Related managed organisation"
 msgstr "Société gérée liée"
+
+# Already translated in creme_core
+msgid "Relationships"
+msgstr ""
 
 #. Translators: "related" can be one on these messages:
 #. 'suspects', 'prospects', 'customers'.

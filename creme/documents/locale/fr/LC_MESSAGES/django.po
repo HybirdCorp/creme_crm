@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Documents 2.4\n"
+"Project-Id-Version: Creme Documents 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -201,26 +201,6 @@ msgstr "Vue de Document"
 
 msgid "Folder view"
 msgstr "Vue de Classeur"
-
-# Already in creme_core
-msgid "Description"
-msgstr ""
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "Properties"
-msgstr ""
-
-# Already in creme_core
-msgid "Relationships"
-msgstr ""
-
-# Already in creme_core
-msgid "General information"
-msgstr ""
 
 #, python-brace-format
 msgid "{count} Child Folder"

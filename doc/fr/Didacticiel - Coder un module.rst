@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 03-02-2023 pour la version 2.4 de Creme
+:Version: 06-02-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1740,15 +1740,36 @@ le fichier ``custom_forms.py`` : ::
 
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.gui.custom_form import CustomFormDescriptor
+    from creme.creme_core.gui.custom_form import (
+        CustomFormDefault,
+        CustomFormDescriptor,
+    )
 
     from .models import Beaver
+
+
+    class BeaverFormDefault(CustomFormDefault):
+        # NB: adaptez en fonction des champs de votre modèle évidemment.
+        # Notez que :
+        #  - nous n'avons pas mis 'description' ; de base CustomFormDefault
+        #    met ce champ dans un groupe à part.
+        #  - de la meme manière, des groupes pour les propriétés et les
+        #     relations sont ajoutés dans l'implémentation par défaut.
+        main_fields = [
+            'user',
+            'name',
+            'birthday',
+            'status',
+        ]
+
 
     BEAVER_CREATION_CFORM = CustomFormDescriptor(
         id='beavers-beaver_creation',
         model=Beaver,
         verbose_name=_('Creation form for beaver'),
+        default=BeaverFormDefault,
     )
+
 
 Attention a bien lui donner un identifiant unique ; en préfixant par le nom de
 notre app on est tranquille. Dans notre fichier ``populate.py``, nous allons
@@ -1756,7 +1777,6 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
 
     [...]
 
-    from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
     from creme.creme_core.models import CustomFormConfigItem
 
     from . import custom_forms
@@ -1770,40 +1790,11 @@ indiquer les champs utilisés de base dans notre formulaire personnalisé : ::
 
             CustomFormConfigItem.objects.create_if_needed(
                 descriptor=custom_forms.BEAVER_CREATION_CFORM,
-                groups_desc=[
-                    {
-                        'name': _('General information'),
-                        'cells': [
-                            # NB: adaptez en fonction des champs de votre modèle évidemment
-                            (EntityCellRegularField, {'name': 'user'}),
-                            (EntityCellRegularField, {'name': 'name'}),
-                            (EntityCellRegularField, {'name': 'birthday'}),
-                            (EntityCellRegularField, {'name': 'status'}),
-                            (EntityCellRegularField, {'name': 'description'}),
-                        ],
-                    }, {
-                        'name': _('Properties'),
-                        'cells': [
-                            (
-                                EntityCellCustomFormSpecial,
-                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                            ),
-                        ],
-                    }, {
-                        'name': _('Relationships'),
-                        'cells': [
-                            (
-                                EntityCellCustomFormSpecial,
-                                {'name': EntityCellCustomFormSpecial.RELATIONS},
-                            ),
-                        ],
-                    },
-                ],
             )
+
 
 Déclarons ensuite notre descripteur de formulaire ; dans notre fichier
 ``beavers/apps.py``, ajoutons une nouvelle méthode : ::
-
 
     [...]
 

@@ -1691,15 +1691,35 @@ app (i.e. ``my_project/beavers/``), we create le file ``custom_forms.py``: ::
 
     from django.utils.translation import gettext_lazy as _
 
-    from creme.creme_core.gui.custom_form import CustomFormDescriptor
+    from creme.creme_core.gui.custom_form import (
+        CustomFormDefault,
+        CustomFormDescriptor,
+    )
 
     from .models import Beaver
+
+    class BeaverFormDefault(CustomFormDefault):
+        # NB: adapt depending on the fields of your model of course.
+        # Notice that:
+        #  - the field 'description' is not in the list; CustomFormDefault puts
+        #    it in a separated group by default.
+        #  - groups for properties and relationships are added by the default
+        #    implementation.
+        main_fields = [
+            'user',
+            'name',
+            'birthday',
+            'status',
+        ]
+
 
     BEAVER_CREATION_CFORM = CustomFormDescriptor(
         id='beavers-beaver_creation',
         model=Beaver,
         verbose_name=_('Creation form for beaver'),
+        default=BeaverFormDefault,
     )
+
 
 Be careful and give it a unique identifier ; by prefixing it with the app name
 we should be safe. In our file ``populate.py``, we indicate the fields used by
@@ -1707,7 +1727,6 @@ the default configuration of our CustomForm: ::
 
     [...]
 
-    from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
     from creme.creme_core.models import CustomFormConfigItem
 
     from . import custom_forms
@@ -1721,40 +1740,11 @@ the default configuration of our CustomForm: ::
 
             CustomFormConfigItem.objects.create_if_needed(
                 descriptor=custom_forms.BEAVER_CREATION_CFORM,
-                groups_desc=[
-                    {
-                        'name': _('General information'),
-                        'cells': [
-                            # NB: adapt depending on the fields of your model of course
-                            (EntityCellRegularField, {'name': 'user'}),
-                            (EntityCellRegularField, {'name': 'name'}),
-                            (EntityCellRegularField, {'name': 'birthday'}),
-                            (EntityCellRegularField, {'name': 'status'}),
-                            (EntityCellRegularField, {'name': 'description'}),
-                        ],
-                    }, {
-                        'name': _('Properties'),
-                        'cells': [
-                            (
-                                EntityCellCustomFormSpecial,
-                                {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
-                            ),
-                        ],
-                    }, {
-                        'name': _('Relationships'),
-                        'cells': [
-                            (
-                                EntityCellCustomFormSpecial,
-                                {'name': EntityCellCustomFormSpecial.RELATIONS},
-                            ),
-                        ],
-                    },
-                ],
             )
+
 
 Then, we declare our form descriptor ; in our file ``beavers/apps.py``, we add
 a new method: ::
-
 
     [...]
 

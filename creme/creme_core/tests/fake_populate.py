@@ -1,8 +1,8 @@
 from ..core.entity_cell import EntityCellRegularField
-from ..forms import base as base_forms
-from ..gui.custom_form import EntityCellCustomFormSpecial
+# from ..forms import base as base_forms
+# from ..gui.custom_form import EntityCellCustomFormSpecial
 from ..models import CustomFormConfigItem, HeaderFilter, RelationType
-from . import fake_constants, fake_custom_forms, fake_forms, fake_models
+from . import fake_constants, fake_custom_forms, fake_models  # fake_forms
 
 
 # TODO: use fixture instead ?
@@ -132,78 +132,81 @@ def populate():
 
     CustomFormConfigItem.objects.create_if_needed(
         descriptor=fake_custom_forms.FAKEORGANISATION_CREATION_CFORM,
-        groups_desc=[
-            {
-                'name': 'General',
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'name'}),
-                    (EntityCellRegularField, {'name': 'sector'}),
-                    # (
-                    #     EntityCellCustomFormSpecial,
-                    #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    # ),
-                ],
-            },
-        ],
+        # groups_desc=[
+        #     {
+        #         'name': 'General',
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'name'}),
+        #             (EntityCellRegularField, {'name': 'sector'}),
+        #             # (
+        #             #     EntityCellCustomFormSpecial,
+        #             #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             # ),
+        #         ],
+        #     },
+        # ],
+    )
+    CustomFormConfigItem.objects.create_if_needed(
+        descriptor=fake_custom_forms.FAKEORGANISATION_EDITION_CFORM,
     )
     CustomFormConfigItem.objects.create_if_needed(
         descriptor=fake_custom_forms.FAKEACTIVITY_CREATION_CFORM,
-        groups_desc=[
-            {
-                'name': 'General',
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'title'}),
-                    (EntityCellRegularField, {'name': 'type'}),
-                    # (EntityCellRegularField, {'name': 'minutes'}),  # Not in the default config
-                    # (EntityCellRegularField, {'name': 'description'}),  # Excluded
-                    # (
-                    #     EntityCellCustomFormSpecial,
-                    #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    # ),  # Should be used in regular populate scripts
-                ],
-                'layout': base_forms.LAYOUT_DUAL_FIRST,
-            }, {
-                'name': 'Where & when',
-                'cells': [
-                    (EntityCellRegularField, {'name': 'place'}),
-                    fake_forms.FakeActivityStartSubCell().into_cell(),
-                    fake_forms.FakeActivityEndSubCell().into_cell(),
-                ],
-                'layout': base_forms.LAYOUT_DUAL_SECOND,
-            }, {
-                'name': 'Custom fields',
-                'cells': [
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
-                    ),
-                ],
-            },
-        ],
+        # groups_desc=[
+        #     {
+        #         'name': 'General',
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'title'}),
+        #             (EntityCellRegularField, {'name': 'type'}),
+        #             # (EntityCellRegularField, {'name': 'minutes'}),  # Not in the default config
+        #             # (EntityCellRegularField, {'name': 'description'}),  # Excluded
+        #             # (
+        #             #     EntityCellCustomFormSpecial,
+        #             #     {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             # ),  # Should be used in regular populate scripts
+        #         ],
+        #         'layout': base_forms.LAYOUT_DUAL_FIRST,
+        #     }, {
+        #         'name': 'Where & when',
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'place'}),
+        #             fake_forms.FakeActivityStartSubCell().into_cell(),
+        #             fake_forms.FakeActivityEndSubCell().into_cell(),
+        #         ],
+        #         'layout': base_forms.LAYOUT_DUAL_SECOND,
+        #     }, {
+        #         'name': 'Custom fields',
+        #         'cells': [
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+        #             ),
+        #         ],
+        #     },
+        # ],
     )
     CustomFormConfigItem.objects.create_if_needed(
         descriptor=fake_custom_forms.FAKEACTIVITY_EDITION_CFORM,
-        groups_desc=[
-            {
-                'name': 'General',
-                'cells': [
-                    (EntityCellRegularField, {'name': 'user'}),
-                    (EntityCellRegularField, {'name': 'title'}),
-                    (EntityCellRegularField, {'name': 'type'}),
-                    (
-                        EntityCellCustomFormSpecial,
-                        {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
-                    ),
-                ],
-            }, {
-                'name': 'Where & when',
-                'cells': [
-                    (EntityCellRegularField, {'name': 'place'}),
-                    fake_forms.FakeActivityStartSubCell().into_cell(),
-                    fake_forms.FakeActivityEndSubCell().into_cell(),
-                ],
-            },
-        ],
+        # groups_desc=[
+        #     {
+        #         'name': 'General',
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'user'}),
+        #             (EntityCellRegularField, {'name': 'title'}),
+        #             (EntityCellRegularField, {'name': 'type'}),
+        #             (
+        #                 EntityCellCustomFormSpecial,
+        #                 {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+        #             ),
+        #         ],
+        #     }, {
+        #         'name': 'Where & when',
+        #         'cells': [
+        #             (EntityCellRegularField, {'name': 'place'}),
+        #             fake_forms.FakeActivityStartSubCell().into_cell(),
+        #             fake_forms.FakeActivityEndSubCell().into_cell(),
+        #         ],
+        #     },
+        # ],
     )

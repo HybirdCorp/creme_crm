@@ -273,9 +273,15 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     margin-top: 30px;
 }
 
+.creme_config-customforms-brick .customform-config-ctype-content .brick-action span {
+    vertical-align: super;
+}
+
 .creme_config-customforms-brick .customform-config-item-title {
     display: inline-flex;
+}
 
+.creme_config-customforms-brick .customform-config-item-title-label {
     font-size: 17px;
     font-weight: 600;
     font-style: italic;
@@ -292,7 +298,7 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 }
 
 .creme_config-customforms-brick .customform-config-item-title .brick-action {
-    padding-left: 10px;
+    padding-left: 40px;
 }
 
 .creme_config-customforms-brick .customform-config-item-content {
@@ -376,6 +382,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
 
 .creme_config-customforms-brick .customform-config-item-content .customform-config-fields-actions {
     margin-top: 10px;
+}
+
+.creme_config-customforms-brick .customform-config-item-content .customform-config-fields-actions .brick-action + .brick-action {
+    margin-left: 20px;
 }
 
 .creme_config-customforms-brick .help-instructions {

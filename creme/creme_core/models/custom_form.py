@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ if TYPE_CHECKING:
 
 
 class CustomFormConfigItemManager(models.Manager):
-    def create_if_needed(self, *, descriptor, groups_desc, role=None):
+    def create_if_needed(self, *, descriptor, groups_desc=None, role=None):
         """Creation helper (for "populate" scripts mainly).
         Create an instance of CustomFormConfigItem, related to a
         CustomFormDescriptor, if there is no one.
@@ -54,9 +54,10 @@ class CustomFormConfigItemManager(models.Manager):
             item = self.model(descriptor_id=desc_id, **role_kwargs)
             item.store_groups(FieldGroupList.from_cells(
                 model=descriptor.model,
-                data=groups_desc,
+                # data=groups_desc,
+                data=groups_desc or descriptor.default_groups_desc,
                 cell_registry=descriptor.build_cell_registry(),
-                allowed_extra_group_classes=(*descriptor.extra_group_classes,)
+                allowed_extra_group_classes=(*descriptor.extra_group_classes,),
             ))
             item.save()
 
