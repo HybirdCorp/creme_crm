@@ -603,6 +603,8 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
             register_model(fake_models.FakeIngredientGroup,  'fake_ingredient_group')
+            register_model(fake_models.FakeSkill,            'fake_skill')
+            register_model(fake_models.FakeTraining,         'fake_training')
 
             # NB: we just need another URLs for creation/edition/deletion
             # (even if these are stupid)

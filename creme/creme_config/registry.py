@@ -285,12 +285,12 @@ class _ModelConfig:
 
         @param form_class: Class "inheriting" <creme_config.forms.generics.DeletionForm>.
                None means that <DeletionForm> will be used.
-        @param url_name: Name of an URL (without 1 argument, the deleted instance's ID)
+        @param url_name: Name of a URL (without 1 argument, the deleted instance's ID)
                None means "creme_config__delete_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
                (False means the user cannot delete existing instances of the model).
-               <None> means the instance can always be edited.
+               <None> means the instance can always be deleted.
         @return: The ModelConfig instance.
         """
         deletor = self.deletor
