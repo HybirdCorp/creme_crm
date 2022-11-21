@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Activities 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-16 10:40+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -163,6 +163,21 @@ msgstr "Créer une démo"
 msgid "Create an unavailability"
 msgstr "Créer une indisponibilité"
 
+msgid "When"
+msgstr "Quand"
+
+msgid "Participants & subjects"
+msgstr "Participants & sujets"
+
+msgid "Generate an alert on a specific date"
+msgstr "Générer une alerte à une date spécifique"
+
+msgid "Generate an alert in a while"
+msgstr "Générer une alerte dans un certain temps"
+
+msgid "Unavailable users"
+msgstr "Utilisateurs non-disponibles"
+
 msgid "Creation form for activity"
 msgstr "Formulaire de création d'activité"
 
@@ -195,9 +210,6 @@ msgstr "Est-ce que je participe à cette activité ?"
 
 msgid "Other participating users"
 msgstr "Autres utilisateurs participants"
-
-msgid "Unavailable users"
-msgstr "Utilisateurs non-disponibles"
 
 msgid "Other participants"
 msgstr "Autres participants"
@@ -233,12 +245,6 @@ msgid ""
 msgstr ""
 "Ce champ nécessite que l'app «Assistants» soit installée. Suggestion: "
 "installez-la ou enlevez ce champ dans la configuration de formulaire."
-
-msgid "Generate an alert on a specific date"
-msgstr "Générer une alerte à une date spécifique"
-
-msgid "Generate an alert in a while"
-msgstr "Générer une alerte dans un certain temps"
 
 msgid "You cannot set a relative alert on a floating activity"
 msgstr ""
@@ -303,9 +309,6 @@ msgid "This entity is already a subject: %(duplicates)s"
 msgid_plural "These entities are already subjects: %(duplicates)s"
 msgstr[0] "Cette fiche est déjà un sujet: %(duplicates)s"
 msgstr[1] "Ces fiches sont déjà des sujets: %(duplicates)s"
-
-msgid "When"
-msgstr "Quand"
 
 msgid "The type of an unavailability cannot be changed."
 msgstr "Le type d'une indisponibilité ne peut pas être modifié."
@@ -379,9 +382,6 @@ msgstr "Le sujet «{}» est introuvable"
 
 msgid "Subjects (organisations only)"
 msgstr "Sujets (sociétés seulement)"
-
-msgid "Participants & subjects"
-msgstr "Participants & sujets"
 
 msgid "End time is before start time"
 msgstr "L'heure de fin est avant le début"
@@ -627,22 +627,6 @@ msgstr "Tâches"
 
 msgid "In which I participate"
 msgstr "Auxquelles je participe"
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "Properties"
-msgstr ""
-
-# Already in creme_core
-msgid "Relationships"
-msgstr ""
-
-# Already in creme_core
-msgid "General information"
-msgstr ""
 
 msgid "Display minutes information in activities blocks"
 msgstr "Afficher le bilan d'une activité dans les blocs d'activités"

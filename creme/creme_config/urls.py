@@ -361,6 +361,11 @@ custom_forms_patterns = [
         custom_form.CustomFormDeletion.as_view(),
         name='creme_config__delete_custom_form',
     ),
+    re_path(
+        r'^reset/form[/]?$',
+        custom_form.CustomFormResetting.as_view(),
+        name='creme_config__reset_custom_form',
+    ),
 
     re_path(
         r'^add/group/(?P<item_id>\d+)[/]?$',

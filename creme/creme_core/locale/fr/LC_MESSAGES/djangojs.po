@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Creme-Core 2.4\n"
+"Project-Id-Version: Creme Creme-Core 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -246,12 +246,6 @@ msgstr "Sélectionner"
 msgid "Entity #%s (not viewable)"
 msgstr "Fiche #%s (non visible)"
 
-msgid "Select some options"
-msgstr "Sélectionnez un ou plusieurs choix"
-
-msgid "Select one option"
-msgstr "Sélectionnez un choix"
-
 msgid "The results could not be loaded."
 msgstr "Les résultats ne peuvent pas être chargés."
 
@@ -306,6 +300,12 @@ msgstr "Capturer une image du graphique"
 
 msgid "Delete"
 msgstr "Supprimer"
+
+#~ msgid "Select some options"
+#~ msgstr "Sélectionnez un ou plusieurs choix"
+
+#~ msgid "Select one option"
+#~ msgstr "Sélectionnez un choix"
 
 #~ msgid "Finished"
 #~ msgstr "Terminé"

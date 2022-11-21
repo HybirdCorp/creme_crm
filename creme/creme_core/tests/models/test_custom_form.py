@@ -14,6 +14,7 @@ from creme.creme_core.forms.base import (
     LAYOUT_REGULAR,
 )
 from creme.creme_core.gui.custom_form import (
+    CustomFormDefault,
     CustomFormDescriptor,
     FieldGroup,
     FieldGroupList,
@@ -76,41 +77,43 @@ class CustomFormConfigItemManagerTestCase(CremeTestCase):
         )
 
     def test_create_if_needed02(self):
-        "Other model, other fields, layout, super-user."
+        "Other model, other fields, layout, super-user, default description."
         customfield = CustomField.objects.create(
             name='Rate', field_type=CustomField.INT, content_type=FakeOrganisation,
         )
+
+        group_name1 = 'Regular fields'
+        group_name2 = 'Custom fields'
+
+        class FakeOrganisationFormDefault(CustomFormDefault):
+            def groups_desc(this, fields=()):
+                return [
+                    {
+                        'name': group_name1,
+                        'layout': LAYOUT_DUAL_FIRST,
+                        'cells': [
+                            *this.regular_fields_cells('name', *fields),
+                        ],
+                    }, {
+                        'name': group_name2,
+                        'layout': LAYOUT_DUAL_SECOND,
+                        'cells': [
+                            EntityCellCustomField(customfield=customfield),
+                        ],
+                    },
+                ]
 
         desc = CustomFormDescriptor(
             id='creme_core-tests_fakeorga',
             model=FakeOrganisation,
             verbose_name='Creation form for FakeOrganisation',
+            default=FakeOrganisationFormDefault,
         )
 
         mngr = CustomFormConfigItemManager()
         mngr.model = CustomFormConfigItem
 
-        group_name1 = 'Regular fields'
-        group_name2 = 'Custom fields'
-
-        cfci = mngr.create_if_needed(
-            descriptor=desc,
-            groups_desc=[
-                {
-                    'name': group_name1,
-                    'layout': LAYOUT_DUAL_FIRST,
-                    'cells': [
-                        (EntityCellRegularField, {'name': 'name'}),
-                    ],
-                }, {
-                    'name': group_name2,
-                    'layout': LAYOUT_DUAL_SECOND,
-                    'cells': [
-                        EntityCellCustomField(customfield=customfield),
-                    ],
-                },
-            ],
-        )
+        cfci = mngr.create_if_needed(descriptor=desc)
         self.assertEqual(desc.id, cfci.descriptor_id)
         self.assertListEqual(
             [

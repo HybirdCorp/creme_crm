@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme SMS 2.4\n"
+"Project-Id-Version: Creme SMS 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 10:15+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -292,26 +292,6 @@ msgstr "Vue de Campagne"
 
 msgid "Message template view"
 msgstr "Vue de patron de message"
-
-# Already in creme_core
-msgid "Description"
-msgstr ""
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "General information"
-msgstr ""
-
-# Already in creme_core
-msgid "Properties"
-msgstr ""
-
-# Already in creme_core
-msgid "Relationships"
-msgstr ""
 
 #, python-brace-format
 msgid "{count} Contact-recipient"

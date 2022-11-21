@@ -6,9 +6,9 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: Creme Polls 2.4\n"
+"Project-Id-Version: Creme Polls 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-15 19:13+0100\n"
+"POT-Creation-Date: 2023-02-06 13:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -384,25 +384,6 @@ msgstr "Vue de Réponse"
 msgid "Campaign view"
 msgstr "Vue de Campagne"
 
-msgid "General information"
-msgstr ""
-
-# Already in creme_core
-msgid "Description"
-msgstr ""
-
-# Already in creme_core
-msgid "Custom fields"
-msgstr ""
-
-# Already in creme_core
-msgid "Properties"
-msgstr ""
-
-# Already in creme_core
-msgid "Relationships"
-msgstr ""
-
 msgid "Survey"
 msgstr "Enquête"
 
@@ -563,9 +544,6 @@ msgstr ""
 msgid "Answers of the form : {}"
 msgstr "Réponses à un formulaire : {}"
 
-msgid "All questions have been answered."
-msgstr "Les questions ont déjà toute une réponse."
-
 #, python-brace-format
 msgid "New replies for «{entity}»"
 msgstr "Nouvelles réponses pour «{entity}»"
@@ -582,6 +560,9 @@ msgstr "Modification de réponse"
 
 msgid "Save the modification"
 msgstr "Enregistrer la modification"
+
+#~ msgid "All questions have been answered."
+#~ msgstr "Les questions ont déjà toute une réponse."
 
 #~ msgctxt "polls"
 #~ msgid "Create a campaign"

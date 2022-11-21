@@ -1659,6 +1659,7 @@ class ExportingTestCase(CremeTestCase):
                             {'type': EntityCellRegularField.type_id, 'value': 'sector'},
                         ],
                     },
+                    {'group_id': 'test-address'},
                 ],
             },
             loaded_cforms.get(descriptor_id),

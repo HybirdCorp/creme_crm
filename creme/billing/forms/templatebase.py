@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -50,6 +50,7 @@ class BillingTemplateStatusSubCell(CustomFormExtraSubCell):
         return field
 
 
+# TODO: rename (remove "Creation") ?
 class BaseTemplateCreationCustomForm(base.BaseCustomForm):
     class Meta(base.BaseCustomForm.Meta):
         help_texts = {

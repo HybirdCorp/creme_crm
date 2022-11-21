@@ -29,6 +29,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models import Model
 from django.forms.models import modelform_factory
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from ..core.entity_cell import (
@@ -38,6 +39,8 @@ from ..core.entity_cell import (
     EntityCellsRegistry,
 )
 from ..forms.base import (
+    LAYOUT_DUAL_FIRST,
+    LAYOUT_DUAL_SECOND,
     LAYOUT_REGULAR,
     LAYOUTS,
     CremeEntityForm,
@@ -789,6 +792,166 @@ class FieldGroupList:
 
 
 # Descriptor -------------------------------------------------------------------
+class CustomFormDefault:
+    """Can generate the default value (i.e. descriptions of fields groups) for a
+    CustomFormDescriptor instance.
+    """
+    # Classes inheriting CustomFormExtraSubCell to use for particular fields
+    # (see <regular_fields_cells()>)
+    sub_cells: dict[str, type[CustomFormExtraSubCell]] = {
+        # 'my_field': MyCustomFormExtraSubCell,
+    }
+
+    # Fields in the main group (by their name)
+    # Notice that you could use "fake" field-names if these names are also
+    # associated to SubCell classes in <sub_cells>.
+    main_fields: list[str] = ['user']
+
+    def __init__(self, descriptor: CustomFormDescriptor):
+        self.descriptor = descriptor
+
+    def regular_fields_cells(self,
+                             *fields: str,
+                             ) -> Iterator[tuple[type[EntityCell], dict] | EntityCell]:
+        """Generates some EntityCells (or tuples descriptor for EntityCells)
+        corresponding to field names.
+        See the attribute <sub_cells> too.
+
+        @param fields: Fields names.
+        @return: The results can be added in a list to build the "cells" part
+                 of a group descriptor dictionary.
+        """
+        get_subcell = self.sub_cells.get
+
+        for field_name in fields:
+            subcell_cls = get_subcell(field_name)
+            if subcell_cls is not None:
+                yield subcell_cls(model=self.descriptor.model).into_cell()
+            else:
+                yield (EntityCellRegularField, {'name': field_name})
+
+    def group_desc_for_main_fields(self, remaining=True, **kwargs) -> dict:
+        """Helper to build a "General information" group.
+        See the attributes <main_fields> & <sub_cells>.
+        @param remaining: if <True>, the special Cell to add all remaining
+               regular fields which are not used explicitly.
+        @param kwargs: extra options ; often used to set the layout.
+               Hint: default layout is <LAYOUT_DUAL_FIRST>.
+        @return A dictionary which can be used in the method <groups_desc()>.
+        """
+        cells = [*self.regular_fields_cells(*self.main_fields)]
+
+        if remaining:
+            cells.append((
+                EntityCellCustomFormSpecial,
+                {'name': EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS},
+            ))
+
+        return {
+            'name': gettext('General information'),
+            'layout': LAYOUT_DUAL_FIRST,
+            'cells': cells,
+            **kwargs
+        }
+
+    def group_desc_for_customfields(self, **kwargs) -> dict:
+        """Helper to build a "Custom fields" group.
+        @param kwargs: extra options ; often used to set the layout.
+               Hint: default layout is <LAYOUT_DUAL_SECOND>.
+        @return A dictionary which can be used in the method <groups_desc()>.
+        """
+        return {
+            'name': gettext('Custom fields'),
+            'cells': [
+                (
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.REMAINING_CUSTOMFIELDS},
+                ),
+            ],
+            'layout': LAYOUT_DUAL_SECOND,
+            **kwargs
+        }
+
+    def group_desc_for_description(self, **kwargs) -> dict:
+        """Helper to build a "Description" group.
+        @param kwargs: extra options ; often used to set the layout.
+               Hint: default layout is <LAYOUT_DUAL_SECOND>.
+        @return A dictionary which can be used in the method <groups_desc()>.
+        """
+        return {
+            'name': gettext('Description'),
+            'cells': [
+                (EntityCellRegularField, {'name': 'description'}),
+            ],
+            'layout': LAYOUT_DUAL_SECOND,
+            **kwargs
+        }
+
+    def group_desc_for_properties(self, **kwargs) -> dict:
+        """Helper to build a "Properties" group.
+        @param kwargs: extra options ; often used to set the layout.
+        @return A dictionary which can be used in the method <groups_desc()>.
+        """
+        return {
+            'name': gettext('Properties'),
+            'cells': [
+                (
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.CREME_PROPERTIES},
+                ),
+            ],
+            **kwargs
+        }
+
+    def group_desc_for_relations(self, **kwargs) -> dict:
+        """Helper to build a "Relationships" group.
+        @param kwargs: extra options ; often used to set the layout.
+        @return A dictionary which can be used in the method <groups_desc()>.
+        """
+        return {
+            'name': gettext('Relationships'),
+            'cells': [
+                (
+                    EntityCellCustomFormSpecial,
+                    {'name': EntityCellCustomFormSpecial.RELATIONS},
+                ),
+            ],
+            **kwargs
+        }
+
+    def groups_desc_for_properties_n_relations(self) -> Iterator[dict]:
+        """Helper to add the groups "Properties" & "Relationships" when it's relevant.
+        See the method <groups_desc()>.
+        """
+        descriptor = self.descriptor
+        if descriptor.form_type == descriptor.CREATION_FORM:
+            yield self.group_desc_for_properties()
+            yield self.group_desc_for_relations()
+
+    def groups_desc(self) -> list[dict | ExtraFieldGroup]:
+        """Method with generate a description of fields groups.
+        By default, there are the following groups:
+          - The main group with all regular fields (excepted "description").
+            You can control the order of the fields with the attribute
+            "main_fields".
+          - A group for the field "Description".
+          - A group for the custom fields.
+          - A group for the properties (creation form only).
+          - A group for the relationships (creation form only).
+        """
+        return [
+            # LAYOUT_DUAL_FIRST
+            self.group_desc_for_main_fields(),  # TODO: "remaining" argument?
+
+            # LAYOUT_DUAL_SECOND
+            self.group_desc_for_description(),
+            self.group_desc_for_customfields(),
+
+            # LAYOUT_REGULAR
+            *self.groups_desc_for_properties_n_relations(),
+        ]
+
+
 class CustomFormDescriptor:
     """The descriptor contains the meta-data for a Custom form.
     Each instance is related to a CustomFormConfigItem instance which stores
@@ -815,6 +978,7 @@ class CustomFormDescriptor:
                  excluded_fields: Sequence[str] = (),
                  extra_sub_cells: Sequence[CustomFormExtraSubCell] = (),
                  extra_group_classes: Iterable[type[ExtraFieldGroup]] = (),
+                 default: type[CustomFormDefault] = CustomFormDefault,
                  ):
         """Constructor.
         @param id: Unique ID (in the registry) ; name like
@@ -825,9 +989,12 @@ class CustomFormDescriptor:
         @param base_form_class: base class to use for generated form class
                (see build_form_class()).
         @param excluded_fields: Field names to exclude from the generated form
-               (similar to Form's Meta.exclude attribute).
+               (similar to Form's <Meta.exclude> attribute).
         @param extra_sub_cells: sub-cells the custom-form can use.
         @param extra_group_classes: extra groups the custom-form can use.
+        @param default: class inheriting <CustomFormDefault>, used to generate
+               the default groups of fields (it's useful when "populate" scripts
+               are run, and to reset a form).
         """
         assert issubclass(base_form_class, CremeEntityForm)
 
@@ -839,6 +1006,7 @@ class CustomFormDescriptor:
         self.excluded_fields = excluded_fields
         self.extra_sub_cells = extra_sub_cells
         self.extra_group_classes = extra_group_classes
+        self.default = default  # TODO: property?
 
     def __str__(self):
         return str(self.verbose_name)
@@ -849,6 +1017,10 @@ class CustomFormDescriptor:
             allowed_sub_cell_classes = [type(sub_cell) for sub_cell in self.extra_sub_cells]
 
         return deepcopy(self.base_cell_registry).register(DescriptorExtraCells)
+
+    @property
+    def default_groups_desc(self) -> list[dict | ExtraFieldGroup]:
+        return self.default(descriptor=self).groups_desc()
 
     @property
     def excluded_fields(self) -> Iterator[str]:

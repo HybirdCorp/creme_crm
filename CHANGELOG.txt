@@ -7,6 +7,7 @@
   ------------
     # Apps :
         * Creme_config :
+            - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
             - In the Users' configuration page, displayed Users can be filtered (by user-name, first name & last name).
 
   Developers side :
@@ -14,6 +15,13 @@
 
     Non breaking changes :
     ----------------------
+        # In order to allow the resetting of CustomForms, the good way to describe the fresh configuration is to use the new
+          class 'creme.creme_core.gui.custom_form.CustomFormDefault' & stop describing the fields in the "populate" scripts
+          (so the fields are listed only once, & forms built by "populate" scripts & the resetting view will be the same).
+          So, IF YOU DEFINED CUSTOMFORMS for your own models, you SHOULD :
+            - create classes inheriting 'CustomFormDefault', and use them when creating your descriptors (argument "default").
+            - in your 'Populator', remove the argument "groups_desc" of 'CustomFormConfigItem.objects.create_if_needed()'.
+          The section "CustomForms" of the tutorials has been updated; & you can see how vanilla apps are made of course.
 
     Breaking changes :
     ------------------

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020-2022  Hybird
+#    Copyright (C) 2020-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -148,6 +148,27 @@ class CustomFormDeletion(base.ConfigDeletion):
             raise ConflictError('Cannot delete a default form')
 
         cfci.delete()
+
+
+class CustomFormResetting(CustomFormMixin, base.ConfigDeletion):
+    id_arg = 'id'
+    model = CustomFormConfigItem
+
+    @atomic
+    def perform_deletion(self, request):
+        cfci = get_object_or_404(
+            self.model.objects.select_for_update(),
+            pk=get_from_POST_or_404(request.POST, self.id_arg),
+        )
+        descriptor = self.get_customform_descriptor_from_id(cfci.descriptor_id)
+        # TODO: factorise with CustomFormConfigItemManager.create_if_needed()
+        cfci.store_groups(FieldGroupList.from_cells(
+            model=descriptor.model,
+            data=descriptor.default_groups_desc,
+            cell_registry=descriptor.build_cell_registry(),
+            allowed_extra_group_classes=(*descriptor.extra_group_classes,),
+        ))
+        cfci.save()
 
 
 class _BaseCustomFormGroupCreation(CustomFormMixin, base.ConfigModelEdition):

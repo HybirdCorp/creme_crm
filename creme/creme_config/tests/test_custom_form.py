@@ -47,6 +47,7 @@ from creme.creme_core.tests.fake_custom_forms import (
     FAKEACTIVITY_CREATION_CFORM,
     FAKEACTIVITY_EDITION_CFORM,
     FAKEORGANISATION_CREATION_CFORM,
+    FAKEORGANISATION_EDITION_CFORM,
 )
 from creme.creme_core.tests.fake_forms import FakeAddressGroup
 from creme.creme_core.tests.forms.test_entity_cell import (
@@ -365,6 +366,80 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertPOST409(reverse('creme_config__delete_custom_form'), data={'id': cfci.id})
         self.assertStillExists(cfci)
 
+    def test_form_resetting01(self):
+        self.login()
+        cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEACTIVITY_CREATION_CFORM.id, role=None, superuser=False,
+        )
+        old_json_groups = cfci.json_groups
+
+        cfci.store_groups(FieldGroupList.from_cells(
+            model=FAKEACTIVITY_CREATION_CFORM.model,
+            cell_registry=FAKEACTIVITY_CREATION_CFORM.build_cell_registry(),
+            # allowed_extra_group_classes=(*descriptor.extra_group_classes,)
+            data=[
+                {
+                    'name': 'General',
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'title'}),
+                        (EntityCellRegularField, {'name': 'type'}),
+                        (EntityCellRegularField, {'name': 'place'}),
+                        fake_forms.FakeActivityStartSubCell().into_cell(),
+                        fake_forms.FakeActivityEndSubCell().into_cell(),
+                    ],
+                    'layout': LAYOUT_DUAL_FIRST,
+                }, {
+                    'name': 'Description',
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                    'layout': LAYOUT_DUAL_SECOND,
+                },
+            ],
+        ))
+        cfci.save()
+
+        url = reverse('creme_config__reset_custom_form')
+        data = {'id': cfci.id}
+        self.assertGET405(url, data=data)
+
+        self.assertPOST200(url, data=data)
+        cfci = self.assertStillExists(cfci)
+        self.assertListEqual(old_json_groups, cfci.json_groups)
+
+    def test_form_resetting02(self):
+        "Role, extra group allowed."
+        self.login()
+        role = self.role
+        default_cfci = self.get_object_or_fail(
+            CustomFormConfigItem,
+            descriptor_id=FAKEORGANISATION_CREATION_CFORM.id, role=None, superuser=False,
+        )
+        default_json_groups = default_cfci.json_groups
+
+        role_cfci = CustomFormConfigItem.objects.create_if_needed(
+            descriptor=FAKEORGANISATION_CREATION_CFORM,
+            role=role,
+            groups_desc=[
+                {
+                    'name': 'General',
+                    'cells': [
+                        (EntityCellRegularField, {'name': 'user'}),
+                        (EntityCellRegularField, {'name': 'name'}),
+                        (EntityCellRegularField, {'name': 'description'}),
+                    ],
+                },
+            ],
+        )
+        self.assertNotEqual(default_json_groups, role_cfci.json_groups)
+
+        self.assertPOST200(
+            reverse('creme_config__reset_custom_form'), data={'id': role_cfci.id},
+        )
+        self.assertListEqual(default_json_groups, self.refresh(role_cfci).json_groups)
+
     def test_group_edition01(self):
         self.login()
 
@@ -446,7 +521,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                         {'type': 'cform_extra',   'value': 'fakeactivity_end'},
                     ],
                 }, {
-                    'name': 'Custom fields',
+                    'name': _('Custom fields'),
                     'layout': LAYOUT_REGULAR,
                     'cells': [
                         {
@@ -525,7 +600,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                         {'type': 'cform_extra', 'value': 'fakeactivity_start'},
                     ],
                 }, {
-                    'name': 'Custom fields',
+                    'name': _('Custom fields'),
                     'layout': LAYOUT_REGULAR,
                     'cells': [
                         {
@@ -1325,7 +1400,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         "Adding extra group."
         self.login()
 
-        descriptor_id = FAKEORGANISATION_CREATION_CFORM.id
+        # descriptor_id = FAKEORGANISATION_CREATION_CFORM.id
+        descriptor_id = FAKEORGANISATION_EDITION_CFORM.id
         cfci = self.get_object_or_fail(
             CustomFormConfigItem, descriptor_id=descriptor_id, role=None, superuser=False,
         )
@@ -1334,7 +1410,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertFalse(
             [
                 group
-                for group in FAKEORGANISATION_CREATION_CFORM.groups(cfci)
+                # for group in FAKEORGANISATION_CREATION_CFORM.groups(cfci)
+                for group in FAKEORGANISATION_EDITION_CFORM.groups(cfci)
                 if isinstance(group, FakeAddressGroup)
             ]
         )
@@ -1399,8 +1476,8 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
 
     @parameterized.expand([
-        (0, ['Where & when', 'Custom fields']),
-        (1, ['General', 'Custom fields']),
+        (0, ['Where & when', _('Custom fields')]),
+        (1, ['General', _('Custom fields')]),
     ])
     def test_group_deletion(self, deleted_group_id, remaining_group_names):
         self.login()
