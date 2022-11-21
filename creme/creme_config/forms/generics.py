@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021  Hybird
+#    Copyright (C) 2019-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -390,16 +390,16 @@ class DeletionForm(CremeModelForm):
                 handler_cls = None
 
             if handler_cls is not None:
-                related_field = field.field
-
-                handlers.append(handler_cls(
-                    model_field=related_field,
-                    model_field_hidden=self.fields_configs.get_for_model(
-                        related_field.model
-                    ).is_field_hidden(related_field),
-                    instance_to_delete=self.instance_to_delete,
-                    key_prefix=self.key_prefix,
-                ))
+                related_field = getattr(field, 'field', None)
+                if related_field:
+                    handlers.append(handler_cls(
+                        model_field=related_field,
+                        model_field_hidden=self.fields_configs.get_for_model(
+                            related_field.model
+                        ).is_field_hidden(related_field),
+                        instance_to_delete=self.instance_to_delete,
+                        key_prefix=self.key_prefix,
+                    ))
 
         return handlers
 
