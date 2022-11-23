@@ -358,7 +358,7 @@ custom_forms_patterns = [
     ),
     re_path(
         r'^delete/form[/]?$',
-        custom_form.CustomFormBrickDeletion.as_view(),
+        custom_form.CustomFormDeletion.as_view(),
         name='creme_config__delete_custom_form',
     ),
 

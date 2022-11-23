@@ -52,7 +52,7 @@ from ..base import CremeTestCase
 
 
 class EntityCellCustomFormSpecialTestCase(CremeTestCase):
-    def test_build_regulart_fields(self):
+    def test_build_regular_fields(self):
         value = EntityCellCustomFormSpecial.REMAINING_REGULARFIELDS
         cell = EntityCellCustomFormSpecial.build(FakeOrganisation, value)
         self.assertIsInstance(cell, EntityCellCustomFormSpecial)

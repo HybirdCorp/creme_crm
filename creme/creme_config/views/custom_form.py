@@ -134,7 +134,8 @@ class CustomFormCreation(base.ConfigModelCreation):
         return data
 
 
-class CustomFormBrickDeletion(base.ConfigDeletion):
+# class CustomFormBrickDeletion(base.ConfigDeletion):
+class CustomFormDeletion(base.ConfigDeletion):
     id_arg = 'id'
     model = CustomFormConfigItem
 
