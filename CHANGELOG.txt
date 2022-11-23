@@ -430,6 +430,8 @@
         # In Javascript:
             - 'creme.widget.DynamicSelect' is using the new wrapper 'creme.form.Select2' instead of 'creme.form.Chosen'.
         # Apps :
+            * Creme_config :
+                - The class 'views.custom_form.CustomFormBrickDeletion' has been renamed "CustomFormDeletion".
             * Billing :
                 - In 'models.AbstractTemplateBase', the protected attribute '_verbose_status_cache' has been removed (was useless since years).
 
