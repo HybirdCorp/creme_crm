@@ -6,8 +6,12 @@
         * Creme_config :
             - A crash, when trying to delete an instance of a model with a M2M field, has been fixed.
               Notice it was not happening in vanilla code.
+        * Persons :
+            - The edition Custom-Forms for Contact & Organisation were not marked as 'edition' forms, so the groups for properties & relationships were proposed.
         * Products :
             - A crash in the creation forms has been fixed (Category without SubCategory).
+        * Opportunities :
+            - The edition Custom-Form for Opportunity was not marked as 'edition' forms, so the groups for properties & relationships were proposed.
 
 
 == Version 2.2.15 ==
