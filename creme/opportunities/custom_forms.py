@@ -19,6 +19,7 @@ OPPORTUNITY_CREATION_CFORM = CustomFormDescriptor(
 OPPORTUNITY_EDITION_CFORM = CustomFormDescriptor(
     id='opportunities-opportunity_edition',
     model=Opportunity,
+    form_type=CustomFormDescriptor.EDITION_FORM,
     verbose_name=_('Edition form for opportunity'),
     base_form_class=opp_forms.BaseCustomForm,
     extra_sub_cells=[opp_forms.OppTargetSubCell()],
