@@ -16,8 +16,11 @@
               Notice it was not happening in vanilla code.
         * Persons :
             - The count of managers/employees in hat card for Organisations could be wrong (when it was greater than 16).
+            - The edition Custom-Forms for Contact & Organisation were not marked as 'edition' forms, so the groups for properties & relationships were proposed.
         * Products :
             - A crash in the creation forms has been fixed (Category without SubCategory).
+        * Opportunities :
+            - The edition Custom-Form for Opportunity was not marked as 'edition' forms, so the groups for properties & relationships were proposed.
         * Crudity :
             - A scary ERROR log, when the POP server is not configured, is now avoided (an INFO log is used instead).
 
