@@ -18,6 +18,7 @@ CONTACT_CREATION_CFORM = CustomFormDescriptor(
 CONTACT_EDITION_CFORM = CustomFormDescriptor(
     id='persons-contact_edition',
     model=Contact,
+    form_type=CustomFormDescriptor.EDITION_FORM,
     verbose_name=_('Edition form for contact'),
     base_form_class=BaseContactCustomForm,
     extra_group_classes=[AddressesGroup],
@@ -31,6 +32,7 @@ ORGANISATION_CREATION_CFORM = CustomFormDescriptor(
 ORGANISATION_EDITION_CFORM = CustomFormDescriptor(
     id='persons-organisation_edition',
     model=Organisation,
+    form_type=CustomFormDescriptor.EDITION_FORM,
     verbose_name=_('Edition form for organisation'),
     extra_group_classes=[AddressesGroup],
 )
