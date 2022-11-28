@@ -17,7 +17,7 @@ from creme.creme_core.models import CremeEntity, CremeUser
 from creme.creme_core.models.auth import SetCredentials, UserRole
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact, FakeOrganisation
+from ..fake_models import FakeActivity, FakeContact, FakeOrganisation
 
 
 class MockAction(UIAction):
@@ -899,8 +899,9 @@ class BuiltinActionsTestCase(CremeTestCase):
             self.assertEqual(value, expected, f'action.{key}')
 
     def test_edit_action(self):
+        user = self.user
         self.assertAction(
-            actions.EditAction(self.user, FakeContact, instance=self.contact),
+            actions.EditAction(user, FakeContact, instance=self.contact),
             model=FakeContact,
             action_id='creme_core-edit',
             action_type='redirect',
@@ -911,12 +912,28 @@ class BuiltinActionsTestCase(CremeTestCase):
             label=_('Edit'),
             icon='edit',
         )
+        # Not allowed
         self.assertAction(
-            actions.EditAction(self.user, FakeContact, instance=self.contact_other),
+            actions.EditAction(user, FakeContact, instance=self.contact_other),
             model=FakeContact,
             action_id='creme_core-edit',
             action_type='redirect',
             url=self.contact_other.get_edit_absolute_url(),
+            is_enabled=False,
+            is_visible=True,
+            is_default=False,
+            label=_('Edit'),
+            icon='edit',
+        )
+        # FakeActivity
+        activity = FakeActivity(user=user)
+        self.assertEqual('', activity.get_edit_absolute_url())
+        self.assertAction(
+            actions.EditAction(self.user, FakeActivity, instance=activity),
+            model=FakeActivity,
+            action_id='creme_core-edit',
+            action_type='redirect',
+            url='',
             is_enabled=False,
             is_visible=True,
             is_default=False,
