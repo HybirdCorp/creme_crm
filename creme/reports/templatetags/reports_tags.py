@@ -50,7 +50,7 @@ def reports_chart_labels(charts):
 @register.simple_tag
 def reports_graph_ordinate(rgraph):
     warnings.warn(
-        'This tag is deprecated; Use rgraph.verbose_ordinate instead',
+        'This tag is deprecated ; use rgraph.verbose_ordinate instead',
         DeprecationWarning
     )
 
