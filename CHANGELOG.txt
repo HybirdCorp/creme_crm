@@ -25,6 +25,15 @@
             - A scary ERROR log, when the POP server is not configured, is now avoided (an INFO log is used instead).
 
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The list-view action "Edit" for types of entity without edition view
+          (i.e. 'get_edit_absolute_url()' returns an empty string) is now disabled.
+
+
 == Version 2.3.7 ==
 
   UPGRADE NOTE :
