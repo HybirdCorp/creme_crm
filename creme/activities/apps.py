@@ -128,7 +128,7 @@ class ActivitiesConfig(CremeAppConfig):
         cform_registry.register(
             custom_forms.ACTIVITY_CREATION_CFORM,
             custom_forms.ACTIVITY_CREATION_FROM_CALENDAR_CFORM,
-            custom_forms.UNAVAILABILITY_CREATION_FROM,
+            custom_forms.UNAVAILABILITY_CREATION_CFORM,
             custom_forms.ACTIVITY_EDITION_CFORM,
         )
 

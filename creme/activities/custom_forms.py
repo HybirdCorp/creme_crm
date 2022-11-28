@@ -37,7 +37,8 @@ ACTIVITY_CREATION_FROM_CALENDAR_CFORM = CustomFormDescriptor(
     excluded_fields=[*ACTIVITY_CREATION_CFORM.excluded_fields],
     extra_sub_cells=[*ACTIVITY_CREATION_CFORM.extra_sub_cells],
 )
-UNAVAILABILITY_CREATION_FROM = CustomFormDescriptor(
+# UNAVAILABILITY_CREATION_FROM = CustomFormDescriptor(
+UNAVAILABILITY_CREATION_CFORM = CustomFormDescriptor(
     id='activities-unavailability_creation',
     model=Activity,
     verbose_name=_('Creation form for unavailability'),
