@@ -16,10 +16,11 @@
       when you configure the fields to display: all displayed fields are edited with one form (so you avoid many clicks).
     # In the History's block, lines related to entities from apps you cannot view are excluded.
     # A periodic job which removes the deprecated users' sessions has been added.
-    # The comboboxes with autocompletion now use Select2 tool and their visuals and behavior have slightly changed.
-    # The old color picker 'gccolor' is replaced by the standard HTML5 color input.
+    # The combo-boxes with autocompletion now use the JavaScript library "Select2".
+      Their look'n feel has slightly changed, & for compatible models with a lot of choices, the loading & search are now done lazily.
+      Almost all small auxiliary models defined in apps (ticket Status, Sector…) are compatible ; 'user' model is compatible too.
+    # The old color picker 'gccolor' has been replaced by the standard HTML5 color input (less bug, less code).
     # The version of the shipped Closure compiler has been upgraded (2020-01-12 => 2022-09-05).
-    # Creme user selection fields now use paginated autocompletion.
     # Two new variables have been added in 'settings.py' :
         - SOFTWARE_LABEL is "Creme" by default.
         - ENTITIES_DELETION_ALLOWED can disable the definitive deletion of entities.
@@ -48,11 +49,11 @@
               the new feature <Alert with relative trigger date> is used.
               So the trigger date is finally updated when the Activity's start is modified (a very old annoying behaviour disappears).
             - The inner-edition is now available for these fields: start, end, is_all_day, busy.
-              Notice that their are always edited all together with a composite widget.
+              Notice that they are always edited all together with a composite widget.
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch emails from some mailboxes to potentially create true Email entities
-              (e.g. you sent a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
+              (e.g. you send a mail, with your usual mail client, to a customer & to the synchronisation address, then you get this mail in Creme).
                 - Now the mail servers are configured with a GUI (it was in 'settings.py').
                 - IMAP4 is supported (only POP3 was).
                 - Mails are in a sandbox, & entities are created only when you accept them (instead of using the status "Synchronized - Untreated").
@@ -60,6 +61,12 @@
                 - ...
               BEWARE: if you used this feature in Creme 2.3, you'll have to remove the configuration
                       in your settings (it's not supported anymore) & re-create it in the GUI.
+        * Reports :
+            - The reports now are displaying new charts using the JavaScript library "D3js" which comes with many improvements :
+                - Performance improvements (native SVG).
+                - Charts are following layout changes like resizing the window.
+                - No longer limited for the creation of custom charts (see 'Relationship graph' brick below).
+            - The 'USE_JQPLOT' setting allows to fallback to JQplot if needed, and will be removed with the release of <Creme 2.5>.
         * Persons :
             - The Organisation's bricks "Managers" & "Employees" propose now to edit the related contacts, using the new multi-fields inner-edition feature.
         * Products :
@@ -69,35 +76,29 @@
         * Opportunities :
             - The bricks "Linked Contacts" & "Business managers" display now these fields for the related contacts: position, email, phone, mobile.
               They propose to edit them too, using the new multi-fields inner-edition feature.
-        * Mobile :
-            - A "owner" field is now present in forms for of Contacts & Organisations.
-        * Crudity :
-            - The support of InfoPath files has been removed.
         * Graphs :
             - A new 'Relationship graph' brick is available, displaying the graph in the detail-view without having to download an image.
               Notice it can be downloaded as image too.
+        * Mobile :
+            - A "owner" field is now present in forms for of Contacts & Organisations.
         * Polls :
             - The design of the 'Statistic' brick has changed.
-        * Reports :
-            - The reports now are displaying new charts using D3js which comes with many improvements:
-                - Performance improvements (native SVG)
-                - Charts are following layout changes like resizing the window.
-                - No longer limited for the creation of custom charts (see 'Relationship graph' brick)
-            - The 'USE_JQPLOT' setting allows to fallback to JQplot if needed, and will be removed on release 2.5
+        * Crudity :
+            - The support of InfoPath files has been removed.
 
   Developers side :
   -----------------
-    - jQuery 3.6.0 migration :
-        - Remove 'jquery.uuid' & 'jquery.debounce' (replaced by underscore)
-        - New dependency 'underscorejs 1.13.2'
+    - 'jQuery' 3.6.0 migration :
+        - Remove 'jquery.uuid' & 'jquery.debounce' (replaced by underscore).
+        - New dependency 'underscorejs 1.13.2'.
         - The version of 'floathead' is now "2.2.4".
         - The version of 'jquery-ui' is now "1.13.1".
-    - Chosen to Select2 migration :
+    - 'Chosen' to 'Select2' migration :
         - New dependency 'Select2 4.0.13'
-    - Sortable.js was upgraded from "1.10.2" to "1.15.0".
-    - New application Sketch :
-        - New dependency 'd3js 5.16.0'
-        - New dependency 'filesaver 2.0.4' (customized)
+    - 'Sortable.js' was upgraded from "1.10.2" to "1.15.0".
+    - New app called "Sketch" :
+        - New dependency 'd3js 5.16.0'.
+        - New dependency 'filesaver 2.0.4' (customized).
 
     Non breaking changes :
     ----------------------
@@ -118,7 +119,7 @@
                 - The method 'Relation.populate_real_object_entities()'' is deprecated ;
                   use 'Relation.objects.prefetch_related("real_object")' instead.'
             - In 'creme_core.utils' :
-                - The function 'creme_core.utils.find_first()' is deprecated ; use next() instead.
+                - The function 'creme_core.utils.find_first()' is deprecated ; use the builtin 'next()' instead.
                 - The function 'split_filter()' is deprecated ;
                   use 'django.utils.functional.partition()' instead (beware the lists 'are returned in the reverse order).
                 - The function 'imports.import_object()' is deprecated ;
@@ -128,21 +129,21 @@
                     - In 'forms.fields', the classes 'ActivitySubTypeField' & 'ActivityTypeWidget' are deprecated.
                     - The view class 'views.activity.TypeChoices' (corresponding teh URL named "activities__get_types") is deprecated.
                 * Emails :
-                    - In the class 'emails.models._Email':
+                    - In the class 'emails.models._Email' :
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.
                         - 'SYNCHRONIZATION_STATUSES' is deprecated.
                 * Graphs :
                     - The class 'bricks.GraphBarHatBrick' is deprecated ;
                       the related template file "graphs/bricks/graph-hat-bar.html" is deprecated too.
-                    - In 'models':
+                    - In 'models' :
                         - The method 'AbstractGraph.generate_png()' is deprecated.
                         - The method 'RootNode.get_relation_types()' is deprecated.
                     - The function-view 'views.graph.dl_png()' is deprecated.
                 * Reports :
-                    - The templatetag 'reports_graph_ordinate' is now deprecated; Use 'models.ReportGraph.verbose_ordinate' instead
+                    - The templatetag 'reports_graph_ordinate' is now deprecated ; use 'models.ReportGraph.verbose_ordinate()' instead.
                 * Products :
-                    - 'fields.CategoryField' is deprecated; Use 'fields.SubCategoryField' instead
-                    - The view 'products__subcategories' is deprecated ; use the generic one 'creme_core__enumerable_choices' instead
+                    - The class 'forms.fields.CategoryField' is deprecated ; use 'fields.SubCategoryField' instead.
+                    - The view 'products__subcategories' is deprecated ; use the generic one 'creme_core__enumerable_choices' instead.
         # In the class 'creme_core.auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
           can now be called with a combination of permissions (like 'VIEW | CHANGE').
         # In 'creme_core.models' :
@@ -153,48 +154,49 @@
             - The method 'Relation.clean()' has been created ; it checks the different constraints (ContentType, CremeProperty).
             - The model 'FileRef' got a new JSONField called "extra_data" which can be used by third party code.
         # In 'creme_core.templatetags.creme_core_tags', the tag "print_field" can now store the output inside a variable with the classical keyword "as".
-        # In 'creme_core.fields':
-            - A new 'enumerable.EnumerableChoiceField' for combobox with both autocompletion and pagination.
-              Extremely useful to prevent issues with huge MinionModel or CremeUser database
-            - A new 'CremeUserEnumerableField' to replace 'CremeUserChoiceField'
-        # In Javascript:
-            - Added some convenience actions for the hatbarmenu widget
+        # In 'creme_core.fields' :
+            - A new 'enumerable.EnumerableChoiceField' for combo-box with both autocompletion and pagination has been added.
+              It's extremely useful to prevent issues with huge numbers of MinionModel/CremeUser instances in your database.
+            - A new 'CremeUserEnumerableField' has been added ; it replaces 'CremeUserChoiceField' when it's possible & can handle better big numbers of user instances.
+        # In Javascript :
+            - Some convenience actions for the "hatbarmenu" widget have been added :
                 - 'creme_core-hatmenubar-view'
                 - 'creme_core-hatmenubar-update'
                 - 'creme_core-hatmenubar-form'
-            - Added 'creme.D3GraphRelationChart' that displays the relations between nodes of a graph.
-            - Added 'creme.form.DropDown' component that decorate a <select> (used for new reports D3 bricks)
-                - Displays a toggle link if there is only 2 options
-                - Displays a link that opens a popover with the unselected options
+            - A new component 'creme.form.DropDown', which decorates a <select>, has been added (it's used for new D3 bricks in 'reports') :
+                - It displays a toggle link if there are only 2 options.
+                - It displays a link which opens a popover with the unselected options.
         # Apps :
-            - Creme_config:
-                - A new 'enumerable.CreatorEnumerableChoiceField' allowing the creation 'on-the-fly' of entries.
-            - Activities :
-                - A log is made to indicate that a not custom ActivitySubType should be related to a not custom ActivityType.
-                  In Creme 2.5 an exception will be raised.
-                - New 'fields.ActivitySubTypeField' that adds queryset filter feature (limit_choice_to) to 'CreatorEnumerableChoiceField'
-            - Sketch : New application that integrates D3js tools for creme
-                * Added base bricks for the most common usecases.
+            * Creme_config :
+                - A new class 'forms.enumerable.CreatorEnumerableChoiceField' has been added.
+                  It allows the creation 'on-the-fly' of entries, & use the new lazy pagination & autocompletion.
+            * Activities :
+                - A log is made to indicate that a not custom 'ActivitySubType' should be related to a not custom 'ActivityType'.
+                  In <Creme 2.5> an exception will be raised.
+                - A new class 'forms.fields.ActivitySubTypeField', which adds the queryset filtering (see "limit_choice_to") to 'CreatorEnumerableChoiceField', has been added.
+            * Sketch :
+                - This is a new app which integrates 'D3js' tools ; it's made to be used as a dependency by other apps, not as a standalone app.
+                - It adds some base class of bricks for the most common use-cases :
                    - BarChartBrick
                    - GroupBarChartBrick
                    - StackBarChartBrick
                    - DonutChartBrick
-                * Added actions for sketch bricks
+                * The following actions for sketch bricks have been introduced :
                    - 'sketch-download'
                    - 'sketch-popover'
-           - Graphs :
-                * Add "creme.sketch" as dependency
-                * New GraphRelationChartBrick that renders the relation graphs
-           - Polls :
-                * The 'Statistic' brick does not use jQplot anymore.
-           - Reports:
-                * Add "creme.sketch" as dependency
-                * Add the following views to store the graph states in D3 bricks.
-                   - reports.views.graph.GraphFetchSettings
-                   - reports.views.graph.GraphFetchSettingsForInstance
-                * Add new brick for graph details view
-                   - ReportGraphChartBrick
-                * New USE_JQPLOT setting that switches from JQplot to D3 report graphs.
+           * Reports:
+                - The new app "sketch" is now a dependency.
+                - The following views in 'graph' have been added ; they store the graph states in D3 bricks :
+                   - GraphFetchSettings
+                   - GraphFetchSettingsForInstance
+                - A new brick 'ReportGraphChartBrick' used in graphs' detail-view has been added.
+                - A temporary variable has been added in "setting.py" : USE_JQPLOT. It allow to switch from D3 to JQplot for ReportGraphs.
+           * Graphs :
+                - The new app "sketch" is now a dependency.
+                - A new class 'GraphRelationChartBrick' has been created ; it display the relationships' graph in the browser.
+                - A JS component 'creme.D3GraphRelationChart', which displays the relations between nodes of a graph, has been added.
+           * Polls :
+                - The 'Statistic' brick does not use 'jQplot' anymore.
 
     Breaking changes :
     ------------------
@@ -236,7 +238,7 @@
                     - The method 'AbstractStrategy.get_segment_category()' has been removed.
                 * Reports :
                     - The template file "reports/templatetags/report_chart.html" has been removed.
-                    - Rename chart bricks:
+                    - These bricks have been renamed :
                         - ReportGraphBrick -> ReportGraphChartInstanceBrick
                         - ReportGraphsBrick -> ReportGraphChartListBrick
                 * Recurrents :
@@ -253,9 +255,8 @@
         # In the class 'creme_core.apps.CremeAppConfig', the method 'register_sanboxes()' has been renamed 'register_sandboxes()'.
         # In 'creme_core.core.reminder.ReminderRegistry', the argument "reminder" has been renamed "reminder_class"
           in the 2 methods 'register()' & 'unregister()'.
-        # In the class 'creme_core.core.enumerable._EnumerableRegistry' the method '_check_model()' has been renamed '_check_is_entity()'
-        # For ForeignKey fields with ENUMERABLE tags:
-            - Use 'CreatorEnumerableChoiceField' as default formfield instead of 'CreatorModelChoiceField'
+        # The method 'creme_core.core.enumerable._EnumerableRegistry._check_model()' has been renamed "_check_is_entity()".
+        # For ForeignKey fields with the ENUMERABLE tag set to 'True', the new class 'CreatorEnumerableChoiceField' is used as default formfield instead of 'CreatorModelChoiceField'.
         # In 'creme_core.forms' :
             - The module 'bulk' has been removed
               (the class 'BulkDefaultEditForm' is useless now, use 'creme_core.gui.bulk_update.FieldOverrider' instead).
@@ -270,9 +271,9 @@
                       "rtypedoesnotexist", "ctypenotallowed", "nopropertymatch".
                 - In 'MultiRelationEntityField', these methods have been removed :
                   _get_cache(), _build_ctype_cache(), _build_rtype_cache().
-                - In 'ColorField':
-                     - Use 'ColorInput' instead of 'ColorPickerWidget'
-                     - Accept the '#RRGGBB' format as input.
+                - The class 'ColorField' :
+                     - It used 'creme_core.forms.widgets.ColorInput' instead of 'ColorPickerWidget'.
+                     - It accepts the '#RRGGBB' format as input.
             - In 'widgets' :
                 - The attribute 'CalendarWidget.default_help_text' is now a format string.
                 - The class 'OrderedMultipleChoiceWidget' has been reworked (& its template file too) ;
@@ -280,13 +281,13 @@
                       So you'll have to update your unit tests for the forms using these kind of widget.
                     - The widget must now be used with the new class 'OrderedMultipleChoiceField'
                       (classical 'django.forms.OrderedMultipleChoiceField' won't work anymore).
+                    - The class 'ColorPickerWidget' has been replaced by 'ColorInput'.
             - In 'listview', these methods have been removed :
                 - RegularDateField._get_date()
                 - CustomDatetimeField._get_date()
                 - BaseDecimalField._sanitize_separators()
             - In 'relation._RelationsCreateForm', the error messages with the following keys have been removed :
               "missing_property_single", "missing_property_multi".
-            - 'widgets.ColorInput' replaces 'widgets.ColorPickerWidget'
         # In 'creme_core.gui' :
             - The class attribute 'button_menu.Button.id_' has been renamed "id" ;
               you have to rename this attribute in your child classes.
@@ -322,14 +323,14 @@
             - The field 'FieldsConfig.raw_descriptions' is now a JSONField.
             - The field 'CustomFormConfigItem.json_groups' is now a JSONField.
             - A mandatory field "entity_ctype" has been added to 'Imprint'.
-            - 'fields.CremeUserEnumerableField' replaces 'fields.CremeUserChoiceField' as default form-field for 'CremeUserForeignKey'
+            - The class 'fields.CremeUserEnumerableField' replaces 'fields.CremeUserChoiceField' as default form-field for 'CremeUserForeignKey'.
         # In 'creme_core.views' :
             - In 'entity', the class-views 'InnerEdition' & 'BulkUpdate' have been heavily reworked (the URLs changed too).
             - In the class 'search.FoundEntitiesBrick', the attribute "ctype" has been removed.
         # In the templatetag "menu_buttons_display" (from library "creme_menu"), the context is a fresh one for each rendered button ;
           this is the same behavior as bricks rendering for example (this is made to avoid annoying side effects).
           Be careful if you shared data between several buttons by storing them in the context during the rendering of buttons.
-        # In templates:
+        # In templates :
             - In "creme/templates/authent/base.html", {% block form_username %} & {% block form_password %} have been replaced by {% block form_fields %}.
             - In "creme/creme_core/templates/creme_core/listview/content.html", {% block extra_buttons_hidden %} has been removed
               (use {% block lv_hidden_buttons %} + {{block.super}} instead).
@@ -337,8 +338,8 @@
         # In JavaScript :
             - The function 'creme.forms._toDualColumnMultiSelect' & 'creme.forms.toOrderedMultiSelect' have been removed ;
               the new component 'creme.widget.SelectOrInputWidget' is used instead.
-            - 'creme.form.Chosen' is now deprecated; It has been renamed as 'creme.form.Chosen'.
-              No longer used in media generation but still exist to ease migrations.
+            - The component 'creme.component.Chosen' is now deprecated & has been renamed as 'creme.form.Chosen'.
+              It's no longer used in media generation but it still exists to ease migrations.
             - The jQuery extension 'gccolor' has been removed.
         # In 'creme_core.tests.base._CremeTestCase' :
             - the method 'build_inneredit_url()' has been replaced by 'build_inneredit_uri()'.
@@ -356,8 +357,8 @@
                 - The method 'core.importers.MenuConfigImporter.load_mci()' has been removed.
             * Assistants :
                 - The method 'bricks._AssistantsBrick._populate_related_real_entities()' has been removed.
-                - The form 'AlertForm' has been heavily modified (the fields "trigger_date" & trigger_time" have been removed...).
-                - In models:
+                - The form 'AlertForm' has been heavily modified (the fields "trigger_date" & trigger_time" have been removed…).
+                - In models :
                     - the fields "creme_entity" have been renamed "real_entity" for consistency.
                     - the field 'Alert.trigger' can now be NULL.
             * Documents :
@@ -377,8 +378,8 @@
                 - The field 'models.AbstractActivity.sub_type' is not <null=True, blank=True> anymore (the attribute "on_delete" changed too).
                 - The URL named "activities__create_indispo" has been renamed "activities__create_unavailability" ;
                   the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").
-                - 'fields.ActivitySubTypeField' replaces 'fields.ActivityTypeField' as default form-field for 'CremeUserForeignKey'
-                - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype' has been renamed '_get_activity_subtype' and
+                - The class 'forms.fields.ActivitySubTypeField' replaces 'ActivityTypeField' in all forms ; it could break some of your unit tests.
+                - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype()' has been renamed '_get_activity_subtype()' and
                   returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
                 - The global object 'custom_forms.UNAVAILABILITY_CREATION_FROM' has been correctly renamed "UNAVAILABILITY_CREATION_CFORM".
             * Products :
@@ -410,7 +411,7 @@
                 - In 'buttons.Linked2TicketButton', the template variable "rtype_id" is not injected anymore.
                 - In 'models.AbstractTicket', the attribute "old_status_id" has been removed.
             * Crudity :
-                - All the code related to InfoPath support has been removed (.py, .html. .xml...).
+                - All the code related to InfoPath support has been removed (.py, .html. .xml…).
             * Graphs :
                 - A mandatory field "entity_content_type" has been added to 'models.RootNode'.
             * Projects :
@@ -428,7 +429,7 @@
         # In 'creme_core.management.commands.i18n_overload.Command._get_catalog_paths()', the return
           values are now instances of 'pathlib.Path'.
         # In 'creme_core.templatetags.creme_core_tags', the implementation of "print_field" has changed.
-        # In Javascript:
+        # In Javascript :
             - 'creme.widget.DynamicSelect' is using the new wrapper 'creme.form.Select2' instead of 'creme.form.Chosen'.
         # Apps :
             * Creme_config :
