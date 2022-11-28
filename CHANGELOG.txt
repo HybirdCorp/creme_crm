@@ -380,6 +380,7 @@
                 - 'fields.ActivitySubTypeField' replaces 'fields.ActivityTypeField' as default form-field for 'CremeUserForeignKey'
                 - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype' has been renamed '_get_activity_subtype' and
                   returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
+                - The global object 'custom_forms.UNAVAILABILITY_CREATION_FROM' has been correctly renamed "UNAVAILABILITY_CREATION_CFORM".
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'
                   & the class 'ProductInnerEditCategory' has been removed.

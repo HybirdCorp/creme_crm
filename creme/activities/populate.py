@@ -416,7 +416,7 @@ class Populator(BasePopulator):
             ],
         )
         CustomFormConfigItem.objects.create_if_needed(
-            descriptor=custom_forms.UNAVAILABILITY_CREATION_FROM,
+            descriptor=custom_forms.UNAVAILABILITY_CREATION_CFORM,
             groups_desc=[
                 {
                     'name': _('General information'),

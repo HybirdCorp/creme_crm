@@ -151,7 +151,7 @@ class ActivityCreationPopup(generic.EntityCreationPopup):
 
 
 class UnavailabilityCreation(ActivityCreation):
-    form_class = custom_forms.UNAVAILABILITY_CREATION_FROM
+    form_class = custom_forms.UNAVAILABILITY_CREATION_CFORM
 
     def get_type_id(self):
         return constants.ACTIVITYTYPE_INDISPO
