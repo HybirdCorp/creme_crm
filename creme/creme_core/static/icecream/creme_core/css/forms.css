@@ -352,7 +352,12 @@ ul.multi-select {
     cursor: pointer;
 }
 
-.form-block-field-value .is-enum {
+/* .form-block-field-value .is-enum { */
+/* NB:
+    <select> with Select2 but without class "is-enum" can be too short (eg: ContentType selector with 1 choice)
+    Better solution?
+*/
+.form-block-field-value .ui-creme-dselect {
     min-width: 259px;
 }
 
