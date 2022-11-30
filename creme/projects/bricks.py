@@ -82,13 +82,8 @@ class ProjectTasksBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         project = context['object']
-        # user = context['user']
-        # creation_perm = user.has_perm_to_create(ProjectTask) and user.has_perm_to_change(project)
 
-        return self._render(self.get_template_context(
-            context, project.get_tasks(),
-            # creation_perm=creation_perm,
-        ))
+        return self._render(self.get_template_context(context, project.get_tasks()))
 
 
 class TaskResourcesBrick(QuerysetBrick):
@@ -117,4 +112,5 @@ class TaskActivitiesBrick(PaginatedBrick):
 
     def detailview_display(self, context):
         task = context['object']
+
         return self._render(self.get_template_context(context, task.related_activities))

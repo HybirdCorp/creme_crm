@@ -165,43 +165,11 @@ USE_I18N = True
 
 # If you set this to True, Django will format dates, numbers and calendars
 # according to user current locale.
-# USE_L10N = False
 USE_L10N = True
 
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 
 DEFAULT_ENCODING = 'UTF8'
-
-# XXX: we prefer now localized formats (USE_L10N=True) ;
-#      & we fallback on default formats (django/conf/global_settings.py) if USE_L10N=False
-# DATE_FORMAT         = 'd-m-Y'
-# SHORT_DATE_FORMAT   = 'd-m-Y'
-# DATE_INPUT_FORMATS = [
-#     '%d-%m-%Y', '%d/%m/%Y',
-#     # '%Y-%m-%d',
-#     '%m/%d/%Y', '%m/%d/%y',  '%b %d %Y',
-#     '%b %d, %Y', '%d %b %Y', '%d %b, %Y', '%B %d %Y',
-#     '%B %d, %Y', '%d %B %Y', '%d %B, %Y',
-# ]
-#
-# DATETIME_FORMAT         = '%s H:i:s' % DATE_FORMAT
-# DATETIME_INPUT_FORMATS  = [
-#     # '%d-%m-%Y', '%d/%m/%Y',
-#     '%Y-%m-%d %H:%M:%S', '%Y-%m-%d %H:%M',  # '%Y-%m-%d',
-#     '%m/%d/%Y %H:%M:%S', '%m/%d/%Y %H:%M',  # '%m/%d/%Y',
-#     '%m/%d/%y %H:%M:%S', '%m/%d/%y %H:%M',  # '%m/%d/%y',
-#     '%d-%m-%Y %H:%M:%S', '%d/%m/%Y %H:%M:%S',
-#     '%d-%m-%Y %H:%M',    '%d/%m/%Y %H:%M',
-#     # '%Y-%m-%dT%H:%M:%S.%fZ',
-# ]
-
-# XXX: not used anymore
-# DATE_FORMAT_VERBOSE = _('Format: Day-Month-Year (Ex:31-12-2022)')
-# DATE_FORMAT_JS = { DATE_FORMAT: 'dd-mm-yy'}
-# DATE_FORMAT_JS_SEP = '-'
-# DATETIME_FORMAT_VERBOSE = _(
-#     'Format: Day-Month-Year Hour:Minute:Second (Ex:31-12-2022 23:59:59)'
-# )
 
 # I18N / L10N [END]#############################################################
 
@@ -747,9 +715,6 @@ CREME_CORE_CSS = [
 
     # Content
     'creme_core/css/jquery-css/creme-theme/jquery-ui-1.13.1.custom.css',
-    # 'creme_core/css/jqplot-1.0.8/jquery.jqplot.css',
-    # 'creme_core/css/jquery.gccolor.1.0.3/gccolor.css',
-    # 'creme_core/css/chosen/chosen-0.9.15-unchosen.css',
     'creme_core/css/select2/select2-4.0.13.css',
     'creme_core/css/select2/select2-creme.css',
 
@@ -813,30 +778,13 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/3.x/jquery-migrate-3.3.2.js',
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/jquery.jqplot.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.enhancedLegendRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.categoryAxisRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasTextRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisLabelRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.canvasAxisTickRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pieRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.donutRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.barRenderer.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.pointLabels.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.highlighter.js',
-    # 'creme_core/js/jquery/extensions/jqplot-1.0.8/plugins/jqplot.cursor.js',
-    # creme_core/js/jquery/extensions/gccolor-1.0.3.js',
     'creme_core/js/jquery/extensions/jquery.dragtable.js',
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
-    # 'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
     'creme_core/js/lib/momentjs/moment-2.24.0.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
-    # 'creme_core/js/lib/Sortable/Sortable-1.10.2.js',
     'creme_core/js/lib/Sortable/Sortable-1.15.0.js',
     'creme_core/js/lib/select2/select2-4.0.13.full.js',
     'creme_core/js/lib/select2/select2-jquery-3.6.0.js',
@@ -866,7 +814,6 @@ CREME_CORE_JS = [
     'creme_core/js/creme.js',
     'creme_core/js/utils.js',
     'creme_core/js/forms.js',
-    # 'creme_core/js/ajax.js',
 
     'creme_core/js/widgets/base.js',
 
@@ -892,8 +839,6 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/ajax/query.js',
 
     'creme_core/js/widgets/layout/layout.js',
-    # 'creme_core/js/widgets/layout/sortlayout.js',
-    # 'creme_core/js/widgets/layout/columnlayout.js',
     'creme_core/js/widgets/layout/autosize.js',
 
     'creme_core/js/widgets/model/collection.js',
@@ -938,9 +883,6 @@ CREME_CORE_JS = [
     'creme_core/js/widgets/entityselector.js',
     'creme_core/js/widgets/pselect.js',
     'creme_core/js/widgets/actionlist.js',
-    # 'creme_core/js/widgets/plotdata.js',
-    # 'creme_core/js/widgets/plot.js',
-    # 'creme_core/js/widgets/plotselector.js',
     'creme_core/js/widgets/scrollactivator.js',
     'creme_core/js/widgets/container.js',
     'creme_core/js/widgets/editor.js',
@@ -1203,7 +1145,6 @@ YUICOMPRESSOR_PATH = join(
     dirname(__file__), 'static', 'utils', 'yui', 'yuicompressor-2.4.2.jar',
 )
 CLOSURE_COMPILER_PATH = join(
-    # dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20200112.jar',
     dirname(__file__), 'static', 'utils', 'closure', 'closure-compiler-v20220905.jar',
 )
 
@@ -1523,33 +1464,3 @@ GEOLOCATION_OSM_COPYRIGHT_URL = 'https://www.openstreetmap.org/copyright'
 GEOLOCATION_OSM_COPYRIGHT_TITLE = 'OpenStreetMap contributors'
 
 # APPS CONFIGURATION [END]######################################################
-
-# try:
-#     from .project_settings import *  # NOQA
-# except ImportError:
-#     pass
-# else:
-#     from . import project_settings as __project_settings
-#
-#     if any(not symbol.startswith('__') for symbol in dir(__project_settings)):
-#         warnings.warn(
-#             "Use of file 'project_settings.py' in creme/ is deprecated ; "
-#             "use the new project layout <see command 'creme_start_project'>.",
-#             DeprecationWarning,
-#         )
-
-# try:
-#     from .local_settings import *  # NOQA
-# except ImportError:
-#     pass
-# else:
-#     warnings.warn(
-#         "Use of file 'local_settings.py' in creme/ is deprecated ; "
-#         "use the new project layout <see command 'creme_start_project'>.",
-#         DeprecationWarning,
-#     )
-#
-# # GENERAL [FINAL SETTINGS]------------------------------------------------------
-#
-# LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
-# INSTALLED_APPS = INSTALLED_DJANGO_APPS + INSTALLED_CREME_APPS

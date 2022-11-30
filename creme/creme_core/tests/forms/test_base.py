@@ -599,11 +599,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            # predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
             predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
         )
         sfrt2 = create_strt(
-            # predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
             predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
         )
 
@@ -669,11 +667,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            # predicate='Healed by Oshino', relation_type=rtype2, object_entity=orga,
             predicate='Healed by Oshino', relation_type=rtype2, real_object=orga,
         )
         sfrt2 = create_strt(
-            # predicate='Loves Hitagi', relation_type=rtype1, object_entity=contact,
             predicate='Loves Hitagi', relation_type=rtype1, real_object=contact,
         )
 
@@ -841,11 +837,9 @@ class CremeEntityFormTestCase(CremeTestCase):
 
         create_strt = SemiFixedRelationType.objects.create
         sfrt1 = create_strt(
-            # predicate='Loves Kanbaru', relation_type=rtype, object_entity=contact1,
             predicate='Loves Kanbaru', relation_type=rtype, real_object=contact1,
         )
         sfrt2 = create_strt(
-            # predicate='Loves Hitagi', relation_type=rtype, object_entity=contact2,
             predicate='Loves Hitagi', relation_type=rtype, real_object=contact2,
         )
 
@@ -881,7 +875,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         )[1]
 
         sfrt = SemiFixedRelationType.objects.create(
-            # predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
             predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
         )
 
@@ -976,7 +969,6 @@ class CremeEntityFormTestCase(CremeTestCase):
             ('test-object_heals',  'is healed by'),
         )[1]
         sfrt = SemiFixedRelationType.objects.create(
-            # predicate='Healed by Oshino', relation_type=rtype, object_entity=orga,
             predicate='Healed by Oshino', relation_type=rtype, real_object=orga,
         )
 
@@ -1088,7 +1080,6 @@ class CremeEntityFormTestCase(CremeTestCase):
         SemiFixedRelationType.objects.create(
             predicate='has registered Oshino',
             relation_type=rtype,
-            # object_entity=orga,
             real_object=orga,
         )  # Not available
 
@@ -1176,13 +1167,6 @@ class CremeEntityFormTestCase(CremeTestCase):
             form2,
             (
                 'relation_types',
-                # _(
-                #     'The property «%(property)s» is mandatory '
-                #     'in order to use the relationship «%(predicate)s»'
-                # ) % {
-                #     'property': ptype1.text,
-                #     'predicate': rtype1.predicate,
-                # },
                 msg % {
                     'entity': contact_str,
                     'property': ptype1.text,
@@ -1200,13 +1184,6 @@ class CremeEntityFormTestCase(CremeTestCase):
             form3,
             (
                 'semifixed_rtypes',
-                # _(
-                #     'The property «%(property)s» is mandatory '
-                #     'in order to use the relationship «%(predicate)s»'
-                # ) % {
-                #     'property': ptype1.text,
-                #     'predicate': rtype1.predicate,
-                # }
                 msg % {
                     'entity': contact_str,
                     'property': ptype1.text,
@@ -1227,13 +1204,6 @@ class CremeEntityFormTestCase(CremeTestCase):
             form4,
             (
                 'relation_types',
-                # _(
-                #     'These properties are mandatory in order to use '
-                #     'the relationship «%(predicate)s»: %(properties)s'
-                # ) % {
-                #     'properties': f'{ptype1.text}, {ptype2.text}',
-                #     'predicate': rtype2.predicate,
-                # },
                 msg % {
                     'entity': contact_str,
                     'property': ptype1.text,
@@ -1255,13 +1225,6 @@ class CremeEntityFormTestCase(CremeTestCase):
             form5,
             (
                 'relation_types',
-                # _(
-                #     'These properties are mandatory in order to use '
-                #     'the relationship «%(predicate)s»: %(properties)s'
-                # ) % {
-                #     'properties': f'{ptype1.text}, {ptype2.text}',
-                #     'predicate': rtype2.predicate,
-                # },
                 msg % {
                     'entity': contact_str,
                     'property': ptype2.text,

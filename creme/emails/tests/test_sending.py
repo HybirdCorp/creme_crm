@@ -314,15 +314,6 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         hline = HistoryLine.objects.order_by('-id').first()
         self.assertEqual(camp.id,           hline.entity.id)
         self.assertEqual(TYPE_AUX_CREATION, hline.type)
-        # self.assertListEqual(
-        #     [
-        #         _('Add <{type}>: “{value}”').format(
-        #             type=EmailSending._meta.verbose_name,
-        #             value=sending,
-        #         )
-        #     ],
-        #     hline.get_verbose_modifications(user=user),
-        # )
         self.assertHTMLEqual(
             format_html(
                 '<div class="history-line history-line-auxiliary_creation">{}<div>',

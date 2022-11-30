@@ -13,7 +13,6 @@ from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
 # Should be a test queue
-# from creme.creme_core.core.job import JobSchedulerQueue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.models import FakeContact, FakeImage, Job, JobResult
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -540,16 +539,12 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         CRUDITY_BACKENDS=[{
             'fetcher':     'email',
             'input': 'raw',
-            # 'input':       '',
             'method':      'create',
-            # 'model':       'emails.entityemail',
             'model':       'creme_core.fakecontact',
             'password':    '',
             'limit_froms': (),
             'in_sandbox':  True,
-            # 'body_map':    {},
             'body_map': {'user_id': 1},
-            # 'subject':     '*',
             'subject':     'CREATE_CONTACT',
         }],
         CREME_GET_EMAIL_SSL=True,
@@ -676,7 +671,6 @@ class CrudityViewsTestCase(BrickTestCaseMixin, CrudityTestCase):
         response = self.client.post(
             url,
             data={
-                # 'reference_run': '26-06-2016 14:00:00',
                 'reference_run': self.formfield_value_datetime(
                     year=2016, month=6, day=26, hour=14,
                 ),

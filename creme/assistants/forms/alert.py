@@ -16,12 +16,10 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from datetime import datetime, time
 import logging
 
 from django.core.exceptions import ValidationError
 from django.forms import fields, widgets
-# from django.forms.fields import TimeField
 from django.utils.timezone import localtime
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -29,10 +27,8 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.core.entity_cell import CELLS_MAP, EntityCellRegularField
 from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms import fields as core_fields
-# from creme.creme_core.forms.widgets import CalendarWidget
 from creme.creme_core.models import CremeEntity, FieldsConfig
 from creme.creme_core.utils import date_period
-# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.meta import is_date_field
 
 from ..models import Alert
@@ -306,7 +302,6 @@ class AbsoluteOrRelativeDatetimeField(core_fields.UnionField):
 
 
 class AlertForm(CremeModelForm):
-    # trigger_time = TimeField(label=_('Hour'), required=False)
     trigger = AbsoluteOrRelativeDatetimeField(
         label=_('Trigger date'),
         help_text=_(
@@ -322,7 +317,6 @@ class AlertForm(CremeModelForm):
 
     class Meta(CremeModelForm.Meta):
         model = Alert
-        # widgets = {'trigger_date': CalendarWidget}
         help_texts = {
             'user': _(
                 'The owner is only used to send emails (a deadline is required).\n'
@@ -331,19 +325,6 @@ class AlertForm(CremeModelForm):
             ),
         }
 
-    # def __init__(self, entity, *args, **kwargs):
-    #     super().__init__(*args, **kwargs)
-    #     instance = self.instance
-    #     instance.creme_entity = entity
-    #
-    #     trigger_date = instance.trigger_date
-    #
-    #     if trigger_date:
-    #         local_trigger_date = localtime(trigger_date)
-    #         self.fields['trigger_time'].initial = time(
-    #             hour=local_trigger_date.hour,
-    #             minute=local_trigger_date.minute,
-    #         )
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
@@ -380,19 +361,6 @@ class AlertForm(CremeModelForm):
             else:
                 ABSOLUTE = AbsoluteOrRelativeDatetimeField.ABSOLUTE
                 trigger_f.initial = (ABSOLUTE, {ABSOLUTE: localtime(instance.trigger_date)})
-
-    # def clean(self):
-    #     cleaned_data = super().clean()
-    #
-    #     if not self._errors:
-    #         trigger_time = cleaned_data.get('trigger_time')
-    #
-    #         if trigger_time:
-    #             cleaned_data['trigger_date'] = make_aware_dt(
-    #                 datetime.combine(cleaned_data['trigger_date'], trigger_time),
-    #             )
-    #
-    #     return cleaned_data
 
     def save(self, *args, **kwargs):
         instance = self.instance

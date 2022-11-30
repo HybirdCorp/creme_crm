@@ -72,13 +72,6 @@ class AbstractCreditNote(Base):
         return super().build(template)
 
     def _update_linked_docs(self):
-        # relations = Relation.objects.filter(
-        #     subject_entity=self.id, type=REL_SUB_CREDIT_NOTE_APPLIED,
-        # ).select_related('object_entity')
-        # Relation.populate_real_object_entities(relations)
-        #
-        # for rel in relations:
-        #     rel.object_entity.get_real_entity().save()
         for rel in Relation.objects.filter(
             subject_entity=self.id, type=REL_SUB_CREDIT_NOTE_APPLIED,
         ).prefetch_related('real_object'):

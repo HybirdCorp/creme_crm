@@ -23,7 +23,6 @@ from django.forms import BooleanField, ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from creme.activities.constants import REL_SUB_PART_2_ACTIVITY
-# from creme.activities.forms.fields import ActivityTypeField
 from creme.activities.forms.fields import ActivitySubTypeField
 from creme.activities.models import Activity, Calendar
 from creme.activities.utils import check_activity_collisions
@@ -115,7 +114,6 @@ class TaskAddParentForm(CremeForm):
 
 class RelatedActivityEditForm(CremeEntityForm):
     resource = CreatorEntityField(label=_('Allocated resource'), model=get_contact_model())
-    # type_selector = ActivityTypeField(label=_('Type'))
     type_selector = ActivitySubTypeField(label=_('Type'))
 
     class Meta(CremeEntityForm.Meta):
@@ -161,7 +159,6 @@ class RelatedActivityEditForm(CremeEntityForm):
             self.old_participant = self.old_relation.subject_entity.get_real_entity()
             resource_f.initial = self.old_participant
 
-            # fields['type_selector'].initial = (instance.type_id, instance.sub_type_id)
             fields['type_selector'].initial = instance.sub_type_id
 
     def _get_task(self):
@@ -191,7 +188,6 @@ class RelatedActivityEditForm(CremeEntityForm):
     def save(self, *args, **kwargs):
         instance = self.instance
         cdata = self.cleaned_data
-        # instance.type, instance.sub_type = cdata['type_selector']
 
         sub_type = cdata['type_selector']
         instance.type, instance.sub_type = sub_type.type, sub_type

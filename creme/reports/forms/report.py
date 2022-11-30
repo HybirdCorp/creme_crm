@@ -19,9 +19,7 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from copy import deepcopy
-# from functools import partial
 from itertools import chain
 
 from django import forms
@@ -37,9 +35,9 @@ import creme.creme_core.forms.header_filter as hf_forms
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.backends import export_backend_registry
 from creme.creme_core.core import entity_cell
-from creme.creme_core.forms import CremeForm  # CremeEntityForm
+from creme.creme_core.forms import CremeForm
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
-from creme.creme_core.models import (  # EntityFilter
+from creme.creme_core.models import (
     CremeEntity,
     CustomField,
     FieldsConfig,

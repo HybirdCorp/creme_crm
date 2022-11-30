@@ -7,8 +7,6 @@ SUBJECT_LENGTH = 100
 REL_SUB_MAIL_RECEIVED = 'email-subject_mail_received'
 REL_OBJ_MAIL_RECEIVED = 'email-object_mail_received'
 
-# REL_SUB_MAIL_SENDED = 'email-subject_mail_sended'
-# REL_OBJ_MAIL_SENDED = 'email-object_mail_sended'
 REL_SUB_MAIL_SENT = 'email-subject_mail_sended'
 REL_OBJ_MAIL_SENT = 'email-object_mail_sended'
 

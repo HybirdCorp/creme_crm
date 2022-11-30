@@ -84,7 +84,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.assertTrue(EventType.objects.exists())
 
-    # def _create_event(self, name, etype=None, start_date='2010-11-3', **extra_data):
     def _create_event(self, name, etype=None, start_date=date(2010, 11, 3), **extra_data):
         etype = etype or EventType.objects.all()[0]
 
@@ -139,7 +138,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         etype = EventType.objects.all()[1]
         event = self._create_event(
             'Comiket', etype,
-            # start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
             start_date=datetime(year=2016, month=7, day=25, hour=8),
             end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
@@ -165,8 +163,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':       user.pk,
                 'name':       'Comicon',
                 'type':       etype.pk,
-                # 'start_date': '2016-7-29 8:00',
-                # 'end_date':   '2016-7-28 18:30',
                 'start_date': datetime(year=2016, month=7, day=29, hour=8),
                 'end_date':   datetime(year=2016, month=7, day=28, hour=18, minute=30),
             },
@@ -187,7 +183,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         event = self._create_event(
             'Comiket',
-            # start_date='2016-7-25 8:00', end_date='2016-7-29 18:30',
             start_date=datetime(year=2016, month=7, day=25, hour=8),
             end_date=datetime(year=2016, month=7, day=29, hour=18, minute=30),
         )
@@ -214,7 +209,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':       user.pk,
                 'name':       name,
                 'type':       etype.pk,
-                # 'start_date': '2010-11-4',
                 'start_date': self.formfield_value_date(2010, 11, 4),
             },
         ))
@@ -663,9 +657,6 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual(
             [constants.REL_SUB_CAME_EVENT], self.relations_types(casca, event),
         )
-        # self.assertRedirects(
-        #     response, reverse('events__list_related_contacts', args=(event.id,)),
-        # )
         self.assertRedirects(response, cb_url)
 
     @skipIfCustomContact

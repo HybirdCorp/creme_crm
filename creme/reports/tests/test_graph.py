@@ -38,27 +38,6 @@ from creme.creme_core.tests import fake_constants
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.queries import QSerializer
 
-# from ..constants import (
-#     RGA_AVG,
-#     RGA_COUNT,
-#     RGA_MAX,
-#     RGA_MIN,
-#     RGA_SUM,
-#     RGF_FK,
-#     RGF_NOLINK,
-#     RGF_RELATION,
-#     RGT_CUSTOM_DAY,
-#     RGT_CUSTOM_FK,
-#     RGT_CUSTOM_MONTH,
-#     RGT_CUSTOM_RANGE,
-#     RGT_CUSTOM_YEAR,
-#     RGT_DAY,
-#     RGT_FK,
-#     RGT_MONTH,
-#     RGT_RANGE,
-#     RGT_RELATION,
-#     RGT_YEAR,
-# )
 from ..core.graph import AbscissaInfo, ListViewURLBuilder, OrdinateInfo
 from ..core.graph.fetcher import SimpleGraphFetcher
 from .base import (
@@ -635,11 +614,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
                 'abscissa': self.formfield_value_abscissa(
                     abscissa=FakeOrganisation._meta.get_field(hidden_fname1),
-                    # graph_type=RGT_FK,
                     graph_type=ReportGraph.Group.FK,
                 ),
                 'ordinate': self.formfield_value_ordinate(
-                    # aggr_id=RGA_SUM,
                     aggr_id=ReportGraph.Aggregator.SUM,
                     cell=EntityCellRegularField.build(FakeOrganisation, hidden_fname2),
                 ),
@@ -864,7 +841,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 'If you use a field related to money, the entities should use the same '
                 'currency or the result will be wrong. Concerned fields are : {}'
             ).format('{}, {}'.format(_('Total with VAT'), _('Total without VAT'))),
-            ordinate_f.help_text
+            ordinate_f.help_text,
         )
 
         abscissa = 'created'
@@ -1129,9 +1106,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Capital max by sector',
-            # abscissa_cell_value='sector', abscissa_type=RGT_FK,
             abscissa_cell_value='sector', abscissa_type=ReportGraph.Group.FK,
-            # ordinate_type=RGA_MAX,
             ordinate_type=ReportGraph.Aggregator.MAX,
             ordinate_cell_key='regular_field-capital',
         )
@@ -1291,7 +1266,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
         self.assertEqual(
             _('the field does not exist any more.'),
-            rgraph.hand.ordinate_error
+            rgraph.hand.ordinate_error,
         )
 
     def test_fetch_with_fk_07(self):
@@ -1481,7 +1456,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             x_asc, y_asc = rgraph.fetch(user)
 
         self.assertListEqual(
-            # ['22/06/2013-01/07/2013', '02/07/2013-11/07/2013'], x_asc,
             ['2013/06/22-2013/07/01', '2013/07/02-2013/07/11'], x_asc,
         )
 
@@ -1720,7 +1694,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                # customfielddatetime__value__range=['2014-01-05', '2014-01-19'],
                 customfielddatetime__value__range=[
                     '2014-01-05T00:00:00.000000Z',
                     '2014-01-19T00:00:00.000000Z',
@@ -1733,7 +1706,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
 
         self.assertListEqual(
-            # ['07/01/2014-24/12/2013', '23/12/2013-09/12/2013'], x_desc,
             ['2014-01-07/2013-12-24', '2013-12-23/2013-12-09'], x_desc,
         )
 
@@ -1743,7 +1715,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                # customfielddatetime__value__range=['2013-12-24', '2014-01-07'],
                 customfielddatetime__value__range=[
                     '2013-12-24T00:00:00.000000Z',
                     '2014-01-07T00:00:00.000000Z',
@@ -1757,7 +1728,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=Q(
                 customfielddatetime__custom_field=cf.id,
-                # customfielddatetime__value__range=['2013-12-09', '2013-12-23'],
                 customfielddatetime__value__range=[
                     '2013-12-09T00:00:00.000000Z',
                     '2013-12-23T00:00:00.000000Z',
@@ -1780,7 +1750,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             model=FakeOrganisation,
             expected_q=extra_q & Q(
                 customfielddatetime__custom_field=cf.id,
-                # customfielddatetime__value__range=['2013-12-26', '2014-01-09'],
                 customfielddatetime__value__range=[
                     '2013-12-26T00:00:00.000000Z',
                     '2014-01-09T00:00:00.000000Z',
@@ -1853,7 +1822,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=Q(name__startswith='House'))
 
-        # self.assertListEqual(['22/06/2013'], x_xtra)
         self.assertListEqual(['2013/06/22'], x_xtra)
 
         self.assertEqual(150, y_xtra[0][0])
@@ -1942,9 +1910,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Average of capital by 1rst victory (by day)',
-            # abscissa_cell_value=cf.id, abscissa_type=RGT_CUSTOM_DAY,
             abscissa_cell_value=cf.id, abscissa_type=ReportGraph.Group.CUSTOM_DAY,
-            # ordinate_type=RGA_AVG,
             ordinate_type=ReportGraph.Aggregator.AVG,
             ordinate_cell_key='regular_field-capital',
         )
@@ -1969,7 +1935,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # DESC ----------------------------------------------------------------
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y/%m/%d']):
             self.assertListEqual(
-                # ['05/07/2013', '22/06/2013'],
                 ['2013/07/05', '2013/06/22'],
                 rgraph.fetch(user=user, order='DESC')[0],
             )
@@ -1980,7 +1945,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        # self.assertListEqual(['22/06/2013'], x_xtra)
         self.assertListEqual(['2013-06-22'], x_xtra)
 
         xtra_value, xtra_url = y_xtra[0]
@@ -2021,9 +1985,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         rgraph = ReportGraph.objects.create(
             user=user, linked_report=report,
             name='Number of orgas by creation date (period of 1 month)',
-            # abscissa_cell_value='creation_date', abscissa_type=RGT_MONTH,
             abscissa_cell_value='creation_date', abscissa_type=ReportGraph.Group.MONTH,
-            # ordinate_type=RGA_COUNT,
             ordinate_type=ReportGraph.Aggregator.COUNT,
         )
 
@@ -2050,7 +2012,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         # DESC ----------------------------------------------------------------
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%Y-%m-%d']):
             self.assertListEqual(
-                # ['08/2013', '06/2013'],
                 ['2013-08', '2013-06'],
                 rgraph.fetch(user=user, order='DESC')[0],
             )
@@ -2151,7 +2112,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%d-%m-%Y']):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        # self.assertListEqual(['06/2013'], x_xtra)
         self.assertListEqual(['06-2013'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
@@ -2196,7 +2156,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%m-%d-%y']):
             x_desc, y_desc = rgraph.fetch(order='DESC', user=user)
 
-        # self.assertListEqual(['2014', '2013'], x_desc)
         self.assertListEqual(['14', '13'], x_desc)
         self.assertListEqual([1, fmt(2014)], y_desc[0])
         self.assertListEqual([2, fmt(2013)], y_desc[1])
@@ -2472,7 +2431,6 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         with self.settings(USE_L10N=False, DATE_INPUT_FORMATS=['%y-%m-%d']):
             x_xtra, y_xtra = rgraph.fetch(user=user, extra_q=extra_q)
 
-        # self.assertListEqual(['2013'], x_xtra)
         self.assertListEqual(['13'], x_xtra)
 
         extra_value, extra_url = y_xtra[0]
@@ -3033,7 +2991,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         """
         Little benchmark to see how the 'group by' report queries behave with
         bigger data-sets where there is a visible difference between the old
-         "manual group by's" and the new real sql ones.
+        "manual group by's" and the new real sql ones.
         """
         import time
         from datetime import datetime

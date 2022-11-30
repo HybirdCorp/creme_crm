@@ -33,17 +33,6 @@ def is_sandbox_by_user() -> bool:
     return SettingValue.objects.get_4_key(sandbox_key, default=False).value
 
 
-# def strip_html(text: str) -> str:
-#     warnings.warn(
-#         'crudity.utils.strip_html() is deprecated ; '
-#         'use creme_core.utils.html.strip_html() instead.',
-#         DeprecationWarning,
-#     )
-#
-#     from creme.creme_core.utils.html import strip_html
-#     return strip_html(text)
-
-
 def generate_guid_for_field(urn: str,
                             model: type[Model],
                             field_name: str,

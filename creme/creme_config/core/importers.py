@@ -503,25 +503,7 @@ class UserRolesImporter(Importer):
 class MenuConfigImporter(Importer):
     dependencies = [constants.ID_ROLES]
 
-    # def load_mci(self, mci_info: dict) -> dict:
-    #     def info_as_kwargs(info):
-    #         return {
-    #             'entry_id': info['id'],
-    #             'order': int(info['order']),
-    #             'entry_data': info.get('data') or {},
-    #         }
-    #
-    #     data = info_as_kwargs(mci_info)
-    #     data['children'] = [
-    #         info_as_kwargs(child_info)
-    #         for child_info in mci_info.get('children', ())
-    #     ]
-    #
-    #     return data
-
     def _validate_section(self, deserialized_section, validated_data):
-        # self._data = [*map(self.load_mci, deserialized_section)]
-
         def info_as_kwargs(info):
             data = {
                 'entry_id': info['id'],
@@ -615,9 +597,6 @@ class SearchConfigImporter(Importer):
 
             data = {
                 'content_type': ct,
-                # 'field_names':  str(sci_info['fields']),
-
-                # 'json_cells':  sci_info['cells'],
                 'cells': self.cells_proxies_registry.build_proxies_from_dicts(
                     model=model,
                     container_label=_('search configuration of model="{model}"').format(

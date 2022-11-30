@@ -349,7 +349,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         disabled_rtype.save()
 
         graph = Graph.objects.create(user=user, name='Graph01')
-        # rnode = RootNode.objects.create(graph=graph, entity=orga)
         rnode = RootNode.objects.create(graph=graph, real_entity=orga)
         rnode.relation_types.set([rtype01])
 
@@ -418,7 +417,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         graph = Graph.objects.create(user=user, name='Graph01')
-        # rnode = RootNode.objects.create(graph=graph, entity=orga)
         rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
         self.assertPOST200(
@@ -440,7 +438,6 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         orga = FakeOrganisation.objects.create(user=user, name='NERV')
         graph = Graph.objects.create(user=self.other_user, name='Graph01')
-        # rnode = RootNode.objects.create(graph=graph, entity=orga)
         rnode = RootNode.objects.create(graph=graph, real_entity=orga)
 
         self.assertPOST403(

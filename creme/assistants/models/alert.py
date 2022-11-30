@@ -41,7 +41,6 @@ class Alert(core_models.CremeModel):
     description = models.TextField(_('Description'), blank=True)
     is_validated = models.BooleanField(_('Validated'), editable=False, default=False)
 
-    # trigger_date = models.DateTimeField(_('Trigger date'))
     trigger_date = models.DateTimeField(_('Trigger date'), null=True, editable=False)
     trigger_offset = models.JSONField(default=dict, editable=False)
 
@@ -54,7 +53,6 @@ class Alert(core_models.CremeModel):
         related_name='assistants_alerts',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    # creme_entity = core_fields.RealEntityForeignKey(
     real_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
@@ -76,7 +74,6 @@ class Alert(core_models.CremeModel):
         return reverse('assistants__edit_alert', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
-        # return self.creme_entity
         return self.real_entity
 
     @property

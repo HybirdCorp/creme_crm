@@ -894,11 +894,6 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
-        # self.assertEqual(1, strategy.get_segment_category(orga, industry))
-        # self.assertEqual(2, strategy.get_segment_category(orga, individual))
-        # self.assertEqual(2, strategy.get_segment_category(orga, community))
-        # self.assertEqual(4, strategy.get_segment_category(orga, association))
-
     def test_delete01(self):
         user = self.login()
         strategy = Strategy.objects.create(user=user, name='Strat#1')

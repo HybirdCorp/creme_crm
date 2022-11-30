@@ -127,7 +127,6 @@ class AbstractProjectTask(CremeEntity):
     @property
     def related_activities(self):
         activities = [
-            # r.object_entity.get_real_entity()
             r.real_object
             for r in self.get_relations(REL_OBJ_LINKED_2_PTASK, real_obj_entities=True)
         ]

@@ -528,10 +528,6 @@ class SpecificRelationsBrick(QuerysetBrick):
     def generate_id(app_name: str, name: str) -> str:
         return f'specificblock_{app_name}-{name}'
 
-    # @staticmethod
-    # def id_is_specific(id_: str) -> bool:
-    #     return id_.startswith('specificblock_')
-
     def detailview_display(self, context) -> str:
         # TODO: check the constraints (ContentType & CremeProperties) for 'entity'
         #       & display an message in the brick (and disable the creation button)
@@ -542,9 +538,6 @@ class SpecificRelationsBrick(QuerysetBrick):
         relation_type = config_item.relation_type
         btc = self.get_template_context(
             context,
-            # entity.relations
-            #       .filter(type=relation_type)
-            #       .select_related('type', 'object_entity'),
             entity.relations
                   .filter(type=relation_type)
                   .select_related('type')
@@ -555,10 +548,7 @@ class SpecificRelationsBrick(QuerysetBrick):
         relations = btc['page'].object_list
         entities_by_ct: DefaultDict[int, list[CremeEntity]] = defaultdict(list)
 
-        # Relation.populate_real_object_entities(relations)  # DB optimisation
-
         for relation in relations:
-            # entity = relation.object_entity.get_real_entity()
             entity = relation.real_object
             entity.srb_relation_cache = relation
             entities_by_ct[entity.entity_type_id].append(entity)
@@ -616,7 +606,6 @@ class CustomBrick(Brick):
     )  # TODO: properties to insert dynamically the cells ?
     template_name = 'creme_core/bricks/custom.html'
 
-    # def __init__(self, id_: str, customblock_conf_item: CustomBrickConfigItem):
     def __init__(self, id_: str, custombrick_conf_item: CustomBrickConfigItem):
         super().__init__()
         self.id_ = id_
@@ -803,12 +792,6 @@ class _BrickRegistry:
             if not brick_id:
                 raise self.RegistrationError(f"Brick class with empty id_: {brick_cls}")
 
-            # if hasattr(brick_cls, 'permission'):
-            #     raise self.RegistrationError(
-            #         f'Brick class with old attribute "permission" '
-            #         f'(use "permissions" instead): {brick_cls}',
-            #     )
-
             if setdefault(brick_id, brick_cls) is not brick_cls:
                 raise self.RegistrationError(f"Duplicated brick's id: {brick_id}")
 
@@ -945,7 +928,6 @@ class _BrickRegistry:
         @param entity: if the bricks are displayed of the detail-view of an
                entity, it should be given.
         """
-        # specific_ids = [*filter(SpecificRelationsBrick.id_is_specific, brick_ids)]
         rtypes_item_ids = [
             *filter(None, map(RelationBrickItem.id_from_brick_id, brick_ids)),
         ]
@@ -956,12 +938,6 @@ class _BrickRegistry:
             *filter(None, map(CustomBrickConfigItem.id_from_brick_id, brick_ids)),
         ]
 
-        # relation_bricks_items = {
-        #     rbi.brick_id: rbi
-        #     for rbi in RelationBrickItem.objects
-        #                                 .filter(brick_id__in=specific_ids)
-        #                                 .prefetch_related('relation_type')
-        # } if specific_ids else {}
         relation_bricks_items = {
             rbi.brick_id: rbi
             for rbi in RelationBrickItem.objects

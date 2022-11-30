@@ -333,8 +333,6 @@ class OrganisationCardHatBrick(Brick):
                 relations__object_entity=organisation.id,
             ).exists(),
 
-            # managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
-            # employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
             max_contacts=max_contacts,
             managers=managers,
             managers_count=managers_count,
@@ -386,7 +384,6 @@ class _LinkedPeopleBrick(QuerysetBrick):
         ))
 
 
-# class ManagersBrick(QuerysetBrick):
 class ManagersBrick(_LinkedPeopleBrick):
     id_ = QuerysetBrick.generate_id('persons', 'managers')
     verbose_name = _('Organisation managers')
@@ -406,28 +403,7 @@ class ManagersBrick(_LinkedPeopleBrick):
     def _get_people_qs(self, orga):
         return orga.get_managers()
 
-    # def _get_add_title(self):
-    #     return _('Create a manager')  # Lazy -> translated only if used
 
-    # def detailview_display(self, context):
-    #     orga = context['object']
-    #     is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
-    #
-    #     return self._render(self.get_template_context(
-    #         context,
-    #         self._get_people_qs(orga).select_related('civility'),
-    #         # rtype_id=self.relation_type_deps[0],
-    #         relation_type=RelationType.objects.get(id=self.relation_type_deps[0]),
-    #         add_title=self._get_add_title(),
-    #         hidden_fields={
-    #             fname
-    #             for fname in ('phone', 'mobile', 'email')
-    #             if is_hidden(fname)
-    #         },
-    #     ))
-
-
-# class EmployeesBrick(ManagersBrick):
 class EmployeesBrick(_LinkedPeopleBrick):
     id_ = QuerysetBrick.generate_id('persons', 'employees')
     verbose_name = _('Organisation employees')
@@ -444,9 +420,6 @@ class EmployeesBrick(_LinkedPeopleBrick):
 
     def _get_people_qs(self, orga):
         return orga.get_employees()
-
-    # def _get_add_title(self):
-    #     return _('Create an employee')  # Lazy -> translated only if used
 
 
 # TODO: factorise (see CSV import) ? (exclude param in info_field_names())
@@ -602,7 +575,6 @@ class ManagedOrganisationsBrick(PaginatedBrick):
         ))
 
 
-# bricks_list: Tuple[Type[Brick], ...] = (
 brick_classes: list[type[Brick]] = [
     DetailedAddressesBrick,
     PrettyAddressesBrick,
@@ -612,7 +584,6 @@ brick_classes: list[type[Brick]] = [
     EmployeesBrick,
     ManagedOrganisationsBrick,
 ]
-# )
 
 if apps.is_installed('creme.activities'):
     class NeglectedOrganisationsBrick(PaginatedBrick):
@@ -714,7 +685,4 @@ if apps.is_installed('creme.activities'):
                 self._get_neglected(context['today']),
             ))
 
-    # bricks_list += (
-    #     NeglectedOrganisationsBrick,
-    # )
     brick_classes.append(NeglectedOrganisationsBrick)

@@ -22,7 +22,6 @@ import warnings
 from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.models import CremeEntity
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick
 from creme.sketch.bricks import ChartBrick
 
@@ -164,14 +163,12 @@ class RootNodesBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         graph = context['object']
-        # btc = self.get_template_context(context, graph.roots.select_related('entity'))
         btc = self.get_template_context(
             context,
             graph.roots.prefetch_related(
                 'real_entity', 'relation_types', 'relation_types__symmetric_type',
             ),
         )
-        # CremeEntity.populate_real_entities([node.entity for node in btc['page'].object_list])
 
         for root_node in btc['page'].object_list:
             root_node.disabled_rtypes_list, root_node.rtypes_list = partition(

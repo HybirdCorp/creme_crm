@@ -98,14 +98,12 @@ creme.FormGroupsController = creme.component.Component.sub({
         element.on('click', '.customform-config-show-details', function(e) {
             e.preventDefault();
             toggleCType($(this).parents('.customform-config-ctype').first(), true);
-//            saveState({ct_id: $(this).data('ct-id')});
             saveState({action: 'show', ct_id: $(this).data('ct-id')});
         });
 
         element.on('click', '.customform-config-hide-details', function(e) {
             e.preventDefault();
             toggleCType($(this).parents('.customform-config-ctype').first(), false);
-//            saveState({ct_id: '0'});
             saveState({action: 'hide', ct_id: $(this).data('ct-id')});
         });
 
@@ -117,7 +115,6 @@ creme.FormGroupsController = creme.component.Component.sub({
 
             icon.parents('.customform-config-item')
                 .first()
-/*                .toggleClass('customform-config-item-collapsed', !expand); */
                 .toggleClass('customform-config-collapsed', !expand);
 
             saveState({action: (expand ? 'show' : 'hide'), item_id: $(this).data('item-id')});

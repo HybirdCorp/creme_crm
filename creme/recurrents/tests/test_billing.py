@@ -199,9 +199,7 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
         self._generate_docs()
 
-        # new_tickets = Ticket.objects.all()
         new_entities = model.objects.all()
-        # self.assertEqual(1, len(new_tickets))
         self.assertEqual(1, len(new_entities))
 
     @skipIfCustomInvoice
@@ -246,7 +244,6 @@ class RecurrentsBillingTestCase(RecurrentsTestCase):
 
                     '0-cform_extra-recurrents_ctype': ct.id,
 
-                    # '0-first_generation': '08-07-2014 11:00',
                     '0-first_generation': self.formfield_value_datetime(
                         year=2014, month=7, day=8, hour=11,
                     ),

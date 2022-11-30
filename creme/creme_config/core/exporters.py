@@ -225,7 +225,6 @@ class RelationBrickItemExporter(CellsExporterMixin, Exporter):
         assert isinstance(instance, models.RelationBrickItem)
 
         data = {
-            # 'brick_id':      instance.brick_id,
             'id':            instance.id,
             'relation_type': instance.relation_type_id,
         }
@@ -443,7 +442,6 @@ class ButtonMenuItemExporter(Exporter):
         assert isinstance(instance, models.ButtonMenuItem)
 
         data = {
-            # 'id':        instance.id,
             'order':     instance.order,
             'button_id': instance.button_id,
         }
@@ -464,7 +462,6 @@ class SearchConfigItemExporter(CellsExporterMixin, Exporter):
 
         data = {
             'ctype': dump_ct(instance.content_type),
-            # 'fields': instance.field_names,
             'cells': [*map(self.dump_cell, instance.cells)],
         }
 

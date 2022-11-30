@@ -143,14 +143,12 @@ class UserChangePwForm(CremeForm):
         widget=PasswordInput(attrs={'autocomplete': 'current-password', 'autofocus': True}),
     )
     password_1 = CharField(
-        # label=_('Password'),
         label=_('New password'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'new-password'}),
         help_text=password_validation.password_validators_help_text_html(),
     )
     password_2 = CharField(
-        # label=_('Password (again)'),
         label=_('New password confirmation'),
         strip=False,
         widget=PasswordInput(attrs={'autocomplete': 'new-password'}),

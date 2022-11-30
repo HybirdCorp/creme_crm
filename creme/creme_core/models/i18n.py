@@ -19,11 +19,9 @@
 from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 
-# from .base import CremeModel
 from .base import MinionModel
 
 
-# class Language(CremeModel):
 class Language(MinionModel):
     name = CharField(_('Name'), max_length=100)
 

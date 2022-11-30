@@ -84,13 +84,11 @@ class RelatedDocumentCreation(generic.AddingInstanceToEntityPopup):
 
                 if not this._errors:
                     this.folder_category = cat = FolderCategory.objects.filter(
-                        # pk=constants.DOCUMENTS_FROM_ENTITIES,
                         uuid=constants.UUID_FOLDER_CAT_ENTITIES,
                     ).first()
                     if cat is None:
                         raise ValidationError(
                             f'Populate script has not been run (unknown folder category '
-                            # 'pk={constants.DOCUMENTS_FROM_ENTITIES}) ; '
                             f'uuid={constants.UUID_FOLDER_CAT_ENTITIES}) ; '
                             f'please contact your administrator.'
                         )

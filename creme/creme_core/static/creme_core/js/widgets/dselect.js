@@ -195,11 +195,9 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
     _updateFilter: function(element) {
         var self = this;
         var filter = this.filter(element);
-        // var selected = this.val(element);
 
         if (this._previousFilter === filter) {
             this._filtered.fetch();
-            // this.val(element, selected);
             return;
         }
 
@@ -207,8 +205,6 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         var lambda = creme.utils.lambda(filter, 'item, context', null);
         this._filtered.filter(lambda !== null ? function(item) { return lambda(item, self._context); } : null);
-
-        // this.val(element, selected);
     },
 
     filter: function(element, filter) {

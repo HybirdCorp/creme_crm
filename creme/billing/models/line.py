@@ -208,13 +208,6 @@ class Line(CremeEntity):
     @property
     def related_item(self):
         if self.id and not self._related_item and not self.on_the_fly_item:
-            # try:
-            #     self._related_item = self.relations.get(
-            #         type=constants.REL_SUB_LINE_RELATED_ITEM,
-            #         subject_entity=self.id,
-            #     ).real_object  # .object_entity.get_real_entity()
-            # except Relation.DoesNotExist:
-            #     logger.warning('Line.related_item(): relation does not exist !!')
             try:
                 self._related_item = self.get_relations(
                     constants.REL_SUB_LINE_RELATED_ITEM,

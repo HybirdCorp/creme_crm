@@ -23,7 +23,6 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRelation,
 )
 from creme.creme_core.core.function_field import function_field_registry
-# SpecificRelationsBrick
 from creme.creme_core.gui.bricks import Brick, InstanceBrick
 from creme.creme_core.models import (
     BrickDetailviewLocation,
@@ -747,18 +746,12 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         user = self.login()
         model = FakeContact
         ct = ContentType.objects.get_for_model(model)
-
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subfoo', 'subject_predicate'),
             ('test-objfoo', 'object_predicate'),
         )[0]
-
-        # rtype_brick_id = SpecificRelationsBrick.generate_id('test', 'foobar')
-        # RelationBrickItem.objects.create(brick_id=rtype_brick_id, relation_type=rtype)
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
-
         naru = FakeContact.objects.create(user=user, first_name='Naru', last_name='Narusegawa')
-
         ibci = InstanceBrickConfigItem.objects.create(
             brick_class_id=DetailviewInstanceBrick.id_,
             entity=naru,
@@ -770,7 +763,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             fields = response.context['form'].fields
             locations_choices = [brick_id for (brick_id, brick) in fields['locations'].choices]
 
-        # self.assertIn(rtype_brick_id, locations_choices)
         self.assertIn(rbi.brick_id, locations_choices)
         self.assertIn(ibci.brick_id, locations_choices)
 
@@ -1035,19 +1027,16 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(_('Save the configuration'),  context.get('submit_label'))
 
         with self.assertNoException():
-            # choices = context['form'].fields['bricks'].choices
             choices = [
                 (choice.value, label)
                 for choice, label in context['form'].fields['bricks'].choices
             ]
 
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
             choices=choices,
         )
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
@@ -1061,14 +1050,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             url,
             data={
                 'role': '' if role is None else role.id,
-
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': CompleteBrick1.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': HomeOnlyBrick1.id_,
-                # f'bricks_order_{index2}': 2,
                 'bricks': json_dump([CompleteBrick1.id_, HomeOnlyBrick1.id_]),
             },
         )
@@ -1123,7 +1104,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=role1.id, choices=choices)
         self.assertNotInChoices(value='',       choices=choices)
 
-    # def test_edit_home(self):
     def test_edit_home01(self):
         "Default configuration."
         user = self.login()
@@ -1153,7 +1133,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = context['form'].fields['bricks']
-            # choices = bricks_field.choices
             choices = [
                 (choice.value, label) for choice, label in bricks_field.choices
             ]
@@ -1192,17 +1171,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=HomeOnlyBrick2.id_, choices=choices)
 
         response = self.client.post(
-            url,
-            data={
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': not_already_chosen1.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': already_chosen.id_,
-                # f'bricks_order_{index2}': 2,
-                'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_]),
-            },
+            url, data={'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_])},
         )
         self.assertNoFormError(response)
 
@@ -1235,7 +1204,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            # choices = bricks_field.choices
             choices = [
                 (choice.value, label) for choice, label in bricks_field.choices
             ]
@@ -1245,13 +1213,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotIn(not_already_chosen1.id_, initial)
         self.assertNotIn(not_already_chosen2.id_, initial)
 
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=already_chosen.id_,
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=not_already_chosen1.id_,
             label=not_already_chosen1.verbose_name,
@@ -1267,17 +1233,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=RelationsBrick.id_, choices=bricks_field.choices)
 
         response = self.client.post(
-            url,
-            data={
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': not_already_chosen1.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': already_chosen.id_,
-                # f'bricks_order_{index2}': 2,
-                'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_]),
-            },
+            url, data={'bricks': json_dump([not_already_chosen1.id_, already_chosen.id_])},
         )
         self.assertNoFormError(response)
 
@@ -1310,7 +1266,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            # choices = bricks_field.choices
             choices = [
                 (choice.value, label) for choice, label in bricks_field.choices
             ]
@@ -1325,13 +1280,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             label=already_chosen.verbose_name,
             choices=choices,
         )
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=not_already_chosen1.id_,
             label=not_already_chosen1.verbose_name,
             choices=choices,
         )
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=not_already_chosen2.id_,
             label=not_already_chosen2.verbose_name,
@@ -1341,17 +1294,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNotInChoices(value=RelationsBrick.id_, choices=choices)
 
         response = self.client.post(
-            url,
-            data={
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': not_already_chosen2.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': not_already_chosen1.id_,
-                # f'bricks_order_{index2}': 2,
-                'bricks': json_dump([not_already_chosen2.id_, not_already_chosen1.id_]),
-            },
+            url, data={'bricks': json_dump([not_already_chosen2.id_, not_already_chosen1.id_])},
         )
         self.assertNoFormError(response)
 
@@ -1499,7 +1442,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = context['form'].fields['bricks']
-            # choices = bricks_field.choices
             choices = [
                 (choice.value, label)
                 for choice, label in bricks_field.choices
@@ -1511,13 +1453,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             bricks_field.initial,
         )
 
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
             choices=choices,
         )
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
@@ -1525,17 +1465,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         response = self.client.post(
-            url,
-            data={
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': HomeOnlyBrick1.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': CompleteBrick1.id_,
-                # f'bricks_order_{index2}': 2,
-                'bricks': json_dump([HomeOnlyBrick1.id_, CompleteBrick1.id_]),
-            },
+            url, data={'bricks': json_dump([HomeOnlyBrick1.id_, CompleteBrick1.id_])},
         )
         self.assertNoFormError(response)
 
@@ -1556,7 +1486,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         with self.assertNoException():
             bricks_field = response.context['form'].fields['bricks']
-            # choices = bricks_field.choices
             choices = [
                 (choice.value, label) for choice, label in bricks_field.choices
             ]
@@ -1571,13 +1500,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             bricks_field.initial,
         )
 
-        # index1 = self.assertInChoices(
         self.assertInChoices(
             value=CompleteBrick1.id_,
             label=CompleteBrick1.verbose_name,
             choices=choices,
         )
-        # index2 = self.assertInChoices(
         self.assertInChoices(
             value=HomeOnlyBrick1.id_,
             label=HomeOnlyBrick1.verbose_name,
@@ -1585,17 +1512,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         response = self.client.post(
-            url,
-            data={
-                # f'bricks_check_{index1}': 'on',
-                # f'bricks_value_{index1}': CompleteBrick1.id_,
-                # f'bricks_order_{index1}': 1,
-                #
-                # f'bricks_check_{index2}': 'on',
-                # f'bricks_value_{index2}': HomeOnlyBrick1.id_,
-                # f'bricks_order_{index2}': 2,
-                'bricks': json_dump([CompleteBrick1.id_, HomeOnlyBrick1.id_]),
-            },
+            url, data={'bricks': json_dump([CompleteBrick1.id_, HomeOnlyBrick1.id_])},
         )
         self.assertNoFormError(response)
 
@@ -1689,7 +1606,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
         rb_item = rb_items[0]
         self.assertEqual(rt.id, rb_item.relation_type.id)
-        # self.assertEqual('specificblock_creme_config-test-subfoo', rb_item.brick_id)
         self.assertIsNone(rb_item.get_cells(ContentType.objects.get_for_model(FakeContact)))
 
     def test_relationbrick_add_cells01(self):
@@ -1699,10 +1615,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'Object predicate', [FakeContact, FakeOrganisation, FakeActivity]),
         )[0]
 
-        rb_item = RelationBrickItem.objects.create(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rt,
-        )
+        rb_item = RelationBrickItem.objects.create(relation_type=rt)
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
 
@@ -1711,7 +1624,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         context = response.context
         self.assertEqual(
             _('New customised type for «{object}»').format(object=rt.predicate),
-            context.get('title')
+            context.get('title'),
         )
 
         with self.assertNoException():
@@ -1741,7 +1654,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         context = response.context
         self.assertEqual(
             _('New customised type for «{object}»').format(object=rt.predicate),
-            context.get('title')
+            context.get('title'),
         )
 
         with self.assertNoException():
@@ -1796,10 +1709,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-subfoo', 'subject_predicate', [FakeContact]),
             ('test-objfoo', 'object_predicate',  [FakeOrganisation]),
         )[0]
-        rb_item = RelationBrickItem.objects.create(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rtype,
-        )
+        rb_item = RelationBrickItem.objects.create(relation_type=rtype)
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
         response = self.assertGET200(url)
@@ -1832,10 +1742,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-subfoo', 'subject_predicate', [FakeOrganisation]),
             ('test-objfoo', 'object_predicate',  [FakeContact]),
         )[0]
-        rb_item = RelationBrickItem.objects.create(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rtype,
-        )
+        rb_item = RelationBrickItem.objects.create(relation_type=rtype)
 
         url = self._build_rbrick_addctypes_wizard_url(rb_item)
 
@@ -1883,10 +1790,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
         )[0]
 
-        rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rt,
-        )
+        rb_item = RelationBrickItem(relation_type=rt)
         rb_item.set_cells(ct, ())
         rb_item.save()
 
@@ -1934,7 +1838,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with URLField & ForeignKey."
         self.login()
         rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -1969,7 +1872,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "Validation errors with M2M"
         self.login()
         rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -2006,10 +1908,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objbar', 'object_predicate2'),
         )[0]
 
-        rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rt1,
-        )
+        rb_item = RelationBrickItem(relation_type=rt1)
         rb_item.set_cells(ContentType.objects.get_for_model(FakeOrganisation), ())
         rb_item.save()
 
@@ -2042,10 +1941,7 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ],
         )
 
-        rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
-            relation_type=rt,
-        )
+        rb_item = RelationBrickItem(relation_type=rt)
         build_cell = EntityCellRegularField.build
         rb_item.set_cells(ct, [build_cell(FakeContact, hidden_fname1)])
         rb_item.save()
@@ -2100,7 +1996,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         ct = get_ct(FakeContact)
 
         rb_item = RelationBrickItem(
-            # brick_id='specificblock_creme_config-test-subfoo',
             relation_type=RelationType.objects.smart_update_or_create(
                 ('test-subfoo', 'subject_predicate'),
                 ('test-objfoo', 'object_predicate'),
@@ -2148,7 +2043,6 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         url = reverse('creme_config__delete_rtype_brick')

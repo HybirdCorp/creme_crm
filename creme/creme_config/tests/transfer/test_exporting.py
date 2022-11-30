@@ -33,7 +33,6 @@ from creme.creme_core.forms import (
     LAYOUT_DUAL_SECOND,
     LAYOUT_REGULAR,
 )
-# SpecificRelationsBrick
 from creme.creme_core.gui.bricks import InstanceBrick, brick_registry
 from creme.creme_core.gui.button_menu import Button
 from creme.creme_core.gui.custom_form import EntityCellCustomFormSpecial
@@ -91,7 +90,6 @@ class ExportingInstanceBrick(InstanceBrick):
 
 class ExportingTestCase(CremeTestCase):
     URL = reverse('creme_config__transfer_export')
-    # VERSION = '1.2'
     VERSION = '1.3'
 
     @classmethod
@@ -368,13 +366,9 @@ class ExportingTestCase(CremeTestCase):
             ('test-objbar', 'object_predicate02'),
         )[0]
 
-        # rtype_brick_id01 = SpecificRelationsBrick.generate_id('test', 'foo')
-        # RelationBrickItem.objects.create(brick_id=rtype_brick_id01, relation_type=rtype01)
         rbi1 = RelationBrickItem.objects.create(relation_type=rtype01)
 
-        # rtype_brick_id02 = SpecificRelationsBrick.generate_id('test', 'bar')
         rbi2 = RelationBrickItem(
-            # brick_id=rtype_brick_id02,
             relation_type=rtype02,
         ).set_cells(
             get_ct(FakeContact),
@@ -405,7 +399,6 @@ class ExportingTestCase(CremeTestCase):
         self.assertEqual(1, len(all_rbi_info01))
 
         rbi_info01 = all_rbi_info01[0]
-        # self.assertEqual(rtype_brick_id01, rbi_info01.get('brick_id'))
         self.assertEqual(rbi1.id, rbi_info01.get('id'))
         self.assertNotIn('cells', rbi_info01)
 

@@ -134,7 +134,6 @@ class InputsTestCase(InputsBaseTestCase):  # TODO: rename EmailInputTestCase
 
         self.assertFalse(WaitingAction.objects.all())
         email_input.create(self._get_pop_email(
-            # body=f'password=creme\nuser_id={user.id}\ncreated=01-02-2003\nfirst_name=é',
             body='password=creme\nuser_id={user_id}\ncreated={created}\nfirst_name=é'.format(
                 user_id=user.id,
                 created=self.formfield_value_date(2003, 2, 1),

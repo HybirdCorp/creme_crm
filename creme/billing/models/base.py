@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from datetime import date
 from functools import partial
 
@@ -183,9 +182,6 @@ class Base(CremeEntity):
     @property
     def source(self):
         if not self._source:
-            # self._source_rel = rel = self.relations.get(type=REL_SUB_BILL_ISSUED)
-            # # self._source = rel.object_entity.get_real_entity()
-            # self._source = rel.real_object
             self._source_rel = rel = self.get_relations(REL_SUB_BILL_ISSUED)[0]
             self._source = rel.real_object
 
@@ -204,9 +200,6 @@ class Base(CremeEntity):
     @property
     def target(self):
         if not self._target:
-            # self._target_rel = rel = self.relations.get(type=REL_SUB_BILL_RECEIVED)
-            # # self._target = rel.object_entity.get_real_entity()
-            # self._target = rel.real_object
             self._target_rel = rel = self.get_relations(REL_SUB_BILL_RECEIVED)[0]
             self._target = rel.real_object
 
@@ -229,16 +222,6 @@ class Base(CremeEntity):
             self._creditnotes_cache = credit_notes = []
 
             if self.id:
-                # relations = Relation.objects.filter(
-                #     subject_entity=self.id,
-                #     type=REL_OBJ_CREDIT_NOTE_APPLIED,
-                # ).select_related('object_entity')
-                # Relation.populate_real_object_entities(relations)
-                # credit_notes.extend(
-                #     rel.object_entity.get_real_entity()
-                #     for rel in relations
-                #     if not rel.object_entity.is_deleted
-                # )
                 credit_notes.extend(
                     rel.real_object
                     for rel in Relation.objects
@@ -330,10 +313,6 @@ class Base(CremeEntity):
         self.source = source.source
         self.target = source.target
 
-        # if self.generate_number_in_create:
-        #     self.generate_number(source.source)
-        # else:
-        #     self.number = ''
         self.number = ''
 
         self._address_auto_copy = False
@@ -345,11 +324,7 @@ class Base(CremeEntity):
         # Not REL_OBJ_CREDIT_NOTE_APPLIED, links to CreditNote are not cloned.
         relation_create = Relation.objects.create
         class_map = relationtype_converter.get_class_map(source, self)
-        super()._copy_relations(
-            source,
-            # allowed_internal=[REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED],
-            allowed_internal=allowed_internal,
-        )
+        super()._copy_relations(source, allowed_internal=allowed_internal)
 
         for relation in source.relations.filter(
             type__is_internal=False,
@@ -456,11 +431,6 @@ class Base(CremeEntity):
                 self.payment_info = None
 
             if self.payment_info is None:  # Optimization
-                # source_pis = other_models.PaymentInformation.objects.filter(
-                #     organisation=source.id,
-                # )[:2]
-                # if len(source_pis) == 1:
-                #     self.payment_info = source_pis[0]
                 self.payment_info = other_models.PaymentInformation.objects.filter(
                     organisation=source.id,
                 ).order_by('-is_default').first()

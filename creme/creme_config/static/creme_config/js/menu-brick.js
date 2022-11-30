@@ -43,14 +43,6 @@ creme.creme_config.MenuContainersController = creme.component.Component.sub({
                  .start();
         };
 
-//        this._containers = new Sortable(
-//            brickElement.find('.menu-config-container').get(0),
-//            {
-//                group: brickElement.attr('id'),
-//                animation: 150,
-//                onSort: onSortEventHandler
-//            }
-//        );
         var brickID = brickElement.attr('id');
         this._containers = $.map(
             brickElement.find('.menu-config-container'),

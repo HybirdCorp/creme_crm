@@ -57,16 +57,10 @@ __all__ = (
 )
 
 
-# class BrickLocationsField(forms.MultipleChoiceField):
 class BrickLocationsField(core_fields.OrderedMultipleChoiceField):
     def __init__(self, *, required=False, choices=(),
-                 # widget=core_widgets.OrderedMultipleChoiceWidget,
                  **kwargs):
-        super().__init__(
-            required=required, choices=choices,
-            # widget=widget,
-            **kwargs
-        )
+        super().__init__(required=required, choices=choices, **kwargs)
         widget = self.widget
         widget.available_title = _('Available blocks')
         widget.enabled_title = _('Chosen blocks')
@@ -76,8 +70,6 @@ class _BrickLocationsForm(base.CremeForm):
     def _build_home_locations_field(self, field_name, brick_locations):
         bricks = self.fields[field_name]
         choices = [
-            # (brick.id_, str(brick.verbose_name))
-            # for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
             {
                 'value': brick.id_,
                 'label': str(brick.verbose_name),
@@ -85,7 +77,6 @@ class _BrickLocationsForm(base.CremeForm):
             } for brick in gui_bricks.brick_registry.get_compatible_home_bricks()
         ]
         sort_key = collator.sort_key
-        # choices.sort(key=lambda c: sort_key(c[1]))
         choices.sort(key=lambda c: sort_key(c['label']))
 
         bricks.choices = choices
@@ -363,13 +354,6 @@ class RTypeBrickAddForm(base.CremeModelForm):
         self.fields['relation_type'].queryset = RelationType.objects.exclude(
             pk__in=RelationBrickItem.objects.values_list('relation_type_id', flat=True),
         ).filter(enabled=True)
-
-    # def save(self, *args, **kwargs):
-    #     self.instance.brick_id = gui_bricks.SpecificRelationsBrick.generate_id(
-    #         'creme_config',
-    #         self.cleaned_data['relation_type'].id,
-    #     )
-    #     return super().save(*args, **kwargs)
 
 
 class RTypeBrickItemAddCtypeForm(base.CremeModelForm):

@@ -54,12 +54,10 @@ if apps.is_installed('creme.billing'):
     # If one day it does, we will only have to add senders to the signal.
     @receiver(post_save, sender=Quote)
     def _handle_current_quote_change(sender, instance, created, **kwargs):
-        # if not created and use_current_quote():
         # NB: at creation Quote double-save() for its address ;
         #     the second save() uses the argument <update_fields>.
         if not created and not kwargs.get('update_fields') and use_current_quote():
             for r in instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True):
-                # update_sales(r.object_entity.get_real_entity())
                 update_sales(r.real_object)
 
     @receiver((post_save, post_delete), sender=Relation)
@@ -68,7 +66,6 @@ if apps.is_installed('creme.billing'):
             doc = instance.subject_entity.get_real_entity()
 
             if isinstance(doc, Quote) and use_current_quote():
-                # update_sales(instance.object_entity.get_real_entity())
                 update_sales(instance.real_object)
 
     @receiver(post_delete, sender=Relation)

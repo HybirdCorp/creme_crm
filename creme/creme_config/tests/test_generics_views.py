@@ -787,16 +787,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             [['status', status2del.id, default_status.id]],
             hline.modifications,
         )
-        # self.assertListEqual(
-        #     [
-        #         _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-        #             field=_('Status'),
-        #             oldvalue=status2del.id,
-        #             value=default_status,
-        #         ),
-        #     ],
-        #     hline.get_verbose_modifications(self.user),
-        # )
 
     def test_delete09(self):
         "SET."
@@ -889,16 +879,6 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             [['priority', prio2del.id, fallback_priority.id]],
             hline.modifications,
         )
-        # self.assertListEqual(
-        #     [
-        #         _('Set field “{field}” from “{oldvalue}” to “{value}”').format(
-        #             field=_('Priority'),
-        #             oldvalue=prio2del.id,
-        #             value=fallback_priority,
-        #         ),
-        #     ],
-        #     hline.get_verbose_modifications(self.user),
-        # )
 
     def test_delete10(self):
         "Deleted model get a M2M fiel (bugfix)."

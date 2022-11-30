@@ -39,7 +39,6 @@ class AddRootNodesForm(core_forms.CremeForm):
     entities = MultiGenericEntityField(label=_('Root entities'))
     relation_types = RelationTypeMultipleChoiceField(
         label=_('Related types of relations'),
-        # queryset=RelationType.objects.all(),
         queryset=RelationType.objects.filter(enabled=True),
     )
 
@@ -55,7 +54,6 @@ class AddRootNodesForm(core_forms.CremeForm):
         create_node = partial(RootNode.objects.create, graph=self.graph)
 
         for entity in cleaned_data['entities']:
-            # root_node = create_node(entity=entity)
             root_node = create_node(real_entity=entity)
             root_node.relation_types.set(rtypes)
 
@@ -63,7 +61,6 @@ class AddRootNodesForm(core_forms.CremeForm):
 class EditRootNodeForm(core_forms.CremeModelForm):
     relation_types = RelationTypeMultipleChoiceField(
         label=_('Related types of relations'),
-        # queryset=RelationType.objects.all(),
         queryset=RelationType.objects.none(),
     )
 

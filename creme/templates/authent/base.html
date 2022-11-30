@@ -55,12 +55,6 @@
         }
 
         .login .form-container {
-{% comment %}
-            background: #fcfcfc;
-            background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(#fff), to(rgba(245, 245, 245, 0.8)));
-            background: -moz-linear-gradient(top, #fff 0%, rgba(245, 245, 245, 0.8) 100%);
-            background-repeat: repeat-x;
-{% endcomment %}
             background: linear-gradient(#fff, rgba(245, 245, 245, 0.8));
 
             width: 500px;
@@ -72,10 +66,6 @@
             border: 1px solid #000;
             border-radius: 2px;
 
-{% comment %}
-            -webkit-box-sizing: border-box;
-               -moz-box-sizing: border-box;
-{% endcomment %}
             box-sizing: border-box;
 
             padding-top: 20px;
@@ -296,12 +286,6 @@
             color: #000;
             font-weight: 600;
 
-{% comment %}
-            background-color: #414141;
-            background: -webkit-gradient(linear, 0% 0%, 0% 80%, from(rgba(245, 245, 245, 0.7)), to(rgba(245, 245, 245, 0.9)));
-            background: -moz-linear-gradient(top, rgba(245, 245, 245, 0.7) 0%, rgba(245, 245, 245, 0.9) 80%);
-            background-repeat: repeat-x;
-{% endcomment %}
             background: linear-gradient(#f5f5f5b3, #f5f5f5e6);
         }
 
@@ -431,22 +415,6 @@
 
           {% block form %}
             <form method="post" id="login-form">{% csrf_token %}
-{% comment %}
-                {% block form_username %}
-                <div class="form-row">
-                    <label for="id_username">{% translate 'Username' %}</label>{{form.username}}
-                </div>
-                <div>{{form.errors.username}}</div>
-                {% endblock %}
-                {% block form_password %}
-                <div class="form-row">
-                    <label for="id_password">{% translate 'Password' %}</label>{{form.password}}
-                    <input type="hidden" name="this_is_the_login_form" value="1" />
-                </div>
-                <div>{{form.errors.password}}</div>
-                {% endblock %}
-{% endcomment %}
-
               {% block form_fields %}
                 {# NB: should not be useful with the vanilla form #}
                 {% for hidden in form.hidden_fields %}{{hidden}}{% endfor %}
@@ -465,7 +433,6 @@
                     <input type="submit" value="{% translate 'Log in' %}" />
                 </div>
               {% endblock %}
-{#                <div>{{form.non_field_errors}}</div> #}
             </form>
           {% endblock %}
         </div>

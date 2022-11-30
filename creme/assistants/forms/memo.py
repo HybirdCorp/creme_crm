@@ -27,5 +27,4 @@ class MemoForm(CremeModelForm):
 
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.instance.creme_entity = entity
         self.instance.real_entity = entity

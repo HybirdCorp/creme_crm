@@ -144,7 +144,6 @@ form.menu-edit-regular-entries .help-text {
 
 .bricks-config-widget {
     display: flex;
-    /* border-collapse: collapse; */
 }
 
 .bricks-config-widget .widget-available {

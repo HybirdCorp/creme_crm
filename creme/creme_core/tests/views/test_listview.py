@@ -11,8 +11,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
 from django.urls import reverse
-from django.utils.encoding import force_str  # force_text
-# from django.utils.http import urlquote
+from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import pgettext
@@ -970,7 +969,6 @@ class ListViewTestCase(ViewsTestCase):
         main_sql_match = re.compile(
             r'SELECT .creme_core_cremeentity.\..id., .*'
             r'.creme_core_fakecontact.\..last_name., .*'
-            # r'WHERE .creme_core_cremeentity.\..is_deleted. = '
             r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
         ).match
         main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
@@ -994,7 +992,6 @@ class ListViewTestCase(ViewsTestCase):
             r'.creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?, '
             r'.creme_core_fakecontact.\..last_name. ASC( NULLS FIRST)?, '
             r'.creme_core_fakecontact.\..first_name. ASC( NULLS FIRST)?, '
-            # r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
             r'.creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
         )
 
@@ -1006,7 +1003,6 @@ class ListViewTestCase(ViewsTestCase):
             sql,
             r'ORDER BY'
             r' .creme_core_fakecontact.\..birthday. ASC( NULLS FIRST)?,'
-            # r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)?  LIMIT'
             r' .creme_core_fakecontact.\..cremeentity_ptr_id. ASC( NULLS FIRST)? LIMIT'
         )
 
@@ -1399,13 +1395,11 @@ class ListViewTestCase(ViewsTestCase):
                 url,
                 data={
                     'hfilter': hf.id,
-                    # f'search-{ckey}-start': start,
                     f'search-{ckey}-start': start,
                     f'search-{ckey}-end': end,
                 },
             )
 
-        # response = post('1-1-2075')
         response = post(date_value(2075, 1, 1))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertIn(bebop.name,        content)
@@ -1413,7 +1407,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        # response = post('', '1-1-2075')
         response = post('', date_value(2075, 1, 1))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
@@ -1421,7 +1414,6 @@ class ListViewTestCase(ViewsTestCase):
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # response = post('1-1-2074', '31-12-2074')
         response = post(date_value(2074, 1, 1), date_value(2074, 12, 31))
         content = self._get_lv_content(self._get_lv_node(response))
         self.assertNotIn(bebop.name,   content)
@@ -1473,25 +1465,21 @@ class ListViewTestCase(ViewsTestCase):
             return self._get_lv_content(self._get_lv_node(response))
 
         date_value = self.formfield_value_date
-        # content = post('1-1-2075')
         content = post(date_value(2075, 1, 1))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
 
-        # content = post('', '1-1-2075')
         content = post('', date_value(2075, 1, 1))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        # content = post('1-1-2074', '31-12-2074')
         content = post(date_value(2074, 1, 1), date_value(2074, 12, 31))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
 
-        # content = post('5-6-2074', '5-6-2074')
         content = post(date_value(2074, 6, 5), date_value(2074, 6, 5))
         self.assertNotIn(bebop.name,      content)
         self.assertIn(swordfish.name,     content)
@@ -2430,28 +2418,24 @@ class ListViewTestCase(ViewsTestCase):
 
             return self._get_lv_content(self._get_lv_node(response))
 
-        # content = post('2075-1-1')
         content = post(start=date(2075, 1, 1))
         self.assertIn(bebop.name,        content)
         self.assertNotIn(swordfish.name, content)
         self.assertIn(redtail.name,      content)
         self.assertNotIn(dragons.name,   content)
 
-        # content = post('', '1-1-2075')
         content = post(end=date(2075, 1, 1))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # content = post('1-1-2074', '31-12-2074')
         content = post(date(2074, 1, 1), date(2074, 12, 31))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
         self.assertNotIn(redtail.name, content)
         self.assertNotIn(dragons.name, content)
 
-        # content = post('5-6-2074', '5-6-2074')
         content = post(date(2074, 6, 5), date(2074, 6, 5))
         self.assertNotIn(bebop.name,   content)
         self.assertIn(swordfish.name,  content)
@@ -2519,13 +2503,10 @@ class ListViewTestCase(ViewsTestCase):
             self.url,
             data={
                 'hfilter': hf.id,
-                # f'search-{cell_flight.key}-start': '1-1-2074',
                 f'search-{cell_flight.key}-start': date_value(2074, 1, 1),
-                # f'search-{cell_flight.key}-end':   '31-12-2074',
                 f'search-{cell_flight.key}-end':   date_value(2074, 12, 31),
 
                 f'search-{cell_blood.key}-start': '',
-                # f'search-{cell_blood.key}-end':   '1-1-2075',
                 f'search-{cell_blood.key}-end':   date_value(2075, 1, 1),
             },
         )

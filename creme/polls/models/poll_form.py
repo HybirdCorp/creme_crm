@@ -25,7 +25,6 @@ from django.utils.functional import partition
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
-# from creme.creme_core.utils import split_filter
 from creme.creme_core.models import CremeEntity, CremeModel
 
 from .. import get_pollform_model, get_pollreply_model
@@ -93,7 +92,6 @@ class AbstractPollForm(CremeEntity):
         # children, then the children of children etc...), and we create for each
         # PollFormSection the corresponding PollFormSection or PollReplySection.
         while fsections:
-            # children, fsections = split_filter(
             fsections, children = partition(
                 (lambda section: section.parent in parents),
                 fsections,
@@ -230,7 +228,6 @@ class PollFormLine(CremeModel, _PollLine):
     type_args = models.TextField(editable=False, null=True)  # TODO: use a JSONField ?
 
     # null=True -> no conditions (NB: can we use it to avoid queries ?)
-    # conds_use_or = NullBooleanField(_('Use OR or AND between conditions'), editable=False)
     conds_use_or = models.BooleanField(
         _('Use OR or AND between conditions'), editable=False, null=True,
     )

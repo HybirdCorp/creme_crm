@@ -55,14 +55,12 @@ class CrmButton(Button):
     def render(self, context):
         context['managed_orga'] = self.__managed_orga
         context['verbose_name'] = self.verbose_name
-        # context['rtype_id'] = self.relation_type_id
         context['rtype'] = RelationType.objects.get(id=self.relation_type_id)
 
         return super().render(context)
 
 
 class BecomeCustomerButton(CrmButton):
-    # id_ = Button.generate_id('persons', 'become_customer')
     id = Button.generate_id('persons', 'become_customer')
     verbose_name = _('Transform into a customer')
     description = _(
@@ -74,7 +72,6 @@ class BecomeCustomerButton(CrmButton):
 
 
 class BecomeProspectButton(CrmButton):
-    # id_ = Button.generate_id('persons', 'become_prospect')
     id = Button.generate_id('persons', 'become_prospect')
     verbose_name = _('Transform into a prospect')
     description = _(
@@ -86,7 +83,6 @@ class BecomeProspectButton(CrmButton):
 
 
 class BecomeSuspectButton(CrmButton):
-    # id_ = Button.generate_id('persons', 'become_suspect')
     id = Button.generate_id('persons', 'become_suspect')
     verbose_name = _('Transform into a suspect')
     description = _(
@@ -98,7 +94,6 @@ class BecomeSuspectButton(CrmButton):
 
 
 class BecomeInactiveButton(CrmButton):
-    # id_ = Button.generate_id('persons', 'become_inactive')
     id = Button.generate_id('persons', 'become_inactive')
     verbose_name = _('Transform into an inactive customer')
     description = _(
@@ -110,7 +105,6 @@ class BecomeInactiveButton(CrmButton):
 
 
 class BecomeSupplierButton(CrmButton):
-    # id_ = Button.generate_id('persons', 'become_supplier')
     id = Button.generate_id('persons', 'become_supplier')
     verbose_name = _('Transform into a supplier')
     description = _(
@@ -122,7 +116,6 @@ class BecomeSupplierButton(CrmButton):
 
 
 class AddLinkedContactButton(Button):
-    # id_ = Button.generate_id('persons', 'add_linked_contact')
     id = Button.generate_id('persons', 'add_linked_contact')
     verbose_name = _('Create a related contact')
     description = _(

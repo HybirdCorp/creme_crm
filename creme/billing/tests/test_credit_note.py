@@ -227,7 +227,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertListEqual([credit_note], self.refresh(invoice).get_credit_notes())
         self.assertEqual(Decimal('40'), self.refresh(invoice).total_no_vat)
 
-    # def test_delete_status01(self):
     def test_delete_status(self):
         self.login()
 
@@ -345,7 +344,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            # response, 'form', 'credit_notes', _('This entity does not exist.'),
             response, 'form', 'credit_notes',
             _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
@@ -403,7 +401,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            # response, 'form', 'credit_notes', _('This entity does not exist.'),
             response, 'form', 'credit_notes',
             _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
@@ -452,7 +449,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={'credit_notes': self.formfield_value_multi_creator_entity(credit_note)},
         )
         self.assertFormError(
-            # response, 'form', 'credit_notes', _('This entity does not exist.'),
             response, 'form', 'credit_notes',
             _('«%(entity)s» violates the constraints.') % {'entity': credit_note},
         )
@@ -539,8 +535,6 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'user': user.pk,
                 'name': name,
 
-                # 'issuing_date':     '2020-2-12',
-                # 'expiration_date':  '2020-3-14',
                 'issuing_date':    self.formfield_value_date(2020, 2, 12),
                 'expiration_date': self.formfield_value_date(2020, 3, 14),
 

@@ -45,7 +45,6 @@ from creme.creme_core.models.fields import MoneyField
 from creme.creme_core.utils.unicode_collation import collator
 
 from .. import get_rgraph_model
-# from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
 from ..constants import AbscissaGroup, OrdinateAggregator
 from ..core.graph import AbscissaInfo, OrdinateInfo
 from ..core.graph.cell_constraint import (

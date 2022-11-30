@@ -36,7 +36,6 @@ from creme.persons.workflow import transform_target_into_prospect
 from .. import constants
 
 
-# class SalesPhase(core_models.CremeModel):
 class SalesPhase(core_models.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     order = BasicAutoField(_('Order'))
@@ -62,7 +61,6 @@ class SalesPhase(core_models.MinionModel):
             raise ValidationError(gettext('A phase can not be won and lost at the same time.'))
 
 
-# class Origin(core_models.CremeModel):
 class Origin(core_models.MinionModel):
     name = models.CharField(_('Origin'), max_length=100)
 
@@ -216,9 +214,6 @@ class AbstractOpportunity(core_models.CremeEntity):
     @property
     def target(self):
         if not self._opp_target:
-            # self._opp_target_rel = rel = self.relations.get(type=constants.REL_SUB_TARGETS)
-            # # self._opp_target = rel.object_entity.get_real_entity()
-            # self._opp_target = rel.real_object
             self._opp_target_rel = rel = self.get_relations(constants.REL_SUB_TARGETS)[0]
             self._opp_target = rel.real_object
 

@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from base64 import b64encode
 from os.path import splitext
 
@@ -333,18 +332,7 @@ def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None):
     return settings.HIDDEN_VALUE
 
 
-# @register.inclusion_tag('creme_core/templatetags/widgets/select_or_msg.html')
-# def widget_select_or_msg(items, void_msg):
-#     warnings.warn(
-#         'The templatetag {% widget_select_or_msg %} is deprecated; '
-#         'use {% widget_enumerator %} instead.',
-#         DeprecationWarning,
-#     )
-#     return {'items': items, 'void_msg': void_msg}
-
-
 @register.inclusion_tag('creme_core/templatetags/widgets/enumerator.html')
-# def widget_enumerator(items, threshold=None, empty=''):
 def widget_enumerator(items, threshold=3, empty='', summary=None):
     """Enumerate a list of items in a compact manner.
     If the number of items exceed a given threshold, another way to display the

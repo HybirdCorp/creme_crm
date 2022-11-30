@@ -138,24 +138,6 @@ class BrickRegistryTestCase(CremeTestCase):
             f"Brick class with empty id_: {FoobarBrick}", str(cm.exception),
         )
 
-    # def test_register05(self):
-    #     "Old <permission> attribute."
-    #     class FoobarBrick1(Brick):
-    #         id_ = Brick.generate_id('creme_core', 'foobar_brick_1')
-    #         verbose_name = 'Testing purpose'
-    #         permission = 'creme_core'  # <== Old attribute
-    #
-    #     brick_registry = _BrickRegistry()
-    #
-    #     with self.assertRaises(_BrickRegistry.RegistrationError) as cm:
-    #         brick_registry.register(FoobarBrick1)
-    #
-    #     self.assertEqual(
-    #         f'Brick class with old attribute "permission" '
-    #         f'(use "permissions" instead): {FoobarBrick1}',
-    #         str(cm.exception),
-    #     )
-
     def test_register_4_instance01(self):
         user = self.create_user()
         casca = FakeContact.objects.create(
@@ -387,7 +369,6 @@ class BrickRegistryTestCase(CremeTestCase):
             ('test-subject_loves', 'loves'),
             ('test-object_loved', 'is loved by'),
         )[0]
-        # RelationBrickItem.objects.create_if_needed(rtype1)
         RelationBrickItem.objects.create(relation_type=rtype1)
 
         create_cbci = CustomBrickConfigItem.objects.create
@@ -456,9 +437,6 @@ class BrickRegistryTestCase(CremeTestCase):
             ('test-object_hires', 'is hired by'),
         )[0]
 
-        # create_rbi = RelationBrickItem.objects.create_if_needed
-        # create_rbi(rtype2)
-        # create_rbi(rtype1)
         create_rbi = RelationBrickItem.objects.create
         create_rbi(relation_type=rtype2)
         create_rbi(relation_type=rtype1)
@@ -1456,7 +1434,6 @@ class BrickTestCase(CremeTestCase):
             ('test-subject_loves', 'loves', [FakeOrganisation, FakeContact]),
             ('test-object_loved', 'is loved by'),
         )[0]
-        # rbi = RelationBrickItem.objects.create_if_needed(rtype)
         rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
 
         brick = SpecificRelationsBrick(relationbrick_item=rbi)

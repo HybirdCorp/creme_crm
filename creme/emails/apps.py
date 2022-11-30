@@ -88,22 +88,11 @@ class EmailsConfig(CremeAppConfig):
         # from . import models
 
         register = bulk_update_registry.register
-        # register(self.EmailCampaign, exclude=('mailing_lists',))
         register(self.EmailCampaign).exclude('mailing_lists')
         register(self.MailingList).exclude('mailing_lists')
-        # TODO: tags modifiable=False ??
-        # register(models.EmailSending, exclude=('sender', 'type', 'sending_date'))
         # TODO: inner-form for body_html when RichTextEditor is ok in inner-popup
-        # register(self.EmailTemplate, exclude=('body_html',))
         register(self.EmailTemplate).exclude('body_html')
-        # register(
-        #     self.EntityEmail,
-        #     exclude=(
-        #         'sender', 'recipient',
-        #         'subject', 'body', 'body_html',
-        #         'signature', 'attachments',
-        #     ),  # TODO: idem
-        # )
+        # TODO: idem
         register(self.EntityEmail).exclude(
             'sender', 'recipient',
             'subject', 'body', 'body_html',
@@ -189,10 +178,6 @@ class EmailsConfig(CremeAppConfig):
 
             menu.EmailSyncEntry,
         )
-
-        # EmailSyncEntry = menu.EmailSyncEntry
-        # if EmailSyncEntry.id:
-        #     menu_registry.register(EmailSyncEntry)
 
     def register_creation_menu(self, creation_menu_registry):
         creation_menu_registry.get_or_create_group(

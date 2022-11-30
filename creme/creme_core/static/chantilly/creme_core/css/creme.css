@@ -10,7 +10,6 @@ html {
     background-color: #f6fcff;
 
     color: black;
-/*    font-size: 0.8em; */
     font-size: 12.8px;
     font-family: "Lucida Grande", "DejaVu Sans", "Bitstream Vera Sans", Verdana, Arial, sans-serif;
 }
@@ -26,12 +25,6 @@ a {
     background-color: transparent;
     cursor: pointer;
 
-/*
-    -webkit-transition: color .4s linear;
-       -moz-transition: color .4s linear;
-        -ms-transition: color .4s linear;
-         -o-transition: color .4s linear;
-*/
     transition: color .4s linear;
 }
 
@@ -65,11 +58,6 @@ body {
 }
 
 body.is_deleted {
-/*
-    background: #ff7e7e;
-    background: -webkit-linear-gradient(top, #ff7e7e 0%, #ffeded 30%);
-    background:    -moz-linear-gradient(top, #ff7e7e 0%, #ffeded 30%);
-*/
     background: linear-gradient(to bottom, #ff7e7e 0%, #ffeded 30%);
 }
 
@@ -99,18 +87,13 @@ td p {
 
     display: inline-block;
 
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
-            box-sizing: border-box;
+    box-sizing: border-box;
 
     border: 1px solid #bdd3dc;
     border-bottom: 1px solid #9db2bb;
 
     border-radius: 3px;
 
-/*    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     text-align: center;
@@ -312,10 +295,6 @@ img {
 }
 
 a img {
-/*
-    -webkit-transition: opacity 400ms ease-in;
-       -moz-transition: opacity 400ms ease-in;
-*/
     transition: opacity 400ms ease-in;
 }
 
@@ -398,7 +377,6 @@ a img:hover {
     color: #2c596c;
     background: #E6F2F7 none repeat scroll 0 0;
     border: 2px solid #d7e2e7;
-
     border-radius: 4px;
 }
 */

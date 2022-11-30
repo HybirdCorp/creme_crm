@@ -371,7 +371,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            # object_entity=self.iori,
             real_object=self.iori,
         )
 
@@ -397,7 +396,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            # object_entity=self.iori,
             real_object=self.iori,
         )
 
@@ -423,7 +421,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate=predicate,
             relation_type=self.loves,
-            # object_entity=self.iori,
             real_object=self.iori,
         )
 
@@ -460,7 +457,6 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
         sfrt = SemiFixedRelationType.objects.create(
             predicate='Is loving Iori',
             relation_type=self.loves,
-            # object_entity=self.iori,
             real_object=self.iori,
         )
         self.assertPOST200(

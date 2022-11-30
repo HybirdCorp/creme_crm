@@ -2,19 +2,5 @@
 <ul {% include "django/forms/widgets/attrs.html" %}>
     <li>{% with widget=widgets.0 %}{% include widget.template_name %}{% endwith %}</li>
     <li class="optional-widget-hiddable">{{widget.label}}&nbsp;{% with widget=widgets.1 %}{% include widget.template_name %}{% endwith %}</li>
-{% comment %}
-    <script type="text/javascript">
-        creme.forms.optionalWidgetHandler = function(checkBox) {
-            var jqCheckBox = $(checkBox);
-            jqCheckBox.parent().siblings('li').css('display', jqCheckBox.is(':checked') ? '' : 'none');
-        };
-
-        $(document).ready(function() {
-            $('ul.optional-widget li input').each(function() {
-                creme.forms.optionalWidgetHandler(this);
-            });
-        });
-    </script>
-{% endcomment %}
 </ul>
 {% endwith %}

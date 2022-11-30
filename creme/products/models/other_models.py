@@ -20,11 +20,9 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 
 
-# class Category(CremeModel):
 class Category(MinionModel):
     name = models.CharField(_('Name of the category'), max_length=100)
     description = models.CharField(_('Description'), max_length=100, blank=True)
@@ -41,7 +39,6 @@ class Category(MinionModel):
         return self.name
 
 
-# class SubCategory(CremeModel):
 class SubCategory(MinionModel):
     name = models.CharField(_('Name of the sub-category'), max_length=100)
     description = models.CharField(_('Description'), max_length=100, blank=True)

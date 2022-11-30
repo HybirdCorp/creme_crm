@@ -40,7 +40,6 @@ from .models import (
     Relation,
     RelationType,
 )
-# from .utils.db import populate_related
 from .models.history import TYPE_SYM_REL_DEL, TYPE_SYM_RELATION, HistoryLine
 from .utils.content_type import entity_ctypes
 
@@ -131,7 +130,6 @@ class RelationsBrick(QuerysetBrick):
         reloading_info = self._reloading_info
 
         if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
-            # used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
             used_rtype_ids = {
                 rt_id
                 for brick in BricksManager.get(context).bricks
@@ -163,15 +161,6 @@ class RelationsBrick(QuerysetBrick):
         if excluded_rtype_ids:
             relations = relations.exclude(type__in=excluded_rtype_ids)
 
-        # btc = self.get_template_context(
-        #     context, relations,
-        #     excluded_rtype_ids=excluded_rtype_ids,
-        # )
-        #
-        # # NB: DB optimisation
-        # Relation.populate_real_object_entities(btc['page'].object_list)
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context, relations,
             excluded_rtype_ids=excluded_rtype_ids,
@@ -193,7 +182,6 @@ class CustomFieldsBrick(Brick):
         entity = context['object']
 
         # TODO: factorise with CremeEntity.get_custom_fields_n_values() ?
-        # cfields = CustomField.objects.get_for_model(entity.entity_type).values()
         cfields = [
             cfield
             for cfield in CustomField.objects.get_for_model(entity.entity_type).values()
@@ -226,7 +214,6 @@ class HistoryBrick(QuerysetBrick):
 
     # TODO: factorise (see assistants.bricks) ??
     @staticmethod
-    # def _populate_related_real_entities(hlines, user):
     def _populate_related_real_entities(hlines):
         hlines = [hline for hline in hlines if hline.entity_id]
         entities_ids_by_ct = defaultdict(set)
@@ -324,22 +311,6 @@ class ImprintsBrick(QuerysetBrick):
         return self._render(self.get_template_context(context, qs))
 
     def home_display(self, context):
-        # can_view = context['user'].is_superuser
-        # qs = Imprint.objects.select_related('entity') if can_view else Imprint.objects.none()
-        # btc = self.get_template_context(context, qs)
-        #
-        # # NB: optimisations
-        # if can_view:
-        #     imprints = btc['page'].object_list
-        #     CremeEntity.populate_real_entities(
-        #         [imprint.entity for imprint in imprints]
-        #     )
-        #
-        #     # NB: there will still be queries for each different Contacts
-        #     #     corresponding to users...
-        #     populate_related(instances=imprints, field_names=['user'])
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             # NB: there will still be queries for each different Contacts
@@ -510,7 +481,6 @@ class JobsBrick(QuerysetBrick):
     def detailview_display(self, context):
         return self._render(self.get_template_context(
             context, self._jobs_qs(context),
-            # not_finished_user_jobs_count=Job.not_finished_jobs(context['user']).count(),
             not_finished_user_jobs_count=Job.objects.not_finished(context['user']).count(),
             MAX_JOBS_PER_USER=settings.MAX_JOBS_PER_USER,
             NOT_PERIODIC=JobType.NOT_PERIODIC,

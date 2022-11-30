@@ -2,11 +2,7 @@
 
 /* Apply a natural box layout model to all elements */
 .brick * {
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
-            box-sizing: border-box;
+    box-sizing: border-box;
 
     font-family: 'Open Sans', sans-serif;
 }
@@ -28,10 +24,6 @@
 
     display: inline-block;
 
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
     width: 100%;
@@ -243,11 +235,6 @@
 
     width: 1px;
 
-/*
-    background: -webkit-linear-gradient(transparent, #aaa);
-    background:    -moz-linear-gradient(transparent, #aaa);
-    background:      -o-linear-gradient(transparent, #aaa);
-*/
     background: linear-gradient(transparent, #aaa);
 }
 
@@ -283,10 +270,6 @@
 }
 
 .brick .brick-header-button:not(.is-disabled):hover .brick-header-icon {
-/*
-    -webkit-filter: brightness(10);
-       -moz-filter: brightness(10);
-*/
     filter: brightness(10);
 }
 
@@ -511,15 +494,11 @@
     padding-top: 6px;
 }
 
-/*
-.brick-table .brick-table-content .brick-table-action .brick-table-action-icon,
-.brick-list .brick-content .brick-action .brick-action-icon { */
 /* NB: more generic rule for menu-edition in creme_config + classes brick-action/brick-action-icon added in HTML (April/May 2021) */
 .brick .brick-content .brick-action .brick-action-icon {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 4px;
 
-/*    -webkit-box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
     box-shadow: 0 1px 2px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);
@@ -648,19 +627,16 @@
 .brick .brick-pagination .pager-link-choose input {
     display: none;
 
-    font-weight: 700;
-    padding: 0px 0px;
     width: 40px;
-    color: black;
-    text-align: center;
-    background-color: transparent;
+    padding: 0px 0px;
     margin: -1px 0 0 0;
-    border: 0px;
 
-/*
-    -webkit-border-radius: 0;
-       -moz-border-radius: 0;
-*/
+    text-align: center;
+    font-weight: 700;
+    color: black;
+    background-color: transparent;
+
+    border: 0px;
     border-radius: 0;
 
     outline: 0px;
@@ -1009,7 +985,6 @@
 
     background: #479ef5; /* hsl(210, 90%, 62%) */
     z-index: 1;
-
 
     /* shadow: With or without you, I can't live © U2 1987 */
     /* box-shadow: 0 2px 1px 1px hsla(210, 90%, 62%, 0.15); */

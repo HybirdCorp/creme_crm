@@ -112,26 +112,6 @@ class BatchActionsField(JSONField):
 
     def _get_fields(self):
         if self._fields is None:
-            # fields = []
-            # model = self._model
-            # managed_fields = tuple(batch_operator_manager.managed_fields)
-            # registry = self.bulk_update_registry
-            # updatable = partial(
-            #     registry.is_updatable, model=model, exclude_unique=False,
-            # )
-            # get_form = registry.status(model).get_form
-            #
-            # for field in model._meta.fields:
-            #     if field.editable and isinstance(field, managed_fields):
-            #         fname = field.name
-            #
-            #         if updatable(field_name=fname) and get_form(fname) is None:
-            #             fields.append((field.name, field))
-            #
-            # sort_key = collator.sort_key
-            # fields.sort(key=lambda c: sort_key(str(c[1].verbose_name)))
-            #
-            # self._fields = OrderedDict(fields)
             fields = []
             model = self._model
             managed_fields = tuple(batch_operator_manager.managed_fields)

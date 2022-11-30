@@ -20,14 +20,12 @@ from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
 __all__ = ('Civility', 'Position', 'StaffSize', 'LegalForm', 'Sector')
 
 
-# class Civility(CremeModel):
 class Civility(MinionModel):
     title    = CharField(pgettext_lazy('persons-civility', 'Title'), max_length=100)
     shortcut = CharField(_('Shortcut'), max_length=100)
@@ -44,7 +42,6 @@ class Civility(MinionModel):
         ordering = ('title',)
 
 
-# class Position(CremeModel):
 class Position(MinionModel):
     title = CharField(pgettext_lazy('persons-position', 'Title'), max_length=100)
 
@@ -60,7 +57,6 @@ class Position(MinionModel):
         ordering = ('title',)
 
 
-# class Sector(CremeModel):
 class Sector(MinionModel):
     title = CharField(pgettext_lazy('persons-sector', 'Title'), max_length=100)
 
@@ -76,7 +72,6 @@ class Sector(MinionModel):
         ordering = ('title',)
 
 
-# class LegalForm(CremeModel):
 class LegalForm(MinionModel):
     title = CharField(pgettext_lazy('persons-legalform', 'Title'), max_length=100)
 
@@ -92,7 +87,6 @@ class LegalForm(MinionModel):
         ordering = ('title',)
 
 
-# class StaffSize(CremeModel):
 class StaffSize(MinionModel):
     size  = CharField(_('Size'), max_length=100)
     order = BasicAutoField(_('Order'))  # Used by creme_config

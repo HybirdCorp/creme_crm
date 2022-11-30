@@ -31,7 +31,6 @@ class SubCategorySubCell(CustomFormExtraSubCell):
     verbose_name = _('Category & sub-category')
 
     def formfield(self, instance, user, **kwargs):
-        # field = CategoryField(label=self.verbose_name, user=user, **kwargs)
         field = SubCategoryField(
             model=type(instance),
             field_name='sub_category',

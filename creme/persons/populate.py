@@ -417,9 +417,6 @@ class Populator(BasePopulator):
             create_bmi(model=Organisation, button=buttons.AddLinkedContactButton, order=25)
 
             # Populate bricks ------------------
-            # create_rbi = RelationBrickItem.objects.create_if_needed
-            # rbi_1 = create_rbi(constants.REL_SUB_CUSTOMER_SUPPLIER)
-            # rbi_2 = create_rbi(constants.REL_OBJ_CUSTOMER_SUPPLIER)
             create_rbi = RelationBrickItem.objects.get_or_create
             rbi_1 = create_rbi(relation_type_id=constants.REL_SUB_CUSTOMER_SUPPLIER)[0]
             rbi_2 = create_rbi(relation_type_id=constants.REL_OBJ_CUSTOMER_SUPPLIER)[0]

@@ -19,7 +19,6 @@ else:
 
     from ..constants import DEFAULT_CURRENCY_PK
     from ..core.entity_filter import EF_USER
-    # from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
     from ..models import (
         CremeEntity,
         CremeModel,
@@ -51,7 +50,6 @@ else:
 
     class FakeFolderCategory(CremeModel):
         name = models.CharField(_('Category name'), max_length=100, unique=True)
-#        is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
         def __str__(self):
             return self.name
@@ -104,7 +102,6 @@ else:
     class FakeDocument(CremeEntity):
         title = models.CharField(_('Title'), max_length=100)
         filedata = models.FileField(
-            # _('File'), max_length=100, upload_to='upload/creme_core-tests',
             _('File'), max_length=100, upload_to='creme_core-tests',
         ).set_tags(optional=True)
         linked_folder = models.ForeignKey(
@@ -137,7 +134,6 @@ else:
 
     class FakeFileComponent(CremeModel):
         filedata = models.FileField(
-            # _('File'), max_length=100, upload_to='upload/creme_core-tests',
             _('File'), max_length=100, upload_to='creme_core-tests',
             null=True, blank=True,
         )
@@ -158,7 +154,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test File bag'
             verbose_name_plural = 'Test File bags'
             ordering = ('name',)
@@ -182,7 +177,6 @@ else:
         #     upload_to='upload/images', max_length=500,
         # )
         filedata = models.FileField(
-            # _('File'), max_length=100, editable=False, upload_to='upload/creme_core-tests',
             _('File'), max_length=100, editable=False, upload_to='creme_core-tests',
         )
         categories = models.ManyToManyField(
@@ -196,7 +190,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Image'
             verbose_name_plural = 'Test Images'
             ordering = ('name',)
@@ -267,18 +260,18 @@ else:
             ordering = ('order',)
 
     class FakeAddress(CremeModel):
-        value = models.TextField(_('Address'), blank=True)  # null=True
+        value = models.TextField(_('Address'), blank=True)
         zipcode = models.CharField(
-            _('Zip code'), max_length=100, blank=True,  # null=True,
+            _('Zip code'), max_length=100, blank=True,
         ).set_tags(optional=True)
         city = models.CharField(
-            _('City'), max_length=100, blank=True,  # null=True,
+            _('City'), max_length=100, blank=True,
         ).set_tags(optional=True)
         department = models.CharField(
-            _('Department'), max_length=100, blank=True,  # null=True,
+            _('Department'), max_length=100, blank=True,
         ).set_tags(optional=True)
         country = models.CharField(
-            _('Country'), max_length=40, blank=True,  # null=True,
+            _('Country'), max_length=40, blank=True,
         ).set_tags(optional=True)
 
         entity = models.ForeignKey(
@@ -309,15 +302,14 @@ else:
     class FakeContact(CremeEntity):
         civility = models.ForeignKey(
             FakeCivility, verbose_name=_('Civility'), blank=True, null=True,
-            # on_delete=models.SET_NULL,
             on_delete=deletion.CREME_REPLACE_NULL,
         ).set_tags(optional=True)
         last_name  = models.CharField(_('Last name'), max_length=100)
         first_name = models.CharField(
-            _('First name'), max_length=100, blank=True,  # null=True,
+            _('First name'), max_length=100, blank=True,
         ).set_tags(optional=True)
 
-        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)  # blank=True
+        is_a_nerd = models.BooleanField(_('Is a Nerd'), default=False)
         loves_comics = models.BooleanField(_('Loves comics'), default=None, null=True, blank=True)
 
         # NB: keep nullable for some tests
@@ -327,8 +319,8 @@ else:
         mobile = core_fields.PhoneField(
             _('Mobile'), max_length=100, blank=True,  # null=True,
         ).set_tags(optional=True)
-        email = models.EmailField(_('Email address'), max_length=100, blank=True)  # null=True
-        url_site = models.URLField(_('Web Site'), max_length=500, blank=True)  # null=True
+        email = models.EmailField(_('Email address'), max_length=100, blank=True)
+        url_site = models.URLField(_('Web Site'), max_length=500, blank=True)
 
         position = models.ForeignKey(
             FakePosition, verbose_name=_('Position'),
@@ -373,7 +365,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             ordering = ('last_name', 'first_name')
             verbose_name = 'Test Contact'
             verbose_name_plural = 'Test Contacts'
@@ -429,7 +420,6 @@ else:
         ).set_tags(optional=True)
         sector = models.ForeignKey(
             FakeSector, verbose_name=_('Sector'), blank=True, null=True,
-            # on_delete=models.SET_NULL,
             on_delete=deletion.CREME_REPLACE,
         ).set_tags(optional=True)
         capital = models.PositiveIntegerField(
@@ -440,7 +430,6 @@ else:
         legal_form = models.ForeignKey(
             FakeLegalForm, verbose_name=_('Legal form'),
             blank=True, null=True,
-            # on_delete=models.SET_NULL,
             on_delete=deletion.CREME_REPLACE_NULL,
             # NB: see creme_config.tests
             #                     .test_generics_views
@@ -467,7 +456,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             ordering = ('name',)
             verbose_name = 'Test Organisation'
             verbose_name_plural = 'Test Organisations'
@@ -520,7 +508,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Activity'
             verbose_name_plural = 'Test Activities'
             ordering = ('-start',)
@@ -540,7 +527,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Mailing list'
             verbose_name_plural = 'Test Mailing lists'
             ordering = ('name',)
@@ -563,7 +549,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test campaign'
             verbose_name_plural = 'Test campaigns'
             ordering = ('name',)
@@ -580,7 +565,7 @@ else:
 
     class FakeInvoice(CremeEntity):
         name = models.CharField(_('Name'), max_length=100)
-        number = models.CharField(_('Number'), max_length=100, blank=True)  # null=True
+        number = models.CharField(_('Number'), max_length=100, blank=True)
         issuing_date = models.DateField(_('Issuing date'), blank=True, null=True)
         expiration_date = models.DateField(
             _('Expiration date'), blank=True, null=True,
@@ -605,7 +590,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Invoice'
             verbose_name_plural = 'Test Invoices'
             # ordering = ('name',)
@@ -641,7 +625,6 @@ else:
         )
         discount_unit = models.PositiveIntegerField(
             _('Discount Unit'), blank=True, null=True,
-            # choices=FAKE_DISCOUNT_UNIT.items(), default=FAKE_PERCENT_UNIT,
             choices=Discount.choices, default=Discount.PERCENT,
         )
         vat_value = models.ForeignKey(
@@ -651,7 +634,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Invoice Line'
             verbose_name_plural = 'Test Invoice Lines'
             ordering = ('created',)
@@ -691,7 +673,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Product'
             verbose_name_plural = 'Test Products'
             ordering = ('name',)
@@ -717,7 +698,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Report'
             verbose_name_plural = 'Test Reports'
             ordering = ('name',)
@@ -769,7 +749,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Ticket'
             verbose_name_plural = 'Test Tickets'
             ordering = ('title',)
@@ -816,7 +795,6 @@ else:
 
         class Meta:
             app_label = 'creme_core'
-            # manager_inheritance_from_future = True
             verbose_name = 'Test Recipe'
             verbose_name_plural = 'Test Recipes'
             ordering = ('name',)
@@ -826,7 +804,6 @@ else:
 
     class FakeTodoCategory(CremeModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
-        # is_custom = BooleanField(default=True).set_tags(viewable=False) #used by creme_config
 
         def __str__(self):
             return self.name

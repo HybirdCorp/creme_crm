@@ -716,15 +716,3 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         doc = self.get_html_tree(result[0][1])
         brick_node = self.get_brick_node(doc, brick_id)
         self.assertBrickHasClass(brick_node, 'is-empty')
-
-    # def test_inneredit(self):
-    #     user = self.login()
-    #     ptype = CremePropertyType.objects.smart_update_or_create(
-    #         str_pk='test-prop_foobar', text='hairy',
-    #     )
-    #     entity = CremeEntity.objects.create(user=user)
-    #     prop = CremeProperty.objects.create(type=ptype, creme_entity=entity)
-    #
-    #     build_uri = self.build_inneredit_uri
-    #     self.assertGET404(build_uri(prop, 'type'))
-    #     self.assertGET404(build_uri(prop, 'creme_entity'))

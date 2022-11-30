@@ -71,7 +71,6 @@ class JobTypeRegistryTestCase(CremeTestCase):
         self.assertIsNone(job_type)
         self.assertListEqual(
             logs_manager.output,
-            # [f'CRITICAL:creme.creme_core.core.job:Unknown JobType: {TestJobType.id}'],
             [f'CRITICAL:creme.creme_core.core.job.registry:Unknown JobType: {TestJobType.id}'],
         )
 

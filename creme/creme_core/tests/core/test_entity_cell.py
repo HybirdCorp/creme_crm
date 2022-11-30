@@ -396,7 +396,6 @@ class EntityCellTestCase(CremeTestCase):
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         value = Decimal('1.52')
-        # value_str = number_format(value, use_l10n=True)
         value_str = number_format(value)
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=value)
         self.assertEqual(value_str, cell.render_html(entity=yoko, user=user))
@@ -417,7 +416,6 @@ class EntityCellTestCase(CremeTestCase):
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         dt = self.create_datetime(year=2058, month=3, day=26, hour=12)
-        # dt_str = date_format(localtime(dt), 'DATETIME_FORMAT')
         customfield.value_class.objects.create(
             entity=yoko, custom_field=customfield, value=dt,
         )
@@ -431,12 +429,10 @@ class EntityCellTestCase(CremeTestCase):
             DATETIME_INPUT_FORMATS=[dt_input_format],
         ):
             self.assertEqual(
-                # dt_str,
                 date_format(local_dt, 'DATETIME_FORMAT'),
                 cell.render_html(entity=yoko, user=user),
             )
             self.assertEqual(
-                # dt_str,
                 local_dt.strftime(dt_input_format),
                 cell.render_csv(entity=yoko, user=user),
             )
@@ -456,7 +452,6 @@ class EntityCellTestCase(CremeTestCase):
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         date_obj = date(year=2058, month=3, day=26)
-        # date_str = date_format(date_obj, 'DATE_FORMAT')
         customfield.value_class.objects.create(
             entity=yoko, custom_field=customfield, value=date_obj,
         )
@@ -469,12 +464,10 @@ class EntityCellTestCase(CremeTestCase):
             DATE_INPUT_FORMATS=[date_input_format],
         ):
             self.assertEqual(
-                # date_str,
                 date_format(date_obj, 'DATE_FORMAT'),
                 cell.render_html(entity=yoko, user=user),
             )
             self.assertEqual(
-                # date_str,
                 date_obj.strftime(date_input_format),
                 cell.render_csv(entity=yoko, user=user),
             )

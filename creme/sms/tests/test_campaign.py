@@ -148,7 +148,6 @@ class SMSCampaignTestCase(CremeTestCase):
         response = post(mlist01, mlist03)
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            # response, 'form', 'messaging_lists', _('This entity does not exist.')
             response, 'form', 'messaging_lists',
             _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )

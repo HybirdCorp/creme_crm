@@ -20,11 +20,9 @@ from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 
 
-# class PollType(CremeModel):
 class PollType(MinionModel):
     name = CharField(_('Name'), max_length=80)
 

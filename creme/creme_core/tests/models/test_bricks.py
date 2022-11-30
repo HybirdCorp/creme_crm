@@ -1,4 +1,3 @@
-# from json import loads as jsonloads
 from functools import partial
 
 from django.contrib.auth import get_user_model
@@ -569,13 +568,7 @@ class BrickTestCase(CremeTestCase):
             ('test-subject_rented', 'is rented by'),
             ('test-object_rented',  'rents', [FakeContact, FakeOrganisation]),
         )[0]
-
-        # rbi = RelationBrickItem.objects.create_if_needed(rtype)
-        # self.assertIsInstance(rbi, RelationBrickItem)
-        # self.assertIsNotNone(rbi.pk)
-        # self.assertEqual(rtype.id, rbi.relation_type_id)
         rbi = RelationBrickItem.objects.get_or_create(relation_type=rtype)[0]
-
         get_ct = ContentType.objects.get_for_model
 
         rbi.set_cells(
@@ -601,7 +594,6 @@ class BrickTestCase(CremeTestCase):
             ('test-object_rented',  'rents'),
         )[0]
         ct_contact = ContentType.objects.get_for_model(FakeContact)
-        # rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
         rbi = RelationBrickItem.objects.create(relation_type=rtype)
 
         build = partial(EntityCellRegularField.build, model=FakeContact)
@@ -612,9 +604,6 @@ class BrickTestCase(CremeTestCase):
         rbi.save()
 
         # Inject error by bypassing checks
-        # RelationBrickItem.objects.filter(id=rbi.id).update(
-        #     json_cells_map=rbi.json_cells_map.replace('description', 'invalid'),
-        # )
         invalid_info = rbi.json_cells_map
         invalid_info[ct_contact.id][1]['value'] = 'invalid'
         rbi.json_cells_map = invalid_info
@@ -626,11 +615,9 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual('last_name', cells_contact[0].value)
 
         with self.assertNoException():
-            # deserialized = jsonloads(rbi.json_cells_map)
             deserialized = rbi.json_cells_map
 
         self.assertDictEqual(
-            # {str(ct_contact.id): [{'type': 'regular_field', 'value': 'last_name'}]},
             {ct_contact.id: [{'type': 'regular_field', 'value': 'last_name'}]},
             deserialized,
         )
@@ -642,7 +629,6 @@ class BrickTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         create_state = partial(BrickState.objects.create, user=user)
@@ -662,7 +648,6 @@ class BrickTestCase(CremeTestCase):
             ('test-objfoo', 'object_predicate'),
             is_custom=False,
         )[0]
-        # rbi = RelationBrickItem.objects.create(brick_id='foobarid', relation_type=rt)
         rbi = RelationBrickItem.objects.create(relation_type=rt)
 
         def try_delete(msg, locs):
@@ -724,7 +709,6 @@ class BrickTestCase(CremeTestCase):
             id='tests-organisations01', name='General', content_type=FakeOrganisation,
             cells=[EntityCellRegularField.build(FakeOrganisation, 'name')],
         )
-        # self.assertEqual(f'customblock-{cbci.id}', cbci.generate_id())
         self.assertEqual(f'customblock-{cbci.id}', cbci.brick_id)
 
         cells = self.refresh(cbci).cells
@@ -744,9 +728,6 @@ class BrickTestCase(CremeTestCase):
         )
 
         # Inject error by bypassing checks
-        # CustomBrickConfigItem.objects.filter(id=cbci.id).update(
-        #     json_cells=cbci.json_cells.replace('description', 'invalid'),
-        # )
         invalid_info = cbci.json_cells
         invalid_info[1]['value'] = 'invalid'
         cbci.json_cells = invalid_info

@@ -23,7 +23,7 @@ from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-from creme.creme_core.models import (  # CremeModel
+from creme.creme_core.models import (
     CREME_REPLACE,
     CremeEntity,
     MinionModel,
@@ -41,7 +41,6 @@ _STATS_TYPES = (
 )
 
 
-# class EventType(CremeModel):
 class EventType(MinionModel):
     name = models.CharField(_('Name'), max_length=50)
 

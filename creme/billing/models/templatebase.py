@@ -74,7 +74,6 @@ class AbstractTemplateBase(Base):
 
         # Common rules for the recurrent generation of a "base" object for billing app.
         # See base's child for specific rules
-        # instance.generate_number()
         if not instance.generate_number_in_create:  # Avoid double generation
             instance.generate_number()
         # TODO: user configurable rules ???

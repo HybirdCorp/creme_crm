@@ -15,14 +15,6 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.tests.base import CremeTestCase
-# from creme.reports.constants import (
-#     RGT_CUSTOM_RANGE,
-#     RGT_FK,
-#     RGT_MONTH,
-#     RGT_RANGE,
-#     RGT_RELATION,
-#     RGT_YEAR,
-# )
 from creme.reports.constants import AbscissaGroup
 from creme.reports.core.graph.cell_constraint import (
     GHCCCustomDate,

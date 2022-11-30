@@ -23,12 +23,8 @@ from creme.creme_core import constants
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.bricks import EntityJobErrorsBrick, TrashBrick
 from creme.creme_core.creme_jobs import reminder_type, trash_cleaner_type
-# from creme.creme_core.forms.bulk import (
-#      BulkDefaultEditForm,
-#     _CUSTOMFIELD_FORMAT,
-# )
 from creme.creme_core.gui import bulk_update
-from creme.creme_core.models import (  # FakeFileComponent FakeFileBag
+from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
     CremePropertyType,
@@ -801,7 +797,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertFalse(user.has_perm_to_delete(contact3))
 
         url = self.EMPTY_TRASH_URL
-        # self.assertGET404(url)
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/forms/confirmation.html')
 
@@ -1496,11 +1491,6 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
 
 class _BulkEditTestCase(ViewsTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #     cls._original_bulk_update_registry = bulk_update.bulk_update_registry
-
     @staticmethod
     def get_cf_values(cf, entity):
         return cf.value_class.objects.get(custom_field=cf, entity=entity)
@@ -1514,35 +1504,6 @@ class _BulkEditTestCase(ViewsTestCase):
 
 
 class BulkUpdateTestCase(_BulkEditTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #
-    #     BulkUpdate.bulk_update_registry = bulk_update._BulkUpdateRegistry()
-    #     # cls.contact_bulk_status = bulk_update.bulk_update_registry.status(FakeContact)
-    #
-    # @classmethod
-    # def tearDownClass(cls):
-    #     super().tearDownClass()
-    #
-    #     BulkUpdate.bulk_update_registry = cls._original_bulk_update_registry
-    #
-    # def setUp(self):
-    #     super().setUp()
-    #     contact_status = BulkUpdate.bulk_update_registry.status(FakeContact)
-    #
-    #     self._contact_innerforms = contact_status._innerforms
-    #     BulkUpdate.bulk_update_registry.status(FakeContact)._innerforms = {}
-    #
-    #     self._contact_excludes = contact_status.excludes
-    #     BulkUpdate.bulk_update_registry.status(FakeContact).excludes = set()
-    #
-    # def tearDown(self):
-    #     super().tearDown()
-    #     contact_status = BulkUpdate.bulk_update_registry.status(FakeContact)
-    #     contact_status._innerforms = self._contact_innerforms
-    #     contact_status.excludes = self._contact_excludes
-
     def setUp(self):
         super().setUp()
         self._original_bulk_update_registry = BulkUpdate.bulk_update_registry
@@ -1577,13 +1538,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
     def test_regular_field_invalid_field(self):
         self.login()
-
-        # response = self.assertGET(400, self.build_bulkupdate_url(FakeContact, 'unknown'))
-        # self.assertContains(
-        #     response,
-        #     "The field Test Contact.unknown doesn't exist",
-        #     status_code=400,
-        # )
         self.assertContains(
             self.client.get(self.build_bulkupdate_uri(model=FakeContact, field='unknown')),
             'The cell "regular_field-unknown" is invalid',
@@ -1687,19 +1641,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertNoFormError(response2)
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
-        # self.assertTemplateUsed(response2, 'creme_core/frags/bulk_process_report.html')
         self.assertTemplateUsed(response2, 'creme_core/bulk-update-results.html')
 
         get_context2 = response2.context.get
         self.assertEqual(_('Multiple update'), get_context2('title'))
-        # self.assertEqual(
-        #     ngettext(
-        #         '{success} «{model}» has been successfully modified.',
-        #         '{success} «{model}» have been successfully modified.',
-        #         1,
-        #     ).format(success=1, model='Test Contact'),
-        #     get_context2('summary'),
-        # )
         self.assertEqual(1, get_context2('initial_count'))
         self.assertEqual(1, get_context2('success_count'))
         self.assertEqual(0, get_context2('forbidden_count'))
@@ -1788,7 +1733,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.pk],
-                # 'field_value': field_value,
                 field_name: field_value,
             },
         )
@@ -1815,7 +1759,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.pk],
-                # 'field_value': 'Marioooo',
                 field_name: 'Marioooo',
             },
         )
@@ -1841,7 +1784,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': unemployed.id,
                 field_name: unemployed.id,
             },
         )
@@ -1872,7 +1814,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id, nintendo.id],
-                # 'field_value': plumbing.id,
                 field_name: plumbing.id,
             },
         )
@@ -1886,20 +1827,11 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.login()
 
         field_name = 'position'
-        # BulkUpdate.bulk_update_registry.register(FakeContact, exclude=[field_name])
-        # self.assertFalse(BulkUpdate.bulk_update_registry.is_updatable(FakeContact, field_name))
         BulkUpdate.bulk_update_registry = registry = bulk_update._BulkUpdateRegistry()
         registry.register(FakeContact).exclude(field_name)
 
         unemployed = FakePosition.objects.create(title='unemployed')
         mario, luigi, url = self.create_2_contacts_n_url(field=field_name)
-        # self.assertPOST(
-        #     400, url,
-        #     data={
-        #         'field_value': unemployed.id,
-        #         'entities': [mario.id, luigi.id],
-        #     },
-        # )
         self.assertPOST404(
             url,
             data={
@@ -1917,12 +1849,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': '',
                 field_name: '',
             },
         )
         self.assertFormError(
-            # response, 'form', 'field_value', _('This field is required.'),
             response, 'form', field_name, _('This field is required.'),
         )
 
@@ -1939,7 +1869,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': '',
                 field_name: '',
             },
         )
@@ -1983,7 +1912,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             self.build_bulkupdate_uri(model=FakeContact, field=field_name),
             data={
                 'entities': [mario.id, luigi.id, toad.id],
-                # 'field_value': '',
                 field_name: '',
             },
         )
@@ -2027,24 +1955,17 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': 'bad date',
-                # 'field_value': birthday.strftime('%d-%m-%y'),
                 field_name: birthday.strftime('%d-%m-%y'),
             },
         )
         self.assertFormError(
-            # response1, 'form', 'field_value', _('Enter a valid date.'),
             response1, 'form', field_name, _('Enter a valid date.'),
         )
-
-        # settings.DATE_INPUT_FORMATS += ('-%dT%mU%Y-',)
 
         response2 = self.client.post(
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': '-31T01U2000-',
-                # 'field_value': self.formfield_value_date(birthday),
                 field_name: self.formfield_value_date(birthday),
             },
         )
@@ -2062,9 +1983,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         create_img = FakeImage.objects.create
         forbidden = create_img(user=other_user, name='forbidden')
-        # allowed   = create_img(user=user,       name='allowed')
         self.assertFalse(user.has_perm_to_view(forbidden))
-        # self.assertTrue(user.has_perm_to_view(allowed))
 
         field_name = 'image'
         url = self.build_bulkupdate_uri(model=FakeContact, field=field_name)
@@ -2072,74 +1991,16 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.id, luigi.id],
-                # 'field_value': forbidden.id,
                 field_name: forbidden.id,
             },
         )
         self.assertFormError(
-            # response, 'form', 'field_value',
             response, 'form', field_name,
             _('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=forbidden.id),
             ),
         )
 
-        # # ---
-        # response2 = self.client.post(
-        #     url,
-        #     data={
-        #         'entities': [mario.id, luigi.id],
-        #         # 'field_value': allowed.id,
-        #         field_name: allowed.id,
-        #     },
-        # )
-        # self.assertNotEqual(allowed, getattr(self.refresh(mario), field_name))
-        # self.assertEqual(allowed,    getattr(self.refresh(luigi), field_name))
-        #
-        # self.assertEqual(
-        #     '{} {}'.format(
-        #         ngettext(
-        #             '{success} of {initial} «{model}» has been successfully modified.',
-        #             '{success} of {initial} «{model}» have been successfully modified.',
-        #             1,
-        #         ).format(
-        #             success=1,
-        #             initial=2,
-        #             model='Test Contact',
-        #         ),
-        #         ngettext(
-        #             '{forbidden} was not editable.',
-        #             '{forbidden} were not editable.',
-        #             1,
-        #         ).format(forbidden=1),
-        #     ),
-        #     response2.context.get('summary'),
-        # )
-
-    # def test_regular_field_custom_edit_form(self):
-    #     self.login()
-    #
-    #     class _InnerEditBirthday(BulkDefaultEditForm):
-    #         pass
-    #
-    #     BulkUpdate.bulk_update_registry.register(
-    #         FakeContact, innerforms={'birthday': _InnerEditBirthday},
-    #     )
-    #
-    #     mario, luigi, url = self.create_2_contacts_n_url(field='birthday')
-    #     birthday = date(2000, 1, 31)
-    #     response = self.client.post(
-    #         url,
-    #         data={
-    #             # 'field_value': '31-01-2000',
-    #             'field_value': self.formfield_value_date(birthday),
-    #             'entities': [mario.id, luigi.id],
-    #         },
-    #     )
-    #     self.assertNoFormError(response)
-    #
-    #     self.assertEqual(birthday, self.refresh(mario).birthday)
-    #     self.assertEqual(birthday, self.refresh(luigi).birthday)
     def test_regular_field_overrider(self):
         self.login()
 
@@ -2268,7 +2129,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             self.build_bulkupdate_uri(model=FakeImage, field=m2m_name),
             data={
                 'entities': [image1.id, image2.id],
-                # 'field_value': [categories[0].pk, categories[2].pk],
                 m2m_name: [categories[0].pk, categories[2].pk],
             },
         )
@@ -2297,12 +2157,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [image1.id, image2.id],
-                # 'field_value': [categories[0].pk, invalid_pk],
                 m2m_name: [categories[0].pk, invalid_pk],
             },
         )
         self.assertFormError(
-            # response, 'form', 'field_value',
             response, 'form', m2m_name,
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                 'value': invalid_pk,
@@ -2323,46 +2181,10 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         mario.address = address1
         mario.save()
 
-        # build_url = self._build_update_url
-        #
-        # GET (no field given) ---
-        # response1 = self.assertGET200(f'{build_url()}?entities={mario.id}')
-        # response1 = self.assertGET200(build_url())
-        #
-        # with self.assertNoException():
-        #     choices = response1.context['form'].fields['_bulk_fieldname'].choices
-        #     baddr_choices = dict(choices)[_('Billing address')]
-        #
-        # self.assertInChoices(
-        #     value=build_url(field='address__city'), label=_('City'), choices=baddr_choices,
-        # )
-
         # GET (field given) ---
-        # uri = f'{build_url(field="address__city")}?entities={mario.id}'
-        # response2 = self.assertGET200(uri)
         self.assertGET404(self.build_bulkupdate_uri(
             field='address__city', model=FakeContact, entities=[mario, luigi],
         ))
-
-        # with self.assertNoException():
-        #     city_f = response2.context['form'].fields['field_value']
-        #
-        # self.assertIsInstance(city_f, CharField)
-        # self.assertEqual(_('City'), city_f.label)
-        #
-        # # POST ---
-        # city = 'New Dong city'
-        # response3 = self.client.post(
-        #     uri,
-        #     data={
-        #         'entities': [mario.id, luigi.id],
-        #         'field_value': city,
-        #     },
-        # )
-        # self.assertNoFormError(response3)
-        #
-        # self.assertEqual(city, self.refresh(mario).address.city)
-        # self.assertIsNone(self.refresh(luigi).address)
 
     def test_regular_field_fields_config_hidden(self):
         self.login()
@@ -2379,10 +2201,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
                 (hidden_fkname, {FieldsConfig.HIDDEN: True}),
             ],
         )
-        # create_fconf(
-        #     content_type=FakeAddress,
-        #     descriptions=[(hidden_subfname, {FieldsConfig.HIDDEN: True})],
-        # )
 
         build_uri = partial(self.build_bulkupdate_uri, model=FakeContact)
         self.assertGET404(build_uri(field=hidden_fname))
@@ -2447,13 +2265,9 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         cf_int = CustomField.objects.create(
             name='int', content_type=FakeContact, field_type=CustomField.INT,
         )
-        # mario, luigi, url = self.create_2_contacts_n_url(
-        #     field=_CUSTOMFIELD_FORMAT.format(cf_int.id),
-        # )
         mario, luigi, uri = self.create_2_contacts_n_url(field=cf_int)
 
         # GET ---
-        # response1 = self.assertGET200(url)
         response1 = self.assertGET200(uri)
 
         with self.assertNoException():
@@ -2471,11 +2285,9 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
         # POST ---
         response2 = self.client.post(
-            # url,
             uri,
             data={
                 'entities': [mario.pk, luigi.pk],
-                # 'field_value': 10,
                 f'custom_field-{cf_int.id}': 10,
             },
         )
@@ -2504,17 +2316,13 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             name='float', content_type=FakeContact,
             field_type=CustomField.FLOAT,
         )
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cf_decimal.id),
-            field=cf_decimal,
-        )
+        mario, luigi, url = self.create_2_contacts_n_url(field=cf_decimal)
 
         formfield_name = f'custom_field-{cf_decimal.id}'
         response1 = self.client.post(
             url,
             data={
                 'entities': [mario.pk, luigi.pk],
-                # 'field_value': '10.2',
                 formfield_name: '10.2',
             },
         )
@@ -2528,7 +2336,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': [mario.pk, luigi.pk],
-                # 'field_value': '',
                 formfield_name: '',
             },
         )
@@ -2557,7 +2364,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': 'true',
                 formfield_name: 'true',
             },
         )
@@ -2570,7 +2376,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': 'false',
                 formfield_name: 'false',
             },
         )
@@ -2583,7 +2388,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': 'unknown',
                 formfield_name: 'unknown',
             },
         )
@@ -2599,10 +2403,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         cf_str = CustomField.objects.create(
             name='str', content_type=FakeContact, field_type=CustomField.STR,
         )
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cf_str.id),
-            field=cf_str,
-        )
+        mario, luigi, url = self.create_2_contacts_n_url(field=cf_str)
 
         # Str
         e_ids = [mario.pk, luigi.pk]
@@ -2612,7 +2413,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': field_value,
                 formfield_name: field_value,
             },
         )
@@ -2625,7 +2425,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': '',
                 formfield_name: '',
             },
         )
@@ -2643,12 +2442,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         cf_date = CustomField.objects.create(
             name='date', content_type=FakeContact, field_type=CustomField.DATETIME,
         )
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cf_date.id),
-            field=cf_date,
-        )
-
-        # settings.DATETIME_INPUT_FORMATS += ("-%dT%mU%Y-",)
+        mario, luigi, url = self.create_2_contacts_n_url(field=cf_date)
 
         # Date
         e_ids = [mario.pk, luigi.pk]
@@ -2658,8 +2452,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': '-31T01U2000-',
-                # 'field_value': self.formfield_value_datetime(dt),
                 formfield_name: self.formfield_value_datetime(dt),
             },
         )
@@ -2673,7 +2465,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': '',
                 formfield_name: '',
             },
         )
@@ -2695,16 +2486,12 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         enum1 = create_evalue(value='Enum1')
         create_evalue(value='Enum2')
 
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cf_enum.id),
-            field=cf_enum,
-        )
+        mario, luigi, url = self.create_2_contacts_n_url(field=cf_enum)
 
         response1 = self.assertGET200(url)
         formfield_name = f'custom_field-{cf_enum.id}'
 
         with self.assertNoException():
-            # field = response1.context['form'].fields['field_value']
             field = response1.context['form'].fields[formfield_name]
 
         self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
@@ -2716,7 +2503,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': enum1.id,
                 formfield_name: enum1.id,
             },
         )
@@ -2729,7 +2515,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': '',
                 formfield_name: '',
             },
         )
@@ -2755,10 +2540,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         create_cfvalue(value='MEnum2')
         m_enum3 = create_cfvalue(value='MEnum3')
 
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cf_multi_enum.id),
-            field=cf_multi_enum,
-        )
+        mario, luigi, url = self.create_2_contacts_n_url(field=cf_multi_enum)
         self.assertGET200(url)
 
         # Multi-Enum
@@ -2768,7 +2550,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': [m_enum1.id, m_enum3.id],
                 formfield_name: [m_enum1.id, m_enum3.id],
             },
         ))
@@ -2787,7 +2568,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             url,
             data={
                 'entities': e_ids,
-                # 'field_value': [],
                 formfield_name: [],
             },
         ))
@@ -2803,11 +2583,7 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             name='int', content_type=FakeContact, field_type=CustomField.INT,
             is_deleted=True,
         )
-        mario, luigi, url = self.create_2_contacts_n_url(
-            # field=_CUSTOMFIELD_FORMAT.format(cfield.id),
-            field=cfield,
-        )
-        # self.assertGET(400, url)
+        mario, luigi, url = self.create_2_contacts_n_url(field=cfield)
         self.assertGET404(url)
 
     def test_other_field_validation_error_1_entity(self):
@@ -2877,17 +2653,6 @@ class BulkUpdateTestCase(_BulkEditTestCase):
 
 
 class InnerEditTestCase(_BulkEditTestCase):
-    # @classmethod
-    # def setUpClass(cls):
-    #     super().setUpClass()
-    #
-    #     InnerEdition.bulk_update_registry = bulk_update._BulkUpdateRegistry()
-    #
-    # @classmethod
-    # def tearDownClass(cls):
-    #     super().tearDownClass()
-    #
-    #     InnerEdition.bulk_update_registry = cls._original_bulk_update_registry
     def setUp(self):
         super().setUp()
         self._original_bulk_update_registry = InnerEdition.bulk_update_registry
@@ -2922,11 +2687,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         mario = self.create_contact()
-        # self.assertGET(400, self.build_inneredit_url(mario, 'unknown'))
         self.assertGET404(self.build_inneredit_uri(mario, 'unknown'))
 
         field_name = 'first_name'
-        # url = self.build_inneredit_url(mario, 'first_name')
         url = self.build_inneredit_uri(mario, field_name)
         response1 = self.assertGET200(url)
         self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
@@ -2939,12 +2702,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         # ---
         first_name = 'Luigi'
         self.assertNoFormError(self.client.post(
-            url,
-            data={
-                # 'entities_lbl': [str(mario)],
-                # 'field_value': first_name,
-                field_name: first_name,
-            },
+            url, data={field_name: first_name},
         ))
         self.assertEqual(first_name, self.refresh(mario).first_name)
 
@@ -2954,12 +2712,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         field_name = 'birthday'
         response = self.assertPOST200(
-            # self.build_inneredit_url(mario, 'birthday'),
             self.build_inneredit_uri(mario, field_name),
-            # data={'field_value': 'whatever'},
             data={field_name: 'whatever'},
         )
-        # self.assertFormError(response, 'form', 'field_value', _('Enter a valid date.'))
         self.assertFormError(response, 'form', field_name, _('Enter a valid date.'))
 
     def test_regular_field_not_allowed(self):
@@ -2972,7 +2727,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         mario = self.create_contact()
         self.assertFalse(self.user.has_perm_to_change(mario))
-        # self.assertGET403(self.build_inneredit_url(mario, 'first_name'))
         self.assertGET403(self.build_inneredit_uri(mario, 'first_name'))
 
     def test_regular_field_required(self):
@@ -2981,16 +2735,10 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         field_name = 'last_name'
         response = self.assertPOST200(
-            # self.build_inneredit_url(mario, 'last_name'),
             self.build_inneredit_uri(mario, field_name),
-            data={
-                # 'entities_lbl': [str(mario)],
-                # 'field_value': '',
-                field_name: '',
-            },
+            data={field_name: ''},
         )
         self.assertFormError(
-            # response, 'form', 'field_value', _('This field is required.'),
             response, 'form', field_name, _('This field is required.'),
         )
 
@@ -3000,18 +2748,13 @@ class InnerEditTestCase(_BulkEditTestCase):
         mario = self.create_contact()
         self.assertFalse(mario._meta.get_field('is_user').editable)
 
-        # build_url = self.build_inneredit_url
         build_uri = self.build_inneredit_uri
         uri = build_uri(mario, 'is_user')
-        # self.assertGET(400, url)
         self.assertGET404(uri)
-        # self.assertPOST(400, url, data={'field_value': self.other_user.id})
         self.assertPOST404(uri, data={'is_user': self.other_user.id})
 
         # Fields without form-field
-        # self.assertGET(400, build_url(mario, 'id'))
         self.assertGET404(build_uri(mario, 'id'))
-        # self.assertGET(400, build_url(mario, 'cremeentity_ptr'))
         self.assertGET404(build_uri(mario, 'cremeentity_ptr'))
 
     def test_regular_field_fields_config_hidden(self):
@@ -3036,10 +2779,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         mario = self.create_contact()
 
-        # build_url = partial(self.build_inneredit_url, mario)
-        # self.assertGET(400, build_url(hidden_fname))
-        # self.assertGET(400, build_url(hidden_fkname))
-        # self.assertGET(400, build_url('address__' + hidden_subfname))
         build_uri = partial(self.build_inneredit_uri, mario)
         self.assertGET404(build_uri(hidden_fname))
         self.assertGET404(build_uri(hidden_fkname))
@@ -3055,7 +2794,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
         mario = self.create_contact()
-        # uri = self.build_inneredit_url(mario, field_name)
         uri = self.build_inneredit_uri(mario, field_name)
         response1 = self.assertGET200(uri)
 
@@ -3066,16 +2804,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.assertTrue(edition_f.required)
 
         # ---
-        response2 = self.assertPOST200(
-            uri,
-            data={
-                # 'entities_lbl': [str(mario)],
-                # 'field_value': '',
-                field_name: '',
-            },
-        )
+        response2 = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            # response2, 'form', 'field_value', _('This field is required.'),
             response2, 'form', field_name, _('This field is required.'),
         )
 
@@ -3143,10 +2873,8 @@ class InnerEditTestCase(_BulkEditTestCase):
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', user, categories)
-        # self.assertListEqual([*image.categories.all()], categories)
         image.categories.set([categories[1]])
 
-        # url = self.build_inneredit_url(image, 'categories')
         m2m_name = 'categories'
         uri = self.build_inneredit_uri(image, m2m_name)
 
@@ -3161,7 +2889,6 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         # ---
         response2 = self.client.post(
-            # url, data={'field_value': [categories[0].pk, categories[2].pk]},
             uri, data={m2m_name: [categories[0].pk, categories[2].pk]},
         )
         self.assertNoFormError(response2)
@@ -3181,15 +2908,12 @@ class InnerEditTestCase(_BulkEditTestCase):
         invalid_pk = self.UNUSED_PK
         self.assertFalse(FakeImageCategory.objects.filter(id=invalid_pk))
 
-        # url = self.build_inneredit_url(image, 'categories')
         m2m_name = 'categories'
         uri = self.build_inneredit_uri(image, m2m_name)
         response = self.assertPOST200(
-            # url, data={'field_value': [categories[0].pk, invalid_pk]},
             uri, data={m2m_name: [categories[0].pk, invalid_pk]},
         )
         self.assertFormError(
-            # response, 'form', 'field_value',
             response, 'form', m2m_name,
             _('Select a valid choice. %(value)s is not one of the available choices.') % {
                 'value': invalid_pk,
@@ -3220,30 +2944,12 @@ class InnerEditTestCase(_BulkEditTestCase):
         self.login()
 
         sector = FakeSector.objects.all()[0]
-        # self.assertGET403(self.build_inneredit_url(sector, 'title'))
         response = self.client.get(self.build_inneredit_uri(sector, 'title'))
         self.assertIn(
             escape(f'This model is not a entity model: {FakeSector}'),
             response.content.decode(),
         )
 
-    # def test_regular_field_innerform(self):
-    #     self.login()
-    #
-    #     class _InnerEditName(BulkDefaultEditForm):
-    #         def clean(self):
-    #             raise ValidationError('invalid name')
-    #
-    #     InnerEdition.bulk_update_registry.register(
-    #         FakeContact, innerforms={'last_name': _InnerEditName},
-    #     )
-    #
-    #     mario = self.create_contact()
-    #     url = self.build_inneredit_url(mario, 'last_name')
-    #     self.assertGET200(url)
-    #
-    #     response = self.assertPOST200(url, data={'field_value': 'luigi'})
-    #     self.assertFormError(response, 'form', '', 'invalid name')
     def test_regular_field_overrider(self):
         self.login()
 
@@ -3269,25 +2975,6 @@ class InnerEditTestCase(_BulkEditTestCase):
             self.client.post(uri, data={f'override-{field_name}': 'luigi'})
         )
         self.assertEqual('LUIGI', self.refresh(mario).last_name)
-
-    # def test_regular_field_innerform_fielderror(self):
-    #     self.login()
-    #
-    #     class _InnerEditName(BulkDefaultEditForm):
-    #         def _bulk_clean_entity(self, entity, values):
-    #             BulkDefaultEditForm._bulk_clean_entity(self, entity, values)
-    #             raise ValidationError('invalid name')
-    #
-    #     InnerEdition.bulk_update_registry.register(
-    #         FakeContact, innerforms={'last_name': _InnerEditName},
-    #     )
-    #
-    #     mario = self.create_contact()
-    #     url = self.build_inneredit_url(mario, 'last_name')
-    #     self.assertGET200(url)
-    #
-    #     response = self.assertPOST200(url, data={'field_value': 'luigi'})
-    #     self.assertFormError(response, 'form', None, 'invalid name')
 
     def test_regular_field_overrider_validation_error(self):
         self.login()
@@ -3327,22 +3014,12 @@ class InnerEditTestCase(_BulkEditTestCase):
             user=user, title='Japan map', linked_folder=folder,
         )
 
-        # url = self.build_inneredit_url(doc, 'filedata')
         uri = self.build_inneredit_uri(doc, 'filedata')
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
         content = 'Yes I am the content (DocumentTestCase.test_createview)'
         file_obj = self.build_filedata(content, suffix=f'.{settings.ALLOWED_EXTENSIONS[0]}')
-        response = self.client.post(
-            # url,
-            uri,
-            data={
-                # 'entities_lbl': [str(doc)],
-                # 'field_value': file_obj,
-                'filedata': file_obj,
-            },
-        )
+        response = self.client.post(uri, data={'filedata': file_obj})
         self.assertNoFormError(response)
 
         filedata = self.refresh(doc).filedata
@@ -3395,21 +3072,17 @@ class InnerEditTestCase(_BulkEditTestCase):
             name='custom 1', content_type=mario.entity_type,
             field_type=CustomField.STR,
         )
-        # url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id))
         uri = self.build_inneredit_uri(mario, cfield)
-        # response1 = self.assertGET200(url)
         response1 = self.assertGET200(uri)
 
         formfield_name = f'custom_field-{cfield.id}'
 
         with self.assertNoException():
-            # field = response1.context['form'].fields['field_value']
             field = response1.context['form'].fields[formfield_name]
 
         self.assertIsInstance(field, CharField)
 
         value = 'hihi'
-        # response2 = self.client.post(url, data={'field_value': value})
         response2 = self.client.post(uri, data={formfield_name: value})
         self.assertNoFormError(response2)
 
@@ -3425,13 +3098,10 @@ class InnerEditTestCase(_BulkEditTestCase):
             name='custom 1', content_type=mario.entity_type,
             field_type=CustomField.ENUM,
         )
-        # url = self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id))
         uri = self.build_inneredit_uri(mario, cfield)
-        # response = self.assertGET200(url)
         response = self.assertGET200(uri)
 
         with self.assertNoException():
-            # field = response.context['form'].fields['field_value']
             field = response.context['form'].fields[f'custom_field-{cfield.id}']
 
         self.assertIsInstance(field, config_fields.CustomEnumChoiceField)
@@ -3446,25 +3116,7 @@ class InnerEditTestCase(_BulkEditTestCase):
             field_type=CustomField.INT,
             is_deleted=True,
         )
-        # self.assertGET(
-        #     400,
-        #     self.build_inneredit_url(mario, _CUSTOMFIELD_FORMAT.format(cfield.id)),
-        # )
         self.assertGET404(self.build_inneredit_uri(mario, cfield))
-
-    # def test_related_subfield_missing(self):
-    #     self.login()
-    #     orga = self.create_orga()
-    #
-    #     url = self.build_inneredit_url(orga, 'address__city')
-    #     self.assertGET200(url)
-    #
-    #     city = 'Marseille'
-    #     response = self.assertPOST200(url, data={'field_value': city})
-    #     self.assertFormError(
-    #         response, 'form', None,
-    #         _('The field «{}» is empty').format(_('Billing address')),
-    #     )
 
     def test_related_subfield(self):
         self.login()
@@ -3487,17 +3139,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         orga.address = FakeAddress.objects.create(entity=orga, value='address 1')
         orga.save()
 
-        # self.assertGET(400, self.build_inneredit_url(orga, 'address'))
         self.assertGET404(self.build_inneredit_uri(orga, 'address'))
-
-    # def test_manytomany_field(self):
-    #     """Edition of a ManyToManyField
-    #     (needs a special hack with initial values for this case).
-    #     """
-    #     user = self.login()
-    #     image = FakeImage.objects.create(user=user, name='Konoha by night')
-    #     # self.assertGET(200, self.build_inneredit_url(image, 'categories'))
-    #     self.assertGET200(self.build_inneredit_uri(image, 'categories'))
 
     def test_other_field_validation_error(self):
         user = self.login()
@@ -3509,12 +3151,9 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
         field_name = 'last_name'
-        # url = self.build_inneredit_url(empty_contact, 'last_name')
         uri = self.build_inneredit_uri(empty_contact, field_name)
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
-        # response2 = self.assertPOST200(url, data={'field_value': 'Bros'})
         response2 = self.assertPOST200(uri, data={field_name: 'Bros'})
         self.assertFormError(
             response2, 'form', None,
@@ -3531,15 +3170,11 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
 
         field_name = 'last_name'
-        # url = self.build_inneredit_url(empty_contact, 'last_name')
         uri = self.build_inneredit_uri(empty_contact, field_name)
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
-        # response = self.assertPOST200(url, data={'field_value': ''})
         response = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            # response, 'form', 'field_value', _('This field is required.'),
             response, 'form', field_name, _('This field is required.'),
         )
 
@@ -3569,8 +3204,6 @@ class InnerEditTestCase(_BulkEditTestCase):
         response = self.client.post(
             url,
             data={
-                # 'entities_lbl': [str(mario)],  # TODO?
-                # 'regular_field-first_name': first_name,  # TODO?
                 'first_name': first_name,
                 'phone':      phone,
                 f'custom_field-{cfield.id}': coins,

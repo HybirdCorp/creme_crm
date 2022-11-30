@@ -316,7 +316,6 @@ class EnumerableLVSWidget(ListViewSearchWidget):
 
 
 # TODO: extends MultiWidget & remove/improve get_context() ?
-# class DateRangeLVSWidget(ListViewSearchWidget):
 class DateRangeLVSWidget(DatePickerMixin, ListViewSearchWidget):
     """Search-widget to enter a couple of dates."""
     template_name = 'creme_core/listview/search-widgets/date-range.html'
@@ -325,7 +324,6 @@ class DateRangeLVSWidget(DatePickerMixin, ListViewSearchWidget):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         w_ctxt = context['widget']
-        # w_ctxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
         w_ctxt['date_format'] = self.js_date_format()
         w_ctxt['value_start'] = value[0]
         w_ctxt['value_end']   = value[1]
@@ -440,34 +438,7 @@ class BaseDecimalField(BaseIntegerField):
     #     (without colliding with operators), but it should be OK in many cases...
     OPERATION_RE = compile_re(r'^(.*?)(\-?[0-9]*[\.,]?[0-9]*)$')
 
-    # @staticmethod
-    # def _sanitize_separators(value):
-    #     # if isinstance(value, str):
-    #     parts = []
-    #     decimal_separator = get_format(
-    #         'DECIMAL_SEPARATOR',
-    #         use_l10n=True,  # <=========
-    #     )
-    #     if decimal_separator in value:
-    #         value, decimals = value.split(decimal_separator, 1)
-    #         parts.append(decimals)
-    #
-    #     if settings.USE_THOUSAND_SEPARATOR:
-    #         thousand_sep = get_format('THOUSAND_SEPARATOR')
-    #         if thousand_sep == '.' and value.count('.') == 1 and len(value.split('.')[-1]) != 3:
-    #             pass
-    #         else:
-    #             for replacement in {
-    #                 thousand_sep,
-    #                 unicodedata.normalize('NFKD', thousand_sep)
-    #             }:
-    #                 value = value.replace(replacement, '')
-    #     parts.append(value)
-    #
-    #     return '.'.join(reversed(parts))
-
     def _str_to_number(self, number_str):
-        # sanitized_number_str = self._sanitize_separators(number_str)
         sanitized_number_str = sanitize_separators(number_str)
 
         try:
@@ -625,22 +596,13 @@ class TemporalLVSMixin:
         return datetime.strptime(value, format_str).date()
 
 
-# class RegularDateField(ListViewSearchField):
 class RegularDateField(TemporalLVSMixin, ListViewSearchField):
     widget = DateRangeLVSWidget
-
-    # def _get_date(self, date_str) -> Optional[date]:
-    #     if date_str:
-    #         try:
-    #             return dt_from_str(date_str).date()
-    #         except AttributeError:
-    #             logger.warning('RegularDateField => invalid date: %s', date_str)
 
     def to_python(self, value):
         start_str, end_str = value
 
         if start_str or end_str:
-            # get_date = self._get_date
             get_date = self.parse_temporal
             start = get_date(start_str)
             end = get_date(end_str)
@@ -767,22 +729,13 @@ class CustomBooleanField(ListViewSearchField):
         return super().to_python(value=value)
 
 
-# class CustomDatetimeField(ListViewSearchField):
 class CustomDatetimeField(TemporalLVSMixin, ListViewSearchField):
     widget = DateRangeLVSWidget
-
-    # def _get_date(self, date_str):
-    #     if date_str:
-    #         try:
-    #             return dt_from_str(date_str).date()
-    #         except AttributeError:
-    #             logger.warning('CustomDatetimeField => invalid date: %s', date_str)
 
     def to_python(self, value):
         start_str, end_str = value
 
         if start_str or end_str:
-            # get_date = self._get_date
             get_date = self.parse_temporal
             start = get_date(start_str)
             end = get_date(end_str)

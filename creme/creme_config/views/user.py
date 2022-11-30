@@ -147,7 +147,6 @@ class UserDeactivation(generic.CheckedView):
             if user_to_deactivate.is_staff and not user.is_staff:
                 return HttpResponse(
                     gettext("You can't deactivate a staff user."),
-                    # status=400,
                     status=409,
                 )
 

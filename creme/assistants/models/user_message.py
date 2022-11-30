@@ -32,10 +32,8 @@ from creme.creme_core.models import fields as creme_fields
 logger = logging.getLogger(__name__)
 
 
-# class UserMessagePriority(core_models.CremeModel):
 class UserMessagePriority(core_models.MinionModel):
     title = models.CharField(_('Title'), max_length=200)
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('assistants-messaqe_priority', 'Create a priority')
 
@@ -73,7 +71,6 @@ class UserMessage(core_models.CremeModel):
         null=True,  related_name='assistants_messages',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    # creme_entity = creme_fields.RealEntityForeignKey(
     real_entity = creme_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
@@ -110,7 +107,6 @@ class UserMessage(core_models.CremeModel):
             body=body,
             priority_id=priority_id,
             sender=sender,
-            # creme_entity=entity,
             real_entity=entity,
         )
         cls.objects.bulk_create(

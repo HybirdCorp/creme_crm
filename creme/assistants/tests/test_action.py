@@ -45,7 +45,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'title':             title,
                 'description':       descr,
                 'expected_reaction': reaction,
-                # 'deadline':          deadline,
                 'deadline':          self.formfield_value_date(deadline),
             },
         )
@@ -70,7 +69,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         descr = 'DESCRIPTION'
         reaction = 'REACTION'
-        # deadline = '2010-12-24'
         deadline = date(2010, 12, 24)
         action = self._create_action(deadline, title, descr, reaction)
 
@@ -81,7 +79,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertEqual(entity.entity_type_id, action.entity_content_type_id)
         self.assertEqual(entity.id,             action.entity_id)
-        # self.assertEqual(entity.id,             action.creme_entity.id)
         self.assertEqual(entity,                action.real_entity)
 
         self.assertDatetimesAlmostEqual(now(), action.creation_date)
@@ -107,7 +104,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         title = 'TITLE'
         descr = 'DESCRIPTION'
         reaction = 'REACTION'
-        # action = self._create_action('2010-12-24', title, descr, reaction)
         action = self._create_action(date(2010, 12, 24), title, descr, reaction)
 
         url = action.get_edit_absolute_url()
@@ -128,7 +124,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'title':             title,
                 'description':       descr,
                 'expected_reaction': reaction,
-                # 'deadline':          '2011-11-25',
                 'deadline':          self.formfield_value_date(2011, 11, 25),
                 'deadline_time':     '17:37:00',
             },
@@ -145,13 +140,11 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
     def test_delete_entity01(self):
-        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         self.entity.delete()
         self.assertDoesNotExist(action)
 
     def _aux_test_delete(self, ajax=False):
-        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         ct = self.get_ct(Action)
         kwargs = {} if not ajax else {'HTTP_X_REQUESTED_WITH': 'XMLHttpRequest'}
@@ -257,7 +250,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertInstanceLink(home_brick_node_ko, entity2)
 
     def test_validate(self):
-        # action = self._create_action('2010-12-24', 'title', 'descr', 'reaction')
         action = self._create_action(date(2010, 12, 24), 'title', 'descr', 'reaction')
         self.assertFalse(action.is_ok)
         self.assertIsNone(action.validation_date)
@@ -296,7 +288,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(actions))
 
             for action in actions:
-                # self.assertEqual(contact01, action.creme_entity)
                 self.assertEqual(contact01, action.real_entity)
 
         self.aux_test_merge(creator, assertor)
@@ -325,7 +316,6 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_action = partial(
             Action.objects.create,
-            # creme_entity=self.entity, user=user,
             real_entity=self.entity, user=user,
             deadline=now_value + timedelta(days=1),
         )

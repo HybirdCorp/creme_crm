@@ -96,7 +96,6 @@ class AbstractActivity(CremeEntity):
     )
     sub_type = models.ForeignKey(
         other_models.ActivitySubType, verbose_name=_('Activity sub-type'),
-        # blank=True, null=True, on_delete=models.SET_NULL,
         on_delete=models.PROTECT,
     )
 
@@ -196,7 +195,6 @@ END:VEVENT
         if source.busy:
             self.busy = False
 
-    # def _copy_relations(self, source):
     def _copy_relations(self, source, allowed_internal=()):
         super()._copy_relations(
             source,

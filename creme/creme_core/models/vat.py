@@ -16,14 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 from django.db import models
 from django.db.transaction import atomic
 from django.utils.translation import gettext_lazy as _
 
 from ..constants import DEFAULT_VAT
 from ..global_info import cached_per_request
-# from .base import CremeModel
 from .base import MinionModel
 
 
@@ -33,11 +31,9 @@ class VatManager(models.Manager):
         return self.filter(is_default=True)[0]
 
 
-# class Vat(CremeModel):
 class Vat(MinionModel):
     value = models.DecimalField(_('VAT'), max_digits=4, decimal_places=2, default=DEFAULT_VAT)
     is_default = models.BooleanField(_('Is default?'), default=False)
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     objects = VatManager()
 
@@ -71,13 +67,3 @@ class Vat(MinionModel):
                 first_vat.save()
 
         super().delete(*args, **kwargs)
-
-    # @staticmethod
-    # def get_default_vat() -> 'Vat':
-    #     warnings.warn(
-    #         'The method Vat.get_default_vat() is deprecated ; '
-    #         'use Vat.objects.default() instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     return Vat.objects.filter(is_default=True)[0]

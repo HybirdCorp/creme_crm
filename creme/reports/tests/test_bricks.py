@@ -87,17 +87,17 @@ def create_fake_docs(user):
         create_doc(
             title='Doc#1.1',
             linked_folder=folder1,
-            created=make_aware(datetime(2022, 5, 10))
+            created=make_aware(datetime(2022, 5, 10)),
         ),
         create_doc(
             title='Doc#1.2',
             linked_folder=folder1,
-            created=make_aware(datetime(2022, 5, 30))
+            created=make_aware(datetime(2022, 5, 30)),
         ),
         create_doc(
             title='Doc#2',
             linked_folder=folder2,
-            created=make_aware(datetime(2022, 8, 2))
+            created=make_aware(datetime(2022, 8, 2)),
         ),
     )
 
@@ -113,9 +113,7 @@ def get_listview_url(url, q_filters):
     q = Q()
 
     for q_object in q_filters:
-        q &= (
-            q_object if isinstance(q_object, Q) else Q(**q_object)
-        )
+        q &= q_object if isinstance(q_object, Q) else Q(**q_object)
 
     return f'{url}?q_filter={QSerializer().dumps(q)}'
 
@@ -142,7 +140,7 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
                 name: chart.props(graph, []) for name, chart in report_chart_registry
-            }
+            },
         })
 
     def test_detailview_display(self, mock_brick_render):
@@ -157,8 +155,8 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'x': '2022',
                 'y': 3,
                 'url': reverse_listview(
-                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}]
-                )
+                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}],
+                ),
             },
         ]
 
@@ -170,7 +168,7 @@ class D3ReportGraphChartBrickTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'graph': graph,
             'data': data,
             'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings', args=(graph.id,)
+                'reports__update_graph_fetch_settings', args=(graph.id,),
             ),
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
@@ -252,7 +250,7 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
                 'props': {
                     name: chart.props(graph_by_year, data)
                     for name, chart in report_chart_registry
-                }
+                },
             },
             {
                 'graph': graph_by_month,
@@ -264,7 +262,7 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
                 'props': {
                     name: chart.props(graph_by_month, data)
                     for name, chart in report_chart_registry
-                }
+                },
             },
         ])
 
@@ -283,8 +281,8 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
                 'x': '2022',
                 'y': 3,
                 'url': reverse_listview(
-                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}]
-                )
+                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}],
+                ),
             },
         ]
 
@@ -296,18 +294,18 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
                 'y': 2,
                 'url': reverse_listview(
                     'reports__list_fake_documents', q_filters=[
-                        {"created__year": 2022, 'created__month': 5}
+                        {"created__year": 2022, 'created__month': 5},
                     ]
-                )
+                ),
             },
             {
                 'x': datetime(2022, 8, 1).strftime(by_month_format),  # 08-2022
                 'y': 1,
                 'url': reverse_listview(
                     'reports__list_fake_documents', q_filters=[
-                        {"created__year": 2022, 'created__month': 8}
-                    ]
-                )
+                        {"created__year": 2022, 'created__month': 8},
+                    ],
+                ),
             },
         ]
 
@@ -327,19 +325,19 @@ class D3ReportGraphChartListBrickTestCase(BrickTestCaseMixin, BaseReportsTestCas
                 'data': graph_by_year_data,
                 'instance_brick_count': 0,
                 'settings_update_url': reverse(
-                    'reports__update_graph_fetch_settings', args=(graph_by_year.id,)
+                    'reports__update_graph_fetch_settings', args=(graph_by_year.id,),
                 ),
                 'props': {
                     name: chart.props(graph_by_year, graph_by_year_data)
                     for name, chart in report_chart_registry
-                }
+                },
             },
             {
                 'graph': graph_by_month,
                 'data': graph_by_month_data,
                 'instance_brick_count': 0,
                 'settings_update_url': reverse(
-                    'reports__update_graph_fetch_settings', args=(graph_by_month.id,)
+                    'reports__update_graph_fetch_settings', args=(graph_by_month.id,),
                 ),
                 'props': {
                     name: chart.props(graph_by_month, graph_by_month_data)
@@ -367,12 +365,13 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             'graph': graph,
             'data': [],
             'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(instance.id, graph.id,)
+                'reports__update_graph_fetch_settings_for_instance',
+                args=(instance.id, graph.id,),
             ),
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
                 name: chart.props(graph, []) for name, chart in report_chart_registry
-            }
+            },
         })
 
     def test_detailview_display(self, mock_brick_render):
@@ -388,8 +387,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
                 'x': '2022',
                 'y': 3,
                 'url': reverse_listview(
-                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}]
-                )
+                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}],
+                ),
             },
         ]
 
@@ -401,7 +400,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             'graph': graph,
             'data': data,
             'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(instance.id, graph.id,)
+                'reports__update_graph_fetch_settings_for_instance',
+                args=(instance.id, graph.id,),
             ),
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
@@ -424,12 +424,13 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             'graph': graph,
             'data': [],
             'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(instance.id, graph.id,)
+                'reports__update_graph_fetch_settings_for_instance',
+                args=(instance.id, graph.id,),
             ),
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
                 name: chart.props(graph, []) for name, chart in report_chart_registry
-            }
+            },
         })
 
     def test_home_display(self, mock_brick_render):
@@ -445,8 +446,8 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
                 'x': '2022',
                 'y': 3,
                 'url': reverse_listview(
-                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}]
-                )
+                    'reports__list_fake_documents', q_filters=[{"created__year": 2022}],
+                ),
             },
         ]
 
@@ -458,12 +459,13 @@ class D3ReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReportsTes
             'graph': graph,
             'data': data,
             'settings_update_url': reverse(
-                'reports__update_graph_fetch_settings_for_instance', args=(instance.id, graph.id,)
+                'reports__update_graph_fetch_settings_for_instance',
+                args=(instance.id, graph.id,),
             ),
             'charts': [chart for _, chart in report_chart_registry],
             'props': {
                 name: chart.props(graph, data) for name, chart in report_chart_registry
-            }
+            },
         })
 
 
@@ -662,7 +664,6 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
                 self._build_fetchfrombrick_url(item, invoice, 'DESC'),
             ).json()
 
-        # self.assertListEqual(['11/2014', '10/2014'], result_desc.get('x'))
         self.assertListEqual(['11-2014', '10-2014'], result_desc.get('x'))
 
         y_desc = result_desc.get('y')

@@ -11,7 +11,6 @@
 {% block brick_table_rows %}
     {% for result in page.object_list %}
     <tr>
-{#        <td>{% widget_entity_hyperlink result.entity user %}</td> #}
         <td>{% widget_entity_hyperlink result.real_entity user %}</td>
         <td>
             {% if result.messages|length > 1 %}

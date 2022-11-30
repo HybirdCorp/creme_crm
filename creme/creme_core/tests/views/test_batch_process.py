@@ -698,7 +698,6 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         # We simulate a job which has been interrupted
         orga01.name = 'Coding'
         orga01.save()
-        # EntityJobResult.objects.create(job=job, entity=orga01)
         EntityJobResult.objects.create(job=job, real_entity=orga01)
 
         batch_process_type.execute(job)

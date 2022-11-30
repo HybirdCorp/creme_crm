@@ -351,7 +351,6 @@ class MenuEntriesTestCase(CremeTestCase):
 
 class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
     PORTAL_URL = reverse('creme_config__menu')
-    # ADD_URL = reverse('creme_config__add_menu_container')
     DELETE_URL = reverse('creme_config__delete_menu_level0')
 
     @classmethod
@@ -368,10 +367,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         MenuConfigItem.objects.all().delete()
 
         create_items = MenuConfigItem.objects.bulk_create
-        # parent_items, child_items = split_filter(
-        #     (lambda item: item.parent_id is None),
-        #     cls._items_backup,
-        # )
         child_items, parent_items = partition(
             (lambda item: item.parent_id is None),
             cls._items_backup,
@@ -677,7 +672,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             role=role,
         )
 
-        # url = self.ADD_URL
         url = self._build_add_container_url()
         response1 = self.assertGET200(url)
 
@@ -700,7 +694,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertNoFormError(response2)
-        # self.assertEqual(6, MenuConfigItem.objects.count())
         self.assertEqual(
             6, MenuConfigItem.objects.filter(superuser=False, role=None).count(),
         )
@@ -847,7 +840,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         "With existing items."
         self.login()
 
-        # url = reverse('creme_config__add_menu_special_level0')
         url = self._build_special_level0_url()
 
         # Order of next container should be 21
@@ -888,7 +880,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
         MenuConfigItem.objects.create(entry_id=Separator0Entry.id, order=1)
 
-        # response = self.assertGET200(reverse('creme_config__add_menu_special_level0'))
         response = self.assertGET200(self._build_special_level0_url())
 
         with self.assertNoException():
@@ -1219,7 +1210,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             role=self.role,
         )
 
-        # url = reverse('creme_config__reorder_menu_level0', args=(item01.id,))
         url = self._build_reorder_level0_url(item01)
         self.assertGET405(url)
 
@@ -1243,7 +1233,6 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         create_item(entry_id=ContainerEntry.id, order=2, entry_data={'label': 'Misc'})
 
         self.assertPOST403(
-            # reverse('creme_config__reorder_menu_level0', args=(item01.id,)),
             self._build_reorder_level0_url(item01),
             data={'target': 2},
         )

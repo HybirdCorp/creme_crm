@@ -28,11 +28,7 @@
 .inner-popup-content .west,
 .inner-popup-content .south,
 .inner-popup-content .east {
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
-            box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .content-detail-view .north:not(:empty),

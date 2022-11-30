@@ -35,7 +35,6 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         this.less(element, options.less || element.is('[less]'));
         this.minShowSelectAll(element, options.selectall);
 
-//        this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
         this.disabled(element, creme.object.isTrue(options.disabled) || this._delegate(element).is('[disabled]'));
 
         this._initializeController(element, options);

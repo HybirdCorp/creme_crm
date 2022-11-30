@@ -289,7 +289,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            # '"print_field" tag requires arguments.',
             "'print_field' did not receive value(s) for the argument(s): 'object', 'field'",
             str(cm.exception),
         )
@@ -302,7 +301,6 @@ class CremeCoreTagsTestCase(CremeTestCase):
             )
 
         self.assertEqual(
-            # '"print_field" tag has invalid arguments.',
             "'print_field' received too many positional arguments",
             str(cm.exception),
         )

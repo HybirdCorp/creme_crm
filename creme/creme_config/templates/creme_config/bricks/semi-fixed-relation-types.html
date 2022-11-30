@@ -30,7 +30,6 @@
     {% with rtype=sf_rtype.relation_type %}
     <tr>
         <td><span class="semifixed_rtype-predicate{% if not rtype.enabled %} semifixed_rtype-predicate-disabled{% endif %}">{{sf_rtype.predicate}}</span></td>
-{#        <td>{% widget_entity_hyperlink sf_rtype.object_entity.get_real_entity user %}</td> #}
         <td>{% widget_entity_hyperlink sf_rtype.real_object user %}</td>
         <td><span class="semifixed_rtype-rtype{% if not rtype.enabled %} semifixed_rtype-rtype-disabled{% endif %}">{{rtype}}</span></td>
         <td {% brick_table_data_status action %}>

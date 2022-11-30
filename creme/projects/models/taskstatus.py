@@ -20,17 +20,14 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField, ColorField
 
 
-# class TaskStatus(CremeModel):
 class TaskStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     color_code = ColorField(_('Color'), blank=True)
     description = models.TextField(_('Description'))
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
     order = BasicAutoField(_('Order'))
 
     creation_label = pgettext_lazy('projects-task_status', 'Create a status')

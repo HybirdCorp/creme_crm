@@ -39,7 +39,6 @@
     <tr>
         <td {% brick_table_data_status primary %}>{% print_field object=alert field='title' %}</td>
         {% if not object %}
-{#            <td>{% widget_entity_hyperlink alert.creme_entity user %}</td> #}
             <td>{% widget_entity_hyperlink alert.real_entity user %}</td>
         {% endif %}
         <td>{% print_field object=alert field='user' %}</td>
@@ -65,7 +64,6 @@
             {% endif %}
         </td>
         <td>{% print_field object=alert field='description' %}</td>
-{#        {% has_perm_to change alert.creme_entity as has_perm %} #}
         {% has_perm_to change alert.real_entity as has_perm %}
         <td {% brick_table_data_status action %}>
             {% if alert.is_validated %}

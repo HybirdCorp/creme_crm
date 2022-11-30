@@ -608,10 +608,6 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
     )
 
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
-    # json_extra_data = models.TextField(
-    #     editable=False,
-    #     default='{}',
-    # ).set_tags(viewable=False)
     json_extra_data = models.JSONField(
         editable=False,
         default=dict,
@@ -630,7 +626,6 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self._extra_data = json_load(self.json_extra_data)
         self._extra_data = self.json_extra_data
 
     def __str__(self):
@@ -710,7 +705,6 @@ class InstanceBrickConfigItem(StoredBrickClassMixin, CremeModel):
         return f'{cls._brick_id_prefix}_{app_name}-{name}'
 
     def save(self, **kwargs):
-        # self.json_extra_data = json_encode(self._extra_data)
         self.json_extra_data = self._extra_data
         super().save(**kwargs)
 
@@ -719,7 +713,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
     id = models.CharField(primary_key=True, max_length=100, editable=False)
     content_type = CTypeForeignKey(verbose_name=_('Related type'), editable=False)
     name = models.CharField(_('Name'), max_length=200)
-    # json_cells = models.TextField(editable=False, default='[]')
     json_cells = models.JSONField(editable=False, default=list)
 
     _cells = None
@@ -735,7 +728,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
     @property
     def brick_id(self) -> str:
-        # return f'customblock-{self.id}'
         return f'{self._brick_id_prefix}-{self.id}'
 
     @atomic
@@ -747,20 +739,16 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
         super().delete(*args, **kwargs)
 
-    # @staticmethod
     @classmethod
-    # def id_from_brick_id(brick_id: str) -> Optional[str]:
     def id_from_brick_id(cls, brick_id: str) -> str | None:
         try:
             prefix, cbci_id = brick_id.split('-', 1)
         except ValueError:  # Unpacking error
             return None
 
-        # return None if prefix != 'customblock' else cbci_id
         return None if prefix != cls._brick_id_prefix else cbci_id
 
     def _dump_cells(self, cells: Iterable[EntityCell]) -> None:
-        # self.json_cells = json_encode([cell.to_dict() for cell in cells])
         # TODO: custom encoder instead?
         self.json_cells = [cell.to_dict() for cell in cells]
 
@@ -774,7 +762,6 @@ class CustomBrickConfigItem(StoredBrickClassMixin, CremeModel):
 
             cells, errors = CELLS_MAP.build_cells_from_dicts(
                 model=self.content_type.model_class(),
-                # dicts=json_load(self.json_cells),
                 dicts=self.json_cells,
             )
 
@@ -864,7 +851,6 @@ class BrickState(CremeModel):
     show_empty_fields = models.BooleanField(default=True)
 
     # NB: do not use directly ; use the function get_extra_data() & set_extra_data()
-    # json_extra_data = models.TextField(editable=False, default='{}').set_tags(viewable=False)
     json_extra_data = models.JSONField(
         editable=False, default=dict,
     ).set_tags(viewable=False)
@@ -877,7 +863,6 @@ class BrickState(CremeModel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self._extra_data = json_load(self.json_extra_data)
         self._extra_data = self.json_extra_data
 
     def __str__(self):
@@ -887,7 +872,6 @@ class BrickState(CremeModel):
             f'brick_id="{self.brick_id}", '
             f'is_open={self.is_open}, '
             f'show_empty_fields={self.show_empty_fields}, '
-            # f'json_extra_data="{self.json_extra_data}"'
             f'json_extra_data={self.json_extra_data}'
             f')'
         )
@@ -905,6 +889,5 @@ class BrickState(CremeModel):
         return old_value != value
 
     def save(self, **kwargs):
-        # self.json_extra_data = json_encode(self._extra_data)
         self.json_extra_data = self._extra_data
         super().save(**kwargs)

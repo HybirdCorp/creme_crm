@@ -300,11 +300,7 @@ class Populator(BasePopulator):
             create_mitem(entry_id=menu.MailingListsEntry.id,   order=15)
             create_mitem(entry_id=menu.EmailTemplatesEntry.id, order=20)
             create_mitem(entry_id=menu.EntityEmailsEntry.id,   order=25)
-
-            # sync_entry_id = menu.EmailSyncEntry.id
-            # if sync_entry_id:
-            #     create_mitem(entry_id=sync_entry_id, order=30)
-            create_mitem(entry_id=menu.EmailSyncEntry.id, order=30)
+            create_mitem(entry_id=menu.EmailSyncEntry.id,      order=30)
 
             # ---------------------------
             create_cbci = CustomBrickConfigItem.objects.create

@@ -2,12 +2,10 @@ from datetime import date, time
 from functools import partial
 
 from django.urls import reverse
-# from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from parameterized import parameterized
 
-# from creme.creme_core.models.setting_value import SettingValue
-from creme.creme_core.tests.base import CremeTestCase  # skipIfNotInstalled
+from creme.creme_core.tests.base import CremeTestCase
 
 from .. import constants
 from ..models import ActivitySubType, ActivityType, Calendar
@@ -151,11 +149,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data=self.build_submit_data(
                 user,
                 **{
-                    # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    # f'{self.EXTRA_END_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_END_KEY}_1': '15:00:00',
                 }
@@ -171,11 +167,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data=self.build_submit_data(
                 user,
                 **{
-                    # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    # f'{self.EXTRA_END_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_END_KEY}_1': '15:00:00',
 
@@ -195,11 +189,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data=self.build_submit_data(
                 user,
                 **{
-                    # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    # f'{self.EXTRA_END_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_END_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_END_KEY}_1': '15:00:00',
 
@@ -241,14 +233,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data=self.build_submit_data(
                 user,
                 **{
-                    # f'{self.EXTRA_START_KEY}_0': '2010-1-10',
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2010, 1, 10),
                     f'{self.EXTRA_START_KEY}_1': '09:30:00',
 
-                    # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(custom_type.id),
-                    # self.EXTRA_SUBTYPE_KEY: self._acttype_field_value(
-                    #     custom_type.id, custom_sub_type.id,
-                    # ),
                     self.EXTRA_SUBTYPE_KEY: custom_type.id,
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,
@@ -265,7 +252,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
         self.assertEqual(create_dt(hour=9, minute=30), activity.start)
         self.assertEqual(create_dt(hour=9, minute=45), activity.end)
         self.assertEqual(custom_type.id, activity.type_id)
-        # self.assertIsNone(activity.sub_type_id)
         self.assertEqual(custom_sub_type.id, activity.sub_type_id)
 
     @parameterized.expand([
@@ -281,7 +267,6 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             data=self.build_submit_data(
                 user,
                 **{
-                    # f'{self.EXTRA_START_KEY}_0': date_format(today),
                     f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(today),
 
                     f'{self.EXTRA_MYPART_KEY}_0': True,

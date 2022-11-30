@@ -25,7 +25,6 @@ from .constants import REL_SUB_LINKED_2_TICKET
 
 
 class Linked2TicketButton(Button):
-    # id_ = Button.generate_id('tickets', 'linked2ticket')
     id = Button.generate_id('tickets', 'linked2ticket')
     verbose_name = _('Is linked to a ticket')
     description = _(
@@ -37,7 +36,6 @@ class Linked2TicketButton(Button):
     permissions = 'tickets'
 
     def render(self, context):
-        # context['rtype_id'] = REL_SUB_LINKED_2_TICKET
         context['rtype'] = RelationType.objects.get(id=REL_SUB_LINKED_2_TICKET)
 
         return super().render(context)

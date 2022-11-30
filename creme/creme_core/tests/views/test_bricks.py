@@ -741,12 +741,10 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         tree = self.get_html_tree(response.content)
         brick_node = self.get_brick_node(tree, brick=CustomFieldsBrick)
         self.assertEqual(
-            # number_format(strength, use_l10n=True, force_grouping=True),
             number_format(strength, force_grouping=True),
             self.get_brick_tile(brick_node, f'custom_field-{cfield1.id}').text,
         )
         self.assertEqual(
-            # number_format(energy, use_l10n=True, force_grouping=True),
             number_format(energy, force_grouping=True),
             self.get_brick_tile(brick_node, f'custom_field-{cfield2.id}').text,
         )

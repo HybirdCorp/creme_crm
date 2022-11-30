@@ -61,18 +61,6 @@ class ActivitySubTypeSubCell(CustomFormExtraSubCell):
 
     def formfield(self, instance, user, **kwargs):
         type_id = instance.type_id
-        # if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
-        #     # TODO: improve help_text of end (we know the type default duration)
-        #     types = ActivityType.objects.filter(pk=type_id)
-        # else:
-        #     types = ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO)
-        #
-        # return ActivityTypeField(
-        #     label=self.verbose_name,
-        #     initial=(instance.type_id, instance.sub_type_id),
-        #     user=user,
-        #     types=types,
-        # )
 
         if type_id and (instance.pk is None or type_id == constants.ACTIVITYTYPE_INDISPO):
             # TODO: improve help_text of end (we know the type default duration)
@@ -98,11 +86,6 @@ class UnavailabilityTypeSubCell(CustomFormExtraSubCell):
     is_required = True
 
     def formfield(self, instance, user, **kwargs):
-        # return forms.ModelChoiceField(
-        #     label=self.verbose_name,
-        #     queryset=ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_INDISPO),
-        #     **kwargs
-        # )
         return ActivitySubTypeField(
             model=type(instance),
             field_name='sub_type',
@@ -598,7 +581,6 @@ class BaseCreationCustomForm(BaseCustomForm):
                 ),
                 (
                     cdata.get(get_key(LinkedEntitiesSubCell), ()),
-                    # constants.REL_SUB_LINKED_2_ACTIVITY,
                     LinkedEntitiesSubCell.relation_type_id,
                 ),
             )
@@ -640,12 +622,6 @@ class BaseUnavailabilityCreationCustomForm(BaseCreationCustomForm):
     def clean(self):
         self.cleaned_data['busy'] = True
         return super().clean()
-
-    # def _get_activity_type_n_subtype(self):
-        # return (
-        #     ActivityType.objects.get(pk=constants.ACTIVITYTYPE_INDISPO),
-        #     self.cleaned_data.get(self.subcell_key(UnavailabilityTypeSubCell)),
-        # )
 
     def _get_activity_subtype(self):
         return self.cleaned_data.get(self.subcell_key(UnavailabilityTypeSubCell))

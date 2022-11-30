@@ -6,7 +6,6 @@ from django.urls import reverse
 from creme import documents, persons
 from creme.creme_core.tests.base import CremeTestCase
 
-# from ..constants import MAIL_STATUS_NOTSENT
 from .. import (
     emailcampaign_model_is_custom,
     emailtemplate_model_is_custom,

@@ -65,13 +65,7 @@ class CommercialConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        # from . import models
-
         register = bulk_update_registry.register
-        # todo: min_value/max_value constraint in the model...
-        # register(models.ActObjectivePatternComponent, exclude=['success_rate'])
-        # todo: special form for segment
-        # register(models.MarketSegmentDescription, exclude=['segment'])
         register(self.Act)
         register(self.Pattern)
         register(self.Strategy)

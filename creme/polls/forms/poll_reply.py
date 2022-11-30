@@ -30,7 +30,6 @@ import creme.creme_core.forms.base as core_forms
 import creme.creme_core.forms.fields as core_fields
 from creme import persons, polls
 from creme.creme_core.auth import EntityCredentials
-# from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.models import FieldsConfig
 
@@ -247,20 +246,6 @@ class PollReplyFillForm(core_forms.CremeForm):
         return self.poll_reply
 
 
-# class InnerEditPersonForm(BulkDefaultEditForm):
-#     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
-#         super().__init__(model, field, user, entities, is_bulk, **kwargs)
-#         person_field = core_fields.GenericEntityField(
-#             label=_('Person who filled'),
-#             required=False,
-#             models=[Organisation, Contact],
-#             user=user,
-#         )
-#
-#         if not is_bulk:
-#             person_field.initial = entities[0].person
-#
-#         self.fields['field_value'] = person_field
 class PersonOverrider(FieldOverrider):
     field_names = ['person']
 

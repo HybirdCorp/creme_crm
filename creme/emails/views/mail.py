@@ -147,36 +147,15 @@ class EntityEmailLinking(RelationsAdding):
     def get_relation_types(self):
         subject = self.get_related_entity()
         compatible_rtypes = []
-        # subject_ctype = subject.entity_type
-        # subjects_prop_ids = None
 
         for rtype in RelationType.objects.filter(
             id__in=self.brick_class.relation_type_deps,
         ).prefetch_related(
             'subject_ctypes', 'subject_properties', 'subject_forbidden_properties',
         ):
-            # if not rtype.is_compatible(subject_ctype):
-            #     continue
-            #
-            # needed_property_types = [*rtype.subject_properties.all()]
-            # if needed_property_types:
-            #     if subjects_prop_ids is None:
-            #         subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
-            #
-            #     if any(
-            #         needed_ptype.id not in subjects_prop_ids
-            #         for needed_ptype in needed_property_types
-            #     ):
-            #         continue
-            #
-            # compatible_rtypes.append(rtype)
             try:
-                Relation(
-                    # user=user,
-                    subject_entity=subject,
-                    type=rtype,
-                    # object_entity=...,
-                ).clean_subject_entity()
+                # object_entity=...,
+                Relation(subject_entity=subject, type=rtype).clean_subject_entity()
             except ValidationError:
                 pass
             else:

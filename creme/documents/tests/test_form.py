@@ -45,7 +45,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         self.assertEqual(img, field.clean(str(img.id)))
 
         doc = self._create_doc('foobar.txt')
-        # self.assertIsNone(field.clean(str(doc.id)))
         self.assertIsNone(field.clean(''))
         self.assertFieldValidationError(
             ImageEntityField, 'isexcluded', field.clean, str(doc.id),
@@ -61,7 +60,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         doc = self._create_doc('foobar.txt')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, str(doc.id),
             ImageEntityField, 'isexcluded', field.clean, str(doc.id),
             message_args={'entity': str(doc)},
         )
@@ -106,7 +104,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1', ident=1)
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
             ImageEntityField, 'isexcluded', field.clean, str(img1.id),
             message_args={'entity': str(img1)},
         )
@@ -131,7 +128,6 @@ class ImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, str(img1.id),
             ImageEntityField, 'isexcluded', field.clean, str(img1.id),
             message_args={'entity': str(img1)},
         )
@@ -245,7 +241,6 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         doc = self._create_doc('foobar.txt')
         # self.assertEqual([], field.clean(json_dump([doc.id]))) TODO ?
         self.assertFieldValidationError(
-            # MultiImageEntityField, 'doesnotexist', field.clean, self._build_value(doc),
             MultiImageEntityField, 'isexcluded', field.clean, self._build_value(doc),
             message_args={'entity': str(doc)},
         )
@@ -259,7 +254,6 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
 
         doc = self._create_doc('foobar.txt')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, self._build_value(doc),
             ImageEntityField, 'isexcluded', field.clean, self._build_value(doc),
             message_args={'entity': str(doc)},
         )
@@ -279,7 +273,6 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
             ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
             message_args={'entity': str(img1)},
         )
@@ -305,7 +298,6 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
             ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
             message_args={'entity': str(img1)},
         )
@@ -330,7 +322,6 @@ class MultiImageEntityFieldTestCase(FieldTestCaseMixin, _DocumentsTestCase):
         # Clean
         img1 = self._create_image(title='Icon#1')
         self.assertFieldValidationError(
-            # ImageEntityField, 'doesnotexist', field.clean, self._build_value(img1),
             ImageEntityField, 'isexcluded', field.clean, self._build_value(img1),
             message_args={'entity': str(img1)},
         )

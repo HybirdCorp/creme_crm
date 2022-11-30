@@ -18,7 +18,6 @@
 
 from django.db import models
 from django.urls import reverse
-# from django.utils.translation import pgettext_lazy
 from django.utils.translation import gettext_lazy as _
 
 from creme.commercial.models import MarketSegment
@@ -39,8 +38,6 @@ class AbstractPollCampaign(CremeEntity):
     )
     expected_count = models.PositiveIntegerField(_('Expected replies number'), default=1)
 
-    # creation_label = pgettext_lazy('polls', 'Create a campaign')
-    # save_label     = pgettext_lazy('polls', 'Save the campaign of polls')
     creation_label = _('Create a campaign of polls')
     save_label     = _('Save the campaign of polls')
 

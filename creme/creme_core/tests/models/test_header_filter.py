@@ -11,7 +11,7 @@ from creme.creme_core.core.entity_cell import (
     EntityCellRegularField,
     EntityCellRelation,
 )
-from creme.creme_core.models import (  # CremeEntity Relation
+from creme.creme_core.models import (
     FakeCivility,
     FakeContact,
     FakeOrganisation,

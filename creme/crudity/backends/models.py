@@ -103,7 +103,6 @@ class CrudityBackend:
         self.verbose_source = config_get('verbose_source')
         self.verbose_method = config_get('verbose_method')
 
-        # self._sandbox_by_user: Optional[bool] = None
         self._check_configuration()
 
     @property

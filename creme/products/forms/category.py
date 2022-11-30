@@ -30,15 +30,6 @@ class SubCategoryForm(CremeModelForm):
         instance = self.instance
         category = instance.category
 
-        # return {
-        #     'value': {'category': str(category.id), 'subcategory': str(instance.id)},
-        #     'added': [
-        #         {
-        #             'category': (str(category.id), str(category)),
-        #             'subcategory': (str(instance.id), str(instance)),
-        #         },
-        #     ],
-        # }
         return {
             'value': str(instance.id),
             'added': [

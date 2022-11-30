@@ -1065,9 +1065,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 ),
                 'dateregularfieldcondition': self._build_rdatefields_data(
                     type='',
-                    # start='2011-5-23',
                     start=self.formfield_value_date(2011, 5, 23),
-                    # end='2012-6-27',
                     end=self.formfield_value_date(2012, 6, 27),
                     name=date_field_name,
                 ),

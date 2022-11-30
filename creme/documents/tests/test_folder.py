@@ -335,17 +335,6 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             user=user,
         )
 
-        # self.assertNoFormError(self.client.post(
-        #     folder.get_edit_absolute_url(),
-        #     follow=True,
-        #     data={
-        #         'user':          user.pk,
-        #         'title':         folder.title,
-        #         'description':   folder.description,
-        #         'parent_folder': folder.id,
-        #     },
-        # ))
-        # self.assertIsNone(self.refresh(folder).parent_folder)
         response = self.assertPOST200(
             folder.get_edit_absolute_url(),
             follow=True,
@@ -406,9 +395,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder2 = create_folder(title='Test folder#2', category=cat2)
 
         field_name = 'parent_folder'
-        # url = self.build_inneredit_url(folder1, 'parent_folder')
         uri = self.build_inneredit_uri(folder1, field_name)
-        # self.assertGET200(url)
         response1 = self.assertGET200(uri)
         formfield_name = f'override-{field_name}'
 
@@ -420,7 +407,6 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         self.assertFalse(parent_f.required)
 
         # ----
-        # response2 = self.client.post(url, data={'field_value': folder2.pk})
         response2 = self.client.post(uri, data={formfield_name: folder2.pk})
         self.assertNoFormError(response2)
 
@@ -441,9 +427,7 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         field_name = 'parent_folder'
         response = self.client.post(
-            # self.build_inneredit_url(folder1, 'parent_folder'),
             self.build_inneredit_uri(folder1, field_name),
-            # data={'field_value': folder2.pk},
             data={f'override-{field_name}': folder2.pk},
         )
         self.assertNoFormError(response)
@@ -463,23 +447,11 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder2 = create_folder(title='Test folder#2', parent_folder=folder1)
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
 
-        # url = self.build_inneredit_url(folder1, 'parent_folder')
         field_name = 'parent_folder'
         uri = self.build_inneredit_uri(folder1, field_name)
-        # response1 = self.assertPOST200(url, data={'field_value': folder3.id})
         formfield_name = f'override-{field_name}'
         response1 = self.assertPOST200(uri, data={formfield_name: folder3.id})
-        # self.assertFormError(
-        #     response1, 'form', None,
-        #     '{} : {}'.format(
-        #         _('Parent folder'),
-        #         _('This folder is one of the child folders of «%(folder)s»') % {
-        #             'folder': folder1,
-        #         },
-        #     ),
-        # )
         self.assertFormError(
-            # response1, 'form', field_name,
             response1, 'form', None,
             _('This folder is one of the child folders of «%(folder)s»') % {
                 'folder': folder1,
@@ -487,12 +459,8 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         )
 
         # -----
-        # response2 = self.client.post(url, data={'field_value': folder1.pk})
         response2 = self.client.post(uri, data={formfield_name: folder1.pk})
-        # self.assertNoFormError(response2)
-        # self.assertIsNone(self.refresh(folder1).parent_folder)
         self.assertFormError(
-            # response2, 'form', 'field_value',
             response2, 'form', formfield_name,
             _('«%(entity)s» violates the constraints.') % {'entity': folder1},
         )
@@ -546,8 +514,6 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         folder3 = create_folder(title='Test folder#3', parent_folder=folder2)
         folder4 = create_folder(title='Test folder#4')
 
-        # url = self.build_bulkupdate_url(Folder, 'parent_folder')
-        # self.assertGET200(url)
         folders = [folder1, folder3, folder4]
         field_name = 'parent_folder'
         url = self.build_bulkupdate_uri(model=Folder, field=field_name)
@@ -558,8 +524,6 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         response2 = self.client.post(
             url,
             data={
-                # 'field_value': folder3.id,
-                # 'entities':    [folder1.id, folder3.id, folder4.id],
                 'entities': [folder.id for folder in folders],
                 formfield_name: folder3.id,
             },

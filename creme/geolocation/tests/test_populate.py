@@ -200,7 +200,6 @@ class CSVPopulatorTestCase(CremeTestCase):
         url = Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'not_archive.csv.zip'
 
         with self.assertRaises(CSVPopulator.ReadError) as error:
-            # populator.populate(url)
             populator.populate(str(url))
 
         self.assertEqual(

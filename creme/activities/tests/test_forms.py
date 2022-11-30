@@ -149,10 +149,6 @@ class ActivityTypeFieldTestCase(FieldTestCase):
             types=ActivityType.objects.filter(pk=atype.id),
             required=False,
         )
-        # self.assertTupleEqual(
-        #     (atype, None),
-        #     field.clean(self._build_value(atype.id))
-        # )
         self.assertFieldValidationError(
             ActivityTypeField, 'subtyperequired', field.clean,
             self._build_value(atype.id),
@@ -168,10 +164,6 @@ class ActivityTypeFieldTestCase(FieldTestCase):
         field = ActivityTypeField(
             types=ActivityType.objects.filter(pk__in=[self.atype.id, atype2.id]),
         )
-        # self.assertTupleEqual(
-        #     (atype2, None),
-        #     field.clean(self._build_value(atype2.id))
-        # )
         self.assertFieldValidationError(
             ActivityTypeField, 'subtyperequired', field.clean,
             self._build_value(atype2.id),
@@ -267,7 +259,6 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
         self.assertTupleEqual(
             (date(year=2020, month=12, day=8), time(hour=18, minute=44)),
-            # field.clean(['2020-12-8', '18:44:00']),
             field.clean([self.formfield_value_date(2020, 12, 8), '18:44:00']),
         )
 
@@ -276,7 +267,6 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
 
         self.assertTupleEqual(
             (date(year=2020, month=11, day=9), None),
-            # field.clean(['2020-11-9']),
             field.clean([self.formfield_value_date(2020, 11, 9)]),
         )
 
@@ -298,7 +288,6 @@ class DateWithOptionalTimeFieldTestCase(FieldTestCase):
         )
 
         with self.assertNoException():
-            # res = field.clean(['2020-11-9'])
             res = field.clean([self.formfield_value_date(2020, 11, 9)])
 
         self.assertTupleEqual((date(year=2020, month=11, day=9), None), res)

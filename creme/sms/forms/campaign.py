@@ -23,7 +23,6 @@ from creme import sms
 from creme.creme_core import forms
 from creme.creme_core.forms.fields import MultiCreatorEntityField
 
-# SMSCampaign   = sms.get_smscampaign_model()
 MessagingList = sms.get_messaginglist_model()
 
 

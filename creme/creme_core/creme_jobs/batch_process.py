@@ -122,13 +122,11 @@ class _BatchProcessType(JobType):
                             final_entity.full_clean()
                         except ValidationError as e:
                             create_result(
-                                # entity=final_entity,
                                 real_entity=final_entity,
                                 messages=self._humanize_validation_error(final_entity, e)
                             )
                         else:
                             final_entity.save()
-                            # create_result(entity=final_entity)
                             create_result(real_entity=final_entity)
 
     def progress(self, job):

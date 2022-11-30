@@ -111,12 +111,8 @@ class ContactTestCase(_BaseTestCase):
     def test_clean_unique_user_email(self):
         user1 = self.create_user(0)
 
-        # user2 = self.create_user(1, email=user1.email)
         user2 = self.create_user(1)
 
-        # contact = Contact.objects.create(
-        #     user=user, first_name='Faye', last_name='Valentine',
-        # )
         contact2 = user2.linked_contact
         contact2.email = user1.email
 
@@ -893,10 +889,6 @@ class ContactTestCase(_BaseTestCase):
         )
         self.assertFormError(
             response1, 'form', 'rtype_for_organisation',
-            # _(
-            #     'The entity «%(entity)s» has no property «%(property)s» which is '
-            #     'required by the relationship «%(predicate)s».'
-            # ) % {
             Relation.error_messages['missing_subject_property'] % {
                 'entity': orga,
                 'property': ptype1,
@@ -920,13 +912,6 @@ class ContactTestCase(_BaseTestCase):
         )
         self.assertFormError(
             response2, 'form', 'rtype_for_organisation',
-            # _(
-            #     'The property «%(property)s» is mandatory '
-            #     'in order to use the relationship «%(predicate)s»'
-            # ) % {
-            #     'property': ptype1,
-            #     'predicate': rtype2.predicate,
-            # },
             Relation.error_messages['missing_subject_property'] % {
                 'entity': Contact(last_name=last_name, first_name=first_name),
                 'property': ptype1,

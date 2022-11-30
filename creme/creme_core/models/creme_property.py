@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from typing import Iterable
 
 from django.contrib.contenttypes.models import ContentType
@@ -241,29 +240,6 @@ class CremePropertyType(CremeModel):
     @staticmethod
     def get_lv_absolute_url():
         return reverse('creme_config__ptypes')
-
-    # @classmethod
-    # def create(cls,
-    #            str_pk,
-    #            text,
-    #            subject_ctypes=(),
-    #            is_custom=False,
-    #            generate_pk=False,
-    #            is_copiable=True,
-    #            ):
-    #     warnings.warn(
-    #         'CremePropertyType.create() is deprecated; '
-    #         'use CremePropertyType.objects.smart_update_or_create() instead.',
-    #         DeprecationWarning,
-    #     )
-    #     return cls.objects.smart_update_or_create(
-    #         str_pk=str_pk,
-    #         text=text,
-    #         subject_ctypes=subject_ctypes,
-    #         is_custom=is_custom,
-    #         generate_pk=generate_pk,
-    #         is_copiable=is_copiable,
-    #     )
 
     @property
     def subject_models(self):

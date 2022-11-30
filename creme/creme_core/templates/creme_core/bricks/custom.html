@@ -23,7 +23,6 @@
 {% endblock %}
 
 {% block brick_content %}
-{#    {% for cell in config_item.filtered_cells %} #}
     {% for cell in cells %}
         {% brick_tile_for_cell cell object user %}
     {% empty %}

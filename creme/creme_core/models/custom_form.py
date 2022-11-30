@@ -18,14 +18,12 @@
 
 from __future__ import annotations
 
-# from json import loads as json_load
 from typing import TYPE_CHECKING
 
 from django.db import models
 from django.db.models import F, Q
 from django.utils.translation import gettext_lazy as _
 
-# from ..utils.serializers import json_encode
 from .auth import UserRole
 
 if TYPE_CHECKING:
@@ -99,7 +97,6 @@ class CustomFormConfigItem(models.Model):
     descriptor_id = models.CharField(
         verbose_name=_('Type of form'), max_length=100, editable=False,
     )
-    # json_groups = models.TextField(editable=False, null=True)
     json_groups = models.JSONField(editable=False, default=list)
 
     role = models.ForeignKey(
@@ -140,10 +137,8 @@ class CustomFormConfigItem(models.Model):
 
     # TODO: deprecate?
     def groups_as_dicts(self) -> list[dict]:
-        # return json_load(self.json_groups)
         return self.json_groups
 
     def store_groups(self, groups):
-        # self.json_groups = json_encode([group.as_dict() for group in groups])
         # TODO: specific encoder?
         self.json_groups = [group.as_dict() for group in groups]

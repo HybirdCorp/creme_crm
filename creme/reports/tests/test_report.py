@@ -17,11 +17,6 @@ from django.utils.translation import pgettext
 from creme.creme_config.forms.fields import CreatorModelChoiceField
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import REL_SUB_HAS
-# from creme.creme_core.core.entity_cell import (
-#     EntityCellCustomField
-#     EntityCellFunctionField,
-#     EntityCellRelation,
-# )
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.entity_filter import (
     EF_CREDENTIALS,
@@ -184,7 +179,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         field = columns[0]
         self.assertIsInstance(field, Field)
         self.assertEqual('name',     field.name)
-        self.assertEqual(_('Name'), field.title)
+        self.assertEqual(_('Name'),  field.title)
         self.assertEqual(RFT_FIELD,  field.type)
         self.assertFalse(field.selected)
         self.assertFalse(field.sub_report)
@@ -635,10 +630,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report = self._create_simple_contacts_report('A', description='Simple report')
         self.assertIsNone(report.filter)
 
-        # url = self.build_inneredit_url(report, 'filter')
         field_name = 'filter'
         uri = self.build_inneredit_uri(report, field_name)
-        # response1 = self.assertGET200(url)
         response1 = self.assertGET200(uri)
         form_field_name = f'override-{field_name}'
 
@@ -658,15 +651,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertFalse(filter_f1.required)
 
         # ---
-        # response2 = self.assertPOST200(url, data={'field_value': orga_filter.pk})
         response2 = self.assertPOST200(uri, data={form_field_name: orga_filter.pk})
         self.assertFormError(
-            # response2, 'form', 'field_value',
             response2, 'form', form_field_name,
             _('Select a valid choice. That choice is not one of the available choices.'),
         )
 
-        # response3 = self.client.post(url, data={'field_value': contact_filter.pk})
         response3 = self.client.post(uri, data={form_field_name: contact_filter.pk})
         self.assertNoFormError(response3)
         self.assertEqual(contact_filter, self.refresh(report).filter)
@@ -693,11 +683,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             ct=efilter.entity_type, filter=efilter,
         )
 
-        # url = self.build_inneredit_url(report, 'filter')
         field_name = 'filter'
         uri = self.build_inneredit_uri(report, field_name)
         self.assertContains(
-            # self.client.get(url),
             self.client.get(uri),
             ngettext(
                 'The filter cannot be changed because it is private.',
@@ -707,10 +695,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             html=True,
         )
 
-        # response = self.assertPOST200(url, data={'field_value': ''})
         response = self.assertPOST200(uri, data={f'override-{field_name}': ''})
         self.assertFormError(
-            # response, 'form', None,
             response, 'form', f'override-{field_name}',
             _('The filter cannot be changed because it is private.'),
         )
@@ -745,8 +731,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report1 = self._create_simple_contacts_report('Filter #1')
         report2 = self._create_simple_contacts_report('Filter #2')
 
-        # url = self.build_bulkupdate_url(Report, 'filter')
-        # self.assertGET200(url)
         reports = [report1, report2]
         field_name = 'filter'
         build_uri = partial(self.build_bulkupdate_uri, model=Report, field=field_name)
@@ -761,16 +745,13 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         # ---
         response2 = self.assertPOST200(
-            # url,
             build_uri(),
             data={
                 'entities': [report.id for report in reports],
-                # 'field_value': orga_filter.id,
                 formfield_name: orga_filter.id,
             },
         )
         self.assertFormError(
-            # response2, 'form', 'field_value',
             response2, 'form', formfield_name,
             _(
                 'Select a valid choice. '
@@ -779,11 +760,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         )
 
         response2 = self.client.post(
-            # url,
             build_uri(),
             data={
                 'entities': [report.id for report in reports],
-                # 'field_value': contact_filter.id,
                 formfield_name: contact_filter.id,
             },
         )
@@ -809,8 +788,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         report1 = self._create_simple_contacts_report('Contact report')
         report2 = self._create_simple_organisations_report('Orga report')
 
-        # url = self.build_bulkupdate_url(Report, 'filter')
-        # self.assertGET200(url)
         reports = [report1, report2]
         build_uri = partial(self.build_bulkupdate_uri, model=Report, field=field_name)
         response1 = self.assertGET200(build_uri(entities=reports))
@@ -826,16 +803,13 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         # ----
         response2 = self.assertPOST200(
-            # url,
             build_uri(),
             data={
                 'entities': [report.id for report in reports],
-                # 'field_value': contact_filter.id,
                 formfield_name: contact_filter.id,
             },
         )
         self.assertFormError(
-            # response2, 'form', None,
             response2, 'form', formfield_name,
             _(
                 'Filter field can only be updated when reports '
@@ -886,11 +860,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         # ---
         response2 = self.client.post(
-            # self.build_bulkupdate_url(Report, 'filter'),
             build_uri(),
             data={
                 'entities': [report.id for report in reports],
-                # 'field_value': efilter3.id,
                 formfield_name: efilter3.id,
             },
         )
@@ -1035,8 +1007,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type': 'csv',
                 'date_filter_0': '',
-                # 'date_filter_1': '1990-01-01',
-                # 'date_filter_2': '1990-12-31',
                 'date_filter_1': self.formfield_value_date(1990,  1,  1),
                 'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    'birthday',
@@ -1116,8 +1086,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type':      'csv',
                 'date_filter_0': '',
-                # 'date_filter_1': '1990-01-01',
-                # 'date_filter_2': '1990-12-31',
                 'date_filter_1': self.formfield_value_date(1990,  1,  1),
                 'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    'birthday',
@@ -1179,8 +1147,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'doc_type':      'csv',
                 'date_filter_0': '',
-                # 'date_filter_1': '01-01-1990',
-                # 'date_filter_2': '31-12-1990',
                 'date_filter_1': self.formfield_value_date(1990,  1,  1),
                 'date_filter_2': self.formfield_value_date(1990, 12, 31),
                 'date_field':    date_field,
@@ -1372,8 +1338,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'doc_type': 'csv',
                 'date_field': 'birthday',
                 'date_filter_0': '',
-                # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
                 'date_filter_1': self.formfield_value_date(1980, 1, 1),
                 'date_filter_2': self.formfield_value_date(2000, 1, 1),
             },
@@ -1420,8 +1384,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             'doc_type': 'csv',
             'date_field': 'birthday',
             'date_filter_0': '',
-            # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-            # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
             'date_filter_1': self.formfield_value_date(1980, 1, 1),
             'date_filter_2': self.formfield_value_date(2000, 1, 1),
         }
@@ -1431,8 +1393,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         export(409, date_field='invalidfield')
         export(409, date_field='first_name')  # Not a date field
-        # export(200, date_filter_1='1980-01-01')  # Invalid format
-        # export(200, date_filter_2='2000-01-01')  # Invalid format
 
         self.assertNotIn(r'%Y\%m\%d', get_format('DATE_INPUT_FORMATS'))
         export(409, date_filter_1=r'1980\01\01')  # Invalid format
@@ -1528,8 +1488,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'doc_type': 'xls',
                 'date_field': 'birthday',
                 'date_filter_0': '',
-                # 'date_filter_1': datetime(year=1980, month=1, day=1).strftime('%d-%m-%Y'),
-                # 'date_filter_2': datetime(year=2000, month=1, day=1).strftime('%d-%m-%Y'),
                 'date_filter_1': self.formfield_value_date(1980, 1, 1),
                 'date_filter_2': self.formfield_value_date(2000, 1, 1),
             },
@@ -2085,7 +2043,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         # Incompatible CT
         img_report = self._build_image_report()
         response = self.assertPOST200(url, data={'report': img_report.id})
-        # self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
         self.assertFormError(
             response, 'form', 'report',
             _('«%(entity)s» violates the constraints.') % {'entity': img_report},
@@ -2171,7 +2128,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertGET200(url)
 
         response = self.assertPOST200(url, data={'report': orga_report.id})
-        # self.assertFormError(response, 'form', 'report', _('This entity does not exist.'))
         self.assertFormError(
             response, 'form', 'report',
             _('«%(entity)s» violates the constraints.') % {'entity': orga_report},
@@ -3520,7 +3476,6 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         create_invoice(hord, name='Invoice#4', total_vat=Decimal('1000'))  # Should not be used
 
         def fmt_number(n):
-            # return number_format(n, use_l10n=True, decimal_pos=2)
             return number_format(n, decimal_pos=2)
 
         total_lannisters = fmt_number(invoice2.total_vat + invoice3.total_vat)

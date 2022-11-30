@@ -37,13 +37,7 @@ html, body {
 html {
     color: black;
 
-/*
-    background: #fcfcfc;
-    background: -webkit-linear-gradient(top, #fff 0%, #fcfcfc 15%);
-    background:    -moz-linear-gradient(top, #fff 0%, #fcfcfc 15%);
-*/
     background: linear-gradient(to bottom, #fff 0%, #fcfcfc 15%);
-
     background-repeat: repeat-x;
 }
 
@@ -59,11 +53,6 @@ html.is_deleted {
 }
 
 body.is_deleted {
-/*
-    background:                     #eee;
-    background: -webkit-linear-gradient(top, #eee 0%, #fcfcfc 15%);
-    background:     -moz-linear-gradient(top, #eee 0%, #fcfcfc 15%);
-*/
     background: linear-gradient(to bottom, #eee 0%, #fcfcfc 15%);
 }
 
@@ -101,10 +90,6 @@ img {
 }
 
 a img {
-/*
-    -webkit-transition: opacity 400ms ease-in;
-       -moz-transition: opacity 400ms ease-in;
-*/
     transition: opacity 400ms ease-in;
 }
 
@@ -196,18 +181,12 @@ button {
 
     display: inline-block;
 
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
     box-sizing: border-box;
 
     border: 1px solid #d7d7d7;
     border-bottom: 1px solid #bdbdbd;
-
     border-radius: 3px;
 
-/*    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white; */
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     text-align: center;
@@ -349,7 +328,6 @@ button {
 }
 
 .errorlist li {
-/*    list-style-image: url(icecream/images/cancel_16.png); */
     padding-top: 3px;
 }
 
@@ -394,12 +372,6 @@ button {
     list-style-image: url(icecream/images/info_16.png);
     padding-top: 3px;
 }
-
-/*
-.block_header tbody tr td:hover {
-    background-color: transparent;
-}
-*/
 
 .help-sign {
     display: flex;
@@ -490,7 +462,6 @@ div.hat-bar {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 6px;
 
-/*    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.6), inset 0 1px 0px white; */
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     background: linear-gradient(#fcfcfc, #f0f0f0);

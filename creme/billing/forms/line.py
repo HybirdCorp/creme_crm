@@ -189,7 +189,6 @@ class LineEditForm(core_forms.CremeModelForm):
 
 
 class AddToCatalogForm(core_forms.CremeForm):
-    # sub_category = CategoryField(label=_('Sub-category'), required=False)
     sub_category = SubCategoryField(
         model=Product,
         field_name='sub_category',

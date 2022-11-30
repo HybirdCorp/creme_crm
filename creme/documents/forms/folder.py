@@ -19,7 +19,6 @@
 from django.db.models.query_utils import Q
 
 from creme.creme_core.forms import CremeEntityForm
-# from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.gui.bulk_update import FieldOverrider
 from creme.creme_core.models import FieldsConfig
 
@@ -34,12 +33,6 @@ class BaseFolderCustomForm(CremeEntityForm):
             self.fields['parent_folder'].q_filter = ~Q(id=pk)
 
 
-# class ParentFolderBulkForm(BulkDefaultEditForm):
-#     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-#         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
-#
-#         if len(entities) == 1:
-#             self.fields['field_value'].q_filter = ~Q(id__in=[entities[0].id])
 class ParentFolderOverrider(FieldOverrider):
     field_names = ['parent_folder']
 

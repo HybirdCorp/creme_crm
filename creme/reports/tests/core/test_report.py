@@ -156,7 +156,6 @@ class ReportHandTestCase(CremeTestCase):
 
         aria = FakeContact.objects.create(user=user, first_name='Aria', last_name='Stark')
         self.assertEqual(
-            # date_format(localtime(aria.modified), 'DATETIME_FORMAT'),
             localtime(aria.modified).strftime('%Y/%m/%d %H:%M:%S'),
             hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
         )
@@ -390,10 +389,7 @@ class ReportHandTestCase(CremeTestCase):
         with self.assertRaises(ReportHand.ValueError) as cm:
             RHCustomField(rfield)
 
-        self.assertEqual(
-            f'Invalid custom field: "{cf_id}"',
-            str(cm.exception)
-        )
+        self.assertEqual(f'Invalid custom field: "{cf_id}"', str(cm.exception))
 
     def test_relation(self):
         user = self.create_user()
@@ -429,7 +425,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(
             f'{starks}, {assassins}',
-            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()),
         )
 
     def test_relation_error(self):
@@ -487,8 +483,7 @@ class ReportHandTestCase(CremeTestCase):
             RHFunctionField(rfield)
 
         self.assertEqual(
-            f'Invalid function field: "{name}"',
-            str(cm.exception)
+            f'Invalid function field: "{name}"', str(cm.exception),
         )
 
     def test_regular_aggregate01(self):
@@ -511,9 +506,8 @@ class ReportHandTestCase(CremeTestCase):
         create_orga(name='Lannisters', capital=1000)
 
         self.assertEqual(
-            # number_format(Decimal('750.0'), use_l10n=True),
             number_format(Decimal('750.0')),
-            hand.get_value(entity=starks, user=user, scope=FakeOrganisation.objects.all())
+            hand.get_value(entity=starks, user=user, scope=FakeOrganisation.objects.all()),
         )
 
     def test_regular_aggregate02(self):
@@ -531,10 +525,7 @@ class ReportHandTestCase(CremeTestCase):
             type=RFT_AGG_FIELD, name=f'{fname}__avg',
         )
         hand = RHAggregateRegularField(rfield)
-        self.assertEqual(
-            f"{_('Average')} - {_('Capital')}",
-            hand.title
-        )
+        self.assertEqual(f"{_('Average')} - {_('Capital')}", hand.title)
         self.assertTrue(hand.hidden)
 
     def test_regular_aggregate_error01(self):
@@ -562,10 +553,7 @@ class ReportHandTestCase(CremeTestCase):
         with self.assertRaises(ReportHand.ValueError) as cm:
             RHAggregateRegularField(rfield)
 
-        self.assertEqual(
-            f'Invalid aggregation: "{aggname}"',
-            str(cm.exception)
-        )
+        self.assertEqual(f'Invalid aggregation: "{aggname}"', str(cm.exception))
 
     def test_regular_aggregate_error03(self):
         fname = 'name'
@@ -596,10 +584,7 @@ class ReportHandTestCase(CremeTestCase):
         )
         hand = RHAggregateCustomField(rfield)
         self.assertEqual(_('Aggregated value (custom field)'), hand.verbose_name)
-        self.assertEqual(
-            f"{_('Average')} - {cfield.name}",
-            hand.title
-        )
+        self.assertEqual(f"{_('Average')} - {cfield.name}",    hand.title)
         self.assertIs(hand.hidden, False)
 
         create_contact = partial(FakeContact.objects.create, user=user, last_name='Stark')
@@ -611,9 +596,8 @@ class ReportHandTestCase(CremeTestCase):
         create_cf_value(entity=sansa, value=Decimal('175.60'))
 
         self.assertEqual(
-            # number_format(Decimal('164.5'), use_l10n=True),
             number_format(Decimal('164.5')),
-            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all())
+            hand.get_value(entity=aria, user=user, scope=FakeContact.objects.all()),
         )
 
     def test_custom_aggregate02(self):
@@ -630,10 +614,7 @@ class ReportHandTestCase(CremeTestCase):
             type=RFT_AGG_CUSTOM, name=f'{cfield.id}__avg',
         )
         hand = RHAggregateCustomField(rfield)
-        self.assertEqual(
-            f"{_('Average')} - {cfield.name}",
-            hand.title
-        )
+        self.assertEqual(f"{_('Average')} - {cfield.name}", hand.title)
         self.assertTrue(hand.hidden)
 
     def test_custom_aggregate_error01(self):
@@ -648,7 +629,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(
             f'Invalid custom field aggregation: "{cf_id}"',
-            str(cm.exception)
+            str(cm.exception),
         )
 
     def test_custom_aggregate_error02(self):
@@ -667,10 +648,7 @@ class ReportHandTestCase(CremeTestCase):
         with self.assertRaises(ReportHand.ValueError) as cm:
             RHAggregateCustomField(rfield)
 
-        self.assertEqual(
-            f'Invalid aggregation: "{agg_id}"',
-            str(cm.exception)
-        )
+        self.assertEqual(f'Invalid aggregation: "{agg_id}"', str(cm.exception))
 
     def test_custom_aggregate_error03(self):
         cfield = CustomField.objects.create(
@@ -700,14 +678,11 @@ class ReportHandTestCase(CremeTestCase):
         )
         hand = RHRelated(rfield)
         self.assertEqual(_('Related field'), hand.verbose_name)
-        self.assertEqual(
-            FakeReportsDocument._meta.verbose_name,
-            hand.title
-        )
+        self.assertEqual(FakeReportsDocument._meta.verbose_name, hand.title)
         self.assertFalse(hand.hidden)
         self.assertListEqual(
             [ContentType.objects.get_for_model(FakeReportsDocument)],
-            [*hand.get_linkable_ctypes()]
+            [*hand.get_linkable_ctypes()],
         )
 
         folder = FakeReportsFolder.objects.create(user=user, title='Archives')
@@ -718,7 +693,7 @@ class ReportHandTestCase(CremeTestCase):
 
         self.assertEqual(
             f'{doc1}, {doc2}',
-            hand.get_value(entity=folder, user=user, scope=FakeContact.objects.all())
+            hand.get_value(entity=folder, user=user, scope=FakeContact.objects.all()),
         )
 
     @parameterized.expand([
@@ -734,10 +709,7 @@ class ReportHandTestCase(CremeTestCase):
         with self.assertRaises(ReportHand.ValueError) as cm:
             RHRelated(rfield)
 
-        self.assertEqual(
-            f'Invalid related field: "{fname}"',
-            str(cm.exception)
-        )
+        self.assertEqual(f'Invalid related field: "{fname}"', str(cm.exception))
 
 
 class ReportHandRegistryTestCase(CremeTestCase):
@@ -771,7 +743,7 @@ class ExpandableLineTestCase(CremeTestCase):
     def test_flat(self):
         self.assertListEqual(
             [['a', 'b']],
-            ExpandableLine(values=['a', 'b']).get_lines()
+            ExpandableLine(values=['a', 'b']).get_lines(),
         )
 
     def test_expand(self):
@@ -780,18 +752,18 @@ class ExpandableLineTestCase(CremeTestCase):
                 ['a', 'b', 'c', 'e'],
                 ['a', 'b', 'd', 'e'],
             ],
-            ExpandableLine(values=['a', 'b', ['c', 'd'], 'e']).get_lines()
+            ExpandableLine(values=['a', 'b', ['c', 'd'], 'e']).get_lines(),
         )
         self.assertListEqual(
             [
                 ['a', 'b', 'c', 'd', 'e'],
             ],
-            ExpandableLine(values=['a', 'b', [['c', 'd']], 'e']).get_lines()
+            ExpandableLine(values=['a', 'b', [['c', 'd']], 'e']).get_lines(),
         )
         self.assertListEqual(
             [
                 ['a', 'b', 'c', 'd', 'g'],
                 ['a', 'b', 'e', 'f', 'g'],
             ],
-            ExpandableLine(values=['a', 'b', [['c', 'd'], ['e', 'f']], 'g']).get_lines()
+            ExpandableLine(values=['a', 'b', [['c', 'd'], ['e', 'f']], 'g']).get_lines(),
         )

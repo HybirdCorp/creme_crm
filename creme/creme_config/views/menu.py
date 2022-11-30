@@ -40,9 +40,7 @@ class Portal(generic.BricksView):
 
 
 # TODO: 409 if ContainerEntry is not registered ?
-# class ContainerAdding(base.ConfigModelCreation):
 class ContainerAdding(RoleRelatedMixin, base.ConfigModelCreation):
-    # form_class = menu_forms.ContainerForm
     form_class = menu_forms.ContainerCreationForm
     title = _('Add a container of entries')
 
@@ -53,7 +51,6 @@ class ContainerAdding(RoleRelatedMixin, base.ConfigModelCreation):
         return kwargs
 
 
-# class SpecialLevel0Adding(base.ConfigModelCreation):
 class SpecialLevel0Adding(RoleRelatedMixin, base.ConfigModelCreation):
     form_class = menu_forms.SpecialContainerAddingForm
     title = _('Add a special root entry')
@@ -149,7 +146,6 @@ class Level0Deletion(base.ConfigDeletion):
         item.delete()
 
 
-# class Level0Reordering(PermissionsMixin, ReorderInstances):
 class Level0Reordering(PermissionsMixin, RoleRelatedMixin, ReorderInstances):
     permissions = 'creme_core.can_admin'
     model = MenuConfigItem
@@ -166,7 +162,6 @@ class Level0Reordering(PermissionsMixin, RoleRelatedMixin, ReorderInstances):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        # return self.model._default_manager.filter(parent=None)
         role, superuser = self.get_role_info()
         return self.model._default_manager.filter(parent=None, superuser=superuser, role=role)
 

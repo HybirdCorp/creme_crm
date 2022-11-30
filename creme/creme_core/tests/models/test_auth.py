@@ -2552,7 +2552,6 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNoException():
             qs2 = EntityCredentials.filter_entities(user, qs)
 
-        # self.assertIs(qs, qs2)
         result = [e.get_real_entity() for e in qs2]
         self.assertEqual(4, len(result))
         self.assertSetEqual({self.contact1, self.contact2, orga1, orga2}, {*result})

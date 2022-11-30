@@ -53,9 +53,6 @@ class ContainerForm(CremeModelForm):
 
         registry = self.menu_registry
         entries_f.menu_registry = registry
-        # entries_f.excluded_entry_ids = MenuConfigItem.objects.exclude(
-        #     id__in=[child.id for child in children],
-        # ).values_list('entry_id', flat=True)
         entries_f.excluded_entry_ids = MenuConfigItem.objects.filter(
             superuser=instance.superuser,
             role_id=instance.role_id,
@@ -72,12 +69,7 @@ class ContainerForm(CremeModelForm):
                     type(self).__name__, child.entry_id,
                 )
             else:
-                initial_entries.append(
-                    entry_class(
-                        # config_item_id=item.id,
-                        data=child.entry_data,
-                    )
-                )
+                initial_entries.append(entry_class(data=child.entry_data))
 
         entries_f.initial = initial_entries
 
@@ -161,7 +153,6 @@ class SpecialContainerAddingForm(CremeModelForm):
 
         excluded_entry_ids = self.excluded_entry_ids
         used_entry_ids = {
-            # *MenuConfigItem.objects.values_list('entry_id', flat=True),
             *MenuConfigItem.objects
                            .filter(superuser=superuser, role=role)
                            .values_list('entry_id', flat=True),

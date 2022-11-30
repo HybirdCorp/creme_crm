@@ -563,7 +563,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         pcall = self._create_pcall('Phone call#1', participant=contact)
 
         url = reverse('mobile__pcall_wf_done', args=(pcall.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         response = self.assertPOST200(url, follow=True)
@@ -613,7 +612,6 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         url = self.WF_FAILED_URL
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         minutes = 'argg'
@@ -670,11 +668,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(minutes,                          pcall.minutes)
         self.assertSetEqual(
             {user.linked_contact, other_contact},
-            {
-                # r.object_entity.get_real_entity()
-                r.real_object
-                for r in pcall.get_participant_relations()
-            },
+            {r.real_object for r in pcall.get_participant_relations()},
         )
 
         start = self.create_datetime(
@@ -726,19 +720,11 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         pcall = self._get_created_pcall(pcall_ids)
         self.assertListEqual(
             [user.linked_contact],
-            [
-                # r.object_entity.get_real_entity()
-                r.real_object
-                for r in pcall.get_participant_relations()
-            ],
+            [r.real_object for r in pcall.get_participant_relations()],
         )
         self.assertListEqual(
             [kuzu],
-            [
-                # r.object_entity.get_real_entity()
-                r.real_object
-                for r in pcall.get_subject_relations()
-            ],
+            [r.real_object for r in pcall.get_subject_relations()],
         )
 
     @skipIfCustomActivity
@@ -852,11 +838,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertIsNone(pp_pcall.status_id)
         self.assertSetEqual(
             participants,
-            {
-                # r.object_entity.get_real_entity()
-                r.real_object
-                for r in pp_pcall.get_participant_relations()
-            },
+            {r.real_object for r in pp_pcall.get_participant_relations()},
         )
 
         tomorrow = (now() + relativedelta(days=1)).day
@@ -949,11 +931,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(minutes, pcall.minutes)
         self.assertSetEqual(
             {self.user.linked_contact, other_contact},
-            {
-                # r.object_entity.get_real_entity()
-                r.real_object
-                for r in pcall.get_participant_relations()
-            },
+            {r.real_object for r in pcall.get_participant_relations()},
         )
 
         create_dt = partial(

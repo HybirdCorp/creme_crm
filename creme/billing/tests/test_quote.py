@@ -240,7 +240,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertDictEqual(
             {
                 'status': 1,
-                # 'target': target,  # deprecated
                 self.TARGET_KEY: target,
             },
             form.initial,
@@ -254,8 +253,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2013-12-14',
-                # 'expiration_date': '2014-1-21',
                 'issuing_date':    self.formfield_value_date(2013, 12, 14),
                 'expiration_date': self.formfield_value_date(2014, 1,  21),
                 'status':          status.id,
@@ -376,9 +373,6 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'user': user.pk,
                 'name': name,
 
-                # 'issuing_date':     '2012-2-12',
-                # 'expiration_date':  '2012-3-14',
-                # 'acceptation_date': '2012-3-13',
                 'issuing_date':     self.formfield_value_date(2012, 2, 12),
                 'expiration_date':  self.formfield_value_date(2012, 3, 14),
                 'acceptation_date': self.formfield_value_date(2012, 3, 13),

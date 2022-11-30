@@ -26,7 +26,6 @@
 {% block brick_table_rows %}
 {% has_perm_to change object as action_allowed %}
 {% ctype_for_model page.object_list.0 as segment_desc_ctype %}
-{# {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %} #}
 {% url 'creme_core__delete_related_to_entity' segment_desc_ctype.id as delete_url %}
     {% for segmentinfo in page.object_list %}
     <tr>

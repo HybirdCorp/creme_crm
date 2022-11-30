@@ -27,7 +27,6 @@ from creme.creme_core.models import CremeModel, MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
 
-# class SettlementTerms(CremeModel):
 class SettlementTerms(MinionModel):
     name = models.CharField(_('Settlement terms'), max_length=100)
 
@@ -43,10 +42,8 @@ class SettlementTerms(MinionModel):
         ordering = ('name',)
 
 
-# class AbstractStatus(CremeModel):
 class AbstractStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
     order = BasicAutoField(_('Order'))
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
@@ -92,11 +89,9 @@ class CreditNoteStatus(AbstractStatus):
         verbose_name_plural = _('Credit note statuses')
 
 
-# class AdditionalInformation(CremeModel):
 class AdditionalInformation(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     description = models.TextField(verbose_name=_('Description'), blank=True)
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('billing-additional_info', 'Create information')
 
@@ -110,11 +105,9 @@ class AdditionalInformation(MinionModel):
         ordering = ('name',)
 
 
-# class PaymentTerms(CremeModel):
 class PaymentTerms(MinionModel):
     name = models.CharField(pgettext_lazy('billing-singular', 'Payment terms'), max_length=100)
     description = models.TextField(verbose_name=_('Description'), blank=True)
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = _('Create payment terms')
 

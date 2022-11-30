@@ -35,7 +35,6 @@ SalesOrder = billing.get_sales_order_model()
 
 
 class GenerateInvoiceNumberButton(Button):
-    # id_ = Button.generate_id('billing', 'generate_invoice_number')
     id = Button.generate_id('billing', 'generate_invoice_number')
     verbose_name = _('Generate the number of the Invoice')
     description = _(
@@ -86,7 +85,6 @@ class _AddBillingDocumentButton(Button):
 
 class AddInvoiceButton(_AddBillingDocumentButton):
     model_to_create = Invoice
-    # id_ = Button.generate_id('billing', 'add_invoice')
     id = Button.generate_id('billing', 'add_invoice')
     verbose_name = _('Create a related invoice')
     description = _(
@@ -100,7 +98,6 @@ class AddInvoiceButton(_AddBillingDocumentButton):
 
 class AddSalesOrderButton(_AddBillingDocumentButton):
     model_to_create = SalesOrder
-    # id_ = Button.generate_id('billing', 'add_salesorder')
     id = Button.generate_id('billing', 'add_salesorder')
     verbose_name = _('Create a related salesorder')
     description = _(
@@ -114,7 +111,6 @@ class AddSalesOrderButton(_AddBillingDocumentButton):
 
 class AddQuoteButton(_AddBillingDocumentButton):
     model_to_create = Quote
-    # id_ = Button.generate_id('billing', 'add_quote')
     id = Button.generate_id('billing', 'add_quote')
     verbose_name = _('Create a related quote')
     description = _(
@@ -151,7 +147,6 @@ class _ConvertToButton(Button):
 
 
 class ConvertToInvoiceButton(_ConvertToButton):
-    # id_ = Button.generate_id('billing', 'convert_to_invoice')
     id = Button.generate_id('billing', 'convert_to_invoice')
     verbose_name = _('Convert to Invoice')
     description = _(
@@ -164,7 +159,6 @@ class ConvertToInvoiceButton(_ConvertToButton):
 
 
 class ConvertToSalesOrderButton(_ConvertToButton):
-    # id_ = Button.generate_id('billing', 'convert_to_salesorder')
     id = Button.generate_id('billing', 'convert_to_salesorder')
     verbose_name = _('Convert to Salesorder')
     description = _(
@@ -177,7 +171,6 @@ class ConvertToSalesOrderButton(_ConvertToButton):
 
 
 class ConvertToQuoteButton(_ConvertToButton):
-    # id_ = Button.generate_id('billing', 'convert_to_quote')
     id = Button.generate_id('billing', 'convert_to_quote')
     verbose_name = _('Convert to Quote')
     description = _(

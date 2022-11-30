@@ -268,7 +268,6 @@ class SemiFixedRelationTypeCreateForm(CremeModelForm):
 
     def save(self, *args, **kwargs):
         instance = self.instance
-        # instance.relation_type, instance.object_entity = self.cleaned_data['semi_relation']
         instance.relation_type, instance.real_object = self.cleaned_data['semi_relation']
 
         return super().save(*args, **kwargs)

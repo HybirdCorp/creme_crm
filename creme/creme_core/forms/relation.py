@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import OrderedDict
 from django.core.exceptions import ValidationError
 from django.db.models import Q
 from django.forms import ModelMultipleChoiceField
@@ -44,14 +43,6 @@ class _RelationsCreateForm(base.CremeForm):
         'duplicates': _('There are duplicates: %(duplicates)s'),
         'link_themselves': _('An entity can not be linked to itself : %(entities)s'),
         'empty': _('You must give one relationship at least.'),
-        # 'missing_property_single': _(
-        #     '«%(subject)s» must have the property «%(property)s» '
-        #     'in order to use the relationship «%(predicate)s»'
-        # ),
-        # 'missing_property_multi': _(
-        #     '«%(subject)s» must have a property in «%(properties)s» '
-        #     'in order to use the relationship «%(predicate)s»'
-        # ),
     }
 
     def __init__(self, subjects, content_type, relations_types=None, *args, **kwargs):
@@ -119,57 +110,6 @@ class _RelationsCreateForm(base.CremeForm):
 
     # TODO: indicates all subjects with missing properties?
     # TODO: filter & display these invalid subjects (like non editable subjects)
-    # def _check_properties(self, rtypes):
-    #     subjects = self.subjects
-    #     need_validation = False
-    #     ptypes_contraints = OrderedDict()
-    #
-    #     for rtype in rtypes:
-    #         if rtype.id not in ptypes_contraints:
-    #             properties = dict(rtype.subject_properties.values_list('id', 'text'))
-    #             ptypes_contraints[rtype.id] = (rtype, properties)
-    #
-    #             if properties:
-    #                 need_validation = True
-    #
-    #     if not need_validation:
-    #         return
-    #
-    #     CremeEntity.populate_properties(subjects)
-    #
-    #     for subject in subjects:
-    #         for rtype, needed_properties in ptypes_contraints.values():
-    #             if not needed_properties:
-    #                 continue
-    #
-    #             subject_prop_ids = {p.type_id for p in subject.get_properties()}
-    #
-    #             if any(
-    #                 ptype_id not in subject_prop_ids
-    #                 for ptype_id in needed_properties.keys()
-    #             ):
-    #                 if len(needed_properties) == 1:
-    #                     raise ValidationError(
-    #                         self.error_messages['missing_property_single'],
-    #                         params={
-    #                             'subject':    subject,
-    #                             'property':   next(iter(needed_properties.values())),
-    #                             'predicate':  rtype.predicate,
-    #                         },
-    #                         code='missing_property_single',
-    #                     )
-    #                 else:
-    #                     raise ValidationError(
-    #                         self.error_messages['missing_property_multi'],
-    #                         params={
-    #                             'subject': subject,
-    #                             'properties': '/'.join(
-    #                                 sorted(map(str, needed_properties.values()))
-    #                             ),
-    #                             'predicate': rtype.predicate,
-    #                         },
-    #                         code='missing_property_multi',
-    #                     )
     def _check_properties(self, rtypes):
         subjects = self.subjects
         CremeEntity.populate_properties(subjects)

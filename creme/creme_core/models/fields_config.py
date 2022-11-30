@@ -19,10 +19,8 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from functools import partial
 from itertools import chain
-# from json import loads as json_load
 from typing import TYPE_CHECKING
 
 from django.contrib.contenttypes.models import ContentType
@@ -35,7 +33,6 @@ from django.utils.translation import gettext_lazy as _
 from ..core.field_tags import FieldTag
 from ..global_info import get_per_request_cache
 from ..utils.meta import FieldInfo
-# from ..utils.serializers import json_encode
 from .base import CremeModel
 from .fields import CTypeOneToOneField
 
@@ -145,19 +142,9 @@ class FieldsConfigManager(models.Manager):
     def has_configurable_fields(self, model: type[Model]) -> bool:
         return any(self.configurable_fields(model))
 
-    # def is_model_valid(self, model: Type['Model']) -> bool:
-    #     warnings.warn(
-    #         'FieldsConfigManager.is_model_valid() is deprecated ; '
-    #         'use has_configurable_fields() instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     return self.has_configurable_fields(model)
-
 
 class FieldsConfig(CremeModel):
     content_type = CTypeOneToOneField(editable=False, primary_key=True)
-    # raw_descriptions = models.TextField(editable=False)
     raw_descriptions = models.JSONField(editable=False, default=list)
 
     objects = FieldsConfigManager()
@@ -186,28 +173,8 @@ class FieldsConfig(CremeModel):
         def __init__(self):
             self._configs = {}
 
-        # def get_4_model(self, model: Type['Model']) -> 'FieldsConfig':
-        #     warnings.warn(
-        #         'FieldsConfig.LocalCache.get_4_model() is deprecated ; '
-        #         'use get_for_model() instead.',
-        #         DeprecationWarning,
-        #     )
-        #
-        #     return self.get_for_model(model)
-
         def get_for_model(self, model: type[Model]) -> FieldsConfig:
             return self.get_for_models((model,))[model]
-
-        # def get_4_models(self,
-        #                  models: Iterable[Type['Model']],
-        #                  ) -> Dict[Type['Model'], 'FieldsConfig']:
-        #     warnings.warn(
-        #         'FieldsConfig.LocalCache.get_4_models() is deprecated ; '
-        #         'use get_for_models() instead.',
-        #         DeprecationWarning,
-        #     )
-        #
-        #     return self.get_for_models(models)
 
         def get_for_models(self,
                            models: Iterable[type[Model]],
@@ -339,7 +306,6 @@ class FieldsConfig(CremeModel):
         """
         errors, desc = self._check_descriptions(
             self.content_type.model_class(),
-            # json_load(self.raw_descriptions),
             self.raw_descriptions,
         )
 
@@ -362,9 +328,6 @@ class FieldsConfig(CremeModel):
         model = ctype.model_class()
         assert model is not None
 
-        # self.raw_descriptions = json_encode(
-        #     self._check_descriptions(model, value)[1]
-        # )
         self.raw_descriptions = self._check_descriptions(model, value)[1]
 
     @property

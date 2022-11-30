@@ -52,7 +52,6 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.signals import post_uninstall_flush, pre_uninstall_flush
-# from creme.creme_core.utils import split_filter
 from creme.creme_core.utils.collections import LimitedList
 from creme.creme_core.utils.serializers import json_encode
 
@@ -209,7 +208,6 @@ def _uninstall_entity_filters(sender, content_types, stdout_write, style, **kwar
 @uninstall_handler('Deleting custom forms...')
 def _uninstall_custom_forms(sender, **kwargs):
     CustomFormConfigItem.objects.filter(
-        # cform_id__startswith=f'{sender.label}-',
         descriptor_id__startswith=f'{sender.label}-',
     ).delete()
 
@@ -288,7 +286,6 @@ class Command(AppCommand):
         #     avoid major dependencies problems.
         models_info = [
             (model, True)  # True means "First deletion trial"
-            # for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
             for model in chain(*partition(lambda m: not issubclass(m, CremeEntity), models))
         ]
 

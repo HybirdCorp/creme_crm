@@ -47,7 +47,6 @@
         {% endif %}
 
         {% for f in displayable_fields %}
-{#            <td>{% print_field object=object field=f.name %}</td> #}
             <td>{% print_field object=object field=f.name as field_content %}{% if field_content %}{{field_content}}{% else %}<span class="empty-field">—</span>{% endif %}</td>
         {% endfor %}
 

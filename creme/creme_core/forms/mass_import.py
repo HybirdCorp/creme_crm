@@ -400,7 +400,6 @@ class RegularFieldExtractorField(forms.Field):
             ).filter(
                 viewable=True,
             ).exclude(
-                # lambda field, deep: isinstance(field, ModelBooleanField),
                 lambda model, field, depth: isinstance(field, ModelBooleanField),
             ).choices()
 
@@ -1204,14 +1203,11 @@ class ImportForm(CremeModelForm):
         self.import_errors = []
         get_fconf = FieldsConfig.LocalCache().get_for_model
 
-        # def field_excluder(field, deep):
         def field_excluder(model, field, depth):
-            # if get_fconf(field.model).is_field_hidden(field):
             if get_fconf(model).is_field_hidden(field):
                 return True
 
             if field.is_relation:
-                # return not field.get_tag('enumerable') if field.many_to_one else True
                 return not field.get_tag(FieldTag.ENUMERABLE) if field.many_to_one else True
 
             return False
@@ -1390,7 +1386,6 @@ class ImportForm(CremeModelForm):
                                 getattr(instance, m2m.name).set(extr_value)
                                 append_error(err_msg)
 
-                        # job_result.entity = instance
                         job_result.real_entity = instance
                         if self.import_errors:
                             job_result.messages = self.import_errors

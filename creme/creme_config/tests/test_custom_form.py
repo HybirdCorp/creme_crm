@@ -1,4 +1,3 @@
-# from json import loads as json_load
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
@@ -184,7 +183,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         response = self.assertGET200(reverse('creme_config__custom_forms'))
-        # self.assertTemplateUsed(response, 'creme_config/custom_form_portal.html')
         self.assertTemplateUsed(response, 'creme_config/portals/custom-form.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
@@ -326,10 +324,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         new_item = self.get_object_or_fail(
             CustomFormConfigItem, descriptor_id=descriptor_id, role=role1, superuser=False,
         )
-        # self.assertEqual(
-        #     json_load(item1.json_groups),
-        #     json_load(new_item.json_groups),
-        # )
         self.assertListEqual(item1.json_groups, new_item.json_groups)
 
     def test_form_creation_for_role_error(self):
@@ -860,7 +854,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertPOST200(
             reverse(
                 'creme_config__edit_custom_form_group',
-                # args=(cform_id, len(old_groups) - 1),
                 args=(cfci.id, len(old_groups) - 1),
             ),
             data={
@@ -1903,50 +1896,6 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             act_item1.errors,
         )
 
-    # def test_brick_show_details(self):
-    #     user = self.login()
-    #
-    #     def get_state():
-    #         return BrickState.objects.get_for_brick_id(
-    #             user=user, brick_id=CustomFormsBrick.id_,
-    #         )
-    #
-    #     self.assertIsNone(get_state().pk)
-    #
-    #     url = reverse('creme_config__customforms_brick_show_details')
-    #     self.assertGET405(url)
-    #
-    #     # ---
-    #     key = 'ct_id'
-    #     get_ct = ContentType.objects.get_for_model
-    #     ct_id01 = get_ct(FakeActivity).id
-    #     self.assertPOST200(url, data={key: ct_id01})
-    #     state1 = get_state()
-    #     self.assertIsNotNone(state1.pk)
-    #     self.assertEqual(
-    #         state1.get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
-    #         ct_id01,
-    #     )
-    #
-    #     # ---
-    #     ct_id02 = get_ct(FakeOrganisation).id
-    #     self.assertPOST200(url, data={key: ct_id02})
-    #     self.assertEqual(
-    #         get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
-    #         ct_id02,
-    #     )
-    #
-    #     # Invalid ID
-    #     self.assertPOST404(url, data={key: 1024})
-    #
-    #     # ID==0 => clear
-    #     self.assertPOST200(url, data={key: '0'})
-    #     self.assertIsNone(
-    #         get_state().get_extra_data(BRICK_STATE_SHOW_CFORMS_DETAILS),
-    #     )
-    #
-    #     # Check does not crash
-    #     self.assertPOST200(url, data={key: '0'})
     def get_brick_state(self):
         state = BrickState.objects.get_for_brick_id(
             user=self.user, brick_id=CustomFormsBrick.id_,

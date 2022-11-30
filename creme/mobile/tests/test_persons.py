@@ -455,7 +455,6 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         fav = MobileFavorite.objects.create(entity=may, user=user)
 
         url = reverse('mobile__unmark_favorite', args=(may.id,))
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         self.assertPOST200(url)

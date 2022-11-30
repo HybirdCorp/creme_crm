@@ -45,7 +45,6 @@ class ImprintManagerTestCase(CremeTestCase):
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
         self.assertFalse(Imprint.objects.all())
 
-        # imprint = manager.create_imprint(entity=willy, user=user)
         imprint = manager.create_imprint(entity=willy, user=user)
         self.assertIsInstance(imprint, Imprint)
         self.assertIsNotNone(imprint.id)
@@ -63,7 +62,6 @@ class ImprintManagerTestCase(CremeTestCase):
         user = self.login()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
-        # imprint1 = Imprint.objects.create(entity=willy, user=user)
         imprint1 = Imprint.objects.create(real_entity=willy, user=user)
         self.assertIsNone(manager.create_imprint(entity=willy, user=user))
 
@@ -89,7 +87,6 @@ class ImprintManagerTestCase(CremeTestCase):
         user = self.login()
         willy = FakeContact.objects.create(user=user, first_name='Willy', last_name='Wonka')
 
-        # imprint1 = Imprint.objects.create(entity=willy, user=user)
         imprint1 = Imprint.objects.create(real_entity=willy, user=user)
         Imprint.objects.filter(id=imprint1.id).update(date=now() - timedelta(minutes=31))
 
