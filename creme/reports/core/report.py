@@ -576,7 +576,6 @@ class RHAggregate(ReportHand):
         ).get('rh_calculated_agg') or 0
         self._cache_value = result = number_format(
             agg_result,
-            # use_l10n=True,
             # NB: if we do not set this, computed Decimals have trailing '0's
             decimal_pos=self._decimal_pos,
         )

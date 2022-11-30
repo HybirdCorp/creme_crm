@@ -20,12 +20,10 @@ from django.db.models import CharField
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
 
-# class Priority(CremeModel):
 class Priority(MinionModel):
     """Priority of a ticket: urgent etc..."""
     name = CharField(_('Name'), max_length=100, unique=True)

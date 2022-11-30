@@ -19,23 +19,17 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from typing import TYPE_CHECKING
 
 from django.conf import settings
 from django.db import models
 from django.urls import reverse
-# from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import (  # RelationType
-    CremeEntity,
-    InstanceBrickConfigItem,
-)
+from creme.creme_core.models import CremeEntity, InstanceBrickConfigItem
 
-# from ..constants import AGGREGATOR_TYPES, GROUP_TYPES
 from .. import constants
 from ..core.graph import (
     AbscissaInfo,

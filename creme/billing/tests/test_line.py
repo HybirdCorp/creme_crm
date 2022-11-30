@@ -21,10 +21,7 @@ from creme.persons.tests.base import skipIfCustomOrganisation
 from creme.products.models import Product, Service, SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
-from ..constants import (  # DISCOUNT_ITEM_AMOUNT DISCOUNT_LINE_AMOUNT DISCOUNT_PERCENT
-    REL_SUB_HAS_LINE,
-    REL_SUB_LINE_RELATED_ITEM,
-)
+from ..constants import REL_SUB_HAS_LINE, REL_SUB_LINE_RELATED_ITEM
 from .base import (
     Invoice,
     ProductLine,
@@ -480,7 +477,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertRelationCount(1, product_line, REL_SUB_LINE_RELATED_ITEM, product)
 
         product_line = self.refresh(product_line)
-        # with self.assertNumQueries(3):
         with self.assertNumQueries(2):
             p = product_line.related_item
 
@@ -687,7 +683,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertFormError(
             response, 'form',
             'replace_billing__productline_vat_value',
-            _('Deletion is not possible.')
+            _('Deletion is not possible.'),
         )
 
     @skipIfCustomProductLine
@@ -915,7 +911,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         url = self._build_msave_url(invoice)
-        # self.assertGET404(url)
         self.assertGET405(url)
 
         name = 'on the fly service updated'
@@ -953,7 +948,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(unit,                service_line.unit)
         self.assertEqual(Decimal(discount),   service_line.discount)
         self.assertEqual(discount_unit,       service_line.discount_unit)
-        # self.assertIs(service_line.total_discount, False)
 
     @skipIfCustomProductLine
     def test_multi_save_lines02(self):
@@ -1064,7 +1058,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             on_the_fly_item='on the fly service', unit_price=Decimal('50.0'),
         )
 
-        # discount_unit = DISCOUNT_LINE_AMOUNT
         discount_unit = ServiceLine.Discount.LINE_AMOUNT
         response = self.client.post(
             self._build_msave_url(invoice),
@@ -1090,7 +1083,6 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         service_line = self.refresh(service_line)
         self.assertEqual(discount_unit, service_line.discount_unit)
-        # self.assertIs(service_line.total_discount, True)
 
     @skipIfCustomServiceLine
     def test_multi_save_lines05(self):
@@ -1422,26 +1414,14 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             comment='I believe',
         )
 
-        # build_url = self.build_inneredit_url
         build_uri = self.build_inneredit_uri
-        # url = build_url(pline, 'comment')
         field_name = 'comment'
         uri = build_uri(pline, field_name)
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
         comment = pline.comment + ' I can flyyy'
-        response = self.client.post(
-            # url,
-            uri,
-            data={
-                # 'entities_lbl': [str(pline)],
-                # 'field_value':  comment,
-                field_name:  comment,
-            },
-        )
+        response = self.client.post(uri, data={field_name:  comment})
         self.assertNoFormError(response)
         self.assertEqual(comment, self.refresh(pline).comment)
 
-        # self.assertGET(400, build_url(pline, 'on_the_fly_item'))
         self.assertGET404(build_uri(pline, 'on_the_fly_item'))

@@ -249,10 +249,6 @@ class BoundFieldBlocks:
         return iter(self._blocks_data.values())
 
 
-# # DEPRECATED
-# FieldBlocksGroup = BoundFieldBlocks
-
-
 class FieldBlockManager:
     __slots__ = ('__blocks',)
 
@@ -510,8 +506,6 @@ class CremeModelForm(HookableFormMixin, forms.ModelForm):
         for fn, field in self.fields.items():
             field.user = user  # Used by CreatorModelChoiceField for example
 
-        # self.fields_configs = fc = FieldsConfig.LocalCache()
-        # fc.get_for_model(self.instance.__class__).update_form_fields(self.fields)
         self.fields_configs = FieldsConfig.LocalCache()
         self._build_required_fields()
 
@@ -592,14 +586,6 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
     )
 
     error_messages = {
-        # 'missing_property_single': _(
-        #     'The property «%(property)s» is mandatory '
-        #     'in order to use the relationship «%(predicate)s»'
-        # ),
-        # 'missing_property_multi': _(
-        #     'These properties are mandatory in order to use '
-        #     'the relationship «%(predicate)s»: %(properties)s'
-        # ),
         'subject_not_linkable': _(
             'You are not allowed to link the created entity (wrong owner?).'
         ),
@@ -745,45 +731,6 @@ class CremeEntityForm(CustomFieldsMixin, CremeModelForm):
         else:
             fields['rtypes_info'].initial = info
 
-    # def _check_properties(self, rtypes: Iterable[RelationType]) -> None:
-    #     need_validation = False
-    #     ptypes_contraints: Dict[str, Tuple[RelationType, Dict[str, str]]] = OrderedDict()
-    #
-    #     for rtype in rtypes:
-    #         if rtype.id not in ptypes_contraints:
-    #             properties = dict(rtype.subject_properties.values_list('id', 'text'))
-    #             ptypes_contraints[rtype.id] = (rtype, properties)
-    #
-    #             if properties:
-    #                 need_validation = True
-    #
-    #     if need_validation:
-    #         subject_prop_ids = {pt.id for pt in self.cleaned_data.get('property_types', ())}
-    #
-    #         for rtype, needed_properties in ptypes_contraints.values():
-    #             if any(
-    #                 ptype_id not in subject_prop_ids for ptype_id in needed_properties.keys()
-    #             ):
-    #                 if len(needed_properties) == 1:
-    #                     raise forms.ValidationError(
-    #                         self.error_messages['missing_property_single'],
-    #                         params={
-    #                             'property':  next(iter(needed_properties.values())),
-    #                             'predicate': rtype.predicate,
-    #                         },
-    #                         code='missing_property_single',
-    #                     )
-    #                 else:
-    #                     raise forms.ValidationError(
-    #                         self.error_messages['missing_property_multi'],
-    #                         params={
-    #                             'properties': ', '.join(
-    #                                 sorted(map(str, needed_properties.values()))
-    #                             ),
-    #                             'predicate': rtype.predicate,
-    #                         },
-    #                         code='missing_property_multi',
-    #                     )
     def _check_properties(self, rtypes: Iterable[RelationType]):
         for rtype in rtypes:
             Relation(

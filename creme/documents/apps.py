@@ -60,16 +60,13 @@ class DocumentsConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        # from .forms.folder import ParentFolderBulkForm
         from .forms.folder import ParentFolderOverrider
 
         register = bulk_update_registry.register
-        # register(self.Folder, innerforms={'parent_folder': ParentFolderBulkForm})
         register(self.Folder).add_overriders(ParentFolderOverrider)
         # NB: <filedata> is currently not (inner)-editable to avoid the
         #     overriding of the previous file without rollback possibility.
         #     Should we implement a file versioning system?
-        # register(self.Document, exclude=['filedata'])
         register(self.Document).exclude('filedata')
 
     def register_creme_config(self, config_registry):

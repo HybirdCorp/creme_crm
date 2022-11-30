@@ -133,7 +133,6 @@ class ActivityDeletion(generic.CremeModelDeletion):
 
         # TODO: unit test
         self.request.user.has_perm_to_change_or_die(
-            # ptask_rel.object_entity.get_real_entity()
             ptask_rel.real_object  # Project task
         )
 

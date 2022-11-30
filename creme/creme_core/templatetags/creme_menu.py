@@ -31,10 +31,6 @@ register = Library()
 
 @register.inclusion_tag('creme_core/templatetags/menu.html', takes_context=True)
 def menu_display(context):
-    # context['entries'] = [
-    #     (entry, entry.render(context))
-    #     for entry in menu_registry.get_entries(MenuConfigItem.objects.all())
-    # ]
     user = context['user']
     regular_items, role_items = partition(
         lambda item: item.superuser or bool(item.role_id),
@@ -73,7 +69,6 @@ def menu_buttons_display(context):
     buttons = OrderedDict()
 
     for button in button_menu.button_registry.get_buttons(bmi, entity):
-        # buttons[button.id_] = button.render(button_ctxt)
         # NB: the context is copied is order to a 'fresh' one for each button,
         #     & so avoid annoying side-effects.
         buttons[button.id] = button.render({**button_ctxt})

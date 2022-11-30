@@ -22,7 +22,6 @@
     {% has_perm_to unlink object as subject_unlink_perm %}{% url 'creme_core__delete_relation' as delete_url %}
     {% regroup page.object_list by type as relations_by_rtype %}
     {% for rtype, relations in relations_by_rtype %}
-{#       {% for relation in relations %}{% with relation.object_entity.get_real_entity as entity_obj %} #}
       {% for relation in relations %}{% with entity_obj=relation.real_object %}
         <tr>
             <td {% brick_table_data_status primary %}>

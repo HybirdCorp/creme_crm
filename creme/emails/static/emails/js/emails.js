@@ -131,39 +131,6 @@ creme.emails.MultiSelectedAction = creme.component.Action.sub({
 });
 
 var emailSyncActions = {
-//    'emailsync-link': function(url, options, data, e) {
-//        var ids = _emailSyncSelection(this, data);
-//
-//        if (Object.isEmpty(ids)) {
-//            return this._warningAction(gettext('Please select at least one entity.'));
-//        }
-//
-//        return new creme.emails.LinkEMailToAction({
-//            url: url,
-//            rtypes: data.rtypes,
-//            ids: ids
-//        });
-//    },
-//
-//    'emailsync-action': function(url, options, data, e) {
-//        var ids = _emailSyncSelection(this, data);
-//
-//        if (Object.isEmpty(ids)) {
-//            return this._warningAction(gettext('Nothing is selected.'));
-//        }
-//
-//        return this._build_update(url, {}, {ids: ids}, e);
-//    },
-//
-//    'emailsync-delete': function(url, options, data, e) {
-//        var ids = _emailSyncSelection(this, data);
-//
-//        if (Object.isEmpty(ids)) {
-//            return this._warningAction(gettext('Nothing is selected.'));
-//        }
-//
-//        return this._build_delete(url, {}, {ids: ids.join(',')}, e);
-//    }
     'emailsync-accept-multi': function(url, options, data, e) {
         var ids = _emailSyncSelection(this, data);
 
@@ -215,7 +182,6 @@ var emailSyncActions = {
     }
 };
 
-/* $(document).on('brick-setup-actions', '.brick.emails-emailsync-brick', function(e, brick, actions) { */
 $(document).on('brick-setup-actions', '.brick.emails-emails_to_sync-brick', function(e, brick, actions) {
     actions.registerAll(emailSyncActions);
 });

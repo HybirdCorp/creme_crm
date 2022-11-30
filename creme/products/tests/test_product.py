@@ -388,10 +388,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             category=sub_cat.category, sub_category=sub_cat,
         )
 
-        # url = self.build_inneredit_url(product, 'category')
         field_name = 'category'
         uri = self.build_inneredit_uri(product, field_name, 'sub_category')
-        # self.assertGET200(url)
         response1 = self.assertGET200(uri)
 
         formfield_name = f'override-{field_name}'
@@ -407,132 +405,13 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # ---
         next_sub_cat = SubCategory.objects.order_by('category')[1]
         response2 = self.client.post(
-            # url,
-            uri,
-            data={
-                # 'sub_category': self._cat_field(
-                formfield_name: str(next_sub_cat.pk),
-            },
+            uri, data={formfield_name: str(next_sub_cat.pk)},
         )
         self.assertNoFormError(response2)
 
         product = self.refresh(product)
         self.assertEqual(next_sub_cat, product.sub_category)
         self.assertEqual(next_sub_cat.category, product.category)
-
-    # To Remove : this test does not make sense with the SubCategoryField, no
-    # mismatch could appear.
-    # def test_edit_inner_category_subcategory_mismatch(self):
-    #     user = self.login()
-    #
-    #     sub_cat = SubCategory.objects.all()[0]
-    #     product = Product.objects.create(
-    #         user=user, name='Eva00',
-    #         description='A fake god', unit_price=Decimal('1.23'), code=42,
-    #         category=sub_cat.category, sub_category=sub_cat,
-    #     )
-    #
-    #     # url = self.build_inneredit_url(product, 'category')
-    #     # self.assertGET200(url)
-    #
-    #     field_name = 'category'
-    #     next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-    #     response = self.client.post(
-    #         # url,
-    #         self.build_inneredit_uri(product, field_name),
-    #         data={
-    #             # 'sub_category': self._cat_field(
-    #             f'override-{field_name}': str(next_sub_cat.pk),
-    #         },
-    #     )
-    #     self.assertFormError(
-    #         # response, 'form', 'sub_category',
-    #         response, 'form', f'override-{field_name}',
-    #         _('This sub-category causes constraint error.'),
-    #     )
-    #
-    #     product = self.refresh(product)
-    #     self.assertEqual(sub_cat, product.sub_category)
-    #     self.assertEqual(sub_cat.category, product.category)
-
-    # def test_edit_bulk_category(self):
-    #     user = self.login()
-    #
-    #     sub_cat = SubCategory.objects.order_by('category')[0]
-    #     create_product = partial(
-    #         Product.objects.create,
-    #         user=user, description='A fake god', unit_price=Decimal('1.23'),
-    #         category=sub_cat.category, sub_category=sub_cat,
-    #     )
-    #
-    #     product1 = create_product(name='Eva00', code=42)
-    #     product2 = create_product(name='Eva01', code=43)
-    #
-    #     url = self.build_bulkupdate_url(Product, 'category')
-    #     self.assertGET200(url)
-    #
-    #     next_sub_cat = SubCategory.objects.order_by('category')[1]
-    #     response2 = self.client.post(
-    #         url,
-    #         data={
-    #             'entities': [product1.pk, product2.pk],
-    #             '_bulk_fieldname': url,
-    #             'sub_category': self._cat_field(
-    #                 category=sub_cat.category,
-    #                 sub_category=next_sub_cat,
-    #             ),
-    #         },
-    #     )
-    #     self.assertNoFormError(response2)
-    #
-    #     product1 = self.refresh(product1)
-    #     self.assertEqual(next_sub_cat,          product1.sub_category)
-    #     self.assertEqual(next_sub_cat.category, product1.category)
-    #
-    #     product2 = self.refresh(product2)
-    #     self.assertEqual(next_sub_cat,          product2.sub_category)
-    #     self.assertEqual(next_sub_cat.category, product2.category)
-
-    # def test_edit_bulk_category_invalid(self):
-    #     user = self.login()
-    #
-    #     sub_cat = SubCategory.objects.all()[0]
-    #     create_product = partial(
-    #         Product.objects.create,
-    #         user=user, description='A fake god', unit_price=Decimal('1.23'),
-    #         category=sub_cat.category, sub_category=sub_cat,
-    #     )
-    #
-    #     product = create_product(name='Eva00', code=42)
-    #     product2 = create_product(name='Eva01', code=43)
-    #
-    #     url = self.build_bulkupdate_url(Product, 'category')
-    #     self.assertGET200(url)
-    #
-    #     next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-    #     response2 = self.client.post(
-    #         url,
-    #         data={
-    #             'entities': [product.id, product2.id],
-    #             '_bulk_fieldname': url,
-    #             'sub_category': self._cat_field(
-    #                 category=sub_cat.category,
-    #                 sub_category=next_sub_cat,
-    #             ),
-    #         },
-    #     )
-    #     self.assertFormError(
-    #         response2, 'form', 'sub_category',
-    #         _('This sub-category causes constraint error.'),
-    #     )
-    #
-    #     product = self.refresh(product)
-    #     self.assertEqual(sub_cat, product.sub_category)
-    #     self.assertEqual(sub_cat.category, product.category)
-    #
-    #     product2 = self.refresh(product2)
-    #     self.assertEqual(sub_cat, product2.sub_category)
-    #     self.assertEqual(sub_cat.category, product2.category)
 
     def test_update_bulk_category(self):
         user = self.login()
@@ -547,8 +426,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         product1 = create_product(name='Eva00', code=42)
         product2 = create_product(name='Eva01', code=43)
 
-        # url = self.build_bulkupdate_url(Product, 'category')
-        # self.assertGET200(url)
         field_name = 'category'
         build_uri = partial(self.build_bulkupdate_uri, model=Product, field=field_name)
         response1 = self.assertGET200(build_uri(entities=[product1, product2]))
@@ -563,15 +440,9 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # ---
         next_sub_cat = SubCategory.objects.order_by('category')[1]
         response2 = self.client.post(
-            # url,
             build_uri(),
             data={
                 'entities': [product1.pk, product2.pk],
-                # '_bulk_fieldname': url,
-                # 'sub_category': self._cat_field(
-                #     category=next_sub_cat.category,
-                #     sub_category=next_sub_cat,
-                # ),
                 formfield_name: str(next_sub_cat.pk),
             },
         )
@@ -584,54 +455,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         product2 = self.refresh(product2)
         self.assertEqual(next_sub_cat,          product2.sub_category)
         self.assertEqual(next_sub_cat.category, product2.category)
-
-    # To Remove : this test does not make sense with the SubCategoryField, no
-    # mismatch could appear.
-    # def test_update_bulk_category_subcategory_mismatch(self):
-    #     user = self.login()
-    #
-    #     sub_cat = SubCategory.objects.all()[0]
-    #     create_product = partial(
-    #         Product.objects.create,
-    #         user=user, description='A fake god', unit_price=Decimal('1.23'),
-    #         category=sub_cat.category, sub_category=sub_cat,
-    #     )
-    #
-    #     product1 = create_product(name='Eva00', code=42)
-    #     product2 = create_product(name='Eva01', code=43)
-    #
-    #     # url = self.build_bulkupdate_url(Product, 'category')
-    #     # self.assertGET200(url)
-    #
-    #     field_name = 'category'
-    #     formfield_name = f'override-{field_name}'
-    #     next_sub_cat = SubCategory.objects.exclude(category=sub_cat.category)[0]
-    #     response = self.client.post(
-    #         # url,
-    #         self.build_bulkupdate_uri(model=Product, field=field_name),
-    #         data={
-    #             'entities': [product1.pk, product2.pk],
-    #             # '_bulk_fieldname': url,
-    #             # 'sub_category': self._cat_field(
-    #             #     category=sub_cat.category,
-    #             #     sub_category=next_sub_cat,
-    #             # ),
-    #             formfield_name: str(next_sub_cat.pk),
-    #         },
-    #     )
-    #     self.assertFormError(
-    #         # response, 'form', 'sub_category',
-    #         response, 'form', formfield_name,
-    #         _('This sub-category causes constraint error.'),
-    #     )
-    #
-    #     product1 = self.refresh(product1)
-    #     self.assertEqual(sub_cat,          product1.sub_category)
-    #     self.assertEqual(sub_cat.category, product1.category)
-    #
-    #     product2 = self.refresh(product2)
-    #     self.assertEqual(sub_cat, product2.sub_category)
-    #     self.assertEqual(sub_cat.category, product2.category)
 
     def test_update_bulk_sub_category(self):
         user = self.login()
@@ -710,7 +533,6 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         img_5 = create_image(ident=5, user=user)
         response4 = post(img_1, img_5)
         self.assertEqual(200, response4.status_code)
-        # self.assertFormError(response4, 'form', 'images', _('This entity does not exist.'))
         self.assertFormError(
             response4, 'form', 'images',
             _('«%(entity)s» violates the constraints.') % {'entity': img_1},

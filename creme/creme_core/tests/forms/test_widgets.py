@@ -42,7 +42,6 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render_no_l10n_01(self):
         name = 'test_calendar'
         value = self.formfield_value_date(2022, 2, 25)
-        # help_text = _('Format: Day-Month-Year (Ex:31-12-2022)')
         help_text = _('E.g. {}').format('2023-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
@@ -126,17 +125,14 @@ class DateTimeWidgetTestCase(CremeTestCase):
             f'    widget="ui-creme-datetimepicker" format="dd/mm/yy">'
             f'  <input name="{name}" type="hidden">'
             f'  <li>{_("On")}</li>'
-            # '   <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>'
             f'  <li class="date">'
             f'    <input type="text" maxlength="12" title="{_("Date")}" />'
             f'  </li>'
             f'  <li>{_("at")}</li>'
-            # '   <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>'
             f'  <li class="hour">'
             f'    <input type="number" min="0" max="23" title="{_("Hour")}" />'
             f'  </li>'
             f'  <li>{_("h")}</li>'
-            # '   <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>'
             f'  <li class="minute">'
             f'    <input type="number" min="0" max="59" title="{_("Minute")}" />'
             f'  </li>'
@@ -157,17 +153,14 @@ class DateTimeWidgetTestCase(CremeTestCase):
             f'    widget="ui-creme-datetimepicker" format="yy-mm-dd">'
             f'  <input name="{name}" type="hidden" value="{value}">'
             f'  <li>{_("On")}</li>'
-            # '   <li class="date"><input class="ui-corner-all" type="text" maxlength="12"/></li>'
             f'  <li class="date">'
             f'    <input type="text" maxlength="12" title="{_("Date")}" />'
             f'  </li>'
             f'  <li>{_("at")}</li>'
-            # '   <li class="hour"><input class="ui-corner-all" type="text" maxlength="2"/></li>'
             f'  <li class="hour">'
             f'    <input type="number" min="0" max="23" title="{_("Hour")}" />'
             f'  </li>'
             f'  <li>{_("h")}</li>'
-            # '   <li class="minute"><input class="ui-corner-all" type="text" maxlength="2"/></li>'
             f'  <li class="minute">'
             f'    <input type="number" min="0" max="59" title="{_("Minute")}" />'
             f'  </li>'
@@ -320,7 +313,6 @@ class DynamicSelectTestCase(CremeTestCase):
         )
 
 
-# class UnorderedMultipleChoiceTestCase(FieldTestCase):
 class UnorderedMultipleChoiceTestCase(CremeTestCase):
     maxDiff = None
 
@@ -853,16 +845,6 @@ class ActionButtonListTestCase(CremeTestCase):
     def test_render_empty_action_list(self):
         widget = ActionButtonList(Select(choices=[(1, 'A'), (2, 'B')]))
 
-#         html = '''
-# <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
-#     widget="ui-creme-actionbuttonlist">
-#     <li class="delegate">
-#         <select name="field">
-#             <option value="1">A</option>
-#             <option value="2" selected>B</option>
-#         </select>
-#     </li>
-# </ul>'''
         html = '''
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">
@@ -883,24 +865,6 @@ class ActionButtonListTestCase(CremeTestCase):
         widget.add_action('action_a', 'Action A', title='Do the action A')
         widget.add_action('action_b', 'Action B', False)
 
-#         html = '''
-# <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
-#     widget="ui-creme-actionbuttonlist">
-#     <li class="delegate">
-#         <select name="field">
-#             <option value="1" selected>A</option>
-#             <option value="2">B</option>
-#         </select>
-#     </li>
-#     <li>
-#         <button class="ui-creme-actionbutton" name="action_a"
-#                 title="Do the action A" type="button">Action A</button>
-#     </li>
-#     <li>
-#         <button class="ui-creme-actionbutton" name="action_b" title="Action B"
-#                 type="button" disabled>Action B</button>
-#     </li>
-# </ul>'''
         html = '''
 <ul class="ui-layout hbox ui-creme-widget widget-auto ui-creme-actionbuttonlist"
     widget="ui-creme-actionbuttonlist">

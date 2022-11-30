@@ -19,10 +19,8 @@
 from __future__ import annotations
 
 import logging
-# import warnings
-# from collections import defaultdict
 from json import loads as json_load
-from typing import TYPE_CHECKING, Iterable  # DefaultDict
+from typing import TYPE_CHECKING, Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.db import models

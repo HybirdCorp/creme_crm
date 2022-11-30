@@ -47,7 +47,6 @@ class FoundEntitiesBrick(QuerysetBrick):
         self.model = model
         self.research = research
         self.user = user
-        # self.ctype = ctype = ContentType.objects.get_for_model(model)
         ctype = ContentType.objects.get_for_model(model)
         self.id_ = id or self.generate_id(
             'creme_core',

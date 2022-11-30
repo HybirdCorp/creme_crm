@@ -66,7 +66,6 @@ class CreateEmailInput(EmailInput):
 
     def create(self, email: PopEmail):
         backend = self.get_backend(CrudityBackend.normalize_subject(email.subject))
-        # or self.get_backend("*")
 
         if backend is not None and self.authorize_senders(backend, email.senders):
             data = backend.body_map.copy()

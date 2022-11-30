@@ -11,10 +11,6 @@ DEFAULT_HFILTER_FOLDER   = 'documents-hf_folder'
 EFILTER_IMAGES = 'documents-images'
 
 # ---
-# DOCUMENTS_FROM_ENTITIES = 1
-# DOCUMENTS_FROM_ENTITIES_NAME = _('Documents related to entities')
-# DOCUMENTS_FROM_EMAILS = 2
-# DOCUMENTS_FROM_EMAILS_NAME = _('Documents received by email')
 UUID_FOLDER_CAT_ENTITIES = 'ab9e449a-0844-44fa-99c5-1d1e6abed9bf'
 # TODO: move in 'emails' app in Creme2.5
 UUID_FOLDER_CAT_EMAILS = '7161caaa-013b-4c32-ac19-19da7cee4561'

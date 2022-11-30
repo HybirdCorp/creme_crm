@@ -190,10 +190,6 @@ class TypeOverrider(FieldOverrider):
     _mixed_unavailability = False
 
     def formfield(self, instances, user, **kwargs):
-        # field = fields.ActivityTypeField(
-        #     label=_('Type'),
-        #     types=ActivityType.objects.exclude(pk=constants.ACTIVITYTYPE_INDISPO),
-        # )
         field = fields.ActivitySubTypeField(
             label=_('Type'), limit_choices_to=~Q(type__id=constants.ACTIVITYTYPE_INDISPO),
         )

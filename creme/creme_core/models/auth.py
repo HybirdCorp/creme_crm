@@ -45,7 +45,6 @@ from django.utils.translation import gettext_lazy as _
 
 from ..auth import EntityCredentials
 from ..core.setting_key import UserSettingValueManager
-# from ..utils import split_filter
 from ..utils.unicode_collation import collator
 from .entity import CremeEntity
 from .fields import EntityCTypeForeignKey
@@ -510,14 +509,12 @@ class SetCredentials(models.Model):
             if not single_perm & perm:
                 continue
 
-            # forbidden, allowed = split_filter(
             allowed, forbidden = partition(
                 lambda sc: sc.forbidden,
                 sorted(
                     (
                         sc
                         for sc in sc_sequence
-                        # if sc.ctype_id in allowed_ctype_ids and sc.value & perm
                         if sc.ctype_id in allowed_ctype_ids and sc.value & single_perm
                     ),
                     # NB: we sort to get ESET_ALL creds before ESET_OWN ones,

@@ -16,10 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
 from itertools import chain
 
-# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme import commercial
@@ -30,7 +28,7 @@ from creme.opportunities.constants import REL_SUB_TARGETS
 from creme.persons import get_organisation_model
 
 from .constants import REL_OBJ_COMPLETE_GOAL
-from .models import (  # MarketSegmentDescription
+from .models import (
     ActObjective,
     ActObjectivePatternComponent,
     CommercialApproach,
@@ -56,22 +54,6 @@ class ApproachesBrick(QuerysetBrick):
     order_by = '-creation_date'
     template_name = 'commercial/bricks/approaches.html'
 
-    # @staticmethod
-    # def _populate_related_real_entities(comapps, user):
-    #     entities_ids_by_ct = defaultdict(set)
-    #
-    #     for comapp in comapps:
-    #         entities_ids_by_ct[comapp.entity_content_type_id].add(comapp.entity_id)
-    #
-    #     entities_map = {}
-    #     get_ct = ContentType.objects.get_for_id
-    #
-    #     for ct_id, entities_ids in entities_ids_by_ct.items():
-    #         entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
-    #
-    #     for comapp in comapps:
-    #         comapp.creme_entity = entities_map[comapp.entity_id]
-
     def detailview_display(self, context):
         entity = context['object']
         pk = entity.pk
@@ -94,12 +76,6 @@ class ApproachesBrick(QuerysetBrick):
         return self._render(self.get_template_context(context, approaches))
 
     def home_display(self, context):
-        # btc = self.get_template_context(
-        #     context, CommercialApproach.get_approaches(),
-        # )
-        # self._populate_related_real_entities(btc['page'].object_list, context['user'])
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             CommercialApproach.get_approaches().prefetch_related('creme_entity'),
@@ -133,7 +109,6 @@ class SegmentDescriptionsBrick(PaginatedBrick):
         strategy = context['object']
         return self._render(self.get_template_context(
             context, strategy.get_segment_descriptions_list(),
-            # ct_id=get_ct(MarketSegmentDescription).id,
         ))
 
 
@@ -259,7 +234,6 @@ class ActObjectivesBrick(QuerysetBrick):
             context,
             # NB: "act.objectives.all()" causes a strange additional query...
             ActObjective.objects.filter(act=act_id),
-            # ct_id=get_ct(ActObjective).id,
         ))
 
 
@@ -276,7 +250,6 @@ class RelatedOpportunitiesBrick(PaginatedBrick):
 
         return self._render(self.get_template_context(
             context, act.get_related_opportunities(),
-            # predicate_id=REL_OBJ_COMPLETE_GOAL,
             relation_type=RelationType.objects.get(id=REL_OBJ_COMPLETE_GOAL),
         ))
 
@@ -301,7 +274,5 @@ class PatternComponentsBrick(Brick):
         explore_tree(pattern.get_components_tree(), 0)
 
         return self._render(self.get_template_context(
-            context,
-            components=flattened_tree,
-            # ct_id=get_ct(ActObjectivePatternComponent).id,
+            context, components=flattened_tree,
         ))

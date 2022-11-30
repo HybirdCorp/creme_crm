@@ -55,8 +55,6 @@ class LastViewedItem:
 
     @property
     def ctype(self):
-        # ct_id = self.ctype_id
-        # return None if ct_id is None else ContentType.objects.get_for_id(ct_id)
         return ContentType.objects.get_for_id(self.ctype_id)
 
     @classmethod
@@ -66,7 +64,6 @@ class LastViewedItem:
         for attr in ('pk', 'url', 'name'):
             setattr(instance, attr, data[attr])
 
-        # instance.ctype_id = data.get('ctype_id')
         instance.ctype_id = data['ctype_id']
 
         instance.modified = dt_from_ISO8601(data['modified'])

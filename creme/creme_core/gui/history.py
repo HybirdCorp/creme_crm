@@ -193,7 +193,6 @@ class HTMLDateTimeFieldChangeExplainer(HTMLFieldChangeExplainer):
 
 class HTMLNumberFieldChangeExplainer(HTMLFieldChangeExplainer):
     def render_value(self, *, user, value):
-        # return number_format(value, use_l10n=True, force_grouping=True)
         return number_format(value, force_grouping=True)
 
 

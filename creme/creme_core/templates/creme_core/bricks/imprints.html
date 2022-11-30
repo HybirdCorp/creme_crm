@@ -25,7 +25,6 @@
         </td>
         {% if not object %}
         <td>
-{#        {% with concerned_entity=imprint.entity.get_real_entity %} #}
         {% with concerned_entity=imprint.real_entity %}
             {% widget_icon instance=concerned_entity size='brick-table' class='ctype-icon' %}
             {% widget_entity_hyperlink concerned_entity user %}

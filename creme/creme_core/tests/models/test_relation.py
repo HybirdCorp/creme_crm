@@ -27,21 +27,6 @@ class RelationsTestCase(CremeTestCase):
         super().setUp()
         self.user = get_user_model().objects.create(username='name')
 
-    # def test_relation_type_create(self):  # DEPRECATED
-    #     subject_pred = 'is loving'
-    #     object_pred  = 'is loved by'
-    #
-    #     with self.assertNoException():
-    #         rtype1, rtype2 = RelationType.create(
-    #             ('test-subject_foobar', subject_pred),
-    #             ('test-object_foobar',  object_pred),
-    #         )
-    #
-    #     self.assertEqual(rtype1.symmetric_type, rtype2)
-    #     self.assertEqual(rtype2.symmetric_type, rtype1)
-    #     self.assertEqual(rtype1.predicate,      subject_pred)
-    #     self.assertEqual(rtype2.predicate,      object_pred)
-
     def test_type_manager_smart_update_or_create01(self):
         subject_id = 'test-subject_foobar'
         subject_pred = 'is loving'
@@ -634,7 +619,6 @@ class RelationsTestCase(CremeTestCase):
         satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
 
         count = Relation.objects.safe_multi_save([
-            # Relation(user=user, subject_entity=ryuko, type=rtype1, object_entity=satsuki),
             Relation(user=user, subject_entity=ryuko, type=rtype1, real_object=satsuki),
             Relation(user=user, subject_entity=ryuko, type=rtype2, object_entity=satsuki),
         ])
@@ -668,7 +652,6 @@ class RelationsTestCase(CremeTestCase):
 
         def build_rel():
             return Relation(
-                # user=user, subject_entity=ryuko, type=rtype, object_entity=satsuki,
                 user=user, subject_entity=ryuko, type=rtype, real_object=satsuki,
             )
 
@@ -701,7 +684,6 @@ class RelationsTestCase(CremeTestCase):
 
         def build_rel1():
             return Relation(
-                # user=user, subject_entity=ryuko, type=rtype1, object_entity=satsuki,
                 user=user, subject_entity=ryuko, type=rtype1, real_object=satsuki,
             )
 
@@ -748,7 +730,6 @@ class RelationsTestCase(CremeTestCase):
         ryuko   = create_contact(first_name='Ryuko',   last_name='Matoi')
         satsuki = create_contact(first_name='Satsuki', last_name='Kiryuin')
 
-        # build_rel = partial(Relation, user=user, subject_entity=ryuko, object_entity=satsuki)
         build_rel = partial(Relation, user=user, subject_entity=ryuko, real_object=satsuki)
 
         with CaptureQueriesContext() as ctxt1:
@@ -817,7 +798,6 @@ class RelationsTestCase(CremeTestCase):
                 msg % {
                     'entity': orga,
                     'model': 'Test Organisation',
-                    # 'predicate': rtype.predicate,
                     'predicate': sym_rtype.predicate,
                 },
             ],

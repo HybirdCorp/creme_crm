@@ -470,43 +470,6 @@ class TemplatizeNode(TemplateNode):
 
 # TAG : "print_field"-----------------------------------------------------------
 
-# _PRINT_FIELD_RE = compile_re(r'object=(.*?) field=(.*?)$')
-#
-#
-# @register.tag(name='print_field')
-# def do_print_field(parser, token):
-#     """Eg:{% print_field object=object field='created' %}"""
-#     try:
-#         # Splitting by None == splitting by spaces.
-#         tag_name, arg = token.contents.split(None, 1)
-#     except ValueError as e:
-#         raise TemplateSyntaxError(
-#             f'"{token.contents.split()[0]}" tag requires arguments.'
-#         ) from e
-#
-#     match = _PRINT_FIELD_RE.search(arg)
-#     if not match:
-#         raise TemplateSyntaxError(f'"{tag_name}" tag has invalid arguments.')
-#
-#     obj_str, field_str = match.groups()
-#     compile_filter = parser.compile_filter
-#
-#     return FieldPrinterNode(
-#         obj_var=TemplateLiteral(compile_filter(obj_str), obj_str),
-#         field_var=TemplateLiteral(compile_filter(field_str), field_str),
-#     )
-#
-#
-# class FieldPrinterNode(TemplateNode):
-#     def __init__(self, obj_var, field_var):
-#         self.obj_var = obj_var
-#         self.field_var = field_var
-#
-#     def render(self, context):
-#         obj = self.obj_var.eval(context)
-#         field_name = self.field_var.eval(context)
-#
-#         return field_printers_registry.get_html_field_value(obj, field_name, context['user'])
 # TODO: pass the registry in the context? pass the user as argument?
 @register.simple_tag(takes_context=True)
 def print_field(context, *, object, field):

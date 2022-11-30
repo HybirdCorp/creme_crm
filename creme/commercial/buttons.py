@@ -27,7 +27,6 @@ from .constants import REL_SUB_COMPLETE_GOAL
 
 
 class CompleteGoalButton(Button):
-    # id_ = Button.generate_id('commercial', 'complete_goal')
     id = Button.generate_id('commercial', 'complete_goal')
     verbose_name = _('Completes a goal (Commercial action)')
     description = _(
@@ -39,7 +38,6 @@ class CompleteGoalButton(Button):
     permissions = 'commercial'
 
     def render(self, context):
-        # context['predicate_id'] = REL_SUB_COMPLETE_GOAL
         context['rtype'] = RelationType.objects.get(id=REL_SUB_COMPLETE_GOAL)
         # TODO: templatetag instead?
         context['act_ct'] = ContentType.objects.get_for_model(get_act_model())

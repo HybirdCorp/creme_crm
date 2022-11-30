@@ -206,7 +206,6 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(memos))
 
             for memo in memos:
-                # self.assertEqual(contact01, memo.creme_entity)
                 self.assertEqual(contact01, memo.real_entity)
 
         self.aux_test_merge(creator, assertor)
@@ -222,7 +221,6 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         def create_memo(content, entity, on_homepage=True):
             return Memo.objects.create(
-                # user=user, content=content, creme_entity=entity, on_homepage=on_homepage,
                 user=user, content=content, real_entity=entity, on_homepage=on_homepage,
             )
 
@@ -293,9 +291,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         team2.teammates = [self.other_user, teammate2]
 
         create_memo = partial(
-            Memo.objects.create,
-            # creme_entity=self.entity, user=user, on_homepage=True,
-            real_entity=self.entity, user=user, on_homepage=True,
+            Memo.objects.create, real_entity=self.entity, user=user, on_homepage=True,
         )
         memo1 = create_memo(content='Memo#1')
         memo2 = create_memo(content='Memo#2', user=team1)

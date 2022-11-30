@@ -121,7 +121,6 @@ def brick_header_title(context, title,
         icon = get_icon_by_name(
             icon, theme,
             size_px=get_icon_size_px(theme, size='brick-header'),
-            # label=_('Information') if icon == 'info' else rendered_title,
             label=_("Click to display the block's menu"),
         )
 
@@ -488,7 +487,6 @@ def brick_table_column_for_cell(context, cell, title='', status='', **attrs):
 
     # TODO: only if the brick manages sorting (QuerysetBrick) ??
     # TODO: take the registry from the context ? the arguments ?
-    # if cell.sortable:
     if sorter.cell_sorter_registry.get_field_name(cell):
         current_sort = context.get('order_by')
 
@@ -818,9 +816,6 @@ def brick_card_action_for_field(context, instance, field, user, **kwargs):
     # TODO: pass the registry in context ?
     return brick_card_action(
         context,
-        # url=bulk_update.bulk_update_registry.inner_uri(
-        #     cell=cell, instance=instance, user=user,
-        # ),
         url=bulk_update.bulk_update_registry.inner_uri(
             instance=instance, cells=[cell],
         ),

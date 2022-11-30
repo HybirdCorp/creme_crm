@@ -20,7 +20,6 @@ from creme.creme_core.core.entity_filter import operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
-# from creme.creme_core.gui.field_printers import print_integer, print_decimal, M2MPrinter
 from creme.creme_core.gui.field_printers import (
     FKPrinter,
     M2MPrinterForHTML,
@@ -166,7 +165,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = Decimal('1234.56')
         self.assertEqual(
-            # number_format(value, use_l10n=True, force_grouping=True),
             number_format(value, force_grouping=True),
             print_decimal_html(line, fval=value, user=user, field=field)
         )
@@ -182,7 +180,6 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         value = Decimal('1234.56')
         self.assertEqual(
-            # number_format(value, use_l10n=True),
             number_format(value),
             print_decimal_csv(line, fval=value, user=user, field=field)
         )
@@ -446,7 +443,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # '<a href="{url}" alt="{label}">{label}</a>'.format(
             '<a href="{url}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
@@ -555,7 +551,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             filedata=file_path,
         )
         self.assertHTMLEqual(
-            # '<a href="{url}" alt="{label}">{label}</a>'.format(
             '<a href="{url}">{label}</a>'.format(
                 url=reverse(
                     'creme_core__download',
@@ -1165,7 +1160,6 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(str(casca.image), get_csv_val(casca, 'image', user))
 
         self.assertEqual(
-            # '<p>Casca&#39;s selfie</p>',
             '<p>Casca&#x27;s selfie</p>',
             get_html_val(casca, 'image__description', user)
         )
@@ -1174,9 +1168,6 @@ class FieldsPrintersTestCase(CremeTestCase):
             get_csv_val(casca, 'image__description', user)
         )
 
-        # date_str = date_format(localtime(casca.created), 'DATETIME_FORMAT')
-        # self.assertEqual(date_str, get_html_val(casca, 'created', user))
-        # self.assertEqual(date_str, get_csv_val(casca,  'created', user))
         local_dt = localtime(casca.created)
         self.assertEqual(
             date_format(local_dt, 'DATETIME_FORMAT'),

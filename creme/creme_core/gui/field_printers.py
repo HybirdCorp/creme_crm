@@ -177,17 +177,14 @@ print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_
 def print_integer_html(entity: Model, fval, user, field: Field) -> str:
     # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
     #     to not impact CSV output, reports etc...
-    # return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
     return number_format(fval, force_grouping=True) if fval is not None else ''
 
 
 def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
-    # return number_format(fval, use_l10n=True, force_grouping=True) if fval is not None else ''
     return number_format(fval, force_grouping=True) if fval is not None else ''
 
 
 def print_decimal_csv(entity: Model, fval, user, field: Field) -> str:
-    # return number_format(fval, use_l10n=True) if fval is not None else ''
     return number_format(fval) if fval is not None else ''
 
 
@@ -489,9 +486,7 @@ class _FieldPrintersRegistry:
                 (models.BooleanField,       print_boolean_html),
                 (models.NullBooleanField,   print_boolean_html),
 
-                # (models.DateField,          print_date),
                 (models.DateField,          print_date_html),
-                # (models.DateTimeField,      print_datetime),
                 (models.DateTimeField,      print_datetime_html),
 
                 (models.TextField,          print_text_html),
@@ -523,9 +518,7 @@ class _FieldPrintersRegistry:
                 (models.BooleanField,       print_boolean_csv),
                 (models.NullBooleanField,   print_boolean_csv),
 
-                # (models.DateField,          print_date),
                 (models.DateField,          print_date_csv),
-                # (models.DateTimeField,      print_datetime),
                 (models.DateTimeField,      print_datetime_csv),
 
                 # (models.ImageField,         print_image_csv, TODO ??

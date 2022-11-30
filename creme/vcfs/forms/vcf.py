@@ -62,7 +62,6 @@ from creme.creme_core.models import (
     RelationType,
 )
 from creme.creme_core.models.utils import assign_2_charfield
-# from creme.creme_core.utils import split_filter
 from creme.creme_core.views.file_handling import handle_uploaded_file
 from creme.documents.constants import UUID_FOLDER_IMAGES
 from creme.documents.utils import get_image_format
@@ -304,7 +303,6 @@ class VcfImportForm(CremeModelForm):
         fields = self.fields
         get_ct = ContentType.objects.get_for_model
 
-        # contact_cfields, orga_cfields = split_filter(
         orga_cfields, contact_cfields = partition(
             lambda cfield: cfield.content_type.model_class() == Contact,
             CustomField.objects.filter(

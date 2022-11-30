@@ -218,7 +218,6 @@ class CremeEntity(CremeModel):
                              real_entities: bool = True,
                              ) -> list[CremeEntity]:
         return [
-            # relation.object_entity.get_real_entity()
             relation.real_object
             for relation in self.get_relations(relation_type_id, real_entities)
         ]
@@ -227,8 +226,6 @@ class CremeEntity(CremeModel):
                       relation_type_id: str,
                       real_obj_entities: bool = False,
                       ) -> list[Relation]:
-        # from . import Relation
-
         relations = self._relations_map.get(relation_type_id)
 
         if relations is None:
@@ -239,8 +236,6 @@ class CremeEntity(CremeModel):
             relations = self.relations.filter(type=relation_type_id).order_by('id')
 
             if real_obj_entities:
-                # relations = [*relations.select_related('object_entity')]
-                # Relation.populate_real_object_entities(relations)
                 relations.prefetch_related('real_object')
 
             self._relations_map[relation_type_id] = relations
@@ -281,11 +276,6 @@ class CremeEntity(CremeModel):
                            ) -> None:
         from . import Relation
 
-        # relations = Relation.objects.filter(
-        #     subject_entity__in=[e.id for e in entities],
-        #     type__in=relation_type_ids,
-        # ).select_related('object_entity')
-        # Relation.populate_real_object_entities(relations)
         relations = Relation.objects.filter(
             subject_entity__in=[e.id for e in entities],
             type__in=relation_type_ids,

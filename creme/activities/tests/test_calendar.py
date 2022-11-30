@@ -376,7 +376,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         def create_act(i):
             act = Activity.objects.create(
                 user=user, title=f'Floating Act#{i}',
-                # type_id=constants.ACTIVITYTYPE_TASK,
                 type_id=constants.ACTIVITYTYPE_MEETING,
                 sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
                 floating_type=constants.FLOATING,
@@ -543,7 +542,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -684,7 +682,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         cal = Calendar.objects.create(user=user, name='Cal #1', is_custom=True)
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_NETWORK,
         )
@@ -723,7 +720,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_QUALIFICATION,
         )
@@ -756,7 +752,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = Activity.objects.create(
             user=self.other_user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_CONFERENCE,
         )
@@ -781,7 +776,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = Activity.objects.create(
             user=self.other_user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -833,7 +827,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         activity = Activity.objects.create(
             title='Act#1',
             user=user,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
             start=start,
@@ -964,7 +957,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act1),
                 'editable':   True,
-                # 'type':       _('Task'),
                 'type':       _('Phone call'),
             },
             data[1],
@@ -980,7 +972,6 @@ class CalendarTestCase(_ActivitiesTestCase):
                 'color':      f'#{cal.color}',
                 'url':        build_popup_url(act0),
                 'editable':   True,
-                # 'type':       _('Task'),
                 'type':       _('Phone call'),
             },
             data[2],
@@ -1007,7 +998,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         create = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
         )
@@ -1086,7 +1076,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         create = partial(
             Activity.objects.create,
             user=user,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_PHONECALL,
             sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
         )
@@ -1287,7 +1276,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         end   = start + timedelta(hours=2)
         act = Activity.objects.create(
             user=user, title='Act#1', start=start, end=end,
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )
@@ -1419,7 +1407,6 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         act = Activity.objects.create(
             user=user, title='Act#1',
-            # type_id=constants.ACTIVITYTYPE_TASK,
             type_id=constants.ACTIVITYTYPE_MEETING,
             sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_OTHER,
         )

@@ -51,7 +51,6 @@ class Action(core_models.CremeModel):
         related_name='assistants_actions',
         editable=False, on_delete=models.CASCADE,
     ).set_tags(viewable=False)
-    # creme_entity = core_fields.RealEntityForeignKey(
     real_entity = core_fields.RealEntityForeignKey(
         ct_field='entity_content_type', fk_field='entity',
     )
@@ -73,5 +72,4 @@ class Action(core_models.CremeModel):
         return reverse('assistants__edit_action', args=(self.id,))
 
     def get_related_entity(self):  # For generic views
-        # return self.creme_entity
         return self.real_entity

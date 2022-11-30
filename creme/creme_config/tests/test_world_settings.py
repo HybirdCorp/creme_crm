@@ -1,4 +1,3 @@
-# from os.path import basename
 from pathlib import Path
 
 from django.conf import settings

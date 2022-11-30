@@ -572,7 +572,6 @@ class _CremeTestCase:
     @staticmethod
     def build_filedata(content, suffix='.txt'):
         tmpfile = NamedTemporaryFile(suffix=suffix)
-        # tmpfile.write(content_str.encode())
         tmpfile.write(content.encode() if isinstance(content, str) else content)
         tmpfile.flush()
 
@@ -583,7 +582,6 @@ class _CremeTestCase:
 
         return tmpfile
 
-    # def build_merge_url(self, entity1, entity2):
     @staticmethod
     def build_merge_url(entity1, entity2):
         return reverse('creme_core__merge_entities') + f'?id1={entity1.id}&id2={entity2.id}'
@@ -610,7 +608,6 @@ class _CremeTestCase:
 
         from creme.creme_core.utils.file_handling import FileCreator
 
-        # rel_media_dir_path = os_path.join('upload', 'creme_core-tests', dir_name)
         rel_media_dir_path = os_path.join('creme_core-tests', dir_name)
         final_path = FileCreator(
             os_path.join(settings.MEDIA_ROOT, rel_media_dir_path),
@@ -708,15 +705,6 @@ class _CremeTestCase:
         return obj.__class__.objects.get(pk=obj.pk)
 
     @staticmethod
-    # def build_inneredit_url(entity, fieldname):
-    #     return reverse(
-    #         'creme_core__inner_edition',
-    #         args=(
-    #             ContentType.objects.get_for_model(entity).pk,
-    #             entity.pk,
-    #             fieldname,
-    #         ),
-    #     )
     def build_inneredit_uri(entity, *fields):
         url = reverse(
             'creme_core__inner_edition',
@@ -730,12 +718,6 @@ class _CremeTestCase:
         )
 
     @staticmethod
-    # def build_bulkupdate_url(model, fieldname=None):
-    #     args = [ContentType.objects.get_for_model(model).id]
-    #     if fieldname:
-    #         args.append(fieldname)
-    #
-    #     return reverse('creme_core__bulk_update', args=args)
     def build_bulkupdate_uri(*, model, field=None, entities=()):
         args = [ContentType.objects.get_for_model(model).id]
         if field is not None:
@@ -792,7 +774,6 @@ class _CremeTestCase:
         return json_dump([entity.id for entity in entities])
 
     @staticmethod
-    # def formfield_value_relation_entity(rtype_id, entity):
     def formfield_value_relation_entity(rtype, entity):
         return json_dump({
             'rtype':  rtype.id if isinstance(rtype, RelationType) else rtype,
@@ -818,7 +799,6 @@ class _CremeTestCase:
         })
 
     @staticmethod
-    # def get_html_tree(self, content):
     def get_html_tree(content):
         return html5lib.parse(content, namespaceHTMLElements=False)
 

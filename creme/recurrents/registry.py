@@ -18,7 +18,6 @@
 
 from __future__ import annotations
 
-# import warnings
 from typing import Iterator
 
 from django.contrib.contenttypes.models import ContentType
@@ -49,20 +48,6 @@ class RecurrentRegistry:
         """
         for model, template_model, template_form in to_register:
             self._template_forms[model] = template_form
-
-    # @property
-    # def ctypes(self) -> Iterator[ContentType]:
-    #     """Generates the ContentTypes of recurrent models."""
-    #     warnings.warn(
-    #         'The property RecurrentRegistry.ctypes is deprecated ; '
-    #         'use "models" instead.',
-    #         DeprecationWarning,
-    #     )
-    #
-    #     get_ct = ContentType.objects.get_for_model
-    #
-    #     for model in self.models:
-    #         yield get_ct(model)
 
     @property
     def models(self) -> Iterator[ContentType]:

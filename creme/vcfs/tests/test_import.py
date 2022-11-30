@@ -1471,13 +1471,6 @@ END:VCARD"""
         "Link to an image."
         user = self.login()
 
-        # vcf_forms.URL_START = (*vcf_forms.URL_START, 'file')
-        #
-        # path_base = os_path.join(
-        #     settings.CREME_ROOT, 'static', 'common', 'images', '500_200.png',
-        # )
-        # self.assertTrue(os_path.exists(path_base))
-        # path = 'file:///' + os_path.normpath(path_base)
         url_parts = ['static', 'common', 'images', '500_200.png']
         self.assertTrue(os_path.exists(
             os_path.join(settings.CREME_ROOT, *url_parts)
@@ -1535,7 +1528,6 @@ END:VCARD"""
 
         first_name = 'Kaede'
         last_name = 'NAGASE'
-        # url = 'http://wwwwwwwww.wwwwwwwww.wwwwwwww/wwwwwww.jpg'
         url = self.http_file(
             '/'.join(['creme', 'static', 'common', 'images', 'unknown.png'])
         )

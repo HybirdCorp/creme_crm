@@ -88,10 +88,6 @@ class MobileContactCreateForm(MobilePersonCreationFormMixin,
         quick.ContactQuickForm.__init__(self, *args, **kwargs)
         MobilePersonCreationFormMixin.__init__(self)
 
-    # def clean(self):
-    #     self.cleaned_data['user'] = self.user  # NB: used in super().clean()
-    #     return super().clean()
-
     def save(self, *args, **kwargs):
         contact = super().save(*args, **kwargs)
 

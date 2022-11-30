@@ -33,7 +33,7 @@ from creme.persons.tests.base import (
 )
 
 from ..actions import ExportInvoiceAction, GenerateNumberAction
-from ..constants import (  # DISCOUNT_LINE_AMOUNT DISCOUNT_PERCENT
+from ..constants import (
     REL_OBJ_BILL_ISSUED,
     REL_OBJ_BILL_RECEIVED,
     REL_SUB_BILL_ISSUED,
@@ -109,9 +109,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.create_user()
         source, target = self.create_orgas(user=user)
 
-        build_invoice = partial(
-            Invoice, user=user, name='Invoice001', status_id=1,
-        )
+        build_invoice = partial(Invoice, user=user, name='Invoice001', status_id=1)
 
         invoice1 = build_invoice(source=source)  # target=target
         msg1 = _('Target is required.')
@@ -296,7 +294,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             self.client.get(reverse('billing__create_invoice'))
                        .context['form'][self.SOURCE_KEY]
                        .field
-                       .initial
+                       .initial,
         )
 
         description = 'My fabulous invoice'
@@ -406,8 +404,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'name':  'Invoice001',
                 'status': 1,
 
-                # 'issuing_date':    '2011-9-7',
-                # 'expiration_date': '2011-10-13',
                 'issuing_date':    self.formfield_value_date(2011,  9,  7),
                 'expiration_date': self.formfield_value_date(2011, 10, 13),
 
@@ -457,7 +453,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         invoice = self.create_invoice('Invoice001', source, target)
-        # self.assertIsNone(invoice.payment_info)
         self.assertEqual(pi2, invoice.payment_info)
 
     def test_create_related01(self):
@@ -492,8 +487,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'name':   name,
                 'status': status.id,
 
-                # 'issuing_date':    '2013-12-15',
-                # 'expiration_date': '2014-1-22',
                 'issuing_date':    self.formfield_value_date(2013, 12, 15),
                 'expiration_date': self.formfield_value_date(2014,  1, 22),
 
@@ -713,8 +706,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2010-9-7',
-                # 'expiration_date': '2011-11-14',
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2011, 11, 14),
                 'status':          1,
@@ -774,7 +765,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                 'name':   invoice.name,
                 'status': invoice.status.id,
 
-                # 'expiration_date': '2011-11-14',
                 'expiration_date': self.formfield_value_date(2011, 11, 14),
 
                 'currency': invoice.currency.id,
@@ -798,7 +788,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             ],  # Refresh
         )
 
-    # def test_editview04(self):
     def test_editview03(self):
         "Error on discount."
         user = self.login()
@@ -842,8 +831,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.id,
                 'name':            'Dreamcast',
-                # 'issuing_date':    '2010-9-7',
-                # 'expiration_date': '2010-10-13',
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
                 'status':          1,
@@ -910,7 +897,6 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertNoFormError(response)
 
         invoice = self.refresh(invoice)
-        # self.assertIsNone(invoice.payment_info)
         self.assertEqual(pi2, invoice.payment_info)
 
     def test_inner_edit01(self):
@@ -919,30 +905,17 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         name = 'invoice001'
         invoice = self.create_invoice_n_orgas(name, user=user)[0]
 
-        # build_url = partial(self.build_inneredit_url, entity=invoice)
         build_uri = partial(self.build_inneredit_uri, invoice)
-        # url = build_url(fieldname='name')
         field_name = 'name'
         uri = build_uri(field_name)
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
         name = name.title()
-        response = self.client.post(
-            # url,
-            uri,
-            data={
-                # 'entities_lbl': [str(invoice)],
-                # 'field_value':  name,
-                field_name: name,
-            },
-        )
+        response = self.client.post(uri, data={field_name: name})
         self.assertNoFormError(response)
         self.assertEqual(name, self.refresh(invoice).name)
 
         # Addresses should not be editable
-        # self.assertGET(400, build_url(fieldname='billing_address'))
-        # self.assertGET(400, build_url(fieldname='shipping_address'))
         self.assertGET404(build_uri('billing_address'))
         self.assertGET404(build_uri('shipping_address'))
 
@@ -951,23 +924,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
-        # url = self.build_inneredit_url(entity=invoice, fieldname='discount')
         field_name = 'discount'
         uri = self.build_inneredit_uri(invoice, field_name)
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
-        response = self.assertPOST200(
-            # url,
-            uri,
-            data={
-                # 'entities_lbl': [str(invoice)],
-                # 'field_value':  '110',
-                field_name:  '110',
-            },
-        )
+        response = self.assertPOST200(uri, data={field_name:  '110'})
         self.assertFormError(
-            # response, 'form', 'field_value',
             response, 'form', field_name,
             _('Enter a number between 0 and 100 (it is a percentage).'),
         )

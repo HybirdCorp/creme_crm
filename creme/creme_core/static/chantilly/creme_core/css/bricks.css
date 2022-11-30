@@ -2,11 +2,7 @@
 
 /* Apply a natural box layout model to all elements */
 .brick * {
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
-            box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .brick a img {
@@ -28,10 +24,6 @@
     border-bottom: 1px solid #bdd3dc;
     border-right: 1px solid #bdd3dc;
 
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -233,11 +225,6 @@
     left: 0px;
     top: -1px;
 
-/*
-    background: -webkit-linear-gradient(transparent, #aaa);
-    background:    -moz-linear-gradient(transparent, #aaa);
-    background:      -o-linear-gradient(transparent, #aaa);
-*/
     background: linear-gradient(transparent, #aaa);
 }
 
@@ -269,10 +256,6 @@
 }
 
 .brick .brick-header-button:not(.is-disabled):hover .brick-header-icon {
-/*
-    -webkit-filter: brightness(10);
-       -moz-filter: brightness(10);
-*/
     filter: brightness(10);
 }
 
@@ -488,9 +471,7 @@
     padding: 3px 10px 2px 10px;
 }
 
-/* .brick-table .brick-table-content .brick-table-action:hover, */
 .brick-table .brick-table-content .brick-table-action:hover .brick-table-action-icon,
-/*.brick-list .brick-list-item .brick-action:hover { */
 .brick-list .brick-list-item .brick-action:hover .brick-action-icon {
     filter: brightness(2);
 }
@@ -1177,10 +1158,6 @@
 
 .brick.brick-detailview-popup {
     border: 0;
-/*
-    -webkit-box-shadow: none;
-       -moz-box-shadow: none;
-*/
     box-shadow: none;
 }
 

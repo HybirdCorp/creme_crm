@@ -33,7 +33,6 @@
     {% for message in page.object_list %}
     <tr>
         {% if not object %}
-{#            {% with message.creme_entity as entity %} #}
             {% with entity=message.real_entity %}
                 {% if entity %}
                     <td>{% widget_entity_hyperlink entity user %}</td>

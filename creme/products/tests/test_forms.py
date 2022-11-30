@@ -264,17 +264,11 @@ class CreateCategoryTestCase(CremeTestCase):
             {
                 'added': [
                     {
-                        # 'category': [str(cat1.id), str(cat1)],
-                        # 'subcategory': [str(cat12.id), str(cat12)],
                         'value': str(cat12.id),
                         'label': str(cat12),
                         'group': str(cat1)
                     },
                 ],
-                # 'value': {
-                #     'category': str(cat1.id),
-                #     'subcategory': str(cat12.id),
-                # },
                 'value': str(cat12.id),
             },
             response2.json(),

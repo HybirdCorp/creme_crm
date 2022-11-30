@@ -16,7 +16,7 @@ from creme.creme_core.models import (
 from creme.persons import constants
 from creme.persons.models import LegalForm, Sector, StaffSize
 
-from ..base import (  # skipIfCustomContact
+from ..base import (
     Address,
     Contact,
     Organisation,
@@ -625,7 +625,6 @@ class OrganisationTestCase(_BaseTestCase):
         )
 
         self.assertIn('customers_managed_orga', fields)
-        # self.assertEqual(_('Create a suspect / prospect / customer'), title)
         self.assertEqual(
             pgettext('persons-related_creation', 'Create a: {}').format(
                 f"{_('customer')}, {_('prospect')}, {_('suspect')}"
@@ -1013,7 +1012,6 @@ class OrganisationTestCase(_BaseTestCase):
             url,
             data={'organisations': self.formfield_value_multi_creator_entity(orga1)},
         )
-        # self.assertFormError(response, 'form', 'organisations', _('This entity does not exist.'))
         self.assertFormError(
             response, 'form', 'organisations',
             _('«%(entity)s» violates the constraints.') % {'entity': orga1},

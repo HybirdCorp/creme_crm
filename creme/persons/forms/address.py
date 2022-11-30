@@ -16,10 +16,8 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# import warnings
 import logging
 
-# from django.forms import ModelForm
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -49,16 +47,6 @@ class AddressForm(CremeModelForm):
 class UnnamedAddressForm(AddressForm):
     class Meta(AddressForm.Meta):
         exclude = ('name',)
-
-
-# class _AuxiliaryAddressForm(ModelForm):
-#     class Meta(AddressForm.Meta):
-#         model = Address
-#         exclude = ('name',)
-#
-#     def __init__(self, *args, **kwargs):
-#         warnings.warn('_AuxiliaryAddressForm is deprecated', DeprecationWarning)
-#         super().__init__(*args, **kwargs)
 
 
 class _FieldAddressForm(UnnamedAddressForm):

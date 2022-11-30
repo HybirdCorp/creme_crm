@@ -262,15 +262,6 @@ class BrickStateExtraDataSetting(generic.CheckedView):
             )
 
             try:
-                # if value is None:
-                #     try:
-                #         state.del_extra_data(self.data_key)
-                #     except KeyError:
-                #         pass
-                #     else:
-                #         state.save()
-                # elif state.set_extra_data(key=self.data_key, value=value):
-                #     state.save()
                 self.set_value(state, value)
             except IntegrityError:
                 logger.exception('Avoid a duplicate.')

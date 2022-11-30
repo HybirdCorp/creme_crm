@@ -5,10 +5,6 @@ div.form-container {
 /* Layout */
 
 .form-container-blocks .form-layout-regular {
-/*
-     -webkit-box-sizing: border-box;
-       -moz-box-sizing:  border-box;
-*/
     box-sizing: border-box;
 }
 
@@ -50,10 +46,6 @@ div.form-container {
     border-bottom: 1px solid #d9d9d9;
     border-right: 1px solid #d9d9d9;
 
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -66,10 +58,6 @@ div.form-container {
     border: 2px solid #ffa3a3;
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -203,17 +191,12 @@ div.submit_buttons button {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
-*/
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.2), inset 0 1px 0px white;
 
     text-align: center;
     text-decoration: none;
     color: #333;
     text-transform: uppercase;
-    /* font-size: 11px; */
     font-weight: 600;
 
     cursor: pointer;
@@ -265,15 +248,6 @@ select {
     font-size: 12.5px;
 }
 
-/*
-input:not([type="submit"]):not([type="file"]),
-textarea {
-    border-radius: 0;
-    border: 1px solid #a9a9a9;
-    background: white;
-}
-*/
-
 .is-field-invalid {
     box-shadow: 0px 0px 4px #cd0a0a;
     border: 1px solid #cd0a0a !important;
@@ -289,7 +263,6 @@ input[type="radio"]:disabled,
 input[readonly], /* "input:read-only" includes types "checkbox", "radio" */
 textarea:disabled,
 textarea:read-only {
-/*textarea[readonly] {*/
     background: #f5f2f2;
 
     border-color: #dddddd;
@@ -339,10 +312,6 @@ ul.multi-select {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
-*/
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
 
     text-align: center;
@@ -392,10 +361,6 @@ ul.multi-select {
     border-bottom: 1px solid #bdbdbd;
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
-*/
     box-shadow: 0 1px 4px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0px white;
 
     text-align: left;
@@ -438,10 +403,6 @@ ul.multi-select {
     opacity: .50;
     filter: Alpha(Opacity=50);
 
-/*
-    -webkit-box-shadow: none;
-       -moz-box-shadow: none;
-*/
     box-shadow: none;
 
     cursor: default;
@@ -556,10 +517,6 @@ ul.union-widget .union-sub_widget_container:not(.switch-on) {
     max-width: 5%;
 }
 
-/*
-form .table_detail_view .li_merge_entity1 input,
-form .table_detail_view .li_merge_entity1 textarea {
-*/
 .form-container .form-block .li_merge_entity1 input,
 .form-container .form-block .li_merge_entity1 textarea {
     color: #5a92ab;
@@ -586,10 +543,8 @@ form .table_detail_view .li_merge_entity1 textarea {
 /* Apply a natural box layout model to all elements
     TODO: does not work at wished when not global...
 .hfilter_widget * {
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-            box-sizing: border-box;
-}*/
+    box-sizing: border-box;
+} */
 
 .hfilter_widget .selectors {
     clear: both;
@@ -651,11 +606,6 @@ form .table_detail_view .li_merge_entity1 textarea {
     display: inline-block;
     margin-right: 20px;
 
-/*
-    -webkit-transition: opacity 0.3s ease-in-out;
-       -moz-transition: opacity 0.3s ease-in-out;
-        -o-transition: opacity 0.3s ease-in-out;
-*/
     transition: opacity 0.3s ease-in-out;
 }
 
@@ -688,7 +638,7 @@ form .table_detail_view .li_merge_entity1 textarea {
 /* TODO: uncomment when secondary relationship are managed
 .hfilter_widget .relationship_selectors .secondary_relationship {
     display: none;
-}*/
+} */
 
 .hfilter_widget .selector .selected_count {
     opacity: 0.5;
@@ -708,10 +658,6 @@ form .table_detail_view .li_merge_entity1 textarea {
 
     background: #376e86;
 
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 }
 
@@ -721,34 +667,13 @@ form .table_detail_view .li_merge_entity1 textarea {
 
     list-style: none;
 
-/*
-    -webkit-column-width: 200px;
-       -moz-column-width: 200px;
-*/
     column-width: 200px;
-
-/*
-    -webkit-column-gap: 20px;
-       -moz-column-gap: 20px;
-*/
     column-gap: 20px;
 }
 
 .hfilter_widget .underlay_selector_list .selector {
-/*
-    -webkit-column-break-inside: avoid;
-       -moz-column-break-inside: avoid;
-        -ms-column-break-inside: avoid;
-         -o-column-break-inside: avoid;
-            column-break-inside: avoid;
-*/
     break-inside: avoid;
 
-/*
-    -webkit-transition: opacity 0.3s ease-in-out;
-       -moz-transition: opacity 0.3s ease-in-out;
-         -o-transition: opacity 0.3s ease-in-out;
-*/
     transition: opacity 0.3s ease-in-out;
 }
 
@@ -774,11 +699,6 @@ form .table_detail_view .li_merge_entity1 textarea {
     border-bottom: 0;
     border-right: 0;
 
-/*
-    -webkit-transform: rotateZ(45deg);
-       -moz-transform: rotateZ(45deg);
-        -ms-transform: rotateZ(45deg);
-*/
     transform: rotateZ(45deg);
 
     z-index: 1;
@@ -792,20 +712,11 @@ form .table_detail_view .li_merge_entity1 textarea {
     width: 30px;
     height: 30px;
 
-/*
-    -webkit-transform: rotateZ(-45deg);
-       -moz-transform: rotateZ(-45deg);
-        -ms-transform: rotateZ(-45deg);
-*/
     transform: rotateZ(-45deg);
 
     /* bg color of the arrow needs to match underlay color */
     background: #376e86;
 
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 }
 
@@ -820,11 +731,6 @@ form .table_detail_view .li_merge_entity1 textarea {
     width: 17px;
     height: 17px;
 
-/*
-    -webkit-transform: rotateZ(45deg);
-       -moz-transform: rotateZ(45deg);
-        -ms-transform: rotateZ(45deg);
-*/
     transform: rotateZ(45deg);
 
     background: none;
@@ -955,77 +861,6 @@ table .dragtable-col-placeholder:first {
     visibility: hidden;
 }
 /* Dragtable - end */
-
-/* DualColumnMultiSelect (dcms) */
-/*
-.dcms_div li.dcms_focused {
-    background: #f7b5ad none repeat scroll 0 0;
-}
-
-.dcms_div li {
-    cursor: pointer;
-}
-
-.dcms_div ul,
-.dcms_div li {
-    list-style-type: none;
-    padding: 0;
-    background: #ffffff;
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.dcms_div ul {
-    min-width: 100px;
-
-    border: 1px solid #6eaac4;
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-            border-radius: 4px;
-}
-
-.dcms_div table {
-    width: 100%;
-}
-
-.dcms_div table th.available,
-.dcms_div table th.chosen {
-    width: 45%;
-}
-
-.dcms_div table tr.content td:hover {
-    background: none;
-}
-
-.dcms_div table th.less {
-    display: none;
-}
-
-.dcms_div table th.more {
-    display: table-cell;
-}
-
-.dcms_div table.reduced th.less {
-    display: table-cell;
-}
-
-.dcms_div table.reduced th.more {
-    display: none;
-}
-
-.dcms_div table.reduced .content {
-    display: none;
-}
-
-.dcms_div table tr.content td:hover {
-    background: none;
-}
-
-.dcms_button {
-    display: block;
-    width: auto !important;
-}
-*/
-/* DualColumnMultiSelect - end */
 
 /* Ordered multiple select */
 

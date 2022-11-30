@@ -26,7 +26,6 @@ from datetime import date
 from functools import partial
 from types import GeneratorType
 
-# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models.query_utils import Q
 from django.forms import widgets
@@ -369,7 +368,6 @@ class PolymorphicInput(widgets.TextInput):
         return context
 
 
-# class DateRangeSelect(widgets.Widget):
 class DateRangeSelect(DatePickerMixin, widgets.Widget):
     template_name = 'creme_core/forms/widgets/date-range-select.html'
     range_registry = date_range_registry
@@ -381,7 +379,6 @@ class DateRangeSelect(DatePickerMixin, widgets.Widget):
     def range_choices(self):
         return [
             ('', pgettext_lazy('creme_core-date_range', 'Customized')),
-            # *date_range_registry.choices(),
             *self.range_registry.choices(),
         ]
 
@@ -404,7 +401,6 @@ class DateRangeSelect(DatePickerMixin, widgets.Widget):
         final_attrs['class'] = 'ui-creme-input ' + widget_type
 
         widget_cxt['type'] = 'hidden'
-        # widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
         widget_cxt['date_format'] = self.js_date_format()
         widget_cxt['choices'] = self.range_choices() if self.choices is None else self.choices
 
@@ -495,12 +491,10 @@ class SelectorList(widgets.TextInput):
     template_name = 'creme_core/forms/widgets/selector-list.html'
     action_class = WidgetAction
 
-    # def __init__(self, selector, attrs=None, enabled=True):
     def __init__(self, selector, attrs=None, **kwargs):
         super().__init__(attrs)
         self.selector = selector
 
-        # self.enabled = enabled
         self._enabled = True  # DEPRECATED
         if kwargs:
             self.enabled = kwargs.pop('enabled')
@@ -542,14 +536,6 @@ class SelectorList(widgets.TextInput):
 
         value = self.from_python(value) if self.from_python is not None else value
 
-        # context = super().get_context(name=name, value=value, attrs=None)
-        # widget_cxt = context['widget']
-        # widget_cxt['class'] = f'ui-creme-widget widget-auto {widget_type}'
-        # widget_cxt['widget_type'] = widget_type
-        #
-        # final_attrs = widget_cxt['attrs']
-        # widget_cxt['clonelast'] = final_attrs.pop('clonelast', True)
-        # widget_cxt['enabled'] = self.enabled
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
@@ -935,20 +921,15 @@ class FilteredEntityTypeWidget(ChainedInput):
         return super().get_context(name=name, value=value, attrs=attrs)
 
 
-# class DateTimeWidget(widgets.DateTimeInput):
 class DateTimeWidget(DatePickerMixin, widgets.DateTimeInput):
     is_localized = True  # TODO: settings.USE_L10N?
     template_name = 'creme_core/forms/widgets/datetime.html'
-
-    # def __init__(self, attrs=None):
-    #     super().__init__(attrs=attrs, format='%d-%m-%Y %H:%M')
 
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
         widget_cxt = context['widget']
         widget_cxt['type'] = 'hidden'
-        # widget_cxt['date_format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
         widget_cxt['date_format'] = self.js_date_format()
 
         return context
@@ -972,11 +953,9 @@ class TimeWidget(widgets.TextInput):
         return value
 
 
-# class CalendarWidget(widgets.TextInput):
 class CalendarWidget(DatePickerMixin, widgets.TextInput):
     is_localized = True
     template_name = 'creme_core/forms/widgets/date.html'
-    # default_help_text = settings.DATE_FORMAT_VERBOSE
     default_help_text = gettext_lazy('E.g. {}')
 
     def get_default_help_text(self, date_format):
@@ -990,7 +969,6 @@ class CalendarWidget(DatePickerMixin, widgets.TextInput):
 
         context = super().get_context(name=name, value=value, attrs=attrs)
         widget_cxt = context['widget']
-        # widget_cxt['format_help_text'] = self.default_help_text
         widget_cxt['format_help_text'] = self.get_default_help_text(date_format)
 
         final_attrs = widget_cxt['attrs']
@@ -1005,7 +983,6 @@ class CalendarWidget(DatePickerMixin, widgets.TextInput):
         ).strip()
         final_attrs['widget'] = widget_type  # TODO: data-widget[-type]
         # TODO: data-date-format
-        # final_attrs['format'] = settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT)
         final_attrs['format'] = self.js_date_format(date_format)
 
         return context
@@ -1017,10 +994,7 @@ class OptionalWidget(widgets.MultiWidget):
     def __init__(self, sub_widget=widgets.TextInput, attrs=None, sub_label=''):
         super().__init__(
             widgets=(
-                widgets.CheckboxInput(
-                    # attrs={'onchange': 'creme.forms.optionalWidgetHandler(this)'},
-                    attrs={'class': 'optional-widget-trigger'},
-                ),
+                widgets.CheckboxInput(attrs={'class': 'optional-widget-trigger'}),
                 sub_widget,
             ),
             attrs=attrs,
@@ -1137,27 +1111,6 @@ class TinyMCEEditor(widgets.Textarea):
         return context
 
 
-# class ColorPickerWidget(widgets.TextInput):
-#     template_name = 'creme_core/forms/widgets/color.html'
-
-#     def get_context(self, name, value, attrs):
-#         widget_type = 'ui-creme-jqueryplugin'
-#         context = super().get_context(name=name, value=value, attrs=attrs)
-
-#         final_attrs = context['widget']['attrs']
-#         base_css = (
-#             'ui-creme-input ui-creme-widget widget-auto'
-#             if final_attrs.pop('auto', True) else
-#             'ui-creme-input ui-creme-widget'
-#         )
-#         final_attrs['class'] = (
-#             f"{base_css} {widget_type} {final_attrs.get('class', '')}"
-#         ).strip()
-#         final_attrs['widget'] = widget_type
-#         final_attrs['plugin'] = 'gccolor'
-
-#         return context
-
 class ColorInput(widgets.Input):
     input_type = 'color'
     template_name = 'creme_core/forms/widgets/color.html'
@@ -1175,7 +1128,7 @@ class UnorderedMultipleChoiceWidget(EnhancedSelectOptions, widgets.SelectMultipl
     MIN_CHECKALL_COUNT = 3
 
     def __init__(self, attrs=None, choices=(),
-                 columntype='', filtertype=None, viewless=40,  # viewless=20,
+                 columntype='', filtertype=None, viewless=40,
                  creation_url='', creation_allowed=False,
                  creation_label=gettext_lazy('Create'),
                  ):
@@ -1300,10 +1253,6 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
     def get_context(self, name, value, attrs):
         context = super().get_context(name=name, value=value, attrs=attrs)
 
-        # context['widget']['orders'] = {
-        #     opt_value: order + 1
-        #     for order, opt_value in enumerate(value or ())
-        # }
         widget_type = 'ui-creme-ordered'
         w_ctxt = context['widget']
         final_attrs = w_ctxt['attrs']
@@ -1323,21 +1272,6 @@ class OrderedMultipleChoiceWidget(widgets.SelectMultiple):
         return context
 
     def value_from_datadict(self, data, files, name):
-        # prefix_check = f'{name}_check_'
-        # prefix_order = f'{name}_order_'
-        # prefix_value = f'{name}_value_'
-        #
-        # selected = []
-        # for key, value in data.items():
-        #     if key.startswith(prefix_check):
-        #         index = key[len(prefix_check):]  # In fact not an int...
-        #         order = int(data.get(prefix_order + index) or 0)
-        #         value = data[prefix_value + index]
-        #         selected.append((order, value))
-        #
-        # selected.sort(key=lambda i: i[0])
-        #
-        # return [val for _order, val in selected]
         return json.loads(data.get(name))
 
 
@@ -1403,7 +1337,6 @@ class DatePeriodWidget(widgets.MultiWidget):
         super().__init__(
             widgets=(
                 widgets.Select(choices=choices, attrs={'class': 'dperiod-type'}),
-                # widgets.TextInput(attrs={'class': 'dperiod-value'}),
                 widgets.NumberInput(attrs={'class': 'dperiod-value', 'min': 1}),
             ),
             attrs=attrs,

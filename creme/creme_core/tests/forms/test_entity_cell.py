@@ -1,7 +1,6 @@
 from copy import deepcopy
 from functools import partial
 
-# from django.contrib.contenttypes.models import ContentType
 from creme.creme_core.core.entity_cell import (
     EntityCellCustomField,
     EntityCellFunctionField,

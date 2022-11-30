@@ -45,7 +45,6 @@ class FieldsConfigAddForm(CremeModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        # models = [*filter(FieldsConfig.objects.is_model_valid, apps.get_models())]
         models = [
             *filter(
                 FieldsConfig.objects.has_configurable_fields,

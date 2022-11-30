@@ -167,7 +167,6 @@ def listview_td_action_for_cell(*, cell, instance, user):
 
     return {
         # TODO: pass the registry in a list-view context
-        # 'edit_url':  bulk_update_registry.inner_uri(cell=cell, instance=instance, user=user),
         'edit_url':  bulk_update_registry.inner_uri(instance=instance, cells=[cell]),
         'edit_perm': _bulk_has_perm(instance, user),
     }

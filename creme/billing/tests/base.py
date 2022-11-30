@@ -3,7 +3,6 @@ from decimal import Decimal
 from functools import partial
 from unittest import skipIf
 
-# from django.conf import settings
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -108,8 +107,6 @@ class _BillingTestCaseMixin:
                 'name':   name,
                 'status': status.id,
 
-                # 'issuing_date':    '2010-9-7',
-                # 'expiration_date': '2010-10-13',
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
 
@@ -152,8 +149,6 @@ class _BillingTestCaseMixin:
                 'name':   name,
                 'status': 1,
 
-                # 'issuing_date':    '2010-9-7',
-                # 'expiration_date': '2010-10-13',
                 'issuing_date':    self.formfield_value_date(2010,  9,  7),
                 'expiration_date': self.formfield_value_date(2010, 10, 13),
 
@@ -266,8 +261,6 @@ class _BillingTestCaseMixin:
                 'name':    name,
                 'status': status.id if status else 1,
 
-                # 'issuing_date':    '2012-1-5',
-                # 'expiration_date': '2012-2-15',
                 'issuing_date':    self.formfield_value_date(2012, 1, 5),
                 'expiration_date': self.formfield_value_date(2012, 2, 15),
 
@@ -364,29 +357,24 @@ class _BillingTestCase(_BillingTestCaseMixin,
             for i in range(lines_count)
         ]
 
-        # date_fmt = settings.DATE_INPUT_FORMATS[0]
         lines = [
             (
                 names[0], numbers[0],
-                # issuing_dates[0].strftime(date_fmt),
                 self.formfield_value_date(issuing_dates[0]),
                 source1.name, target1.name, '',
             ),
             (
                 names[1], numbers[1],
-                # issuing_dates[1].strftime(date_fmt),
                 self.formfield_value_date(issuing_dates[1]),
                 source2_name, target2_name, '',
             ),
             (
                 names[2], numbers[2],
-                # issuing_dates[2].strftime(date_fmt),
                 self.formfield_value_date(issuing_dates[2]),
                 source2_name, '', target3.last_name,
             ),
             (
                 names[3], numbers[3],
-                # issuing_dates[3].strftime(date_fmt),
                 self.formfield_value_date(issuing_dates[3]),
                 source2_name, '', target4_last_name,
             ),

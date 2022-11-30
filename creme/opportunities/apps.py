@@ -59,7 +59,6 @@ class OpportunitiesConfig(CremeAppConfig):
 
         Opportunity = self.Opportunity
         brick_registry.register(
-            # *bricks.bricks_list
             *bricks.brick_classes
         ).register_4_model(
             Opportunity, bricks.OpportunityBrick,

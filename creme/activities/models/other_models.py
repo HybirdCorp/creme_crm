@@ -107,11 +107,9 @@ class ActivitySubType(CremeModel):
         super().save(*args, **kwargs)
 
 
-# class Status(CremeModel):
 class Status(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     description = models.TextField(_('Description'))
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 

@@ -20,7 +20,6 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 from creme.creme_core.models.fields import BasicAutoField
 
@@ -39,7 +38,6 @@ BASE_STATUS = (
 )
 
 
-# class Status(CremeModel):
 class Status(MinionModel):
     """Status of a ticket: open, closed, invalid..."""
     name = models.CharField(_('Name'), max_length=100, unique=True)
@@ -51,7 +49,6 @@ class Status(MinionModel):
             'not be updated automatically (i.e. closing dates will not be set).'
         ),
     )
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
     order = BasicAutoField(_('Order'))  # Used by creme_config
 
     creation_label = pgettext_lazy('tickets-status', 'Create a status')

@@ -16,17 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.core.exceptions import ValidationError
-# from django.utils.translation import ngettext
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.fields as core_fields
 from creme.creme_core.forms import CremeModelForm
-# from creme.creme_core.forms.bulk import BulkDefaultEditForm
 from creme.creme_core.utils.id_generator import generate_string_id_and_save
 
-# from ..constants import ACTIVITYTYPE_INDISPO
-# from .fields import ActivityTypeField
 from ..models import ActivitySubType, ActivityType
 
 
@@ -81,49 +76,3 @@ class ActivitySubTypeForm(CremeModelForm):
                 }
             ]
         }
-
-# class BulkEditTypeForm(BulkDefaultEditForm):
-#     error_messages = {
-#         'immutable_indispo': _('The type of an indisponibility cannot be changed.'),
-#     }
-#
-#     def __init__(self, model, field, user, entities, is_bulk=False, **kwargs):
-#         super().__init__(model, field, user, entities, is_bulk=is_bulk, **kwargs)
-#         self.fields['field_value'] = type_selector = ActivityTypeField(
-#             label=_('Type'),
-#             types=ActivityType.objects.exclude(pk=ACTIVITYTYPE_INDISPO),
-#         )
-#         self._mixed_indispo = False
-#         indispo_count = sum(a.type_id == ACTIVITYTYPE_INDISPO for a in entities)
-#
-#         if indispo_count:
-#             if indispo_count == len(entities):
-#                 # All entities are indisponibilities, so we propose to change the sub-type.
-#                 type_selector.types = ActivityType.objects.filter(pk=ACTIVITYTYPE_INDISPO)
-#             else:
-#                 self._mixed_indispo = True
-#                 self.fields['beware'] = core_fields.ReadonlyMessageField(
-#                     label=_('Beware !'),
-#                     initial=ngettext(
-#                         'The type of {count} activity cannot be changed because'
-#                         ' it is an indisponibility.',
-#                         'The type of {count} activities cannot be changed because'
-#                         ' they are indisponibilities.',
-#                         indispo_count
-#                     ).format(count=indispo_count),
-#                 )
-#
-#         if not is_bulk:
-#             first = entities[0]
-#             type_selector.initial = (first.type_id, first.sub_type_id)
-#
-#     def _bulk_clean_entity(self, entity, values):
-#         if self._mixed_indispo and entity.type_id == ACTIVITYTYPE_INDISPO:
-#             raise ValidationError(
-#                 self.error_messages['immutable_indispo'],
-#                 code='immutable_indispo',
-#             )
-#
-#         entity.type, entity.sub_type = values.get(self.field_name)
-#
-#         return entity

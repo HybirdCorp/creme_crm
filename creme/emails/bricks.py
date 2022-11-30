@@ -16,7 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from django.apps import apps
 from collections import defaultdict
 
 from django.urls import reverse
@@ -25,7 +24,7 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import documents, emails, persons
 from creme.creme_core.gui.bricks import Brick, QuerysetBrick, SimpleBrick
-from creme.creme_core.models import Relation, RelationType  # CremeEntity
+from creme.creme_core.models import Relation, RelationType
 
 from . import constants
 from .models import (
@@ -250,16 +249,6 @@ class MailsBrick(QuerysetBrick):
     configurable = False
 
     def detailview_display(self, context):
-        # btc = self.get_template_context(
-        #     context,
-        #     context['object'].mails_set.select_related('recipient_entity'),
-        # )
-        #
-        # CremeEntity.populate_real_entities(
-        #     [*filter(None, (lw_mail.recipient_entity for lw_mail in btc['page'].object_list))]
-        # )
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             context['object'].mails_set.prefetch_related('real_recipient'),
@@ -297,12 +286,10 @@ class MailsHistoryBrick(QuerysetBrick):
         return self._render(self.get_template_context(
             context,
             EntityEmail.objects.filter(is_deleted=False, pk__in=entityemail_ids),
-            # rtype_ids=self.relation_type_deps,
             relation_types=relation_types,
             relation_types_all_disabled=not any(
                 rtype.enabled for rtype in relation_types
             ),
-            # creation_perm=context['user'].has_perm_to_create(EntityEmail),
         ))
 
 
@@ -412,60 +399,3 @@ class EmailsToSyncBrick(QuerysetBrick):
             )
 
         return self._render(btc)
-
-# if apps.is_installed('creme.crudity'):
-#     from creme.crudity.bricks import BaseWaitingActionsBrick
-#     from creme.crudity.utils import is_sandbox_by_user
-#
-#     class _SynchronizationMailsBrick(BaseWaitingActionsBrick):
-#         dependencies = (EntityEmail,)
-#         order_by = '-reception_date'
-#         configurable = False
-#
-#     class WaitingSynchronizationMailsBrick(_SynchronizationMailsBrick):
-#         id_ = _SynchronizationMailsBrick.generate_id('emails', 'waiting_synchronisation')
-#         verbose_name = _('Incoming emails to treat')
-#         template_name = 'emails/bricks/synchronization.html'
-#
-#         def detailview_display(self, context):
-#             super().detailview_display(context)
-#             context['rtypes'] = (
-#                 constants.REL_SUB_MAIL_SENDED,
-#                 constants.REL_SUB_MAIL_RECEIVED,
-#                 constants.REL_SUB_RELATED_TO,
-#             )
-#
-#             waiting_mails = EntityEmail.objects.filter(
-#                 is_deleted=False,
-#                 status=EntityEmail.Status.SYNCHRONIZED_WAITING,
-#             )
-#
-#             if is_sandbox_by_user():
-#                 waiting_mails = waiting_mails.filter(user=context['user'])
-#
-#             return self._render(self.get_template_context(
-#                 context, waiting_mails,
-#                 backend=self.backend,
-#             ))
-#
-#     # todo: factorise with WaitingSynchronizationMailsBrick ??
-#     # todo: credentials ?? (see template too)
-#     class SpamSynchronizationMailsBrick(_SynchronizationMailsBrick):
-#         id_ = _SynchronizationMailsBrick.generate_id('emails', 'synchronised_as_spam')
-#         verbose_name = _('Spam')
-#         template_name = 'emails/bricks/synchronization-spam.html'
-#
-#         def detailview_display(self, context):
-#             super().detailview_display(context)
-#
-#             waiting_mails = EntityEmail.objects.filter(
-#                 is_deleted=False,
-#                 status=EntityEmail.Status.SYNCHRONIZED_SPAM,
-#             )
-#             if is_sandbox_by_user():
-#                 waiting_mails = waiting_mails.filter(user=context['user'])
-#
-#             return self._render(self.get_template_context(
-#                 context, waiting_mails,
-#                 backend=self.backend,
-#             ))

@@ -39,9 +39,9 @@ from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
 from .. import constants
-from ..models import Calendar  # ActivityType
+from ..models import Calendar
 from . import fields as act_fields
-from .fields import ActivitySubTypeField  # ActivityTypeField
+from .fields import ActivitySubTypeField
 
 logger = logging.getLogger(__name__)
 Contact      = persons.get_contact_model()
@@ -626,7 +626,6 @@ def get_massimport_form_builder(header_dict, choices):
             return {contact.is_user for contact in user_contacts}
 
         def _pre_instance_save(self, instance, line):
-            # instance.type, instance.sub_type = self.cleaned_data['type_selector']
             sub_type = self.cleaned_data['type_selector']
             instance.type, instance.sub_type = sub_type.type, sub_type
 
@@ -690,7 +689,6 @@ def get_massimport_form_builder(header_dict, choices):
 
             i_participate, my_calendar = cdata['my_participation']
             if i_participate:
-                # add_participant(user.linked_contact)
                 add_participant(self.user.linked_contact)
                 instance.calendars.add(my_calendar)
 

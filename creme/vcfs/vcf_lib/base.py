@@ -602,10 +602,6 @@ def parseLine(line, lineNumber=None):
         raise ParseError(f'Failed to parse line: {line}', lineNumber)
 
     # Underscores are replaced with dash to work around Lotus Notes
-    # return (match.group('name').replace('_','-'),
-    #         parseParams(match.group('params')),
-    #         match.group('value'), match.group('group'),
-    #        )
     return (
         match['name'].replace('_', '-'),
         parseParams(match['params']),
@@ -894,8 +890,6 @@ END:VCALENDAR''')
     >> cal.vevent.summary
     <SUMMARY{u'BLAH': [u'hi!']}Bastille Day Party>
     """
-    # stream = StringIO.StringIO(streamOrString) if isinstance(streamOrString, basestring) else \
-    #          streamOrString
     stream = (
         StringIO(streamOrString)
         if isinstance(streamOrString, str) else

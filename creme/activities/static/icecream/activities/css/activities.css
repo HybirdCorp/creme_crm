@@ -74,21 +74,13 @@
 
 /* apply a natural box layout model to all elements */
 .calendar-menu, .calendar-menu * {
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
-            box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 .calendar-menu .menu-group {
     border: 1px solid #d9d9d9;
     background: white;
 
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -250,10 +242,6 @@
 }
 
 .calendar .fc-view-container {
-/*
-    -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-       -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
-*/
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.10);
 }
 
@@ -317,10 +305,6 @@
     background: none;
     text-shadow: none;
 
-/*
-    -webkit-transition: none;
-       -moz-transition: none;
-*/
     transition: none;
 }
 
@@ -341,7 +325,6 @@
 }
 
 .calendar .fc-time-grid .fc-slats .fc-minor td {
-/*    border-top-style: none; */
     border-top-color: #efefef;
 }
 

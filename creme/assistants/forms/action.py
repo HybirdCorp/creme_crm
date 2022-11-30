@@ -40,7 +40,6 @@ class ActionForm(CremeModelForm):
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         instance = self.instance
-        # instance.creme_entity = entity
         instance.real_entity = entity
 
         deadline = instance.deadline

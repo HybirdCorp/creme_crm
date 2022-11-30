@@ -51,7 +51,6 @@ def handle_uploaded_file(f: File,
         else:
             name = f'file_{randint(0, MAXINT):08x}'
 
-        # if name.rpartition('.')[2] not in settings.ALLOWED_EXTENSIONS:
         if name.rpartition('.')[2].lower() not in settings.ALLOWED_EXTENSIONS:
             name = f'{name}.txt'
 

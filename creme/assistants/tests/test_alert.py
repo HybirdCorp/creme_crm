@@ -334,7 +334,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def _create_alert(self,
                       title='TITLE',
                       description='DESCRIPTION',
-                      # trigger_date='2010-9-29',
                       trigger_date=datetime(year=2010, month=9, day=29, hour=8),
                       entity=None,
                       ):
@@ -347,7 +346,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'user':         self.user.pk,
                 'title':        title,
                 'description':  description,
-                # 'trigger_date': trigger_date,
 
                 'trigger': ABSOLUTE,
                 f'trigger_{ABSOLUTE}': self.formfield_value_datetime(trigger_date),
@@ -395,7 +393,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         # ---
         title = 'Title'
-        # alert = self._create_alert(title, 'Description', '2010-9-29')
         dt_kwargs = {'year': 2010, 'month': 9, 'day': 29, 'hour': 8, 'minute': 0}
         alert = self._create_alert(title, 'Description', datetime(**dt_kwargs))
         self.assertEqual(1, Alert.objects.count())
@@ -404,13 +401,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(self.user, alert.user)
         self.assertIs(False,        alert.reminded)
 
-        self.assertEqual(entity.id,             alert.entity_id)
-        self.assertEqual(entity.entity_type_id, alert.entity_content_type_id)
-        self.assertEqual(
-            # self.create_datetime(year=2010, month=9, day=29),
-            self.create_datetime(**dt_kwargs),
-            alert.trigger_date,
-        )
+        self.assertEqual(entity.id,                         alert.entity_id)
+        self.assertEqual(entity.entity_type_id,             alert.entity_content_type_id)
+        self.assertEqual(self.create_datetime(**dt_kwargs), alert.trigger_date)
         self.assertDictEqual({}, alert.trigger_offset)
 
         self.assertEqual(title, str(alert))
@@ -509,8 +502,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         _fail_creation(
             user=user_pk, description='description',
             title='',  # <==
-            # trigger_date='2010-9-29',
-            # trigger_date=self.formfield_value_date(2010, 9, 29),
             **{
                 'trigger': ABSOLUTE,
                 f'trigger_{ABSOLUTE}': self.formfield_value_datetime(year=2010, month=9, day=29),
@@ -518,15 +509,12 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
         _fail_creation(
             user=user_pk, title='title', description='description',
-            # trigger_date='',  # <===
             trigger='',  # <===
         )
 
-    # def test_edit(self):
     def test_edit_absolute_date(self):
         title = 'Title'
         description = 'Description'
-        # alert = self._create_alert(title, description, '2010-9-29')
         alert = self._create_alert(title, description)
 
         url = alert.get_edit_absolute_url()
@@ -556,8 +544,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
                 'title':        title,
                 'description':  description,
 
-                # 'trigger_date': '2011-10-30',
-                # 'trigger_time': '15:12:00',
                 'trigger': ABSOLUTE,
                 f'trigger_{ABSOLUTE}': self.formfield_value_datetime(**dt_kwargs),
             },
@@ -569,11 +555,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertEqual(description, alert.description)
 
         # Don't care about seconds
-        self.assertEqual(
-            # self.create_datetime(year=2011, month=10, day=30, hour=15, minute=12),
-            self.create_datetime(**dt_kwargs),
-            alert.trigger_date,
-        )
+        self.assertEqual(self.create_datetime(**dt_kwargs), alert.trigger_date)
 
     def test_edit_relative_date01(self):
         entity = self.entity
@@ -852,12 +834,9 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field02(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
 
-        # self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
-        # self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
         self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
 
-        # alert3 = self._create_alert('Alert03', 'Description03', trigger_date='2010-10-3')
         alert3 = self._create_alert('Alert03', 'Description03', trigger_date=date(2010, 10, 3))
         alert3.is_validated = True
         alert3.save()
@@ -870,21 +849,17 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'."
         user = self.user
-        # self._create_alert('Alert01', 'Description01', trigger_date='2011-10-21')
         self._create_alert('Alert01', 'Description01', trigger_date=date(2011, 10, 21))
-        # self._create_alert('Alert02', 'Description02', trigger_date='2010-10-20')
         self._create_alert('Alert02', 'Description02', trigger_date=date(2010, 10, 20))
 
         entity02 = CremeEntity.objects.create(user=user)
 
         alert3 = self._create_alert(
-            # 'Alert03', 'Description03', trigger_date='2010-10-3', entity=entity02,
             'Alert03', 'Description03', trigger_date=date(2010, 10, 3), entity=entity02,
         )
         alert3.is_validated = True
         alert3.save()
 
-        # self._create_alert('Alert04', 'Description04', trigger_date='2010-10-3', entity=entity02)
         self._create_alert(
             'Alert04', 'Description04', trigger_date=date(2010, 10, 3), entity=entity02,
         )
@@ -912,7 +887,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             self.assertEqual(2, len(alerts))
 
             for alert in alerts:
-                # self.assertEqual(contact01, alert.creme_entity)
                 self.assertEqual(contact01, alert.real_entity)
 
         self.aux_test_merge(creator, assertor)
@@ -930,7 +904,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            # creme_entity=self.entity, user=user, trigger_date=now_value,
             real_entity=self.entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1', trigger_date=now_value + timedelta(minutes=50))
@@ -1018,7 +991,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            # creme_entity=self.entity, user=self.user, trigger_date=now_value,
             real_entity=self.entity, user=self.user, trigger_date=now_value,
         )
         create_alert(title='Alert#2', is_validated=True)
@@ -1080,7 +1052,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         create_alert = partial(
             Alert.objects.create,
-            # creme_entity=self.entity, user=user, trigger_date=now_value,
             real_entity=self.entity, user=user, trigger_date=now_value,
         )
         alert1 = create_alert(title='Alert#1')
@@ -1107,7 +1078,6 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             return Alert.objects.create(
                 user=user,
                 title=title,
-                # creme_entity=entity,
                 real_entity=entity,
                 trigger_date=now() + timedelta(days=5),
                 is_validated=is_validated,

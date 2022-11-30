@@ -99,9 +99,7 @@ class ContactRelatedToOrganisationMixin:
         )
 
 
-# class CustomerCreation(OrganisationCreation):
 class CustomerCreation(ContactRelatedToOrganisationMixin, OrganisationCreation):
-    # title = _('Create a suspect / prospect / customer')
     title = 'Create a suspect / prospect / customer'   # Overridden in get_title()
 
     def check_view_permissions(self, user):
@@ -127,7 +125,6 @@ class CustomerCreation(ContactRelatedToOrganisationMixin, OrganisationCreation):
             blocks = form_cls.blocks.new({
                 'id': 'customer_relation',
 
-                # 'label': _('Suspect / prospect / customer'),
                 'label': ' / '.join(
                     str(desc['singular']) for desc in rtype_descriptions
                 ).title(),
@@ -187,9 +184,7 @@ class OrganisationsList(generic.EntitiesList):
 
 
 # TODO: set the HF in the url ?
-# class MyLeadsAndMyCustomersList(OrganisationsList):
 class MyLeadsAndMyCustomersList(ContactRelatedToOrganisationMixin, OrganisationsList):
-    # title = _('List of my suspects / prospects / customers')
     title = 'List of my suspects/prospects/customers'  # Overridden in get_title()
     default_headerfilter_id = constants.DEFAULT_HFILTER_ORGA_CUSTOMERS
 

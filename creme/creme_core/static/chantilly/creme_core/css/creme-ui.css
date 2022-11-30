@@ -13,22 +13,18 @@
 }
 
 .ui-dialog {
-/*
-    -webkit-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.1);
 }
 
 /*----------------------------------*/
 .ui-creme-timepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-timepicker li { margin:0; padding:0; position:relative; display:inline-block;}
-.ui-creme-timepicker li input { width:3em !important; /* border:1px solid #6eaac4; */ text-align:right; margin:0px 2px;}
+.ui-creme-timepicker li input { width:3em !important; text-align:right; margin:0px 2px;}
 
 /*----------------------------------*/
 .ui-creme-datetimepicker { margin:0; padding:0; list-style:none;}
 .ui-creme-datetimepicker li { position:relative; display:inline-block;}
-.ui-creme-datetimepicker li input { width:3em; /* border:1px solid #6eaac4; */ text-align:right; margin:0px 2px;}
+.ui-creme-datetimepicker li input { width:3em; text-align:right; margin:0px 2px;}
 .ui-creme-datetimepicker li.date input { width: 8em; }
 .ui-creme-datetimepicker li img.ui-datepicker-trigger { vertical-align:middle; }
 
@@ -57,7 +53,6 @@ ul.ui-layout.vbox li { position:relative; display:block; }
 }
 
 /*----------------------------------*/
-/* ul.ui-creme-widget[readonly] li { */
 ul.ui-creme-widget:read-only li,
 ul.ui-creme-widget.is-readonly li {
     color: hsla(197, 15%, 55%, 1);
@@ -272,10 +267,6 @@ button[type="button"].ui-creme-actionbutton,
 
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-*/
     box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
 
     text-align: center;
@@ -295,10 +286,6 @@ button[type="button"].ui-creme-actionbutton[disabled],
     opacity: .50;
     filter: Alpha(Opacity=50);
 
-/*
-    -webkit-box-shadow: none;
-       -moz-box-shadow: none;
-*/
     box-shadow: none;
 
     cursor: default;
@@ -337,13 +324,8 @@ span.ui-creme-datepicker-trigger {
 
     border: 1px solid #bdd3dc;
     border-bottom: 1px solid #9db2bb;
-
     border-radius: 3px;
 
-/*
-    -webkit-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-       -moz-box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
-*/
     box-shadow: 0 1px 4px -2px rgba(21, 86, 119, 0.43), inset 0 1px 0px white;
 
     text-align: center;
@@ -485,35 +467,16 @@ input:disabled + .ui-datepicker-trigger {
     padding: 0 0 5px 0;
     margin: 0;
 
-/*
-    -webkit-box-sizing: border-box;
-       -moz-box-sizing: border-box;
-*/
     box-sizing: border-box;
 
-/*
-    -webkit-column-width: 200px;
-       -moz-column-width: 200px;
-        -ms-column-width: 200px;
-*/
     column-width: 200px;
 }
 
 .ui-creme-checklistselect .checklist-content.wide {
-/*
-    -webkit-column-width: 370px;
-       -moz-column-width: 370px;
-        -ms-column-width: 370px;
-*/
-            column-width: 370px;
+    column-width: 370px;
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-field {
-/*
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-*/
     display: flex;
 
     margin-right: 20px;
@@ -523,21 +486,9 @@ input:disabled + .ui-datepicker-trigger {
 
     -webkit-transform: translate3d(0,0,0); /* HACK : fix performance issues with some chrome versions */
 
-/*
-    -webkit-column-break-inside: avoid;
-       -moz-column-break-inside: avoid;
-        -ms-column-break-inside: avoid;
-         -o-column-break-inside: avoid;
-            column-break-inside: avoid;
-*/
     break-inside: avoid;
     overflow: hidden; /* FireFox v101 breaks the columns even with "break-inside: avoid" (Chrome v102 is OK) */
 
-/*
-    -webkit-transition: opacity 0.2s ease-in-out;
-       -moz-transition: opacity 0.2s ease-in-out;
-         -o-transition: opacity 0.2s ease-in-out;
-*/
     transition: opacity 0.2s ease-in-out;
 }
 
@@ -563,19 +514,7 @@ input:disabled + .ui-datepicker-trigger {
     max-width: 180px;
     cursor: default;
 
-/*
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-*/
     display: flex;
-
-/*
-    -webkit-box-orient: vertical;
-    -webkit-box-direction: normal;
-    -webkit-flex-direction: column;
-        -ms-flex-direction: column;
-*/
     flex-direction: column;
 }
 
@@ -621,12 +560,6 @@ input:disabled + .ui-datepicker-trigger {
     vertical-align: middle;
     text-shadow: none;
 
-/*
-    -webkit-transition: none;
-       -moz-transition: none;
-        -ms-transition: none;
-         -o-transition: none;
-*/
     transition: none;
 }
 
@@ -666,19 +599,8 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 .ui-creme-checklistselect .checklist-content .checkbox-group-header {
-/*
-    -webkit-column-break-inside: avoid;
-       -moz-column-break-inside: avoid;
-        -ms-column-break-inside: avoid;
-         -o-column-break-inside: avoid;
-            column-break-inside: avoid;
-*/
     break-inside: avoid;
 
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 
     padding-left: 5px;
@@ -803,7 +725,6 @@ input:disabled + .ui-datepicker-trigger {
 }
 
 /*----------------------------------*/
-/* .ui-creme-dselect[readonly] { */
 .ui-creme-dselect.is-readonly {
     color: gray;
 }

@@ -54,7 +54,6 @@ class ButtonMenuItemManager(models.Manager):
 
         return self.get_or_create(
             content_type=ct,
-            # button_id=button if isinstance(button, str) else button.id_,
             button_id=button if isinstance(button, str) else button.id,
             defaults={'order': order},
         )[0]

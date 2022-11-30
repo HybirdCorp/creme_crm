@@ -25,7 +25,6 @@
 from collections import defaultdict
 from datetime import datetime
 from os import listdir, makedirs
-# from os.path import exists, isdir, join
 from pathlib import Path
 
 import pytz
@@ -105,10 +104,6 @@ class Command(BaseCommand):
             self._overload_terms(language, verbosity, polib, file_name, *terms)
 
     def _get_catalog_paths(self, language, file_name):
-        # catalog_dirpath = join(
-        #     settings.BASE_DIR, self.directory, language, 'LC_MESSAGES',
-        # )
-        # catalog_path = join(catalog_dirpath, file_name)
         catalog_dirpath = Path(
             settings.BASE_DIR, self.directory, language, 'LC_MESSAGES',
         )
@@ -172,7 +167,6 @@ class Command(BaseCommand):
         catalog_dirpath, catalog_path = self._get_catalog_paths(language, file_name)
         all_plural_forms = defaultdict(list)
 
-        # if exists(catalog_path):
         if catalog_path.exists():
             catalog = polib.pofile(catalog_path)
 
@@ -183,13 +177,11 @@ class Command(BaseCommand):
             if verbosity >= 1:
                 self.stdout.write(f'Create catalog at {catalog_path}')
 
-            # if not exists(catalog_dirpath):
             if not catalog_dirpath.exists():
                 if verbosity >= 2:
                     self.stdout.write(f'Create the folder "{catalog_dirpath}"')
 
                 makedirs(catalog_dirpath)
-            # elif not isdir(catalog_dirpath):
             elif not catalog_dirpath.is_dir():
                 self.stderr.write(f'"{catalog_dirpath}" exists and is not a directory.')
                 return

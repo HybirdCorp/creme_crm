@@ -31,7 +31,7 @@ from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.utils.decorators import method_decorator
-from django.utils.encoding import smart_str  # smart_text
+from django.utils.encoding import smart_str
 from django.utils.functional import partition
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
@@ -45,10 +45,7 @@ from creme.activities.models import Calendar
 from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
-from creme.creme_core.utils import (  # split_filter
-    get_from_GET_or_404,
-    get_from_POST_or_404,
-)
+from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.utils.chunktools import iter_as_chunk
 from creme.creme_core.utils.dates import dt_from_ISO8601, make_aware_dt
 from creme.creme_core.views.decorators import jsonify
@@ -58,7 +55,6 @@ from creme.persons.views.organisation import OrganisationCreation
 
 from . import forms as mobile_forms
 from .models import MobileFavorite
-# from .templatetags.mobile_tags import orga_subjects
 from .templatetags.mobile_tags import mobile_organisation_subjects
 
 logger = logging.getLogger(__name__)
@@ -181,7 +177,6 @@ def portal(request):
     # NB: FLOATING_TIME activities will naturally be the first activities in
     #     'today_activities' as we want (they are ordered by start, and NARROW
     #     activities which start at 0h00 will be in 'hot_activities').
-    # hot_activities, today_activities = split_filter(
     today_activities, hot_activities = partition(
         lambda a:
             a.floating_type == act_constants.NARROW
@@ -458,9 +453,7 @@ def phonecall_panel(request):
         user.has_perm_to_view_or_die(pcall)
 
         context['participant_contacts'] = [
-            # r.object_entity.get_real_entity()
-            r.real_object
-            for r in pcall.get_participant_relations()
+            r.real_object for r in pcall.get_participant_relations()
         ]
         context['participant_organisations'] = [*mobile_organisation_subjects(pcall)]
 

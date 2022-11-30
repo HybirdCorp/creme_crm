@@ -156,7 +156,6 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(200, response4.status_code)
         self.assertFormError(
             response4, 'form', 'mailing_lists',
-            # _('This entity does not exist.')
             _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )
 

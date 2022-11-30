@@ -4,7 +4,6 @@
     <tbody>
         <tr>
             <td class="csv_column_select">
-{#                {% include 'django/forms/widgets/select.html' with widget=widget.column_select %} #}
                 {% include 'creme_core/forms/widgets/select.html' with widget=widget.column_select %}
             </td>
             {% if widget.propose_creation %}

@@ -43,7 +43,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town.latitude, longitude=town.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 
@@ -64,7 +63,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=None, longitude=None,
             draggable=True, geocoded=False,
-            # status=GeoAddress.UNDEFINED,
             status=GeoAddress.Status.UNDEFINED,
         )
 
@@ -77,7 +75,6 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             address=address,
             latitude=town1.latitude, longitude=town1.longitude,
             draggable=True, geocoded=False,
-            # status=GeoAddress.PARTIAL,
             status=GeoAddress.Status.PARTIAL,
         )
 

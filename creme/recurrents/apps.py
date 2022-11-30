@@ -39,9 +39,6 @@ class RecurrentsConfig(CremeAppConfig):
 
     def register_bulk_update(self, bulk_update_registry):
         # TODO: use a custom form that allows the edition when last_generation is None
-        # bulk_update_registry.register(
-        #     self.RecurrentGenerator, exclude=['first_generation'],
-        # )
         bulk_update_registry.register(self.RecurrentGenerator).exclude('first_generation')
 
     def register_custom_forms(self, cform_registry):

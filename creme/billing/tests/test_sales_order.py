@@ -107,11 +107,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             form = context['form']
 
         self.assertDictEqual(
-            {
-                'status': 1,
-                # 'target': target,
-                self.TARGET_KEY: target,
-            },
+            {'status': 1, self.TARGET_KEY: target},
             form.initial,
         )
 
@@ -124,8 +120,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2013-12-13',
-                # 'expiration_date': '2014-1-20',
                 'issuing_date':    self.formfield_value_date(2013, 12, 13),
                 'expiration_date': self.formfield_value_date(2014,  1, 20),
                 'status':          status.id,
@@ -163,8 +157,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2013-12-13',
-                # 'expiration_date': '2014-1-20',
                 'issuing_date':    self.formfield_value_date(2013, 12, 13),
                 'expiration_date': self.formfield_value_date(2014,  1, 20),
                 'status':          status.id,
@@ -273,8 +265,6 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2012-2-12',
-                # 'expiration_date': '2012-3-13',
                 'issuing_date':    self.formfield_value_date(2012, 2, 12),
                 'expiration_date': self.formfield_value_date(2012, 3, 13),
                 'status':          status.id,

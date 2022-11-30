@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import BooleanField, CharField  # ValidationError
+from django.forms import BooleanField, CharField
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.forms import CremeForm, MultiEntityCTypeChoiceField
@@ -43,21 +43,6 @@ class _CremePropertyTypeBaseForm(CremeForm):
 
 
 class CremePropertyTypeAddForm(_CremePropertyTypeBaseForm):
-    # error_messages = {
-    #     'duplicated_name': _('A property type with this name already exists.'),
-    # }
-    #
-    # def clean_text(self):
-    #     text = self.cleaned_data['text']
-    #
-    #     if CremePropertyType.objects.filter(text=text).exists():
-    #         raise ValidationError(
-    #             self.error_messages['duplicated_name'],
-    #             code='duplicated_name',
-    #         )
-    #
-    #     return text
-
     def save(self):
         get_data = self.cleaned_data.get
         ptype = CremePropertyType.objects.smart_update_or_create(

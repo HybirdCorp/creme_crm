@@ -60,7 +60,6 @@ class _ImprintManager:
                 date__gt=now() - granularity,
             ).exists()
         ):
-            # return Imprint.objects.create(entity=entity, user=user)
             return Imprint.objects.create(real_entity=entity, user=user)
 
         return None

@@ -1,4 +1,3 @@
-# from datetime import time
 from datetime import date, timedelta
 from decimal import Decimal
 from functools import partial
@@ -6,8 +5,6 @@ from functools import partial
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.urls import reverse
-# from django.utils.formats import date_format, number_format
-# from django.utils.translation import gettext as _
 from django.utils.timezone import now
 
 from creme.creme_core.global_info import clear_global_info
@@ -59,10 +56,6 @@ from ..fake_constants import FAKE_REL_SUB_EMPLOYED_BY
 
 
 class HistoryTestCase(CremeTestCase):
-    # FMT_1_VALUE  = _('Set field “{field}”').format
-    # FMT_2_VALUES = _('Set field “{field}” to “{value}”').format
-    # FMT_3_VALUES = _('Set field “{field}” from “{oldvalue}” to “{value}”').format
-
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -170,10 +163,6 @@ class HistoryTestCase(CremeTestCase):
             [ContentType.objects.get_for_model(address).id, address.id, str(address)],
             hline.modifications,
         )
-        # self.assertListEqual(
-        #     [_('Add <{type}>: “{value}”').format(type='Test address', value=address)],
-        #     hline.get_verbose_modifications(self.user),
-        # )
 
     def test_edition01(self):
         old_count = HistoryLine.objects.count()
@@ -259,53 +248,11 @@ about this fantastic animation studio."""
         self.assertIsList(modifs, length=7)
         self.assertIn(['phone', old_phone, phone], modifs)
         self.assertIn(['email', email], modifs)
-        # self.assertIn(['description'], modifs)
         self.assertIn(['description', old_description, description], modifs)
         self.assertIn(['sector', sector01.id, sector02.id], modifs)
         self.assertIn(['creation_date', '1984-12-24'], modifs)
         self.assertIn(['subject_to_vat', True], modifs, modifs)
         self.assertIn(['legal_form', lform.id, None], modifs, modifs)
-
-        # vmodifs = hline.get_verbose_modifications(user)
-        # self.assertEqual(7, len(vmodifs))
-        #
-        # self.assertIn(
-        #     self.FMT_3_VALUES(
-        #         field=_('Phone number'), oldvalue=old_phone, value=phone,
-        #     ),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_2_VALUES(field=_('Email address'), value=email),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_3_VALUES(
-        #         field=_('Description'), oldvalue=old_description, value=description,
-        #     ),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_3_VALUES(
-        #         field=_('Sector'), oldvalue=sector01, value=sector02,
-        #     ),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_2_VALUES(
-        #         field=_('Date of creation'),
-        #         value=date_format(creation_date, 'DATE_FORMAT'),
-        #     ),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_2_VALUES(field=_('Subject to VAT'), value=_('Yes')),
-        #     vmodifs,
-        # )
-        # self.assertIn(
-        #     self.FMT_3_VALUES(field=_('Legal form'), oldvalue=lform, value=''),
-        #     vmodifs,
-        # )
 
     def test_edition_no_change(self):
         "No change."
@@ -378,13 +325,6 @@ about this fantastic animation studio."""
         self.assertEqual(hayao.id,     hline.entity.id)
         self.assertEqual(TYPE_EDITION, hline.type)
 
-        # vmodifs = hline.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs))
-        # self.assertIn(
-        #     self.FMT_2_VALUES(field=_('Photograph'), value=img),
-        #     vmodifs[0],
-        # )
-
     def test_edition_none(self):
         "New value is None: verbose prints ''."
         old_capital = 1000
@@ -414,27 +354,6 @@ about this fantastic animation studio."""
             ],
             hline.modifications,
         )
-
-        # vmodifs = hline.get_verbose_modifications(self.user)
-        # self.assertEqual(2, len(vmodifs))
-        #
-        # fmt = self.FMT_3_VALUES
-        # self.assertEqual(
-        #     fmt(
-        #         field=_('Capital'),
-        #         oldvalue=old_capital,
-        #         value='',  # <== not None
-        #     ),
-        #     vmodifs[0],
-        # )
-        # self.assertEqual(
-        #     fmt(
-        #         field=_('Date of creation'),
-        #         oldvalue=date_format(old_date, 'DATE_FORMAT'),
-        #         value='',  # <== not None
-        #     ),
-        #     vmodifs[1],
-        # )
 
     def test_edition_datetime_field(self):
         "DateTimeField."
@@ -466,17 +385,6 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-        # vmodifs = hline.get_verbose_modifications(self.user)
-        # self.assertEqual(2, len(vmodifs))
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(
-        #         field=_('Start'),
-        #         oldvalue=date_format(old_start, 'DATETIME_FORMAT'),
-        #         value=date_format(start, 'DATETIME_FORMAT'),
-        #     ),
-        #     vmodifs[0],
-        # )
-
         # Set None -------------------------
         meeting = self.refresh(meeting)  # Reset cache
         meeting.end = None
@@ -484,43 +392,6 @@ about this fantastic animation studio."""
 
         hlines = self._get_hlines()
         self.assertEqual(old_count + 2, len(hlines))
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(
-        #         field=_('End'),
-        #         oldvalue=date_format(end, 'DATETIME_FORMAT'),
-        #         value='',
-        #     ),
-        #     hlines[-1].get_verbose_modifications(self.user)[0],
-        # )
-
-    # def test_edition_other_fields(self):
-    #     "Other fields: TimeField, SlugField, FloatField, NullBooleanField."
-    #     from creme.creme_core.models.history import _PRINTERS, _JSONEncoder
-    #
-    #     encode = _JSONEncoder().encode
-    #
-    #     self.assertEqual('"17:23:00.000000"', encode(time(hour=17, minute=23)))
-    #     self.assertNotIn('TimeField', _PRINTERS)
-    #
-    #     self.assertNotIn('SlugField', _PRINTERS)
-    #
-    #     # ------
-    #     n = 3.14
-    #     self.assertEqual('3.14', encode(n))
-    #     float_printer = _PRINTERS.get('FloatField')
-    #     self.assertIsNotNone(float_printer)
-    #     self.assertEqual(
-    #         number_format(n, use_l10n=True),
-    #         float_printer(field=None, user=self.user, val=n),
-    #     )
-    #     self.assertEqual('', float_printer(field=None, user=self.user, val=None))
-    #
-    #     # ------
-    #     nbool_printer = _PRINTERS.get('NullBooleanField')
-    #     self.assertIsNotNone(nbool_printer)
-    #     self.assertEqual(_('Yes'),  nbool_printer(field=None, user=self.user, val=True))
-    #     self.assertEqual(_('No'),   nbool_printer(field=None, user=self.user, val=False))
-    #     self.assertEqual(_('N/A'),  nbool_printer(field=None, user=self.user, val=None))
 
     def test_edition_m2m01(self):
         "set() to add or remove (not at the same time)."
@@ -539,16 +410,6 @@ about this fantastic animation studio."""
             hline1.modifications,
         )
 
-        # vmodifs1 = hline1.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs1))
-        # self.assertIn(
-        #     vmodifs1[0],
-        #     (
-        #         f'Field “{_("Categories")}” changed: [{cat1}, {cat2}] added.',
-        #         f'Field “{_("Categories")}” changed: [{cat2}, {cat1}] added.',
-        #     ),
-        # )
-
         # ---
         clear_global_info()  # Current line is stored in global cache
         img = self.refresh(img)
@@ -562,10 +423,6 @@ about this fantastic animation studio."""
             [['categories', [cat2.id], []]],
             hline2.modifications,
         )
-        # self.assertListEqual(
-        #     [f'Field “{_("Categories")}” changed: [{cat2}] removed.'],
-        #     hline2.get_verbose_modifications(user),
-        # )
 
     def test_edition_m2m02(self):
         "add()/remove() (not at the same time)."
@@ -616,10 +473,6 @@ about this fantastic animation studio."""
             [['categories', [cat2.id], [cat1.id]]],
             hline.modifications,
         )
-        # self.assertListEqual(
-        #     [f'Field “{_("Categories")}” changed: [{cat2}] removed, [{cat1}] added.'],
-        #     hline.get_verbose_modifications(user),
-        # )
 
         # We re-add an element (don't do that...)
         img.categories.add(cat2)
@@ -711,13 +564,6 @@ about this fantastic animation studio."""
             hline1.modifications,
         )
 
-        # vmodifs1 = hline1.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs1))
-        # self.assertEqual(
-        #     self.FMT_2_VALUES(field=cfield.name, value=value1),
-        #     vmodifs1[0],
-        # )
-
         # Old & new values ---
         clear_global_info()  # Current line is stored in global cache
         value2 = 'ABCD12345'
@@ -730,13 +576,6 @@ about this fantastic animation studio."""
             [[cfield.id, value1, value2]],
             hline2.modifications,
         )
-
-        # vmodifs2 = hline2.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs2))
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(field=cfield.name, oldvalue=value1, value=value2),
-        #     vmodifs2[0],
-        # )
 
     def test_edition_customfield02(self):
         "Several modifications at once => only one lines."
@@ -804,10 +643,6 @@ about this fantastic animation studio."""
             [[cfield.id, old_value, None]],
             hline.modifications,
         )
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(field=cfield.name, oldvalue=old_value, value=None),
-        #     hline.get_verbose_modifications(user)[0],
-        # )
 
     def test_edition_customfield_enum(self):
         user = self.user
@@ -835,10 +670,6 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_CUSTOM_EDITION, hline1.type)
         self.assertEqual(user, hline1.entity_owner)
         self.assertListEqual([[cfield.id, choice2.id]], hline1.modifications)
-        # self.assertEqual(
-        #     self.FMT_2_VALUES(field=cfield.name, value=choice2.id),
-        #     hline1.get_verbose_modifications(user)[0],
-        # )
 
         # Old & new values ---
         clear_global_info()  # Current line is stored in global cache
@@ -851,10 +682,6 @@ about this fantastic animation studio."""
             [[cfield.id, choice2.id, choice3.id]],
             hline2.modifications,
         )
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(field=cfield.name, oldvalue=choice2.id, value=choice3.id),
-        #     hline2.get_verbose_modifications(user)[0],
-        # )
 
     def test_edition_customfield_multienum01(self):
         user = self.user
@@ -888,13 +715,6 @@ about this fantastic animation studio."""
             hline1.modifications,
         )
 
-        # vmodifs1 = hline1.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs1))
-        # self.assertEqual(
-        #     f'Field “{cfield.name}” changed: [{choice1.id}, {choice2.id}] added.',
-        #     vmodifs1[0],
-        # )
-
         # Remove values ---
         clear_global_info()  # Current line is stored in global cache
         CustomFieldValue.save_values_for_entities(
@@ -908,10 +728,6 @@ about this fantastic animation studio."""
             [[cfield.id, [choice1.id], []]],
             hline2.modifications,
         )
-        # self.assertEqual(
-        #     f'Field “{cfield.name}” changed: [{choice1.id}] removed.',
-        #     hline2.get_verbose_modifications(user)[0],
-        # )
 
         # Add & remove at the same time ----
         clear_global_info()  # Current line is stored in global cache
@@ -926,10 +742,6 @@ about this fantastic animation studio."""
             [[cfield.id, [choice2.id], [choice1.id]]],
             hline3.modifications,
         )
-        # self.assertEqual(
-        #     f'Field “{cfield.name}” changed: [{choice2.id}] removed, [{choice1.id}] added.',
-        #     hline3.get_verbose_modifications(user)[0],
-        # )
 
     def test_edition_customfield_multienum02(self):
         "Merge several lines with 2 CustomFields."
@@ -1032,9 +844,6 @@ about this fantastic animation studio."""
         self.assertEqual(FakeOrganisation, hline.entity_ctype.model_class())
         self.assertListEqual([True],       hline.modifications)
         self.assertBetweenDates(hline)
-        # self.assertListEqual(
-        #     [_('Sent to the trash')], hline.get_verbose_modifications(user),
-        # )
 
     def test_restoration(self):
         user = self.user
@@ -1050,9 +859,6 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(TYPE_TRASH, hline.type)
         self.assertListEqual([False], hline.modifications)
-        # self.assertListEqual(
-        #     [_('Restored')], hline.get_verbose_modifications(user),
-        # )
 
     def test_related_edition01(self):
         "No HistoryConfigItem => no related line."
@@ -1263,7 +1069,6 @@ about this fantastic animation studio."""
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_make_animes', text='Make anime series',
         )
-        # prop = CremeProperty.objects.create(type=ptype, creme_entity=gainax)
         CremeProperty.objects.create(type=ptype, creme_entity=gainax)
 
         hlines = self._get_hlines()
@@ -1276,14 +1081,6 @@ about this fantastic animation studio."""
         self.assertListEqual([ptype.id], hline.modifications)
         self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
-
-        # msg = _('Add property “{}”').format
-        # self.assertListEqual([msg(ptype.text)], hline.get_verbose_modifications(user))
-        #
-        # expected = [msg(ptype.id)]
-        # prop.delete()
-        # ptype.delete()
-        # self.assertEqual(expected, self.refresh(hline).get_verbose_modifications(user))
 
     def test_delete_property01(self):
         user = self.user
@@ -1310,13 +1107,6 @@ about this fantastic animation studio."""
         self.assertListEqual([ptype.id],      hline.modifications)
         self.assertIs(hline.line_type.is_about_relation, False)
         self.assertGreater(hline.date, gainax.modified)
-
-        # ptype.text = ptype.text.title()
-        # ptype.save()
-        # self.assertListEqual(
-        #     [_('Delete property “{}”').format(ptype.text)],
-        #     hline.get_verbose_modifications(user),
-        # )
 
     def test_add_relation01(self):
         user = self.user
@@ -1357,18 +1147,6 @@ about this fantastic animation studio."""
 
         self.assertEqual(hline_sym.id, hline.related_line.id)
         self.assertEqual(hline.id,     hline_sym.related_line.id)
-
-        # msg = _('Add a relationship “{}”').format
-        # self.assertListEqual([msg(rtype.predicate)],  hline.get_verbose_modifications(user))
-        # self.assertListEqual([msg(srtype.predicate)], hline_sym.get_verbose_modifications(user))
-        #
-        # rtype_id = rtype.id
-        # relation.delete()
-        # rtype.delete()
-        # self.assertDoesNotExist(rtype)
-        # self.assertListEqual(
-        #     [msg(rtype_id)], self.refresh(hline).get_verbose_modifications(user),
-        # )
 
     def test_add_relation02(self):
         "Create the relation using the 'object' relation type."
@@ -1435,13 +1213,6 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_SYM_REL_DEL, hline_sym.type)
         self.assertListEqual([srtype.id], hline_sym.modifications)
         self.assertIs(hline_sym.line_type.is_about_relation, True)
-
-        # rtype.predicate = rtype.predicate.title()
-        # rtype.save()
-        # self.assertListEqual(
-        #     [_('Delete a relationship “{}”').format(rtype.predicate)],
-        #     hline.get_verbose_modifications(user),
-        # )
 
     def test_auxiliary_creation(self):
         "Auxiliary: Address."
@@ -1512,22 +1283,6 @@ about this fantastic animation studio."""
             hline.modifications,
         )
 
-        # vmodifs = hline.get_verbose_modifications(self.user)
-        # self.assertEqual(3, len(vmodifs))
-        #
-        # self.assertEqual(
-        #     _('Edit <{type}>: “{value}”').format(type='Test address', value=address),
-        #     vmodifs[0],
-        # )
-        # self.assertEqual(
-        #     self.FMT_3_VALUES(field=_('City'), oldvalue=old_city, value=city),
-        #     vmodifs[1],
-        # )
-        # self.assertEqual(
-        #     self.FMT_2_VALUES(field=_('Department'), value=department),
-        #     vmodifs[2],
-        # )
-
     def test_auxiliary_edition02(self):
         """Billing.Line
         - an auxiliary + CremeEntity at the same time
@@ -1561,19 +1316,6 @@ about this fantastic animation studio."""
         hline = hlines[-1]
         self.assertEqual(TYPE_AUX_EDITION, hline.type)
 
-        # vmodifs = hline.get_verbose_modifications(user)
-        # self.assertEqual(3, len(vmodifs))
-        # self.assertIn(
-        #     self.FMT_3_VALUES(field=_('Quantity'), oldvalue='1', value='2'),
-        #     vmodifs[1],
-        # )
-        # self.assertIn(
-        #     self.FMT_3_VALUES(
-        #         field=_('Discount Unit'), oldvalue=_('Amount'), value=_('Percent'),
-        #     ),
-        #     vmodifs[2],
-        # )
-
     def test_auxiliary_edition_m2m01(self):
         cat1, cat2 = FakeTodoCategory.objects.order_by('id')[:2]
 
@@ -1603,20 +1345,6 @@ about this fantastic animation studio."""
             hline1.modifications,
         )
 
-        # vmodifs1 = hline1.get_verbose_modifications(self.user)
-        # self.assertEqual(2, len(vmodifs1))
-        # self.assertEqual(
-        #     _('Edit <{type}>: “{value}”').format(type='Test Todo', value=todo),
-        #     vmodifs1[0],
-        # )
-        # self.assertIn(
-        #     vmodifs1[1],
-        #     (
-        #         f'Field “{_("Categories")}” changed: [{cat1}, {cat2}] added.',
-        #         f'Field “{_("Categories")}” changed: [{cat2}, {cat1}] added.',
-        #     ),
-        # )
-
         # ---
         todo = self.refresh(todo)  # Reset cache
         todo.categories.set([cat1])
@@ -1628,13 +1356,6 @@ about this fantastic animation studio."""
             ['categories', [cat2.id], []],
             hline2.modifications[1],
         )
-        # self.assertListEqual(
-        #     [
-        #         _('Edit <{type}>: “{value}”').format(type='Test Todo', value=todo),
-        #         f'Field “{_("Categories")}” changed: [{cat2}] removed.'
-        #     ],
-        #     hline2.get_verbose_modifications(self.user),
-        # )
 
     def test_auxiliary_edition_m2m02(self):
         "add()/remove() (not at the same time)."
@@ -1695,10 +1416,6 @@ about this fantastic animation studio."""
             ],
             hline.modifications,
         )
-        # self.assertEqual(
-        #     f'Field “{_("Categories")}” changed: [{cat2}] removed, [{cat1}] added.',
-        #     hline.get_verbose_modifications(user)[1],
-        # )
 
         # We re-add an element (don't do that...)
         todo.categories.add(cat2)
@@ -1812,14 +1529,6 @@ about this fantastic animation studio."""
         self.assertEqual(nerv.id,           hline.entity.id)
         self.assertEqual(TYPE_AUX_DELETION, hline.type)
 
-        # vmodifs = hline.get_verbose_modifications(user)
-        # self.assertEqual(1, len(vmodifs))
-        #
-        # self.assertEqual(
-        #     _('Delete <{type}>: “{value}”').format(type='Test address', value=address),
-        #     vmodifs[0],
-        # )
-
     def test_multi_save01(self):
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
@@ -1895,25 +1604,6 @@ about this fantastic animation studio."""
         hline = HistoryLine.objects.filter(entity=nerv.id).order_by('-id')[0]
         self.assertEqual(TYPE_EDITION, hline.type)
         self.assertIn('["NERV", ["name", "Nerv", "NERV"]]', hline.value)
-
-        # self.assertListEqual(
-        #     [
-        #         self.FMT_3_VALUES(
-        #             field=_('Name'), oldvalue='Nerv', value='NERV',
-        #         ),
-        #     ],
-        #     hline.get_verbose_modifications(user),
-        # )
-
-        # fname = 'invalid'
-        # hline.value = hline.value.replace('name', fname)
-        # hline.save()
-        # hline = self.refresh(hline)  # Clean cache
-        #
-        # with self.assertNoException():
-        #     vmodifs = hline.get_verbose_modifications(user)
-        #
-        # self.assertListEqual([self.FMT_1_VALUE(field=fname)], vmodifs)
 
     def test_disable01(self):
         "CremeEntity creation, edition & deletion."

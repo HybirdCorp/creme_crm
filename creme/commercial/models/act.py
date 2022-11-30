@@ -42,12 +42,8 @@ from .market_segment import MarketSegment
 _NAME_LENGTH = 100
 
 
-# class ActType(CremeModel):
 class ActType(MinionModel):
     title = models.CharField(_('Title'), max_length=75)
-
-    # # Used by creme_config
-    # is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 
     creation_label = pgettext_lazy('commercial-act_type', 'Create a type')
 

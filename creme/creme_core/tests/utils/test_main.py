@@ -737,15 +737,15 @@ class UnicodeCollationTestCase(CremeTestCase):
     #     path = join(settings.CREME_ROOT, 'creme_core', 'utils', 'allkeys.txt')
     #     collator = Collator(path)
     #     sort = partial(sorted, key=collator.sort_key)
-    #     words = ['Caff', 'Cafe', 'Cafard', u'Café']
+    #     words = ['Caff', 'Cafe', 'Cafard', 'Café']
     #     self.assertEqual(['Cafard', 'Cafe', 'Caff', u'Café'], sorted(words)) # standard sort
-    #     self.assertEqual(['Cafard', 'Cafe', u'Café', 'Caff'], sort(words))
+    #     self.assertEqual(['Cafard', 'Cafe', 'Café', 'Caff'], sort(words))
     #
-    #     self.assertEqual(['La', u'Là', u'Lä', 'Las', 'Le'],
-    #                      sort(['La', u'Là', 'Le', u'Lä', 'Las'])
+    #     self.assertEqual(['La', 'Là', 'Lä', 'Las', 'Le'],
+    #                      sort(['La', 'Là', 'Le', 'Lä', 'Las'])
     #                     )
-    #     self.assertEqual(['gloves', u'ĝloves', 'hats', 'shoes'],
-    #                      sort(['hats', 'gloves', 'shoes', u'ĝloves']),
+    #     self.assertEqual(['gloves', 'ĝloves', 'hats', 'shoes'],
+    #                      sort(['hats', 'gloves', 'shoes', 'ĝloves']),
     #                     )
     #
     #     #test memory consumption
@@ -861,7 +861,6 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         )
 
     def test_two_place_holders02(self):
-        # "2 int & 1 word place holders."
         "2 int placeholders."
         vname = 'creme_core__inner_edition'
 
@@ -871,22 +870,10 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         placeholder2 = '789456'
         final_value2 = '${id2}'
 
-        # placeholder3 = 'fobbar'
-        # final_value3 = '${fname}'
-
         tub = TemplateURLBuilder(
             ct_id=(TemplateURLBuilder.Int, final_value1),
             id=(TemplateURLBuilder.Int, final_value2),
-            # field_name=(TemplateURLBuilder.Word, final_value3),
         )
-        # self.assertEqual(
-        #     reverse(
-        #         vname, args=(placeholder1, placeholder2, placeholder3)
-        #     ).replace(placeholder1, final_value1)
-        #      .replace(placeholder2, final_value2)
-        #      .replace(placeholder3, final_value3),
-        #     tub.resolve(vname),
-        # )
         self.assertEqual(
             reverse(
                 vname, args=(placeholder1, placeholder2)

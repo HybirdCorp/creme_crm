@@ -143,11 +143,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':                  user.pk,
                 'name':                  name,
                 'sales_phase':           phase.id,
-                # 'expected_closing_date': '2010-9-20',
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
-                # 'closing_date':          '2010-10-11',
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
-                # 'first_action_date':     '2010-7-13',
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
                 'currency':              DEFAULT_CURRENCY_PK,
 
@@ -188,9 +185,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':                  user.pk,
                 'name':                  name,
                 'sales_phase':           phase.id,
-                # 'expected_closing_date': '2010-9-20',
-                # 'closing_date':          '2010-10-11',
-                # 'first_action_date':     '2010-7-13',
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
@@ -216,7 +210,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             prop_emitter = opportunity.emitter
         self.assertEqual(emitter, prop_emitter)
 
-        # with self.assertNumQueries(3):
         with self.assertNumQueries(2):
             prop_target = opportunity.target
         self.assertEqual(target, prop_target)
@@ -237,16 +230,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':                  user.pk,
                 'name':                  name,
                 'sales_phase':           phase.id,
-                # 'expected_closing_date': '2010-9-20',
-                # 'closing_date':          '2010-10-11',
-                # 'first_action_date':     '2010-7-13',
                 'expected_closing_date': self.formfield_value_date(2010, 9, 20),
                 'closing_date':          self.formfield_value_date(2010, 10, 11),
                 'first_action_date':     self.formfield_value_date(2010, 7, 13),
                 'currency':              DEFAULT_CURRENCY_PK,
 
-                # 'target': self.formfield_value_generic_entity(target),
-                # 'emitter': emitter.id,
                 self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 self.EMITTER_KEY: emitter.id,
             },
@@ -288,7 +276,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         self.user.pk,
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
-                # 'closing_date': '2011-03-14',
                 'closing_date': self.formfield_value_date(2011, 3, 14),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -318,7 +305,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         self.user.pk,
                 'name':         'My opportunity',
                 'sales_phase':  SalesPhase.objects.all()[0].id,
-                # 'closing_date': '2011-03-14',
                 'closing_date': self.formfield_value_date(2011, 3, 14),
 
                 self.TARGET_KEY:  self.formfield_value_generic_entity(target),
@@ -358,7 +344,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  phase.id,
-                # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -421,7 +406,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  phase.id,
-                # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -502,7 +486,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  phase.id,
-                # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -526,7 +509,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         user.pk,
                 'name':         f'Opportunity 2 linked to {target}',
                 'sales_phase':  phase.id,
-                # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -554,7 +536,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'user':         user.pk,
                 'name':         name,
                 'sales_phase':  phase.id,
-                # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'target':       self.formfield_value_generic_entity(target),
                 'currency':     DEFAULT_CURRENCY_PK,
@@ -635,9 +616,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':                  name,
                 'reference':             reference,
                 'sales_phase':           phase.id,
-                # 'expected_closing_date': '2011-4-26',
-                # 'closing_date':          '2011-5-15',
-                # 'first_action_date':     '2011-5-1',
                 'expected_closing_date': self.formfield_value_date(2011, 4, 26),
                 'closing_date':          self.formfield_value_date(2011, 5, 15),
                 'first_action_date':     self.formfield_value_date(2011, 5, 1),
@@ -680,9 +658,6 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 'name':                  name,
                 'reference':             '1256',
                 'sales_phase':           opp.sales_phase_id,
-                # 'expected_closing_date': '2013-4-26',
-                # 'closing_date':          '2013-5-15',
-                # 'first_action_date':     '2013-5-1',
                 'expected_closing_date': self.formfield_value_date(2013, 4, 26),
                 'closing_date':          self.formfield_value_date(2013, 5, 15),
                 'first_action_date':     self.formfield_value_date(2013, 5, 1),
@@ -771,19 +746,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        self.assertEqual(
-            # number_format('0.0', use_l10n=True),
-            number_format('0.0'),
-            funf(opportunity, user).for_html()
-        )
+        self.assertEqual(number_format('0.0'), funf(opportunity, user).for_html())
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   = 10
-        self.assertEqual(
-            # number_format('100.0', use_l10n=True),
-            number_format('100.0'),
-            funf(opportunity, user).for_html()
-        )
+        self.assertEqual(number_format('100.0'), funf(opportunity, user).for_html())
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):

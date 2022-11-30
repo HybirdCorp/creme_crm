@@ -50,7 +50,6 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                 r'{% load creme_widgets %}{% widget_hyperlink object label=label %}'
             ).render(Context({'object': s, 'label': 'My favorite <i>one</i>'}))
 
-        # self.assertEqual('My favorite &lt;i&gt;one&lt;/i&gt;', render2)
         self.assertEqual(
             '<a href="/creme_core/sectors">My favorite &lt;i&gt;one&lt;/i&gt;</a>',
             render2,
@@ -216,7 +215,6 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                 r'{% widget_enumerator items threshold=2 %}'
             ).render(Context({'items': items}))
 
-        # msg = _('{count} items').format(count=len(items))
         msg = _('%(count)s items') % {'count': len(items)}
         self.assertHTMLEqual(
             f'''

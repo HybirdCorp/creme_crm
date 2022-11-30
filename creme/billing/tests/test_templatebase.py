@@ -277,8 +277,6 @@ class TemplateBaseTestCase(_BillingTestCase):
             data={
                 'user':            user.pk,
                 'name':            name,
-                # 'issuing_date':    '2020-10-31',
-                # 'expiration_date': '2020-11-30',
                 'issuing_date':    self.formfield_value_date(2020, 10, 31),
                 'expiration_date': self.formfield_value_date(2020, 11, 30),
                 self.STATUS_KEY:    invoice_status2.id,

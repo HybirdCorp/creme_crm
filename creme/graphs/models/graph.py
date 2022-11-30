@@ -83,7 +83,6 @@ class AbstractGraph(CremeEntity):
         has_perm_to_view = user.has_perm_to_view
         return [
             root
-            # for root in RootNode.objects.filter(graph=self.id).select_related('entity')
             for root in (
                 RootNode.objects.filter(graph=self.id)
                                 .select_related('entity')
@@ -160,15 +159,20 @@ class AbstractGraph(CremeEntity):
         orbital_nodes = {}  # Cache
 
         for root in roots:
-            # subject = root.entity
             subject = root.real_entity
             str_subject = str(subject)
+<<<<<<< HEAD
 
             relations = self.get_root_node_relations(root, user)
             # relations = subject.relations.filter(
             #     type__in=root.relation_types.all(),
             # ).select_related('object_entity', 'type')
             # Relation.populate_real_object_entities(relations)  # Small optimisation
+=======
+            relations = subject.relations.filter(
+                type__in=root.relation_types.all(),
+            ).select_related('type').prefetch_related('real_object')
+>>>>>>> f9c48c6a1... Remove old commented code.
 
             for relation in relations:
                 # object_entity = relation.object_entity
@@ -223,7 +227,6 @@ class AbstractGraph(CremeEntity):
             raise self.GraphException(e) from e
 
         try:
-            # graph.draw(join(dir_path, filename), format='png')  # Format: pdf svg
             graph.draw(path, format=img_format)  # Format: pdf svg
         except OSError as e:
             delete_file(path)
@@ -232,7 +235,6 @@ class AbstractGraph(CremeEntity):
 
         fileref = FileRef.objects.create(
             user=user,
-            # filedata='upload/graphs/' + basename(path),
             filedata='graphs/' + basename(path),
             basename=img_basename,
         )

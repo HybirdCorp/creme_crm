@@ -209,7 +209,6 @@ class QuerySorterTestCase(CremeTestCase):
 
         sortinfo2 = sorter.get(model=FakeOrganisation, cells=cells2, cell_key=unused_cell.key)
         # TODO ? Use index
-        # self.assertEqual((field_name1, 'cremeentity_ptr_id'), sortinfo2.field_names)
         self.assertEqual(('cremeentity_ptr_id',), sortinfo2.field_names)
         self.assertIsNone(sortinfo2.main_cell_key)  # TODO: Fallback on first column ?
         self.assertTrue(sortinfo2.main_order.asc)
@@ -454,7 +453,6 @@ class QuerySorterTestCase(CremeTestCase):
         "Natural ordering is DESC + another field."
         sorter = QuerySorter()
         field_name1 = 'start'
-        # field_name2 = 'title'
         field_name2 = 'place'  # Not unique (see below)
 
         build_cell = partial(EntityCellRegularField.build, model=FakeActivity)

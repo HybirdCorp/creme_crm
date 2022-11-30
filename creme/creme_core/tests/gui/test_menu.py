@@ -484,7 +484,6 @@ class MenuTestCase(CremeTestCase):
         entry = Separator1Entry()
         self.assertEqual('creme_core-separator1', entry.id)
         self.assertEqual('creme_core-separator1', entry.type)
-        # self.assertEqual('----', entry.label)
         self.assertEqual('', entry.label)
         self.assertEqual(1,  entry.level)
 

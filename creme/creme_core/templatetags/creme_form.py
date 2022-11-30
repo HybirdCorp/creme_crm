@@ -54,9 +54,7 @@ def form_gather_blocks_for_layout(form_blocks):
 
             sections.append((
                 'dual',
-                # split_filter(
                 partition(
-                    # lambda b: b.layout == LAYOUT_DUAL_FIRST,
                     lambda b: b.layout != LAYOUT_DUAL_FIRST,
                     dual_section,
                 ),

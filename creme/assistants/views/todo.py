@@ -53,7 +53,6 @@ def validate(request, todo_id):
         pk=todo_id,
     )
 
-    # entity = todo.creme_entity
     entity = todo.real_entity
 
     request.user.has_perm_to_change_or_die(entity)

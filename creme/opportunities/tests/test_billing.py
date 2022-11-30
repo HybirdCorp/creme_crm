@@ -522,7 +522,6 @@ class BillingTestCase(OpportunitiesBaseTestCase):
             Relation,
             subject_entity=opp2.id, type=constants.REL_OBJ_LINKED_QUOTE,
         )
-        # quote2 = linked_rel2.object_entity.get_real_entity()
         quote2 = linked_rel2.real_object
         self.assertRelationCount(1, quote2, constants.REL_SUB_CURRENT_DOC, opp2)
 

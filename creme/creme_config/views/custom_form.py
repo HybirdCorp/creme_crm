@@ -134,7 +134,6 @@ class CustomFormCreation(base.ConfigModelCreation):
         return data
 
 
-# class CustomFormBrickDeletion(base.ConfigDeletion):
 class CustomFormDeletion(base.ConfigDeletion):
     id_arg = 'id'
     model = CustomFormConfigItem
@@ -344,18 +343,6 @@ class CustomFormGroupReordering(CustomFormMixin, generic.CheckedView):
         return HttpResponse()
 
 
-# class CustomFormShowDetails(EntityCTypeRelatedMixin, BrickStateExtraDataSetting):
-#     ctype_id_arg = 'ct_id'
-#     ct_id_0_accepted = True
-#     brick_cls = CustomFormsBrick
-#     data_key = BRICK_STATE_SHOW_CFORMS_DETAILS
-#
-#     def get_ctype_id(self):
-#         return get_from_POST_or_404(self.request.POST, key=self.ctype_id_arg)
-#
-#     def get_value(self):
-#         ctype = self.get_ctype()
-#         return None if ctype is None else ctype.id
 class CustomFormShowDetails(EntityCTypeRelatedMixin,
                             CustomFormMixin,
                             BrickStateExtraDataSetting):

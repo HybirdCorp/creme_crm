@@ -11,17 +11,15 @@
     z-index: 1010;
 /*  max-width: 276px; causes problems with specific relation brick menu */
     padding: 1px;
+
     text-align: left;
     background-color: #ffffff;
     background-clip: padding-box;
+
     border: 1px solid #cccccc;
     border: 1px solid rgba(0, 0, 0, 0.2);
     border-radius: 4px;
 
-/*
-    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-       -moz-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-*/
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
     white-space: normal;

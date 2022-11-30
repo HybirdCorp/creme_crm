@@ -58,7 +58,6 @@ __all__ = (
     'FilteredEntityTypeField',
     'OptionalField', 'OptionalChoiceField', 'OptionalModelChoiceField',
     'ListEditionField',
-    # 'AjaxModelChoiceField',
     'DatePeriodField', 'DateRangeField', 'ColorField', 'DurationField',
     'ChoiceOrCharField',
     'CTypeChoiceField', 'EntityCTypeChoiceField',
@@ -307,7 +306,6 @@ class JSONField(fields.CharField):
 
             try:
                 # TODO: use filter(..).first() if we allow extra Q filter
-                # entity = model.objects.get(is_deleted=False, pk=entity_pk)
                 entity = model.objects.get(pk=entity_pk)
             except model.DoesNotExist as e:
                 raise ValidationError(
@@ -329,7 +327,6 @@ class JSONField(fields.CharField):
         return entity
 
     def _entity_queryset(self, model, qfilter=None):
-        # query = model.objects.filter(is_deleted=False)
         query = model.objects.all()
 
         if qfilter is not None:
@@ -338,14 +335,6 @@ class JSONField(fields.CharField):
         return query
 
     def _clean_entity_from_model(self, model, entity_pk, qfilter=None):
-        # try:
-        #     return self._entity_queryset(model, qfilter).get(pk=entity_pk)
-        # except model.DoesNotExist as e:
-        #     if self.required:
-        #         raise ValidationError(
-        #             self.error_messages['doesnotexist'],
-        #             code='doesnotexist',
-        #         ) from e
         entity = self._entity_queryset(model, qfilter).filter(pk=entity_pk).first()
         if entity is None:
             if qfilter:
@@ -531,16 +520,6 @@ class GenericEntityField(EntityCredsJSONField):
         clean_value = self.clean_value
         required = self.required
 
-        # Compatibility with older format.
-        # if data and isinstance(data.get('ctype'), dict):
-        #     ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
-        #     ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
-        # else:
-        #     warnings.warn(
-        #         'GenericEntityField: old format "ctype": id entry is deprecated.',
-        #         DeprecationWarning
-        #     )
-        #     ctype_pk = clean_value(data, 'ctype', int, required, 'ctyperequired')
         ctype_choice = clean_value(data, 'ctype', dict, required, 'ctyperequired')
         ctype_pk = clean_value(ctype_choice, 'id', int, required, 'ctyperequired')
 
@@ -620,16 +599,6 @@ class MultiGenericEntityField(GenericEntityField):
 
         # Group entity PKs by ctype, in order to make efficient queries
         for entry in data:
-            # Compatibility with older format.
-            # if data and isinstance(entry.get('ctype'), dict):
-            #     ctype_choice = clean_value(entry, 'ctype', dict, required=False)
-            #     ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
-            # else:
-            #     warnings.warn(
-            #         'MultiGenericEntityField: old format "ctype": id entry is deprecated.',
-            #         DeprecationWarning
-            #     )
-            #     ctype_pk = clean_value(entry, 'ctype', int, required=False)
             ctype_choice = clean_value(entry, 'ctype', dict, required=False)
             ctype_pk = clean_value(ctype_choice, 'id', int, required=False)
 
@@ -647,10 +616,6 @@ class MultiGenericEntityField(GenericEntityField):
 
         # Build the list of entities (ignore invalid entries)
         for ct_id, ctype_entity_pks in entities_by_ctype.items():
-            # ctype_entities = self._clean_ctype(ct_id).model_class() \
-            #                                          .objects \
-            #                                          .filter(is_deleted=False) \
-            #                                          .in_bulk(ctype_entity_pks)
             ctype_entities = self._clean_ctype(ct_id) \
                                  .get_all_objects_for_this_type() \
                                  .in_bulk(ctype_entity_pks)
@@ -695,21 +660,10 @@ class ChoiceModelIterator:
 class RelationEntityField(EntityCredsJSONField):
     widget = core_widgets.RelationSelector
     default_error_messages = {
-        # 'rtypedoesnotexist': _(
-        #     'This type of relationship does not exist (id=%(rtype_id)s).'
-        # ),
         'rtypenotallowed': _(
             'This type of relationship causes a constraint error '
             '(id="%(rtype_id)s").'
         ),
-        # 'ctypenotallowed': _(
-        #     'This content type cause constraint error with the type of relationship '
-        #     '(id="%(ctype_id)s").'
-        # ),
-        # 'nopropertymatch': _(
-        #     'This entity has no property that matches the constraints of the '
-        #     'type of relationship.'
-        # ),
     }
     value_type: type = dict
 
@@ -767,14 +721,6 @@ class RelationEntityField(EntityCredsJSONField):
         if not entity_pk:
             return self._return_none_or_raise(self.required, 'entityrequired')
 
-        # rtype = self._clean_rtype(rtype_pk)
-        # self._validate_ctype_constraints(rtype, ctype_pk)
-        #
-        # entity = self._clean_entity(ctype_pk, entity_pk)
-        # self._check_entity_perms(entity)
-        # self._validate_properties_constraints(rtype, entity)
-        #
-        # return rtype, entity
         rtype = self._clean_rtype(rtype_pk)
         entity = self._clean_entity(ctype_pk, entity_pk)
         self._check_entity_perms(entity)
@@ -788,42 +734,6 @@ class RelationEntityField(EntityCredsJSONField):
         # TODO: return Relation?
         return rtype, entity
 
-    # def _validate_ctype_constraints(self, rtype, ctype_pk):
-    #     ctype_ids = rtype.object_ctypes.values_list('pk', flat=True)
-    #
-    #     # Is relation type accepts content type
-    #     if ctype_ids and ctype_pk not in ctype_ids:
-    #         raise ValidationError(
-    #             self.error_messages['ctypenotallowed'],
-    #             params={'ctype_id': ctype_pk},
-    #             code='ctypenotallowed',
-    #         )
-
-    # def _validate_properties_constraints(self, rtype, entity):
-    #     needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
-    #
-    #     if needed_ptype_ids:
-    #         ptype_ids = {p.type_id for p in entity.get_properties()}
-    #
-    #         if any(
-    #             needed_ptype_id not in ptype_ids
-    #             for needed_ptype_id in needed_ptype_ids
-    #         ):
-    #             raise ValidationError(
-    #                 self.error_messages['nopropertymatch'],
-    #                 code='nopropertymatch',
-    #             )
-
-    # def _clean_rtype(self, rtype_pk):
-    #     # Is relation type allowed
-    #     if rtype_pk not in self._get_allowed_rtypes_ids():
-    #         raise ValidationError(
-    #             self.error_messages['rtypenotallowed'],
-    #             params={'rtype_id': rtype_pk}, code='rtypenotallowed',
-    #         )
-    #
-    #     # NB: we are sure the RelationType exists here
-    #     return RelationType.objects.get(pk=rtype_pk)
     def _clean_rtype(self, rtype_pk):
         rtypes = self._allowed_rtypes
 
@@ -841,12 +751,6 @@ class RelationEntityField(EntityCredsJSONField):
     def _get_options(self):  # TODO: inline
         return ChoiceModelIterator(self._allowed_rtypes)
 
-    # def _get_allowed_rtypes_objects(self):
-    #     return self._allowed_rtypes.all()
-
-    # def _get_allowed_rtypes_ids(self):
-    #     return self._allowed_rtypes.values_list('id', flat=True)
-
 
 class MultiRelationEntityField(RelationEntityField):
     widget: type[widgets.TextInput] = core_widgets.MultiRelationSelector
@@ -859,11 +763,7 @@ class MultiRelationEntityField(RelationEntityField):
         try:
             ctype = ContentType.objects.get_for_id(ctype_id)
         except ContentType.DoesNotExist as e:
-            raise ValidationError(
-                # self.error_messages['ctypedoesnotexist'],
-                # code='ctypedoesnotexist',
-                str(e)
-            ) from e
+            raise ValidationError(str(e)) from e
 
         return ctype
 
@@ -906,147 +806,6 @@ class MultiRelationEntityField(RelationEntityField):
 
         return rtypes_by_ids
 
-    # def _build_rtype_cache(self, rtype_pk):
-    #     try:
-    #         rtype = RelationType.objects.get(pk=rtype_pk)
-    #     except RelationType.DoesNotExist as e:
-    #         raise ValidationError(
-    #             self.error_messages['rtypedoesnotexist'],
-    #             params={'rtype_id': rtype_pk},
-    #             code='rtypedoesnotexist',
-    #         ) from e
-    #
-    #     allowed_ctype_ids = frozenset(ct.pk for ct in rtype.object_ctypes.all())
-    #     needed_ptype_ids = [*rtype.object_properties.values_list('id', flat=True)]
-    #
-    #     return rtype, allowed_ctype_ids, needed_ptype_ids
-
-    # def _build_ctype_cache(self, ctype_pk):
-    #     try:
-    #         ctype = ContentType.objects.get_for_id(ctype_pk)
-    #     except ContentType.DoesNotExist as e:
-    #         raise ValidationError(
-    #             self.error_messages['ctypedoesnotexist'],
-    #             code='ctypedoesnotexist',
-    #         ) from e
-    #
-    #     return ctype, []
-
-    # def _get_cache(self, entries, key, build_func):
-    #     cache = entries.get(key)
-    #
-    #     if not cache:
-    #         cache = build_func(key)
-    #         entries[key] = cache
-    #
-    #     return cache
-
-    # def _value_from_unjsonfied(self, data):
-    #     clean_value = self.clean_value
-    #     cleaned_entries = []
-    #
-    #     for entry in data:
-    #         rtype_pk = clean_value(entry, 'rtype', str)
-    #
-    #         ctype_pk = clean_value(entry, 'ctype', int, required=False)
-    #         if not ctype_pk:
-    #             continue
-    #
-    #         entity_pk = clean_value(entry, 'entity', int, required=False)
-    #         if not entity_pk:
-    #             continue
-    #
-    #         cleaned_entries.append((rtype_pk, ctype_pk, entity_pk))
-    #
-    #     rtypes_cache = {}
-    #     ctypes_cache = {}
-    #     allowed_rtypes_ids = frozenset(self._get_allowed_rtypes_ids())
-    #
-    #     need_property_validation = False
-    #
-    #     for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-    #         # Check if relation type is allowed
-    #         if rtype_pk not in allowed_rtypes_ids:
-    #             raise ValidationError(
-    #                 self.error_messages['rtypenotallowed'],
-    #                 params={'rtype_id': rtype_pk},
-    #                 code='rtypenotallowed',
-    #             )
-    #
-    #         rtype, allowed_ctype_ids, needed_ptype_ids = self._get_cache(
-    #             rtypes_cache, rtype_pk, self._build_rtype_cache,
-    #         )
-    #
-    #         if needed_ptype_ids:
-    #             need_property_validation = True
-    #
-    #         # Check if content type is allowed by relation type
-    #         if allowed_ctype_ids and ctype_pk not in allowed_ctype_ids:
-    #             raise ValidationError(
-    #                 self.error_messages['ctypenotallowed'],
-    #                 # params={'ctype': ctype_pk},
-    #                 params={'ctype_id': ctype_pk},
-    #                 code='ctypenotallowed',
-    #             )
-    #
-    #         ctype, ctype_entity_pks = self._get_cache(
-    #             ctypes_cache, ctype_pk,
-    #             self._build_ctype_cache,
-    #         )
-    #         ctype_entity_pks.append(entity_pk)
-    #
-    #     entities_cache = {}
-    #
-    #     # Build real entity cache and check both entity id exists and in correct content type
-    #     for ctype, entity_pks in ctypes_cache.values():
-    #         ctype_entities = {
-    #             entity.pk: entity
-    #             for entity in ctype.get_all_objects_for_this_type(pk__in=entity_pks)
-    #         }
-    #
-    #         if not all(entity_pk in ctype_entities for entity_pk in entity_pks):
-    #             raise ValidationError(
-    #                 self.error_messages['doesnotexist'],
-    #                 code='doesnotexist',
-    #             )
-    #
-    #         for entity in ctype_entities.values():
-    #             if entity.is_deleted:
-    #                 raise ValidationError(
-    #                     self.error_messages['isdeleted'],
-    #                     code='isdeleted',
-    #                     params={'entity': entity.allowed_str(self._user)},
-    #                 )
-    #
-    #         entities_cache.update(ctype_entities)
-    #
-    #     self._check_entities_perms(entities_cache.values())
-    #
-    #     relations = []
-    #
-    #     # Build cache for validation of properties constraint between relationtypes and entities
-    #     if need_property_validation:
-    #         CremeEntity.populate_properties(entities_cache.values())
-    #
-    #     for rtype_pk, ctype_pk, entity_pk in cleaned_entries:
-    #         rtype, allowed_ctype_ids, needed_ptype_ids = rtypes_cache.get(rtype_pk)
-    #         entity = entities_cache.get(entity_pk)
-    #
-    #         if needed_ptype_ids:
-    #             ptype_ids = {p.type_id for p in entity.get_properties()}
-    #
-    #             if any(needed_ptype_id not in ptype_ids for needed_ptype_id in needed_ptype_ids):
-    #                 raise ValidationError(
-    #                     self.error_messages['nopropertymatch'],
-    #                     code='nopropertymatch',
-    #                 )
-    #
-    #         relations.append((rtype, entity))
-    #
-    #     if not relations:
-    #         return self._return_list_or_raise(self.required)
-    #
-    #     return relations
     def _value_from_unjsonfied(self, data):
         clean_value = self.clean_value
         cleaned_entries = []
@@ -1245,7 +1004,6 @@ class CreatorEntityField(EntityCredsJSONField):
         if isinstance(value, int):
             if not self._entity_queryset(
                 self.model,
-                # self.q_filter_query,
             ).filter(pk=value).exists():
                 raise ValueError(f'No such entity with id={value}.')
 
@@ -1635,35 +1393,6 @@ class ListEditionField(fields.Field):
     def only_delete(self, only_delete):
         self._only_delete = only_delete
         self.widget.only_delete = only_delete
-
-
-# class AjaxModelChoiceField(mforms.ModelChoiceField):
-#     """
-#         Same as ModelChoiceField but bypass the choices validation due to the ajax filling
-#     """
-#     def __init__(self, **kwargs):
-#         super().__init__(**kwargs)
-#         warnings.warn(
-#             'creme_core.forms.fields.AjaxModelChoiceField is deprecated',
-#             DeprecationWarning,
-#         )
-#
-#     def clean(self, value):
-#         # Field.clean(self, value)
-#
-#         if value in self.empty_values:
-#             return None
-#
-#         try:
-#             key = self.to_field_name or 'pk'
-#             value = self.queryset.model._default_manager.get(**{key: value})
-#         except self.queryset.model.DoesNotExist:
-#             raise ValidationError(
-#                 self.error_messages['invalid_choice'],
-#                 code='invalid_choice',
-#             )
-#
-#         return value
 
 
 class MultiEmailField(fields.Field):
@@ -2151,23 +1880,6 @@ class EnhancedChoiceIterator:
         choices = self.choices
         forced_values = self.forced_values
 
-        # for x in (choices() if callable(choices) else choices):
-        #     if isinstance(x, dict):
-        #         value = x['value']
-        #         label = x['label']
-        #         help_txt = x.get('help', '')
-        #     else:
-        #         value, label = x
-        #         help_txt = ''
-        #
-        #     yield (
-        #         self.choice_cls(
-        #             value=value,
-        #             readonly=(value in forced_values),
-        #             help=help_txt,
-        #         ),
-        #         label,
-        #     )
         for choice in (choices() if callable(choices) else choices):
             if isinstance(choice, dict):
                 choice_kwargs = {**choice}

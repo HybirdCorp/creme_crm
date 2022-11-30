@@ -1,4 +1,3 @@
-# from django.apps import apps
 from django.urls import include, re_path
 
 from creme import emails
@@ -381,19 +380,3 @@ urlpatterns = [
         app_name='emails',
     ).kept_patterns(),
 ]
-
-# if apps.is_installed('creme.crudity'):
-#     from .views import crudity
-#
-#     urlpatterns += [
-#         re_path(
-#             r'^mail/set_status/(?P<status>\w+)[/]?$',
-#             crudity.EmailStatusSetting.as_view(),
-#             name='emails__crudity_set_email_status',
-#         ),
-#         re_path(
-#             r'^synchronization[/]?$',
-#             crudity.Synchronisation.as_view(),
-#             name='emails__crudity_sync',
-#         ),
-#     ]

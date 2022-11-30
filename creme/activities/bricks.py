@@ -58,7 +58,6 @@ class ParticipantsBrick(QuerysetBrick):
         btc = self.get_template_context(
             context,
             activity.relations.filter(type=constants.REL_OBJ_PART_2_ACTIVITY)
-            #                  .select_related('type', 'object_entity'),
         )
         relations = btc['page'].object_list
         # TODO: remove civility with better entity repr system ??
@@ -97,16 +96,6 @@ class SubjectsBrick(QuerysetBrick):
     target_ctypes = (Activity, )
 
     def detailview_display(self, context):
-        # activity = context['object']
-        # btc = self.get_template_context(
-        #     context,
-        #     activity.relations.filter(type=constants.REL_OBJ_ACTIVITY_SUBJECT)
-        #             .select_related('type', 'object_entity'),
-        # )
-        #
-        # Relation.populate_real_object_entities(btc['page'].object_list)
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             context['object'].relations

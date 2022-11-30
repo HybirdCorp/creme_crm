@@ -17,7 +17,6 @@
 {% has_perm_to change object as has_perm %}
     <table class="brick-table-content">
     {% if components %}
-{#        {% url 'creme_core__delete_related_to_entity' ct_id as delete_url %} #}
         <tbody>{% ctype_for_model components.0 as comp_ctype %}{% url 'creme_core__delete_related_to_entity' comp_ctype.id as delete_url %}
         {% for component in components %}
             <tr>

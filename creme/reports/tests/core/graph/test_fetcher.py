@@ -14,13 +14,6 @@ from creme.creme_core.tests.fake_constants import (
     FAKE_REL_SUB_EMPLOYED_BY,
 )
 from creme.reports.bricks import ReportGraphChartInstanceBrick
-# from creme.reports.constants import (
-#     RGA_COUNT,
-#     RGF_FK,
-#     RGF_NOLINK,
-#     RGF_RELATION,
-#     RGT_YEAR,
-# )
 from creme.reports.constants import (
     RGF_FK,
     RGF_NOLINK,
@@ -28,7 +21,6 @@ from creme.reports.constants import (
     AbscissaGroup,
     OrdinateAggregator,
 )
-# from creme.reports.constants import AbscissaGroup
 from creme.reports.core.graph.fetcher import (
     RegularFieldLinkedGraphFetcher,
     RelationLinkedGraphFetcher,
@@ -61,14 +53,11 @@ class GraphFetcherTestCase(CremeTestCase):
 
         # ---
         fetcher2 = SimpleGraphFetcher(graph=graph, value='last_name')
-        self.assertEqual(
-            _('No value is needed.'),
-            fetcher2.error
-        )
+        self.assertEqual(_('No value is needed.'), fetcher2.error)
 
         self.assertListEqual(
             [('', pgettext('reports-volatile_choice', 'None'))],
-            [*SimpleGraphFetcher.choices(FakeContact)]
+            [*SimpleGraphFetcher.choices(FakeContact)],
         )
 
         # ----
@@ -77,7 +66,7 @@ class GraphFetcherTestCase(CremeTestCase):
         self.assertIsNone(brick.errors)
         self.assertEqual(
             '{} - {}'.format(graph.name, _('No volatile column')),
-            brick.verbose_name
+            brick.verbose_name,
         )
         self.assertListEqual([], brick.target_ctypes)
 
@@ -100,7 +89,7 @@ class GraphFetcherTestCase(CremeTestCase):
         self.assertIsNone(fetcher1.error)
         self.assertEqual(
             _('{field} (Field)').format(field=_('Photograph')),
-            fetcher1.verbose_name
+            fetcher1.verbose_name,
         )
 
         ibci = fetcher1.create_brick_config_item()
@@ -117,24 +106,24 @@ class GraphFetcherTestCase(CremeTestCase):
         fetcher3 = RegularFieldLinkedGraphFetcher(graph=graph, value='invalid')
         self.assertEqual(
             _('The field is invalid.'),
-            fetcher3.error
+            fetcher3.error,
         )
 
         fetcher4 = RegularFieldLinkedGraphFetcher(graph=graph, value='last_name')
         self.assertEqual(
             _('The field is invalid (not a foreign key).'),
-            fetcher4.error
+            fetcher4.error,
         )
 
         fetcher5 = RegularFieldLinkedGraphFetcher(graph=graph, value='position')
         self.assertEqual(
             _('The field is invalid (not a foreign key to CremeEntity).'),
-            fetcher5.error
+            fetcher5.error,
         )
 
         self.assertListEqual(
             [('image', _('Photograph'))],
-            [*RegularFieldLinkedGraphFetcher.choices(FakeContact)]
+            [*RegularFieldLinkedGraphFetcher.choices(FakeContact)],
         )
 
         # ----
@@ -168,10 +157,7 @@ class GraphFetcherTestCase(CremeTestCase):
         graph = ReportGraph(user=user, name='Field Test', linked_report=report)
 
         fetcher = RegularFieldLinkedGraphFetcher(graph=graph, value=hidden_fname)
-        self.assertEqual(
-            _('The field is hidden.'),
-            fetcher.error
-        )
+        self.assertEqual(_('The field is hidden.'), fetcher.error)
 
     def test_relation(self):
         user = self.create_user()
@@ -185,10 +171,8 @@ class GraphFetcherTestCase(CremeTestCase):
         fetcher1 = RelationLinkedGraphFetcher(graph=graph, value=FAKE_REL_SUB_EMPLOYED_BY)
         self.assertIsNone(fetcher1.error)
         self.assertEqual(
-            _('{rtype} (Relationship)').format(
-                rtype='is an employee of — employs',
-            ),
-            fetcher1.verbose_name
+            _('{rtype} (Relationship)').format(rtype='is an employee of — employs'),
+            fetcher1.verbose_name,
         )
 
         ibci = fetcher1.create_brick_config_item()

@@ -361,54 +361,6 @@ QUnit.test('creme.forms.validateHtml5Form (errors + options.noValidate)', functi
     deepEqual({}, this.mockListenerJQueryCalls());
 });
 
-/*
-QUnit.test('creme.forms.Select.fill (deprecated)', function(assert) {
-    var element = $('<select></select>');
-
-    creme.forms.Select.fill(element, []);
-    this.equalOuterHtml(element, '<select></select>');
-
-    equal(this.mockConsoleWarnCalls().length, 1);
-});
-*/
-
-/*
-QUnit.test('creme.forms.Select.fill (select)', function(assert) {
-    var element = $('<select></select>');
-
-    creme.forms.Select.fill(element, [
-        ['a', 'Label A'], ['b', 'Label B']
-    ]);
-    this.equalOuterHtml(element,
-        '<select>' +
-            '<option value="a">Label A</option>' +
-            '<option value="b">Label B</option>' +
-        '</select>');
-    equal(element.val(), 'a');
-
-    creme.forms.Select.fill(element, [
-        ['a', 'Label A'], ['b', 'Label B']
-    ], 'unknown');
-    this.equalOuterHtml(element,
-        '<select>' +
-            '<option value="a">Label A</option>' +
-            '<option value="b">Label B</option>' +
-        '</select>');
-    equal(element.val(), 'a');
-
-    creme.forms.Select.fill(element, [
-        ['c', 'Label C'], ['d', 'Label D'], ['e', 'Label E']
-    ], 'd');
-    this.equalOuterHtml(element,
-        '<select>' +
-            '<option value="c">Label C</option>' +
-            '<option value="d">Label D</option>' +
-            '<option value="e">Label E</option>' +
-        '</select>');
-    equal(element.val(), 'd');
-});
-*/
-
 QUnit.test('creme.forms.TimePicker', function(assert) {
     var element = $('<ul>' +
         '<input type="hidden" id="time_field" value="08:32:00">' +

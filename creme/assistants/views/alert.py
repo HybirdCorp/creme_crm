@@ -53,7 +53,6 @@ def validate(request, alert_id):
         pk=alert_id,
     )
 
-    # entity = alert.creme_entity
     entity = alert.real_entity
     request.user.has_perm_to_change_or_die(entity)
 

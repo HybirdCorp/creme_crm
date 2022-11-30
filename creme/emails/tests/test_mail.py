@@ -37,7 +37,7 @@ from creme.persons.tests.base import (
 
 from .. import bricks
 from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
-from ..constants import (  # MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
+from ..constants import (
     REL_OBJ_MAIL_RECEIVED,
     REL_OBJ_MAIL_SENT,
     REL_OBJ_RELATED_TO,
@@ -793,11 +793,9 @@ better &amp; lighter than the previous one.
         )
         msg = _('«%(entity)s» violates the constraints.')
         self.assertFormError(
-            # response, 'form', 'c_recipients', _('This entity does not exist.'),
             response, 'form', 'c_recipients', msg % {'entity': contact01},
         )
         self.assertFormError(
-            # response, 'form', 'o_recipients', _('This entity does not exist.'),
             response, 'form', 'o_recipients', msg % {'entity': orga01},
         )
 

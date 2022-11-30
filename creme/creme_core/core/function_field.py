@@ -53,11 +53,9 @@ class FunctionFieldDecimal(FunctionFieldResult):
     def for_html(self) -> str:
         # TODO: escape() ?
         # TODO: ?? "if self._data is not None else ''"
-        # return number_format(self._data, use_l10n=True, force_grouping=True)
         return number_format(self._data, force_grouping=True)
 
     def for_csv(self) -> str:
-        # return number_format(self._data, use_l10n=True)
         return number_format(self._data)
 
 

@@ -1,7 +1,6 @@
 from decimal import Decimal
 from functools import partial
 
-# from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.db.models import Q
 from django.test.utils import override_settings
@@ -208,26 +207,22 @@ class SearchWidgetsTestCase(CremeTestCase):
             '    <label for="id_birth-start">{start_label}</label>'
             '    <input class="lv-state-field"'
             '           data-format="{format}" id="id_birth-start" name="{name}-start" '
-            # '           value="12-02-2019" />'
             '           value="2019-02-12" />'
             ' </div>'
             ' <div class="date-end">'
             '   <label for="id_birth-end">{end_label}</label>'
             '   <input class="lv-state-field"'
             '            data-format="{format}" id="id_birth-end" name="{name}-end" '
-            # '          value="14-02-2019" />'
             '          value="2019-02-14" />'
             ' </div>'
             '</div>'.format(
                 name=name,
                 start_label=_('Start'),
                 end_label=_('End'),
-                # format=settings.DATE_FORMAT_JS.get(settings.DATE_FORMAT),
                 format='yy-mm-dd',
             ),
             widget.render(
                 name=name,
-                # value=['12-02-2019', '14-02-2019'],
                 value=['2019-02-12', '2019-02-14'],
                 attrs={'id': 'id_birth'},
             ),
@@ -460,17 +455,14 @@ class SearchFieldsTestCase(CremeTestCase):
                 dt(day=22, month=2, year=2019),
                 dt(day=28, month=2, year=2019, hour=23, minute=59, second=59),
             )),
-            # to_python(value=['22-02-2019', '28-02-2019']),
             to_python(value=[date_value(2019, 2, 22), date_value(2019, 2, 28)]),
         )
         self.assertEqual(
             Q(created__gte=dt(day=21, month=2, year=2019)),
-            # to_python(value=['21-02-2019', '']),
             to_python(value=[date_value(2019, 2, 21), '']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=25, month=2, year=2019, hour=23, minute=59, second=59)),
-            # to_python(value=['', '25-02-2019']),
             to_python(value=['', date_value(2019, 2, 25)]),
         )
 
@@ -478,12 +470,10 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
         self.assertEqual(
             Q(created__gte=dt(day=22, month=2, year=2019)),
-            # to_python(value=['22-02-2019', 'zblu']),
             to_python(value=[date_value(2019, 2, 22), 'zblu']),
         )
         self.assertEqual(
             Q(created__lte=dt(day=26, month=2, year=2019, hour=23, minute=59, second=59)),
-            # to_python(value=['123', '26-02-2019']),
             to_python(value=['123', date_value(2019, 2, 26)]),
         )
 
@@ -493,8 +483,8 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_forms.RegularChoiceField(cell=cell, user=self.user)  # TODO: choices=... ?
         Discount = FakeInvoiceLine.Discount
         expected_choices = [
-            {'value': '',                'label': pgettext('creme_core-filter', 'All')},
-            {'value': lv_forms.NULL, 'label': _('* is empty *')},
+            {'value': '',                     'label': pgettext('creme_core-filter', 'All')},
+            {'value': lv_forms.NULL,          'label': _('* is empty *')},
             {'value': Discount.PERCENT.value, 'label': _('Percent')},
             {'value': Discount.AMOUNT.value,  'label': _('Amount')},
         ]
@@ -524,7 +514,7 @@ class SearchFieldsTestCase(CremeTestCase):
         field = lv_forms.RegularRelatedField(cell=cell, user=self.user)
 
         expected_choices = [
-            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
+            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
             {
                 'value': lv_forms.NULL,
                 'pinned': True,
@@ -577,7 +567,7 @@ class SearchFieldsTestCase(CremeTestCase):
 
         self.assertListEqual(
             [
-                {'value': '',           'label': pgettext('creme_core-filter', 'All')},
+                {'value': '', 'label': pgettext('creme_core-filter', 'All')},
                 {
                     'value': lv_forms.NULL,
                     'pinned': True,
@@ -596,7 +586,7 @@ class SearchFieldsTestCase(CremeTestCase):
         # NB: limit_choices_to = lambda: ~Q(title='[INVALID]')
         cell = EntityCellRegularField.build(model=FakeContact, name='sector')
         expected_choices = [
-            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
+            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
             {
                 'value': lv_forms.NULL,
                 'pinned': True,
@@ -634,7 +624,7 @@ class SearchFieldsTestCase(CremeTestCase):
         )
         self.assertListEqual(
             [
-                {'value': '',           'label': pgettext('creme_core-filter', 'All')},
+                {'value': '', 'label': pgettext('creme_core-filter', 'All')},
                 {
                     'value': lv_forms.NULL,
                     'pinned': True,
@@ -654,7 +644,7 @@ class SearchFieldsTestCase(CremeTestCase):
         "Not enumerable FK."
         cell = EntityCellRegularField.build(model=FakeContact, name='address')
         expected_choices = [
-            {'value': '',           'label': pgettext('creme_core-filter', 'All')},
+            {'value': '', 'label': pgettext('creme_core-filter', 'All')},
             {
                 'value': lv_forms.NULL,
                 'pinned': True,
@@ -958,7 +948,6 @@ class SearchFieldsTestCase(CremeTestCase):
 
         # ---
         date_value = self.formfield_value_date
-        # q_range = to_python(value=['01-02-2019', '28-02-2019'])
         q_range = to_python(value=[date_value(2019, 2, 1), date_value(2019, 2, 28)])
         self.assertIsInstance(q_range, Q)
         self.assertFalse(q_range.negated)
@@ -970,13 +959,11 @@ class SearchFieldsTestCase(CremeTestCase):
         self.assertSetEqual({ryu.id, ken.id}, {*v})
 
         # ---
-        # q_start = to_python(value=['01-02-2019', ''])
         q_start = to_python(value=[date_value(2019, 2, 1), ''])
         k, v = q_start.children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        # q_end = to_python(value=['', '01-03-2019'])
         q_end = to_python(value=['', date_value(2019, 3, 1)])
         k, v = q_end.children[0]
         self.assertEqual('pk__in', k)
@@ -985,12 +972,10 @@ class SearchFieldsTestCase(CremeTestCase):
         # Invalid dates ---------------------------
         self.assertEqual(Q(), to_python(value=['abc', 'def']))
 
-        # k, v = to_python(value=['01-02-2019', 'zblu']).children[0]
         k, v = to_python(value=[date_value(2019, 2, 1), 'zblu']).children[0]
         self.assertEqual('pk__in', k)
         self.assertSetEqual({ryu.id, ken.id, blanka.id}, {*v})
 
-        # v = to_python(value=['123', '28-02-2019']).children[0][1]
         v = to_python(value=['123', date_value(2019, 2, 28)]).children[0][1]
         self.assertSetEqual({ryu.id, ken.id, zangief.id}, {*v})
 
@@ -1287,7 +1272,6 @@ class SearchFormTestCase(CremeTestCase):
         data = {
             f'search-{fname_cell.key}': fname_value,
             f'search-{nerd_cell.key}': '1',
-            # f'search-{birth_cell.key}-start': '25-02-2019',
             f'search-{birth_cell.key}-start': bday_value,
         }
         form = lv_forms.ListViewSearchForm(
@@ -1310,7 +1294,6 @@ class SearchFormTestCase(CremeTestCase):
 
         self.assertIn(f'value="{fname_value}"', str(form[fname_cell.key]))
         self.assertIn('value="1" selected',     str(form[nerd_cell.key]))
-        # self.assertIn('value="25-02-2019"',     str(form[birth_cell.key]))
         self.assertIn(f'value="{bday_value}"',  str(form[birth_cell.key]))
 
         self.assertNotIn('value="', str(form[lname_cell.key]))

@@ -1684,13 +1684,6 @@ class FieldGroupListTestCase(CremeTestCase):
             form,
             (
                 'relation_types',
-                # _(
-                #     'The property «%(property)s» is mandatory '
-                #     'in order to use the relationship «%(predicate)s»'
-                # ) % {
-                #     'property': ptype,
-                #     'predicate': rtype.predicate,
-                # },
                 Relation.error_messages['missing_subject_property'] % {
                     'entity': FakeContact(last_name=last_name, first_name=first_name),
                     'property': ptype,

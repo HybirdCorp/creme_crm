@@ -23,7 +23,6 @@ from creme.persons import get_contact_model
 
 
 class GenerateVcfButton(Button):
-    # id_ = Button.generate_id('vcfs', 'generate_vcf')
     id = Button.generate_id('vcfs', 'generate_vcf')
     verbose_name = _('Generate a VCF file')
     description = _(

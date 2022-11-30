@@ -133,9 +133,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
     def clean(self):
         if self.is_user_id:
             if not self.first_name:
-                # raise ValidationError(
-                #     gettext('This Contact is related to a user and must have a first name.')
-                # )
                 raise ValidationError({
                     'first_name': ValidationError(
                         gettext('This Contact is related to a user and must have a first name.'),
@@ -144,9 +141,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
                 })
 
             if not self.email:
-                # raise ValidationError(
-                #     gettext('This Contact is related to a user and must have an email address.')
-                # )
                 raise ValidationError({
                     'email': ValidationError(
                         gettext(
@@ -163,10 +157,6 @@ class AbstractContact(CremeEntity, PersonWithAddressesMixin):
             if get_user_model()._default_manager.filter(
                 is_active=True, email=self.email,
             ).exclude(id=self.is_user_id).exists():
-                # raise ValidationError(gettext(
-                #     'This Contact is related to a user and an active user '
-                #     'already uses this email address.'
-                # ))
                 raise ValidationError({
                     'email': ValidationError(
                         gettext(

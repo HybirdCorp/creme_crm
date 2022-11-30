@@ -761,7 +761,6 @@ class HistoryRenderTestCase(CremeTestCase):
                 mod3=mark_safe(self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{cfield3.name}</span>',
                     value=f'<span class="field-change-new_value">'
-                          # f'{number_format(value_int, use_l10n=True, force_grouping=True)}'
                           f'{number_format(value_int, force_grouping=True)}'
                           f'</span>',
                 )),
@@ -1460,11 +1459,9 @@ class HistoryRenderTestCase(CremeTestCase):
                           f'{_("Quantity")}'
                           f'</span>',
                     oldvalue=f'<span class="field-change-old_value">'
-                             # f'{number_format(old_quantity, use_l10n=True)}'
                              f'{number_format(old_quantity)}'
                              f'</span>',
                     value=f'<span class="field-change-new_value">'
-                          # f'{number_format(pline.quantity, use_l10n=True)}'
                           f'{number_format(pline.quantity)}'
                           f'</span>',
                 )),

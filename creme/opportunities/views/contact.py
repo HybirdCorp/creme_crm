@@ -60,7 +60,6 @@ class RelatedContactCreation(EntityRelatedMixin, EntityCreationPopup):
         response = super().form_valid(form)
         Relation.objects.create(
             user=self.request.user,
-            # subject_entity=self.object,
             subject_entity=form.instance,
             type_id=self.relation_type_id,
             object_entity=self.get_related_entity(),

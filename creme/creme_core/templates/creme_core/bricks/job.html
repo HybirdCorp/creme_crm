@@ -4,7 +4,6 @@
 {% block brick_extra_class %}{{block.super}} creme_core-job-brick{% endblock %}
 
 {% block brick_script %}{# TODO: in .js ?? #}
-{#    {% if not request.is_ajax and not job.is_finished %} #}
     {% if not request|is_ajax and not job.is_finished %}
     <script type="text/javascript">
         $('.brick[id="{{brick_id}}"]').on('brick-ready', function(e, brick, options) {

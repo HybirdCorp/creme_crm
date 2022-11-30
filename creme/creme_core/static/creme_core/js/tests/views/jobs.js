@@ -225,7 +225,6 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
         controller.fetch();
 
-//        equal(controller.jobItems('job-a').text(), gettext('Finished'));
         equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
         this.assertJobItemState(controller, 'job-b', {label: 'Job B', percentage: '72', status: 1});
@@ -235,10 +234,8 @@ QUnit.test('creme.JobsMonitor (fetch steps)', function(assert) {
 
         controller.fetch();
 
-//        equal(controller.jobItems('job-a').text(), gettext('Finished'));
         equal(controller.jobItems('job-a').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
-//        equal(controller.jobItems('job-b').text(), gettext('Finished'));
         equal(controller.jobItems('job-b').text(), gettext('Completed successfully'));
         equal(controller.jobItems('job-a').attr('data-job-status'), 20);
 

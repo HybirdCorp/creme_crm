@@ -77,7 +77,6 @@ from creme.creme_core.utils.unicode_collation import collator
 
 from . import constants
 
-# _PAGE_SIZE = 20
 _PAGE_SIZE = 50
 User = get_user_model()
 WorldSettings = get_world_settings_model()
@@ -122,15 +121,6 @@ class GenericModelBrick(QuerysetBrick):
         displayable_fields = []
         is_reorderable = False
 
-        # for field in meta.fields:
-        #     fieldname = field.name.lower()
-        #
-        #     if fieldname == 'is_custom':
-        #         continue
-        #     elif fieldname == 'order':
-        #         is_reorderable = True
-        #     else:
-        #         displayable_fields.append(field)
         for field in meta.fields:
             if field.name == 'order':
                 is_reorderable = True
@@ -268,13 +258,6 @@ class SemiFixedRelationTypesBrick(_ConfigAdminBrick):
     template_name = 'creme_config/bricks/semi-fixed-relation-types.html'
 
     def detailview_display(self, context):
-        # btc = self.get_template_context(
-        #     context, SemiFixedRelationType.objects.all(),
-        # )
-        # CremeEntity.populate_real_entities(
-        #     [sfrt.object_entity for sfrt in btc['page'].object_list]
-        # )
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             SemiFixedRelationType.objects
@@ -472,8 +455,7 @@ class CustomFormsBrick(PaginatedBrick):
                 this.verbose_name = descriptor.verbose_name
                 this.items = sorted(
                     (
-                        # _ExtendedConfigItem(item=item, descriptor=descriptor)
-                        # for item in items
+
                         _ExtendedConfigItem(
                             item=item, descriptor=descriptor,
                             collapsed=(item.id not in expanded_items_id),
@@ -533,16 +515,12 @@ class CustomFormsBrick(PaginatedBrick):
     def detailview_display(self, context):
         user = context['user']
 
-        # expanded_ctype_id = BricksManager.get(context).get_state(
-        #     brick_id=self.id_, user=user,
-        # ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS)
         expanded_info = BricksManager.get(context).get_state(
             brick_id=self.id_, user=user,
         ).get_extra_data(constants.BRICK_STATE_SHOW_CFORMS_DETAILS) or {}
 
         return self._render(self.get_template_context(
             context,
-            # self.get_ctype_descriptors(user=user, expanded_ctype_id=expanded_ctype_id),
             self.get_ctype_descriptors(
                 user=user,
                 expanded_ctype_id=expanded_info.get('ctype'),
@@ -835,7 +813,6 @@ class CustomBricksConfigBrick(PaginatedBrick):
         return self._render(btc)
 
 
-# class MenuBrick(Brick):
 class MenuBrick(_ConfigAdminBrick):
     id_ = Brick.generate_id('creme_config', 'menu')
     verbose_name = _('Menu configuration')
@@ -846,11 +823,6 @@ class MenuBrick(_ConfigAdminBrick):
     menu_registry = menu_registry
 
     def detailview_display(self, context):
-        # return self._render(self.get_template_context(
-        #     context,
-        #     entries=self.menu_registry.get_entries(MenuConfigItem.objects.all()),
-        #     container_id=ContainerEntry.id,
-        # ))
         btc = self.get_template_context(
             context,
             UserRole.objects.exclude(menuconfigitem=None).order_by('name'),

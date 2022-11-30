@@ -49,8 +49,6 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
                 '</div>'
             ).template({
                 createUrl: options.createUrl,
-//                delegate: options.delegate,
-//                disabled: options.disabled ? 'disabled' : ''
                 delegate: options.delegate
             });
 

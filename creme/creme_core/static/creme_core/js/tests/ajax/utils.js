@@ -287,76 +287,6 @@ QUnit.test('creme.ajax.cookieCSRF', function(assert) {
     }
 });
 
-/*
-QUnit.parameterize('creme.ajax.json.send (deprecated alias)', [
-    [false, 'GET', {}, {sync: false, method: 'GET'}],
-    [false, 'GET', {sync: true}, {sync: true, method: 'GET'}],
-    [false, 'GET', {dataType: 'text'}, {sync: false, method: 'GET', dataType: 'text'}],
-    [true, 'POST', {dataType: 'text'}, {sync: true, method: 'POST', dataType: 'text'}]
-], function(isSync, method, options, expected, assert) {
-    var successCb = function() {};
-    var errorCb = function() {};
-
-    var faker = new FunctionFaker({
-        method: 'creme.ajax.jqueryAjaxSend'
-    });
-
-    faker.with(function() {
-        creme.ajax.json.send('mock/a', {a: 12}, successCb, errorCb, isSync, method, options);
-    });
-
-    deepEqual(faker.calls(), [
-        ['mock/a', {a: 12}, successCb, errorCb, expected]
-    ]);
-});
-*/
-
-/*
-QUnit.parameterize('creme.ajax.json.get (deprecated alias)', [
-    [false, {}, {sync: false, method: 'GET'}],
-    [false, {sync: true}, {sync: true, method: 'GET'}],
-    [false, {dataType: 'text'}, {sync: false, method: 'GET', dataType: 'text'}]
-], function(isSync, options, expected, assert) {
-    var successCb = function() {};
-    var errorCb = function() {};
-
-    var faker = new FunctionFaker({
-        method: 'creme.ajax.jqueryAjaxSend'
-    });
-
-    faker.with(function() {
-        creme.ajax.json.get('mock/a', {a: 12}, successCb, errorCb, isSync, options);
-    });
-
-    deepEqual(faker.calls(), [
-        ['mock/a', {a: 12}, successCb, errorCb, expected]
-    ]);
-});
-*/
-
-/*
-QUnit.parameterize('creme.ajax.json.post (deprecated alias)', [
-    [false, {}, {sync: false, method: 'POST'}],
-    [false, {sync: true}, {sync: true, method: 'POST'}],
-    [false, {dataType: 'text'}, {sync: false, method: 'POST', dataType: 'text'}]
-], function(isSync, options, expected, assert) {
-    var successCb = function() {};
-    var errorCb = function() {};
-
-    var faker = new FunctionFaker({
-        method: 'creme.ajax.jqueryAjaxSend'
-    });
-
-    faker.with(function() {
-        creme.ajax.json.post('mock/a', {a: 12}, successCb, errorCb, isSync, options);
-    });
-
-    deepEqual(faker.calls(), [
-        ['mock/a', {a: 12}, successCb, errorCb, expected]
-    ]);
-});
-*/
-
 QUnit.parameterize('creme.ajax.jqueryFormSubmit (url)', [
     ['', {}, {
         action: undefined
@@ -813,7 +743,7 @@ QUnit.test('creme.ajax.jqueryAjaxSend (no callback)', function(assert) {
         creme.ajax.jqueryAjaxSend('mock/a', {}, undefined, undefined, {});
     });
 
- // retrieve internal callbacks from the ajaxSubmit call
+    // retrieve internal callbacks from the ajaxSubmit call
     var ajaxCall = ajaxFaker.calls()[0][0];
     ok(Object.isFunc(ajaxCall.success));
     ok(Object.isFunc(ajaxCall.error));

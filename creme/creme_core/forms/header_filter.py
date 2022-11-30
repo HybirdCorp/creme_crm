@@ -19,7 +19,6 @@
 from __future__ import annotations
 
 import logging
-# import warnings
 from collections import defaultdict
 from copy import deepcopy
 from itertools import chain
@@ -328,13 +327,6 @@ class EntityCellRegularFieldsField(UniformEntityCellsField):
         for cell in self._non_hiddable_cells:
             if isinstance(cell, cell_class):
                 field_info = cell.field_info
-                # field = field_info[-1]
-                # non_hiddable_fnames[field.model].add(field.name)
-                #
-                # # BEWARE: if a sub-field (e.g. 'image__name') cannot be hidden,
-                # # the related field (e.g. 'image') cannot be hidden.
-                # if len(field_info) == 2:
-                #     non_hiddable_fnames[model].add(field_info[0].name)
                 length = len(field_info)
 
                 if length == 1:

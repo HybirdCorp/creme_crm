@@ -137,7 +137,6 @@ class ActionRegistrationError(Exception):
     pass
 
 
-# class VoidAction:
 class VoidAction(UIAction):
     """Specific Action class used internally to remove an UIAction
     for a specific model.

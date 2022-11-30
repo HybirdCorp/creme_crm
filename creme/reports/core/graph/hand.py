@@ -450,22 +450,13 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
 
             # Fill missing aggregate values and zip them with the date intervals
             for interval, value in sparsezip(intervals, aggregates, 0):
-                # range_label = '{}-{}'.format(
-                #     interval.begin.strftime('%d/%m/%Y'),
-                #     interval.end.strftime('%d/%m/%Y')
-                # )
                 range_label = '{}{}{}'.format(
                     interval.begin.strftime(label_fmt),
                     label_sep,
                     interval.end.strftime(label_fmt),
                 )
                 url = build_url({
-                    query_cmd: [
-                        # interval.before.strftime('%Y-%m-%d'),
-                        # interval.after.strftime('%Y-%m-%d'),
-                        interval.before,
-                        interval.after,
-                    ],
+                    query_cmd: [interval.before, interval.after],
                 })
 
                 yield range_label, [value, url]
@@ -498,10 +489,6 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
                 sub_entities = entities_filter(**{query_cmd: (before, after)})
 
                 yield (
-                    # '{}-{}'.format(
-                    #     interval.begin.strftime('%d/%m/%Y'),
-                    #     interval.end.strftime('%d/%m/%Y'),
-                    # ),
                     '{}{}{}'.format(
                         interval.begin.strftime(label_fmt),
                         label_sep,
@@ -510,12 +497,7 @@ class RGHRange(_DateRangeMixin, _RGHRegularField):
                     [
                         y_value_func(sub_entities),
                         build_url({
-                            query_cmd: [
-                                # before.strftime('%Y-%m-%d'),
-                                # after.strftime('%Y-%m-%d'),
-                                before,
-                                after,
-                            ],
+                            query_cmd: [before, after],
                         }),
                     ],
                 )
@@ -707,7 +689,6 @@ class RGHCustomDay(_RGHCustomField):
                 f'{value_rname}__value__month': date.month,
                 f'{value_rname}__value__day': date.day,
             },
-            # date_format='%d/%m/%Y',
             date_format=_generate_date_format(year=True, month=True, day=True),
             order=order,
             extra_q=extra_q,
@@ -729,7 +710,6 @@ class RGHCustomMonth(_RGHCustomField):
                 f'{value_rname}__value__year':  date.year,
                 f'{value_rname}__value__month': date.month,
             },
-            # date_format='%m/%Y',
             date_format=_generate_date_format(year=True, month=True),
             order=order,
             extra_q=extra_q,
@@ -749,7 +729,6 @@ class RGHCustomYear(_RGHCustomField):
             qdict_builder=lambda date: {
                 f'{value_rname}__value__year': date.year,
             },
-            # date_format='%Y',
             date_format=_generate_date_format(year=True),
             order=order,
             extra_q=extra_q
@@ -812,10 +791,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
             label_sep = '-' if '-' not in label_fmt else '/'
 
             for interval, value in sparsezip(intervals, aggregates, 0):
-                # range_label = '{}-{}'.format(
-                #     interval.begin.strftime('%d/%m/%Y'),
-                #     interval.end.strftime('%d/%m/%Y'),
-                # )
                 range_label = '{}{}{}'.format(
                     interval.begin.strftime(label_fmt),
                     label_sep,
@@ -823,12 +798,7 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 )
                 url = build_url({
                     f'{value_rname}__custom_field': cfield.id,
-                    f'{value_rname}__value__range': [
-                        # interval.before.strftime('%Y-%m-%d'),
-                        # interval.after.strftime('%Y-%m-%d'),
-                        interval.before,
-                        interval.after,
-                    ],
+                    f'{value_rname}__value__range': [interval.before, interval.after],
                 })
 
                 yield range_label, [value, url]
@@ -864,10 +834,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                 })
 
                 yield (
-                    # '{}-{}'.format(
-                    #     interval.begin.strftime('%d/%m/%Y'),
-                    #     interval.end.strftime('%d/%m/%Y'),
-                    # ),
                     '{}{}{}'.format(
                         interval.begin.strftime(label_fmt),
                         label_sep,
@@ -878,8 +844,6 @@ class RGHCustomRange(_DateRangeMixin, _RGHCustomField):
                         build_url({
                             f'{value_rname}__custom_field': cfield.id,
                             f'{value_rname}__value__range': [
-                                # before.strftime('%Y-%m-%d'),
-                                # after.strftime('%Y-%m-%d'),
                                 interval.before,
                                 interval.after,
                             ],

@@ -242,7 +242,6 @@ class _EnumerableRegistry:
         return res
 
     @staticmethod
-    # def _check_model(model: type[Model]) -> None:
     def _check_is_entity(model: type[Model]) -> None:
         # TODO: and registered as an entity ??
         if not issubclass(model, CremeEntity):

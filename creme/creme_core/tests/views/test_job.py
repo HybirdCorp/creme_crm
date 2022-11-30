@@ -4,7 +4,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.db.models import Max
 from django.test.utils import override_settings
 from django.urls import reverse
-# from django.utils.formats import date_format
 from django.utils.timezone import localtime, now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
@@ -285,9 +284,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             url,
             data={
-                # 'reference_run': date_format(
-                #     localtime(job.reference_run), 'DATETIME_FORMAT',
-                # ),
                 'reference_run': self.formfield_value_datetime(localtime(job.reference_run)),
                 'periodicity_0': 'minutes',
                 'periodicity_1': '180',
@@ -333,7 +329,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             job.get_edit_absolute_url(),
             data={
-                # 'reference_run': '26-08-2014 14:00:00',
                 'reference_run': self.formfield_value_datetime(
                     year=2014, month=8, day=26, hour=14,
                 ),
@@ -372,10 +367,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.client.post(
             job.get_edit_absolute_url(),
             data={
-                # 'reference_run': date_format(
-                #     localtime(job.reference_run),
-                #     'DATETIME_FORMAT',
-                # ),
                 'reference_run': self.formfield_value_datetime(localtime(job.reference_run)),
                 'periodicity_0': pdict['type'],
                 'periodicity_1': str(pdict['value']),
@@ -568,7 +559,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
         orga = FakeOrganisation.objects.create(user=user)
-        # jresult = EntityJobResult.objects.create(job=job, entity=orga)
         jresult = EntityJobResult.objects.create(job=job, real_entity=orga)
 
         del_url = self._build_delete_url(job)
@@ -585,7 +575,6 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         job = self._create_batchprocess_job(status=Job.STATUS_OK)
 
         orga = FakeOrganisation.objects.create(user=user)
-        # jresult = EntityJobResult.objects.create(job=job, entity=orga)
         jresult = EntityJobResult.objects.create(job=job, real_entity=orga)
 
         response = self.assertPOST200(

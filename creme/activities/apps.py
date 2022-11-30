@@ -61,17 +61,8 @@ class ActivitiesConfig(CremeAppConfig):
         )
 
     def register_bulk_update(self, bulk_update_registry):
-        # from .forms.activity_type import BulkEditTypeForm
         from .forms import bulk_update
 
-        # bulk_update_registry.register(
-        #     self.Activity,
-        #     exclude=('start', 'end', 'busy', 'is_all_day'),
-        #     innerforms={
-        #         'type':     BulkEditTypeForm,
-        #         'sub_type': BulkEditTypeForm,
-        #     },
-        # )
         bulk_update_registry.register(
             self.Activity
         ).add_overriders(
@@ -206,7 +197,6 @@ class ActivitiesConfig(CremeAppConfig):
         ).add_link(
             'activities-create_unavailability',
             label=_('Unavailability'),
-            # url=reverse('activities__create_indispo'),
             url=reverse('activities__create_unavailability'),
             perm=creation_perm,
             priority=25,

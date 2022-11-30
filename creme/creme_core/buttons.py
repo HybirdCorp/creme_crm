@@ -23,7 +23,6 @@ from .gui.button_menu import Button
 
 
 class Restrict2SuperusersButton(Button):
-    # id_ = Button.generate_id('creme_core', 'restrict_2_superusers')
     id = Button.generate_id('creme_core', 'restrict_2_superusers')
     verbose_name = _('Restrict to superusers')
     description = _(

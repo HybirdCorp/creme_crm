@@ -906,8 +906,6 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         "User is staff."
         self.login()
         other_user = User.objects.create(username='deunan', is_staff=True)
-        # self.assertPOST(400, self._build_activation_url(other_user.id, activation=True))
-        # self.assertPOST(400, self._build_activation_url(other_user.id, activation=False))
         response1 = self.client.post(self._build_activation_url(other_user.id, activation=True))
         self.assertContains(response1, _("You can't activate a staff user."), status_code=409)
 

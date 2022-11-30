@@ -29,7 +29,6 @@ from django.db import IntegrityError, models
 from django.db.models.query_utils import Q
 from django.db.transaction import atomic
 from django.dispatch import receiver
-# from django.http import Http404
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -377,33 +376,6 @@ class RelationType(CremeModel):
         super(RelationType, sym_type).delete(using=using)
         super().delete(using=using, keep_parents=keep_parents)
 
-    # @classmethod
-    # @atomic
-    # def create(
-    #         cls,
-    #         subject_desc: tuple,
-    #         object_desc: tuple,
-    #         is_custom: bool = False,
-    #         generate_pk: bool = False,
-    #         is_internal: bool = False,
-    #         is_copiable: Union[bool, Tuple[bool, bool]] = (True, True),
-    #         minimal_display: Tuple[bool, bool] = (False, False),
-    # ) -> Tuple['RelationType', 'RelationType']:
-    #     warnings.warn(
-    #         'RelationType.create() is deprecated; '
-    #         'use RelationType.objects.smart_update_or_create() instead.',
-    #         DeprecationWarning,
-    #     )
-    #     return cls.objects.smart_update_or_create(
-    #         subject_desc=subject_desc,
-    #         object_desc=object_desc,
-    #         is_custom=is_custom,
-    #         generate_pk=generate_pk,
-    #         is_internal=is_internal,
-    #         is_copiable=is_copiable,
-    #         minimal_display=minimal_display,
-    #     )
-
     # TODO: use the '/' (positional-only argument) in Python 3.8
     def is_compatible(self, *args) -> bool:
         """Can an instance of a given model be the subject of a Relation with this type.
@@ -419,21 +391,6 @@ class RelationType(CremeModel):
         """
         assert len(args) == 1
 
-        # subject_ctype_ids = frozenset(self.subject_ctypes.values_list('id', flat=True))
-        #
-        # arg = args[0]
-        # if isinstance(arg, ContentType):
-        #     ctype_id = arg.id
-        # elif isinstance(arg, type):
-        #     assert issubclass(arg, CremeEntity)
-        #
-        #     ctype_id = ContentType.objects.get_for_model(arg).id
-        # elif isinstance(arg, CremeEntity):
-        #     ctype_id = arg.entity_type_id
-        # else:
-        #     ctype_id = int(arg)
-        #
-        # return not subject_ctype_ids or ctype_id in subject_ctype_ids
         arg = args[0]
         if isinstance(arg, ContentType):
             ctype = arg
@@ -452,9 +409,6 @@ class RelationType(CremeModel):
 
     def is_not_internal_or_die(self) -> None:
         if self.is_internal:
-            # raise Http404(gettext(
-            #     "You can't add/delete the relationships with this type (internal type)"
-            # ))
             raise ConflictError(
                 gettext(
                     "You cannot add (or delete) relationships with the type "

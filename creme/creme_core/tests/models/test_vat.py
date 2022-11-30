@@ -33,7 +33,6 @@ class VatTestCase(CremeTestCase):
         self.assertFalse(vat02.is_default)
         self.assertTrue(vat02.is_custom)
 
-        # self.assertEqual(vat01, Vat.get_default_vat())
         self.assertEqual(vat01, Vat.objects.default())
 
     def test_create02(self):
@@ -46,7 +45,6 @@ class VatTestCase(CremeTestCase):
         vat02 = create_vat(value=Decimal('7.0'))
         self.assertFalse(self.refresh(vat01).is_default)
         self.assertTrue(self.refresh(vat02).is_default)
-        # self.assertEqual(vat02, Vat.get_default_vat())
         self.assertEqual(vat02, Vat.objects.default())
 
     def test_edit01(self):

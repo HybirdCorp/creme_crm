@@ -1,9 +1,5 @@
 {% load media %}
 * {
-{% comment %}
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-{% endcomment %}
   box-sizing: border-box;
 }
 

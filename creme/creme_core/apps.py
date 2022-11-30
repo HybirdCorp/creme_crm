@@ -330,7 +330,6 @@ class CremeAppConfig(AppConfig):
             self.register_merge_forms(merge.merge_form_registry)
             self.register_quickforms(quick_forms.quickforms_registry)
             self.register_reminders(reminder.reminder_registry)
-            # self.register_sanboxes(sandbox.sandbox_type_registry)
             self.register_sandboxes(sandbox.sandbox_type_registry)
             self.register_search_fields(listview.search_field_registry)
             self.register_setting_keys(setting_key.setting_key_registry)
@@ -406,7 +405,6 @@ class CremeAppConfig(AppConfig):
     def register_reminders(self, reminder_registry: 'ReminderRegistry') -> None:
         pass
 
-    # def register_sanboxes(self, sandbox_type_registry: '_SandboxTypeRegistry') -> None:
     def register_sandboxes(self, sandbox_type_registry: '_SandboxTypeRegistry') -> None:
         pass
 
@@ -503,11 +501,6 @@ class CremeCoreConfig(CremeAppConfig):
             bricks.JobsBrick,
             bricks.MyJobsBrick,
         )
-
-    # def register_bulk_update(self, bulk_update_registry):
-    #     from .models import CremeProperty
-    #
-    #     bulk_update_registry.register(CremeProperty, exclude=('type', 'creme_entity'))
 
     def register_buttons(self, button_registry):
         from . import buttons
@@ -627,7 +620,6 @@ class CremeCoreConfig(CremeAppConfig):
 
             config_registry.register_app_bricks('creme_core', fake_bricks.FakeAppPortalBrick)
 
-    # def register_sanboxes(self, sandbox_type_registry):
     def register_sandboxes(self, sandbox_type_registry):
         from . import sandboxes
 

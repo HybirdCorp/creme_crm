@@ -34,7 +34,6 @@ class AbstractSMSCampaign(CremeEntity):
         verbose_name=_('Related messaging lists'), blank=True,
     )
 
-    # creation_label = pgettext_lazy('sms', 'Create a campaign')
     creation_label = _('Create a SMS campaign')
     save_label     = pgettext_lazy('sms', 'Save the campaign')
 
@@ -70,7 +69,6 @@ class AbstractSMSCampaign(CremeEntity):
 
         super().delete(*args, **kwargs)
 
-    # def all_recipients(self):
     def all_phone_numbers(self):
         mlists = self.lists.filter(is_deleted=False)
 

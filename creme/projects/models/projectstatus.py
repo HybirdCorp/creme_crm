@@ -21,11 +21,9 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models.fields as core_fields
-# from creme.creme_core.models import CremeModel
 from creme.creme_core.models import MinionModel
 
 
-# class ProjectStatus(CremeModel):
 class ProjectStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     color_code = core_fields.ColorField(_('Color'), blank=True)

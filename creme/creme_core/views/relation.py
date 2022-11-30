@@ -162,34 +162,6 @@ class RelationsAdding(base.RelatedToEntityFormPopup):
             rtype.is_not_internal_or_die()
             rtype.is_enabled_or_die()
 
-            # if not rtype.is_compatible(subject_ctype):
-            #     raise ConflictError(
-            #         gettext(
-            #             'This type of relationship is not compatible with «{model}».'
-            #         ).format(model=subject_ctype)
-            #     )
-            #
-            # needed_property_types = [*rtype.subject_properties.all()]
-            # if needed_property_types:
-            #     subjects_prop_ids = {*subject.properties.values_list('type', flat=True)}
-            #     missing_ptypes = [
-            #         needed_ptype
-            #         for needed_ptype in needed_property_types
-            #         if needed_ptype.id not in subjects_prop_ids
-            #     ]
-            #
-            #     if missing_ptypes:
-            #         raise ConflictError(
-            #             ngettext(
-            #                 'This type of relationship needs an entity with '
-            #                 'this property: {properties}.',
-            #                 'This type of relationship needs an entity with '
-            #                 'these properties: {properties}.',
-            #                 number=len(missing_ptypes)
-            #             ).format(
-            #                 properties=', '.join(str(ptype) for ptype in missing_ptypes),
-            #             )
-            #         )
             try:
                 Relation(
                     # user=user,

@@ -1,6 +1,5 @@
 from datetime import date, datetime, timedelta
 from functools import partial
-# from json import dumps as json_dump
 from unittest import skipIf
 
 from django.contrib.contenttypes.models import ContentType
@@ -101,10 +100,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def _build_edit_activity_url(activity):
         return reverse('projects__edit_activity', args=(activity.id,))
 
-    # @staticmethod
-    # def _build_type_value(atype=ACTIVITYTYPE_TASK, sub_type=None):
-    #     return json_dump({'type': atype, 'sub_type': sub_type})
-
     def create_resource(self, task, contact, hourly_cost=100, error=False):
         response = self.client.post(
             self._build_add_resource_url(task),
@@ -123,7 +118,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def create_activity(self, resource,
                         start=date(2015, 5, 19), end=date(2015, 6, 3),
-                        # duration='8', atype=None, busy='', errors=False,
                         duration='8', sub_type_id=None, busy='', errors=False,
                         ):
         if not sub_type_id:
@@ -134,12 +128,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             follow=True,
             data={
                 'resource':      resource.linked_contact_id,
-                # 'start':         start,
-                # 'end':           end,
                 'start':         self.formfield_value_datetime(start),
                 'end':           self.formfield_value_datetime(end),
                 'duration':      duration,
-                # 'type_selector': atype or self._build_type_value(),
                 'type_selector': sub_type_id,
                 'user':          self.user.id,
                 'busy':          busy,
@@ -167,7 +158,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def create_project(self, name,
                        status=None,
-                       # start_date='2010-10-11', end_date='2010-12-31',
                        start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
                        ):
         status = status or ProjectStatus.objects.all()[0]
@@ -180,10 +170,8 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'name':         name,
                 'status':       status.id,
                 'currency':     currency.id,
-                # 'start_date':   start_date,
-                # 'end_date':     end_date,
-                'start_date': self.formfield_value_datetime(start_date),
-                'end_date':   end_date,
+                'start_date':   self.formfield_value_datetime(start_date),
+                'end_date':     end_date,
 
                 self.EXTRA_LEADERS_KEY: self.formfield_value_multi_creator_entity(manager),
             },
@@ -193,7 +181,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         return self.get_object_or_fail(Project, name=name), manager
 
     def create_task(self, project, title,
-                    # status=None, atype=ACTIVITYTYPE_TASK, sub_type=None,
                     status=None, sub_type_id=None,
                     ):
         if not sub_type_id:
@@ -205,13 +192,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'user':          self.user.id,
                 'title':         title,
-                # 'start':         '2010-10-11',
-                # 'end':           '2010-10-30',
                 'start':         self.formfield_value_date(2010, 10, 11),
                 'end':           self.formfield_value_date(2010, 10, 30),
                 'duration':      50,
                 'tstatus':       status.id,
-                # 'type_selector': self._build_type_value(atype, sub_type),
                 'type_selector': sub_type_id,
             },
         )
@@ -223,7 +207,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         status = ProjectStatus.objects.all()[0]
-        # project = self.create_project('Eva00', status, '2010-10-11', '2010-12-31')[0]
         project = self.create_project(
             'Eva00', status, start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
         )[0]
@@ -299,7 +282,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         name = 'Eva00'
         status = ProjectStatus.objects.all()[0]
-        # project, manager = self.create_project(name, status, '2010-10-11', '2010-12-31')
         project, manager = self.create_project(
             name, status, start_date=date(2010, 10, 11), end_date=date(2010, 12, 31),
         )
@@ -348,8 +330,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':         user.pk,
                 'name':         'Eva00',
                 'status':       ProjectStatus.objects.all()[0].id,
-                # 'start_date':   '2011-10-11',
-                # 'end_date':     '2011-12-31',
                 'start_date':   self.formfield_value_date(2011, 10, 11),
                 'end_date':     self.formfield_value_date(2011, 12, 31),
 
@@ -374,8 +354,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 'user':         user.pk,
                 'name':         'Eva00',
                 'status':       ProjectStatus.objects.all()[0].id,
-                # 'start_date':   '2012-2-16',
-                # 'end_date':     '2012-2-15',
                 'start_date':   self.formfield_value_date(2012, 2, 16),
                 'end_date':     self.formfield_value_date(2012, 2, 15),
 
@@ -422,7 +400,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def test_listview_instance_actions_closed(self):
         user = self.login()
-        # project = self.create_project('Eva00', start_date='2012-2-16', end_date='2012-3-26')[0]
         project = self.create_project(
             'Eva00', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
         )[0]
@@ -451,23 +428,14 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
     def test_project_inner_edit01(self):
         self.login()
 
-        # project = self.create_project('Eva01', start_date='2012-2-16', end_date='2012-3-26')[0]
         project = self.create_project(
             'Eva01', start_date=date(2012, 2, 16), end_date=date(2012, 3, 26),
         )[0]
-        # url = self.build_inneredit_url(project, 'start_date')
         uri = self.build_inneredit_uri(project, 'start_date')
-        # self.assertGET200(url)
         self.assertGET200(uri)
 
         self.assertNoFormError(self.client.post(
-            # url,
-            uri,
-            data={
-                # 'entities_lbl': [str(project)],
-                # 'field_value':  '2012-3-4',
-                'start_date':  self.formfield_value_date(2012, 3, 4),
-            },
+            uri, data={'start_date':  self.formfield_value_date(2012, 3, 4)},
         ))
         self.assertEqual(
             self.create_datetime(year=2012, month=3, day=4),
@@ -479,15 +447,11 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         project = self.create_project(
-            # 'Eva01', start_date='2012-02-20', end_date='2012-03-25',
             'Eva01', start_date=date(2012, 2, 20), end_date=date(2012, 3, 25),
         )[0]
         response = self.assertPOST200(
-            # self.build_inneredit_url(project, 'start_date'),
             self.build_inneredit_uri(project, 'start_date'),
             data={
-                # 'entities_lbl': [str(project)],
-                # 'field_value':  '2012-03-27',  # <= after end_date
                 'start_date': date(2012, 3, 27),  # <= after end_date
             },
         )
@@ -532,8 +496,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={
                     'user':     user.id,
                     'title':    title,
-                    # 'start':    '2010-10-11 15:00',
-                    # 'end':      '2010-10-11 17:00',
                     'start':    dt_value(year=2010, month=10, day=11, hour=15),
                     'end':      dt_value(year=2010, month=10, day=11, hour=17),
                     'duration': duration,
@@ -565,8 +527,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    'torso',
-                # 'start':    '2010-10-11 17:01',
-                # 'end':      '2010-10-11 17:30',
                 'start':    dt_value(year=2010, month=10, day=11, hour=17, minute=1),
                 'end':      dt_value(year=2010, month=10, day=11, hour=17, minute=30),
                 'duration': duration_2,
@@ -612,8 +572,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    'head',
-                # 'start':    '2010-10-11',
-                # 'end':      '2010-10-30',
                 'start':    self.formfield_value_date(2010, 10, 11),
                 'end':      self.formfield_value_date(2010, 10, 30),
                 'duration': 50,
@@ -623,7 +581,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            # response, 'form', self.EXTRA_PARENTTASKS_KEY, _('This entity does not exist.'),
             response, 'form', self.EXTRA_PARENTTASKS_KEY,
             _('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
@@ -670,8 +627,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    title,
-                # 'start':    '2011-5-16',
-                # 'end':      '2012-6-17',
                 'start':    self.formfield_value_date(2011, 5, 16),
                 'end':      self.formfield_value_date(2012, 6, 17),
                 'duration': duration,
@@ -709,8 +664,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={
                 'user':     user.id,
                 'title':    title,
-                # 'start':    '2011-5-16',
-                # 'end':      '2012-6-17',
                 'start':    self.formfield_value_date(2011, 5, 16),
                 'end':      self.formfield_value_date(2012, 6, 17),
                 'duration': duration,
@@ -764,7 +717,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
                 url,
                 data={'parents': self.formfield_value_multi_creator_entity(task02)},
             ),
-            # 'form', 'parents', _('This entity does not exist.'),
             'form', 'parents', _('«%(entity)s» violates the constraints.') % {'entity': task02},
         )
 
@@ -784,7 +736,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'parents': self.formfield_value_multi_creator_entity(task01)},
         )
         self.assertFormError(
-            # response, 'form', 'parents', _('This entity does not exist.'),
             response, 'form', 'parents',
             _('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
@@ -816,7 +767,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.client.post(
             build_url(task01), data={'parents': field_value(task03)},
         )
-        # self.assertFormError(response, 'form', 'parents', _('This entity does not exist.'))
         self.assertFormError(
             response, 'form', 'parents',
             _('«%(entity)s» violates the constraints.') % {'entity': task03},
@@ -829,7 +779,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         task = self.create_task(project, 'Title')
 
         self.assertEqual(50, task.duration)
-        # self.assertEqual(50, task.safe_duration)
 
         self.assertEqual(0, task.get_effective_duration())
         self.assertEqual(0, task.get_effective_duration('%'))
@@ -885,7 +834,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         atype = ACTIVITYTYPE_MEETING
         stype = ACTIVITYSUBTYPE_MEETING_MEETING
-        # self.create_activity(resource, duration='8', atype=self._build_type_value(atype, stype))
         self.create_activity(resource, duration='8', sub_type_id=stype)
 
         activity = self.get_object_or_fail(Activity, title='Eva02 - legs - 001')
@@ -983,13 +931,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             url, follow=True,
             data={
                 'resource':      worker.id,
-                # 'start':         '2010-10-11',
-                # 'end':           '2010-10-12',
                 'start':         self.formfield_value_date(2010, 10, 11),
                 'end':           self.formfield_value_date(2010, 10, 12),
                 'duration':      10,
                 'user':          user.id,
-                # 'type_selector': self._build_type_value(),
                 'type_selector': activity.sub_type_id,
             },
         )
@@ -1030,7 +975,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.create_resource(task, worker)
         resource = task.resources_set.all()[0]
 
-        # self.create_activity(resource, '2010-10-11 15:00', '2010-10-11 17:00', busy='on')
         self.create_activity(
             resource,
             start=datetime(year=2010, month=10, day=11, hour=15),
@@ -1041,7 +985,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTrue(act1.busy)
 
         response = self.create_activity(
-            # resource, '2010-10-11 16:59', '2010-10-11 17:30', busy='on', errors=True,
             resource,
             start=datetime(year=2010, month=10, day=11, hour=16, minute=59),
             end=datetime(year=2010, month=10, day=11, hour=17, minute=30),
@@ -1077,13 +1020,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         data = {
             'resource':      worker1.id,
-            # 'start':         '2015-05-21',
-            # 'end':           '2015-05-22',
             'start':        self.formfield_value_date(2015, 5, 21),
             'end':          self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            # 'type_selector': self._build_type_value(),
             'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
@@ -1128,13 +1068,10 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         data = {
             'resource':      worker1.id,
-            # 'start':         '2015-05-21',
-            # 'end':           '2015-05-22',
             'start':         self.formfield_value_date(2015, 5, 21),
             'end':           self.formfield_value_date(2015, 5, 22),
             'duration':      10,
             'user':          user.id,
-            # 'type_selector': self._build_type_value(),
             'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
         }
         self.client.post(self._build_add_activity_url(task), follow=True, data=data)
@@ -1180,24 +1117,19 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         resources = [*task1.resources_set.all()]
         self.assertEqual(1, len(resources))
-        # resource1 = resources[0]
 
         response = self.assertPOST200(
             self._build_add_activity_url(task2), follow=True,
             data={
                 'resource':      worker.id,
-                # 'start':         '2016-05-19',
-                # 'end':           '2016-06-03',
                 'start':         self.formfield_value_date(2016, 5, 19),
                 'end':           self.formfield_value_date(2016, 6,  3),
                 'duration':      8,
-                # 'type_selector': self._build_type_value(),
                 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
                 'user':          user.id,
             },
         )
         self.assertFormError(
-            # response, 'form', 'resource', _('This entity does not exist.'),
             response, 'form', 'resource',
             _('«%(entity)s» violates the constraints.') % {'entity': worker},
         )
@@ -1240,18 +1172,14 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             follow=True,
             data={
                 'resource':      contact.id,
-                # 'start':         '2020-09-14',
-                # 'end':           '2020-12-31',
                 'start':         self.formfield_value_date(2020,  9, 14),
                 'end':           self.formfield_value_date(2020, 12, 31),
                 'duration':      100,
                 'user':          user.id,
-                # 'type_selector': self._build_type_value(),
                 'type_selector': ACTIVITYSUBTYPE_MEETING_MEETING,
             },
         )
         self.assertFormError(
-            # response, 'form', 'resource', _('This entity does not exist.'),
             response, 'form', 'resource',
             _('«%(entity)s» violates the constraints.') % {'entity': contact},
         )
@@ -1655,8 +1583,6 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.create_resource(task, worker)
         resource = task.get_resources()[0]
 
-        # self.create_activity(resource, '2015-05-20', '2015-05-21')
-        # self.create_activity(resource, '2015-05-22', '2015-05-23')
         self.create_activity(resource, start=date(2015, 5, 20), end=date(2015, 5, 21))
         self.create_activity(resource, start=date(2015, 5, 22), end=date(2015, 5, 23))
         self.assertCountEqual(

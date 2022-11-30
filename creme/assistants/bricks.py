@@ -16,8 +16,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-# from collections import defaultdict
-# from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.gui.bricks import BricksManager, QuerysetBrick
@@ -27,23 +25,6 @@ from .models import Action, Alert, Memo, ToDo, UserMessage
 
 
 class _AssistantsBrick(QuerysetBrick):
-    # @staticmethod
-    # def _populate_related_real_entities(assistants):
-    #     assistants = [assistant for assistant in assistants if assistant.entity_id]
-    #     entities_ids_by_ct = defaultdict(set)
-    #
-    #     for assistant in assistants:
-    #         entities_ids_by_ct[assistant.entity_content_type_id].add(assistant.entity_id)
-    #
-    #     entities_map = {}
-    #     get_ct = ContentType.objects.get_for_id
-    #
-    #     for ct_id, entities_ids in entities_ids_by_ct.items():
-    #         entities_map.update(get_ct(ct_id).model_class().objects.in_bulk(entities_ids))
-    #
-    #     for assistant in assistants:
-    #         assistant.creme_entity = entities_map[assistant.entity_id]
-
     def _get_queryset_for_detailview(self, entity, context):
         """OVERRIDE ME"""
         pass
@@ -60,18 +41,11 @@ class _AssistantsBrick(QuerysetBrick):
 
         # NB: optimisation ; it avoids the retrieving of the entity during template rendering.
         for assistant in btc['page'].object_list:
-            # assistant.creme_entity = entity
             assistant.real_entity = entity
 
         return self._render(btc)
 
     def home_display(self, context):
-        # btc = self.get_template_context(
-        #     context, self._get_queryset_for_home(context),
-        # )
-        # self._populate_related_real_entities(btc['page'].object_list)
-        #
-        # return self._render(btc)
         return self._render(self.get_template_context(
             context,
             self._get_queryset_for_home(context).prefetch_related('real_entity'),

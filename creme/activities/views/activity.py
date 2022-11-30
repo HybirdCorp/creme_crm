@@ -33,10 +33,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
-# from creme.creme_core.auth.decorators import (
-#     login_required,
-#     permission_required,
-# )
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.http import CremeJsonResponse
@@ -49,7 +45,6 @@ from creme.persons import get_contact_model
 from .. import constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
-# from ..utils import get_ical
 from ..utils import ICalEncoder
 
 Activity = get_activity_model()
@@ -86,7 +81,6 @@ class ActivityCreation(generic.EntityCreation):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        # kwargs['activity_type_id'] = self.type_id
 
         type_id = self.type_id
         if type_id:
@@ -299,22 +293,6 @@ class MeetingsList(TypedActivitiesList):
     internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
 
 
-# @login_required
-# @permission_required('activities')
-# def download_ical(request):
-#     act_ids = request.GET.getlist('id')
-#
-#     activities = EntityCredentials.filter(
-#         queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
-#     )
-#
-#     return HttpResponse(
-#         get_ical(activities),
-#         headers={
-#             'Content-Type': 'text/calendar',
-#             'Content-Disposition': 'attachment; filename="Calendar.ics"',
-#         },
-#     )
 class ICalExport(base.CheckedView):
     permissions = 'activities'
     id_arg = 'id'

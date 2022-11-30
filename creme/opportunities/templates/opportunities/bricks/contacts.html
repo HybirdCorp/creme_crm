@@ -28,7 +28,6 @@
 
 {% block brick_table_columns %}
     {% brick_table_column title=_('Name') status='primary nowrap' %}
-{#    {% brick_table_column title=_('Unlink') status='action' %} #}
     {% for cell in cells %}
     {% brick_table_column_for_cell cell=cell %}
     {% endfor %}

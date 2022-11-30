@@ -1,6 +1,6 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
 {% load i18n creme_cells creme_widgets creme_bricks %}
-{% load and_op has_perm_to inner_edition_uri url_join from creme_core_tags %}{# print_field #}
+{% load and_op has_perm_to inner_edition_uri url_join from creme_core_tags %}
 
 {% block brick_header_actions %}
     {% if relation_type.enabled %}
@@ -24,19 +24,6 @@
 {% block brick_table_columns %}
     {% brick_table_column title=_('Name') status='primary nowrap' %}{# {% brick_table_column_for_field ctype=objects_ctype field='headerfilter_search... #}
 
-{% comment %}
-    {% if 'phone' not in hidden_fields %}
-    {% brick_table_column_for_field ctype=objects_ctype field='phone' %}
-    {% endif %}
-
-    {% if 'mobile' not in hidden_fields %}
-    {% brick_table_column_for_field ctype=objects_ctype field='mobile' %}
-    {% endif %}
-
-    {% if 'email' not in hidden_fields %}
-    {% brick_table_column_for_field ctype=objects_ctype field='email' %}
-    {% endif %}
-{% endcomment %}
     {% for cell in cells %}
     {% brick_table_column_for_cell cell=cell %}
     {% endfor %}
@@ -49,17 +36,6 @@
     {% for people in page.object_list %}
     <tr>{% has_perm_to view people as people_view_perm %}
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink people user %}</td>
-{% comment %}
-        {% if 'phone' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='phone' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
-        {% endif %}
-        {% if 'mobile' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="phone">{% print_field object=people field='mobile' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
-        {% endif %}
-        {% if 'email' not in hidden_fields %}
-            {% if people_view_perm %}<td data-type="email">{% print_field object=people field='email' %}</td>{% else %}<td>{{HIDDEN_VALUE}}</td>{% endif %}
-        {% endif %}
-{% endcomment %}
         {% if people_view_perm %}
           {% for cell in cells %}
             <td {% if cell.data_type %}data-type="{{cell.data_type}}"{% endif %}>{% cell_render cell=cell instance=people user=user as cell_content %}

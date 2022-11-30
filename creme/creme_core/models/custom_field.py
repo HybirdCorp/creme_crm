@@ -310,7 +310,6 @@ class CustomFieldFloat(CustomFieldValue):
     # TODO: factorise with gui.field_printers
     def __str__(self):
         value = self.value
-        # return number_format(value, use_l10n=True) if value else ''
         return number_format(value) if value else ''
 
     @staticmethod

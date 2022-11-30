@@ -607,10 +607,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         )
         self.assertFormError(
             response1, 'form', 'fixed_relations',
-            # _(
-            #     'This entity has no property that matches the constraints of '
-            #     'the type of relationship.'
-            # ),
             Relation.error_messages['missing_subject_property'] % {
                 'entity': nerv,
                 'property': ptype,
@@ -871,13 +867,6 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertEqual(1, len(results))
         self.assertListEqual(
             [
-                # _(
-                #     'The entity has no property «{property}» which is '
-                #     'mandatory for the relationship «{predicate}»'
-                # ).format(
-                #     property=ptype.text,
-                #     predicate=employed.predicate,
-                # ),
                 Relation.error_messages['missing_subject_property'] % {
                     'entity': rei,
                     'predicate': employed.predicate,

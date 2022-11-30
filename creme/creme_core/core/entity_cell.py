@@ -289,21 +289,6 @@ class EntityCellsRegistry:
 
         try:
             for dict_cell in dicts:
-                # try:
-                #     cell = self._cell_classes[dict_cell['type']].build(
-                #         model, dict_cell['value'],
-                #     )
-                #
-                #     if cell is not None:
-                #         cells.append(cell)
-                #     else:
-                #         errors = True
-                # except Exception:
-                #     logger.exception(
-                #         'EntityCellsRegistry.build_cells_from_dicts(): data=%s',
-                #         dict_cell,
-                #     )
-                #     errors = True
                 cell = self.build_cell_from_dict(model, dict_cell)
 
                 if cell is not None:

@@ -18,39 +18,11 @@
 
 from django.utils.translation import gettext as _
 
-# from creme.creme_core.forms.bulk import BulkForm
 from creme.creme_core.gui.bulk_update import FieldOverrider
 
 from .fields import SubCategoryField
 
 
-# class ProductInnerEditCategory(BulkForm):
-#     sub_category = CategoryField(label=_('Sub-category'))
-#
-#     def __init__(self, model, field, user=None, entities=(), is_bulk=False, **kwargs):
-#         super().__init__(model, field, user, entities, is_bulk, **kwargs)
-#
-#         if not is_bulk:
-#             self.fields['sub_category'].initial = entities[0].sub_category
-#
-#     def clean(self):
-#         cleaned_data = super().clean()
-#
-#         if self.errors:
-#             return cleaned_data
-#
-#         sub_category = cleaned_data['sub_category']
-#
-#         self._bulk_clean({
-#             'category': sub_category.category,
-#             'sub_category': sub_category,
-#         })
-#
-#         return cleaned_data
-#
-#     def save(self, *args, **kwargs):
-#         for entity in self.entities:
-#             entity.save()
 class CategoryOverrider(FieldOverrider):
     field_names = ['category', 'sub_category']
 

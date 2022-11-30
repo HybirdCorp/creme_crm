@@ -106,23 +106,15 @@ class LinkedDocsBrick(QuerysetBrick):
 
     def detailview_display(self, context):
         entity = context['object']
-        # rtype_id = self.relation_type_deps[0]
         rtype = RelationType.objects.get(id=self.relation_type_deps[0])
         btc = self.get_template_context(
             context,
             Relation.objects
                     .filter(subject_entity=entity.id, type=rtype)
                     .prefetch_related('real_object'),
-            # predicate_id=rtype_id,
             relation_type=rtype,
         )
-        # relations = btc['page'].object_list
-        # docs = Document.objects.filter(
-        #     pk__in=[r.object_entity_id for r in relations],
-        # ).select_related('linked_folder').in_bulk()
-        #
-        # for relation in relations:
-        #     relation.object_entity = docs[relation.object_entity_id]
+
         # TODO: assert only Documents?
         # TODO: method which prefetch all related needed by __str__()?
         prefetch_related_objects(
