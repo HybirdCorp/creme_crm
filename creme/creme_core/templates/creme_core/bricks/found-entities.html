@@ -38,7 +38,7 @@ search-count="{{page.paginator.count}}"
     {% endif %}
     {% for cell in cells %}
         <td class="advanced-search-result">{% cell_render cell=cell instance=entity user=user as cell_content %}
-            {% if cell_content %}{{cell_content}}{% else %}<span class="empty-field">—</span>{% endif %}
+            {% if cell_content %}{% if entity.is_deleted %}<div class="is_deleted">{{cell_content}}</div>{% else %}{{cell_content}}{% endif %}{% else %}<span class="empty-field">—</span>{% endif %}
         </td>
     {% endfor %}
     </tr>

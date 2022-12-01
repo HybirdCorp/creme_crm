@@ -31,10 +31,12 @@
 {% endblock %}
 
 {% block card_secondary %}
-{% with managers_count=managers|length employees_count=employees|length %}
+{# {% with managers_count=managers|length employees_count=employees|length %} #}
 {% with total_count=managers_count|add:employees_count %}
-    <div class="card-employees{% if total_count > 3 and total_count < 15 %} card-employees-wide{% endif %}">
-    {% if total_count >= 15 %}
+{#    <div class="card-employees{% if total_count > 3 and total_count < 15 %} card-employees-wide{% endif %}"> #}
+    <div class="card-employees{% if total_count > 3 and total_count < max_contacts %} card-employees-wide{% endif %}">
+{#    {% if total_count >= 15 %} #}
+    {% if total_count >= max_contacts %}
         <span class="card-function">
         {% if managers_count %}{% blocktranslate count count=managers_count %}{{count}} Manager{% plural %}{{count}} Managers{% endblocktranslate %}{% endif %}
         {% if managers_count and employees_count %}, {% endif %}
@@ -56,7 +58,8 @@
         {% endfor %}
     {% endif %}
     </div>
-{% endwith %}{% endwith %}
+{# {% endwith %} #}
+{% endwith %}
 {% endblock %}
 
 {% block card_fields_title %}

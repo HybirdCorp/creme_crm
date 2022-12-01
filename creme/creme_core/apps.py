@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2021  Hybird
+#    Copyright (C) 2015-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -626,9 +626,11 @@ class CremeCoreConfig(CremeAppConfig):
             register_model(fake_models.FakeTicketStatus,     'fake_ticket_status')
             register_model(fake_models.FakeTicketPriority,   'fake_ticket_priority')
             register_model(fake_models.FakeIngredient,       'fake_ingredient')
+            register_model(fake_models.FakeSkill,            'fake_skill')
+            register_model(fake_models.FakeTraining,         'fake_training')
 
             # NB: we just need another URLs for creation/edition/deletion
-            # (even if these ones are stupid)
+            # (even if these are stupid)
             register_model(
                 fake_models.FakePosition, 'fake_position',
             ).creation(

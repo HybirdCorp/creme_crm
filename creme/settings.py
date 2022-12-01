@@ -103,12 +103,12 @@ MAX_USER_JOBS = 5
 
 # 'security' period for pseudo-periodic jobs : they will be run at least with
 # this periodicity, even if they do not receive a new request (in order to reduce
-# the effects of an hypothetical redis problem).
+# the effects of a hypothetical redis problem).
 PSEUDO_PERIOD = 1  # In hours
 
 # Broker's URL (communication between the views and the job scheduler)
 # It's a URL which starts by "type://".
-# Currently there are 2 queue types:
+# Currently, there are 2 queue types:
 #  - Redis (type: "redis"):
 #     It needs a Redis server to be launched, and the python package "redis".
 #     It's multi-platform & distributed, so it's currently the default choice.
@@ -403,7 +403,7 @@ INSTALLED_CREME_APPS = [
     #   - Act (commercial actions), which are used to define some goals to reach
     #     (eg: a minimum number of people met on a show).
     #   - Strategy to study market segments, assets & charms.
-    # BEWARE: needs the apps "activities & "opportunities".
+    # BEWARE: needs the apps "activities" & "opportunities".
     'creme.commercial',
 
     # Manages the Events entities, which represents shows/conferences/... where
@@ -431,7 +431,7 @@ INSTALLED_CREME_APPS = [
     'creme.projects',
 
     # Manages Tickets entities, which notably have a status (open, closed...)
-    # & a priority (low, high...). They are often used to manages issues
+    # & a priority (low, high...). They are often used to manage issues
     # encountered by customers.
     'creme.tickets',
 
@@ -574,7 +574,7 @@ LOGGING_CONSOLE_HANDLER = {
 }
 
 # In order to enable logging into a file you can use the following configuration ;
-# it's a improvement of TimedRotatingFileHandler because
+# it's an improvement of TimedRotatingFileHandler because
 #   - it compresses log file each day in order to save some space
 #   - the "filename" create the directories in path if they do not exist,
 #     & expand the user directory
@@ -1149,9 +1149,9 @@ COPY_MEDIA_FILETYPES = {
 # If you change a <APP>_<MODEL>_MODEL setting (eg: PERSONS_CONTACT_MODEL) in order
 # to use your own model class (eg: 'my_persons.Contact') :
 #   - It will be easier to inherit the corresponding abstract class
-#     (eg: persons.model.AbstractContact).
-#   - you should keep the same class name (eg: 'my_persons.Contact' replaces
-#     'persons.Contact') in order to avoids problems (mainly with related_names).
+#     (e.g. persons.model.AbstractContact).
+#   - you should keep the same class name (e.g. 'my_persons.Contact' replaces
+#     'persons.Contact') in order to avoid problems (mainly with related_names).
 #   - You have to manage the migrations of your model
 #     (see the django command 'makemigrations').
 #   - In your file my_app.urls.py, you have to define the URLs which are only

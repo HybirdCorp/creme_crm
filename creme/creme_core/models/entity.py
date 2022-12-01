@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -187,14 +187,14 @@ class CremeEntity(CremeModel):
     def get_create_absolute_url() -> str:
         """Returns the url of the creation view of this entity type.
         If '' (void string) is returned, the type can not be created directly.
-        eg: return "/my_app/my_model/add"
+        Example: return reverse("my_app__create_mymodel")
         """
         return ''
 
     def get_edit_absolute_url(self) -> str:
         """Returns the url of the edition view for this instance.
         If '' (void string) is returned, the model can not be edited directly.
-        eg: return "/my_app/my_model/edit/%s" % self.id
+        Example: return reverse('my_app__edit_mymodel', args=(self.id,))
         """
         return ''
 

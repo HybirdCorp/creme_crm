@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -254,6 +254,8 @@ class OrganisationCardHatBrick(Brick):
     ]
     template_name = 'persons/bricks/organisation-hat-card.html'
 
+    max_related_contacts = 15
+
     def detailview_display(self, context):
         organisation = context['object']
         user = context['user']
@@ -261,6 +263,20 @@ class OrganisationCardHatBrick(Brick):
 
         get_fconfigs = context['fields_configs'].get_for_model
         is_hidden = get_fconfigs(Organisation).is_fieldname_hidden
+
+        max_contacts = self.max_related_contacts
+
+        def retrieve_contacts_n_count(qs):
+            qs = EntityCredentials.filter(user, qs)
+            contacts = qs[:max_contacts]
+            count = len(contacts)
+            if count == max_contacts:
+                count = qs.count()
+
+            return contacts, count
+
+        managers, managers_count = retrieve_contacts_n_count(organisation.get_managers())
+        employees, employees_count = retrieve_contacts_n_count(organisation.get_employees())
 
         return self._render(self.get_template_context(
             context,
@@ -280,8 +296,13 @@ class OrganisationCardHatBrick(Brick):
                 relations__object_entity=organisation.id,
             ).exists(),
 
-            managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
-            employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
+            # managers=EntityCredentials.filter(user, organisation.get_managers())[:16],
+            # employees=EntityCredentials.filter(user, organisation.get_employees())[:16],
+            max_contacts=max_contacts,
+            managers=managers,
+            managers_count=managers_count,
+            employees=employees,
+            employees_count=employees_count,
 
             activities=Activities4Card.get(context, organisation),
             opportunities=Opportunities4Card.get(context, organisation),
