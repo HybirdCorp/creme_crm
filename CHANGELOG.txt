@@ -1,7 +1,5 @@
 == Version 2.3.8 Work in progress (not released -- this is a draft) ==
 
-  TODO: compile messages (billing)
-
   UPGRADE NOTE :
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
