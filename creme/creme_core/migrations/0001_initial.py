@@ -1286,4 +1286,49 @@ class Migration(migrations.Migration):
                 },
                 bases=(models.Model,),
             ),
+            migrations.CreateModel(
+                name='FakeSkill',
+                fields=[
+                    (
+                        'id',
+                        models.AutoField(
+                            primary_key=True, verbose_name='ID',
+                            serialize=False, auto_created=True,
+                        )
+                    ),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Skill',
+                    'verbose_name_plural': 'Test Skills',
+                },
+                bases=(models.Model,),
+            ),
+            migrations.CreateModel(
+                name='FakeTraining',
+                fields=[
+                    (
+                        'id',
+                        models.AutoField(
+                            primary_key=True, verbose_name='ID',
+                            serialize=False, auto_created=True,
+                        )
+                    ),
+                    ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    (
+                        'skills',
+                        models.ManyToManyField(
+                            to='creme_core.FakeSkill', verbose_name='Skills',
+                            related_name='training', blank=True,
+                        )
+                    ),
+                ],
+                options={
+                    'ordering': ('name',),
+                    'verbose_name': 'Test Training',
+                    'verbose_name_plural': 'Test Training',
+                },
+                bases=(models.Model,),
+            ),
         ])

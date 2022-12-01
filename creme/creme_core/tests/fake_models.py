@@ -45,6 +45,7 @@ else:
         'FakeTicketStatus', 'FakeTicketPriority', 'FakeTicket',
         'FakeIngredient', 'FakeRecipe',
         'FakeTodo',
+        'FakeSkill', 'FakeTraining',
     )
 
     class FakeFolderCategory(CremeModel):
@@ -827,3 +828,24 @@ else:
         # @property
         # def to_be_reminded(self):
         #     return self.deadline and not self.is_ok and not self.reminded
+
+    class FakeSkill(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+
+        class Meta:
+            app_label = 'creme_core'
+            ordering = ('name',)
+            verbose_name = 'Test Skill'
+            verbose_name_plural = 'Test Skills'
+
+    class FakeTraining(CremeModel):
+        name = models.CharField(_('Name'), max_length=100)
+        skills = models.ManyToManyField(
+            FakeSkill, verbose_name='Skills', blank=True, related_name='training',
+        )
+
+        class Meta:
+            app_label = 'creme_core'
+            ordering = ('name',)
+            verbose_name = 'Test Training'
+            verbose_name_plural = 'Test Training'

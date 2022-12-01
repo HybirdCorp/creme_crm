@@ -2,6 +2,7 @@
 
 from decimal import Decimal
 from functools import partial
+from json import dumps as json_dump
 
 from django.urls import reverse
 from django.utils.translation import gettext as _
@@ -52,27 +53,49 @@ class ProductTestCase(_ProductsTestCase):
         url = reverse('products__create_product')
         self.assertGET200(url)
 
+        # ----
         name = 'Eva00'
         code = 42
         sub_cat = SubCategory.objects.all()[0]
         cat = sub_cat.category
         description = 'A fake god'
         unit_price = '1.23'
-        response = self.client.post(
+        data = {
+            'user': user.pk,
+            'name': name,
+            'code': code,
+            'description': description,
+            'unit_price': unit_price,
+            'unit': 'anything',
+        }
+        response2 = self.assertPOST200(
             url,
             follow=True,
             data={
-                'user':         user.pk,
-                'name':         name,
-                'code':         code,
-                'description':  description,
-                'unit_price':   unit_price,
-                'unit':         'anything',
+                **data,
+
+                self.EXTRA_CATEGORY_KEY: json_dump({
+                    'category': cat.id, 'subcategory': None,
+                }),
+            },
+        )
+        self.assertFormError(
+            response2, 'form', self.EXTRA_CATEGORY_KEY,
+            _('This field is required.'),
+        )
+
+        # ----
+        response3 = self.client.post(
+            url,
+            follow=True,
+            data={
+                **data,
+
                 # 'sub_category': self._cat_field(cat, sub_cat),
                 self.EXTRA_CATEGORY_KEY: self._cat_field(cat, sub_cat),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         products = Product.objects.all()
         self.assertEqual(1, len(products))
@@ -85,9 +108,9 @@ class ProductTestCase(_ProductsTestCase):
         self.assertEqual(cat,                 product.category)
         self.assertEqual(sub_cat,             product.sub_category)
 
-        self.assertRedirects(response, product.get_absolute_url())
-        self.assertTemplateUsed(response, 'products/view_product.html')
-        self.assertTemplateUsed(response, 'products/bricks/images.html')
+        self.assertRedirects(response3, product.get_absolute_url())
+        self.assertTemplateUsed(response3, 'products/view_product.html')
+        self.assertTemplateUsed(response3, 'products/bricks/images.html')
 
     @skipIfCustomProduct
     def test_createview02(self):

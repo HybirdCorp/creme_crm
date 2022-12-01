@@ -31,9 +31,11 @@ from creme.creme_core.models import (
     FakeProduct,
     FakeProductType,
     FakeSector,
+    FakeSkill,
     FakeTicket,
     FakeTicketPriority,
     FakeTicketStatus,
+    FakeTraining,
     FieldsConfig,
     Job,
     JobResult,
@@ -851,6 +853,37 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
             ],
             hline.get_verbose_modifications(self.user)
         )
+
+    def test_delete10(self):
+        "Deleted model get a M2M fiel (bugfix)."
+        create_skill = FakeSkill.objects.create
+        skill1 = create_skill(name='Python')
+        skill2 = create_skill(name='Algorithm')
+
+        training1 = FakeTraining.objects.create(name='Python for beginners')
+        training1.skills.set([skill1, skill2])
+
+        url = reverse(
+            'creme_config__delete_instance',
+            args=('creme_core', 'fake_training', training1.id),
+        )
+
+        # GET ---
+        response1 = self.assertGET200(url)
+        with self.assertNoException():
+            fields = response1.context['form'].fields
+
+        self.assertFalse(fields)
+
+        # POST ---
+        self.assertNoFormError(self.client.post(url))
+
+        dcom = self.get_deletion_command_or_fail(FakeTraining)
+        self.assertFalse(dcom.replacers)
+
+        deletor_type.execute(dcom.job)
+        self.assertDoesNotExist(training1)
+        self.assertStillExists(skill1)
 
     def test_delete_m2m_01(self):
         "Does not replace."
