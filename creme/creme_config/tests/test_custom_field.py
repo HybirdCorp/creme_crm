@@ -1165,7 +1165,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
         cf_memum = partial(CustomFieldMultiEnum, custom_field=cfield1)
         cf_memum(entity=linus).set_value_n_save([eval1_02])
         cf_memum(entity=richard).set_value_n_save([eval1_01, eval1_03])
-        cf_memum(entity=john).set_value_n_save([eval1_02, eval1_01])  # beware to avoid duplicates
+        cf_memum(entity=john).set_value_n_save([eval1_02, eval1_01])  # Beware of duplicates
 
         url = reverse('creme_config__delete_custom_enum', args=(eval1_02.id,))
         response = self.assertGET200(url)

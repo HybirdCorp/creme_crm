@@ -728,7 +728,7 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
         self.assertStillExists(hf)
 
     def test_delete06(self):
-        "Logged as super user."
+        "Logged as superuser."
         self.login()
 
         hf = HeaderFilter.objects.create_if_needed(

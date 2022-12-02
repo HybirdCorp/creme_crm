@@ -297,9 +297,9 @@ class EntityFilter(models.Model):  # TODO: CremeModel? MinionModel?
      - On regular fields (e.g. CharField, IntegerField) with a special behaviour for date fields.
      - On related fields (through ForeignKey or Many2Many).
      - On CustomFields (with a special behaviour for CustomFields with DATE type).
-     - An other EntityFilter
+     - Another EntityFilter.
      - The existence (or the not existence) of a kind of Relationship.
-     - The holding (or the not holding) of a kind of CremeProperty
+     - The holding (or the not holding) of a kind of CremeProperty.
     """
     id = models.CharField(
         primary_key=True, max_length=100, editable=False,

@@ -409,7 +409,7 @@ class RelationType(CremeModel):
         """Can an instance of a given model be the subject of a Relation with this type.
 
         @param args: A single argument, the model, which can be:
-               - A instance of ContentType.
+               - An instance of ContentType.
                - An ID of ContentType.
                - A model class (inheriting CremeEntity).
                - A CremeEntity instance (its model is used).

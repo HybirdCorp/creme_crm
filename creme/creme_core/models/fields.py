@@ -255,7 +255,7 @@ class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
 class RealEntityForeignKey(FieldCacheMixin):
     """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
      - a ForeignKey to CremeEntity.
-     - a ForeignKey to ContentType (tips: it work  well with a EntityCTypeForeignKey).
+     - a ForeignKey to ContentType (tips: it works well with a EntityCTypeForeignKey).
 
     So it can directly reference an instance of class inheriting CremeEntity
     (what we call "real entity").
@@ -303,9 +303,7 @@ class RealEntityForeignKey(FieldCacheMixin):
         self.name = name
         self.model = cls
         cls._meta.add_field(self, private=True)
-        # breakpoint()
         setattr(cls, name, self)
-        # print('ATTR', cls, name, getattr(cls, name, 'NOPE'))
 
     def check(self, **kwargs):
         from .entity import CremeEntity

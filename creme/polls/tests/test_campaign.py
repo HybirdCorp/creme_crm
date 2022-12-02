@@ -199,7 +199,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomPollForm
     @skipIfCustomPollReply
     def test_create_preply_from_campaign02(self):
-        "Not super user."
+        "Not superuser."
         self.login(
             is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
         )

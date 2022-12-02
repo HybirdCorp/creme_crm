@@ -151,7 +151,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
     def test_add02(self):
-        "Other CT, super users."
+        "Other CT, superusers."
         ct = self.ct_orga
         self.assertFalse(SearchConfigItem.objects.filter(content_type=ct, superuser=True))
 
@@ -419,7 +419,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(sci)
 
     def test_delete02(self):
-        "Super users."
+        "Superusers."
         sci = SearchConfigItem.objects.create_if_needed(
             FakeContact, role='superuser', fields=['first_name', 'last_name'],
         )

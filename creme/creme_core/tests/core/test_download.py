@@ -205,7 +205,7 @@ class DownloadTestCase(CremeTestCase):
             ffd_registry.get(user=user, instance=temp_file, field_name='filedata')
 
     def test_filefield_download08(self):
-        "TempFile belongs to an other user."
+        "TempFile belongs to another user."
         user = self.login()
         temp_file = FileRef.objects.create(
             user=self.other_user,

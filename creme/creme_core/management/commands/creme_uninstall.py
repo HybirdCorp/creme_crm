@@ -287,7 +287,7 @@ class Command(AppCommand):
         # NB: we delete first the entities models because it will probably
         #     avoid major dependencies problems.
         models_info = [
-            (model, True)  # True means 'First deletion trial"
+            (model, True)  # True means "First deletion trial"
             # for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
             for model in chain(*partition(lambda m: not issubclass(m, CremeEntity), models))
         ]

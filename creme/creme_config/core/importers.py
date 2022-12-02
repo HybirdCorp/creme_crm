@@ -1040,7 +1040,7 @@ class ConditionProxy:
 
         @param validated_data: validated_data: IDs of validated (future) instances ;
                dictionary <key=model ; values=set of IDs>.
-               Notice that this data should contains information about EntityFilters.
+               Notice that this data should contain information about EntityFilters.
         """
         pass
 
@@ -1547,7 +1547,7 @@ class CustomFormsImporter(Importer):
         }
 
         # NB: yes we build cell from dicts a then rebuild dicts ;
-        #     it's not optimal but we avoid doing things manually.
+        #     it's not optimal, but we avoid doing things manually.
         def finalize_group_info(group_info):
             if 'cells' in group_info:
                 return {

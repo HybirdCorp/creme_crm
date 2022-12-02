@@ -905,7 +905,7 @@ class _BrickRegistry:
                              ibi: InstanceBrickConfigItem,
                              entity: CremeEntity | None = None,
                              ) -> InstanceBrick:
-        """Get a Brick instance corresponding to a InstanceBrickConfigItem.
+        """Get a Brick instance corresponding to an InstanceBrickConfigItem.
         @param ibi: InstanceBrickConfigItem instance.
         @param entity: CremeEntity instance if your Brick has to be displayed on its detail-view.
         @return Brick instance.

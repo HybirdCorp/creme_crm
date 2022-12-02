@@ -168,7 +168,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
     def test_groups(self):
         """
         The current language of forced to english to prevent some group ordering
-        issues depending of the test runner configuration
+        issues depending on the test runner configuration
         """
         fulbert = CremeUser.objects.order_by('pk').first()
         kirika = self.create_user()
@@ -227,7 +227,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
     def test_groups__more(self, limit, has_more):
         """
         The current language of forced to english to prevent some group ordering
-        issues depending of the test runner configuration
+        issues depending on the test runner configuration
         """
         fulbert = CremeUser.objects.order_by('pk').first()
         kirika = self.create_user()

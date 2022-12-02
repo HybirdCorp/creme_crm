@@ -599,7 +599,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertIn(def_cal, [*act.calendars.all()])
 
     def test_delete_calendar03(self):
-        "No super user."
+        "Not superuser."
         user = self.login(is_superuser=False)
 
         def_cal = Calendar.objects.get_default_calendar(user)

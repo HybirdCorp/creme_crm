@@ -389,7 +389,7 @@ class QuerySorterTestCase(CremeTestCase):
         self.assertTrue(sort_info.main_order.asc)
 
     def test_regularfield_default_twoorders_06(self):
-        "One natural ordering field not in cells, but an smart index exists."
+        "One natural ordering field not in cells, but a smart index exists."
         sorter = QuerySorter()
 
         field_name1 = 'last_name'

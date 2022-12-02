@@ -713,7 +713,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             self.assertEqual(2,     preply.lines.count())
 
     def test_create_from_pollform07(self):
-        "Not super user."
+        "Not superuser."
         user = self.login(
             is_superuser=False, allowed_apps=['polls'], creatable_models=[PollReply],
         )
@@ -2101,7 +2101,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTrue(na_f.initial)
 
     def test_edit_answer_not_applicable02(self):
-        "Edit answer: edit a answer to set it not applicable."
+        "Edit answer: edit an answer to set it not applicable."
         self.login()
         preply, rline = self._build_reply_with_int_line()
         self._fill(preply, 12)

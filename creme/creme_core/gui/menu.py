@@ -249,7 +249,7 @@ class CustomURLEntry(MenuEntry):
     id = 'creme_core-custom_url'
     label = 'Custom URL entry'
 
-    creation_label = _('Add an URL entry')
+    creation_label = _('Add a URL entry')
     form_class = menu_forms.CustomURLEntryForm
 
     def __init__(self, **kwargs):
@@ -622,7 +622,7 @@ class _CreationViewLink:
                 if not url:
                     logger.warning(
                         'Beware, the method %s.get_create_absolute_url() should '
-                        'return an URL, or the creation popup will not work correctly',
+                        'return a URL, or the creation popup will not work correctly',
                         model,
                     )
             else:

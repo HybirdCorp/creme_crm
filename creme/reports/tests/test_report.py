@@ -2462,7 +2462,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             [self.starks.name,     starks_img.name],
         ]
         self.assertEqual(lines, fetch_all_lines())
-        self.assertEqual(lines, fetch_all_lines(user=other_user))  # Super user
+        self.assertEqual(lines, fetch_all_lines(user=other_user))  # Superuser
 
         lines.pop(0)
         lines[0][1] = settings.HIDDEN_VALUE  # 'lannisters_img' not visible

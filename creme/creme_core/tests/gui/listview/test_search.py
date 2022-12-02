@@ -934,6 +934,6 @@ class ListViewSearchTestCase(CremeTestCase):
     def test_cell_registry_pretty(self):
         registry = lv_search.ListViewSearchFieldRegistry()
 
-        # NB: just test it don't crash. We could do better...
+        # NB: just test it doesn't crash. We could do better...
         with self.assertNoException():
             registry.pretty()

@@ -53,7 +53,7 @@ logger = logging.getLogger(__name__)
 
 
 class CancellableMixin:
-    """Mixin that helps building an URL to go back when the user is in a form."""
+    """Mixin that helps to build a URL to go back when the user is in a form."""
     cancel_url_post_argument = 'cancel_url'
 
     # NB: for linters only
@@ -265,7 +265,7 @@ class EntityRelatedMixin:
 
 
 class ContentTypeRelatedMixin:
-    """Mixin for views which retrieve a ContentType from an URL argument.
+    """Mixin for views which retrieve a ContentType from a URL argument.
 
     Attributes:
     ctype_id_url_kwarg: string indicating the name of the key-word (ie <self.kwargs>)

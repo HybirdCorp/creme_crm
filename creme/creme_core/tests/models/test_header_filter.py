@@ -512,7 +512,7 @@ class HeaderFiltersTestCase(CremeTestCase):
         self.assertNotIn(hf3, hfl)
 
     def test_filterlist02(self):
-        "Private filters + not super user (+ team management)."
+        "Private filters + not superuser (+ team management)."
         user = self.login(is_superuser=False)
         other_user = self.other_user
 

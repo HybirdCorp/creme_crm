@@ -189,7 +189,7 @@ class DatePeriodTestCase(CremeTestCase):
             + every_year.as_timedelta(),
         )
 
-        # Beware with leap years (as 2000)
+        # Beware of leap years (as 2000)
         self.assertEqual(
             create_dt(year=2002, month=1, day=1, hour=14, minute=23),
             create_dt(year=2000, month=1, day=1, hour=14, minute=23)

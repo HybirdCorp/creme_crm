@@ -213,7 +213,7 @@ class RegistryTestCase(CremeTestCase):
         registry = _ConfigRegistry()
 
         creation_url_name = 'creme_config__create_team'
-        edition_url_name = 'creme_config__edit_team'  # NB: need an URL with an int arg
+        edition_url_name = 'creme_config__edit_team'  # NB: need a URL with an int arg
         deletion_url_name = 'creme_config__edit_user'  # idem
 
         registry.register_model(FakeCivility) \

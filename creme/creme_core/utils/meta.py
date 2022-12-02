@@ -207,7 +207,7 @@ class _FilterModelFieldQuery:
 
     def __call__(self, *, model, field, depth):
         # NB: the argument "model" is important because with inheritance it can
-        #     be different than "field.model"
+        #     be different from "field.model".
         return all(
             cond(model=model, field=field, depth=depth) for cond in self._conditions
         )
@@ -231,7 +231,7 @@ class ModelFieldEnumerator:
         @param depth: Depth of the returned fields (0=fields of the class, 1=also
                the fields of directly related classes, etc...).
         @param only_leaves: If True, FK/M2M fields are not returned (but eventually,
-               their sub-fields, depending of the 'depth' parameter of course).
+               their sub-fields, depending on the 'depth' parameter of course).
         """
         self._model = model
         self._depth = depth

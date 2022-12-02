@@ -219,7 +219,7 @@ QUnit.test('creme.geolocation.GoogleMapController.searchQuery (partial, multiple
         stop(1);
         self.resetMockListenerCalls();
 
-        // multiple maches => PARTIAL
+        // multiple matches => PARTIAL
         query = controller._searchLocationQuery('marseille 13015');
         query.on(listeners)
              .onComplete(function() {

@@ -1127,7 +1127,6 @@ class BulkUpdateRegistryTestCase(CremeTestCase):
             [EntityCellRegularField.build(FakeOrganisation, field_name)],
         )
         self.assertIsNotNone(form_cls)
-        # self.assertIsSubclass(form_cls, CremeForm)  #  ########
         self.assertIsSubclass(form_cls, CremeModelForm)
 
         user = self.create_user()

@@ -199,7 +199,7 @@ def multi_save_lines(request, document_id):
             context={'errors': errors}, status=409,
         )
 
-    # Save all formset now that we haven't detect any errors
+    # Save all formset now that we have not detected any errors
     for formset in formset_to_save:
         formset.save()
 

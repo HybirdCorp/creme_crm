@@ -167,7 +167,7 @@ class JobType:
         @param job: <creme_core.models.Job> instance (related to this type).
         @param now_value: <datetime> object representing 'now'.
         @return <None> -> the job has not to be woken up.
-                A <datetime> instance -> the job should be woke up at this time.
+                A <datetime> instance -> the job should be woken up at this time.
                 If it's in the past, it means the job should be run immediately
                 (tip: you can simply return 'now_value').
         """

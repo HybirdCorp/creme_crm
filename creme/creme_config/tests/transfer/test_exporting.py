@@ -694,7 +694,7 @@ class ExportingTestCase(CremeTestCase):
         )
 
     def test_detail_bricks04(self):
-        "CT config for super user."
+        "CT config for superusers."
         self.login(is_staff=True)
 
         LEFT = BrickDetailviewLocation.LEFT

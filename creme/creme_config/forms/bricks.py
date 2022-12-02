@@ -396,8 +396,8 @@ class RTypeBrickItemAddCtypeForm(base.CremeModelForm):
         ct_field.ctypes = (ct for ct in ct_field.ctypes if ct.id not in used_ct_ids)
 
     def save(self, *args, **kwargs):
-        # NB: we should set this in clean(), but it interfere when we re-using
-        #     the same instance (see __init__)
+        # NB: we should set this in clean(), but it interferes when we are
+        #     re-using the same instance (see __init__).
         self.instance.set_cells(self.cleaned_data['ctype'], ())
 
         return super().save(*args, **kwargs)
@@ -429,7 +429,7 @@ class RTypeBrickItemEditCtypeForm(base.CremeModelForm):
             field = cell.field_info[0]
 
             # These fields are already rendered with <a> tag ; it would be better to
-            # have a higher semantic (ask to the fields printer how it renders theme ???)
+            # have a higher semantic (ask the fields printer how it renders theme?).
             if (
                 isinstance(field, (URLField, EmailField, ManyToManyField))
                 or (
