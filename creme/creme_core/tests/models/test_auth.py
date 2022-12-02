@@ -1962,7 +1962,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(user.has_perm('persons'))
 
     def test_app_creds03(self):
-        "Super user."
+        "Superuser."
         user = self.user
         user.is_superuser = True
 
@@ -2233,7 +2233,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertTrue(can_delete_eline)
 
     def test_has_perm_to_link01(self):
-        "Super user."
+        "Superuser."
         user = self.user
         user.is_superuser = True  # <====
 

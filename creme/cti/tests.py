@@ -49,7 +49,7 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
         return user
 
     def test_config(self):
-        "Should not ne available when creating UserRoles."
+        "Should not be available when creating UserRoles."
         self.login()
 
         response = self.assertGET200(reverse('creme_config__create_role'))

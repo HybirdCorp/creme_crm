@@ -84,7 +84,7 @@ for app_config in creme_app_configs():
     except ImportError as e:
         if e.args and 'urls' in e.args[0]:
             logger.warning(f'The app "{app_name}" has no "urls" module.')
-        else:  # It seems a annoying ImportError make the existing 'urls' module to be imported.
+        else:  # It seems an annoying ImportError make the existing 'urls' module to be imported.
             raise
     else:
         urlpatterns.append(re_path(r'^' + app_config.url_root, included))

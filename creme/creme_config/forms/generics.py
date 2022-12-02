@@ -146,8 +146,8 @@ class LabelReplacingHandler(ReplacingHandler):
 
 
 class ChoiceReplacingHandler(ReplacingHandler):
-    """Specialization of ReplacingHandler to ask to the user which instance
-    to use as replacement.
+    """Specialization of ReplacingHandler to ask the user which instance to use
+    as replacement.
     """
     def _build_formfield_queryset(self):
         field = self.field

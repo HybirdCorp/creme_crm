@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2021  Hybird
+#    Copyright (C) 2014-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -288,7 +288,7 @@ class Command(AppCommand):
         # NB: we delete first the entities models because it will probably
         #     avoid major dependencies problems.
         models_info = [
-            (model, True)  # True means 'First deletion trial"
+            (model, True)  # True means "First deletion trial"
             for model in chain(*split_filter(lambda m: issubclass(m, CremeEntity), models))
         ]
 
@@ -538,7 +538,7 @@ class Command(AppCommand):
 
 ################################################################################
 # Copyright (c) Django Software Foundation and individual contributors.
-# Copyright (c) Hybird - 2018-2021
+# Copyright (c) Hybird - 2018-2022
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without modification,

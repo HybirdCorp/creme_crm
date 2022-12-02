@@ -323,7 +323,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertSetEqual({rtype01, rtype02}, {*rnode.relation_types.all()})
 
     def test_delete_rootnode01(self):
-        "Not super user."
+        "Not superuser."
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(
@@ -344,7 +344,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertDoesNotExist(rnode)
 
     def test_delete_rootnode02(self):
-        "Not super user + cannot change Graph => error."
+        "Not superuser + cannot change Graph => error."
         user = self.login(is_superuser=False)
 
         SetCredentials.objects.create(

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -515,7 +515,7 @@ class _HLTEntityCreation(_HistoryLineType):
     @classmethod
     def create_line(cls, entity: CremeEntity) -> None:
         HistoryLine._create_line_4_instance(entity, cls.type_id, date=entity.created)
-        # We do not backup here (and the handler _prepare_log() only creates if
+        # We do not back up here (and the handler _prepare_log() only creates if
         # PK exists), in order to keep a kind of 'creation session'.
         # So when you create a CremeEntity, while you still use the same python
         # object, multiple save() will not generate several HistoryLine objects.
@@ -1240,7 +1240,7 @@ class HistoryLine(Model):
         It is useful when merging 2 entities with auxiliary instances, in order
         to detect a change in these auxiliary instances (because if these FK are
         internal & so not considered as 'information' fields the modifications
-        will not caused a TYPE_AUX_EDITION line to be created) ; so HistoryLines
+        will not cause a TYPE_AUX_EDITION line to be created) ; so HistoryLines
         corresponding to the move of the auxiliary instances from the deleted
         entity to the remaining one will be created.
 
