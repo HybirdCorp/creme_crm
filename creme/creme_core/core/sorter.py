@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-from collections import OrderedDict
+# from collections import OrderedDict
 from functools import partial
 from typing import Iterable
 
@@ -225,8 +225,8 @@ class RegularFieldSorterRegistry(AbstractCellSorter):
             to_register: Iterable[
                 tuple[type[Field], type[AbstractCellSorter]]
             ] = DEFAULT_SORTERS):
-        # self._sorters_4_modelfields = {}  # TODO: when order is kept (py3.7)
-        self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = OrderedDict()
+        # self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = OrderedDict()
+        self._sorters_4_modelfields: dict[Field, AbstractCellSorter] = {}
         self._sorters_4_modelfieldtypes: ClassKeyedMap = ClassKeyedMap(default=None)
 
         for model_field_cls, sorter_cls in to_register:
@@ -357,8 +357,8 @@ class CellSorterRegistry(AbstractCellSorter):
     )
 
     def __init__(self, to_register=DEFAULT_REGISTRIES):
-        # self._registries = {}  # TODO: when order is kept (py3.7)
-        self._registries = OrderedDict()
+        # self._registries = OrderedDict()
+        self._registries = {}
 
         for cell_id, registry_class in to_register:
             self.register(cell_id=cell_id, registry_class=registry_class)

@@ -24,7 +24,7 @@
 
 from __future__ import annotations
 
-from collections import OrderedDict
+# from collections import OrderedDict
 from collections.abc import MutableSet
 from sys import maxsize
 from typing import (
@@ -125,8 +125,8 @@ class ClassKeyedMap(Generic[T]):
                  items: Iterable[tuple[type, T]] = (),
                  default: T | None = None,
                  ):
-        # self._data = dict(items)  # TODO: when order is kept (py3.7)
-        self._data: dict[type, T | None] = OrderedDict(items)
+        # self._data: dict[type, T | None] = OrderedDict(items)
+        self._data: dict[type, T | None] = dict(items)
         self._default = default
 
     @staticmethod

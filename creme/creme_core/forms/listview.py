@@ -148,7 +148,7 @@ class SelectLVSWidget(ListViewSearchWidget):
         self.choices = choices
 
     def _build_groups(self, choices, selected_value):
-        # groups = defaultdict(list)  # TODO: when order is kept (py3.7) ?
+        # groups = defaultdict(list)  # TODO: keeps order like dict?
         #
         # for choice in choices:
         #     value = str(choice['value'])

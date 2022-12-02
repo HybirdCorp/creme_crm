@@ -155,6 +155,5 @@ class SerializerTestCase(CremeTestCase):
 
     def test_encode_none(self):
         self.assertEqual('null', json_encode(None))
-        # TODO: uncomment when order is guaranteed (Python 3.8?)
-        # self.assertEqual('{"a":null,"b":12}', json_encode({'a': None, 'b': 12}))
-        self.assertEqual('{"a":null}', json_encode({'a': None}))
+        # self.assertEqual('{"a":null}', json_encode({'a': None}))
+        self.assertEqual('{"a":null,"b":12}', json_encode({'a': None, 'b': 12}))

@@ -96,18 +96,17 @@ class ReportGraphTestCase(BrickTestCaseMixin,
 
         return uri
 
-    # TODO: uncomment with ordered dict
-    # def _serialize_qfilter(self, **kwargs):
-    #     return self.qfilter_serializer.dumps(Q(**kwargs))
-    def _serialize_qfilter(self, *qs, **kwargs):
-        q = Q()
-        for q_object in qs:
-            q &= q_object
-
-        if kwargs:
-            q &= Q(**kwargs)
-
-        return QSerializer().dumps(q)
+    # def _serialize_qfilter(self, *qs, **kwargs):
+    #     q = Q()
+    #     for q_object in qs:
+    #         q &= q_object
+    #
+    #     if kwargs:
+    #         q &= Q(**kwargs)
+    #
+    #     return QSerializer().dumps(q)
+    def _serialize_qfilter(self, **kwargs):
+        return QSerializer().dumps(Q(**kwargs))
 
     def test_listview_URL_builder01(self):
         self.login()
