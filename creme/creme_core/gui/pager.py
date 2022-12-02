@@ -1,19 +1,25 @@
 ################################################################################
-#    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
 #
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
+# Copyright (c) 2017-2022 Hybird
 #
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+#
 ################################################################################
 
 from __future__ import annotations
@@ -37,7 +43,8 @@ class PagerLink:
                  help=None,
                  group: str = None,
                  enabled: bool = True,
-                 is_current: bool = False):
+                 is_current: bool = False,
+                 ):
         self.page = page
         self.group = group
         self.enabled = enabled
@@ -78,6 +85,40 @@ class PagerLink:
 
 
 class PagerContext:
+    """Core of a pager widget which displays a <django.core.paginator.Paginator>.
+
+    You can easily create a pager with a simple templatetag which takes a <Page>
+    instance as argument like:
+
+        @register.inclusion_tag('my_app/pager.html')
+        def my_pager(page):
+            context = PagerContext(page)
+            return {
+                'links': context.links, 'first': context.first, 'last': context.last,
+            }
+
+    Example of template 'my_app/pager.html':
+
+        <div class="my-pagination">
+          {% for link in links %}
+            {% if link.is_current %}
+              <span class="{{link.css}}">{{link.label}}</span>
+            {% elif link.is_choose %}
+              <span class="{{link.css}}">
+                  <span>…</span>
+                  <input type="text" min="{{first}}" max="{{last}}"
+                         data-initial-value="{{link.page}}" />
+              </span>
+            {% else %}
+              <a class="{{link.css}}" href="" title="{{link.help}}"
+                 {% if link.enabled %}data-page="{{link.page}}"{% endif %}
+              >
+                 {{link.label}}
+             </a>
+            {% endif %}
+          {% endfor %}
+        </div>
+    """
     count: int
     current: int
     previous: int | None
@@ -86,6 +127,9 @@ class PagerContext:
     last: int
 
     def __init__(self, page):
+        """Constructor.
+        @param page: Instance of <django.core.paginator.Page>.
+        """
         self.page = page
 
         self.count = page.paginator.num_pages
