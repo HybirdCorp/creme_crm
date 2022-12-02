@@ -369,6 +369,7 @@ a img:hover {
     cursor: pointer;
 }
 
+/*
 .research_box {
     padding: 7px;
     display: inline-block;
@@ -381,13 +382,11 @@ a img:hover {
     background : #E6F2F7 none repeat scroll 0 0;
 
     border : 2px solid #d7e2e7;
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 }
+*/
 
+/*
 .quickform_box {
     padding: 4px 4px 4px 15px;
     display: inline-block;
@@ -400,12 +399,9 @@ a img:hover {
     background: #E6F2F7 none repeat scroll 0 0;
     border: 2px solid #d7e2e7;
 
-/*
-    -webkit-border-radius: 4px;
-       -moz-border-radius: 4px;
-*/
     border-radius: 4px;
 }
+*/
 
 span.enumerator-item {
     font-weight: 800;
