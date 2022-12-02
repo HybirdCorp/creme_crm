@@ -764,7 +764,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         self.assertEqual('9876543210', ph.tmp_name(0, 1))
 
     def test_one_place_holder01(self):
-        "Word place holder."
+        "Word placeholder."
         vname = 'creme_core__batch_process_ops'
         placeholder = 'XXXXXX'
         final_value = '${name}'  # This string does not match with (?P<field>[\w]+)
@@ -777,7 +777,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         )
 
     def test_one_place_holder02(self):
-        "Int place holder."
+        "Int placeholder."
         vname = 'creme_core__batch_process_ops'
         placeholder = '123456'
         final_value = '${ct}'  # This string does not match with (?P<ct_id>\d+)
@@ -790,7 +790,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         )
 
     def test_two_place_holders01(self):
-        "1 word & 1 int place holders."
+        "1 word & 1 int placeholders."
         vname = 'creme_core__batch_process_ops'
 
         placeholder1 = '123456'
@@ -813,7 +813,7 @@ class TemplateURLBuilderTestCase(CremeTestCase):
         )
 
     def test_two_place_holders02(self):
-        "2 int & 1 word place holders."
+        "2 int & 1 word placeholders."
         vname = 'creme_core__inner_edition'
 
         placeholder1 = '123456'

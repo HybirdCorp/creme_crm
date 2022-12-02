@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2021  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -985,7 +985,7 @@ class ConditionProxy:
 
         @param validated_data: validated_data: IDs of validated (future) instances ;
                dictionary <key=model ; values=set of IDs>.
-               Notice that this data should contains information about EntityFilters.
+               Notice that this data should contain information about EntityFilters.
         """
         pass
 
@@ -1534,7 +1534,7 @@ class CustomFormsImporter(Importer):
         }
 
         # NB: yes we build cell from dicts a then rebuild dicts ;
-        #     it's not optimal but we avoid doing things manually.
+        #     it's not optimal, but we avoid doing things manually.
         def finalize_group_info(group_info):
             if 'cells' in group_info:
                 return {

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -173,7 +173,7 @@ class EntityCredentials:
                If a model is given, all the entities in the queryset are
                filtered with the credentials for this model.
                BEWARE: you should probably use this feature only if the queryset
-               if already filtered by its field 'entity_type'
+               is already filtered by its field 'entity_type'
                (to keep only entities of the right model, & so do not
                make mistakes with credentials).
         @return: A new Queryset on CremeEntity, more selective (not retrieved).

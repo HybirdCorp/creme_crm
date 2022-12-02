@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2020  Hybird
+#    Copyright (C) 2020-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.utils import translation
 
 class LocaleMiddleware(OriginalMiddleware):
     def process_request(self, request):
-        # NB: AnonymousUser ahs no language attribute
+        # NB: AnonymousUser has no language attribute
         language = getattr(request.user, 'language', '')
 
         if not language:

@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -271,7 +271,7 @@ class CTypeOneToOneField(CTypeDescriptorMixin, models.OneToOneField):
 class RealEntityForeignKey(FieldCacheMixin):
     """ Provide a "virtual" field which uses & combines 2 ForeignKeys :
      - a ForeignKey to CremeEntity.
-     - a ForeignKey to ContentType (tips: it work  well with a EntityCTypeForeignKey).
+     - a ForeignKey to ContentType (tips: it works well with a EntityCTypeForeignKey).
 
     So it can directly reference an instance of class inheriting CremeEntity
     (what we call "real entity").
@@ -501,7 +501,7 @@ class BasicAutoField(models.PositiveIntegerField):
 ################################################################################
 #  Copyright (c) 2007  Michael Trier
 #  Copyright (C) 2014  http://trbs.net
-#  Copyright (C) 2009-2021  Hybird
+#  Copyright (C) 2009-2022  Hybird
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal

@@ -11,7 +11,7 @@ long_description = file: README
 license = AGPL-3.0
 license_file = AGPL-3.0.txt
 
-# Place holder values ; edit them as you want.
+# Placeholder values ; edit them as you want.
 keywords = CRM
 classifiers =
     Development Status :: 5 - Production/Stable

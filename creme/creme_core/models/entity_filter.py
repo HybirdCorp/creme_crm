@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -306,9 +306,9 @@ class EntityFilter(models.Model):  # CremeModel ???
      - On regular fields (eg: CharField, IntegerField) with a special behaviour for date fields.
      - On related fields (through ForeignKey or Many2Many).
      - On CustomFields (with a special behaviour for CustomFields with DATE type).
-     - An other EntityFilter
+     - Another EntityFilter.
      - The existence (or the not existence) of a kind of Relationship.
-     - The holding (or the not holding) of a kind of CremeProperty
+     - The holding (or the not holding) of a kind of CremeProperty.
     """
     id = models.CharField(
         primary_key=True, max_length=100, editable=False,

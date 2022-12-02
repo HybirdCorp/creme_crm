@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2019  Hybird
+#    Copyright (C) 2017-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ register = Library()
 
 @register.simple_tag
 def ctype_for_model(model):
-    """Returns a instance of ContentType for a model.
+    """Returns an instance of ContentType for a model.
 
     @param model: Class 'inheriting django.db.models.Model'.
     @return: A ContentType instance.
@@ -48,7 +48,7 @@ def ctype_for_model(model):
 # NB: not used, but here for API completeness
 @register.simple_tag
 def ctype_for_naturalkey(app_label, model):
-    """Returns a instance of ContentType for the natural key of a model.
+    """Returns an instance of ContentType for the natural key of a model.
 
     @param app_label: String identifying an app.
     @param model: String identifying a model.
@@ -62,7 +62,7 @@ def ctype_for_naturalkey(app_label, model):
 
 @register.simple_tag
 def ctype_for_swappable(model_setting):
-    """Returns a instance of ContentType for a swappable model.
+    """Returns an instance of ContentType for a swappable model.
 
     @param model_setting: String identifying a swappable model.
     @return: A ContentType instance.

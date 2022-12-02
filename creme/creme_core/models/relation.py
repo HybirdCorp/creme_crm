@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -399,7 +399,7 @@ class RelationType(CremeModel):
         """Can an instance of a given model be the subject of a Relation with this type.
 
         @param args: A single argument, the model, which can be:
-               - A instance of ContentType.
+               - An instance of ContentType.
                - An ID of ContentType.
                - A model class (inheriting CremeEntity).
                - A CremeEntity instance (its model is used).

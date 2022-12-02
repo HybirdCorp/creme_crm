@@ -128,7 +128,7 @@ class RelationsBrick(QuerysetBrick):
         excluded_rtype_ids = self._excluded_rtype_ids
         reloading_info = self._reloading_info
 
-        if reloading_info is None:  # NB: it's not a reload, it's the initial render()
+        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             # TODO: when it's the only use of 'used_relationtypes_ids()',
             #       inline the call (+ deprecate method) ?
             used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
@@ -406,7 +406,7 @@ class JobBrick(Brick):
 
         reloading_info = self._reloading_info
 
-        if reloading_info is None:  # NB: it's not a reload, it's the initial render()
+        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             list_url = context.get('list_url')
             self._reloading_info = {'list_url': list_url}
         else:
