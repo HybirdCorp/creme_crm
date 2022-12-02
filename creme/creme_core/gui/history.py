@@ -390,7 +390,7 @@ class HTMLManyToManyFieldChangeExplainer(ManyToManyFieldChangeExplainer):
 
 # ------------------------------------------------------------------------------
 class HistoryLineExplainer:
-    """Render a string which explains an history line.
+    """Render a string which explains a history line.
     Used by the history brick to render all the lines of the current page.
 
     The main method is 'render()' ; other methods are made to be overridden by

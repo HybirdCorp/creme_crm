@@ -29,7 +29,7 @@ RecurrentGenerator = get_rgenerator_model()
 
 
 class RecurrentGeneratorWizard(generic.EntityCreationWizard):
-    # NB: in deed, the second form is just a place holder ;
+    # NB: in deed, the second form is just a placeholder ;
     #     it will be dynamically replaced by a form from 'recurrent_registry' (see get_form()).
     form_list = [
         custom_forms.GENERATOR_CREATION_CFORM,

@@ -212,7 +212,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertSetEqual({*users}, {msg.recipient for msg in messages})
 
     def test_create05(self):
-        "Teams and isolated users with non void intersections."
+        "Teams and isolated users with non-void intersections."
         create_user = User.objects.create_user
         users = [
             create_user(

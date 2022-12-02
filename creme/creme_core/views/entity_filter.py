@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -86,21 +86,21 @@ class FilterMixin:
         if not db_utils.is_db_equal_case_sensitive():
             if not db_utils.is_db_like_case_sensitive():
                 return _(
-                    'Notice: your database is not case sensitive, so the string '
-                    'operators which are case sensitive and the ones which are '
+                    'Notice: your database is not case-sensitive, so the string '
+                    'operators which are case-sensitive and the ones which are '
                     'not will accept the same entities.'
                 )
 
             return _(
-                'Notice: your database is not case sensitive for the "equals" '
+                'Notice: your database is not case-sensitive for the "equals" '
                 'operator, so the string equality operators which are case '
                 'sensitive and the ones which are not will accept the same entities.'
             )
         elif not db_utils.is_db_like_case_sensitive():
             return _(
-                'Notice: your database is not case sensitive, so the string operators '
-                'which are case sensitive and the ones which are not will accept '
-                'the same entities (excepted equality ones, which are case sensitive).'
+                'Notice: your database is not case-sensitive, so the string operators '
+                'which are case-sensitive and the ones which are not will accept '
+                'the same entities (excepted equality ones, which are case-sensitive).'
             )
 
         return None

@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2017-2021 Hybird
+# Copyright (c) 2017-2022 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ from django.urls import reverse
 
 
 class TemplateURLBuilderError(Exception):
-    """Cannot generate an URL template because of collision."""
+    """Cannot generate a URL template because of collision."""
     pass
 
 
@@ -54,10 +54,10 @@ class TemplateURLBuilder:
             url = builder.resolve('list_my_app_elements', kwargs={'ctype_id': 65})
 
     BEWARE:
-        The way the template is built uses string replacement with place holders.
-        In order to avoid ambiguous replacement, these place holders must be unique
+        The way the template is built uses string replacement with placeholders.
+        In order to avoid ambiguous replacement, these placeholders must be unique
         and should not appear several times in the URL.
-        The resolve() method tries several place-holder to avoids unlucky
+        The resolve() method tries several placeholder to avoid unlucky
         collision before failing.
         So, the regex groups name should accept long & various string,
         like long integer or words, & it would regularly fail if the group name
@@ -146,7 +146,7 @@ class TemplateURLBuilder:
 
         raise TemplateURLBuilderError(
             'Cannot generate a URL because of a collision '
-            '(we tried these URLs -- with place holders --: {})'.format(
+            '(we tried these URLs -- with placeholders --: {})'.format(
                 ' '.join(tried_urls),
             )
         )

@@ -1,4 +1,4 @@
-# The following code is an heavy modification of:
+# The following code is a heavy modification of:
 #  https://djangosnippets.org/snippets/3003/
 
 ################################################################################

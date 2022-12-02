@@ -105,7 +105,7 @@ class GeoLocationModelsTestCase(GeoLocationBaseTestCase):
             name=town2.name + ' Bis', latitude=town2.latitude, longitude=town2.longitude,
         )
 
-        # duplicates zipcode, no names, no geoaddres
+        # duplicates zipcode, no names, no geoaddress
         create_address = partial(Address.objects.create, owner=self.orga, zipcode=zipcode)
         address = create_address()
         self.assertGeoAddress(

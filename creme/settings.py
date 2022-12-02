@@ -29,7 +29,7 @@ NO_SQL_COMMANDS = (
 #     ('Full Name', 'anotheremail@example.com')
 # ]
 
-# BASE_DIR should be define in the project's settings
+# BASE_DIR should be defined in the project's settings
 # TODO: use pathlib.Path
 CREME_ROOT = dirname(abspath(__file__))  # Folder 'creme/'
 
@@ -1471,7 +1471,7 @@ ABCTI_URL = 'http://127.0.0.1:8087'
 
 # VCF --------------------------------------------------------------------------
 # Limit size (byte) of remote photo files
-# (i.e : when the photo in the vcf file is just an URL)
+# (i.e : when the photo in the vcf file is just a URL)
 VCF_IMAGE_MAX_SIZE = 3145728
 
 # PROJECTS ---------------------------------------------------------------------

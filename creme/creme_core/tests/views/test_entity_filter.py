@@ -1845,7 +1845,7 @@ class UserChoicesTestCase(ViewsTestCase):
 
         class SuperUsersOperand(operands.ConditionDynamicOperand):
             type_id = '__superusers__'
-            verbose_name = 'Super users'
+            verbose_name = 'Superusers'
             model = CremeUser
 
         class MainUserOperand(operands.ConditionDynamicOperand):

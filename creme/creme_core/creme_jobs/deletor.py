@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2021 Hybird
+#    Copyright (C) 2019-2022 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -64,7 +64,7 @@ class _DeletorType(JobType):
             ).values_list('pk', flat=True):
                 # NB1: we perform a .save(), not an .update() in order to:
                 #       - let the model compute it's business logic (if there is one).
-                #       - get an HistoryLine for entities.
+                #       - get a HistoryLine for entities.
                 # NB2: as in edition view, we perform a select_for_update() to avoid
                 #      overriding other fields (if there are concurrent accesses)
                 with atomic():

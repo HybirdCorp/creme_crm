@@ -719,7 +719,7 @@ class RGHCustomMonth(_RGHCustomField):
     verbose_name = _('By months')
 
     def _fetch(self, *, entities, order, user, extra_q):
-        # TODO: factrise with _get_custom_dates_values()?
+        # TODO: factorise with _get_custom_dates_values()?
         value_rname = self._cfield.value_class._meta.get_field('entity').remote_field.name
 
         return self._get_custom_dates_values(

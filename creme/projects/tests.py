@@ -591,7 +591,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
     @skipIfCustomTask
     def test_task_createview02(self):
-        "Can not be parented with task of an other project + not super-user."
+        "Can not be parented with task of another project + not super-user."
         user = self.login(
             is_superuser=False,
             allowed_apps=['persons', 'projects'],

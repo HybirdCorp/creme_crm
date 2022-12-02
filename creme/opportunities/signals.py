@@ -51,11 +51,11 @@ if apps.is_installed('creme.billing'):
 
     # Adding "current" feature to other billing document (sales order, invoice)
     # does not really make sense.
-    # If one day it does we will only have to add senders to the signal
+    # If one day it does, we will only have to add senders to the signal.
     @receiver(post_save, sender=Quote)
     def _handle_current_quote_change(sender, instance, created, **kwargs):
         # if not created and use_current_quote():
-        # NB: at creation Quote double-save() fot its address ;
+        # NB: at creation Quote double-save() for its address ;
         #     the second save() uses the argument <update_fields>.
         if not created and not kwargs.get('update_fields') and use_current_quote():
             for r in instance.get_relations(REL_SUB_CURRENT_DOC, real_obj_entities=True):

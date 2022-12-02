@@ -1576,18 +1576,18 @@ def extractorfield_factory(modelfield, header_dict, choices, **kwargs):
     if selected_column is None:
         selected_column = header_dict.get(slugify(modelfield.name), 0)
 
-    # Remove because it causes a conflict with EnumerableChoiceField
-    # which does not allows to set "choices"
+    # Removed because it causes a conflict with EnumerableChoiceField
+    # which does not allow to set "choices"
     #
     # Originally force a default value when the related field is required
-    # (e.g minion models)
+    # (e.g. minion models)
     # This is not mandatory because the validation is done later anyway.
     #
     # if formfield.required:
-        # We remove the '----' choice when it is useless
-        # TODO: improve (hook) the regular behaviour of ModelChoiceField ??
+    #     # We remove the '----' choice when it is useless
+    #     # todo: improve (hook) the regular behaviour of ModelChoiceField ??
     #     options = getattr(formfield, 'choices', None)
-
+    #
     #     if options is not None and len(options) > 1:
     #         formfield.empty_label = None
     #         formfield.choices = options  # we force the refreshing of widget's choices

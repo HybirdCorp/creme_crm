@@ -40,9 +40,9 @@ class ConfigExport(generic.CheckedView):
     registry = EXPORTERS
 
     def get_info(self) -> dict:
-        # NB: we use an OrderedDict to kept this global order in our output file
+        # NB: we use an OrderedDict to keep this global order in our output file
         #     (it seems better to be sure that 'version' is at the beginning,
-        #     like a in a file header).
+        #     like in a file header).
         info: dict[str, Any] = OrderedDict()
         # 2.2: 1.0
         # 2.3: 1.1/1.2 the models for search & custom-forms have changed
@@ -58,7 +58,7 @@ class ConfigExport(generic.CheckedView):
         )
 
     def get(self, *args, **kwargs):
-        # NB: 'indent' is given to have a human readable file.
+        # NB: 'indent' is given to have a human-readable file.
         #     'separators' is given to avoid trailing spaces (see json.dumps()'s doc)
         return HttpResponse(
             json_dump(self.get_info(), indent=1, separators=(',', ': ')),

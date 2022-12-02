@@ -1837,7 +1837,7 @@ about this fantastic animation studio."""
         self.assertEqual(TYPE_CREATION, hlines[0].type)
 
     def test_multi_save02(self):
-        "Beware internal backup must be recreated after the save()."
+        "Beware: internal backup must be recreated after the save()."
         old_last_name = 'Ayami'
         new_last_name = 'Ayanami'
 

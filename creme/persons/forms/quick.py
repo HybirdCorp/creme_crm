@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,7 +140,7 @@ class ContactQuickForm(CremeEntityQuickForm):
                 orga = self.retrieved_orga
 
                 if orga is None:
-                    # NB: we retry to get, because in an Formset,
+                    # NB: we retry to get, because in a Formset,
                     #     another Form can create the orga in its save()
                     orga = self._get_organisations(orga_name).get_or_create(
                         name=orga_name,

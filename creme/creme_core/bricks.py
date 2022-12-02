@@ -130,7 +130,7 @@ class RelationsBrick(QuerysetBrick):
         excluded_rtype_ids = self._excluded_rtype_ids
         reloading_info = self._reloading_info
 
-        if reloading_info is None:  # NB: it's not a reload, it's the initial render()
+        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             # used_rtype_ids = BricksManager.get(context).used_relationtypes_ids
             used_rtype_ids = {
                 rt_id
@@ -421,7 +421,7 @@ class JobBrick(Brick):
 
         reloading_info = self._reloading_info
 
-        if reloading_info is None:  # NB: it's not a reload, it's the initial render()
+        if reloading_info is None:  # NB: it's not a reloading, it's the initial render()
             list_url = context.get('list_url')
             self._reloading_info = {'list_url': list_url}
         else:

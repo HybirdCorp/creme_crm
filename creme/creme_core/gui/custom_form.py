@@ -234,7 +234,7 @@ class ExtraFieldGroup(ABC, AbstractFieldGroup):
     # Unique ID (within a CustomFormDescriptor) ; override in child classes
     # Hint: use a string in the form 'my_app-group_name'
     extra_group_id = ''
-    name = 'PLACE HOLDER'
+    name = 'PLACEHOLDER'
     # TODO: is_required ?
 
     def __init__(self, model: type[Model], *args, **kwargs):

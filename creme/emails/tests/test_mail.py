@@ -1310,7 +1310,7 @@ better &amp; lighter than the previous one.
         self.assertFalse(mail.outbox)
 
     def test_refresh_job01(self):
-        "Mail is restored + have to be send => refresh the job."
+        "Mail is restored + have to be sent => refresh the job."
         self.login()
         job = self._get_job()
 
@@ -1328,7 +1328,7 @@ better &amp; lighter than the previous one.
         self.assertEqual(job, jobs[0][0])
 
     def test_refresh_job02(self):
-        "Mail is restored + do not have to be send => do not refresh the job."
+        "Mail is restored + do not have to be sent => do not refresh the job."
         self.login()
 
         email = self._create_email(EntityEmail.Status.SENDING_ERROR)

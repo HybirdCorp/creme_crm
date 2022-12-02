@@ -115,7 +115,7 @@ def get_indexed_ordering(model: type[Model],
             MyContact.objects.filter(...).order_by(*ordering)
 
     NB #1: the validity of field names in not checked ; if you give an invalid
-           field name, it simply won't be find in the indexes.
+           field name, it simply won't be found in the indexes.
     NB #2: The Django introspection code returns the indexes without ASC/DESC
            information (& MySQL builds ASC indexes -- on 5.6 version at least)
            so you should not create indexes which mix ASC & DESC columns.
@@ -261,9 +261,9 @@ def populate_related(instances: Sequence[Model],
 # NB: 'maxsize=None' => avoid locking (number of models is small)
 @lru_cache(maxsize=None)
 def is_db_equal_case_sensitive() -> bool:  # TODO: argument "db" for multi-db env ?
-    """Is the main database case sensitive or not with the Django's operator
+    """Is the main database case-sensitive or not with the Django's operator
     "exact" ("=" in SQL).
-    @return A boolean ; <True> means "case sensitive".
+    @return A boolean ; <True> means "case-sensitive".
 
     NB: the return value is immutable, so the cached values can not be altered.
     """
@@ -273,9 +273,9 @@ def is_db_equal_case_sensitive() -> bool:  # TODO: argument "db" for multi-db en
 
 @lru_cache(maxsize=None)
 def is_db_like_case_sensitive() -> bool:  # TODO: idem
-    """Is the main database case sensitive or not with the Django's operators
+    """Is the main database case-sensitive or not with the Django's operators
     "contains/startswith/endswith" ("LIKE" in SQL).
-    @return A boolean ; <True> means "case sensitive".
+    @return A boolean ; <True> means "case-sensitive".
 
     NB: the return value is immutable, so the cached values can not be altered.
     """

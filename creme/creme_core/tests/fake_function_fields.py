@@ -6,7 +6,7 @@ from ..core.function_field import (
 from ..models import FakeTodo
 
 
-# NB: we could had a search feature of course, but we need a FunctionField which has not.
+# NB: we could have a search feature of course, but we need a FunctionField which has not.
 #     see creme.creme_core.tests.views.test_listview.ListViewTestCase.test_search_functionfield02()
 class FakeTodosField(FunctionField):
     name = 'tests-fake_todos'
