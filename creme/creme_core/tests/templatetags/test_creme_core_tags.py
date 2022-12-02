@@ -537,36 +537,36 @@ class CremeCoreTagsTestCase(CremeTestCase):
         self._assertJsonscriptTag('<script type="application/json"><!-- {} --></script>', {})
         # self._assertJsonscriptTag(
         #     r'<script type="application/json"><!-- '
-        #     + escapejson('{"a":12,"b":"-->alert();<script/>"}')
+        #     + escapejson('{"b":"-->alert();<script/>"}')
         #     + ' --></script>',
-        #     {"a": 12, "b": "-->alert();<script/>"}
-        #   )  # TODO: uncomment when order is guaranteed (Python 3.8)
+        #     {'b': '-->alert();<script/>'},
+        # )
         self._assertJsonscriptTag(
             r'<script type="application/json"><!-- '
-            + escapejson('{"b":"-->alert();<script/>"}')
+            + escapejson('{"a":12,"b":"-->alert();<script/>"}')
             + ' --></script>',
-            {'b': '-->alert();<script/>'}
+            {'a': 12, 'b': '-->alert();<script/>'},
         )
 
         # self._assertJsonscriptTag(
+        #     r'<script type="application/json"><!-- {"a":12} --></script>',
+        #     {'a': 12}
+        # )
+        # self._assertJsonscriptTag(
+        #     r'<script type="application/json"><!-- {"b":0.47} --></script>',
+        #     {'b': Decimal("0.47")}
+        # )
+        # self._assertJsonscriptTag(
         #     r'<script type="application/json"><!-- '
-        #     + escapejson('{"a":12,"b":0.47,"c":"' + ugettext('User') + '"}')
+        #     + escapejson('{"c":"%s"}' % gettext('User'))
         #     + r' --></script>',
-        #     {"a": 12, "b": Decimal("0.47"), "c": ugettext_lazy('User')}
-        # )  # TODO: uncomment when order is guaranteed (Python 3.8)
-        self._assertJsonscriptTag(
-            r'<script type="application/json"><!-- {"a":12} --></script>',
-            {'a': 12}
-        )
-        self._assertJsonscriptTag(
-            r'<script type="application/json"><!-- {"b":0.47} --></script>',
-            {'b': Decimal("0.47")}
-        )
+        #     {'c': gettext_lazy('User')}
+        # )
         self._assertJsonscriptTag(
             r'<script type="application/json"><!-- '
-            + escapejson('{"c":"%s"}' % gettext('User'))
+            + escapejson('{"a":12,"b":0.47,"c":"%s"}' % gettext('User'))
             + r' --></script>',
-            {'c': gettext_lazy('User')}
+            {'a': 12, 'b': Decimal('0.47'), 'c': gettext('User')},
         )
 
         self._assertJsonscriptTag(
