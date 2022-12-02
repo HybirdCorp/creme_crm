@@ -610,7 +610,7 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={
                 'user': user.pk,
                 'name': 'Report edited',
-                # 'cform_extra-reports_filter': efilter.id,
+                # filter_key: efilter.id,
             },
         )
         self.assertNoFormError(response2)

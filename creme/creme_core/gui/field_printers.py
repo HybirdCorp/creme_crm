@@ -496,7 +496,7 @@ class _FieldPrintersRegistry:
 
                 # (models.DateField,          print_date),
                 (models.DateField,          print_date_html),
-                (models.DateTimeField,      print_datetime),
+                # (models.DateTimeField,      print_datetime),
                 (models.DateTimeField,      print_datetime_html),
 
                 (models.TextField,          print_text_html),
