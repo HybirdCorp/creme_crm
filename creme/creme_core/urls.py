@@ -264,7 +264,6 @@ property_patterns = [
 bricks_patterns = [
     re_path(
         r'^reload[/]?$',
-        # bricks.reload_basic,
         bricks.BricksReloading.as_view(),
         name='creme_core__reload_bricks',
     ),
