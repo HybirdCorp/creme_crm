@@ -16,41 +16,38 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
-from django.shortcuts import get_object_or_404
-
+# import warnings
+# from django.shortcuts import get_object_or_404
 from creme import products
-from creme.creme_core.auth.decorators import login_required
+# from creme.creme_core.auth.decorators import login_required
 from creme.creme_core.utils import get_from_POST_or_404
+# from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
 
 from .. import custom_forms
 from ..constants import DEFAULT_HFILTER_PRODUCT
-from ..models import Category, SubCategory
+# from ..models import Category, SubCategory
 from .base import ImagesAddingBase
 
 Product = products.get_product_model()
 Service = products.get_service_model()
 
-
-@jsonify
-@login_required
-def get_subcategories(request, category_id):
-    warnings.warn(
-        "The view 'products__subcategories' is deprecated ; "
-        "use the generic one 'creme_core__enumerable_choices' instead.",
-        DeprecationWarning,
-    )
-
-    get_object_or_404(Category, pk=category_id)
-    return [
-        *SubCategory.objects
-                    .filter(category=category_id)
-                    .order_by('id')
-                    .values_list('id', 'name'),
-    ]
+# @jsonify
+# @login_required
+# def get_subcategories(request, category_id):
+#     warnings.warn(
+#         "The view 'products__subcategories' is deprecated ; "
+#         "use the generic one 'creme_core__enumerable_choices' instead.",
+#         DeprecationWarning,
+#     )
+#
+#     get_object_or_404(Category, pk=category_id)
+#     return [
+#         *SubCategory.objects
+#                     .filter(category=category_id)
+#                     .order_by('id')
+#                     .values_list('id', 'name'),
+#     ]
 
 
 class ImageRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
