@@ -42,6 +42,8 @@
                         - The method 'AbstractGraph.generate_png()' has been removed.
                         - The method 'RootNode.get_relation_types()' has been removed.
                     - The function-view 'views.graph.dl_png()' has been removed.
+                * Reports :
+                    - The templatetag 'reports_graph_ordinate' has been removed.
 
     Internal breaking changes :
     ---------------------------

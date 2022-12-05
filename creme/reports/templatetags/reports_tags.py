@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django import template
 from django.template.loader import render_to_string
 
@@ -47,17 +46,17 @@ def reports_chart_labels(charts):
     return {name: chart.label for name, chart in charts}
 
 
-@register.simple_tag
-def reports_graph_ordinate(rgraph):
-    warnings.warn(
-        'This tag is deprecated ; use rgraph.verbose_ordinate instead',
-        DeprecationWarning
-    )
-
-    aggregator = rgraph.hand.ordinate
-
-    return (
-        f'{aggregator.cell} - {aggregator.verbose_name}'
-        if aggregator.cell else
-        aggregator.verbose_name
-    )
+# @register.simple_tag
+# def reports_graph_ordinate(rgraph):
+#     warnings.warn(
+#         'This tag is deprecated ; use rgraph.verbose_ordinate instead',
+#         DeprecationWarning
+#     )
+#
+#     aggregator = rgraph.hand.ordinate
+#
+#     return (
+#         f'{aggregator.cell} - {aggregator.verbose_name}'
+#         if aggregator.cell else
+#         aggregator.verbose_name
+#     )
