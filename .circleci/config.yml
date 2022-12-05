@@ -30,8 +30,8 @@ commands:
     description: Install creme dependencies
     steps:
       - run: sudo apt update
-#      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config lcab
-      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
+#      - run: sudo apt install -y python3-dev graphviz libgraphviz-dev pkg-config
+      - run: sudo apt install -y python3-dev pkg-config
 
   install-py-dev-env:
     steps:

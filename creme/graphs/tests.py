@@ -1,16 +1,16 @@
 from functools import partial
-from pathlib import Path
+# from pathlib import Path
 from unittest import skipIf
 
-from django.conf import settings
+# from django.conf import settings
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+# from creme.creme_core.models import FileRef
 from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
-    FileRef,
     Relation,
     RelationType,
     SetCredentials,
@@ -29,12 +29,12 @@ from .models import RootNode
 skip_graph_tests = graph_model_is_custom()
 Graph = get_graph_model()
 
-try:
-    import pygraphviz  # NOQA
-except ImportError:
-    skip_graphviz_tests = True
-else:
-    skip_graphviz_tests = False
+# try:
+#     import pygraphviz  # NOQA
+# except ImportError:
+#     skip_graphviz_tests = True
+# else:
+#     skip_graphviz_tests = False
 
 
 def skipIfCustomGraph(test_func):
@@ -177,72 +177,72 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
             follow=True,
         )
 
-    @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
-    def test_download01(self):
-        user = self.login()
-
-        contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
-        orga = FakeOrganisation.objects.create(user=user, name='NERV')
-
-        # Tests an encoding error, pygraphviz supports unicode...
-        rtype = RelationType.objects.smart_update_or_create(
-            ('test-subject_hate', 'déteste'),
-            ('test-object_hate',  'est détesté par'),
-        )[0]
-        Relation.objects.create(
-            user=user,
-            subject_entity=contact,
-            type=rtype,
-            object_entity=orga,
-        )
-
-        graph = Graph.objects.create(user=user, name='Graph01')
-        url = reverse('graphs__add_roots', args=(graph.id,))
-        self.assertGET200(url)
-
-        response = self.client.post(
-            url,
-            data={
-                'entities': self.formfield_value_multi_generic_entity(
-                    contact, orga,
-                ),
-                'relation_types': [rtype.id],
-            },
-        )
-        self.assertNoFormError(response)
-
-        url = reverse('graphs__add_rtypes', args=(graph.id,))
-        self.assertGET200(url)
-        self.assertNoFormError(
-            self.client.post(url, data={'relation_types': [rtype.id]}),
-        )
-
-        existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
-
-        response = self.assertGET200(
-            reverse('graphs__dl_image', args=(graph.id,)),
-            follow=True,
-        )
-        self.assertEqual('image/png', response['Content-Type'])
-
-        filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
-        self.assertEqual(1, len(filerefs))
-
-        fileref = filerefs[0]
-        self.assertTrue(fileref.temporary)
-        self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
-        self.assertEqual(user, fileref.user)
-
-        fullpath = Path(fileref.filedata.path)
-        self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
-        self.assertEqual(Path(settings.MEDIA_ROOT, 'graphs'), fullpath.parent)
-        self.assertEqual(
-            f'attachment; filename="{fullpath.name}"',
-            response['Content-Disposition'],
-        )
-
-        # Consume stream to avoid error message "ResourceWarning: unclosed file..."
-        _ = [*response.streaming_content]
+    # @skipIf(skip_graphviz_tests, 'Pygraphviz is not installed (are you under Wind*ws ??')
+    # def test_download01(self):
+    #     user = self.login()
+    #
+    #     contact = FakeContact.objects.create(user=user, first_name='Rei', last_name='Ayanami')
+    #     orga = FakeOrganisation.objects.create(user=user, name='NERV')
+    #
+    #     # Tests an encoding error, pygraphviz supports unicode...
+    #     rtype = RelationType.objects.smart_update_or_create(
+    #         ('test-subject_hate', 'déteste'),
+    #         ('test-object_hate',  'est détesté par'),
+    #     )[0]
+    #     Relation.objects.create(
+    #         user=user,
+    #         subject_entity=contact,
+    #         type=rtype,
+    #         object_entity=orga,
+    #     )
+    #
+    #     graph = Graph.objects.create(user=user, name='Graph01')
+    #     url = reverse('graphs__add_roots', args=(graph.id,))
+    #     self.assertGET200(url)
+    #
+    #     response = self.client.post(
+    #         url,
+    #         data={
+    #             'entities': self.formfield_value_multi_generic_entity(
+    #                 contact, orga,
+    #             ),
+    #             'relation_types': [rtype.id],
+    #         },
+    #     )
+    #     self.assertNoFormError(response)
+    #
+    #     url = reverse('graphs__add_rtypes', args=(graph.id,))
+    #     self.assertGET200(url)
+    #     self.assertNoFormError(
+    #         self.client.post(url, data={'relation_types': [rtype.id]}),
+    #     )
+    #
+    #     existing_fileref_ids = [*FileRef.objects.values_list('id', flat=True)]
+    #
+    #     response = self.assertGET200(
+    #         reverse('graphs__dl_image', args=(graph.id,)),
+    #         follow=True,
+    #     )
+    #     self.assertEqual('image/png', response['Content-Type'])
+    #
+    #     filerefs = FileRef.objects.exclude(id__in=existing_fileref_ids)
+    #     self.assertEqual(1, len(filerefs))
+    #
+    #     fileref = filerefs[0]
+    #     self.assertTrue(fileref.temporary)
+    #     self.assertEqual(f'graph_{graph.id}.png', fileref.basename)
+    #     self.assertEqual(user, fileref.user)
+    #
+    #     fullpath = Path(fileref.filedata.path)
+    #     self.assertTrue(fullpath.exists(), f'<{fullpath}> does not exists ?!')
+    #     self.assertEqual(Path(settings.MEDIA_ROOT, 'graphs'), fullpath.parent)
+    #     self.assertEqual(
+    #         f'attachment; filename="{fullpath.name}"',
+    #         response['Content-Disposition'],
+    #     )
+    #
+    #     # Consume stream to avoid error message "ResourceWarning: unclosed file..."
+    #     _ = [*response.streaming_content]
 
     def test_add_rootnode(self):
         user = self.login()
