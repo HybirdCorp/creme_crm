@@ -52,24 +52,24 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         with self.assertNoException():
             sub_cat.save()
 
-    def test_subcategories_view(self):
-        self.login()
-
-        self.assertGET404(reverse('products__subcategories', args=(0,)))
-
-        name1 = 'subcat1'
-        name2 = 'subcat2'
-        cat = Category.objects.create(name='category', description='description')
-
-        create_subcat = partial(SubCategory.objects.create, category=cat)
-        subcat1 = create_subcat(name=name1, description='description')
-        subcat2 = create_subcat(name=name2, description='description')
-
-        response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
-        self.assertListEqual(
-            [[subcat1.id, name1], [subcat2.id, name2]],
-            response.json(),
-        )
+    # def test_subcategories_view(self):
+    #     self.login()
+    #
+    #     self.assertGET404(reverse('products__subcategories', args=(0,)))
+    #
+    #     name1 = 'subcat1'
+    #     name2 = 'subcat2'
+    #     cat = Category.objects.create(name='category', description='description')
+    #
+    #     create_subcat = partial(SubCategory.objects.create, category=cat)
+    #     subcat1 = create_subcat(name=name1, description='description')
+    #     subcat2 = create_subcat(name=name2, description='description')
+    #
+    #     response = self.assertGET200(reverse('products__subcategories', args=(cat.id,)))
+    #     self.assertListEqual(
+    #         [[subcat1.id, name1], [subcat2.id, name2]],
+    #         response.json(),
+    #     )
 
     @skipIfCustomProduct
     def test_detailview01(self):

@@ -44,6 +44,9 @@
                     - The function-view 'views.graph.dl_png()' has been removed.
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' has been removed.
+                * Products :
+                    - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
+                    - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
 
     Internal breaking changes :
     ---------------------------
