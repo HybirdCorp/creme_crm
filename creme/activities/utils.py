@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import collections
 import logging
-import warnings
+# import warnings
 from datetime import date, datetime, timedelta
 
 from django.db.models import Q, QuerySet
@@ -113,32 +113,32 @@ def check_activity_collisions(
     return collisions
 
 
-def get_ical_date(date_time):
-    warnings.warn(
-        'The function activities.utils.get_ical_date() is deprecated.',
-        DeprecationWarning
-    )
+# def get_ical_date(date_time):
+#     warnings.warn(
+#         'The function activities.utils.get_ical_date() is deprecated.',
+#         DeprecationWarning
+#     )
+#
+#     dt = localtime(date_time)
+#
+#     return f'{dt.year}{dt.month:02}{dt.day:02}T{dt.hour:02}{dt.minute:02}{dt.second:02}Z'
 
-    dt = localtime(date_time)
 
-    return f'{dt.year}{dt.month:02}{dt.day:02}T{dt.hour:02}{dt.minute:02}{dt.second:02}Z'
-
-
-def get_ical(activities):
-    """Return a normalized iCalendar string
-    BEWARE: each parameter has to be separated by \n ONLY no spaces allowed!
-    Example : BEGIN:VCALENDAR\nVERSION:2.0
-    """
-    warnings.warn(
-        'The function activities.utils.get_ical() is deprecated ; use ICalEncoder instead.',
-        DeprecationWarning
-    )
-
-    return """BEGIN:VCALENDAR
-VERSION:2.0
-PRODID:-//CremeCRM//CremeCRM//EN
-{}
-END:VCALENDAR""".format(''.join(a.as_ical_event() for a in activities))
+# def get_ical(activities):
+#     """Return a normalized iCalendar string
+#     BEWARE: each parameter has to be separated by \n ONLY no spaces allowed!
+#     Example : BEGIN:VCALENDAR\nVERSION:2.0
+#     """
+#     warnings.warn(
+#         'The function activities.utils.get_ical() is deprecated ; use ICalEncoder instead.',
+#         DeprecationWarning
+#     )
+#
+#     return """BEGIN:VCALENDAR
+# VERSION:2.0
+# PRODID:-//CremeCRM//CremeCRM//EN
+# {}
+# END:VCALENDAR""".format(''.join(a.as_ical_event() for a in activities))
 
 
 def is_auto_orga_subject_enabled():

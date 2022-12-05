@@ -51,17 +51,16 @@ calendar_patterns = [
 urlpatterns = [
     re_path(
         r'^activities/ical[/]?$',
-        # activity.download_ical,
         activity.ICalExport.as_view(),
         name='activities__dl_ical',
     ),
 
-    # DEPRECATED
-    re_path(
-        r'^type/(?P<type_id>[\w-]*)/json[/]?$',
-        activity.TypeChoices.as_view(),
-        name='activities__get_types',
-    ),
+    # # DEPRECATED
+    # re_path(
+    #     r'^type/(?P<type_id>[\w-]*)/json[/]?$',
+    #     activity.TypeChoices.as_view(),
+    #     name='activities__get_types',
+    # ),
 
     # Bricks
     re_path(
