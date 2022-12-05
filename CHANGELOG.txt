@@ -117,17 +117,17 @@
             - In 'creme_core.models' :
                 - The method 'bricks.RelationBrickItemManager.create_if_needed()' is deprecated.
                 - The method 'Relation.populate_real_object_entities()'' is deprecated ;
-                  use 'Relation.objects.prefetch_related("real_object")' instead.'
+                  use 'Relation.objects.prefetch_related("real_object")' instead.
             - In 'creme_core.utils' :
-                - The function 'creme_core.utils.find_first()' is deprecated ; use the builtin 'next()' instead.
+                - The function 'find_first()' is deprecated ; use the builtin 'next()' instead.
                 - The function 'split_filter()' is deprecated ;
                   use 'django.utils.functional.partition()' instead (beware the lists 'are returned in the reverse order).
                 - The function 'imports.import_object()' is deprecated ;
                   use 'django.utils.module_loading.import_string()' instead.
             - Apps :
                 * Activities :
-                    - In 'forms.fields', the classes 'ActivitySubTypeField' & 'ActivityTypeWidget' are deprecated.
-                    - The view class 'views.activity.TypeChoices' (corresponding teh URL named "activities__get_types") is deprecated.
+                    - In 'forms.fields', the classes 'ActivityTypeField' & 'ActivityTypeWidget' are deprecated.
+                    - The view class 'views.activity.TypeChoices' (corresponding to the URL named "activities__get_types") is deprecated.
                 * Emails :
                     - In the class 'emails.models._Email' :
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.

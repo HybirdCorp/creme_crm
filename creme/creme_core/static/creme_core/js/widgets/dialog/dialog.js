@@ -784,7 +784,7 @@ creme.dialogs = $.extend(creme.dialogs, {
  * Same issue with Select2
  *
  * The _allowInteraction method can be overriden (see https://api.jqueryui.com/dialog/#method-_allowInteraction)
- * and the ui.dialog widget redifined (see https://learn.jquery.com/jquery-ui/widget-factory/extending-widgets/#redefining-widgets)
+ * and the ui.dialog widget redefined (see https://learn.jquery.com/jquery-ui/widget-factory/extending-widgets/#redefining-widgets)
  */
 
 $.widget("ui.dialog", $.ui.dialog, {
