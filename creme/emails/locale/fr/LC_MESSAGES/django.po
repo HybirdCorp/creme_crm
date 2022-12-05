@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Emails 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-13 10:51+0100\n"
+"POT-Creation-Date: 2023-01-23 11:44+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -403,12 +403,6 @@ msgstr "Erreur d'envoi"
 msgctxt "emails"
 msgid "Synchronized"
 msgstr "Synchronisé"
-
-msgid "Synchronized - Marked as SPAM (deprecated)"
-msgstr "Synchronisé - Marqué comme SPAM (obsolète)"
-
-msgid "Synchronized - Untreated (deprecated)"
-msgstr "Synchronisé - Non traité (obsolète)"
 
 msgid "Number of reads"
 msgstr "Nombre de lecture"
@@ -1263,6 +1257,12 @@ msgstr "Nouveaux fichiers joints pour «{entity}»"
 
 msgid "Add the attachments"
 msgstr "Ajouter les fichiers joints"
+
+#~ msgid "Synchronized - Marked as SPAM (deprecated)"
+#~ msgstr "Synchronisé - Marqué comme SPAM (obsolète)"
+
+#~ msgid "Synchronized - Untreated (deprecated)"
+#~ msgstr "Synchronisé - Non traité (obsolète)"
 
 #~ msgid "Incoming emails to treat"
 #~ msgstr "E-mails entrants à traiter"

@@ -44,16 +44,16 @@ class _Email(CremeModel):
         NOT_SENT             = 2, pgettext_lazy('emails', 'Not sent'),
         SENDING_ERROR        = 3, _('Sending error'),
         SYNCHRONIZED         = 4, pgettext_lazy('emails', 'Synchronized'),
-        # DEPRECATED
-        SYNCHRONIZED_SPAM    = 5, _('Synchronized - Marked as SPAM (deprecated)'),
-        SYNCHRONIZED_WAITING = 6, _('Synchronized - Untreated (deprecated)'),
+        # # DEPRECATED
+        # SYNCHRONIZED_SPAM    = 5, _('Synchronized - Marked as SPAM (deprecated)'),
+        # SYNCHRONIZED_WAITING = 6, _('Synchronized - Untreated (deprecated)'),
 
-    # DEPRECATED
-    SYNCHRONIZATION_STATUSES = {
-        Status.SYNCHRONIZED,
-        Status.SYNCHRONIZED_SPAM,
-        Status.SYNCHRONIZED_WAITING,
-    }
+    # # DEPRECATED
+    # SYNCHRONIZATION_STATUSES = {
+    #     Status.SYNCHRONIZED,
+    #     Status.SYNCHRONIZED_SPAM,
+    #     Status.SYNCHRONIZED_WAITING,
+    # }
 
     reads = models.PositiveIntegerField(
         _('Number of reads'), null=True, default=0, editable=False,
@@ -89,7 +89,8 @@ class _Email(CremeModel):
 
     @property
     def synchronised(self):
-        return self.status in self.SYNCHRONIZATION_STATUSES
+        # return self.status in self.SYNCHRONIZATION_STATUSES
+        return self.status in self.Status.SYNCHRONIZED
 
 
 class AbstractEntityEmail(_Email, CremeEntity):
