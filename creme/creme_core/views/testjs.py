@@ -39,8 +39,8 @@ from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..gui.bricks import PaginatedBrick, brick_registry
 from ..gui.field_printers import (
-    print_date,
-    print_datetime,
+    print_date_html,
+    print_datetime_html,
     print_duration,
     print_foreignkey_html,
     print_image_html,
@@ -97,8 +97,8 @@ class Dummy:
         self.user = user
         self.name = name
         self.url = mark_safe(print_url_html(self, image_url, self.user, None))
-        self.datetime = mark_safe(print_datetime(self, now(), user, None))
-        self.date = mark_safe(print_date(self, date.today(), user, None))
+        self.datetime = mark_safe(print_datetime_html(self, now(), user, None))
+        self.date = mark_safe(print_date_html(self, date.today(), user, None))
         self.duration = mark_safe(print_duration(
             self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
         ))
