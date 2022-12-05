@@ -16,13 +16,13 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+# import warnings
 import logging
-import warnings
 
 from django.utils.functional import partition
 from django.utils.translation import gettext_lazy as _
 
-from creme.creme_core.gui.bricks import Brick, QuerysetBrick
+from creme.creme_core.gui.bricks import QuerysetBrick  # Brick
 from creme.sketch.bricks import ChartBrick
 
 from . import get_graph_model
@@ -31,30 +31,30 @@ from .models import RootNode
 logger = logging.getLogger(__name__)
 
 
-class GraphBarHatBrick(Brick):
-    template_name = 'graphs/bricks/graph-hat-bar.html'
-
-    def __init__(self):
-        super().__init__()
-        warnings.warn(
-            'The class graphs.bricks.GraphBarHatBrick is deprecated.',
-            DeprecationWarning,
-        )
-
-    def detailview_display(self, context):
-        try:
-            import pygraphviz  # NOQA
-        except ImportError:
-            logger.warning(
-                'The package "pygraphviz" is not installed ; '
-                'please install creme with the `graphs` flag. '
-                'I.E `pip install creme-crm[mysql,graphs]`'
-            )
-            dl_button = False
-        else:
-            dl_button = True
-
-        return self._render(self.get_template_context(context, dl_button=dl_button))
+# class GraphBarHatBrick(Brick):
+#     template_name = 'graphs/bricks/graph-hat-bar.html'
+#
+#     def __init__(self):
+#         super().__init__()
+#         warnings.warn(
+#             'The class graphs.bricks.GraphBarHatBrick is deprecated.',
+#             DeprecationWarning,
+#         )
+#
+#     def detailview_display(self, context):
+#         try:
+#             import pygraphviz  # NOQA
+#         except ImportError:
+#             logger.warning(
+#                 'The package "pygraphviz" is not installed ; '
+#                 'please install creme with the `graphs` flag. '
+#                 'I.E `pip install creme-crm[mysql,graphs]`'
+#             )
+#             dl_button = False
+#         else:
+#             dl_button = True
+#
+#         return self._render(self.get_template_context(context, dl_button=dl_button))
 
 
 class RelationChartBrick(ChartBrick):

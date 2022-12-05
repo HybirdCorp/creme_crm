@@ -16,26 +16,25 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-from os import remove as delete_file
-from os.path import basename
-
+# import warnings
+# from os import remove as delete_file
+# from os.path import basename
 from django.conf import settings
 from django.db import models
-from django.http import HttpResponseRedirect
+# from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models.fields as core_fields
+# from creme.creme_core.models import FileRef
+# from creme.creme_core.utils.file_handling import FileCreator
 from creme.creme_core.models import (
     CremeEntity,
     CremeModel,
-    FileRef,
     Relation,
     RelationType,
 )
-from creme.creme_core.utils.file_handling import FileCreator
 
 
 class AbstractGraph(CremeEntity):
@@ -122,124 +121,114 @@ class AbstractGraph(CremeEntity):
 
         return qs
 
-    def generate_png(self, user):
-        warnings.warn(
-            'The method graphs.models.AbstractGraph.generate_png() is deprecated.',
-            DeprecationWarning,
-        )
-
-        from os.path import join
-
-        import pygraphviz as pgv
-
-        # NB: to work with utf8 label in node: all node must be added explicitly with
-        #     unicode label, and when edges are a created, nodes identified by their
-        #     labels encoded as string
-
-        graph = pgv.AGraph(directed=True)
-        roots = self.get_root_nodes(user)
-
-        add_node = graph.add_node
-        add_edge = graph.add_edge
-
-        # TODO: entity cache ? regroups relations by type ? ...
-
-        # # Small optimisation
-        # CremeEntity.populate_real_entities([root.entity for root in roots])
-
-        for root in roots:
-            # add_node(str(root.entity), shape='box')
-            add_node(str(root.real_entity), shape='box')
-            # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
-            # add_node(
-            #     'filled box v2', shape='box', style='filled',
-            #     fillcolor='#FF0000', color='#0000FF', penwidth='2.0'
-            # )  # default pensize=="1.0"
-
-        orbital_nodes = {}  # Cache
-
-        for root in roots:
-            subject = root.real_entity
-            str_subject = str(subject)
-<<<<<<< HEAD
-
-            relations = self.get_root_node_relations(root, user)
-            # relations = subject.relations.filter(
-            #     type__in=root.relation_types.all(),
-            # ).select_related('object_entity', 'type')
-            # Relation.populate_real_object_entities(relations)  # Small optimisation
-=======
-            relations = subject.relations.filter(
-                type__in=root.relation_types.all(),
-            ).select_related('type').prefetch_related('real_object')
->>>>>>> f9c48c6a1... Remove old commented code.
-
-            for relation in relations:
-                # object_entity = relation.object_entity
-                object_entity = relation.real_object
-                #  if not user.has_perm_to_view(object_entity):
-                #     continue
-
-                object_as_str = str(object_entity)
-
-                orbital_node = orbital_nodes.get(object_entity.id)
-                if not orbital_node:
-                    add_node(object_as_str)
-                    orbital_nodes[object_entity.id] = object_as_str
-
-                add_edge(
-                    str_subject, object_as_str,
-                    label=str(relation.type.predicate),
-                )
-                # add_edge(
-                #     'b', 'd', color='#FF0000', fontcolor='#00FF00',
-                #     label='foobar', style='dashed'
-                # )
-
-        orbital_rtypes = self.orbital_relation_types.all()
-
-        if orbital_rtypes:
-            orbital_ids = orbital_nodes.keys()
-
-            for relation in Relation.objects.filter(
-                subject_entity__in=orbital_ids,
-                object_entity__in=orbital_ids,
-                type__in=orbital_rtypes,
-            ).select_related('type'):
-                add_edge(
-                    orbital_nodes[relation.subject_entity_id],
-                    orbital_nodes[relation.object_entity_id],
-                    label=str(relation.type.predicate),
-                    style='dashed',
-                )
-
-        graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
-
-        img_format = 'png'  # Format: pdf svg
-        img_basename = f'graph_{self.id}.{img_format}'
-
-        try:
-            path = FileCreator(
-                # join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename,
-                join(settings.MEDIA_ROOT, 'graphs'), img_basename,
-            ).create()
-        except FileCreator.Error as e:
-            raise self.GraphException(e) from e
-
-        try:
-            graph.draw(path, format=img_format)  # Format: pdf svg
-        except OSError as e:
-            delete_file(path)
-
-            raise self.GraphException(str(e)) from e
-
-        fileref = FileRef.objects.create(
-            user=user,
-            filedata='graphs/' + basename(path),
-            basename=img_basename,
-        )
-
-        return HttpResponseRedirect(fileref.get_download_absolute_url())
+    # def generate_png(self, user):
+    #     warnings.warn(
+    #         'The method graphs.models.AbstractGraph.generate_png() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     from os.path import join
+    #
+    #     import pygraphviz as pgv
+    #
+    #     # NB: to work with utf8 label in node: all node must be added explicitly with
+    #     #     unicode label, and when edges are a created, nodes identified by their
+    #     #     labels encoded as string
+    #
+    #     graph = pgv.AGraph(directed=True)
+    #     roots = self.get_root_nodes(user)
+    #
+    #     add_node = graph.add_node
+    #     add_edge = graph.add_edge
+    #
+    #     # todo: entity cache ? regroups relations by type ? ...
+    #
+    #     # # Small optimisation
+    #     # CremeEntity.populate_real_entities([root.entity for root in roots])
+    #
+    #     for root in roots:
+    #         # add_node(str(root.entity), shape='box')
+    #         add_node(str(root.real_entity), shape='box')
+    #         # add_node('filled box',    shape='box', style='filled', color='#FF00FF')
+    #         # add_node(
+    #         #     'filled box v2', shape='box', style='filled',
+    #         #     fillcolor='#FF0000', color='#0000FF', penwidth='2.0'
+    #         # )  # default pensize=="1.0"
+    #
+    #     orbital_nodes = {}  # Cache
+    #
+    #     for root in roots:
+    #         subject = root.real_entity
+    #         str_subject = str(subject)
+    #
+    #         relations = self.get_root_node_relations(root, user)
+    #
+    #         for relation in relations:
+    #             # object_entity = relation.object_entity
+    #             object_entity = relation.real_object
+    #             #  if not user.has_perm_to_view(object_entity):
+    #             #     continue
+    #
+    #             object_as_str = str(object_entity)
+    #
+    #             orbital_node = orbital_nodes.get(object_entity.id)
+    #             if not orbital_node:
+    #                 add_node(object_as_str)
+    #                 orbital_nodes[object_entity.id] = object_as_str
+    #
+    #             add_edge(
+    #                 str_subject, object_as_str,
+    #                 label=str(relation.type.predicate),
+    #             )
+    #             # add_edge(
+    #             #     'b', 'd', color='#FF0000', fontcolor='#00FF00',
+    #             #     label='foobar', style='dashed'
+    #             # )
+    #
+    #     orbital_rtypes = self.orbital_relation_types.all()
+    #
+    #     if orbital_rtypes:
+    #         orbital_ids = orbital_nodes.keys()
+    #
+    #         for relation in Relation.objects.filter(
+    #             subject_entity__in=orbital_ids,
+    #             object_entity__in=orbital_ids,
+    #             type__in=orbital_rtypes,
+    #         ).select_related('type'):
+    #             add_edge(
+    #                 orbital_nodes[relation.subject_entity_id],
+    #                 orbital_nodes[relation.object_entity_id],
+    #                 label=str(relation.type.predicate),
+    #                 style='dashed',
+    #             )
+    #
+    #     graph.layout(prog='dot')  # Algo: neato dot twopi circo fdp nop
+    #
+    #     img_format = 'png'  # Format: pdf svg
+    #     img_basename = f'graph_{self.id}.{img_format}'
+    #
+    #     try:
+    #         path = FileCreator(
+    #             # join(settings.MEDIA_ROOT, 'upload', 'graphs'), img_basename,
+    #             join(settings.MEDIA_ROOT, 'graphs'), img_basename,
+    #         ).create()
+    #     except FileCreator.Error as e:
+    #         raise self.GraphException(e) from e
+    #
+    #     try:
+    #         graph.draw(path, format=img_format)  # Format: pdf svg
+    #     except OSError as e:
+    #         delete_file(path)
+    #
+    #         raise self.GraphException(str(e)) from e
+    #
+    #     fileref = FileRef.objects.create(
+    #         user=user,
+    #         filedata='graphs/' + basename(path),
+    #         basename=img_basename,
+    #     )
+    #
+    #     return HttpResponseRedirect(fileref.get_download_absolute_url())
 
     def _post_save_clone(self, source):
         for node in RootNode.objects.filter(graph=source):
@@ -278,9 +267,9 @@ class RootNode(CremeModel):
     def get_related_entity(self):  # For generic views (edit_related_to_entity)
         return self.graph
 
-    def get_relation_types(self):
-        warnings.warn(
-            'The method RootNode.get_relation_types() is deprecated.',
-            DeprecationWarning,
-        )
-        return self.relation_types.select_related('symmetric_type')
+    # def get_relation_types(self):
+    #     warnings.warn(
+    #         'The method RootNode.get_relation_types() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #     return self.relation_types.select_related('symmetric_type')

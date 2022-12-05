@@ -36,6 +36,12 @@
                     - In the class 'emails.models._Email' :
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' have been removed.
                         - 'SYNCHRONIZATION_STATUSES' has been removed.
+                * Graphs :
+                    - The class 'bricks.GraphBarHatBrick' & the template file "graphs/bricks/graph-hat-bar.html" have been removed.
+                    - In 'models' :
+                        - The method 'AbstractGraph.generate_png()' has been removed.
+                        - The method 'RootNode.get_relation_types()' has been removed.
+                    - The function-view 'views.graph.dl_png()' has been removed.
 
     Internal breaking changes :
     ---------------------------
