@@ -20,6 +20,7 @@ from creme.creme_core.core.entity_filter import operators
 from creme.creme_core.core.entity_filter.condition_handler import (
     RegularFieldConditionHandler,
 )
+# from creme.creme_core.gui.field_printers import print_date, print_datetime
 from creme.creme_core.gui.field_printers import (
     FKPrinter,
     M2MPrinterForHTML,
@@ -27,10 +28,8 @@ from creme.creme_core.gui.field_printers import (
     print_boolean_csv,
     print_boolean_html,
     print_choice,
-    print_date,
     print_date_csv,
     print_date_html,
-    print_datetime,
     print_datetime_csv,
     print_datetime_html,
     print_decimal_csv,
@@ -241,17 +240,17 @@ class FieldsPrintersTestCase(CremeTestCase):
             print_url_html(o, fval=url2, user=user, field=field)
         )
 
-    def test_print_date(self):  # DEPRECATED
-        c = FakeContact()
-        user = CremeUser()
-        field = c._meta.get_field('birthday')
-        self.assertEqual('', print_date(c, None, user, field))
-
-        value = date(year=2019, month=8, day=21)
-        self.assertEqual(
-            date_format(value, 'DATE_FORMAT'),
-            print_date(c, value, user, field)
-        )
+    # def test_print_date(self):  # DEPRECATED
+    #     c = FakeContact()
+    #     user = CremeUser()
+    #     field = c._meta.get_field('birthday')
+    #     self.assertEqual('', print_date(c, None, user, field))
+    #
+    #     value = date(year=2019, month=8, day=21)
+    #     self.assertEqual(
+    #         date_format(value, 'DATE_FORMAT'),
+    #         print_date(c, value, user, field)
+    #     )
 
     def test_print_date_html(self):
         c = FakeContact()
@@ -304,17 +303,17 @@ class FieldsPrintersTestCase(CremeTestCase):
                     print_date_csv(c, value, user, field),
                 )
 
-    def test_print_datetime(self):  # DEPRECATED
-        a = FakeActivity()
-        user = CremeUser()
-        field = a._meta.get_field('start')
-        self.assertEqual('', print_datetime(a, None, user, field))
-
-        value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
-        self.assertEqual(
-            date_format(value, 'DATETIME_FORMAT'),
-            print_datetime(a, value, user, field)
-        )
+    # def test_print_datetime(self):  # DEPRECATED
+    #     a = FakeActivity()
+    #     user = CremeUser()
+    #     field = a._meta.get_field('start')
+    #     self.assertEqual('', print_datetime(a, None, user, field))
+    #
+    #     value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
+    #     self.assertEqual(
+    #         date_format(value, 'DATETIME_FORMAT'),
+    #         print_datetime(a, value, user, field)
+    #     )
 
     def test_print_datetime_html(self):
         a = FakeActivity()

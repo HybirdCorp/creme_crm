@@ -1054,8 +1054,6 @@ TEST_CREME_CORE_JS = [
     'creme_core/js/tests/widgets/datetimepicker.js',
 
     'creme_core/js/tests/form/forms.js',
-    # DEPRECATED: to be removed in Creme 2.5
-    # 'creme_core/js/tests/form/chosen.js',
     'creme_core/js/tests/form/select2.js',
     'creme_core/js/tests/form/dropdown.js',
 

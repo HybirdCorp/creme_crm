@@ -21,7 +21,7 @@ from __future__ import annotations
 import copy
 import json
 import logging
-import warnings
+# import warnings
 from datetime import date
 from functools import partial
 from types import GeneratorType
@@ -495,31 +495,31 @@ class SelectorList(widgets.TextInput):
         super().__init__(attrs)
         self.selector = selector
 
-        self._enabled = True  # DEPRECATED
-        if kwargs:
-            self.enabled = kwargs.pop('enabled')
-            assert not kwargs, 'Invalid attribute'
+        # self._enabled = True  # DEPRECATED
+        # if kwargs:
+        #     self.enabled = kwargs.pop('enabled')
+        #     assert not kwargs, 'Invalid attribute'
 
         self.actions = [self.action_class(name='add', label=gettext_lazy('Add'), icon='add')]
         self.from_python = None  # TODO: remove this hack ?
 
-    @property
-    def enabled(self):
-        warnings.warn(
-            'SelectorList: the attribute <enabled> is deprecated (read) ; '
-            'use <attrs={"disabled": True}> to disable instead.',
-            DeprecationWarning
-        )
-        return self._enabled
-
-    @enabled.setter
-    def enabled(self, value):
-        warnings.warn(
-            'SelectorList: the attribute <enabled> is deprecated (write) ; '
-            'use <attrs={"disabled": True}> to disable instead.',
-            DeprecationWarning
-        )
-        self._enabled = value
+    # @property
+    # def enabled(self):
+    #     warnings.warn(
+    #         'SelectorList: the attribute <enabled> is deprecated (read) ; '
+    #         'use <attrs={"disabled": True}> to disable instead.',
+    #         DeprecationWarning
+    #     )
+    #     return self._enabled
+    #
+    # @enabled.setter
+    # def enabled(self, value):
+    #     warnings.warn(
+    #         'SelectorList: the attribute <enabled> is deprecated (write) ; '
+    #         'use <attrs={"disabled": True}> to disable instead.',
+    #         DeprecationWarning
+    #     )
+    #     self._enabled = value
 
     def add_action(self, name, label, enabled=True, icon: str | None = None, **attrs):
         self.actions.append(self.action_class(
@@ -540,12 +540,12 @@ class SelectorList(widgets.TextInput):
         widget_cxt = context['widget']
         final_attrs = widget_cxt['attrs']
 
-        # DEPRECATED
-        if not self._enabled:
-            final_attrs['disabled'] = True
-        widget_cxt['enabled'] = self._enabled
+        # # DEPRECATED
+        # if not self._enabled:
+        #     final_attrs['disabled'] = True
+        # widget_cxt['enabled'] = self._enabled
 
-        widget_cxt['clonelast'] = 'clonelast' in final_attrs  # DEPRECATED
+        # widget_cxt['clonelast'] = 'clonelast' in final_attrs  # DEPRECATED
 
         final_attrs['class'] = (
             f"ui-creme-widget widget-auto {widget_type} "

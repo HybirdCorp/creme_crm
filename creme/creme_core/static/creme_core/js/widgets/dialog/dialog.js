@@ -782,10 +782,12 @@ creme.dialogs = $.extend(creme.dialogs, {
 $.widget("ui.dialog", $.ui.dialog, {
     _allowInteraction: function(event) {
         if (event !== undefined) {
+/*
             // DEPRECATED: to be removed when Chosen has been definitively removed in Creme 2.5
             if ($(event.target).closest(".chzn-drop").length) {
                 return true;
             }
+*/
 
             if ($(event.target).closest('.select2-dropdown').length) {
                 return true;

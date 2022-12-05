@@ -18,18 +18,17 @@ from pytz import timezone
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
 from creme.creme_core.models import FakeOrganisation, SetCredentials
+# from creme.creme_core.utils import find_first, split_filter
 from creme.creme_core.utils import (
     create_if_needed,
     ellipsis,
     ellipsis_multi,
     entities_to_str,
-    find_first,
     get_from_GET_or_404,
     get_from_POST_or_404,
     int_2_roman,
     prefixed_truncate,
     safe_unicode,
-    split_filter,
     truncate_str,
     update_model_instance,
 )
@@ -59,32 +58,32 @@ from ..fake_models import FakeCivility, FakeContact
 
 
 class MiscTestCase(CremeTestCase):
-    def test_find_first(self):  # DEPRECATED
-        class Info:
-            def __init__(self, data):
-                self.data = data
+    # def test_find_first(self):  # DEPRECATED
+    #     class Info:
+    #         def __init__(self, data):
+    #             self.data = data
+    #
+    #     i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
+    #     list_ = [i1, i2, i3, i4]
+    #
+    #     self.assertIs(find_first(list_, lambda i: i.data == 1), i1)
+    #     self.assertIs(find_first(list_, lambda i: i.data == 2), i2)
+    #     self.assertIs(find_first(list_, lambda i: i.data == 5), i4)
+    #
+    #     self.assertIsNone(find_first(list_, lambda i: i.data == 12, None))
+    #     self.assertRaises(IndexError, find_first, list_, lambda i: i.data == 12)
 
-        i1, i2, i3, i4 = Info(1), Info(2), Info(2), Info(5)
-        list_ = [i1, i2, i3, i4]
-
-        self.assertIs(find_first(list_, lambda i: i.data == 1), i1)
-        self.assertIs(find_first(list_, lambda i: i.data == 2), i2)
-        self.assertIs(find_first(list_, lambda i: i.data == 5), i4)
-
-        self.assertIsNone(find_first(list_, lambda i: i.data == 12, None))
-        self.assertRaises(IndexError, find_first, list_, lambda i: i.data == 12)
-
-    def test_split_filter(self):  # DEPRECATED
-        ok, ko = split_filter((lambda x: x % 2), range(5))
-        self.assertEqual([1, 3], ok)
-        self.assertEqual([0, 2, 4], ko)
-
-        ok, ko = split_filter(
-            (lambda x: 'k' in x),
-            ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'],
-        )
-        self.assertListEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
-        self.assertListEqual(['Naruto'], ko)
+    # def test_split_filter(self):  # DEPRECATED
+    #     ok, ko = split_filter((lambda x: x % 2), range(5))
+    #     self.assertEqual([1, 3], ok)
+    #     self.assertEqual([0, 2, 4], ko)
+    #
+    #     ok, ko = split_filter(
+    #         (lambda x: 'k' in x),
+    #         ['Naruto', 'Sasuke', 'Sakura', 'Kakashi'],
+    #     )
+    #     self.assertListEqual(['Sasuke', 'Sakura', 'Kakashi'], ok)
+    #     self.assertListEqual(['Naruto'], ko)
 
     def test_truncate_str_01(self):
         s = string.ascii_letters
