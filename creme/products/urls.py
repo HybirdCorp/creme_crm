@@ -22,7 +22,7 @@ urlpatterns = [
         name='products__remove_image',
     ),
 
-    # TODO : Deprecated. To remove in 2.5
+    # DEPRECATED.
     re_path(
         r'^sub_category/(?P<category_id>\d+)/json[/]?$',
         product.get_subcategories,
