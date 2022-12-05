@@ -502,8 +502,8 @@ class BrickTestCase(CremeTestCase):
             ('test-object_loved',  'is loved by'),
         )[0]
 
-        # DEPRECATED: => RelationBrickItem.objects.create(relation_type=rtype)
-        rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
+        # rbi = RelationBrickItem.objects.create_if_needed(rtype.id)
+        rbi = RelationBrickItem.objects.create(relation_type=rtype)
         self.assertIsInstance(rbi, RelationBrickItem)
         self.assertIsNotNone(rbi.pk)
         self.assertEqual(rtype.id, rbi.relation_type_id)
@@ -560,7 +560,7 @@ class BrickTestCase(CremeTestCase):
         self.assertEqual(1, len(rbi.get_cells(ct_orga)))
 
         # ---
-        self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype.id))
+        # self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype.id))
 
     def test_relation_brick02(self):
         "All ctypes configured + Relation instance."
@@ -586,7 +586,7 @@ class BrickTestCase(CremeTestCase):
         self.assertTrue(self.refresh(rbi).all_ctypes_configured)
 
         # ---
-        self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype))
+        # self.assertEqual(rbi, RelationBrickItem.objects.create_if_needed(rtype))
 
     def test_relation_brick_errors(self):
         rtype = RelationType.objects.smart_update_or_create(

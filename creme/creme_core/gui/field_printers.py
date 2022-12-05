@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-import warnings
+# import warnings
 from os.path import splitext
 from typing import TYPE_CHECKING
 
@@ -203,13 +203,13 @@ def print_url_html(entity: Model, fval, user, field: Field) -> str:
     return format_html('<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
 
 
-def print_datetime(entity: Model, fval, user, field: Field) -> str:
-    warnings.warn(
-        'creme_core.gui.field_printers.print_datetime() is deprecated ; '
-        'use print_datetime_html()/print_datetime_csv() instead.',
-        DeprecationWarning,
-    )
-    return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
+# def print_datetime(entity: Model, fval, user, field: Field) -> str:
+#     warnings.warn(
+#         'creme_core.gui.field_printers.print_datetime() is deprecated ; '
+#         'use print_datetime_html()/print_datetime_csv() instead.',
+#         DeprecationWarning,
+#     )
+#     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
 
 def print_datetime_html(entity: Model, fval, user, field: Field) -> str:
@@ -222,13 +222,13 @@ def print_datetime_csv(entity: Model, fval, user, field: Field) -> str:
     return localtime(fval).strftime(get_format('DATETIME_INPUT_FORMATS')[0]) if fval else ''
 
 
-def print_date(entity: Model, fval, user, field: Field) -> str:
-    warnings.warn(
-        'creme_core.gui.field_printers.print_date() is deprecated ; '
-        'use print_date_html()/print_date_csv() instead.',
-        DeprecationWarning,
-    )
-    return date_format(fval, 'DATE_FORMAT') if fval else ''
+# def print_date(entity: Model, fval, user, field: Field) -> str:
+#     warnings.warn(
+#         'creme_core.gui.field_printers.print_date() is deprecated ; '
+#         'use print_date_html()/print_date_csv() instead.',
+#         DeprecationWarning,
+#     )
+#     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 
 def print_date_html(entity: Model, fval, user, field: Field) -> str:

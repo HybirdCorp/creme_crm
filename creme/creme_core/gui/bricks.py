@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import (
     DefaultDict,
@@ -640,12 +640,8 @@ class CustomBrick(Brick):
 
 
 class BricksManager:
-    """The bricks of a page are registered in order to regroup the query to get their states.
-
-    Documentation for DEPRECATED features:
-    Using to solve the bricks dependencies problem in a page.
-    Bricks can depend on the same model: updating one brick involves to update
-    the bricks which depend on the same as it.
+    """The bricks of a page are registered in order to regroup the query to get
+    their states.
     """
     var_name: str = 'bricks_manager'
 
@@ -655,18 +651,18 @@ class BricksManager:
     def __init__(self):
         self._bricks: list[Brick] = []
 
-        # DEPRECATED
-        self._dependencies_map: DefaultDict[type[Model] | str, list[Brick]] | None = None
+        # # DEPRECATED
+        # self._dependencies_map: DefaultDict[type[Model] | str, list[Brick]] | None = None
 
         self._bricks_groups: DefaultDict[str, list[Brick]] = defaultdict(list)
         self._used_relationtypes: set[str] | None = None
         self._state_cache: dict[str, BrickState] | None = None
 
     def add_group(self, group_name: str, *bricks: Brick) -> None:
-        if self._dependencies_map is not None:
-            raise BricksManager.Error(
-                "Can't add brick to manager after dependence resolution is done."
-            )
+        # if self._dependencies_map is not None:
+        #     raise BricksManager.Error(
+        #         "Can't add brick to manager after dependence resolution is done."
+        #     )
 
         group = self._bricks_groups[group_name]
         if group:
@@ -685,32 +681,32 @@ class BricksManager:
     def bricks(self):
         yield from self._bricks
 
-    def _build_dependencies_map(self) -> DefaultDict[type[Model] | str, list[Brick]]:
-        warnings.warn(
-            'The method BricksManager._build_dependencies_map() is deprecated.',
-            DeprecationWarning,
-        )
-
-        dep_map = self._dependencies_map
-
-        if dep_map is None:
-            self._dependencies_map = dep_map = defaultdict(list)
-            wildcarded_bricks = []
-
-            for brick in self._bricks:
-                dependencies = brick.dependencies
-
-                if dependencies == '*':
-                    wildcarded_bricks.append(brick)
-                else:
-                    for dep in dependencies:
-                        dep_map[dep].append(brick)
-
-            if wildcarded_bricks:
-                for dep_bricks in dep_map.values():
-                    dep_bricks.extend(wildcarded_bricks)
-
-        return dep_map
+    # def _build_dependencies_map(self) -> DefaultDict[type[Model] | str, list[Brick]]:
+    #     warnings.warn(
+    #         'The method BricksManager._build_dependencies_map() is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     dep_map = self._dependencies_map
+    #
+    #     if dep_map is None:
+    #         self._dependencies_map = dep_map = defaultdict(list)
+    #         wildcarded_bricks = []
+    #
+    #         for brick in self._bricks:
+    #             dependencies = brick.dependencies
+    #
+    #             if dependencies == '*':
+    #                 wildcarded_bricks.append(brick)
+    #             else:
+    #                 for dep in dependencies:
+    #                     dep_map[dep].append(brick)
+    #
+    #         if wildcarded_bricks:
+    #             for dep_bricks in dep_map.values():
+    #                 dep_bricks.extend(wildcarded_bricks)
+    #
+    #     return dep_map
 
     @staticmethod
     def get(context) -> BricksManager:
@@ -741,30 +737,30 @@ class BricksManager:
     def pop_group(self, group_name: str) -> list[Brick]:
         return self._bricks_groups.pop(group_name)
 
-    @property
-    def used_relationtypes_ids(self) -> set[str]:
-        warnings.warn(
-            'The property (getter) BricksManager.used_relationtypes_ids is deprecated.',
-            DeprecationWarning,
-        )
-
-        if self._used_relationtypes is None:
-            self._used_relationtypes = {
-                rt_id for brick in self._build_dependencies_map()[Relation]
-                for rt_id in brick.relation_type_deps
-            }
-
-        return self._used_relationtypes
-
-    @used_relationtypes_ids.setter
-    def used_relationtypes_ids(self, relationtypes_ids: Iterable[str]) -> None:
-        "@param relationtypes_ids: Iterable of RelationType objects' IDs."
-        warnings.warn(
-            'The property (setter) BricksManager.used_relationtypes_ids is deprecated.',
-            DeprecationWarning,
-        )
-
-        self._used_relationtypes = {*relationtypes_ids}
+    # @property
+    # def used_relationtypes_ids(self) -> set[str]:
+    #     warnings.warn(
+    #         'The property (getter) BricksManager.used_relationtypes_ids is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     if self._used_relationtypes is None:
+    #         self._used_relationtypes = {
+    #             rt_id for brick in self._build_dependencies_map()[Relation]
+    #             for rt_id in brick.relation_type_deps
+    #         }
+    #
+    #     return self._used_relationtypes
+    #
+    # @used_relationtypes_ids.setter
+    # def used_relationtypes_ids(self, relationtypes_ids: Iterable[str]) -> None:
+    #     "@param relationtypes_ids: Iterable of RelationType objects' IDs."
+    #     warnings.warn(
+    #         'The property (setter) BricksManager.used_relationtypes_ids is deprecated.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     self._used_relationtypes = {*relationtypes_ids}
 
 
 class _BrickRegistry:

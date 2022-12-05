@@ -939,10 +939,10 @@ class BricksManagerTestCase(CremeTestCase):
             [*mngr.bricks],
         )
         self.assertRaises(BricksManager.Error, mngr.add_group, name1, brick4)  # Same name
-        _ = mngr.used_relationtypes_ids
-
-        # Dependencies already solved
-        self.assertRaises(BricksManager.Error, mngr.add_group, 'gname2', brick4)
+        # _ = mngr.used_relationtypes_ids
+        #
+        # # Dependencies already solved
+        # self.assertRaises(BricksManager.Error, mngr.add_group, 'gname2', brick4)
 
     def test_manage02(self):
         class TestBrick(SimpleBrick):
@@ -981,40 +981,40 @@ class BricksManagerTestCase(CremeTestCase):
         self.assertEqual(['gname2'], mngr.get_remaining_groups())
         self.assertRaises(KeyError, mngr.pop_group, 'gname1')
 
-        dep_map = mngr._build_dependencies_map()
-        self.assertEqual(2, len(dep_map))
-        self.assertSetEqual(
-            {FoobarBrick2.id_, FoobarBrick4.id_},
-            {brick.id_ for brick in dep_map[FakeContact]},
-        )
-        self.assertSetEqual(
-            {FoobarBrick3.id_, FoobarBrick4.id_},
-            {brick.id_ for brick in dep_map[FakeOrganisation]},
-        )
+        # dep_map = mngr._build_dependencies_map()
+        # self.assertEqual(2, len(dep_map))
+        # self.assertSetEqual(
+        #     {FoobarBrick2.id_, FoobarBrick4.id_},
+        #     {brick.id_ for brick in dep_map[FakeContact]},
+        # )
+        # self.assertSetEqual(
+        #     {FoobarBrick3.id_, FoobarBrick4.id_},
+        #     {brick.id_ for brick in dep_map[FakeOrganisation]},
+        # )
 
     def test_manage03(self):
         "Relation bricks."
-        rtype1_pk = 'test-subject_loves'
-        rtype1, srtype1 = RelationType.objects.smart_update_or_create(
-            (rtype1_pk,           'loves'),
-            ('test-object_loved', 'is loved by'),
-        )
-
-        rtype2_pk = 'test-subject_follows'
-        rtype2, srtype2 = RelationType.objects.smart_update_or_create(
-            (rtype2_pk,              'follow'),
-            ('test-object_followed', 'is followed by'),
-        )
+        # rtype1_pk = 'test-subject_loves'
+        # rtype1, srtype1 = RelationType.objects.smart_update_or_create(
+        #     (rtype1_pk,           'loves'),
+        #     ('test-object_loved', 'is loved by'),
+        # )
+        #
+        # rtype2_pk = 'test-subject_follows'
+        # rtype2, srtype2 = RelationType.objects.smart_update_or_create(
+        #     (rtype2_pk,              'follow'),
+        #     ('test-object_followed', 'is followed by'),
+        # )
 
         class TestBrick(SimpleBrick):
             verbose_name = 'Testing purpose'
 
-        class FoobarBrick1(TestBrick):
-            id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_1')
-
-        class FoobarBrick2(TestBrick):
-            id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_2')
-            dependencies = (FakeContact,)
+        # class FoobarBrick1(TestBrick):
+        #     id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_1')
+        #
+        # class FoobarBrick2(TestBrick):
+        #     id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_2')
+        #     dependencies = (FakeContact,)
 
         class FoobarBrick3(TestBrick):
             id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_3')
@@ -1022,90 +1022,89 @@ class BricksManagerTestCase(CremeTestCase):
 
         self.assertEqual((), FoobarBrick3.relation_type_deps)
 
-        class FoobarBrick4(TestBrick):
-            id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_4')
-            dependencies = (Relation,)
-            relation_type_deps = (rtype1_pk,)
-
-        class FoobarBrick5(TestBrick):
-            id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_5')
-            dependencies = (Relation,)
-            relation_type_deps = (rtype1_pk, rtype2_pk)
+        # class FoobarBrick4(TestBrick):
+        #     id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_4')
+        #     dependencies = (Relation,)
+        #     relation_type_deps = (rtype1_pk,)
+        #
+        # class FoobarBrick5(TestBrick):
+        #     id_ = TestBrick.generate_id('creme_core', 'BricksManagerTestCase__manage03_5')
+        #     dependencies = (Relation,)
+        #     relation_type_deps = (rtype1_pk, rtype2_pk)
 
         class FoobarBrick6(SpecificRelationsBrick):
             verbose_name = 'Testing purpose'
 
         self.assertEqual((Relation,), FoobarBrick6.dependencies)
 
-        brick1 = FoobarBrick1()
-        brick2 = FoobarBrick2()
-        brick3 = FoobarBrick3()
-        brick4 = FoobarBrick4()
-        brick5 = FoobarBrick5()
-        # brick6 = FoobarBrick6(RelationBrickItem.objects.create_if_needed(rtype2))
-        brick6 = FoobarBrick6(RelationBrickItem.objects.create(relation_type=rtype2))
+        # brick1 = FoobarBrick1()
+        # brick2 = FoobarBrick2()
+        # brick3 = FoobarBrick3()
+        # brick4 = FoobarBrick4()
+        # brick5 = FoobarBrick5()
+        # brick6 = FoobarBrick6(RelationBrickItem.objects.create(relation_type=rtype2))
+        #
+        # mngr = BricksManager()
+        # mngr.add_group('gname1', brick1, brick2, brick3)
+        # mngr.add_group('gname2', brick4, brick5, brick6)
+        # self.assertEqual({rtype1_pk, rtype2_pk}, mngr.used_relationtypes_ids)
+        #
+        # rtypes_ids = [srtype1.id, srtype2.id]
+        # mngr.used_relationtypes_ids = rtypes_ids
+        # self.assertSetEqual({*rtypes_ids}, mngr.used_relationtypes_ids)
 
-        mngr = BricksManager()
-        mngr.add_group('gname1', brick1, brick2, brick3)
-        mngr.add_group('gname2', brick4, brick5, brick6)
-        self.assertEqual({rtype1_pk, rtype2_pk}, mngr.used_relationtypes_ids)
-
-        rtypes_ids = [srtype1.id, srtype2.id]
-        mngr.used_relationtypes_ids = rtypes_ids
-        self.assertSetEqual({*rtypes_ids}, mngr.used_relationtypes_ids)
-
-    def test_wildcard01(self):
-        "Wildcard dependencies, read-only"
-        id_fmt = 'BricksManagerTestCase__wildcard01_{}'.format
-
-        class FoobarBrick1(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(1))
-
-        class FoobarBrick2(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(2))
-            dependencies = (FakeContact,)
-
-        class FoobarBrick3(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(3))
-            dependencies = (FakeOrganisation,)
-
-        class FoobarBrick4(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(4))
-            dependencies = '*'
-
-        class FoobarBrick5(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(5))
-            dependencies = '*'
-
-        class FoobarBrick6(SimpleBrick):
-            id_ = SimpleBrick.generate_id('creme_core', id_fmt(6))
-            dependencies = (Relation,)
-
-        brick1 = FoobarBrick1()
-        brick2 = FoobarBrick2()
-        brick3 = FoobarBrick3()
-        brick4 = FoobarBrick4()
-        brick5 = FoobarBrick5()
-        brick6 = FoobarBrick6()
-
-        mngr = BricksManager()
-        # Notice that brick4 is before brick3, but the dependencies are still OK
-        mngr.add_group('gname', brick1, brick2, brick4, brick3, brick5, brick6)
-
-        dep_map = mngr._build_dependencies_map()
-        self.assertEqual(3, len(dep_map))
-        self.assertEqual(
-            {FoobarBrick2.id_, FoobarBrick4.id_, FoobarBrick5.id_},
-            {brick.id_ for brick in dep_map[FakeContact]},
-        )
-        self.assertSetEqual(
-            {FoobarBrick3.id_, FoobarBrick4.id_, FoobarBrick5.id_},
-            {brick.id_ for brick in dep_map[FakeOrganisation]},
-        )
-        self.assertSetEqual(
-            {FoobarBrick6.id_, FoobarBrick4.id_, FoobarBrick5.id_},
-            {brick.id_ for brick in dep_map[Relation]},
-        )
+    # def test_wildcard01(self):
+    #     "Wildcard dependencies, read-only"
+    #     id_fmt = 'BricksManagerTestCase__wildcard01_{}'.format
+    #
+    #     class FoobarBrick1(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(1))
+    #
+    #     class FoobarBrick2(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(2))
+    #         dependencies = (FakeContact,)
+    #
+    #     class FoobarBrick3(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(3))
+    #         dependencies = (FakeOrganisation,)
+    #
+    #     class FoobarBrick4(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(4))
+    #         dependencies = '*'
+    #
+    #     class FoobarBrick5(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(5))
+    #         dependencies = '*'
+    #
+    #     class FoobarBrick6(SimpleBrick):
+    #         id_ = SimpleBrick.generate_id('creme_core', id_fmt(6))
+    #         dependencies = (Relation,)
+    #
+    #     brick1 = FoobarBrick1()
+    #     brick2 = FoobarBrick2()
+    #     brick3 = FoobarBrick3()
+    #     brick4 = FoobarBrick4()
+    #     brick5 = FoobarBrick5()
+    #     brick6 = FoobarBrick6()
+    #
+    #     mngr = BricksManager()
+    #     # Notice that brick4 is before brick3, but the dependencies are still OK
+    #     mngr.add_group('gname', brick1, brick2, brick4, brick3, brick5, brick6)
+    #
+    #     # dep_map = mngr._build_dependencies_map()
+    #     self.assertEqual(3, len(dep_map))
+    #     self.assertEqual(
+    #         {FoobarBrick2.id_, FoobarBrick4.id_, FoobarBrick5.id_},
+    #         {brick.id_ for brick in dep_map[FakeContact]},
+    #     )
+    #     self.assertSetEqual(
+    #         {FoobarBrick3.id_, FoobarBrick4.id_, FoobarBrick5.id_},
+    #         {brick.id_ for brick in dep_map[FakeOrganisation]},
+    #     )
+    #     self.assertSetEqual(
+    #         {FoobarBrick6.id_, FoobarBrick4.id_, FoobarBrick5.id_},
+    #         {brick.id_ for brick in dep_map[Relation]},
+    #     )
 
     def test_get(self):
         mngr = BricksManager()

@@ -19,7 +19,7 @@
 from __future__ import annotations
 
 import logging
-import warnings
+# import warnings
 from collections import defaultdict
 from typing import Iterable
 
@@ -627,23 +627,23 @@ class Relation(CremeModel):
                 update_fields=['symmetric_relation'],
             )
 
-    @staticmethod
-    def populate_real_object_entities(relations: Iterable[Relation]) -> None:
-        """Faster than call get_real_entity() on each relation.object_entity.
-        @param relations: Iterable of Relation objects.
-
-        Tips: better if object_entity attribute is already populated
-        (e.g. by using select_related('object_entity') on the queryset).
-        """
-        warnings.warn(
-            'Relation.populate_real_object_entities() is deprecated ; '
-            'use Relation.objects.prefetch_related("real_object") instead.',
-            DeprecationWarning,
-        )
-
-        CremeEntity.populate_real_entities([
-            relation.object_entity for relation in relations
-        ])
+    # @staticmethod
+    # def populate_real_object_entities(relations: Iterable[Relation]) -> None:
+    #     """Faster than call get_real_entity() on each relation.object_entity.
+    #     @param relations: Iterable of Relation objects.
+    #
+    #     Tips: better if object_entity attribute is already populated
+    #     (e.g. by using select_related('object_entity') on the queryset).
+    #     """
+    #     warnings.warn(
+    #         'Relation.populate_real_object_entities() is deprecated ; '
+    #         'use Relation.objects.prefetch_related("real_object") instead.',
+    #         DeprecationWarning,
+    #     )
+    #
+    #     CremeEntity.populate_real_entities([
+    #         relation.object_entity for relation in relations
+    #     ])
 
 
 class SemiFixedRelationType(CremeModel):
