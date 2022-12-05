@@ -142,7 +142,8 @@
                 * Reports :
                     - The templatetag 'reports_graph_ordinate' is now deprecated ; use 'models.ReportGraph.verbose_ordinate()' instead.
                 * Products :
-                    - The class 'forms.fields.CategoryField' is deprecated ; use 'fields.SubCategoryField' instead.
+                    - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' are deprecated ;
+                      use 'fields.SubCategoryField' instead.
                     - The view 'products__subcategories' is deprecated ; use the generic one 'creme_core__enumerable_choices' instead.
         # In the class 'creme_core.auth.entity_credentials.EntityCredentials', the methods 'filter()' & 'filter_entities()'
           can now be called with a combination of permissions (like 'VIEW | CHANGE').
