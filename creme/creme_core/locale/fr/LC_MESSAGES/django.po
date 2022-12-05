@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-02 14:00+0100\n"
+"POT-Creation-Date: 2022-12-05 16:30+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -3631,7 +3631,7 @@ msgid "You are not allowed to edit this entity"
 msgstr "Vous n'avez pas la permission de modifier cette fiche"
 
 msgid "Full edition form"
-msgstr "Formulaire de modification complet"
+msgstr "Formulaire de modification entier"
 
 #, python-brace-format
 msgid "{count} «{model}» has been selected."
