@@ -16,8 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import warnings
-
+# import warnings
 from django.db import models
 from django.urls import reverse
 from django.utils.translation import gettext_lazy as _
@@ -125,31 +124,31 @@ class AbstractActivity(CremeEntity):
         verbose_name_plural = _('Activities')
         ordering = ('-start',)
 
-    def as_ical_event(self):
-        r"""Return a normalized iCalendar event string
-            /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
-            Example : BEGIN:VEVENT\nUID:http://cremecrm.com
-        """
-        from django.utils.timezone import now
-
-        from ..utils import get_ical_date
-
-        warnings.warn(
-            'The method AbstractActivity.as_ical_event() is deprecated.',
-            DeprecationWarning
-        )
-
-        return f"""BEGIN:VEVENT
-UID:http://cremecrm.com
-DTSTAMP:{get_ical_date(now())}
-SUMMARY:{self.title}
-DTSTART:{get_ical_date(self.start)}
-DTEND:{get_ical_date(self.end)}
-LOCATION:
-CATEGORIES:{self.type.name}
-STATUS:
-END:VEVENT
-"""
+#     def as_ical_event(self):
+#         r"""Return a normalized iCalendar event string
+#             /!\ Each parameter has to be separated by \n ONLY no spaces allowed!
+#             Example : BEGIN:VEVENT\nUID:http://cremecrm.com
+#         """
+#         from django.utils.timezone import now
+#
+#         from ..utils import get_ical_date
+#
+#         warnings.warn(
+#             'The method AbstractActivity.as_ical_event() is deprecated.',
+#             DeprecationWarning
+#         )
+#
+#         return f"""BEGIN:VEVENT
+# UID:http://cremecrm.com
+# DTSTAMP:{get_ical_date(now())}
+# SUMMARY:{self.title}
+# DTSTART:{get_ical_date(self.start)}
+# DTEND:{get_ical_date(self.end)}
+# LOCATION:
+# CATEGORIES:{self.type.name}
+# STATUS:
+# END:VEVENT
+# """
 
     @classmethod
     def get_creation_title(cls, type_id):

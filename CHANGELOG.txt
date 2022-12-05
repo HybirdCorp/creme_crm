@@ -27,6 +27,13 @@
                 - The function 'find_first()' & 'split_filter()' have been removed.
                 - The function 'imports.import_object()' has been removed.
             - The JavaScript component 'creme.form.Chosen' has been removed.
+            - Apps :
+                * Activities :
+                    - In 'forms.fields', the classes 'ActivityTypeField' & 'ActivityTypeWidget' have been removed.
+                    - The method 'models.AbstractActivity.as_ical_event()' has been removed.
+                    - The view class 'views.activity.TypeChoices' (URL named "activities__get_types") has been removed.
+                    - In 'utils', the functions 'get_ical_date()' & 'get_ical' have been removed.
+
 
     Internal breaking changes :
     ---------------------------

@@ -70,9 +70,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         return url if not act_type_id else f'{url}?activity_type={act_type_id}'
 
-    @staticmethod
-    def _build_get_types_url(type_id):
-        return reverse('activities__get_types', args=(type_id,))
+    # @staticmethod
+    # def _build_get_types_url(type_id):
+    #     return reverse('activities__get_types', args=(type_id,))
 
     @staticmethod
     def get_types_of_choices(choices):
@@ -185,24 +185,24 @@ class ActivityTestCase(_ActivitiesTestCase):
         sv = self.get_object_or_fail(SettingValue, key_id=constants.SETTING_AUTO_ORGA_SUBJECTS)
         self.assertIs(sv.value, True)
 
-    def test_get_subtypes(self):
-        self.login()
-        build_url = self._build_get_types_url
-        self.assertGET404(build_url('unknown'))
-
-        # Empty
-        response1 = self.assertGET200(build_url(''))
-        self.assertListEqual([], response1.json())
-
-        # Valid type
-        response2 = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
-        self.assertListEqual(
-            [
-                [stype.id, stype.name]
-                for stype in ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
-            ],
-            response2.json(),
-        )
+    # def test_get_subtypes(self):
+    #     self.login()
+    #     build_url = self._build_get_types_url
+    #     self.assertGET404(build_url('unknown'))
+    #
+    #     # Empty
+    #     response1 = self.assertGET200(build_url(''))
+    #     self.assertListEqual([], response1.json())
+    #
+    #     # Valid type
+    #     response2 = self.assertGET200(build_url(constants.ACTIVITYTYPE_TASK))
+    #     self.assertListEqual(
+    #         [
+    #             [stype.id, stype.name]
+    #             for stype in ActivitySubType.objects.filter(type=constants.ACTIVITYTYPE_TASK)
+    #         ],
+    #         response2.json(),
+    #     )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
