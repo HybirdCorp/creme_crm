@@ -7,10 +7,11 @@ def convert_brick_state(apps, schema_editor):
     for state in apps.get_model('creme_core', 'BrickState').objects.filter(
         brick_id='block_creme_config-custom_forms',
     ):
-        ct_id = state.json_extra_data[BRICK_STATE_SHOW_CFORMS_DETAILS]
+        ct_id = state.json_extra_data.get(BRICK_STATE_SHOW_CFORMS_DETAILS)
 
-        state.json_extra_data[BRICK_STATE_SHOW_CFORMS_DETAILS] = {'ctype': ct_id}
-        state.save()
+        if ct_id:
+            state.json_extra_data[BRICK_STATE_SHOW_CFORMS_DETAILS] = {'ctype': ct_id}
+            state.save()
 
 
 class Migration(migrations.Migration):
