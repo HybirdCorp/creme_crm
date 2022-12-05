@@ -34,6 +34,9 @@ from ..models import Category, SubCategory
 
 class CreatorCategorySelector(ActionButtonList):
     def __init__(self, categories=(), attrs=None, creation_url='', creation_allowed=False):
+        warnings.warn(
+            'CreatorCategorySelector is deprecated.', DeprecationWarning
+        )
         super().__init__(attrs)
         self.categories = categories
         self.creation_allowed = creation_allowed
@@ -91,7 +94,7 @@ class CategoryField(JSONField):
 
     def __init__(self, *, categories=Category.objects.all(), **kwargs):
         warnings.warn(
-            'CategoryField is deprecated; Use SubCategoryField instead',
+            'CategoryField is deprecated ; use SubCategoryField instead.',
             DeprecationWarning
         )
         super().__init__(**kwargs)
