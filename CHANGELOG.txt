@@ -5,7 +5,9 @@
   Users side :
   ------------
     # In the listview pages
-       - Fix an issue in date search when editing and using the datepicker at the same time.
+        - Fix an issue in date search when editing and using the datepicker at the same time.
+    # In global search widget
+        - Fix an issue that "stuck" the search when the server is too slow.
 
 == Version 2.3.8 ==
 
