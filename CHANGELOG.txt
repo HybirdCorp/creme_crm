@@ -2,6 +2,10 @@
 
  TODO: compile changed .*po files (creme_core)
 
+  Users side :
+  ------------
+    # In the listview pages
+       - Fix an issue in date search when editing and using the datepicker at the same time.
 
 == Version 2.3.8 ==
 
