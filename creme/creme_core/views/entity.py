@@ -579,7 +579,7 @@ class BulkUpdate(base.EntityCTypeRelatedMixin, generic.CremeEditionPopup):
 
         config = registry.config(model)
         if config is None:
-            raise Http404(f'The model "{model}" is not registered for bul-update.')
+            raise Http404(f'The model "{model}" is not registered for bulk-update.')
 
         sort_key = collator.sort_key
 
