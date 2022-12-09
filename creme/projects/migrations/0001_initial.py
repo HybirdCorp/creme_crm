@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
@@ -9,7 +11,9 @@ from creme.creme_core.models import CREME_REPLACE
 class Migration(migrations.Migration):
     # replaces = [
     #     ('projects', '0001_initial'),
-    #     ('projects', '0024_v2_3__task_order_not_null'),
+    #     ('projects', '0025_v2_4__minion_status01'),
+    #     ('projects', '0026_v2_4__minion_status02'),
+    #     ('projects', '0027_v2_4__minion_status03'),
     # ]
 
     initial = True
@@ -28,6 +32,9 @@ class Migration(migrations.Migration):
                 ('color_code', core_fields.ColorField(max_length=6, verbose_name='Color', blank=True)),
                 ('description', models.TextField(verbose_name='Description')),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -77,6 +84,8 @@ class Migration(migrations.Migration):
                 ('description', models.TextField(verbose_name='Description')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -104,7 +113,6 @@ class Migration(migrations.Migration):
                         related_name='tasks_set', editable=False, on_delete=CASCADE,
                     )
                  ),
-                # ('order', models.PositiveIntegerField(verbose_name='Order', null=True, editable=False, blank=True)),
                 ('order', models.PositiveIntegerField(verbose_name='Order', editable=False)),
                 ('parent_tasks', models.ManyToManyField(related_name='children', editable=False, to=settings.PROJECTS_TASK_MODEL)),
                 ('start', models.DateTimeField(verbose_name='Start')),

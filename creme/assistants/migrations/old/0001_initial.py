@@ -1,5 +1,3 @@
-import uuid
-
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
@@ -9,15 +7,6 @@ import creme.creme_core.models.fields as creme_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('assistants', '0001_initial')
-    #     ('assistants', '0009_v2_4__alert_trigger_offset')
-    #     ('assistants', '0010_v2_4__nullable_user')
-    #     ('assistants', '0011_v2_4__minion_priority01')
-    #     ('assistants', '0012_v2_4__minion_priority02')
-    #     ('assistants', '0013_v2_4__minion_priority03')
-    # ]
-
     initial = True
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
@@ -106,12 +95,7 @@ class Migration(migrations.Migration):
                         default=False, editable=False, verbose_name='Notification sent',
                     )
                 ),
-                # ('trigger_date', models.DateTimeField(verbose_name='Trigger date')),
-                ('trigger_date', models.DateTimeField(editable=False, null=True, verbose_name='Trigger date')),
-                (
-                    'trigger_offset',
-                    models.JSONField(default=dict, editable=False),
-                ),
+                ('trigger_date', models.DateTimeField(verbose_name='Trigger date')),
                 (
                     'entity',
                     models.ForeignKey(
@@ -128,12 +112,8 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'user',
-                    # creme_fields.CremeUserForeignKey(
-                    #     verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
-                    # )
                     creme_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
-                        blank=True, null=True,
                     )
                 ),
             ],
@@ -236,12 +216,8 @@ class Migration(migrations.Migration):
                 ),
                 (
                     'user',
-                    # creme_fields.CremeUserForeignKey(
-                    #     verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
-                    # )
                     creme_fields.CremeUserForeignKey(
                         verbose_name='Owner user', to=settings.AUTH_USER_MODEL,
-                        blank=True, null=True,
                     )
                 ),
             ],
@@ -262,8 +238,6 @@ class Migration(migrations.Migration):
                 ),
                 ('title', models.CharField(max_length=200, verbose_name='Title')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),

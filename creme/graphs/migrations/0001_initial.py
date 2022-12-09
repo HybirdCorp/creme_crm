@@ -2,8 +2,18 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
+from creme.creme_core.models.fields import EntityCTypeForeignKey
+
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     ('graphs', '0001_initial'),
+    #     ('graphs', '0002_v2_4__rootnode_entity_ctype01'),
+    #     ('graphs', '0003_v2_4__rootnode_entity_ctype02'),
+    #     ('graphs', '0004_v2_4__rootnode_entity_ctype03'),
+    #     ('graphs', '0005_v2_4__graph_brick_in_old_configs'),
+    # ]
+
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -13,12 +23,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Graph',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        to='creme_core.CremeEntity', primary_key=True, on_delete=CASCADE,
+                        parent_link=True, auto_created=True, serialize=False,
+                    )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the graph')),
-                ('orbital_relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False, verbose_name='Types of the peripheral relations')),
+                (
+                    'orbital_relation_types',
+                    models.ManyToManyField(
+                        verbose_name='Types of the peripheral relations',
+                        to='creme_core.RelationType', editable=False,
+                    )
+                ),
             ],
             options={
                 'swappable': 'GRAPHS_GRAPH_MODEL',
@@ -32,8 +51,21 @@ class Migration(migrations.Migration):
             name='RootNode',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                (
+                    'entity_ctype',
+                    EntityCTypeForeignKey(
+                        to='contenttypes.contenttype', related_name='+',
+                        editable=False, on_delete=CASCADE,
+                    )
+                ),
                 ('entity', models.ForeignKey(editable=False, to='creme_core.CremeEntity', on_delete=CASCADE)),
-                ('graph', models.ForeignKey(related_name='roots', editable=False, to=settings.GRAPHS_GRAPH_MODEL, on_delete=CASCADE)),
+                (
+                    'graph',
+                    models.ForeignKey(
+                        to=settings.GRAPHS_GRAPH_MODEL,
+                        related_name='roots', editable=False, on_delete=CASCADE,
+                    )
+                ),
                 ('relation_types', models.ManyToManyField(to='creme_core.RelationType', editable=False)),
             ],
             options={

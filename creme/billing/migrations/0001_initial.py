@@ -1,4 +1,5 @@
 from decimal import Decimal
+from uuid import uuid4
 
 from django.conf import settings
 from django.db import migrations, models
@@ -12,10 +13,11 @@ from creme.creme_core.models import CREME_REPLACE, CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('billing', '0001_initial'),
-    #     ('billing', '0002_v2_3__add_base_payment_type'),
+    #     ('billing', '0024_v2_4__delete_cloned_addresses'),
+    #     ('billing', '0025_v2_4__minion_models01'),
+    #     ('billing', '0026_v2_4__minion_models02'),
+    #     ('billing', '0027_v2_4__minion_models03'),
     # ]
-    # Memo: last migration in 2.2 was '0022_v2_2__exporter_config_item',
-    # so '0002_v2_3__add_base_payment_type' should have been '0023_v2_3__add_base_payment_type'
 
     initial = True
     dependencies = [
@@ -33,6 +35,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('is_custom', models.BooleanField(default=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -77,6 +81,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Payment terms')),
                 ('description', models.TextField(verbose_name='Description', blank=True)),
                 ('is_custom', models.BooleanField(default=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -103,9 +109,11 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='SettlementTerms',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True,
-                                        primary_key=True)),
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Settlement terms')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
+                ('is_custom', models.BooleanField(default=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -121,6 +129,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -243,6 +253,8 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('pending_payment', models.BooleanField(default=False, verbose_name='Pending payment')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -360,6 +372,8 @@ class Migration(migrations.Migration):
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
                 ('won', models.BooleanField(default=False, verbose_name='Won')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -479,6 +493,8 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),

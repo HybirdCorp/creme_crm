@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
@@ -8,12 +6,7 @@ from creme.documents.models.fields import ImageEntityManyToManyField
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('products', '0001_initial'),
-    #     ('products', '0012_v2_4__minion_categories01'),
-    #     ('products', '0013_v2_4__minion_categories02'),
-    #     ('products', '0014_v2_4__minion_categories03'),
-    # ]
+    # Memo: last migration is '0011_v2_1__move_description_to_entity_3'
 
     initial = True
     dependencies = [
@@ -28,9 +21,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the category')),
                 ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -44,11 +34,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100, verbose_name='Name of the sub-category')),
-                ('description', models.CharField(max_length=100, verbose_name='Description', blank=True)),
+                ('description', models.CharField(max_length=100, verbose_name='Description')),
                 ('category', models.ForeignKey(verbose_name='Parent category', to='products.Category', on_delete=CASCADE)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -60,13 +47,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Product',
             fields=[
-                (
-                    'cremeentity_ptr',
-                    models.OneToOneField(
-                        to='creme_core.CremeEntity', primary_key=True,
-                        parent_link=True, auto_created=True, serialize=False,
-                        on_delete=CASCADE,
-                    )
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('code', models.IntegerField(default=0, verbose_name='Code')),
@@ -78,11 +61,9 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                (
-                    'images',
-                    ImageEntityManyToManyField(
-                        to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
-                    )
+                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
+                                                      # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
+                                                     )
                 ),
             ],
             options={
@@ -96,13 +77,9 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Service',
             fields=[
-                (
-                    'cremeentity_ptr',
-                    models.OneToOneField(
-                        to='creme_core.CremeEntity', primary_key=True,
-                        parent_link=True, auto_created=True, serialize=False,
-                        on_delete=CASCADE,
-                    )
+                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
+                                                        )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('reference', models.CharField(max_length=100, verbose_name='Reference')),
@@ -113,11 +90,9 @@ class Migration(migrations.Migration):
                 ('web_site', models.CharField(max_length=100, verbose_name='Web Site', blank=True)),
                 ('category', models.ForeignKey(on_delete=PROTECT, verbose_name='Category', to='products.Category')),
                 ('sub_category', models.ForeignKey(on_delete=PROTECT, verbose_name='Sub-category', to='products.SubCategory')),
-                (
-                    'images',
-                    ImageEntityManyToManyField(
-                        to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
-                    )
+                ('images', ImageEntityManyToManyField(to=settings.DOCUMENTS_DOCUMENT_MODEL, verbose_name='Images', blank=True,
+                                                      # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
+                                                     )
                 ),
             ],
             options={

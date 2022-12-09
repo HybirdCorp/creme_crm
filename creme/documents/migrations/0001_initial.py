@@ -10,7 +10,9 @@ from creme.creme_core.models import CREME_REPLACE_NULL
 class Migration(migrations.Migration):
     # replaces = [
     #     ('documents', '0001_initial'),
-    #     ('documents', '0019_v2_3__rm_upload_prefix.py'),
+    #     ('documents', '0020_v2_4__minion_categories01'),
+    #     ('documents', '0021_v2_4__minion_categories02'),
+    #     ('documents', '0022_v2_4__minion_categories03'),
     # ]
 
     initial = True
@@ -30,6 +32,8 @@ class Migration(migrations.Migration):
                 ),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Category name')),
                 ('is_custom', models.BooleanField(default=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
@@ -90,6 +94,7 @@ class Migration(migrations.Migration):
                 ('uuid', models.UUIDField(default=uuid.uuid4, unique=True, editable=False)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('is_custom', models.BooleanField(default=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
             ],
             options={
                 'ordering':            ('name',),

@@ -2,12 +2,19 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
 
+import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
-from creme.creme_core.models import fields as creme_fields
 from creme.documents.models.fields import ImageEntityForeignKey
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     ('persons', '0001_initial'),
+    #     # Beware: should have been named *_v2_3__*
+    #     ('persons', '0025_v2_2__contact_languages01'),
+    #     ('persons', '0026_v2_2__contact_languages02'),
+    # ]
+
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -75,7 +82,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
-                ('order', creme_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -97,7 +104,7 @@ class Migration(migrations.Migration):
                 ('state', models.CharField(max_length=100, verbose_name='State', blank=True)),
                 ('country', models.CharField(max_length=40, verbose_name='Country', blank=True)),
                 ('object', models.ForeignKey(editable=False, on_delete=CASCADE, to='creme_core.CremeEntity', related_name='persons_addresses')),
-                ('content_type', creme_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
+                ('content_type', core_fields.EntityCTypeForeignKey(editable=False, on_delete=CASCADE, related_name='+', to='contenttypes.ContentType')),
             ],
             options={
                 'ordering': ('id',),
@@ -117,8 +124,8 @@ class Migration(migrations.Migration):
                 ('civility', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
-                ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
-                ('mobile', creme_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
+                ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
+                ('mobile', core_fields.PhoneField(max_length=100, verbose_name='Mobile', blank=True)),
                 ('skype', models.CharField(max_length=100, verbose_name='Skype', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
@@ -135,7 +142,8 @@ class Migration(migrations.Migration):
                 ('position', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
                 ('full_position', models.CharField(max_length=500, verbose_name='Detailed position', blank=True)),
                 ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
-                ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
+                # ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
+                ('languages', models.ManyToManyField(verbose_name='Spoken language(s)', to='creme_core.Language', blank=True)),
             ],
             options={
                 'swappable': 'PERSONS_CONTACT_MODEL',
@@ -154,8 +162,14 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
-                ('is_managed', models.BooleanField(default=False, verbose_name='Managed by Creme', editable=False)),
-                ('phone', creme_fields.PhoneField(max_length=100, verbose_name='Phone number', blank=True)),
+                (
+                    'is_managed',
+                    models.BooleanField(
+                        verbose_name=f'Managed by {settings.SOFTWARE_LABEL}',
+                        default=False, editable=False,
+                    )
+                ),
+                ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),

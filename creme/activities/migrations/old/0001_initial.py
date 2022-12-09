@@ -2,11 +2,16 @@ from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
 
+import creme.creme_core.models.fields as creme_fields
 from creme.creme_core.models import CREME_REPLACE_NULL
-from creme.creme_core.models import fields as creme_fields
 
 
 class Migration(migrations.Migration):
+    # replaces = [
+    #     ('activities', '0001_initial'),
+    #     ('activities', '0014_v2_3__rm_svalue_for_usermessages'),
+    # ]
+
     initial = True
     dependencies = [
         ('auth', '0001_initial'),
@@ -95,10 +100,31 @@ class Migration(migrations.Migration):
                     )
                 ),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
-                ('is_default', models.BooleanField(default=False, verbose_name='Is default?')),
+                (
+                    'is_default',
+                    models.BooleanField(
+                        default=False, verbose_name='Is default?',
+                        help_text=(
+                            "When a user is set as an Activity's participant, "
+                            "this Activity is added to its default calendar."
+                        ),
+                    )
+                ),
                 ('is_custom', models.BooleanField(default=True, editable=False)),
-                ('is_public', models.BooleanField(default=False, verbose_name='Is public?')),
-                ('color', creme_fields.ColorField(max_length=6, verbose_name='Color')),
+                (
+                    'is_public',
+                    models.BooleanField(
+                        default=False, verbose_name='Is public?',
+                        help_text='Public calendars can be seen by other users on the calendar view.',
+                    )
+                ),
+                (
+                    'color',
+                    creme_fields.ColorField(
+                        max_length=6, verbose_name='Color',
+                        help_text='It is used on the calendar view to colorize Activities.',
+                    )
+                ),
                 (
                     'user',
                     creme_fields.CremeUserForeignKey(

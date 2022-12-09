@@ -40,7 +40,7 @@ def convert_deprecated_status(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('emails', '0020_v2_4__sync_status_warning'),
+        ('emails', '0001_initial'),
     ]
 
     operations = [

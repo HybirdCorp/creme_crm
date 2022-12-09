@@ -1,5 +1,3 @@
-import uuid
-
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT, SET_NULL
@@ -8,13 +6,6 @@ import creme.polls.models.base
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('polls', '0001_initial'),
-    #     ('polls', '0004_v2_4__minion_type01'),
-    #     ('polls', '0005_v2_4__minion_type02'),
-    #     ('polls', '0006_v2_4__minion_type03'),
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -27,9 +18,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=80, verbose_name='Name')),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('name',),
