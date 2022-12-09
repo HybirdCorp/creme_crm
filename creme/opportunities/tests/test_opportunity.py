@@ -349,7 +349,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(target, get_initial(self.TARGET_KEY))
 
         # ----
-        salesphase = SalesPhase.objects.all()[0]
+        phase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
@@ -357,7 +357,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             data={
                 'user':         user.pk,
                 'name':         name,
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
@@ -369,7 +369,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
-        self.assertEqual(salesphase, opportunity.sales_phase)
+        self.assertEqual(phase, opportunity.sales_phase)
 
         self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
@@ -381,7 +381,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             data={
                 'user':         user.pk,
                 'name':         f'Opportunity Two linked to {target}',
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
 
@@ -413,14 +413,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertIsInstance(get_initial('sales_phase'), SalesPhase)
 
         # ---
-        salesphase = SalesPhase.objects.all()[0]
+        phase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
             data={
                 'user':         user.pk,
                 'name':         name,
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
@@ -431,7 +431,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
-        self.assertEqual(salesphase, opportunity.sales_phase)
+        self.assertEqual(phase, opportunity.sales_phase)
 
         self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
@@ -493,7 +493,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         url = self._build_addrelated_url(target)
         self.assertGET200(url)
 
-        salesphase = SalesPhase.objects.all()[0]
+        phase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
@@ -501,7 +501,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             data={
                 'user':         user.pk,
                 'name':         name,
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
@@ -513,7 +513,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
-        self.assertEqual(salesphase, opportunity.sales_phase)
+        self.assertEqual(phase, opportunity.sales_phase)
 
         self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
@@ -525,7 +525,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             data={
                 'user':         user.pk,
                 'name':         f'Opportunity 2 linked to {target}',
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'currency':     DEFAULT_CURRENCY_PK,
@@ -546,14 +546,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         url = self._build_addrelated_url(target, popup=True)
         self.assertGET200(url)
 
-        salesphase = SalesPhase.objects.all()[0]
+        phase = SalesPhase.objects.all()[0]
         name = f'Opportunity linked to {target}'
         response = self.client.post(
             url,
             data={
                 'user':         user.pk,
                 'name':         name,
-                'sales_phase':  salesphase.id,
+                'sales_phase':  phase.id,
                 # 'closing_date': '2011-03-12',
                 'closing_date': self.formfield_value_date(2011, 3, 12),
                 'target':       self.formfield_value_generic_entity(target),
@@ -565,7 +565,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertNoFormError(response)
 
         opportunity = self.get_object_or_fail(Opportunity, name=name)
-        self.assertEqual(salesphase, opportunity.sales_phase)
+        self.assertEqual(phase, opportunity.sales_phase)
 
         self.assertRelationCount(1, target,  constants.REL_OBJ_TARGETS,   opportunity)
         self.assertRelationCount(1, emitter, constants.REL_SUB_EMIT_ORGA, opportunity)
@@ -830,3 +830,32 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             'replace_opportunities__opportunity_currency',
             _('Deletion is not possible.')
         )
+
+    def test_bulk_edit(self):
+        "Bulk edit 2 Opportunities."
+        user = self.login()
+        target, emitter = self._create_target_n_emitter()
+        phase1, phase2, phase3 = SalesPhase.objects.all()[:3]
+
+        create_opport = partial(
+            Opportunity.objects.create, user=user,
+            emitter=emitter,
+            target=target,
+        )
+        opport1 = create_opport(name='Opp#1', sales_phase=phase1)
+        opport2 = create_opport(name='Opp#2', sales_phase=phase2)
+
+        field_name = 'sales_phase'
+        url = self.build_bulkupdate_uri(
+            model=Opportunity, field=field_name, entities=[opport1, opport2],
+        )
+        response = self.assertPOST200(
+            url,
+            data={
+                'entities': [opport1.id, opport2.id],
+                field_name: phase3.id,
+            },
+        )
+        self.assertNoFormError(response)
+        self.assertEqual(phase3, getattr(self.refresh(opport1), field_name))
+        self.assertEqual(phase3, getattr(self.refresh(opport2), field_name))
