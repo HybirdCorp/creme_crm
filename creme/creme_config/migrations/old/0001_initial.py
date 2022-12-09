@@ -3,11 +3,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #   ('creme_config', '0001_initial')
-    #   ('creme_config', '0002_v2_4__cforms_brick_state')
-    # ]
-
     initial = True
     dependencies = [
         ('creme_core', '0001_initial'),
@@ -20,13 +15,9 @@ class Migration(migrations.Migration):
             migrations.CreateModel(
                 name='FakeConfigEntity',
                 fields=[
-                    (
-                        'cremeentity_ptr',
-                        models.OneToOneField(
-                            to='creme_core.CremeEntity', primary_key=True,
-                            parent_link=True, auto_created=True, serialize=False,
-                            on_delete=models.CASCADE,
-                        )
+                    ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
+                                                             to='creme_core.CremeEntity', on_delete=models.CASCADE,
+                                                            )
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ],

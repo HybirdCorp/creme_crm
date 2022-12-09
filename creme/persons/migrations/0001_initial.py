@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, SET_NULL
@@ -10,9 +12,11 @@ from creme.documents.models.fields import ImageEntityForeignKey
 class Migration(migrations.Migration):
     # replaces = [
     #     ('persons', '0001_initial'),
-    #     # Beware: should have been named *_v2_3__*
-    #     ('persons', '0025_v2_2__contact_languages01'),
-    #     ('persons', '0026_v2_2__contact_languages02'),
+    #     ('persons', '0002_v2_4__unique_user_email'),
+    #     ('persons', '0028_v2_4__minion_models01'),
+    #     ('persons', '0029_v2_4__minion_models02'),
+    #     ('persons', '0030_v2_4__minion_models03'),
+    #     ('persons', '0031_v2_4__fix_edition_cforms'),
     # ]
 
     initial = True
@@ -30,6 +34,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
                 ('shortcut', models.CharField(max_length=100, verbose_name='Shortcut')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -43,6 +50,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -56,6 +66,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -69,6 +82,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=100, verbose_name='Title')),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),
@@ -83,6 +99,9 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('extra_data', models.JSONField(default=dict, editable=False)),
+                ('is_custom', models.BooleanField(default=True)),
+                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -117,11 +136,21 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Contact',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        to='creme_core.CremeEntity', primary_key=True,
+                        parent_link=True, auto_created=True, serialize=False,
+                        on_delete=CASCADE,
+                    )
                 ),
-                ('civility', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Civility', blank=True, to='persons.Civility', null=True)),
+                (
+                    'civility',
+                    models.ForeignKey(
+                        verbose_name='Civility', to='persons.Civility',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
                 ('last_name', models.CharField(max_length=100, verbose_name='Last name')),
                 ('first_name', models.CharField(max_length=100, verbose_name='First name', blank=True)),
                 ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
@@ -131,19 +160,53 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
                 ('url_site', models.URLField(max_length=500, verbose_name='Web Site', blank=True)),
                 ('birthday', models.DateField(null=True, verbose_name='Birthday', blank=True)),
-                ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
-                ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Photograph', blank=True, null=True,
-                                                to=settings.DOCUMENTS_DOCUMENT_MODEL,  # TODO: remove in deconstruct ?
-                                                # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
-                                               ),
+                (
+                    'billing_address',
+                    models.ForeignKey(
+                        verbose_name='Billing address', to=settings.PERSONS_ADDRESS_MODEL,
+                        related_name='+', on_delete=SET_NULL, editable=False, null=True,
+                    )
                 ),
-                ('is_user', models.ForeignKey(related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, to=settings.AUTH_USER_MODEL, null=True, verbose_name='Related user')),
-                ('position', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Position', blank=True, to='persons.Position', null=True)),
+                (
+                    'shipping_address',
+                    models.ForeignKey(
+                        verbose_name='Shipping address', to=settings.PERSONS_ADDRESS_MODEL,
+                        related_name='+', on_delete=SET_NULL, editable=False, null=True,
+                    )
+                ),
+                (
+                    'image',
+                    ImageEntityForeignKey(
+                        on_delete=SET_NULL, verbose_name='Photograph', blank=True, null=True,
+                        to=settings.DOCUMENTS_DOCUMENT_MODEL,  # TODO: remove in deconstruct ?
+                    ),
+                ),
+                (
+                    'is_user',
+                    models.ForeignKey(
+                        to=settings.AUTH_USER_MODEL, verbose_name='Related user',
+                        related_name='related_contact', on_delete=SET_NULL, blank=True, editable=False, null=True,
+                    )
+                ),
+                (
+                    'position',
+                    models.ForeignKey(
+                        verbose_name='Position', to='persons.Position',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True
+                    )
+                ),
                 ('full_position', models.CharField(max_length=500, verbose_name='Detailed position', blank=True)),
-                ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Line of business', blank=True, to='persons.Sector', null=True)),
-                # ('language', models.ManyToManyField(verbose_name='Spoken language(s)', editable=False, to='creme_core.Language', blank=True)),
-                ('languages', models.ManyToManyField(verbose_name='Spoken language(s)', to='creme_core.Language', blank=True)),
+                (
+                    'sector',
+                    models.ForeignKey(
+                        verbose_name='Line of business', to='persons.Sector',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
+                    'languages',
+                    models.ManyToManyField(verbose_name='Spoken language(s)', to='creme_core.Language', blank=True)
+                ),
             ],
             options={
                 'swappable': 'PERSONS_CONTACT_MODEL',
@@ -157,9 +220,13 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Organisation',
             fields=[
-                ('cremeentity_ptr', models.OneToOneField(parent_link=True, auto_created=True, primary_key=True, serialize=False,
-                                                         to='creme_core.CremeEntity', on_delete=CASCADE,
-                                                        )
+                (
+                    'cremeentity_ptr',
+                    models.OneToOneField(
+                        to='creme_core.CremeEntity', primary_key=True,
+                        parent_link=True, auto_created=True, serialize=False,
+                        on_delete=CASCADE,
+                    )
                 ),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
                 (
@@ -182,16 +249,48 @@ class Migration(migrations.Migration):
                 ('subject_to_vat', models.BooleanField(default=True, verbose_name='Subject to VAT')),
                 ('annual_revenue', models.CharField(max_length=100, verbose_name='Annual revenue', blank=True)),
                 ('creation_date', models.DateField(null=True, verbose_name='Date of creation of the organisation', blank=True)),
-                ('billing_address',  models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Billing address')),
-                ('shipping_address', models.ForeignKey(related_name='+', on_delete=SET_NULL, editable=False, to=settings.PERSONS_ADDRESS_MODEL, null=True, verbose_name='Shipping address')),
-                ('image', ImageEntityForeignKey(on_delete=SET_NULL, verbose_name='Logo', blank=True, null=True,
-                                                to=settings.DOCUMENTS_DOCUMENT_MODEL,
-                                                # limit_choices_to=models.Q(mime_type__name__startswith='image/'),
-                                               )
+                (
+                    'billing_address',
+                    models.ForeignKey(
+                        verbose_name='Billing address', to=settings.PERSONS_ADDRESS_MODEL,
+                        related_name='+', on_delete=SET_NULL, editable=False, null=True,
+                    )
                 ),
-                ('legal_form', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Legal form', blank=True, to='persons.LegalForm', null=True)),
-                ('sector', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Sector', blank=True, to='persons.Sector', null=True)),
-                ('staff_size', models.ForeignKey(on_delete=CREME_REPLACE_NULL, verbose_name='Staff size', blank=True, to='persons.StaffSize', null=True)),
+                (
+                    'shipping_address',
+                    models.ForeignKey(
+                        verbose_name='Shipping address', to=settings.PERSONS_ADDRESS_MODEL,
+                        related_name='+', on_delete=SET_NULL, editable=False, null=True,
+                    )
+                ),
+                (
+                    'image',
+                    ImageEntityForeignKey(
+                        verbose_name='Logo', to=settings.DOCUMENTS_DOCUMENT_MODEL,
+                        on_delete=SET_NULL, blank=True, null=True,
+                    )
+                ),
+                (
+                    'legal_form',
+                    models.ForeignKey(
+                        verbose_name='Legal form', to='persons.LegalForm',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
+                    'sector',
+                    models.ForeignKey(
+                        verbose_name='Sector', to='persons.Sector',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
+                (
+                    'staff_size',
+                    models.ForeignKey(
+                        verbose_name='Staff size', to='persons.StaffSize',
+                        on_delete=CREME_REPLACE_NULL, blank=True, null=True,
+                    )
+                ),
             ],
             options={
                 'swappable': 'PERSONS_ORGANISATION_MODEL',

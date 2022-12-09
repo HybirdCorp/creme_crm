@@ -1,5 +1,3 @@
-import uuid
-
 from django.conf import settings
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE, PROTECT
@@ -9,13 +7,6 @@ import creme.creme_core.models.fields as core_fields
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('commercial', '0001_initial'),
-    #     ('commercial', '0013_v2_4__minion_type01'),
-    #     ('commercial', '0014_v2_4__minion_type02'),
-    #     ('commercial', '0015_v2_4__minion_type03'),
-    # ]
-
     initial = True
     dependencies = [
         ('contenttypes', '0001_initial'),
@@ -45,8 +36,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(max_length=75, verbose_name='Title')),
                 ('is_custom', models.BooleanField(default=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid.uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('title',),

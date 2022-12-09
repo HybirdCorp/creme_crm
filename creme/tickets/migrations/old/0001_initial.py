@@ -1,5 +1,3 @@
-from uuid import uuid4
-
 from django.db import migrations, models
 from django.db.models.deletion import CASCADE
 
@@ -8,12 +6,7 @@ from creme.creme_core.models import CREME_REPLACE
 
 
 class Migration(migrations.Migration):
-    # replaces = [
-    #     ('tickets', '0001_initial'),
-    #     ('tickets', '0010_v2_4__minion_models01'),
-    #     ('tickets', '0011_v2_4__minion_models02'),
-    #     ('tickets', '0012_v2_4__minion_models03'),
-    # ]
+    # Memo: last migration was '0009_v2_2__status_is_closed02'
 
     initial = True
     dependencies = [
@@ -27,9 +20,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -44,9 +34,6 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(unique=True, max_length=100, verbose_name='Name')),
                 ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('is_custom', models.BooleanField(default=True)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
@@ -73,8 +60,6 @@ class Migration(migrations.Migration):
                         ),
                     )
                 ),
-                ('extra_data', models.JSONField(default=dict, editable=False)),
-                ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),
             ],
             options={
                 'ordering': ('order',),
