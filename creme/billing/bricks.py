@@ -152,7 +152,7 @@ class CreditNotesBrick(PaginatedBrick):
             context,
             billing_document.get_credit_notes(),
             rtype_id=self.relation_type_deps[0],
-            add_title=_('Create a credit note'),
+            # add_title=_('Create a credit note'),
             hidden_fields={
                 fname
                 for fname in ('issuing_date', 'expiration_date', 'comment')
