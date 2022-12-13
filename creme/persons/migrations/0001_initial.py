@@ -162,7 +162,13 @@ class Migration(migrations.Migration):
                                                         )
                 ),
                 ('name', models.CharField(max_length=200, verbose_name='Name')),
-                ('is_managed', models.BooleanField(default=False, verbose_name='Managed by Creme', editable=False)),
+                (
+                    'is_managed',
+                    models.BooleanField(
+                        verbose_name=f'Managed by {settings.SOFTWARE_LABEL}',
+                        default=False, editable=False,
+                    )
+                ),
                 ('phone', core_fields.PhoneField(max_length=100, verbose_name='Phone', blank=True)),
                 ('fax', models.CharField(max_length=100, verbose_name='Fax', blank=True)),
                 ('email', models.EmailField(max_length=254, verbose_name='Email address', blank=True)),
