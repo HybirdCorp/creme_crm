@@ -528,7 +528,7 @@ class Populator(BasePopulator):
                 )
 
             BrickDetailviewLocation.objects.create_if_needed(
-                brick=bricks.TargettingOpportunitiesBrick, order=16, zone=RIGHT,
+                brick=bricks.TargetingOpportunitiesBrick, order=16, zone=RIGHT,
                 model=Organisation,
             )
 

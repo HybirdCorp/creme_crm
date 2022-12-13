@@ -290,7 +290,8 @@ class BusinessManagersBrick(_LinkedStuffBrick):
     #     )
 
 
-class TargettingOpportunitiesBrick(QuerysetBrick):
+# class TargettingOpportunitiesBrick(QuerysetBrick):
+class TargetingOpportunitiesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('opportunities', 'target_organisations')
     verbose_name = _('Opportunities which target the Organisation / Contact')
     description = _(
@@ -383,7 +384,7 @@ brick_classes: list[type[Brick]] = [
     BusinessManagersBrick,
     OppTotalBrick,
     OppTargetBrick,
-    TargettingOpportunitiesBrick,
+    TargetingOpportunitiesBrick,
 ]
 # )
 
