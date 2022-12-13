@@ -22,8 +22,15 @@
 {% block brick_table_columns %}
     {% brick_table_column_for_field ctype=objects_ctype field='name' title=_('Name') status='primary' %}
     {% brick_table_column title=_('Sales phase') %}
+
+    {% if 'estimated_sales' not in hidden_fields %}
     {% brick_table_column_for_field ctype=objects_ctype field='estimated_sales' data_type='money' %}
-    {% brick_table_column_for_field ctype=objects_ctype field='made_sales'      data_type='money' %}
+    {% endif %}
+
+    {% if 'made_sales' not in hidden_fields %}
+    {% brick_table_column_for_field ctype=objects_ctype field='made_sales' data_type='money' %}
+    {% endif %}
+
     {% brick_table_column title=_('Action') status='action' %}
 {% endblock %}
 
@@ -33,25 +40,29 @@
     <tr>{% has_perm_to view opportunity as opp_view_perm %}{% has_perm_to unlink opportunity as opp_unlink_perm %}
         <td {% brick_table_data_status primary %}>{% widget_entity_hyperlink opportunity user %}</td>
         {% if opp_view_perm %}
-        <td>{{opportunity.sales_phase}}</td>
-        <td data-type="money">{# TODO: factorise with opportunity-hat-card.html #}
-            {% if opportunity.estimated_sales is None %}
-            —
-            {% else %}
-            {{opportunity.estimated_sales|format_amount:opportunity.currency}}
-            {% endif %}
-        </td>
-        <td data-type="money">
-            {% if opportunity.made_sales is None %}
-            —
-            {% else %}
-            {{opportunity.made_sales|format_amount:opportunity.currency}}
-            {% endif %}
-        </td>
+         <td>{{opportunity.sales_phase}}</td>
+         {% if 'estimated_sales' not in hidden_fields %}
+          <td data-type="money">{# TODO: factorise with opportunity-hat-card.html #}
+             {% if opportunity.estimated_sales is None %}
+             —
+             {% else %}
+             {{opportunity.estimated_sales|format_amount:opportunity.currency}}
+             {% endif %}
+          </td>
+         {% endif %}
+         {% if 'made_sales' not in hidden_fields %}
+          <td data-type="money">
+             {% if opportunity.made_sales is None %}
+             —
+             {% else %}
+             {{opportunity.made_sales|format_amount:opportunity.currency}}
+             {% endif %}
+          </td>
+         {% endif %}
         {% else %}
-        <td>{{HIDDEN_VALUE}}</td>
-        <td>{{HIDDEN_VALUE}}</td>
-        <td>{{HIDDEN_VALUE}}</td>
+         <td>{{HIDDEN_VALUE}}</td>
+         <td>{{HIDDEN_VALUE}}</td>
+         <td>{{HIDDEN_VALUE}}</td>
         {% endif %}
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=delete_multi_url __ids=opportunity.id enabled=unlink_perm|and_op:opp_unlink_perm %}

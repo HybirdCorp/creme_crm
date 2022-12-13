@@ -8,6 +8,11 @@
         - Fix an issue in date search when editing and using the datepicker at the same time.
     # In global search widget
         - Fix an issue that "stuck" the search when the server is too slow.
+    # Apps:
+        * Opportunities :
+            - The columns "Estimated sales" & "Made sales" were not hidden in the
+              block "Opportunities which target ..." when the related fields were hidden.
+
 
 == Version 2.3.8 ==
 
