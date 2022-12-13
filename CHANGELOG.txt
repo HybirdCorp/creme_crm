@@ -390,6 +390,7 @@
                 - In 'bricks' :
                     - In the base class '_LinkedStuffBrick' (& so all child brick classes), the template variable "predicate_id" is not injected anymore.
                     - In the mixin class '_RelatedToOpportunity', the method 'get_related_contacts()' has been removed.
+                    - The class 'TargettingOpportunitiesBrick' has been renamed 'TargetingOpportunitiesBrick'.
                     - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
             * Reports :
                 - The class 'forms.bulk.ReportFilterBulkForm' has been removed.

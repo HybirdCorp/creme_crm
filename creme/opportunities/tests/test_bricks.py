@@ -220,7 +220,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.TargettingOpportunitiesBrick.id_,
+            bricks.TargetingOpportunitiesBrick.id_,
         )
 
         self.assertListEqual(
@@ -255,7 +255,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.TargettingOpportunitiesBrick.id_,
+            bricks.TargetingOpportunitiesBrick.id_,
         )
 
         self.assertListEqual(
@@ -287,7 +287,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         response = self.assertGET200(target.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.TargettingOpportunitiesBrick.id_,
+            bricks.TargetingOpportunitiesBrick.id_,
         )
 
         self.assertListEqual(
