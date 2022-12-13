@@ -27,7 +27,7 @@ def warnings_for_deprecated_status(apps, schema_editor):
             f'    BEWARE: you have {count_spam} email(s) with the status SYNCHRONIZED_SPAM '
             f'({SYNCHRONIZED_SPAM}) ; if you do not manually fix them, in Creme 2.5 :\n'
             f'      - their status will be set to SYNCHRONIZED ({SYNCHRONIZED})\n'
-            f'      - they will be mark as deleted'
+            f'      - they will be marked as deleted'
         )
 
 
