@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,8 @@ import io
 import logging
 from functools import partial
 from pathlib import Path
-from urllib.request import urlopen
+# from urllib.request import urlopen => cannot be mocked
+from urllib import request
 from zipfile import ZipFile
 
 from django.conf import settings
@@ -77,7 +78,7 @@ class CSVPopulator:
             return open(url_info.path, 'rb')
         elif url_info.scheme in {'http', 'https'}:
             self.info(f'Downloading database from {url_info.geturl()}...')
-            return urlopen(url_info.geturl())
+            return request.urlopen(url_info.geturl())
         else:
             raise self.ProtocolError(
                 f'Unable to open CSV data from {url_info.geturl()} : '

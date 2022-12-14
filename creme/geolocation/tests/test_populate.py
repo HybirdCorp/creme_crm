@@ -1,5 +1,7 @@
+import urllib
 from functools import partial
 from pathlib import Path
+from unittest.mock import patch
 
 from django.conf import settings
 
@@ -225,8 +227,20 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_http(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        with self.assertNoException():
-            populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv'))
+        # with self.assertNoException():
+        #     populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv'))
+        csv_file = open(
+            Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv',
+            mode='rb',
+        )
+        # NB: this url is not valid, we just use it to test called arguments.
+        url = 'http://localhost:8001/geolocation/data/valid.csv'
+
+        with patch('urllib.request.urlopen', return_value=csv_file) as urlopen_mock:
+            with self.assertNoException():
+                populator.populate(url)
+
+        urlopen_mock.assert_called_once_with(url)
 
         self.assertListEqual(
             populator.mock_saved,
@@ -240,8 +254,23 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_populate_from_http_zip(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        with self.assertNoException():
-            populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv.zip'))
+        # with self.assertNoException():
+        #     populator.populate(self.http_file('creme/geolocation/tests/data/valid.csv.zip'))
+        zip_file = open(
+            Path(settings.CREME_ROOT) / 'geolocation' / 'tests' / 'data' / 'valid.csv.zip',
+            mode='rb',
+        )
+        # NB: this url is not valid, we just use it to test called arguments.
+        url = 'http://localhost:8001/geolocation/data/groland.csv.zip'
+
+        with patch(
+            'urllib.request.urlopen',
+            return_value=zip_file,
+        ) as urlopen_mock:
+            with self.assertNoException():
+                populator.populate(url)
+
+        urlopen_mock.assert_called_once_with(url)
 
         self.assertListEqual(
             populator.mock_saved,
@@ -255,8 +284,22 @@ class CSVPopulatorTestCase(CremeTestCase):
     def test_http_error(self):
         populator = MockCSVPopulator(['name', 'code'])
 
-        with self.assertRaises(MockCSVPopulator.ReadError):
-            populator.populate(self.http_file('creme/geolocation/tests/data/doesnotexist.csv'))
+        # with self.assertRaises(MockCSVPopulator.ReadError):
+        #     populator.populate(self.http_file('creme/geolocation/tests/data/doesnotexist.csv'))
+        url = 'http://localhost:8001/geolocation/data/doesnotexist.csv'
+
+        exception = urllib.error.URLError('page cannot be found')
+        with patch('urllib.request.urlopen') as urlopen_mock:
+            urlopen_mock.side_effect = exception
+
+            with self.assertRaises(MockCSVPopulator.ReadError) as cm:
+                populator.populate(url)
+
+        urlopen_mock.assert_called_once_with(url)
+        self.assertEqual(
+            f'Unable to open CSV data from {url} : {exception}',
+            str(cm.exception),
+        )
 
 
 class TownPopulatorTestCase(GeoLocationBaseTestCase):
