@@ -56,7 +56,16 @@
             - RelationType.is_compatible()
             - custom_field.CustomFieldManager.compatible()
             - custom_field.CustomFieldManager.get_for_model()
-        # The only argument of the function 'creme_core.utils.content_type.as_ctype()' is now positional only.
+        # The method 'creme_core.tests.base._CremeTestCase.http_file()' has been removed ;
+          see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
+        # In 'creme_core.utils' :
+            - The only argument of the function 'content_type.as_ctype()' is now positional only.
+            - In 'test' :
+                - The function 'http_port()' has been removed.
+                - The class 'CremeDiscoverRunner' does not spawn an HTTP server (for static files) anymore.
+                  You should use mocking if you want to test code which retrieves files with HTTP (see in 'vcfs' or 'geolocation)'.
+                  The attribute '_http_server' & the method '_clean_http_server()' have been removed.
+
 
     Internal breaking changes :
     ---------------------------
@@ -415,7 +424,7 @@
             - The component 'creme.component.Chosen' is now deprecated & has been renamed as 'creme.form.Chosen'.
               It's no longer used in media generation but it still exists to ease migrations.
             - The jQuery extension 'gccolor' has been removed.
-        # In 'creme_core.tests:
+        # In 'creme_core.tests' :
             - In 'base._CremeTestCase' :
                 - The method 'build_inneredit_url()' has been replaced by 'build_inneredit_uri()'.
                 - The method 'build_bulkupdate_url()' has been replaced by 'build_bulkupdate_uri()'.

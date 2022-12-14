@@ -820,13 +820,13 @@ class _CremeTestCase:
             label=label,
         )
 
-    @staticmethod
-    def http_file(file_path):
-        """Get the HTTP URL to retrieve a static file.
-        @param file_path: path ('/' separated) relative to "creme/"'s parent.
-        """
-        from creme.creme_core.utils.test import http_port
-        return f'http://localhost:{http_port()}/{file_path}'
+    # @staticmethod
+    # def http_file(file_path):
+    #     """Get the HTTP URL to retrieve a static file.
+    #     @param file_path: path ('/' separated) relative to "creme/"'s parent.
+    #     """
+    #     from creme.creme_core.utils.test import http_port
+    #     return f'http://localhost:{http_port()}/{file_path}'
 
 
 class CremeTestCase(TestCase, _CremeTestCase):

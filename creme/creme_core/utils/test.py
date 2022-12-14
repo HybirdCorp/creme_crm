@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import os
+# import os
 import pathlib
 import unittest
 from shutil import rmtree
@@ -27,18 +27,17 @@ from django.conf import settings
 from django.core.management import call_command
 from django.test.runner import DiscoverRunner, ParallelTestSuite, _init_worker
 
+# from ..utils.system import python_subprocess
 from ..management.commands.creme_populate import Command as PopulateCommand
-from ..utils.system import python_subprocess
 
-
-def http_port():
-    return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
+# def http_port():
+#     return getattr(settings, 'TEST_HTTP_SERVER_PORT', '8001')
 
 
 def reset_contenttype_cache():
     """Reset content type cache.
     The import is here to prevent issues if django.setup() was not called
-    before the creme.utils.test import : could happend if 'spawn' is used
+    before the creme.utils.test import : could happen if 'spawn' is used
     for multiprocessing on Windows or OSX.
     """
     from django.contrib.contenttypes.models import ContentType
@@ -114,12 +113,13 @@ class CremeTestLoader(unittest.TestLoader):
 
 
 class CremeDiscoverRunner(DiscoverRunner):
-    """This test runner
+    """This test runner:
     - overrides settings.MEDIA_ROOT with a temporary directory ;
       so files created by the tests can be easily removed.
-    - launches an HTTP server which serves static files, in order to test code
-      which retrieve HTTP resources.
     """
+    # - launches an HTTP server which serves static files, in order to test code
+    #   which retrieve HTTP resources.
+
     parallel_test_suite = CremeParallelTestSuite
 
     def __init__(self, *args, **kwargs):
@@ -133,28 +133,28 @@ class CremeDiscoverRunner(DiscoverRunner):
 
         self._mock_media_path = None
         self._original_media_root = settings.MEDIA_ROOT
-        self._http_server = None
+        # self._http_server = None
 
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
         print('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
         print(f' ... {self._mock_media_path} created.')
-        script = (
-            'import http.server;'
-            'import os;'
-            'from socketserver import TCPServer;'
-            'os.chdir(r"{path}");'
-            'TCPServer.allow_reuse_address = True;'
-            'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
-            'print(r"Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
-            'httpd.serve_forever()'
-        ).format(
-            path=os.fspath(pathlib.Path(settings.CREME_ROOT).parent),
-            port=http_port(),
-        )
-
-        self._http_server = python_subprocess(script)
+        # script = (
+        #     'import http.server;'
+        #     'import os;'
+        #     'from socketserver import TCPServer;'
+        #     'os.chdir(r"{path}");'
+        #     'TCPServer.allow_reuse_address = True;'
+        #     'httpd = TCPServer(("localhost", {port}), http.server.SimpleHTTPRequestHandler);'
+        #     'print(r"Test HTTP server: serving localhost:{path} at port {port} with process ID:", os.getpid());'  # NOQA
+        #     'httpd.serve_forever()'
+        # ).format(
+        #     path=os.fspath(pathlib.Path(settings.CREME_ROOT).parent),
+        #     port=http_port(),
+        # )
+        #
+        # self._http_server = python_subprocess(script)
 
     def setup_databases(self, **kwargs):
         ret = super().setup_databases(**kwargs)
@@ -170,23 +170,23 @@ class CremeDiscoverRunner(DiscoverRunner):
             rmtree(self._mock_media_path)
             self._mock_media_path = None
 
-    def _clean_http_server(self):
-        if self._http_server is not None:
-            print('Shutting down HTTP server...')
-            self._http_server.terminate()
-            self._http_server.wait()
-            self._http_server = None
+    # def _clean_http_server(self):
+    #     if self._http_server is not None:
+    #         print('Shutting down HTTP server...')
+    #         self._http_server.terminate()
+    #         self._http_server.wait()
+    #         self._http_server = None
 
     def teardown_test_environment(self, **kwargs):
         super().teardown_test_environment(**kwargs)
         self._clean_mock_media()
-        self._clean_http_server()
+        # self._clean_http_server()
 
     def build_suite(self, *args, **kwargs):
         try:
             return super().build_suite(*args, **kwargs)
         except Exception:
             self._clean_mock_media()
-            self._clean_http_server()
+            # self._clean_http_server()
 
             raise
