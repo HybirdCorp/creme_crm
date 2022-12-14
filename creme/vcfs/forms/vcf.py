@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,9 @@ from __future__ import annotations
 import base64
 import logging
 from itertools import chain
+# from urllib.request import urlopen => cannot be mocked
+from urllib import request
 from urllib.error import URLError
-from urllib.request import urlopen
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
@@ -513,7 +514,7 @@ class VcfImportForm(CremeModelForm):
 
                 try:
                     # TODO: smaller timeout than our own web server?
-                    with urlopen(encoded_image) as f:
+                    with request.urlopen(encoded_image) as f:
                         max_size = settings.VCF_IMAGE_MAX_SIZE
                         if int(f.info()['content-length']) > max_size:
                             raise ValidationError(

@@ -1,7 +1,10 @@
 import base64
+import urllib
 from functools import partial
-from os import path as os_path
+# from os import path as os_path
+from pathlib import Path
 from tempfile import NamedTemporaryFile
+from unittest.mock import patch
 
 from django.conf import settings
 from django.test.utils import override_settings
@@ -1467,15 +1470,24 @@ END:VCARD"""
                 self.assertTupleEqual((72, 72), img.size)
 
     @skipIfCustomContact
+    @override_settings(VCF_IMAGE_MAX_SIZE=10_000_000)
     def test_vcf_with_image02(self):
         "Link to an image."
         user = self.login()
 
-        url_parts = ['static', 'common', 'images', '500_200.png']
-        self.assertTrue(os_path.exists(
-            os_path.join(settings.CREME_ROOT, *url_parts)
-        ))
-        url = self.http_file('/'.join(['creme', *url_parts]))
+        # url_parts = ['static', 'common', 'images', '500_200.png']
+        # self.assertTrue(os_path.exists(
+        #     os_path.join(settings.CREME_ROOT, *url_parts)
+        # ))
+        # url = self.http_file('/'.join(['creme', *url_parts]))
+        img_file = open(
+            Path(settings.CREME_ROOT) / 'static' / 'common' / 'images' / '500_200.png',
+            mode='rb',
+        )
+        img_file.info = lambda: {'content-length': 5_000}
+
+        # NB: this url is not valid, we just use it to test called arguments.
+        url = 'http://localhost:8001/photograph/yukihiro.png'
 
         contact_count = Contact.objects.count()
         doc_count = Document.objects.count()
@@ -1492,14 +1504,27 @@ END:VCARD"""
         with self.assertNoException():
             image_encoded_f = response1.context['form'].fields['image_encoded']
 
-        self._post_step1(
-            data={
-                'user':          user.id,
-                'first_name':    first_name,
-                'last_name':     last_name,
-                'image_encoded': image_encoded_f.initial,
-            },
-        )
+        self.assertEqual(url, image_encoded_f.initial)
+
+        # self._post_step1(
+        #     data={
+        #         'user':          user.id,
+        #         'first_name':    first_name,
+        #         'last_name':     last_name,
+        #         'image_encoded': image_encoded_f.initial,
+        #     },
+        # )
+        with patch('urllib.request.urlopen', return_value=img_file) as urlopen_mock:
+            self._post_step1(
+                data={
+                    'user':          user.id,
+                    'first_name':    first_name,
+                    'last_name':     last_name,
+                    'image_encoded': url,
+                },
+            )
+
+        urlopen_mock.assert_called_once_with(url)
 
         self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(doc_count + 1,     Document.objects.count())
@@ -1528,9 +1553,10 @@ END:VCARD"""
 
         first_name = 'Kaede'
         last_name = 'NAGASE'
-        url = self.http_file(
-            '/'.join(['creme', 'static', 'common', 'images', 'unknown.png'])
-        )
+        # url = self.http_file(
+        #     '/'.join(['creme', 'static', 'common', 'images', 'unknown.png'])
+        # )
+        url = 'http://localhost:8001/photograph/doesnotexist.png'
         response1 = self._post_step0(
             f'BEGIN:VCARD\n'
             f'FN:{first_name} {last_name}\n'
@@ -1538,20 +1564,50 @@ END:VCARD"""
             f'END:VCARD'
         )
         with self.assertNoException():
-            encoded_img = response1.context['form'].fields['image_encoded'].initial
+            # encoded_img = response1.context['form'].fields['image_encoded'].initial
+            encoded_f = response1.context['form'].fields['image_encoded']
 
-        response2 = self._post_step1(
-            data={
-                'user':          user.id,
-                'first_name':    first_name,
-                'last_name':     last_name,
-                'image_encoded': encoded_img,
-            },
-            errors=True
-        )
-        # NB: difficult to test the message (it contains the original exception message)
+        self.assertEqual(url, encoded_f.initial)
+
+        # response2 = self._post_step1(
+        #     data={
+        #         'user':          user.id,
+        #         'first_name':    first_name,
+        #         'last_name':     last_name,
+        #         'image_encoded': encoded_img,
+        #     },
+        #     errors=True
+        # )
+        # # NB: difficult to test the message (it contains the original exception message)
+        # with self.assertNoException():
+        #     response2.context['form'].errors['image_encoded']  # NOQA
+        exception = urllib.error.URLError('resource cannot be found')
+        with patch('urllib.request.urlopen') as urlopen_mock:
+            urlopen_mock.side_effect = exception
+
+            response2 = self._post_step1(
+                data={
+                    'user':          user.id,
+                    'first_name':    first_name,
+                    'last_name':     last_name,
+                    'image_encoded': url,
+                },
+                errors=True,
+            )
+
+        urlopen_mock.assert_called_once_with(url)
+
         with self.assertNoException():
-            response2.context['form'].errors['image_encoded']  # NOQA
+            errors = response2.context['form'].errors['image_encoded']
+
+        self.assertEqual(1, len(errors))
+        self.assertEqual(
+            _(
+                'An error occurred when trying to retrieve the referenced '
+                'image [original error: {}].'
+            ).format(exception),
+            errors[0],
+        )
 
         # self.assertEqual(contact_count + 1, Contact.objects.count())
         self.assertEqual(image_count,       Document.objects.count())
@@ -1561,11 +1617,19 @@ END:VCARD"""
         "Referenced image is too large."
         user = self.login()
 
-        url_parts = ['static', 'common', 'images', '500_200.png']
-        self.assertTrue(os_path.exists(
-            os_path.join(settings.CREME_ROOT, *url_parts)
-        ))
-        url = self.http_file('/'.join(['creme', *url_parts]))
+        # url_parts = ['static', 'common', 'images', '500_200.png']
+        # self.assertTrue(os_path.exists(
+        #     os_path.join(settings.CREME_ROOT, *url_parts)
+        # ))
+        # url = self.http_file('/'.join(['creme', *url_parts]))
+        img_file = open(
+            Path(settings.CREME_ROOT) / 'static' / 'common' / 'images' / '500_200.png',
+            mode='rb',
+        )
+        img_file.info = lambda: {'content-length': 11_000}
+
+        # NB: this url is not valid, we just use it to test called arguments.
+        url = 'http://localhost:8001/photograph/hakase.png'
 
         image_count = Document.objects.count()
 
@@ -1578,18 +1642,34 @@ END:VCARD"""
             f'END:VCARD'
         )
 
+        # with self.assertNoException():
+        #     encoded_img = response1.context['form'].fields['image_encoded'].initial
         with self.assertNoException():
-            encoded_img = response1.context['form'].fields['image_encoded'].initial
+            image_encoded_f = response1.context['form'].fields['image_encoded']
 
-        response2 = self._post_step1(
-            data={
-                'user':          user.id,
-                'first_name':    first_name,
-                'last_name':     last_name,
-                'image_encoded': encoded_img,
-            },
-            errors=True,
-        )
+        self.assertEqual(url, image_encoded_f.initial)
+
+        # response2 = self._post_step1(
+        #     data={
+        #         'user':          user.id,
+        #         'first_name':    first_name,
+        #         'last_name':     last_name,
+        #         'image_encoded': encoded_img,
+        #     },
+        #     errors=True,
+        # )
+        with patch('urllib.request.urlopen', return_value=img_file) as urlopen_mock:
+            response2 = self._post_step1(
+                data={
+                    'user':          user.id,
+                    'first_name':    first_name,
+                    'last_name':     last_name,
+                    'image_encoded': url,
+                },
+                errors=True,
+            )
+
+        urlopen_mock.assert_called_once_with(url)
         self.assertFormError(
             response2, 'form', 'image_encoded',
             _(
