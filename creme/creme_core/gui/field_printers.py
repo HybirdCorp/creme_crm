@@ -40,7 +40,7 @@ from ..core.download import (
     FileFieldDownLoadRegistry,
     filefield_download_registry,
 )
-from ..models import CremeEntity, EntityFilter, fields
+from ..models import CremeEntity, CremeUser, EntityFilter, fields
 from ..templatetags.creme_widgets import widget_entity_hyperlink, widget_urlize
 from ..utils import bool_as_html
 from ..utils.collections import ClassKeyedMap
@@ -49,22 +49,17 @@ from ..utils.meta import FieldInfo
 if TYPE_CHECKING:
     from typing import Any, Callable, Iterator
 
-    # NB: 2nd argument is "user".
-    #     3rd argument is "value" (value of the field for the instance -- ie 1rst argument).
-    FieldPrinter = Callable[[Model, Any, Any, Field], str]
-    # NB: 2nd argument is "user".
-    NonePrinter = Callable[[Model, Any, Field], str]
-    # NB: 2nd argument is "user".
-    ReducedPrinter = Callable[[Model, Any], str]
+    # NB: 3rd argument is "value" (value of the field for the instance -- ie 1rst argument).
+    FieldPrinter = Callable[[Model, CremeUser, Any, Field], str]
+    NonePrinter = Callable[[Model, CremeUser, Field], str]
+    ReducedPrinter = Callable[[Model, CremeUser], str]
     # NB: 2nd argument is M2M value of the related instance.
-    #     3rd argument is "user".
-    M2MEnumerator = Callable[[Model, Manager, Any, Field], Iterator[Model]]
+    M2MEnumerator = Callable[[Model, Manager, CremeUser, Field], Iterator[Model]]
     # NB: 1st argument is the instance to print
     #     2nd argument is the related instance, the one with the ManyToManyField
     #                  (so 1st argument is one of the instances related to it)
     #     3rd argument M2M value of the related instance.
-    #     4th argument is "user".
-    M2MInstancePrinter = Callable[[Model, Model, Manager, Any, Field], str]
+    M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
 
 # TODO: in settings
 MAX_HEIGHT: int = 200
@@ -313,25 +308,25 @@ print_foreignkey_csv = FKPrinter(
 
 class BaseM2MPrinter:
     @staticmethod
-    def enumerator_all(
-            entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> Iterator[Model]:
+    def enumerator_all(entity: Model,
+                       fval: Manager,
+                       user: CremeUser,
+                       field: Field,
+                       ) -> Iterator[Model]:
         return fval.all()
 
     @staticmethod
-    def enumerator_entity(
-            entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> Iterator[Model]:
+    def enumerator_entity(entity: Model,
+                          fval: Manager,
+                          user: CremeUser,
+                          field: Field,
+                          ) -> Iterator[Model]:
         return fval.filter(is_deleted=False)
 
-    def __init__(
-            self,
-            default_printer: M2MInstancePrinter,
-            default_enumerator: M2MEnumerator):
+    def __init__(self,
+                 default_printer: M2MInstancePrinter,
+                 default_enumerator: M2MEnumerator,
+                 ):
         self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
 
     def __call__(self, entity: Model, fval, user, field: Field) -> str:
@@ -348,21 +343,21 @@ class BaseM2MPrinter:
 
 class M2MPrinterForHTML(BaseM2MPrinter):
     @staticmethod
-    def printer_html(
-            instance: Model,
-            related_entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> str:
+    def printer_html(instance: Model,
+                     related_entity: Model,
+                     fval: Manager,
+                     user: CremeUser,
+                     field: Field,
+                     ) -> str:
         return escape(instance)
 
     @staticmethod
-    def printer_entity_html(
-            instance: Model,
-            related_entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> str:
+    def printer_entity_html(instance: Model,
+                            related_entity: Model,
+                            fval: Manager,
+                            user: CremeUser,
+                            field: Field,
+                            ) -> str:
         assert isinstance(instance, CremeEntity)
 
         return format_html(
@@ -402,21 +397,21 @@ print_many2many_html = M2MPrinterForHTML(
 
 class M2MPrinterForCSV(BaseM2MPrinter):
     @staticmethod
-    def printer_csv(
-            instance: Model,
-            related_entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> str:
+    def printer_csv(instance: Model,
+                    related_entity: Model,
+                    fval: Manager,
+                    user: CremeUser,
+                    field: Field,
+                    ) -> str:
         return str(instance)
 
     @staticmethod
-    def printer_entity_csv(
-            instance: Model,
-            related_entity: Model,
-            fval: Manager,
-            user,
-            field: Field) -> str:
+    def printer_entity_csv(instance: Model,
+                           related_entity: Model,
+                           fval: Manager,
+                           user,
+                           field: Field,
+                           ) -> str:
         assert isinstance(instance, CremeEntity)
 
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
@@ -595,10 +590,10 @@ class _FieldPrintersRegistry:
         self._printers_maps[output][field] = printer
         return self
 
-    def register_choice_printer(
-            self,
-            printer: FieldPrinter,
-            output: str = 'html') -> _FieldPrintersRegistry:
+    def register_choice_printer(self,
+                                printer: FieldPrinter,
+                                output: str = 'html',
+                                ) -> _FieldPrintersRegistry:
         """Register a printer for fields with a "choices" attribute.
         @param printer: A callable object. See print_choice() for arguments/return.
         @param output: string in {'html', 'csv'}.
@@ -607,11 +602,11 @@ class _FieldPrintersRegistry:
         self._choice_printers[output] = printer
         return self
 
-    def register_listview_css_class(
-            self,
-            field: type[models.Field],
-            css_class: str,
-            header_css_class: str) -> _FieldPrintersRegistry:
+    def register_listview_css_class(self,
+                                    field: type[models.Field],
+                                    css_class: str,
+                                    header_css_class: str,
+                                    ) -> _FieldPrintersRegistry:
         """Register CSS classes used in list-views to display field's value and column header.
         @param field: A class inheriting <django.models.Field>.
         @param css_class: CSS class for table cell.
@@ -630,10 +625,10 @@ class _FieldPrintersRegistry:
     def get_header_listview_css_class_for_field(self, field_class: type[models.Field]) -> str:
         return self._header_listview_css_printers[field_class]
 
-    def _build_field_printer(
-            self,
-            field_info: FieldInfo,
-            output: str = 'html') -> ReducedPrinter:
+    def _build_field_printer(self,
+                             field_info: FieldInfo,
+                             output: str = 'html',
+                             ) -> ReducedPrinter:
         base_field = field_info[0]
         base_name = base_field.name
         HIDDEN_VALUE = settings.HIDDEN_VALUE
@@ -716,25 +711,25 @@ class _FieldPrintersRegistry:
 
         return printer
 
-    def build_field_printer(
-            self,
-            model: type[models.Model],
-            field_name: str,
-            output: str = 'html') -> ReducedPrinter:
+    def build_field_printer(self,
+                            model: type[models.Model],
+                            field_name: str,
+                            output: str = 'html',
+                            ) -> ReducedPrinter:
         return self._build_field_printer(FieldInfo(model, field_name), output=output)
 
-    def get_html_field_value(
-            self,
-            obj: models.Model,
-            field_name: str,
-            user) -> str:
+    def get_html_field_value(self,
+                             obj: models.Model,
+                             field_name: str,
+                             user: CremeUser,
+                             ) -> str:
         return self.build_field_printer(obj.__class__, field_name)(obj, user)
 
-    def get_csv_field_value(
-            self,
-            obj: models.Model,
-            field_name: str,
-            user) -> str:
+    def get_csv_field_value(self,
+                            obj: models.Model,
+                            field_name: str,
+                            user: CremeUser,
+                            ) -> str:
         return self.build_field_printer(obj.__class__, field_name, output='csv')(obj, user)
 
 
