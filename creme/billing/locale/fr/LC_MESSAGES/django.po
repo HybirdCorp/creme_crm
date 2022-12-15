@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Billing 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-18 17:59+0100\n"
+"POT-Creation-Date: 2022-12-15 19:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -65,9 +65,6 @@ msgstr ""
 "Affiche les Avoirs reliés à la fiche courante avec une relation «est "
 "consommé dans le document comptable»/«consomme l'avoir».\n"
 "App : Facturation"
-
-msgid "Create a credit note"
-msgstr "Créer un avoir"
 
 msgid "Totals"
 msgstr "Totaux"
@@ -498,6 +495,9 @@ msgstr "La cible est requise."
 
 msgid "Status of credit note"
 msgstr "Statut de l'avoir"
+
+msgid "Create a credit note"
+msgstr "Créer un avoir"
 
 msgid "Save the credit note"
 msgstr "Enregistrer l'avoir"
