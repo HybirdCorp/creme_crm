@@ -93,8 +93,8 @@ class FilterMixin:
 
             return _(
                 'Notice: your database is not case-sensitive for the "equals" '
-                'operator, so the string equality operators which are case '
-                'sensitive and the ones which are not will accept the same entities.'
+                'operator, so the string equality operators which are '
+                'case-sensitive and the ones which are not will accept the same entities.'
             )
         elif not db_utils.is_db_like_case_sensitive():
             return _(

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Mobile 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-11-15 11:41+0100\n"
+"POT-Creation-Date: 2022-12-15 19:13+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -440,7 +440,7 @@ msgstr "échoué"
 
 #, python-brace-format
 msgid "Call to {person} from {software} Mobile"
-msgstr "Appel vers {} depuis {software} Mobile"
+msgstr "Appel vers {person} depuis {software} Mobile"
 
 #~ msgid "This contact is a favorite for %s user"
 #~ msgstr "Ce contact est un favori pour %s utilisateur"
