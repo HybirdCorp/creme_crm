@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -121,9 +121,20 @@ class PersonsConfig(CremeAppConfig):
 
         from creme.creme_core.gui.field_printers import print_foreignkey_html
 
-        def print_fk_user_html(entity, fval, user, field) -> str:
-            if not fval.is_team:
-                contact = fval.linked_contact
+        # def print_fk_user_html(entity, fval, user, field) -> str:
+        #     if not fval.is_team:
+        #         contact = fval.linked_contact
+        #         if user.has_perm_to_view(contact):
+        #             return format_html(
+        #                 '<a href="{url}">{label}</a>',
+        #                 url=contact.get_absolute_url(),
+        #                 label=contact,
+        #             )
+        #
+        #     return str(fval)
+        def print_fk_user_html(*, value, user, **kwargs) -> str:
+            if not value.is_team:
+                contact = value.linked_contact
                 if user.has_perm_to_view(contact):
                     return format_html(
                         '<a href="{url}">{label}</a>',
@@ -131,13 +142,16 @@ class PersonsConfig(CremeAppConfig):
                         label=contact,
                     )
 
-            return str(fval)
+            return str(value)
 
         print_foreignkey_html.register(get_user_model(), print_fk_user_html)
 
     def register_icons(self, icon_registry):
-        icon_registry.register(self.Contact,      'images/contact_%(size)s.png') \
-                     .register(self.Organisation, 'images/organisation_%(size)s.png')
+        icon_registry.register(
+            self.Contact,      'images/contact_%(size)s.png'
+        ).register(
+            self.Organisation, 'images/organisation_%(size)s.png'
+        )
 
     def register_imprints(self, imprint_manager):
         imprint_manager.register(self.Contact, hours=1)

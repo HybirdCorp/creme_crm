@@ -96,13 +96,18 @@ class Dummy:
     def __init__(self, name, user, image_url):
         self.user = user
         self.name = name
-        self.url = mark_safe(print_url_html(self, image_url, self.user, None))
-        self.datetime = mark_safe(print_datetime_html(self, now(), user, None))
-        self.date = mark_safe(print_date_html(self, date.today(), user, None))
+        # self.url = mark_safe(print_url_html(self, image_url, self.user, None))
+        self.url = print_url_html(value=image_url)
+        # self.datetime = mark_safe(print_datetime_html(self, now(), user, None))
+        self.datetime = mark_safe(print_datetime_html(value=now()))
+        # self.date = mark_safe(print_date_html(self, date.today(), user, None))
+        self.date = mark_safe(print_date_html(value=date.today()))
         self.duration = mark_safe(print_duration(
-            self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
+            # self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
+            value=f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}',
         ))
-        self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
+        # self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
+        self.foreignkey = print_foreignkey_html(instance=self, value=user, user=user, field=None)
         # API Breaking : TODO refactor this
 #         self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
 #         property = CremeProperty.objects.first()
