@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,16 +49,33 @@ from ..utils.meta import FieldInfo
 if TYPE_CHECKING:
     from typing import Any, Callable, Iterator
 
-    # NB: 3rd argument is "value" (value of the field for the instance -- ie 1rst argument).
-    FieldPrinter = Callable[[Model, CremeUser, Any, Field], str]
+    # Only keyword arguments:
+    #   - "instance"
+    #   - "value" (value of the field for the 'instance' argument)
+    #   - "user"
+    #   - "field"
+    FieldPrinter = Callable[[Model, Any, CremeUser, Field], str]
+
+    # Only keyword arguments: "instance", "user", "field"
     NonePrinter = Callable[[Model, CremeUser, Field], str]
+
+    # Positional arguments
     ReducedPrinter = Callable[[Model, CremeUser], str]
-    # NB: 2nd argument is M2M value of the related instance.
+
+    # Only keyword arguments:
+    #   - "instance"
+    #   - "manager" (M2M value of the related instance)
+    #   - "user"
+    #   - "field"
     M2MEnumerator = Callable[[Model, Manager, CremeUser, Field], Iterator[Model]]
-    # NB: 1st argument is the instance to print
-    #     2nd argument is the related instance, the one with the ManyToManyField
-    #                  (so 1st argument is one of the instances related to it)
-    #     3rd argument M2M value of the related instance.
+
+    # Only keyword arguments:
+    #   - "instance" (the instance to print).
+    #   - "related_instance" (the instance with the ManyToManyField -- so
+    #     "instance" argument is one of the instances related to it)
+    #   - "value" (M2M value of the related instance)
+    #   - "user"
+    #   - "field"
     M2MInstancePrinter = Callable[[Model, Model, Manager, CremeUser, Field], str]
 
 # TODO: in settings
@@ -92,50 +109,65 @@ def image_size(image, max_h: int = MAX_HEIGHT, max_w: int = MAX_WIDTH) -> str:
     return format_html('height="{}" width="{}"', h, w)
 
 
-def simple_print_html(entity: Model, fval, user, field: Field) -> str:
-    return escape(fval) if fval is not None else ''
+# def simple_print_html(entity: Model, fval, user, field: Field) -> str:
+def simple_print_html(*, instance: Model, value: Any, user, field: Field) -> str:
+    # return escape(fval) if fval is not None else ''
+    return escape(value) if value is not None else ''
 
 
-def simple_print_csv(entity: Model, fval, user, field: Field) -> str:
-    return str(fval) if fval is not None else ''
+# def simple_print_csv(entity: Model, fval, user, field: Field) -> str:
+def simple_print_csv(*, value, **kwargs) -> str:
+    # return str(fval) if fval is not None else ''
+    return str(value) if value is not None else ''
 
 
-def print_choice(entity: Model, fval, user, field: Field) -> str:
-    choice = getattr(entity, f'get_{field.name}_display')()
+# def print_choice(entity: Model, fval, user, field: Field) -> str:
+def print_choice(*, instance: Model, field: Field, **kwargs) -> str:
+    # choice = getattr(entity, f'get_{field.name}_display')()
+    choice = getattr(instance, f'get_{field.name}_display')()
     return str(choice) if choice is not None else ''
 
 
-def print_color_html(entity: Model, fval, user, field: Field) -> str:
+# def print_color_html(entity: Model, fval, user, field: Field) -> str:
+def print_color_html(*, value, **kwargs) -> str:
     return format_html(
         '''<span style="background:#{color};">{color}</span>''',
-        color=fval,
-    ) if fval else ''
+        # color=fval,
+        color=value,
+    ) if value else ''  # ) if fval else ''
 
 
 class FileFieldPrinterForHTML:
     def __init__(self, registry: FileFieldDownLoadRegistry):
         self.registry = registry
 
-    def __call__(self, entity: Model, fval, user, field: Field) -> str:
-        if fval:
+    # def __call__(self, entity: Model, fval, user, field: Field) -> str:
+    def __call__(self, *, instance: Model, value, user, field: Field) -> str:
+        # if fval:
+        if value:
             fname = field.name
             registry = self.registry
 
             try:
                 dl_filefield = registry.get(
                     user=user,
-                    instance=entity,
+                    # instance=entity,
+                    instance=instance,
                     field_name=fname,
                 )
             except registry.InvalidField:
-                return simple_print_html(entity, fval, user, field)
+                # return simple_print_html(entity, fval, user, field)
+                return simple_print_html(instance=instance, value=value, user=user, field=field)
 
-            ct_id = ContentType.objects.get_for_model(entity).id
+            # ct_id = ContentType.objects.get_for_model(entity).id
+            ct_id = ContentType.objects.get_for_model(instance).id
 
             return self._render_download(
-                url=reverse('creme_core__download', args=(ct_id, entity.id, fname)),
+                # url=reverse('creme_core__download', args=(ct_id, entity.id, fname)),
+                url=reverse('creme_core__download', args=(ct_id, instance.id, fname)),
                 dl_filefield=dl_filefield,
-                entity=entity,
+                # entity=entity,
+                instance=instance,
                 user=user,
             )
 
@@ -145,8 +177,10 @@ class FileFieldPrinterForHTML:
     def _render_download(*,
                          url: str,
                          dl_filefield: DownLoadableFileField,
-                         entity: Model,
-                         user) -> str:
+                         # entity: Model,
+                         instance: Model,
+                         user: CremeUser,
+                         ) -> str:
         file_name = dl_filefield.base_name
         ext = splitext(file_name)[1]
 
@@ -174,33 +208,46 @@ class FileFieldPrinterForHTML:
 print_file_html = print_image_html = FileFieldPrinterForHTML(registry=filefield_download_registry)
 
 
-def print_integer_html(entity: Model, fval, user, field: Field) -> str:
+# def print_integer_html(entity: Model, fval, user, field: Field) -> str:
+def print_integer_html(*, value, **kwargs) -> str:
     # NB: force grouping instead of <USE_THOUSAND_SEPARATOR = True> in settings
     #     to not impact CSV output, reports etc...
-    return number_format(fval, force_grouping=True) if fval is not None else ''
+    # return number_format(fval, force_grouping=True) if fval is not None else ''
+    return number_format(value, force_grouping=True) if value is not None else ''
 
 
-def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
-    return number_format(fval, force_grouping=True) if fval is not None else ''
+# def print_decimal_html(entity: Model, fval, user, field: Field) -> str:
+def print_decimal_html(*, value, **kwargs) -> str:
+    # return number_format(fval, force_grouping=True) if fval is not None else ''
+    return number_format(value, force_grouping=True) if value is not None else ''
 
 
-def print_decimal_csv(entity: Model, fval, user, field: Field) -> str:
-    return number_format(fval) if fval is not None else ''
+# def print_decimal_csv(entity: Model, fval, user, field: Field) -> str:
+def print_decimal_csv(*, value, **kwargs) -> str:
+    # return number_format(fval, use_l10n=True) if fval is not None else ''
+    return number_format(value) if value is not None else ''
 
 
-def print_boolean_html(entity: Model, fval, user, field: Field) -> str:
-    return bool_as_html(fval) if fval is not None else ''
+# def print_boolean_html(entity: Model, fval, user, field: Field) -> str:
+def print_boolean_html(*, value, **kwargs) -> str:
+    # return bool_as_html(fval) if fval is not None else ''
+    return bool_as_html(value) if value is not None else ''
 
 
-def print_boolean_csv(entity: Model, fval, user, field: Field) -> str:
-    if fval is None:
+# def print_boolean_csv(entity: Model, fval, user, field: Field) -> str:
+def print_boolean_csv(*, value, **kwargs) -> str:
+    # if fval is None:
+    if value is None:
         return ''
 
-    return _('Yes') if fval else _('No')
+    # return _('Yes') if fval else _('No')
+    return _('Yes') if value else _('No')
 
 
-def print_url_html(entity: Model, fval, user, field: Field) -> str:
-    return format_html('<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
+# def print_url_html(entity: Model, fval, user, field: Field) -> str:
+def print_url_html(*, value, **kwargs) -> str:
+    # return format_html('<a href="{url}" target="_blank">{url}</a>', url=fval) if fval else ''
+    return format_html('<a href="{url}" target="_blank">{url}</a>', url=value) if value else ''
 
 
 # def print_datetime(entity: Model, fval, user, field: Field) -> str:
@@ -212,14 +259,18 @@ def print_url_html(entity: Model, fval, user, field: Field) -> str:
 #     return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
 
 
-def print_datetime_html(entity: Model, fval, user, field: Field) -> str:
-    return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
+# def print_datetime_html(entity: Model, fval, user, field: Field) -> str:
+def print_datetime_html(*, value, **kwargs) -> str:
+    # return date_format(localtime(fval), 'DATETIME_FORMAT') if fval else ''
+    return date_format(localtime(value), 'DATETIME_FORMAT') if value else ''
 
 
-def print_datetime_csv(entity: Model, fval, user, field: Field) -> str:
+# def print_datetime_csv(entity: Model, fval, user, field: Field) -> str:
+def print_datetime_csv(*, value, **kwargs) -> str:
     # CSV is often used for import/export of data ;
     # so we choose a format friendly for machines.
-    return localtime(fval).strftime(get_format('DATETIME_INPUT_FORMATS')[0]) if fval else ''
+    # return localtime(fval).strftime(get_format('DATETIME_INPUT_FORMATS')[0]) if fval else ''
+    return localtime(value).strftime(get_format('DATETIME_INPUT_FORMATS')[0]) if value else ''
 
 
 # def print_date(entity: Model, fval, user, field: Field) -> str:
@@ -231,54 +282,74 @@ def print_datetime_csv(entity: Model, fval, user, field: Field) -> str:
 #     return date_format(fval, 'DATE_FORMAT') if fval else ''
 
 
-def print_date_html(entity: Model, fval, user, field: Field) -> str:
-    return date_format(fval, 'DATE_FORMAT') if fval else ''
+# def print_date_html(entity: Model, fval, user, field: Field) -> str:
+def print_date_html(*, value, **kwargs) -> str:
+    # return date_format(fval, 'DATE_FORMAT') if fval else ''
+    return date_format(value, 'DATE_FORMAT') if value else ''
 
 
-def print_date_csv(entity: Model, fval, user, field: Field) -> str:
-    return fval.strftime(get_format('DATE_INPUT_FORMATS')[0]) if fval else ''
+# def print_date_csv(entity: Model, fval, user, field: Field) -> str:
+def print_date_csv(*, value, **kwargs) -> str:
+    # return fval.strftime(get_format('DATE_INPUT_FORMATS')[0]) if fval else ''
+    return value.strftime(get_format('DATE_INPUT_FORMATS')[0]) if value else ''
 
 
 class FKPrinter:
     @staticmethod
-    def print_fk_null_html(entity: Model, user, field: Field):
+    # def print_fk_null_html(entity: Model, user, field: Field):
+    def print_fk_null_html(*, instance: Model, user: CremeUser, field: Field):
         null_label = field.get_null_label()
         return format_html('<em>{}</em>', null_label) if null_label else ''
 
     @staticmethod
-    def print_fk_entity_html(entity: Model, fval, user, field: Field) -> str:
-        return widget_entity_hyperlink(fval, user)
+    # def print_fk_entity_html(entity: Model, fval, user, field: Field) -> str:
+    def print_fk_entity_html(*, instance: Model, value, user, field: Field) -> str:
+        # TODO: assert isinstance(instance, CremeEntity)?
+        # return widget_entity_hyperlink(fval, user)
+        return widget_entity_hyperlink(value, user)
 
     @staticmethod
-    def print_fk_entity_csv(entity: Model, fval, user, field: Field) -> str:
+    # def print_fk_entity_csv(entity: Model, fval, user, field: Field) -> str:
+    def print_fk_entity_csv(*, instance: Model, value: Any, user: CremeUser, field: Field) -> str:
+        # TODO: assert isinstance(instance, CremeEntity)?
         # TODO: change allowed_str() ??
-        return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+        # return str(fval) if user.has_perm_to_view(fval) else settings.HIDDEN_VALUE
+        return str(value) if user.has_perm_to_view(value) else settings.HIDDEN_VALUE
 
     @staticmethod
-    def print_fk_efilter_html(entity: Model, fval, user, field: Field) -> str:
+    # def print_fk_efilter_html(entity: Model, fval, user, field: Field) -> str:
+    def print_fk_efilter_html(*, instance: Model, value, user, field: Field) -> str:
         return format_html(
             '<div class="entity_filter-summary">{}<ul>{}</ul></div>',
-            fval.name,
+            # fval.name,
+            value.name,
             format_html_join(
                 '', '<li>{}</li>',
-                ((vc,) for vc in fval.get_verbose_conditions(user)),
+                # ((vc,) for vc in fval.get_verbose_conditions(user)),
+                ((vc,) for vc in value.get_verbose_conditions(user)),
             )
         )
 
     def __init__(self,
                  none_printer: NonePrinter,
-                 default_printer: FieldPrinter):
+                 default_printer: FieldPrinter,
+                 ):
         self.none_printer = none_printer
         self._sub_printers = ClassKeyedMap(default=default_printer)
 
-    def __call__(self, entity: Model, fval, user, field: Field):
-        if fval is None:
-            return self.none_printer(entity, user, field)
+    # def __call__(self, entity: Model, fval, user, field: Field):
+    def __call__(self, *, instance: Model, value: Any, user: CremeUser, field: Field):
+        # if fval is None:
+        #     return self.none_printer(entity, user, field)
+        if value is None:
+            return self.none_printer(instance=instance, user=user, field=field)
 
-        sub_printer = self._sub_printers[fval.__class__]
+        # sub_printer = self._sub_printers[fval.__class__]
+        sub_printer = self._sub_printers[value.__class__]
         assert sub_printer is not None  # NB: default_printer is not None
 
-        return sub_printer(entity, fval, user, field)
+        # return sub_printer(entity, fval, user, field)
+        return sub_printer(instance=instance, value=value, user=user, field=field)
 
     def register(self, model: type[Model], printer: FieldPrinter) -> FKPrinter:
         self._sub_printers[model] = printer
@@ -305,20 +376,28 @@ print_foreignkey_csv = FKPrinter(
 
 class BaseM2MPrinter:
     @staticmethod
-    def enumerator_all(entity: Model,
-                       fval: Manager,
+    # def enumerator_all(entity: Model,
+    def enumerator_all(*,
+                       instance: Model,
+                       # fval: Manager,
+                       manager: Manager,
                        user: CremeUser,
                        field: Field,
                        ) -> Iterator[Model]:
-        return fval.all()
+        # return fval.all()
+        return manager.all()
 
     @staticmethod
-    def enumerator_entity(entity: Model,
-                          fval: Manager,
+    # def enumerator_entity(entity: Model,
+    def enumerator_entity(*,
+                          instance: Model,
+                          # fval: Manager,
+                          manager: Manager,
                           user: CremeUser,
                           field: Field,
                           ) -> Iterator[Model]:
-        return fval.filter(is_deleted=False)
+        # return fval.filter(is_deleted=False)
+        return manager.filter(is_deleted=False)
 
     def __init__(self,
                  default_printer: M2MInstancePrinter,
@@ -326,7 +405,8 @@ class BaseM2MPrinter:
                  ):
         self._sub_printers = ClassKeyedMap(default=(default_printer, default_enumerator))
 
-    def __call__(self, entity: Model, fval, user, field: Field) -> str:
+    # def __call__(self, entity: Model, fval, user, field: Field) -> str:
+    def __call__(self, *, instance: Model, value, user: CremeUser, field: Field) -> str:
         raise NotImplementedError
 
     def register(self,
@@ -340,18 +420,25 @@ class BaseM2MPrinter:
 
 class M2MPrinterForHTML(BaseM2MPrinter):
     @staticmethod
-    def printer_html(instance: Model,
-                     related_entity: Model,
-                     fval: Manager,
+    # def printer_html(instance: Model,
+    def printer_html(*,
+                     instance: Model,
+                     # related_entity: Model,
+                     related_instance: Model,
+                     # fval: Manager,
+                     value: Manager,
                      user: CremeUser,
                      field: Field,
                      ) -> str:
         return escape(instance)
 
     @staticmethod
-    def printer_entity_html(instance: Model,
-                            related_entity: Model,
-                            fval: Manager,
+    # def printer_entity_html(instance: Model,
+    def printer_entity_html(*, instance: Model,
+                            # related_entity: Model,
+                            related_instance: Model,
+                            # fval: Manager,
+                            value: Manager,
                             user: CremeUser,
                             field: Field,
                             ) -> str:
@@ -364,18 +451,27 @@ class M2MPrinterForHTML(BaseM2MPrinter):
             content=instance.get_entity_summary(user),
         ) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
-    def __call__(self, entity: Model, fval, user, field: Field) -> str:
-        assert isinstance(fval, Manager)
+    # def __call__(self, entity: Model, fval, user, field: Field) -> str:
+    def __call__(self, *, instance: Model, value, user: CremeUser, field: Field) -> str:
+        # assert isinstance(fval, Manager)
+        assert isinstance(value, Manager)
 
-        print_enum = self._sub_printers[fval.model]
+        # print_enum = self._sub_printers[fval.model]
+        print_enum = self._sub_printers[value.model]
         assert print_enum is not None  # NB: default value is not None
 
         printer, enumerator = print_enum
+        common_args = {'user': user, 'field': field}
         li_tags = format_html_join(
             '', '<li>{}</li>',
             (
-                (printer(e, entity, fval, user, field),)
-                for e in enumerator(entity, fval, user, field)
+                # (printer(e, entity, fval, user, field),)
+                # for e in enumerator(entity, fval, user, field)
+                (
+                    printer(
+                        instance=e, related_instance=instance, value=value, **common_args,
+                    ),
+                ) for e in enumerator(instance=instance, manager=value, **common_args)
             )
         )
 
@@ -394,19 +490,27 @@ print_many2many_html = M2MPrinterForHTML(
 
 class M2MPrinterForCSV(BaseM2MPrinter):
     @staticmethod
-    def printer_csv(instance: Model,
-                    related_entity: Model,
-                    fval: Manager,
+    # def printer_csv(instance: Model,
+    def printer_csv(*,
+                    instance: Model,
+                    # related_entity: Model,
+                    related_instance: Model,
+                    # fval: Manager,
+                    manager: Manager,
                     user: CremeUser,
                     field: Field,
                     ) -> str:
         return str(instance)
 
     @staticmethod
-    def printer_entity_csv(instance: Model,
-                           related_entity: Model,
-                           fval: Manager,
-                           user,
+    # def printer_entity_csv(instance: Model,
+    def printer_entity_csv(*,
+                           instance: Model,
+                           # related_entity: Model,
+                           related_instance: Model,
+                           # fval: Manager,
+                           manager: Manager,
+                           user: CremeUser,
                            field: Field,
                            ) -> str:
         assert isinstance(instance, CremeEntity)
@@ -414,17 +518,23 @@ class M2MPrinterForCSV(BaseM2MPrinter):
         # TODO: CSV summary ?? [e.get_entity_m2m_summary(user)]
         return str(instance) if user.has_perm_to_view(instance) else settings.HIDDEN_VALUE
 
-    def __call__(self, entity: Model, fval, user, field: Field) -> str:
-        assert isinstance(fval, Manager)
+    # def __call__(self, entity: Model, fval, user, field: Field) -> str:
+    def __call__(self, *, instance: Model, value: Any, user: CremeUser, field: Field) -> str:
+        # assert isinstance(fval, Manager)
+        assert isinstance(value, Manager)
 
-        print_enum = self._sub_printers[fval.model]
+        # print_enum = self._sub_printers[fval.model]
+        print_enum = self._sub_printers[value.model]
         assert print_enum is not None  # NB: default value is not None
 
         printer, enumerator = print_enum
+        common_args = {'manager': value, 'user': user, 'field': field}
 
         return '/'.join(
-            printer(e, entity, fval, user, field)
-            for e in enumerator(entity, fval, user, field)
+            # printer(e, entity, fval, user, field)
+            # for e in enumerator(entity, fval, user, field)
+            printer(instance=e, related_instance=instance, **common_args)
+            for e in enumerator(instance=instance, **common_args)
         )
 
 
@@ -438,9 +548,11 @@ print_many2many_csv = M2MPrinterForCSV(
 )
 
 
-def print_duration(entity: Model, fval, user, field: Field) -> str:
+# def print_duration(entity: Model, fval, user, field: Field) -> str:
+def print_duration(*, value, **kwargs) -> str:
     try:
-        h, m, s = fval.split(':')
+        # h, m, s = fval.split(':')
+        h, m, s = value.split(':')
     except (ValueError, AttributeError):
         return ''
 
@@ -458,19 +570,24 @@ def print_duration(entity: Model, fval, user, field: Field) -> str:
     )
 
 
-def print_email_html(entity: Model, fval, user, field: Field) -> str:
+# def print_email_html(entity: Model, fval, user, field: Field) -> str:
+def print_email_html(*, value, **kwargs) -> str:
     return format_html(
         '<a href="mailto:{email}">{email}</a>',
-        email=fval,
-    ) if fval else ''
+        # email=fval,
+        email=value,
+    ) if value else ''  # ) if fval else ''
 
 
-def print_text_html(entity: Model, fval, user, field: Field) -> str:
-    return mark_safe(linebreaks(widget_urlize(fval, autoescape=True))) if fval else ''
+# def print_text_html(entity: Model, fval, user, field: Field) -> str:
+def print_text_html(*, value, **kwargs) -> str:
+    # return mark_safe(linebreaks(widget_urlize(fval, autoescape=True))) if fval else ''
+    return mark_safe(linebreaks(widget_urlize(value, autoescape=True))) if value else ''
 
 
-def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
-    return linebreaks(fval, autoescape=True) if fval else ''
+# def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
+def print_unsafehtml_html(*, value, **kwargs) -> str:
+    return linebreaks(value, autoescape=True) if value else ''
 
 
 # TODO: Do more specific fields (i.e: currency field....) ?
@@ -569,11 +686,11 @@ class _FieldPrintersRegistry:
         )
 
     # TODO: rename register_printer
-    def register(
-            self,
-            field: type[models.Field],
-            printer: FieldPrinter,
-            output: str = 'html') -> _FieldPrintersRegistry:
+    def register(self,
+                 field: type[models.Field],
+                 printer: FieldPrinter,
+                 output: str = 'html',
+                 ) -> _FieldPrintersRegistry:
         """Register a field printer.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
@@ -700,7 +817,10 @@ class _FieldPrintersRegistry:
             )
 
             def printer(obj, user):
-                return print_func(obj, getattr(obj, base_name), user, base_field)
+                # return print_func(obj, getattr(obj, base_name), user, base_field)
+                return print_func(
+                    instance=obj, value=getattr(obj, base_name), user=user, field=base_field,
+                )
 
         return printer
 

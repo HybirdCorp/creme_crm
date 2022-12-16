@@ -62,7 +62,22 @@
                 * Products :
                     - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
-        # The only argument of 'creme_core.gui.bricks._BrickRegistry.get_brick_4_object()' is now positional only.
+        # In 'creme_core.gui' :
+            - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
+            - In 'field_printers' :
+                 - The signature of the printer functions/methods (i.e. named '[simple_]print_*') has changed :
+                    - The arguments are now keyword-only (because there are lots of arguments).
+                    - The argument "entity" has been renamed "instance" (because printers can be used on non-CremeEntity instances).
+                    - The argument "fval" has been renamed "value".
+                - The methods 'enumerator_*' of the class 'BaseM2MPrinter' have changed :
+                    - The arguments are now keyword-only.
+                    - The argument "entity" has been renamed "instance".
+                    - The argument "fval" has been renamed "manager".
+                - The methods 'printer_*' of the classes 'M2MPrinterForHTML' & 'M2MPrinterForCSV' have changed :
+                    - The arguments are now keyword-only.
+                    - The argument "related_entity" has been renamed "related_instance".
+                    - The argument "fval" has been renamed "manager".
+               - In the method 'FileFieldPrinterForHTML._render_download()', the argument "entity" has been renamed "instance".
         # In 'creme_core.models', the only argument of the following methods is now positional only :
             - RelationType.is_compatible()
             - custom_field.CustomFieldManager.compatible()
@@ -76,7 +91,13 @@
                 - The class 'CremeDiscoverRunner' does not spawn an HTTP server (for static files) anymore.
                   You should use mocking if you want to test code which retrieves files with HTTP (see in 'vcfs' or 'geolocation)'.
                   The attribute '_http_server' & the method '_clean_http_server()' have been removed.
-
+        # Apps :
+            * Documents :
+                - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
+            * Billing :
+                - The function 'utils.print_discount()' has been fixed with the new printers signature.
+            * CTI :
+                - The function 'utils.print_phone_html()' has been fixed with the new printers signature.
 
     Internal breaking changes :
     ---------------------------

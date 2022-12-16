@@ -78,18 +78,21 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('first_name')
         self.assertEqual(
             '',
-            simple_print_html(c, fval=None, user=user, field=field)
+            # simple_print_html(c, fval=None, user=user, field=field)
+            simple_print_html(instance=c, value=None, user=user, field=field)
         )
 
         value = 'Rei'
         self.assertEqual(
             value,
-            simple_print_html(c, value, user, field),
+            # simple_print_html(c, value, user, field),
+            simple_print_html(instance=c, value=value, user=user, field=field),
         )
 
         self.assertEqual(
             '&lt;b&gt;Rei&lt;b&gt;',
-            simple_print_html(c, '<b>Rei<b>', user, field),
+            # simple_print_html(c, '<b>Rei<b>', user, field),
+            simple_print_html(instance=c, value='<b>Rei<b>', user=user, field=field),
         )
 
     def test_simple_print_csv(self):
@@ -98,13 +101,15 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('first_name')
         self.assertEqual(
             '',
-            simple_print_csv(c, fval=None, user=user, field=field),
+            # simple_print_csv(c, fval=None, user=user, field=field),
+            simple_print_csv(instance=c, value=None, user=user, field=field),
         )
 
         value = 'Rei'
         self.assertEqual(
             value,
-            simple_print_csv(c, value, user, field),
+            # simple_print_csv(c, value, user, field),
+            simple_print_csv(instance=c, value=value, user=user, field=field),
         )
 
     def test_print_choice(self):
@@ -114,19 +119,22 @@ class FieldsPrintersTestCase(CremeTestCase):
         line1 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
         self.assertEqual(
             _('Percent'),
-            print_choice(line1, fval='whatever', user=user, field=field),
+            # print_choice(line1, fval='whatever', user=user, field=field),
+            print_choice(instance=line1, value='whatever', user=user, field=field),
         )
 
         line2 = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.AMOUNT)
         self.assertEqual(
             _('Amount'),
-            print_choice(line2, fval='whatever', user=user, field=field),
+            # print_choice(line2, fval='whatever', user=user, field=field),
+            print_choice(instance=line2, value='whatever', user=user, field=field),
         )
 
         line3 = FakeInvoiceLine(discount_unit=None)
         self.assertEqual(
             '',
-            print_choice(line3, fval='whatever', user=user, field=field),
+            # print_choice(line3, fval='whatever', user=user, field=field),
+            print_choice(instance=line3, value='whatever', user=user, field=field),
         )
 
     def _aux_print_integer_html01(self):
@@ -135,14 +143,16 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = o._meta.get_field('capital')
         self.assertEqual(
             '',
-            print_integer_html(o, fval=None, user=user, field=field)
+            # print_integer_html(o, fval=None, user=user, field=field)
+            print_integer_html(instance=o, value=None, user=user, field=field)
         )
 
         value = 1234
         self.assertEqual(
             # number_format(value, use_l10n=True, force_grouping=True),
             number_format(value, force_grouping=True),
-            print_integer_html(o, fval=value, user=user, field=field)
+            # print_integer_html(o, fval=value, user=user, field=field)
+            print_integer_html(instance=o, value=value, user=user, field=field)
         )
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
@@ -159,13 +169,15 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
-            print_decimal_html(line, fval=None, user=user, field=field)
+            # print_decimal_html(line, fval=None, user=user, field=field)
+            print_decimal_html(instance=line, value=None, user=user, field=field)
         )
 
         value = Decimal('1234.56')
         self.assertEqual(
             number_format(value, force_grouping=True),
-            print_decimal_html(line, fval=value, user=user, field=field)
+            # print_decimal_html(line, fval=value, user=user, field=field)
+            print_decimal_html(instance=line, value=value, user=user, field=field)
         )
 
     def test_print_decimal_csv(self):
@@ -174,13 +186,15 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = line._meta.get_field('discount')
         self.assertEqual(
             '',
-            print_decimal_csv(line, fval=None, user=user, field=field)
+            # print_decimal_csv(line, fval=None, user=user, field=field)
+            print_decimal_csv(instance=line, value=None, user=user, field=field)
         )
 
         value = Decimal('1234.56')
         self.assertEqual(
             number_format(value),
-            print_decimal_csv(line, fval=value, user=user, field=field)
+            # print_decimal_csv(line, fval=value, user=user, field=field)
+            print_decimal_csv(instance=line, value=value, user=user, field=field)
         )
 
     def test_print_boolean_html(self):
@@ -189,16 +203,18 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('is_a_nerd')
         self.assertEqual(
             '',
-            print_boolean_html(c, None, user, field)
+            # print_boolean_html(c, None, user, field)
+            print_boolean_html(instance=c, value=None, user=user, field=field)
         )
 
         self.assertEqual(
             '<input type="checkbox" checked disabled/>{}'.format(_('Yes')),
-            print_boolean_html(c, True, user, field)
+            # print_boolean_html(c, True, user, field)
+            print_boolean_html(instance=c, value=True, user=user, field=field)
         )
         self.assertEqual(
             '<input type="checkbox" disabled/>{}'.format(_('No')),
-            print_boolean_html(c, False, user, field)
+            print_boolean_html(instance=c, value=False, user=user, field=field)
         )
 
     def test_print_boolean_csv(self):
@@ -207,16 +223,19 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('is_a_nerd')
         self.assertEqual(
             '',
-            print_boolean_csv(c, None, user, field)
+            # print_boolean_csv(c, None, user, field)
+            print_boolean_csv(instance=c, value=None, user=user, field=field)
         )
 
         self.assertEqual(
             _('Yes'),
-            print_boolean_csv(c, True, user, field)
+            # print_boolean_csv(c, True, user, field)
+            print_boolean_csv(instance=c, value=True, user=user, field=field)
         )
         self.assertEqual(
             _('No'),
-            print_boolean_csv(c, False, user, field)
+            # print_boolean_csv(c, False, user, field)
+            print_boolean_csv(instance=c, value=False, user=user, field=field)
         )
 
     def test_print_url_html(self):
@@ -225,19 +244,22 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = o._meta.get_field('url_site')
         self.assertEqual(
             '',
-            print_url_html(o, fval=None, user=user, field=field)
+            # print_url_html(o, fval=None, user=user, field=field)
+            print_url_html(instance=o, value=None, user=user, field=field)
         )
 
         url1 = 'www.wikipedia.org'
         self.assertEqual(
             f'<a href="{url1}" target="_blank">{url1}</a>',
-            print_url_html(o, fval=url1, user=user, field=field)
+            # print_url_html(o, fval=url1, user=user, field=field)
+            print_url_html(instance=o, value=url1, user=user, field=field)
         )
 
         url2 = '</a><script>Muhaha</script>'
         self.assertEqual(
             '<a href="{url}" target="_blank">{url}</a>'.format(url=escape(url2)),
-            print_url_html(o, fval=url2, user=user, field=field)
+            # print_url_html(o, fval=url2, user=user, field=field)
+            print_url_html(instance=o, value=url2, user=user, field=field)
         )
 
     # def test_print_date(self):  # DEPRECATED
@@ -256,7 +278,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('birthday')
-        self.assertEqual('', print_date_html(c, None, user, field))
+        # self.assertEqual('', print_date_html(c, None, user, field))
+        self.assertEqual(
+            '', print_date_html(instance=c, value=None, user=user, field=field),
+        )
 
         value = date(year=2019, month=8, day=21)
 
@@ -267,21 +292,24 @@ class FieldsPrintersTestCase(CremeTestCase):
         ):
             self.assertEqual(
                 date_format(value, 'DATE_FORMAT'),
-                print_date_html(c, value, user, field),
+                # print_date_html(c, value, user, field),
+                print_date_html(instance=c, value=value, user=user, field=field),
             )
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
                 self.assertEqual(
                     date_format(value, 'DATE_FORMAT'),
-                    print_date_html(c, value, user, field),
+                    # print_date_html(c, value, user, field),
+                    print_date_html(instance=c, value=value, user=user, field=field),
                 )
 
     def test_print_date_csv(self):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('birthday')
-        self.assertEqual('', print_date_csv(c, None, user, field))
+        # self.assertEqual('', print_date_csv(c, None, user, field))
+        self.assertEqual('', print_date_csv(instance=c, value=None, user=user, field=field))
 
         value = date(year=2019, month=8, day=21)
         date_input_format = '%d-%m-%Y'
@@ -293,14 +321,16 @@ class FieldsPrintersTestCase(CremeTestCase):
         ):
             self.assertEqual(
                 value.strftime(date_input_format),
-                print_date_csv(c, value, user, field),
+                # print_date_csv(c, value, user, field),
+                print_date_csv(instance=c, value=value, user=user, field=field),
             )
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
                 self.assertEqual(
                     value.strftime('%Y-%m-%d'),
-                    print_date_csv(c, value, user, field),
+                    # print_date_csv(c, value, user, field),
+                    print_date_csv(instance=c, value=value, user=user, field=field),
                 )
 
     # def test_print_datetime(self):  # DEPRECATED
@@ -319,7 +349,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         a = FakeActivity()
         user = CremeUser()
         field = a._meta.get_field('start')
-        self.assertEqual('', print_datetime_html(a, None, user, field))
+        # self.assertEqual('', print_datetime_html(a, None, user, field))
+        self.assertEqual(
+            '', print_datetime_html(instance=a, value=None, user=user, field=field),
+        )
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
@@ -330,21 +363,24 @@ class FieldsPrintersTestCase(CremeTestCase):
         ):
             self.assertEqual(
                 date_format(value, 'DATETIME_FORMAT'),  # TODO: localtime() ??
-                print_datetime_html(a, value, user, field)
+                # print_datetime_html(a, value, user, field)
+                print_datetime_html(instance=a, value=value, user=user, field=field),
             )
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
                 self.assertEqual(
                     date_format(value, 'DATETIME_FORMAT'),
-                    print_datetime_html(a, value, user, field),
+                    # print_datetime_html(a, value, user, field),
+                    print_datetime_html(instance=a, value=value, user=user, field=field),
                 )
 
     def test_print_datetime_csv(self):
         a = FakeActivity()
         user = CremeUser()
         field = a._meta.get_field('start')
-        self.assertEqual('', print_datetime_csv(a, None, user, field))
+        # self.assertEqual('', print_datetime_csv(a, None, user, field))/
+        self.assertEqual('', print_datetime_csv(instance=a, value=None, user=user, field=field))
 
         value = self.create_datetime(year=2019, month=8, day=21, hour=11, minute=30)
 
@@ -357,44 +393,53 @@ class FieldsPrintersTestCase(CremeTestCase):
         ):
             self.assertEqual(
                 value.strftime(dt_input_format),  # TODO: localtime() ??
-                print_datetime_csv(a, value, user, field)
+                # print_datetime_csv(a, value, user, field)
+                print_datetime_csv(instance=a, value=value, user=user, field=field)
             )
 
         with override_settings(USE_L10N=True):
             with override_language('en'):
                 self.assertEqual(
                     value.strftime('%Y-%m-%d %H:%M:%S'),
-                    print_datetime_csv(a, value, user, field),
+                    # print_datetime_csv(a, value, user, field),
+                    print_datetime_csv(instance=a, value=value, user=user, field=field),
                 )
 
     def test_print_email_html(self):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('email')
-        self.assertEqual('', print_email_html(c, None, user, field))
+        # self.assertEqual('', print_email_html(c, None, user, field))
+        self.assertEqual(
+            '', print_email_html(instance=c, value=None, user=user, field=field),
+        )
 
         value1 = 'contact@foo.bar'
         self.assertEqual(
             f'<a href="mailto:{value1}">{value1}</a>',
-            print_email_html(c, value1, user, field)
+            # print_email_html(c, value1, user, field)
+            print_email_html(instance=c, value=value1, user=user, field=field)
         )
 
         value2 = '</a><script>Muhahaha</script>contact@foo.bar'
         self.assertEqual(
             '<a href="mailto:{email}">{email}</a>'.format(email=escape(value2)),
-            print_email_html(c, value2, user, field)
+            # print_email_html(c, value2, user, field)
+            print_email_html(instance=c, value=value2, user=user, field=field)
         )
 
     def test_print_text_html(self):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('description')
-        self.assertEqual('', print_text_html(c, None, user, field))
+        # self.assertEqual('', print_text_html(c, None, user, field))
+        self.assertEqual('', print_text_html(instance=c, value=None, user=user, field=field))
 
         text = 'See you <b>space</b> cowboy...\nThe real folk blues: www.bebop.org'
 
         with override_settings(URLIZE_TARGET_BLANK=True):
-            p1 = print_text_html(c, user=user, field=field, fval=text)
+            # p1 = print_text_html(c, user=user, field=field, fval=text)
+            p1 = print_text_html(instance=c, user=user, field=field, value=text)
 
         self.assertHTMLEqual(
             '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
@@ -406,7 +451,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
 
         with override_settings(URLIZE_TARGET_BLANK=False):
-            p2 = print_text_html(c, user=user, field=field, fval=text)
+            # p2 = print_text_html(c, user=user, field=field, fval=text)
+            p2 = print_text_html(instance=c, user=user, field=field, value=text)
 
         self.assertEqual(
             '<p>See you &lt;b&gt;space&lt;/b&gt; cowboy...<br>The real folk blues: '
@@ -419,13 +465,18 @@ class FieldsPrintersTestCase(CremeTestCase):
         c = FakeContact()
         user = CremeUser()
         field = c._meta.get_field('description')
-        self.assertEqual('', print_unsafehtml_html(c, None, user, field))
+        # self.assertEqual('', print_unsafehtml_html(c, None, user, field))
+        self.assertEqual(
+            '', print_unsafehtml_html(instance=c, value=None, user=user, field=field),
+        )
 
         self.assertEqual(
             '<p>&lt;p&gt;See you space cowboy...&lt;/p&gt;</p>',
             print_unsafehtml_html(
-                c, user=user, field=field,
-                fval='<p>See you space cowboy...</p>',
+                # c, user=user, field=field,
+                # fval='<p>See you space cowboy...</p>',
+                instance=c, user=user, field=field,
+                value='<p>See you space cowboy...</p>',
             )
         )
 
@@ -454,8 +505,10 @@ class FieldsPrintersTestCase(CremeTestCase):
                 label=_('Download «{file}»').format(file=file_name),
             ),
             print_file_html(
-                doc1,
-                doc1.filedata,
+                # doc1,
+                instance=doc1,
+                # doc1.filedata,
+                value=doc1.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -470,8 +523,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(
             '',
             print_file_html(
-                doc2,
-                doc2.filedata,
+                # doc2,
+                instance=doc2,
+                # doc2.filedata,
+                value=doc2.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -509,8 +564,10 @@ class FieldsPrintersTestCase(CremeTestCase):
                 label=_('Download «{file}»').format(file=basename(file_path)),
             ),
             print_file_html(
-                doc1,
-                doc1.filedata,
+                # doc1,
+                instance=doc1,
+                # doc1.filedata,
+                value=doc1.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -525,8 +582,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertHTMLEqual(
             '',
             print_file_html(
-                doc2,
-                doc2.filedata,
+                # doc2,
+                instance=doc2,
+                # doc2.filedata,
+                value=doc2.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -562,8 +621,10 @@ class FieldsPrintersTestCase(CremeTestCase):
                 label=_('Download «{file}»').format(file=basename(file_path)),
             ),
             print_file_html(
-                doc,
-                doc.filedata,
+                # doc,
+                instance=doc,
+                # doc.filedata,
+                value=doc.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -587,8 +648,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(
             f'creme_core-tests/gui/{file_name}',
             print_file_html(
-                comp,
-                comp.filedata,
+                # comp,
+                instance=comp,
+                # comp.filedata,
+                value=comp.filedata,
                 user=user,
                 field=FakeFileComponent._meta.get_field('filedata'),
             )
@@ -625,8 +688,10 @@ class FieldsPrintersTestCase(CremeTestCase):
                 label=_('Download «{file}»').format(file=basename(file_path)),
             ),
             print_image_html(
-                doc1,
-                doc1.filedata,
+                # doc1,
+                instance=doc1,
+                # doc1.filedata,
+                value=doc1.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -641,8 +706,10 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertHTMLEqual(
             '',
             print_image_html(
-                doc2,
-                doc2.filedata,
+                # doc2,
+                instance=doc2,
+                # doc2.filedata,
+                value=doc2.filedata,
                 user=user,
                 field=FakeDocument._meta.get_field('filedata'),
             )
@@ -659,21 +726,27 @@ class FieldsPrintersTestCase(CremeTestCase):
             default_printer=simple_print_html,
         )
 
-        self.assertEqual('', printer(c, None, user, field1))
+        # self.assertEqual('', printer(c, None, user, field1))
+        self.assertEqual('', printer(instance=c, value=None, user=user, field=field1))
 
         sector = FakeSector.objects.first()
-        self.assertEqual(str(sector), printer(c, sector, user, field1))
+        # self.assertEqual(str(sector), printer(c, sector, user, field1))
+        self.assertEqual(
+            str(sector), printer(instance=c, value=sector, user=user, field=field1),
+        )
 
         # entity without specific handler ---
         img = FakeImage.objects.create(user=user, name='Img#1')
         field2 = c._meta.get_field('image')
-        self.assertEqual(str(img), printer(c, img, user, field2))
+        # self.assertEqual(str(img), printer(c, img, user, field2))
+        self.assertEqual(str(img), printer(instance=c, value=img, user=user, field=field2))
 
         # null_label ---
         field3 = c._meta.get_field('is_user')
         self.assertEqual(
             '<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
-            printer(c, None, user, field3)
+            # printer(c, None, user, field3)
+            printer(instance=c, value=None, user=user, field=field3),
         )
 
     def test_fk_printer02(self):
@@ -690,7 +763,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         img = FakeImage.objects.create(user=user, name='Img#1')
         self.assertEqual(
             f'<a href="{img.get_absolute_url()}">{img}</a>',
-            printer(c, img, user, field)
+            # printer(c, img, user, field)
+            printer(instance=c, value=img, user=user, field=field),
         )
 
     def test_fk_printer03(self):
@@ -741,7 +815,8 @@ class FieldsPrintersTestCase(CremeTestCase):
                     ),
                 ),
             ),
-            print_foreignkey_html(r, efilter, user, field)
+            # print_foreignkey_html(r, efilter, user, field)
+            print_foreignkey_html(instance=r, value=efilter, user=user, field=field)
         )
 
     def test_print_foreignkey_csv01(self):
@@ -752,13 +827,15 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         self.assertEqual(
             '',
-            print_foreignkey_csv(c, None, user, field1)
+            # print_foreignkey_csv(c, None, user, field1)
+            print_foreignkey_csv(instance=c, value=None, user=user, field=field1),
         )
 
         sector = FakeSector.objects.first()
         self.assertEqual(
             str(sector),
-            print_foreignkey_csv(c, sector, user, field1)
+            # print_foreignkey_csv(c, sector, user, field1)
+            print_foreignkey_csv(instance=c, value=sector, user=user, field=field1),
         )
 
         # entity (credentials OK)
@@ -766,7 +843,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         field2 = c._meta.get_field('image')
         self.assertEqual(
             str(img),
-            print_foreignkey_csv(c, img, user, field2)
+            # print_foreignkey_csv(c, img, user, field2)
+            print_foreignkey_csv(instance=c, value=img, user=user, field=field2),
         )
 
     def test_print_foreignkey_csv02(self):
@@ -778,7 +856,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         field = c._meta.get_field('image')
         self.assertEqual(
             settings.HIDDEN_VALUE,
-            print_foreignkey_csv(c, img, user, field)
+            # print_foreignkey_csv(c, img, user, field)
+            print_foreignkey_csv(instance=c, value=img, user=user, field=field),
         )
 
     def test_many2many_printer_html01(self):
@@ -791,14 +870,18 @@ class FieldsPrintersTestCase(CremeTestCase):
             default_enumerator=M2MPrinterForHTML.enumerator_all,
         )
 
-        self.assertEqual('', printer(img, img.categories, user, field))
+        # self.assertEqual('', printer(img, img.categories, user, field))
+        self.assertEqual(
+            '', printer(instance=img, value=img.categories, user=user, field=field),
+        )
 
         img.categories.set([
             FakeImageCategory.objects.create(name=name) for name in ('A', 'B', 'C')
         ])
         self.assertHTMLEqual(
             '<ul><li>A</li><li>B</li><li>C</li></ul>',
-            printer(img, img.categories, user, field)
+            # printer(img, img.categories, user, field)
+            printer(instance=img, value=img.categories, user=user, field=field),
         )
 
     def test_many2many_printer_html02(self):
@@ -818,7 +901,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(
             f'<ul><li>{img1}</li><li>{img2}</li></ul>',
-            printer(prod, prod.images, user, field)
+            # printer(prod, prod.images, user, field)
+            printer(instance=prod, value=prod.images, user=user, field=field),
         )
 
     def test_many2many_printer_html03(self):
@@ -853,7 +937,8 @@ class FieldsPrintersTestCase(CremeTestCase):
             f' <li><a target="_blank" href="{img1.get_absolute_url()}">{img1}</a></li>'
             f' <li>{settings.HIDDEN_VALUE}</li>'
             f'</ul>',
-            printer(prod, prod.images, user, field)
+            # printer(prod, prod.images, user, field)
+            printer(instance=prod, value=prod.images, user=user, field=field),
         )
 
     def test_print_many2many_csv01(self):
@@ -863,7 +948,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         self.assertEqual(
             '',
-            print_many2many_csv(img, img.categories, user, field)
+            # print_many2many_csv(img, img.categories, user, field)
+            print_many2many_csv(instance=img, value=img.categories, user=user, field=field)
         )
 
         img.categories.set([
@@ -871,7 +957,8 @@ class FieldsPrintersTestCase(CremeTestCase):
         ])
         self.assertHTMLEqual(
             'A/B/C',
-            print_many2many_csv(img, img.categories, user, field)
+            # print_many2many_csv(img, img.categories, user, field)
+            print_many2many_csv(instance=img, value=img.categories, user=user, field=field)
         )
 
     def test_print_many2many_csv02(self):
@@ -894,7 +981,8 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         self.assertHTMLEqual(
             f'{img1}/{settings.HIDDEN_VALUE}',
-            print_many2many_csv(prod, prod.images, user, field)
+            # print_many2many_csv(prod, prod.images, user, field)
+            print_many2many_csv(instance=prod, value=prod.images, user=user, field=field)
         )
 
     def test_registry(self):
@@ -932,16 +1020,24 @@ class FieldsPrintersTestCase(CremeTestCase):
         print_charfield_html_args = []
         print_integerfield_html_args = []
 
-        def print_charfield_html(entity, fval, user, field):
-            print_charfield_html_args.append((entity, fval, user, field))
-            return f'<span>{fval}</span>'
+        # def print_charfield_html(entity, fval, user, field):
+        #     print_charfield_html_args.append((entity, fval, user, field))
+        #     return f'<span>{fval}</span>'
+        def print_charfield_html(*, instance, value, user, field):
+            print_charfield_html_args.append((instance, value, user, field))
+            return f'<span>{value}</span>'
 
-        def print_charfield_csv(entity, fval, user, field):
-            return f'«{fval}»'
+        # def print_charfield_csv(entity, fval, user, field):
+        #     return f'«{fval}»'
+        def print_charfield_csv(*, instance, value, user, field):
+            return f'«{value}»'
 
-        def print_integerfield_html(entity, fval, user, field):
-            print_integerfield_html_args.append((entity, fval, user, field))
-            return f'<span data-type="integer">{fval}</span>'
+        # def print_integerfield_html(entity, fval, user, field):
+        #     print_integerfield_html_args.append((entity, fval, user, field))
+        #     return f'<span data-type="integer">{fval}</span>'
+        def print_integerfield_html(*, instance, value, user, field):
+            print_integerfield_html_args.append((instance, value, user, field))
+            return f'<span data-type="integer">{value}</span>'
 
         registry = _FieldPrintersRegistry(
         ).register(
@@ -1003,11 +1099,15 @@ class FieldsPrintersTestCase(CremeTestCase):
 
         registry = _FieldPrintersRegistry()
 
-        def print_choices_html(entity, fval, user, field):
-            return '<em>{}</em>'.format(getattr(entity, f'get_{field.name}_display')())
+        # def print_choices_html(entity, fval, user, field):
+        #     return '<em>{}</em>'.format(getattr(entity, f'get_{field.name}_display')())
+        def print_choices_html(*, instance, value, user, field):
+            return '<em>{}</em>'.format(getattr(instance, f'get_{field.name}_display')())
 
-        def print_choices_csv(entity, fval, user, field):
-            return getattr(entity, f'get_{field.name}_display')().upper()
+        # def print_choices_csv(entity, fval, user, field):
+        #     return getattr(entity, f'get_{field.name}_display')().upper()
+        def print_choices_csv(*, instance, value, user, field):
+            return getattr(instance, f'get_{field.name}_display')().upper()
 
         registry.register_choice_printer(
             print_choices_html, output='html',
