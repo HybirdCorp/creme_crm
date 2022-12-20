@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -219,11 +219,19 @@ class Command(BaseCommand):
                        ) -> BasePopulator | None:
         try:
             mod = import_module(apps.get_app_config(app_label).name + '.populate')
-        except ImportError:
+        except ModuleNotFoundError:
             if verbosity >= 1:
                 self.stdout.write(self.style.NOTICE(
                     f'Disable populate for "{app_label}": '
                     f'it does not have any "populate.py" script.'
+                ))
+
+            return None
+        except ImportError as e:
+            if verbosity >= 1:
+                self.stderr.write(self.style.NOTICE(
+                    f'Disable populate for "{app_label}": '
+                    f'error when importing the populate package [{e}].'
                 ))
 
             return None
