@@ -62,6 +62,7 @@ class _SettingKey:
     app_label: str
     type: int
     hidden: bool
+    choices: Iterator
 
     def __init__(self,
                  id: str,
@@ -69,7 +70,8 @@ class _SettingKey:
                  app_label: str,
                  type: int = STRING,
                  hidden: bool = False,
-                 blank: bool = False):
+                 blank: bool = False,
+                 choices: Iterator = ()):
         """Constructor.
         @param id: Unique String. Use something like 'my_app-key_name'
         @param description: Used in the configuration GUI ;
@@ -78,6 +80,8 @@ class _SettingKey:
         @param type: Integer ; see: _SettingKey.STRING, _SettingKey.INT ...
         @param hidden: Boolean. If True, it can not be seen in the configuration GUI.
         @param blank: Boolean. If True, the value is not required in the configuration GUI.
+        @param choices: Iterable of string/int choices used for <select> in
+               configuration GUI.
         """
         self.id          = id
         self.description = description
@@ -85,6 +89,7 @@ class _SettingKey:
         self.type        = type
         self.hidden      = hidden
         self.blank       = blank
+        self.choices     = choices
 
         self._castor = self._CASTORS[type]
 
@@ -109,12 +114,19 @@ class _SettingKey:
             escape(d) for d in self.description.split('\n')
         ))
 
-    def value_as_html(self, value) -> str:
-        printer = self.HTML_PRINTERS.get(self.type)
-        if printer is not None:
-            value = printer(value)
+    @property
+    def choices_as_dict(self):
+        return {
+            value: label for value, label in self.choices
+        }
 
-        return value
+    def value_as_html(self, value) -> str:
+        printer = self.HTML_PRINTERS.get(self.type, str)
+
+        if self.choices:
+            return self.choices_as_dict.get(value, printer(value))
+
+        return printer(value)
 
 
 class SettingKey(_SettingKey):

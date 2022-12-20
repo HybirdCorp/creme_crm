@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,15 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-from django.forms import BooleanField, CharField, EmailField, IntegerField
+from functools import partial
+
+from django.forms import (
+    BooleanField,
+    CharField,
+    ChoiceField,
+    EmailField,
+    IntegerField,
+)
 from django.forms.widgets import Textarea
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
@@ -35,6 +43,20 @@ _FIELDS = {
 }
 
 
+def get_setting_value_field(key, initial):
+    choices = key.choices
+
+    if choices:
+        field_class = partial(ChoiceField, choices=choices)
+    else:
+        field_class = _FIELDS.get(key.type)
+
+    return field_class(
+        label=gettext('Value'),
+        initial=initial,
+    ) if field_class else None
+
+
 class SettingForm(CremeModelForm):
     value = CharField(label=_('Value'))
 
@@ -47,13 +69,10 @@ class SettingForm(CremeModelForm):
         fields = self.fields
         svalue = self.instance
 
-        field_class = _FIELDS.get(svalue.key.type)
-
-        if field_class:
-            fields['value'] = field_class(label=gettext('Value'))
-
-        value_f = fields['value']
-        value_f.initial = svalue.value
+        value_f = fields['value'] = get_setting_value_field(
+            key=svalue.key,
+            initial=fields['value'].initial
+        )
 
         # We avoid "value_f.required = not svalue.key.blank" because BooleanField is never required
         if svalue.key.blank:
@@ -72,12 +91,10 @@ class UserSettingForm(CremeForm):
         super().__init__(*args, **kwargs)
         self.skey = skey
         fields = self.fields
-        field_class = _FIELDS.get(skey.type)
-
-        if field_class:
-            fields['value'] = field_class(label=gettext('Value'))
-
-        value_f = fields['value']
+        value_f = fields['value'] = get_setting_value_field(
+            key=skey,
+            initial=fields['value'].initial
+        )
 
         try:
             value_f.initial = self.user.settings[skey]
