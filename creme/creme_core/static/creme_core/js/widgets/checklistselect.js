@@ -23,8 +23,9 @@ creme.widget = creme.widget || {};
 
 creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', {
     options: {
-        datatype: 'string',
-        less:     0
+        datatype:  'string',
+        less:      0,
+        selectall: 3
     },
 
     _create: function(element, options, cb, sync) {
@@ -32,6 +33,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
 
         this._converter = options.datatype === 'json' ? creme.utils.JSON.decoder({}) : null;
         this.less(element, options.less || element.is('[less]'));
+        this.minShowSelectAll(element, options.selectall);
 
 //        this.disabled(element, creme.object.isTrue(options.disabled) || element.is('[disabled]'));
         this.disabled(element, creme.object.isTrue(options.disabled) || this._delegate(element).is('[disabled]'));
@@ -135,7 +137,7 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         counter.toggleClass('visible', messages.length > 0)
                .html(messages.join('&nbsp;‒&nbsp;') + '&nbsp;');
 
-        $('.checklist-check-all, .checklist-check-none', element).toggleClass('hidden', model_count < 3);
+        this._updateViewSelectAll(element);
         this._updateViewLessCounter(element);
         this._updateViewErrorState(element);
     },
@@ -200,6 +202,11 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         var isinvalid = delegate.length > 0 && delegate.is('.is-field-invalid:invalid');
 
         element.toggleClass('is-field-invalid', isinvalid);
+    },
+
+    _updateViewSelectAll: function(element) {
+        var notVisible = (this._model && this._model.length() < this.minShowSelectAll(element));
+        $('.checklist-check-all, .checklist-check-none', element).toggleClass('hidden', notVisible);
     },
 
     _delegate: function(element) {
@@ -284,6 +291,17 @@ creme.widget.CheckListSelect = creme.widget.declare('ui-creme-checklistselect', 
         this._lessCount = less > 1 ? less : 10;
         this._less = isLess;
         this.toggleShowLess(element, this._less);
+
+        return this;
+    },
+
+    minShowSelectAll: function(element, limit) {
+        if (limit === undefined) {
+            return this._minShowSelectAll;
+        }
+
+        this._minShowSelectAll = limit;
+        this._updateViewSelectAll(element);
 
         return this;
     },
