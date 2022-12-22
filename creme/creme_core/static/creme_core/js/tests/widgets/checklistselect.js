@@ -24,6 +24,7 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
     createCheckListSelectElement: function(options) {
         options = $.extend({
             less: false,
+            selectall: 3,
             createUrl: 'mock/items/create',
             delegate: '<select class="ui-creme-input" multiple></select>',
             attrs: {},
@@ -56,7 +57,7 @@ QUnit.module("creme.widgets.checklistselect.js", new QUnitMixin(QUnitEventMixin,
         var select = $(html);
 
         for (var key in options.attrs) {
-            select.attr(key, options[key]);
+            select.attr(key, options.attrs[key]);
         }
 
         if (options.less) {
@@ -540,6 +541,40 @@ QUnit.test('creme.widget.CheckListSelect.selectAll (click)', function(assert) {
                             {label: 'item3', value: '5',  selected: true}]);
 
     deepEqual(["12", "78", "5"], widget.val());
+});
+
+QUnit.parameterize('creme.widget.CheckListSelect.selectAll (show)', [
+    [undefined, 3, false],
+    [3, 3, false],
+    [10, 10, true]
+], function(limit, expected, is_hidden, assert) {
+    var element = this.createCheckListSelectElement({
+        attrs: {
+            selectall: limit
+        }
+    });
+    this.addCheckListSelectChoice(element, 'item1', 12);
+    this.addCheckListSelectChoice(element, 'item2', 78);
+    this.addCheckListSelectChoice(element, 'item3', 5);
+
+    var widget = creme.widget.create(element);
+    equal(element.hasClass('widget-active'), true);
+    equal(element.hasClass('widget-ready'), true);
+
+    equal(expected, widget.minShowSelectAll());
+
+    equal(element.find('.checklist-check-all').is('.hidden'), is_hidden);
+    equal(element.find('.checklist-check-none').is('.hidden'), is_hidden);
+
+    widget.minShowSelectAll(5);
+
+    equal(element.find('.checklist-check-all').is('.hidden'), true);
+    equal(element.find('.checklist-check-none').is('.hidden'), true);
+
+    widget.minShowSelectAll(2);
+
+    equal(element.find('.checklist-check-all').is('.hidden'), false);
+    equal(element.find('.checklist-check-none').is('.hidden'), false);
 });
 
 QUnit.test('creme.widget.CheckListSelect.selectAll (disabled options)', function(assert) {
