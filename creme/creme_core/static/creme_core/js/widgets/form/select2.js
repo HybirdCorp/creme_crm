@@ -1,6 +1,6 @@
 /*******************************************************************************
  * Creme is a free/open-source Customer Relationship Management software
- * Copyright (C) 2022 Hybird
+ * Copyright (C) 2022-2023 Hybird
  *
  * This program is free software: you can redistribute it and/or modify it under
  * the terms of the GNU Affero General Public License as published by the Free
@@ -191,6 +191,14 @@ function selectionRenderer(options) {
 
     renderer.options = options;
     return renderer;
+}
+
+function clearSelect2Data(items) {
+    S2.require(['select2/utils'], function(Utils) {
+        items.each(function() {
+            Utils.RemoveData(this);
+        });
+    }, undefined, true);
 }
 
 S2.define('select2/data/enum', [
@@ -650,7 +658,14 @@ creme.form.Select2 = creme.component.Component.sub({
                 this._sortable = null;
             }
 
+            /*
+             * Prevents memory leak fixed in 4.1.0-rc0
+             * (see https://github.com/select2/select2/pull/5965)
+             */
+            clearSelect2Data(this.element);
+
             this.element.select2('destroy');
+
             this._instance = null;
             this.element = null;
         }
@@ -685,8 +700,11 @@ creme.form.Select2 = creme.component.Component.sub({
         /*
          * Calling $(element).select2({data: ...}) it will create a NEW instance
          * with default options even if Select2 is already active... Not really what we want.
-         * But the 'change' event seems to do the magic itself in this case.
+         *
+         * But clearing the cache (options values/labels are now out of sync) and triggering
+         * a 'change' event seems to do the magic in this case.
         */
+        clearSelect2Data(this.element.find('option, optgroup'));
         this.element.trigger('change');
 
         return this;
