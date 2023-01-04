@@ -93,12 +93,24 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
     },
 
     addSelectOption: function(select, options) {
-        var item = $('<option value="${value}" ${disabled} ${selected}>${label}</option>'.template({
-            value: options.value,
-            label: options.label,
-            disabled: options.disabled ? 'disabled' : '',
-            selected: options.selected ? 'selected' : ''
-        }));
+        var groupOptions = (options.options || []);
+        var item;
+
+        if (Object.isEmpty(groupOptions)) {
+            item = $('<option value="${value}" ${disabled} ${selected}>${label}</option>'.template({
+                value: options.value,
+                label: options.label,
+                disabled: options.disabled ? 'disabled' : '',
+                selected: options.selected ? 'selected' : ''
+            }));
+        } else {
+            var add = this.addSelectOption.bind(this);
+            item = $('<optgroup label="${label}"></optgroup>'.template(options));
+
+            groupOptions.forEach(function(option) {
+                add(item, option);
+            });
+        }
 
         _.pairs(options.attrs || {}).forEach(function(attr) {
             item.attr(attr[0], attr[1]);
@@ -107,7 +119,6 @@ QUnit.module("creme.form.Select2", new QUnitMixin(QUnitAjaxMixin,
         select.append(item);
     }
 }));
-
 
 QUnit.parametrize('creme.form.Select2.localisation', [
     [{}, {
@@ -783,7 +794,81 @@ QUnit.test('creme.form.Select2.refresh', function(assert) {
     equal('B', select.next('.select2').find('.select2-selection__rendered').text());
 
     select.select2('open');
-    equal(5, $('.select2-dropdown .select2-results__option').length);
+
+    deepEqual([
+        {text: 'E', role: 'option', selected: false},
+        {text: 'A', role: 'option', selected: false},
+        {text: 'G', role: 'option', selected: false},
+        {text: 'B', role: 'option', selected: true},
+        {text: 'C', role: 'option', selected: false}
+    ], $('.select2-dropdown .select2-results__option').map(function() {
+        return {
+            text: $(this).text(),
+            role: $(this).attr('role'),
+            selected: $(this).attr('aria-selected') === 'true'
+        };
+    }).get());
+});
+
+QUnit.test('creme.form.Select2.refresh (group)', function(assert) {
+    var select = this.createSelect([
+        {value: 5, label: 'E', selected: true},
+        {
+            label: 'Group I',
+            options: [
+                {value: 1, label: 'A'}
+            ]
+        }
+    ]);
+
+    var select2 = new creme.form.Select2(select);
+
+    equal('E', select.next('.select2').find('.select2-selection__rendered').text());
+
+    select.select2('open');
+
+    deepEqual([
+        {text: 'E', role: 'option', selected: true},
+        {text: 'Group I', role: 'group', selected: false},
+        {text: 'A', role: 'option', selected: false}
+    ], $('.select2-dropdown .select2-results__option').map(function() {
+        return {
+            text: $(this).find('> strong').html() || $(this).text(),
+            role: $(this).attr('role'),
+            selected: $(this).attr('aria-selected') === 'true'
+        };
+    }).get());
+
+    select.select2('close');
+
+    this.addSelectOption(select.find('optgroup'), {value: 8, label: 'G'});
+    this.addSelectOption(select.find('optgroup'), {value: 2, label: 'B', selected: true});
+    this.addSelectOption(select, {
+        label: 'Group II',
+        options: [{value: 3, label: 'C'}]
+    });
+
+    select2.refresh();
+
+    equal('B', select.next('.select2').find('.select2-selection__rendered').text());
+
+    select.select2('open');
+
+    deepEqual([
+        {text: 'E', role: 'option', selected: false},
+        {text: 'Group I', role: 'group', selected: false},
+        {text: 'A', role: 'option', selected: false},
+        {text: 'G', role: 'option', selected: false},
+        {text: 'B', role: 'option', selected: true},
+        {text: 'Group II', role: 'group', selected: false},
+        {text: 'C', role: 'option', selected: false}
+    ], $('.select2-dropdown .select2-results__option').map(function() {
+        return {
+            text: $(this).find('> strong').html() || $(this).text(),
+            role: $(this).attr('role'),
+            selected: $(this).attr('aria-selected') === 'true'
+        };
+    }).get());
 });
 
 QUnit.test('creme.form.Select2.refresh (replace)', function(assert) {
