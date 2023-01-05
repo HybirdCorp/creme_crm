@@ -438,7 +438,7 @@ QUnit.parametrize('creme.geolocation.brick.AddressesBrick (update filter)', [
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                     position: {lat: 42, lng: 5},
                     id: 'Address_C',
-                    title: 'Address C',
+                    title: '13013 Marseille\n(Address C)',
                     visible: true,
                     extraData: {}
                 });
