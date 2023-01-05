@@ -22,6 +22,17 @@
             - create classes inheriting 'CustomFormDefault', and use them when creating your descriptors (argument "default").
             - in your 'Populator', remove the argument "groups_desc" of 'CustomFormConfigItem.objects.create_if_needed()'.
           The section "CustomForms" of the tutorials has been updated; & you can see how vanilla apps are made of course.
+        # Deprecations :
+            - The method 'creme_core.gui.field_printers._FieldPrintersRegistry.register()' is deprecated ;
+              use the method 'register_model_field_type()' instead.
+              Hint: check if you defined 'register_field_printers()' in your own files "apps.py".
+              (beware: the arguments are now keyword-only) :
+                 'field_printers_registry.register_model_field_type(type=CharField, printer=my_print_function)'
+        # You can now register a field-printer for a specific field. Example (in your "apps.py") :
+            def register_field_printers(self, field_printers_registry):
+                field_printers_registry.register_model_field(
+                    model=Contact, field_name='last_name', printer=my_lastname_printer,
+                )
 
     Breaking changes :
     ------------------
@@ -102,6 +113,9 @@
     Internal breaking changes :
     ---------------------------
     (they should not cause problem if you have not deeply modified the source code of Creme)
+
+        # In the class 'creme_core.gui.field_printers._FieldPrintersRegistry', the following attributes have been removed/replaced :
+          _html_printers, _csv_printers, _printers_maps.
 
 
 == Version 2.4 ==

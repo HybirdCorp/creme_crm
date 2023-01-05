@@ -18,7 +18,7 @@
 
 from __future__ import annotations
 
-# import warnings
+import warnings
 from os.path import splitext
 from typing import TYPE_CHECKING
 
@@ -592,67 +592,99 @@ def print_unsafehtml_html(*, value, **kwargs) -> str:
 
 # TODO: Do more specific fields (i.e: currency field....) ?
 class _FieldPrintersRegistry:
+    class _Printers:
+        def __init__(self, printers_for_field_types, default_printer):
+            self._for_field_types = ClassKeyedMap(
+                printers_for_field_types, default=default_printer,
+            )
+            self._for_fields = {}
+
+        def __getitem__(self, field):
+            return self._for_fields.get(field) or self._for_field_types[field.__class__]
+
+        def register_model_field_type(self, type: type[models.Field], printer: FieldPrinter):
+            self._for_field_types[type] = printer
+
+        def register_model_field(self, field: models.Field, printer: FieldPrinter):
+            self._for_fields[field] = printer
+
     def __init__(self):
-        self._html_printers = ClassKeyedMap(
-            [
-                (models.IntegerField,       print_integer_html),
+        # self._html_printers = ClassKeyedMap(
+        #     [
+        #         (models.IntegerField, print_integer_html),
+        #
+        #         ...
+        #     ],
+        #     default=simple_print_html,
+        # )
+        # self._csv_printers = ClassKeyedMap(
+        #     [
+        #         (models.FloatField, print_decimal_csv),
+        #         ...
+        #     ],
+        #     default=simple_print_csv,
+        # )
+        # self._printers_maps = {
+        #     'html': self._html_printers,
+        #     'csv':  self._csv_printers,
+        # }
+        self._printers = {
+            'html': self._Printers(
+                printers_for_field_types=[
+                    (models.IntegerField,       print_integer_html),
 
-                (models.FloatField,         print_decimal_html),
-                (models.DecimalField,       print_decimal_html),
+                    (models.FloatField,         print_decimal_html),
+                    (models.DecimalField,       print_decimal_html),
 
-                (models.BooleanField,       print_boolean_html),
-                (models.NullBooleanField,   print_boolean_html),
+                    (models.BooleanField,       print_boolean_html),
+                    (models.NullBooleanField,   print_boolean_html),
 
-                (models.DateField,          print_date_html),
-                (models.DateTimeField,      print_datetime_html),
+                    (models.DateField,          print_date_html),
+                    (models.DateTimeField,      print_datetime_html),
 
-                (models.TextField,          print_text_html),
-                (models.EmailField,         print_email_html),
-                (models.URLField,           print_url_html),
+                    (models.TextField,          print_text_html),
+                    (models.EmailField,         print_email_html),
+                    (models.URLField,           print_url_html),
 
-                (models.FileField,          print_file_html),
-                (models.ImageField,         print_image_html),
+                    (models.FileField,          print_file_html),
+                    (models.ImageField,         print_image_html),
 
-                (models.ForeignKey,         print_foreignkey_html),
-                (models.ManyToManyField,    print_many2many_html),
-                (models.OneToOneField,      print_foreignkey_html),
+                    (models.ForeignKey,         print_foreignkey_html),
+                    (models.ManyToManyField,    print_many2many_html),
+                    (models.OneToOneField,      print_foreignkey_html),
 
-                (fields.DurationField,      print_duration),
-                (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
+                    (fields.DurationField,      print_duration),
+                    (fields.DatePeriodField,    simple_print_html),  # TODO: JSONField ?
 
-                (fields.ColorField,         print_color_html),
+                    (fields.ColorField,         print_color_html),
 
-                (fields.UnsafeHTMLField,    print_unsafehtml_html),
-            ],
-            default=simple_print_html,
-        )
+                    (fields.UnsafeHTMLField,    print_unsafehtml_html),
+                ],
+                default_printer=simple_print_html,
+            ),
+            'csv': self._Printers(
+                printers_for_field_types=[
+                    (models.FloatField,         print_decimal_csv),
+                    (models.DecimalField,       print_decimal_csv),
 
-        self._csv_printers = ClassKeyedMap(
-            [
-                (models.FloatField,         print_decimal_csv),
-                (models.DecimalField,       print_decimal_csv),
+                    (models.BooleanField,       print_boolean_csv),
+                    (models.NullBooleanField,   print_boolean_csv),
 
-                (models.BooleanField,       print_boolean_csv),
-                (models.NullBooleanField,   print_boolean_csv),
+                    (models.DateField,          print_date_csv),
+                    (models.DateTimeField,      print_datetime_csv),
 
-                (models.DateField,          print_date_csv),
-                (models.DateTimeField,      print_datetime_csv),
+                    # (models.ImageField,         print_image_csv, TODO ??
 
-                # (models.ImageField,         print_image_csv, TODO ??
+                    (models.ForeignKey,         print_foreignkey_csv),
+                    (models.ManyToManyField,    print_many2many_csv),
+                    (models.OneToOneField,      print_foreignkey_csv),
 
-                (models.ForeignKey,         print_foreignkey_csv),
-                (models.ManyToManyField,    print_many2many_csv),
-                (models.OneToOneField,      print_foreignkey_csv),
-
-                (fields.DurationField,      print_duration),
-            ],
-            default=simple_print_csv,
-        )
-
-        self._printers_maps = {
-            'html': self._html_printers,
-            'csv':  self._csv_printers,
+                    (fields.DurationField,      print_duration),
+                ],
+                default_printer=simple_print_csv,
+            ),
         }
+        # TODO: move to <_Printers> ?
         self._choice_printers = {
             'html': print_choice,
             'csv':  print_choice,
@@ -685,19 +717,46 @@ class _FieldPrintersRegistry:
             default=css_default_header,
         )
 
-    # TODO: rename register_printer
-    def register(self,
-                 field: type[models.Field],
-                 printer: FieldPrinter,
-                 output: str = 'html',
-                 ) -> _FieldPrintersRegistry:
-        """Register a field printer.
+    def register(self, field, printer, output='html'):
+        warnings.warn(
+            'The method _FieldPrintersRegistry.register() is deprecated ; '
+            'use register_model_field_type() instead.',
+            DeprecationWarning,
+        )
+        return self.register_model_field_type(type=field, printer=printer, output=output)
+
+    def register_model_field_type(self, *,
+                                  type: type[models.Field],
+                                  printer: FieldPrinter,
+                                  output: str = 'html',
+                                  ) -> _FieldPrintersRegistry:
+        """Register a printer for a class of model-field.
         @param field: A class inheriting <django.models.Field>.
         @param printer: A callable object. See simple_print_html() for arguments/return.
         @param output: string in {'html', 'csv'}.
         @return Self to chain calls.
         """
-        self._printers_maps[output][field] = printer
+        # self._printers_maps[output][type] = printer
+        self._printers[output].register_model_field_type(type=type, printer=printer)
+        return self
+
+    def register_model_field(self, *,
+                             model: type[models.Model],
+                             field_name: str,
+                             printer: FieldPrinter,
+                             output: str = 'html',
+                             ) -> _FieldPrintersRegistry:
+        """Register a printer for a specific model-field <MyModel.my_field>.
+        @param model: A class inheriting <django.models.Model>.
+        @param field_name: The name of a valid field of "model".
+        @param printer: A callable object. See simple_print_html() for arguments/return.
+        @param output: string in {'html', 'csv'}.
+        @return Self to chain calls.
+        """
+        self._printers[output].register_model_field(
+            field=model._meta.get_field(field_name),
+            printer=printer,
+        )
         return self
 
     def register_choice_printer(self,
@@ -813,7 +872,8 @@ class _FieldPrintersRegistry:
             print_func = (
                 self._choice_printers[output]
                 if base_field.choices else
-                self._printers_maps[output][base_field.__class__]
+                # self._printers_maps[output][base_field.__class__]
+                self._printers[output][base_field]
             )
 
             def printer(obj, user):

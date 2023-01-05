@@ -4,6 +4,7 @@ from functools import partial
 from os.path import basename
 
 from django.conf import settings
+from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.test.utils import override_settings
 from django.urls import reverse
@@ -1013,7 +1014,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual(sector.title, as_html(o, 'sector__title', user))
         self.assertEqual(sector.title, as_csv(o, 'sector__title', user))
 
-    def test_registry02(self):
+    def test_registry_register_model_field_type(self):
         "Register by field types, different outputs..."
         user = self.create_user()
 
@@ -1040,12 +1041,12 @@ class FieldsPrintersTestCase(CremeTestCase):
             return f'<span data-type="integer">{value}</span>'
 
         registry = _FieldPrintersRegistry(
-        ).register(
+        ).register(  # DEPRECATED
             models.CharField, print_charfield_html
-        ).register(
-            models.CharField, print_charfield_csv, output='csv',
-        ).register(
-            models.IntegerField, print_integerfield_html, output='html',
+        ).register_model_field_type(
+            type=models.CharField, printer=print_charfield_csv, output='csv',
+        ).register_model_field_type(
+            type=models.IntegerField, printer=print_integerfield_html, output='html',
         )
 
         create_orga = partial(FakeOrganisation.objects.create, user=user)
@@ -1072,6 +1073,54 @@ class FieldsPrintersTestCase(CremeTestCase):
             [(orga1, orga1.capital, user, get_field('capital'))],
             print_integerfield_html_args
         )
+
+    def test_registry_register_model_field(self):
+        user = self.create_user()
+
+        print_lastname_html_args = []
+
+        def print_charfield_html(*, instance, value, user, field):
+            return f'<span>{value}</span>'
+
+        def print_lastname_html(*, instance, value, user, field):
+            print_lastname_html_args.append((instance, value, user, field))
+            return f'<span class="lastname">{value}</span>'
+
+        def print_charfield_csv(*, instance, value, user, field):
+            return f'«{value}»'
+
+        registry = _FieldPrintersRegistry(
+        ).register_model_field_type(
+            type=models.CharField, printer=print_charfield_html,
+        ).register_model_field(
+            model=FakeContact, field_name='last_name', printer=print_lastname_html, output='html',
+        ).register_model_field_type(
+            type=models.CharField, printer=print_charfield_csv, output='csv',
+        )
+
+        rei = FakeContact(first_name='Rei', last_name='Ayanami')
+
+        get_html_val = registry.get_html_field_value
+
+        self.assertEqual(
+            f'<span>{rei.first_name}</span>',
+            get_html_val(rei, 'first_name', user),
+        )
+
+        self.assertEqual(
+            f'<span class="lastname">{rei.last_name}</span>',
+            get_html_val(rei, 'last_name', user),
+        )
+        self.assertListEqual(
+            [(rei, rei.last_name, user, FakeContact._meta.get_field('last_name'))],
+            print_lastname_html_args,
+        )
+
+        with self.assertRaises(FieldDoesNotExist):
+            registry.register_model_field(
+                model=FakeContact, field_name='unknown', printer=print_lastname_html,
+                output='html',
+            )
 
     def test_registry_choice01(self):
         user = CremeUser()

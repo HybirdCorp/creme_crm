@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -229,7 +229,10 @@ class BillingConfig(CremeAppConfig):
         from .models.fields import BillingDiscountField
         from .utils import print_discount
 
-        field_printers_registry.register(BillingDiscountField, print_discount)
+        # field_printers_registry.register(BillingDiscountField, print_discount)
+        field_printers_registry.register_model_field_type(
+            type=BillingDiscountField, printer=print_discount,
+        )
 
     def register_function_fields(self, function_field_registry):
         from creme import persons
