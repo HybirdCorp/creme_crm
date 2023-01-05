@@ -369,21 +369,21 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (markers)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                 position: {lat: 43, lng: 5.5},
                 id: 'Address_B',
-                title: 'Address B',
+                title: 'Place inconnue, 13005 Marseille\n(Address B)',
                 visible: true,
                 extraData: {}
             });
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                 position: {lat: 42, lng: 5},
                 id: 'Address_C',
-                title: 'Address C',
+                title: '13013 Marseille\n(Address C)',
                 visible: true,
                 extraData: {}
             });
@@ -429,7 +429,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
@@ -447,7 +447,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: false,
                 extraData: {}
             });
@@ -465,7 +465,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (toggle mark)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
@@ -530,7 +530,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_D'), {
                     position: {lat: 42, lng: 12},
                     id: 'Address_D',
-                    title: 'Address D',
+                    title: 'marseille\n(Address D)',
                     visible: true,
                     extraData: {}
                 });
@@ -557,7 +557,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (add mark)', [
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_D'), {
                     position: {lat: 42, lng: 12},
                     id: 'Address_D',
-                    title: 'Address D',
+                    title: 'marseille\n(Address D)',
                     visible: false,
                     extraData: {}
                 });
@@ -619,7 +619,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 42, lng: 5.5},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
@@ -671,7 +671,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, save failed)
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
@@ -714,7 +714,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (move mark, no url)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_A'), {
                 position: {lat: 43.291628, lng: 5.403022},
                 id: 'Address_A',
-                title: 'Address A',
+                title: '319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                 visible: true,
                 extraData: {}
             });
@@ -756,7 +756,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                 position: {lat: 42, lng: 5},
                 id: 'Address_C',
-                title: 'Address C',
+                title: '13013 Marseille\n(Address C)',
                 visible: true,
                 extraData: {}
             });
@@ -782,7 +782,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, no geolocation)'
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                 position: {lat: 42, lng: 5},
                 id: 'Address_C',
-                title: 'Address C',
+                title: '13013 Marseille\n(Address C)',
                 visible: true,
                 extraData: {}
             });
@@ -826,7 +826,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                 position: {lat: 43, lng: 5.5},
                 id: 'Address_B',
-                title: 'Address B',
+                title: 'Place inconnue, 13005 Marseille\n(Address B)',
                 visible: true,
                 extraData: {}
             });
@@ -840,7 +840,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not found)', [
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                     position: {lat: 43, lng: 5.5},
                     id: 'Address_B',
-                    title: 'Address B',
+                    title: 'Place inconnue, 13005 Marseille\n(Address B)',
                     visible: true,
                     extraData: {}
                 });
@@ -901,7 +901,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                 position: {lat: 43, lng: 5.5},
                 id: 'Address_B',
-                title: 'Address B',
+                title: 'Place inconnue, 13005 Marseille\n(Address B)',
                 visible: false,
                 extraData: {}
             });
@@ -924,7 +924,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, not visible)', [
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_B'), {
                     position: {lat: 43, lng: 5.5},
                     id: 'Address_B',
-                    title: 'Address B',
+                    title: 'Place inconnue, 13005 Marseille\n(Address B)',
                     visible: false,
                     extraData: {}
                 });
@@ -977,7 +977,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
             this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                 position: {lat: 42, lng: 5},
                 id: 'Address_C',
-                title: 'Address C',
+                title: '13013 Marseille\n(Address C)',
                 visible: true,
                 extraData: {}
             });
@@ -1001,7 +1001,7 @@ QUnit.parametrize('creme.geolocation.brick.PersonsBrick (reset, improve accuracy
                 this.assertMarkerProperties(mapController.getMarkerProperties('Address_C'), {
                     position: {lat: 43.178801, lng: 4.5048807},
                     id: 'Address_C',
-                    title: 'Address C',
+                    title: '13013 Marseille\n(Address C)',
                     visible: true,
                     extraData: {}
                 });

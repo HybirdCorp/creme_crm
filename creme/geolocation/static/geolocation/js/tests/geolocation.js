@@ -58,7 +58,7 @@ QUnit.test('creme.geolocation.Location (getters)', function() {
 
     equal(gettext("Partially matching location"), location.statusLabel());
     equal('43.455810, 5.544000', location.positionLabel());
-    equal('joe\nAddress A', location.markerLabel());
+    equal('joe\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', location.markerLabel());
 });
 
 QUnit.test('creme.geolocation.Location (copy)', function() {

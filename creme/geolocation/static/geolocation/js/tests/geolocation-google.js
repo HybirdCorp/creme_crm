@@ -315,7 +315,7 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                 equal(false, Object.isNone(marker), 'marker exists');
                 equal(true, marker.getVisible(), 'marker is visible');
 
-                equal('fulbert\nAddress A', marker.getTitle());
+                equal('fulbert\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)', marker.getTitle());
                 deepEqual(new google.maps.LatLng({lat: 43.291628, lng: 5.4030217}), marker.getPosition());
                 deepEqual({
                     id: 'Address_A',
@@ -327,7 +327,7 @@ QUnit.test('creme.geolocation.GoogleMapController.markLocation (add marker)', fu
                 deepEqual([
                     ['marker-move', marker, {
                         id: 'Address_A',
-                        title: 'fulbert\nAddress A',
+                        title: 'fulbert\n319 Rue Saint-Pierre, 13005 Marseille\n(Address A)',
                         position: {
                             lat: 43.291628,
                             lng: 5.4030217
