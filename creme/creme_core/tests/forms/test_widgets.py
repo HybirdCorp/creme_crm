@@ -43,7 +43,7 @@ class CalendarWidgetTestCase(CremeTestCase):
         name = 'test_calendar'
         value = self.formfield_value_date(2022, 2, 25)
         # help_text = _('Format: Day-Month-Year (Ex:31-12-2022)')
-        help_text = _('E.g. {}').format('2022-12-31')
+        help_text = _('E.g. {}').format('2023-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -59,7 +59,7 @@ class CalendarWidgetTestCase(CremeTestCase):
         "Other format, value, name..."
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('31/12/2022')
+        help_text = _('E.g. {}').format('31/12/2023')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -75,7 +75,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render_l10n_en(self):
         name = 'my_calendar'
         value = self.formfield_value_date(2023, 3, 26)
-        help_text = _('E.g. {}').format('2022-12-31')
+        help_text = _('E.g. {}').format('2023-12-31')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
@@ -91,7 +91,7 @@ class CalendarWidgetTestCase(CremeTestCase):
     def test_render_l10n_fr(self):
         name = 'calendar'
         value = self.formfield_value_date(2024, 4, 27)
-        help_text = _('E.g. {}').format('31/12/2022')
+        help_text = _('E.g. {}').format('31/12/2023')
         self.assertHTMLEqual(
             f'<div class="creme-datepicker">'
             f'  <div class="help-text-format">{help_text}</div>'
