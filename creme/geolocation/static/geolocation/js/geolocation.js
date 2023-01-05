@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2014-2020  Hybird
+    Copyright (C) 2014-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -131,9 +131,22 @@ creme.geolocation.Location = creme.component.Component.sub({
     },
 
     markerLabel: function() {
+        // An address is typically shown as
+        // - owner: the creme entity (e.g. its name) this address belongs to
+        // - content: the actual street/city/etc information
+        // - title: the localized label for billing/shipping addresses (most of the time),
+        //          or a user-defined title for additional addresses
+
+        var title = this.title();
+        if (Object.isNotEmpty(title)) {
+            // If there's a title, it's usually less important than the actual address information,
+            // so we show it in parentheses.
+            title = "(" + title + ")";
+        }
         return [
             this.owner() || '',
-            this.title() || this.content()
+            this.content(),
+            title
         ].filter(Object.isNotEmpty).join('\n');
     }
 });
