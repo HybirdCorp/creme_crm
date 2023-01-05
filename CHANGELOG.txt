@@ -375,7 +375,9 @@
                     - The global variable 'bricks_list' has been renamed 'brick_classes' & is now a list.
                 - In 'buttons.CrmButton' (& so child button classes) the template variable "rtype_id" is not injected anymore.
             * Activities :
-                - The class 'forms.activity_type.BulkEditTypeForm' has been removed.
+                - In 'forms' :
+                    - The class 'activity_type.BulkEditTypeForm' has been removed.
+                    - The argument "activity_type_id" of the constructor of 'activity.BaseCreationCustomForm' has been replaced by an argument "sub_type".
                 - The field 'models.AbstractActivity.sub_type' is not <null=True, blank=True> anymore (the attribute "on_delete" changed too).
                 - The URL named "activities__create_indispo" has been renamed "activities__create_unavailability" ;
                   the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").

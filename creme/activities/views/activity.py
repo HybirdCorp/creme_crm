@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -65,6 +65,11 @@ class ActivityCreation(generic.EntityCreation):
         'phonecall': constants.ACTIVITYTYPE_PHONECALL,
         'task':      constants.ACTIVITYTYPE_TASK,
     }
+    # TODO: add a field <ActivitySubType.is_default> instead.
+    default_activity_subtypes = {
+        constants.ACTIVITYTYPE_MEETING:   constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+        constants.ACTIVITYTYPE_PHONECALL: constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING,
+    }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -80,7 +85,14 @@ class ActivityCreation(generic.EntityCreation):
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
-        kwargs['activity_type_id'] = self.type_id
+        # kwargs['activity_type_id'] = self.type_id
+
+        type_id = self.type_id
+        if type_id:
+            subtype_id = self.default_activity_subtypes.get(type_id)
+            kwargs['sub_type'] = get_object_or_404(
+                ActivitySubType, id=subtype_id,
+            ) if subtype_id else ActivitySubType.objects.filter(type=type_id).first()
 
         return kwargs
 

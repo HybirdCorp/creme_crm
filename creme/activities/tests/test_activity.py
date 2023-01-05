@@ -1192,15 +1192,21 @@ class ActivityTestCase(_ActivitiesTestCase):
         dojo = Organisation.objects.create(user=user, name='Dojo')
 
         url = reverse('activities__create_activity', args=('meeting',))
-        response = self.assertGET200(url)
-        self.assertEqual(_('Create a meeting'), response.context.get('title'))
+        response1 = self.assertGET200(url)
+        self.assertEqual(_('Create a meeting'), response1.context.get('title'))
+
+        with self.assertNoException():
+            subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
+
+        self.assertEqual(constants.ACTIVITYSUBTYPE_MEETING_MEETING, subtype_f.initial)
 
         # TODO: help text of end (duration)
 
+        # ---
         title = 'My meeting'
         status = Status.objects.all()[0]
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user':   user.pk,
@@ -1221,7 +1227,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         meeting = self.get_object_or_fail(Activity, type=atype, title=title)
 
@@ -1253,12 +1259,18 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
 
         url = reverse('activities__create_activity', args=('phonecall',))
-        response = self.assertGET200(url)
-        self.assertEqual(_('Create a phone call'), response.context.get('title'))
+        response1 = self.assertGET200(url)
+        self.assertEqual(_('Create a phone call'), response1.context.get('title'))
 
+        with self.assertNoException():
+            subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
+
+        self.assertEqual(constants.ACTIVITYSUBTYPE_PHONECALL_OUTGOING, subtype_f.initial)
+
+        # ---
         title = 'My call'
         my_calendar = Calendar.objects.get_default_calendar(user)
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user': user.pk,
@@ -1274,7 +1286,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.get_object_or_fail(Activity, type=type_id, title=title)
 
     def test_create_view_invalidtype(self):
@@ -1308,7 +1320,13 @@ class ActivityTestCase(_ActivitiesTestCase):
         type_id = constants.ACTIVITYTYPE_TASK
 
         url = reverse('activities__create_activity', args=('task',))
-        self.assertGET200(url)
+        response1 = self.assertGET200(url)
+        self.assertEqual(_('Create a task'), response1.context.get('title'))
+
+        with self.assertNoException():
+            subtype_f = response1.context['form'].fields[self.EXTRA_SUBTYPE_KEY]
+
+        self.assertEqual('activities-activitysubtype_task', subtype_f.initial)
 
         title = 'My call'
         my_calendar = Calendar.objects.get_default_calendar(user)
@@ -1326,14 +1344,14 @@ class ActivityTestCase(_ActivitiesTestCase):
             f'{self.EXTRA_MYPART_KEY}_0': True,
             f'{self.EXTRA_MYPART_KEY}_1': my_calendar.pk,
         }
-        response1 = self.assertPOST200(url, data=data)
+        response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', self.EXTRA_SUBTYPE_KEY, _('This field is required.'),
+            response2, 'form', self.EXTRA_SUBTYPE_KEY, _('This field is required.'),
         )
 
         # ---
         sub_type = ActivitySubType.objects.filter(type=type_id).first()
-        response2 = self.client.post(
+        response3 = self.client.post(
             url,
             follow=True,
             data={
@@ -1341,7 +1359,7 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_SUBTYPE_KEY: sub_type.id,
             },
         )
-        self.assertNoFormError(response2)
+        self.assertNoFormError(response3)
         self.get_object_or_fail(Activity, type=type_id, title=title)
 
     @skipIfCustomContact
