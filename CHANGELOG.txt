@@ -80,7 +80,7 @@
             - A new 'Relationship graph' brick is available, displaying the graph in the detail-view without having to download an image.
               Notice it can be downloaded as image too.
         * Mobile :
-            - A "owner" field is now present in forms for of Contacts & Organisations.
+            - An "owner" field is now present in forms to create Contacts & Organisations.
         * Polls :
             - The design of the 'Statistic' brick has changed.
         * Crudity :
