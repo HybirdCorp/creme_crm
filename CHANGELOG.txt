@@ -85,6 +85,9 @@
             - The design of the 'Statistic' brick has changed.
         * Crudity :
             - The support of InfoPath files has been removed.
+        * Geolocation :
+            - Map markers now display more information when hovered: the actual address information. The title's importance has also been reduced, 
+              as it's usually less useful on a map than the address itself.
 
   Developers side :
   -----------------
