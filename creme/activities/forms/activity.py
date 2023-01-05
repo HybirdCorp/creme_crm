@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
+
+from __future__ import annotations
 
 import logging
 from datetime import datetime, time, timedelta
@@ -38,7 +40,7 @@ from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model
-from ..models import AbstractActivity, Calendar
+from ..models import AbstractActivity, ActivitySubType, Calendar
 from ..utils import check_activity_collisions, is_auto_orga_subject_enabled
 from . import fields as act_fields
 from .fields import (
@@ -546,13 +548,18 @@ class BaseCreationCustomForm(BaseCustomForm):
         'no_participant': _('No participant'),
     }
 
-    def __init__(self, activity_type_id=None, *args, **kwargs):
+    # def __init__(self, activity_type_id=None, *args, **kwargs):
+    def __init__(self, sub_type: ActivitySubType | None = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # All Contacts who participate: me, other users, other contacts
         self.participants = set()
 
-        if activity_type_id:
-            self.instance.type_id = activity_type_id
+        # if activity_type_id:
+        #     self.instance.type_id = activity_type_id
+        if sub_type:
+            instance = self.instance
+            instance.type_id = sub_type.type_id
+            instance.sub_type = sub_type
 
     def clean(self):
         cdata = self.cleaned_data
