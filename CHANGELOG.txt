@@ -8,6 +8,7 @@
         - Fix an issue in date search when editing and using the datepicker at the same time.
     # In global search widget
         - Fix an issue that "stuck" the search when the server is too slow.
+    # Fix UnorderedMultipleChoiceWidget : now the 'select nothing/all' buttons are hidden if the item count is under the MIN_CHECKALL_COUNT limit.
     # Apps:
         * Opportunities :
             - The columns "Estimated sales" & "Made sales" were not hidden in the
