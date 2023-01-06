@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,6 +27,7 @@ from ..core import sorter
 from ..core.paginator import FlowPaginator
 from ..forms.listview import ListViewSearchForm
 from ..gui.listview import search_field_registry
+from ..gui.view_tag import ViewTag
 from ..models import EntityCredentials, EntityFilter, HeaderFilter
 from ..models.history import _HLTEntityExport
 from ..utils import bool_from_str_extended, get_from_GET_or_404
@@ -209,6 +210,7 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
             paginator = self.get_paginator(queryset=entities_qs, ordering=ordering)
 
             total_count = 0
+            tag = ViewTag.TEXT_PLAIN
 
             for entities_page in paginator.pages():
                 entities = entities_page.object_list
@@ -221,7 +223,8 @@ class MassExport(base.EntityCTypeRelatedMixin, base.CheckedView):
 
                     for cell in cells:
                         try:
-                            res = cell.render_csv(entity, user)
+                            # res = cell.render_csv(entity, user)
+                            res = cell.render(entity, user, tag=tag)
                         except Exception as e:
                             logger.debug('Exception in CSV export: %s', e)
                             res = ''

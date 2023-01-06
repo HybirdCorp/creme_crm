@@ -124,7 +124,7 @@
                         <td class="lv-actions actions">{% listview_entity_actions cell=cell instance=entity user=user %}</td>
                     {% else %}
                         <td class="lv-cell lv-cell-content{% if cell.key == list_view_state.sort_cell_key %} sorted{% endif %} lv-column cl_lv {{cell.listview_css_class}}" name="{{cell.key}}" {% if cell.is_hidden %}style="display:none;"{% endif %}>
-                            {% cell_render cell=cell instance=entity user=user as cell_content %}
+                            {% cell_render cell=cell instance=entity user=user tag=view_tag as cell_content %}
                             {% with data_type=cell.data_type %}
                             <div class="lv-cell-value{% if cell.is_multiline %} lv-cell-multiline-value{% endif %}{% if not cell_content %} lv-cell-empty-value{% endif %}" {% if data_type %}data-type="{{data_type}}"{% endif %}>
                                 {{cell_content}}

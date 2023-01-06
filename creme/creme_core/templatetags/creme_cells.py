@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 
 from django.template import Library
 from django.template import Node as TemplateNode
@@ -26,6 +27,7 @@ from django.template import TemplateSyntaxError
 from django.utils.safestring import mark_safe
 
 from ..core.entity_cell import EntityCellRegularField
+from ..gui.view_tag import ViewTag
 from . import KWARG_RE
 
 register = Library()
@@ -175,7 +177,8 @@ __RENDER_ARGS_MAP = {
     'cell':     'cell_var',
     'instance': 'instance_var',
     'user':     'user_var',
-    'output':   'output_var',
+    'output':   'output_var',  # DEPRECATED
+    'tag':      'tag_var',
 }
 
 
@@ -196,9 +199,14 @@ def do_render(parser, token):
         - instance: an instance of a model.
         - user: an instance of auth.get_user_model().
 
-    C. The optional argument 'output' controls the type of output.
+    C. [DEPRECATED] The optional argument 'output' controls the type of output.
+       You should use the argument "tag" instead.
+       You cannot use "tag" & "output" arguments at the same time.
        Possible values: "html", "csv".
        Default value: "html".
+
+    D. The optional argument 'tag' controls the type of ViewTag.
+       Default value: ViewTag.HTML_DETAIL.
     """
     bits = token.split_contents()
     if len(bits) < 4:
@@ -230,20 +238,30 @@ def do_render(parser, token):
 
         kwargs[arg_name] = parser.compile_filter(value)
 
+    # DEPRECATED
+    if 'tag_var' in kwargs and 'output_var' in kwargs:
+        raise TemplateSyntaxError(
+            '"cell_render" tag use 2 incompatible arguments: tag & output.'
+        )
+
     return CellRenderNode(**kwargs)
 
 
 class CellRenderNode(TemplateNode):
-    RENDER_METHODS = {
-        'html': 'render_html',
-        'csv':  'render_csv',
-    }
+    # RENDER_METHODS = {
+    #     'html': 'render_html',
+    #     'csv':  'render_csv',
+    # }
 
-    def __init__(self, cell_var, instance_var, user_var, output_var=None, asvar_name=None):
+    def __init__(self, cell_var, instance_var, user_var,
+                 output_var=None,  # DEPRECATED
+                 tag_var=None, asvar_name=None,
+                 ):
         self.cell_var = cell_var
         self.instance_var = instance_var
         self.user_var = user_var
-        self.output_var = output_var
+        self.output_var = output_var  # DEPRECATED
+        self.tag_var = tag_var
 
         self.asvar_name = asvar_name
 
@@ -253,20 +271,48 @@ class CellRenderNode(TemplateNode):
     def render(self, context):
         cell = self.cell_var.resolve(context)
 
-        output_var = self.output_var
-        output = 'html' if output_var is None else output_var.resolve(context)
+        # output_var = self.output_var
+        # output = 'html' if output_var is None else output_var.resolve(context)
+        #
+        # method_name = self.RENDER_METHODS.get(output)
+        # if method_name is None:
+        #     raise ValueError(
+        #         r'{% cell_render %}: '
+        #         f'invalid output "{output}" (must be in {[*self.RENDER_METHODS.keys()]}).'
+        #     )
+        tag = ViewTag.HTML_DETAIL
+        tag_var = self.tag_var
+        if tag_var is None:
+            output_var = self.output_var
+            if output_var is not None:
+                warnings.warn(
+                    '{% cell_render %}: The argument "output" is deprecated; '
+                    'use "tag" instead.',
+                    DeprecationWarning,
+                )
 
-        method_name = self.RENDER_METHODS.get(output)
-        if method_name is None:
-            raise ValueError(
-                r'{% cell_render %}: '
-                f'invalid output "{output}" (must be in {[*self.RENDER_METHODS.keys()]}).'
-            )
+                output = output_var.resolve(context)
+                if output == 'html':
+                    pass
+                elif output == 'csv':
+                    tag = ViewTag.TEXT_PLAIN
+                else:
+                    raise ValueError(
+                        r'{% cell_render %}: '
+                        f'invalid output "{output}" (must be in ["html", "csv"]).'
+                    )
+        else:
+            tag = tag_var.resolve(context)
 
         try:
-            render = getattr(cell, method_name)(
+            # render = getattr(cell, method_name)(
+            #     entity=self.instance_var.resolve(context),
+            #     user=self.user_var.resolve(context),
+            # )
+            render = cell.render(
                 entity=self.instance_var.resolve(context),
                 user=self.user_var.resolve(context),
+                tag=tag,
             )
         except Exception:
             logger.exception('Error in {% cell_render %}')

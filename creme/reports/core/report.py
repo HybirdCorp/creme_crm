@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -32,6 +32,7 @@ from django.utils.translation import gettext_lazy as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity, CustomField, RelationType
 from creme.creme_core.utils.meta import FieldInfo
 
@@ -326,7 +327,8 @@ class RHRegularField(ReportHand):
         self._printer = field_printers_registry.build_field_printer(
             model=model,
             field_name=report_field.name,
-            output='csv',
+            # output='csv',
+            tag=ViewTag.TEXT_PLAIN,
         )
 
     def _get_value_single_on_allowed(self, entity, user, scope) -> str:
@@ -361,7 +363,8 @@ class RHForeignKey(RHRegularField):
                 self._value_extractor = field_printers_registry.build_field_printer(
                     model=field_info[0].remote_field.model,
                     field_name=field_info[1].name,
-                    output='csv',
+                    # output='csv',
+                    tag=ViewTag.TEXT_PLAIN,
                 )
             else:
                 self._value_extractor = lambda fk_instance, user: str(fk_instance)

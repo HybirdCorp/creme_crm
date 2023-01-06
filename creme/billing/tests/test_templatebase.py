@@ -5,6 +5,7 @@ from django.test.utils import override_settings
 from django.utils.translation import gettext as _
 
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.persons.tests.base import skipIfCustomOrganisation
 
 from ..models import (
@@ -72,12 +73,12 @@ class TemplateBaseTestCase(_BillingTestCase):
         self.assertIsNotNone(funf)
 
         with self.assertNumQueries(1):
-            status_str = funf(tpl, self.user).for_html()
+            status_str = funf(tpl, self.user).render(ViewTag.HTML_LIST)
 
         self.assertEqual(str(invoice_status), status_str)
 
         with self.assertNumQueries(0):
-            funf(tpl, self.user).for_html()
+            funf(tpl, self.user).render(ViewTag.HTML_LIST)
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):

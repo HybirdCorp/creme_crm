@@ -14,6 +14,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import MODELBRICK_ID
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
@@ -707,11 +708,15 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             f'''<a onclick="creme.dialogs.image('{image.get_download_absolute_url()}').open();">'''
             f'''{summary}'''
             f'''</a>''',
-            field_printers_registry.get_html_field_value(casca, 'image', user)
+            field_printers_registry.get_field_value(
+                instance=casca, field_name='image', user=user, tag=ViewTag.HTML_DETAIL,
+            ),
         )
         self.assertEqual(
             str(casca.image),
-            field_printers_registry.get_csv_field_value(casca, 'image', user)
+            field_printers_registry.get_field_value(
+                instance=casca, field_name='image', user=user, tag=ViewTag.TEXT_PLAIN,
+            ),
         )
 
     @skipIfCustomContact
@@ -746,24 +751,29 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         casca = create_contact(first_name='Casca', last_name='Mylove', image=casca_face)
         judo  = create_contact(first_name='Judo',  last_name='Doe',    image=judo_face)
 
-        get_html_val = field_printers_registry.get_html_field_value
+        render_field = partial(
+            field_printers_registry.get_field_value,
+            user=other_user,
+            tag=ViewTag.HTML_DETAIL,
+        )
         url = judo_face.get_download_absolute_url()
         self.assertHTMLEqual(
             f'''<a onclick="creme.dialogs.image('{url}').open();">
                 {judo_face.get_entity_summary(other_user)}
             </a>
             ''',
-            get_html_val(judo, 'image', other_user)
+            render_field(instance=judo, field_name='image'),
         )
         self.assertEqual(
-            # '<p>Judo&#39;s selfie</p>',
             '<p>Judo&#x27;s selfie</p>',
-            get_html_val(judo, 'image__description', other_user),
+            render_field(instance=judo, field_name='image__description'),
         )
 
         HIDDEN_VALUE = settings.HIDDEN_VALUE
-        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image', other_user))
-        self.assertEqual(HIDDEN_VALUE, get_html_val(casca, 'image__description', other_user))
+        self.assertEqual(HIDDEN_VALUE, render_field(instance=casca, field_name='image'))
+        self.assertEqual(
+            HIDDEN_VALUE, render_field(instance=casca, field_name='image__description'),
+        )
 
     # TODO: complete
 

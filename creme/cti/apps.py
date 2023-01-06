@@ -51,5 +51,5 @@ class CTIConfig(CremeAppConfig):
 
         # field_printers_registry.register(PhoneField, utils.print_phone_html)
         field_printers_registry.register_model_field_type(
-            type=PhoneField, printer=utils.print_phone_html,
+            type=PhoneField, printer=utils.print_phone_html, tags='html*',
         )

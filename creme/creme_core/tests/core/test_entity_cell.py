@@ -23,8 +23,11 @@ from creme.creme_core.core.function_field import (
     FunctionFieldResult,
     function_field_registry,
 )
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
+    CremeProperty,
+    CremePropertyType,
     CustomField,
     CustomFieldEnumValue,
     FakeCivility,
@@ -289,6 +292,15 @@ class EntityCellTestCase(CremeTestCase):
                 cell.render_csv(entity=yoko, user=user),
             )
 
+            self.assertEqual(
+                date_format(birthday, 'DATE_FORMAT'),
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+            )
+            self.assertEqual(
+                birthday.strftime(date_input_format),
+                cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+            )
+
     def test_regular_field_bool(self):
         cell = EntityCellRegularField.build(model=FakeContact, name='is_a_nerd')
         self.assertEqual(settings.CSS_DEFAULT_LISTVIEW, cell.listview_css_class)
@@ -375,11 +387,14 @@ class EntityCellTestCase(CremeTestCase):
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
         self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
 
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=152)
         yoko = self.refresh(yoko)  # Reset caches
         self.assertEqual('152', cell.render_html(entity=yoko, user=user))
         self.assertEqual('152', cell.render_csv(entity=yoko, user=user))
+        self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('152', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_decimal(self):
         customfield = CustomField.objects.create(
@@ -398,8 +413,10 @@ class EntityCellTestCase(CremeTestCase):
         value = Decimal('1.52')
         value_str = number_format(value)
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=value)
-        self.assertEqual(value_str, cell.render_html(entity=yoko, user=user))
-        self.assertEqual(value_str, cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual(value_str, cell.render_html(entity=yoko, user=user))
+        # self.assertEqual(value_str, cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(value_str, cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual(value_str, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_datetime(self):
         customfield = CustomField.objects.create(
@@ -428,13 +445,21 @@ class EntityCellTestCase(CremeTestCase):
             DATETIME_FORMAT='j F Y H:i',
             DATETIME_INPUT_FORMATS=[dt_input_format],
         ):
+            # self.assertEqual(
+            #     date_format(local_dt, 'DATETIME_FORMAT'),
+            #     cell.render_html(entity=yoko, user=user),
+            # )
+            # self.assertEqual(
+            #     local_dt.strftime(dt_input_format),
+            #     cell.render_csv(entity=yoko, user=user),
+            # )
             self.assertEqual(
                 date_format(local_dt, 'DATETIME_FORMAT'),
-                cell.render_html(entity=yoko, user=user),
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(
                 local_dt.strftime(dt_input_format),
-                cell.render_csv(entity=yoko, user=user),
+                cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
     def test_customfield_date(self):
@@ -463,18 +488,26 @@ class EntityCellTestCase(CremeTestCase):
             DATE_FORMAT='j F Y',
             DATE_INPUT_FORMATS=[date_input_format],
         ):
+            # self.assertEqual(
+            #     date_format(date_obj, 'DATE_FORMAT'),
+            #     cell.render_html(entity=yoko, user=user),
+            # )
+            # self.assertEqual(
+            #     date_obj.strftime(date_input_format),
+            #     cell.render_csv(entity=yoko, user=user),
+            # )
             self.assertEqual(
                 date_format(date_obj, 'DATE_FORMAT'),
-                cell.render_html(entity=yoko, user=user),
+                cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
             )
             self.assertEqual(
                 date_obj.strftime(date_input_format),
-                cell.render_csv(entity=yoko, user=user),
+                cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
             )
 
     def test_customfield_bool(self):
         customfield = CustomField.objects.create(
-            name='Is fun ?',
+            name='Is fun?',
             field_type=CustomField.BOOL,
             content_type=self.contact_ct,
         )
@@ -489,9 +522,11 @@ class EntityCellTestCase(CremeTestCase):
         customfield.value_class.objects.create(entity=yoko, custom_field=customfield, value=True)
         self.assertEqual(
             f'<input type="checkbox" checked disabled/>{_("Yes")}',
-            cell.render_html(entity=yoko, user=user)
+            # cell.render_html(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
-        self.assertEqual(_('Yes'), cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual(_('Yes'), cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(_('Yes'), cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_str(self):
         customfield = CustomField.objects.create(
@@ -514,9 +549,11 @@ class EntityCellTestCase(CremeTestCase):
         )
         self.assertEqual(
             '&lt;i&gt;Sniper&lt;/i&gt;',
-            cell.render_html(entity=yoko, user=user)
+            # cell.render_html(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
-        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_text(self):
         customfield = CustomField.objects.create(
@@ -542,9 +579,11 @@ class EntityCellTestCase(CremeTestCase):
             '<br>'
             'She helps introduce Simon and Kamina to the surface world.'
             '</p>',
-            cell.render_html(entity=yoko, user=user)
+            # cell.render_html(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
-        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_url(self):
         customfield = CustomField.objects.create(
@@ -565,9 +604,11 @@ class EntityCellTestCase(CremeTestCase):
         )
         self.assertHTMLEqual(
             f'<a href="{value}" target="_blank">{value}</a>',
-            cell.render_html(entity=yoko, user=user)
+            # cell.render_html(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
-        self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual(value, cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(value, cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
     def test_customfield_enum(self):
         customfield = CustomField.objects.create(
@@ -577,8 +618,7 @@ class EntityCellTestCase(CremeTestCase):
         )
 
         create_enumvalue = partial(
-            CustomFieldEnumValue.objects.create,
-            custom_field=customfield,
+            CustomFieldEnumValue.objects.create, custom_field=customfield,
         )
         enum_value1 = create_enumvalue(value='Eva-00<script>')
         create_enumvalue(value='Eva-01')
@@ -590,15 +630,25 @@ class EntityCellTestCase(CremeTestCase):
         # Render ---
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        self.assertEqual('', cell.render_html(entity=yoko, user=user))
-        self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        # self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
         customfield.value_class.objects.create(
             entity=yoko, custom_field=customfield, value=enum_value1,
         )
         yoko = self.refresh(yoko)  # Avoid cache
-        self.assertEqual('Eva-00&lt;script&gt;', cell.render_html(entity=yoko, user=user))
-        self.assertEqual(enum_value1.value, cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual('Eva-00&lt;script&gt;', cell.render_html(entity=yoko, user=user))
+        # self.assertEqual(enum_value1.value, cell.render_csv(entity=yoko, user=user))
+        self.assertEqual(
+            'Eva-00&lt;script&gt;',
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertEqual(
+            enum_value1.value,
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
 
     def test_customfield_mulitenum(self):
         customfield = CustomField.objects.create(
@@ -622,19 +672,23 @@ class EntityCellTestCase(CremeTestCase):
         # Render ---
         user = self.create_user()
         yoko = FakeContact.objects.create(user=user, first_name='Yoko', last_name='Littner')
-        self.assertEqual('', cell.render_html(entity=yoko, user=user))
-        self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+        # self.assertEqual('', cell.render_html(entity=yoko, user=user))
+        # self.assertEqual('', cell.render_csv(entity=yoko, user=user))
+        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('', cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN))
 
         cf_value = customfield.value_class(entity=yoko, custom_field=customfield)
         cf_value.set_value_n_save([enum_value1.id, enum_value3.id])
         yoko = self.refresh(yoko)  # Avoid cache
         self.assertHTMLEqual(
             f'<ul><li>{enum_value1.value}</li><li>Eva-02&lt;script&gt;</li></ul>',
-            cell.render_html(entity=yoko, user=user)
+            # cell.render_html(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.HTML_DETAIL),
         )
         self.assertEqual(
             f'{enum_value1.value} / {enum_value3.value}',
-            cell.render_csv(entity=yoko, user=user)
+            # cell.render_csv(entity=yoko, user=user)
+            cell.render(entity=yoko, user=user, tag=ViewTag.TEXT_PLAIN),
         )
 
     def test_customfield_deleted(self):
@@ -652,6 +706,7 @@ class EntityCellTestCase(CremeTestCase):
         self.assertIs(cell.is_excluded, True)
 
     def test_relation01(self):
+        "Several related entities."
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
         loved = RelationType.objects.smart_update_or_create(
@@ -689,17 +744,66 @@ class EntityCellTestCase(CremeTestCase):
 
         self.assertEqual(
             f'{contacts[2]}/{contacts[1]}',
-            cell.render_csv(entity=contacts[0], user=user),
+            # cell.render_csv(entity=contacts[0], user=user),
+            cell.render(entity=contacts[0], user=user, tag=ViewTag.TEXT_PLAIN),
         )
         self.assertHTMLEqual(
             f'<ul>'
-            f' <li><a href="{contacts[2].get_absolute_url()}">{contacts[2]}</li>'
-            f' <li><a href="{contacts[1].get_absolute_url()}">{contacts[1]}</li>'
+            f' <li>'
+            f'  <a href="{contacts[2].get_absolute_url()}" target="_self">{contacts[2]}</a>'
+            f' </li>'
+            f' <li>'
+            f'  <a href="{contacts[1].get_absolute_url()}" target="_self">{contacts[1]}</a>'
+            f' </li>'
             f'</ul>',
-            cell.render_html(entity=contacts[0], user=user),
+            # cell.render_html(entity=contacts[0], user=user),
+            cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li>'
+            f'  <a href="{contacts[2].get_absolute_url()}" target="_blank">{contacts[2]}</a>'
+            f' </li>'
+            f' <li>'
+            f'  <a href="{contacts[1].get_absolute_url()}" target="_blank">{contacts[1]}</a>'
+            f' </li>'
+            f'</ul>',
+            cell.render(entity=contacts[0], user=user, tag=ViewTag.HTML_FORM),
         )
 
     def test_relation02(self):
+        "Only one related entities."
+        # self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
+
+        loved = RelationType.objects.smart_update_or_create(
+            ('test-object_loved', 'Is loved by'),
+            ('test-subject_loved', 'Is loving'),
+        )[0]
+        cell = EntityCellRelation(model=FakeContact, rtype=loved)
+
+        user = self.create_user()
+        create_contact = partial(FakeContact.objects.create, user=user)
+        subject = create_contact(first_name='Nagate',  last_name='Tanikaze')
+        obj_entity = create_contact(first_name='Shizuka', last_name='Hoshijiro')
+
+        Relation.objects.create(
+            user=user, subject_entity=subject, type=loved, object_entity=obj_entity,
+        )
+
+        self.assertEqual(
+            str(obj_entity),
+            cell.render(entity=subject, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{obj_entity.get_absolute_url()}" target="_self">{obj_entity}</a>',
+            cell.render(entity=subject, user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{obj_entity.get_absolute_url()}" target="_blank">{obj_entity}</a>',
+            cell.render(entity=subject, user=user, tag=ViewTag.HTML_FORM),
+        )
+
+    def test_relation_disabled(self):
         "Disabled type."
         self.assertEqual(_('Relationships'), EntityCellRelation.verbose_name)
 
@@ -739,6 +843,34 @@ class EntityCellTestCase(CremeTestCase):
         self.assertEqual(name, cell.value)
 
         self.assertIsNone(EntityCellFunctionField.build(FakeContact, func_field_name='invalid'))
+
+        # Render ---
+        user = self.create_user()
+        contact = FakeContact.objects.create(
+            user=user, first_name='Nagate',  last_name='Tanikaze',
+        )
+        create_ptype = CremePropertyType.objects.create
+        ptype1 = create_ptype(
+            pk='creme_core-test_functionfield01_1', text='Is a pilot',
+        )
+        ptype2 = create_ptype(
+            pk='creme_core-test_functionfield01_2', text='Is a clone',
+        )
+        create_prop = partial(CremeProperty.objects.create, creme_entity=contact)
+        create_prop(type=ptype1)
+        create_prop(type=ptype2)
+
+        self.assertEqual(
+            f'{ptype2.text}/{ptype1.text}',
+            cell.render(entity=contact, user=user, tag=ViewTag.TEXT_PLAIN),
+        )
+        self.assertHTMLEqual(
+            f'<ul>'
+            f' <li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</li>'
+            f' <li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</li>'
+            f'</ul>',
+            cell.render(entity=contact, user=user, tag=ViewTag.HTML_DETAIL),
+        )
 
     def test_functionfield02(self):
         class PhoneFunctionField(FunctionField):

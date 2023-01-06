@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,7 @@ from ..core.entity_cell import EntityCellRegularField
 from ..gui import bricks, bulk_update
 from ..gui.bricks import Brick, BricksManager
 from ..gui.pager import PagerContext
+from ..gui.view_tag import ViewTag
 from ..utils.media import get_current_theme_from_context
 from ..utils.translation import plural as is_plural
 from ..views.entity import _bulk_has_perm
@@ -697,8 +698,9 @@ def brick_tile(label, value, multiline=False, data_type=None):
     }
 
 
+# TODO: keywords only ?
 @register.inclusion_tag('creme_core/templatetags/bricks/tile.html')
-def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
+def brick_tile_for_cell(cell, instance, user):
     """Tile for tiles-brick (see creme/creme_core/templates/creme_core/bricks/base/tiles.html)
     related to an EntityCell, for a given instance.
     The tile will display the cell's title as label, the cell's value (for the instance) ;
@@ -721,7 +723,8 @@ def brick_tile_for_cell(cell, instance, user):  # TODO: keywords only ?
         {% endblock %}
     """
     try:
-        content = cell.render_html(instance, user)
+        # content = cell.render_html(instance, user)
+        content = cell.render(instance, user, tag=ViewTag.HTML_DETAIL)
     except Exception:
         logger.exception('Error when rendering cell in {% brick_tile_for_cell %}')
         content = ''

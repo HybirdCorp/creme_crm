@@ -88,10 +88,12 @@ class EntityCellCustomFormSpecial(EntityCell):
 
         return cls(model=model, name=name)
 
-    def render_html(self, entity, user):
-        return ''
-
-    def render_csv(self, entity, user):
+    # def render_html(self, entity, user):
+    #     return ''
+    #
+    # def render_csv(self, entity, user):
+    #     return ''
+    def render(self, entity, user, tag):
         return ''
 
     @property
@@ -190,10 +192,12 @@ class EntityCellCustomFormExtra(EntityCell):
         sub_cell = self.sub_cell
         return sub_cell.formfield(instance, user=user, required=sub_cell.is_required)
 
-    def render_html(self, entity, user):
-        return ''
-
-    def render_csv(self, entity, user):
+    # def render_html(self, entity, user):
+    #     return ''
+    #
+    # def render_csv(self, entity, user):
+    #     return ''
+    def render(self, entity, user, tag):
         return ''
 
     @property

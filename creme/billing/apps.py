@@ -231,7 +231,7 @@ class BillingConfig(CremeAppConfig):
 
         # field_printers_registry.register(BillingDiscountField, print_discount)
         field_printers_registry.register_model_field_type(
-            type=BillingDiscountField, printer=print_discount,
+            type=BillingDiscountField, printer=print_discount, tags='html*',
         )
 
     def register_function_fields(self, function_field_registry):

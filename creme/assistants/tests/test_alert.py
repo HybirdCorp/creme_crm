@@ -21,6 +21,7 @@ from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -806,7 +807,10 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field01(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_alerts')
         self.assertIsNotNone(funf)
-        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual(
+            '<ul></ul>',
+            funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+        )
 
         # ---
         field_class = funf.search_field_builder
@@ -844,7 +848,10 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual('<ul><li>Alert02</li><li>Alert01</li></ul>', result.for_html())
+        self.assertEqual(
+            '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            result.render(ViewTag.HTML_LIST),
+        )
 
     def test_function_field03(self):
         "Prefetch with 'populate_entities()'."
@@ -873,8 +880,14 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual('<ul><li>Alert02</li><li>Alert01</li></ul>', result1.for_html())
-        self.assertEqual('<ul><li>Alert04</li></ul>',                 result2.for_html())
+        self.assertEqual(
+            '<ul><li>Alert02</li><li>Alert01</li></ul>',
+            result1.render(ViewTag.HTML_LIST),
+        )
+        self.assertEqual(
+            '<ul><li>Alert04</li></ul>',
+            result2.render(ViewTag.HTML_LIST),
+        )
 
     def test_merge(self):
         def creator(contact01, contact02):

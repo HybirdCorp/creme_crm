@@ -437,7 +437,7 @@ class HistoryRenderTestCase(CremeTestCase):
                 mod2=mark_safe(_('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
                     value=f'<span class="field-change-new_value">'
-                          f'<a href="{img.get_absolute_url()}">{img.name}</a>'
+                          f'<a href="{img.get_absolute_url()}" target="_self">{img.name}</a>'
                           f'</span>',
                 )),
             ),
@@ -639,7 +639,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     field=field_msg,
                     changes=ngettext('{} was added', '{} were added', 1).format(
                         f'<span class="field-change-m2m_added">'
-                        f'<a href="{ml.get_absolute_url()}">{ml}</a>'
+                        f'<a href="{ml.get_absolute_url()}" target="_self">{ml}</a>'
                         f'</span>'
                     ),
                 )),
@@ -657,7 +657,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     field=field_msg,
                     changes=ngettext('{} was removed', '{} were removed', 1).format(
                         f'<span class="field-change-m2m_removed">'
-                        f'<a href="{ml.get_absolute_url()}">{ml}</a>'
+                        f'<a href="{ml.get_absolute_url()}" target="_self">{ml}</a>'
                         f'</span>'
                     ),
                 )),
@@ -977,7 +977,8 @@ class HistoryRenderTestCase(CremeTestCase):
                 ' </ul>'
                 '<div>',
                 title=mark_safe(_('%(entity_link)s edited') % {
-                    'entity_link': f'<a href="{hayao.get_absolute_url()}">{hayao}</a>',
+                    'entity_link':
+                        f'<a href="{hayao.get_absolute_url()}" target="_self">{hayao}</a>',
                 }),
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
@@ -1147,7 +1148,8 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{rtype.predicate}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                    'entity_link':
+                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
                 }),
             ),
             self.render_line(hline, user),
@@ -1161,7 +1163,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{srtype.predicate}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
+                    'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
                 }),
             ),
             self.render_line(hline_sym, user),
@@ -1180,7 +1182,8 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{rtype_id}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                    'entity_link':
+                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
                 }),
             ),
             self.render_line(self.refresh(hline), user),
@@ -1228,7 +1231,8 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{rtype.predicate}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                    'entity_link':
+                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
                 }),
             ),
             self.render_line(hline, user),
@@ -1242,7 +1246,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{srtype.predicate}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{rei.get_absolute_url()}">{rei}</a>',
+                    'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
                 }),
             ),
             self.render_line(hline_sym, user),
@@ -1259,7 +1263,8 @@ class HistoryRenderTestCase(CremeTestCase):
                     'predicate': f'<span class="relationship-predicate">'
                                  f'{rtype_id}'
                                  f'</span>',  # <==
-                    'entity_link': f'<a href="{nerv.get_absolute_url()}">{nerv}</a>',
+                    'entity_link':
+                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
                 }),
             ),
             self.render_line(self.refresh(hline), user),

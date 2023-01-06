@@ -10,6 +10,7 @@ from django.utils.translation import gettext, gettext_lazy
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     FakeContact,
     FakeOrganisation,
@@ -259,27 +260,37 @@ class CremeCoreTagsTestCase(CremeTestCase):
         user = self.create_user()
         orga = FakeOrganisation.objects.create(
             user=user, name='<br/>Amestris', url_site='www.amestris.org',
-            email='contact@mestris.org',
+            # email='contact@mestris.org',
         )
 
         with self.assertNoException():
-            template = Template(
+            render1 = Template(
                 "{% load creme_core_tags %}"
                 "<ul>"
                 "<li>{% print_field object=entity field='name' %}</li>"
                 "<li>{% print_field object=entity field='url_site' %}</li>"
                 # "{% print_field object=entity field='email' as email %}<li>{{email}}</li>"
                 "</ul>"
-            )
-            render = template.render(Context({'entity': orga, 'user': user}))
+            ).render(Context({'entity': orga, 'user': user}))
 
-        self.assertEqual(
+        self.assertHTMLEqual(
             '<ul>'
             '<li>&lt;br/&gt;Amestris</li>'
             '<li><a href="www.amestris.org" target="_blank">www.amestris.org</a></li>'
             '</ul>',
-            render.strip()
+            render1,
         )
+
+        # ---
+        with self.assertNoException():
+            render2 = Template(
+                "{% load creme_core_tags %}"
+                "{% print_field object=entity field='url_site' tag=tag %}"
+            ).render(Context({
+                'entity': orga, 'user': user, 'tag': ViewTag.TEXT_PLAIN,
+            }))
+
+        self.assertEqual(orga.url_site, render2.strip())
 
         # ---
         with self.assertRaises(TemplateSyntaxError) as cm:

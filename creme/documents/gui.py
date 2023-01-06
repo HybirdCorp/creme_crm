@@ -130,6 +130,6 @@ def print_doc_summary_html(*, instance, user, **kwargs):
             content=instance.get_entity_summary(user),
         )
 
-    return M2MPrinterForHTML.printer_entity_html(
+    return M2MPrinterForHTML.printer_entity(
         instance=instance, user=user, **kwargs
     )

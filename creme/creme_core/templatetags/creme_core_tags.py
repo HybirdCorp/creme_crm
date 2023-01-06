@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -38,6 +38,7 @@ from mediagenerator.generators.bundles.utils import _render_include_media
 from ..core.entity_cell import EntityCell
 from ..gui.bulk_update import bulk_update_registry
 from ..gui.field_printers import field_printers_registry
+from ..gui.view_tag import ViewTag
 from ..http import is_ajax
 from ..models import CremeEntity, Relation
 from ..utils import bool_as_html
@@ -470,10 +471,17 @@ class TemplatizeNode(TemplateNode):
 
 # TAG : "print_field"-----------------------------------------------------------
 
+# TODO: need a templatetag to build a ViewTag?
 # TODO: pass the registry in the context? pass the user as argument?
 @register.simple_tag(takes_context=True)
-def print_field(context, *, object, field):
-    return field_printers_registry.get_html_field_value(object, field, context['user'])
+def print_field(context, *, object, field, tag=ViewTag.HTML_DETAIL):
+    # return field_printers_registry.get_html_field_value(object, field, context['user'])
+    return field_printers_registry.get_field_value(
+        instance=object,
+        field_name=field,
+        user=context['user'],
+        tag=tag,
+    )
 
 
 # TAG : "has_perm_to"-----------------------------------------------------------

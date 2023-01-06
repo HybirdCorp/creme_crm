@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import FieldsConfig, SetCredentials
 from creme.persons.tests.base import skipIfCustomOrganisation
 
@@ -111,7 +112,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(
             number_format('7000.00', force_grouping=True),
-            funf(target, user).for_html(),
+            funf(target, user).render(ViewTag.HTML_LIST),
         )
         self.assertEqual(number_format('7000.00'), funf(target, user).for_csv())
 
@@ -394,7 +395,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(
             number_format('5300.00', force_grouping=True),
-            funf(target, user).for_html(),
+            funf(target, user).render(ViewTag.HTML_LIST),
         )
         self.assertEqual(number_format('5300.00'), funf(target, user).for_csv())
 
@@ -544,7 +545,7 @@ class FunctionFieldTestCase(_BillingTestCase):
 
         self.assertEqual(
             number_format('6000.00', force_grouping=True),
-            funf(target, user).for_html(),
+            funf(target, user).render(ViewTag.HTML_LIST),
         )
         self.assertEqual(number_format('6000.00'), funf(target, user).for_csv())
 
@@ -661,4 +662,4 @@ class FunctionFieldTestCase(_BillingTestCase):
             ):
                 funf = function_field_registry.get(model, name)
                 self.assertIsNotNone(funf, f'Function field {model}/{name} is None?!')
-                self.assertEqual('0', funf(target, user).for_html())
+                self.assertEqual('0', funf(target, user).render(ViewTag.HTML_LIST))

@@ -38,15 +38,16 @@ from mediagenerator.utils import media_url
 from ..auth.decorators import login_required
 from ..core.exceptions import ConflictError
 from ..gui.bricks import PaginatedBrick, brick_registry
-from ..gui.field_printers import (
+from ..gui.field_printers import (  # print_foreignkey_html
     print_date_html,
     print_datetime_html,
     print_duration,
-    print_foreignkey_html,
     print_image_html,
     print_url_html,
 )
 from ..http import is_ajax
+from ..models import CremeEntity
+from ..templatetags.creme_widgets import widget_entity_hyperlink
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +108,9 @@ class Dummy:
             value=f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}',
         ))
         # self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
-        self.foreignkey = print_foreignkey_html(instance=self, value=user, user=user, field=None)
+        self.foreignkey = widget_entity_hyperlink(
+            CremeEntity.objects.first().get_real_entity(), user,
+        )
         # API Breaking : TODO refactor this
 #         self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
 #         property = CremeProperty.objects.first()

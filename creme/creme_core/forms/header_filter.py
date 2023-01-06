@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -41,6 +41,7 @@ from ..core.entity_cell import (
     EntityCellsRegistry,
 )
 from ..gui import listview
+from ..gui.view_tag import ViewTag
 from ..models import (
     CremeEntity,
     CustomField,
@@ -194,7 +195,9 @@ class EntityCellsWidget(Widget):
 
             for choice_id, cell in cells:
                 try:
-                    value = str(cell.render_html(entity, user))
+                    # value = str(cell.render_html(entity, user))
+                    # TODO: add a "tag" attribute?
+                    value = str(cell.render(entity, user, tag=ViewTag.HTML_LIST))
                 except Exception as e:
                     logger.critical('EntityCellsWidget._build_samples(): %s', e)
                     value = ''

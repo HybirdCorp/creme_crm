@@ -1,4 +1,5 @@
 from datetime import timedelta
+from functools import partial
 
 from django.urls import reverse
 from django.utils.timezone import now
@@ -9,6 +10,7 @@ from creme.activities import get_activity_model
 from creme.activities.models import ActivitySubType, ActivityType, Calendar
 from creme.activities.tests.base import skipIfCustomActivity
 from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import FieldsConfig
 from creme.creme_core.tests.base import CremeTestCase
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
@@ -65,18 +67,20 @@ class CTITestCase(CremeTestCase, BrickTestCaseMixin):
 
     def test_print_phone(self):
         user = self.login()
-
-        get_html_val = field_printers_registry.get_html_field_value
-        get_csv_val  = field_printers_registry.get_csv_field_value
-
         contact = self.contact
-        self.assertEqual('', get_html_val(contact, 'phone', user))
-        self.assertEqual('', get_csv_val(contact,  'phone', user))
+
+        render_field = partial(
+            field_printers_registry.get_field_value,
+            instance=contact, field_name='phone', user=user,
+        )
+
+        self.assertEqual('', render_field(tag=ViewTag.HTML_DETAIL))
+        self.assertEqual('', render_field(tag=ViewTag.TEXT_PLAIN))
 
         contact.phone = '112233'
-        self.assertEqual(contact.phone, get_csv_val(contact, 'phone', user))
+        self.assertEqual(contact.phone, render_field(tag=ViewTag.TEXT_PLAIN))
 
-        html = get_html_val(contact, 'phone', user)
+        html = render_field(tag=ViewTag.HTML_DETAIL)
         self.assertIn(contact.phone, html)
         self.assertIn('<a class="cti-phonecall" onclick="creme.cti.phoneCall', html)
 

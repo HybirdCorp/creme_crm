@@ -116,11 +116,11 @@ class PersonsConfig(CremeAppConfig):
         )
 
     def register_field_printers(self, field_printers_registry):
-        from django.contrib.auth import get_user_model
-        from django.utils.html import format_html
-
-        from creme.creme_core.gui.field_printers import print_foreignkey_html
-
+        # from django.contrib.auth import get_user_model
+        # from django.utils.html import format_html
+        #
+        # from creme.creme_core.gui.field_printers import print_foreignkey_html
+        #
         # def print_fk_user_html(entity, fval, user, field) -> str:
         #     if not fval.is_team:
         #         contact = fval.linked_contact
@@ -132,19 +132,49 @@ class PersonsConfig(CremeAppConfig):
         #             )
         #
         #     return str(fval)
-        def print_fk_user_html(*, value, user, **kwargs) -> str:
+        #
+        # print_foreignkey_html.register(get_user_model(), print_fk_user_html)
+        from django.contrib.auth import get_user_model
+        from django.db import models
+        from django.utils.html import format_html
+
+        from creme.creme_core.gui.view_tag import ViewTag
+
+        def print_fk_user_html(*, value, user, html_fmt, **kwargs) -> str:
             if not value.is_team:
                 contact = value.linked_contact
                 if user.has_perm_to_view(contact):
                     return format_html(
-                        '<a href="{url}">{label}</a>',
+                        html_fmt,
                         url=contact.get_absolute_url(),
                         label=contact,
                     )
 
             return str(value)
 
-        print_foreignkey_html.register(get_user_model(), print_fk_user_html)
+        User = get_user_model()
+
+        for field in (models.ForeignKey, models.OneToOneField):
+            for printer in field_printers_registry.printers_for_field_type(
+                type=field, tags=[ViewTag.HTML_DETAIL, ViewTag.HTML_LIST],
+            ):
+                printer.register(
+                    model=User,
+                    printer=partial(
+                        print_fk_user_html, html_fmt='<a href="{url}">{label}</a>',
+                    ),
+                )
+
+            for printer in field_printers_registry.printers_for_field_type(
+                type=field, tags=[ViewTag.HTML_FORM],
+            ):
+                printer.register(
+                    model=User,
+                    printer=partial(
+                        print_fk_user_html,
+                        html_fmt='<a href="{url}" target="_blank">{label}</a>',
+                    ),
+                )
 
     def register_icons(self, icon_registry):
         icon_registry.register(

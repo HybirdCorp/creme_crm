@@ -6,6 +6,7 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.core.sorter import cell_sorter_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import Currency, FakeContact
 
 from ..base import CremeTestCase
@@ -191,7 +192,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
         )
 
     def test_cell_render01(self):
-        "Direct render ; default output."
+        "Direct render ; default tag."
         user = self.create_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
         cell = EntityCellRegularField.build(model=FakeContact, name='last_name')
@@ -207,7 +208,50 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(ripley.last_name, render.strip())
 
-    def test_cell_render02(self):
+    def test_cell_render_tag01(self):
+        "Direct render ; tag=ViewTag.HTML_DETAIL."
+        user = self.create_user()
+        ripley = FakeContact(
+            user=user, first_name='Helen', last_name='Ripley', email='hripley@nostromo.corp',
+        )
+        cell = EntityCellRegularField.build(model=FakeContact, name='email')
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell instance=helen user=user tag=tag %}'
+            )
+            render = template.render(Context({
+                'cell': cell, 'helen': ripley, 'user': user, 'tag': ViewTag.HTML_DETAIL,
+            }))
+
+        self.assertEqual(
+            '<a href="mailto:hripley@nostromo.corp">hripley@nostromo.corp</a>',
+            render.strip()
+        )
+
+    def test_cell_render_tag02(self):
+        "Direct render ; tag=ViewTag.TEXT_PLAIN."
+        user = self.create_user()
+        ripley = FakeContact(
+            user=user, first_name='Helen', last_name='Ripley',
+            email='hripley@nostromo.corp',
+        )
+        cell = EntityCellRegularField.build(model=FakeContact, name='email')
+
+        with self.assertNoException():
+            template = Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell instance=helen user=user tag=tag %}'
+            )
+            render = template.render(Context({
+                'cell': cell, 'helen': ripley, 'user': user, 'tag': ViewTag.TEXT_PLAIN,
+            }))
+
+        self.assertEqual(ripley.email, render.strip())
+
+    # DEPRECATED
+    def test_cell_render_output01(self):
         "Direct render ; html output."
         user = self.create_user()
         ripley = FakeContact(
@@ -229,7 +273,8 @@ class CremeCellsTagsTestCase(CremeTestCase):
             render.strip()
         )
 
-    def test_cell_render03(self):
+    # DEPRECATED
+    def test_cell_render_output02(self):
         "Direct render ; CSV output."
         user = self.create_user()
         ripley = FakeContact(
@@ -249,8 +294,16 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertEqual(ripley.email, render.strip())
 
-    def test_cell_render04(self):
-        "Assignment."
+    # DEPRECATED
+    def test_cell_render_output03(self):
+        "output & tag at the same time => error."
+        with self.assertRaises(TemplateSyntaxError):
+            Template(
+                r'{% load creme_cells %}'
+                r'{% cell_render cell=cell instance=helen user=user output="html" tag=tag %}'
+            )
+
+    def test_cell_render_assignment(self):
         user = self.create_user()
         ripley = FakeContact(
             user=user, first_name='Helen', last_name='Ripley',
@@ -317,6 +370,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
             str(cm3.exception),
         )
 
+    # DEPRECATED
     def test_cell_render_dyn_errors(self):
         user = self.create_user()
         ripley = FakeContact(user=user, first_name='Helen', last_name='Ripley')
@@ -332,7 +386,7 @@ class CremeCellsTagsTestCase(CremeTestCase):
 
         self.assertStartsWith(
             str(cm.exception),
-            '{% cell_render %}: invalid output "ini" (must be in [\'',
+            '{% cell_render %}: invalid output "ini" (must be in ',
         )
 
     def test_cell_is_sortable(self):

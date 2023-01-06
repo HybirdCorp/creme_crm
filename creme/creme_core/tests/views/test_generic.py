@@ -17,6 +17,7 @@ from creme.creme_core.gui.custom_form import (
     FieldGroupList,
 )
 from creme.creme_core.gui.last_viewed import LastViewedItem
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremePropertyType,
     CustomFormConfigItem,
@@ -76,6 +77,7 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/view_entity.html')
+        self.assertEqual(ViewTag.HTML_DETAIL, response.context.get('view_tag'))
 
         # -----
         last_items = LastViewedItem.get_all(self.FakeRequest(user))

@@ -19,6 +19,7 @@ from creme.creme_core.core.function_field import function_field_registry
 # Should be a test queue
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -399,7 +400,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field01(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_todos')
         self.assertIsInstance(funf, TodosField)
-        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual(
+            '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+        )
 
         # ---
         field_class = funf.search_field_builder
@@ -436,7 +439,10 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         with self.assertNumQueries(1):
             result = funf(self.entity, self.user)
 
-        self.assertEqual('<ul><li>Todo02</li><li>Todo01</li></ul>', result.for_html())
+        self.assertEqual(
+            '<ul><li>Todo02</li><li>Todo01</li></ul>',
+            result.render(ViewTag.HTML_LIST),
+        )
 
         # limit to 3 ToDos
         # self._create_todo('Todo03', 'Description03')
@@ -468,8 +474,14 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             result1 = funf(self.entity, user)
             result2 = funf(entity02, user)
 
-        self.assertEqual('<ul><li>Todo02</li><li>Todo01</li></ul>', result1.for_html())
-        self.assertEqual('<ul><li>Todo04</li></ul>',                result2.for_html())
+        self.assertEqual(
+            '<ul><li>Todo02</li><li>Todo01</li></ul>',
+            result1.render(ViewTag.HTML_LIST),
+        )
+        self.assertEqual(
+            '<ul><li>Todo04</li></ul>',
+            result2.render(ViewTag.HTML_LIST),
+        )
 
     def test_merge(self):
         def creator(contact01, contact02):

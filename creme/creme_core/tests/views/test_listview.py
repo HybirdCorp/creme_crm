@@ -30,6 +30,7 @@ from creme.creme_core.core.entity_filter import (
 )
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.gui.listview import ListViewState
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -276,13 +277,15 @@ class ListViewTestCase(ViewsTestCase):
             EntityCellCustomField(cfield),
         )
 
-        context = CaptureQueriesContext()
+        queries_context = CaptureQueriesContext()
 
-        with context:
+        with queries_context:
             response = self.assertPOST200(self.url, data={'hfilter': hf.id})
 
+        ctxt = response.context
+        self.assertEqual(ViewTag.HTML_LIST, ctxt.get('view_tag'))
+
         with self.assertNoException():
-            ctxt = response.context
             hfilters = ctxt['header_filters']
             efilters = ctxt['entity_filters']
             orgas_page = ctxt['page_obj']
@@ -314,7 +317,7 @@ class ListViewTestCase(ViewsTestCase):
         rtype_cell_content = content[5]
         self.assertIsList(rtype_cell_content, length=1)
         self.assertEqual(
-            f'<a href="/tests/contact/{spike.id}">{spike}</a>'.encode(),
+            f'<a href="/tests/contact/{spike.id}" target="_self">{spike}</a>'.encode(),
             html_tostring(rtype_cell_content[0]).strip(),
         )
 
@@ -324,7 +327,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIsList(ptype_cell_content, length=1)
         self.assertEqual(
             f'<ul><li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li></ul>'.encode(),
-            html_tostring(ptype_cell_content[0]).strip()
+            html_tostring(ptype_cell_content[0]).strip(),
         )
         self.assertNotIn(ptype2.text, content)  # NB: not really useful...
 
@@ -332,7 +335,7 @@ class ListViewTestCase(ViewsTestCase):
         self.assertIn(str(cfield_value), content)
 
         self.assertEqual(2, orgas_page.paginator.count)
-        self._assertFastCount(context.captured_sql)
+        self._assertFastCount(queries_context.captured_sql)
 
     def test_content02(self):
         "FieldsConfig."
@@ -380,31 +383,69 @@ class ListViewTestCase(ViewsTestCase):
         self.login()
         ct_id = self.ctype.id
 
-        response = self.assertPOST200(
+        response1 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id},
         )
-        self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
+        self.assertTemplateUsed(response1, 'creme_core/generics/entities-popup.html')
 
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertTemplateUsed(response, 'creme_core/generics/entities-popup.html')
+        self.assertTemplateUsed(response2, 'creme_core/generics/entities-popup.html')
 
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id, 'content': 1},
         )
-        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+        self.assertTemplateUsed(response3, 'creme_core/listview/content.html')
 
-        response = self.assertPOST200(
+        response4 = self.assertPOST200(
             reverse('creme_core__listview_popup'),
             data={'ct_id': ct_id, 'content': 1},
             HTTP_X_REQUESTED_WITH='XMLHttpRequest',
         )
-        self.assertTemplateUsed(response, 'creme_core/listview/content.html')
+        self.assertTemplateUsed(response4, 'creme_core/listview/content.html')
+
+    def test_content_popup_viewtag(self):
+        user = self.login()
+        ct_id = self.ctype.id
+
+        create_orga = partial(FakeOrganisation.objects.create, user=user)
+        create_orga(name='Bebop')
+        swordfish = create_orga(name='Swordfish')
+
+        spike = FakeContact.objects.create(user=user, first_name='Spike', last_name='Spiegel')
+
+        # Relation
+        rtype = RelationType.objects.smart_update_or_create(
+            ('test-subject_piloted', 'is piloted by'),
+            ('test-object_piloted',  'pilots'),
+        )[0]
+        Relation.objects.create(
+            user=user, subject_entity=swordfish, type=rtype, object_entity=spike,
+        )
+
+        hf = self._build_hf(
+            EntityCellRelation(model=FakeOrganisation, rtype=rtype),
+        )
+
+        response = self.assertPOST200(
+            reverse('creme_core__listview_popup'),
+            data={'ct_id': ct_id, 'hfilter': hf.id},
+        )
+        self.assertEqual(ViewTag.HTML_FORM, response.context.get('view_tag'))
+
+        lv_node = self._get_lv_node(response)
+        content = self._get_lv_content(lv_node)
+        rtype_cell_content = content[3]
+        self.assertIsList(rtype_cell_content, length=1)
+        self.assertEqual(
+            f'<a href="/tests/contact/{spike.id}" target="_blank">{spike}</a>'.encode(),
+            html_tostring(rtype_cell_content[0]).strip(),
+        )
 
     def test_selection_single(self):
         user = self.login()

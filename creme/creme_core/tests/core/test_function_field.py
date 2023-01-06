@@ -17,6 +17,7 @@ from creme.creme_core.core.function_field import (
 )
 from creme.creme_core.forms.listview import SelectLVSWidget
 from creme.creme_core.function_fields import PropertiesField
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -175,20 +176,22 @@ class FunctionFieldsTestCase(CremeTestCase):
         result = FunctionFieldResult(value)
         self.assertEqual(value, result.for_csv())
         self.assertEqual(value, result.for_html())
+        self.assertEqual(value, result.render(ViewTag.HTML_DETAIL))
+        self.assertEqual(value, result.render(ViewTag.TEXT_PLAIN))
 
     def test_result_decimal(self):
         value = Decimal('1234.45')
         result = FunctionFieldDecimal(value)
         self.assertEqual(
-            # number_format(value, use_l10n=True, force_grouping=True),
             number_format(value, force_grouping=True),
             result.for_html(),
         )
+        self.assertEqual(number_format(value), result.for_csv())
         self.assertEqual(
-            # number_format(value, use_l10n=True),
-            number_format(value),
-            result.for_csv(),
+            number_format(value, force_grouping=True),
+            result.render(ViewTag.HTML_DETAIL),
         )
+        self.assertEqual(number_format(value), result.render(ViewTag.TEXT_PLAIN))
 
     def test_result_link(self):
         label = 'My Contacts'
@@ -196,6 +199,28 @@ class FunctionFieldsTestCase(CremeTestCase):
         result = FunctionFieldLink(label=label, url=url)
         self.assertEqual(label, result.for_csv())
         self.assertHTMLEqual(f'<a href="{url}">{label}</a>', result.for_html())
+        self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
+        self.assertHTMLEqual(
+            f'<a href="{url}">{label}</a>', result.render(ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{url}" target="_blank">{label}</a>',
+            result.render(ViewTag.HTML_FORM),
+        )
+
+    def test_result_link_is_deleted(self):
+        label = 'My Activities'
+        url = reverse('creme_core__list_fake_activities')
+        result = FunctionFieldLink(label=label, url=url, is_deleted=True)
+        self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
+        self.assertHTMLEqual(
+            f'<a href="{url}" class="is_deleted">{label}</a>',
+            result.render(ViewTag.HTML_DETAIL),
+        )
+        self.assertHTMLEqual(
+            f'<a href="{url}" class="is_deleted" target="_blank">{label}</a>',
+            result.render(ViewTag.HTML_FORM),
+        )
 
     def test_result_list(self):
         value1 = 'My value #1'

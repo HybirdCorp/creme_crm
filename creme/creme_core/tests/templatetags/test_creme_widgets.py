@@ -67,8 +67,8 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                 r'{% load creme_widgets %}{% widget_entity_hyperlink my_entity user %}'
             ).render(Context({'user': user, 'my_entity': orga}))
 
-        self.assertEqual(
-            '<a href="/tests/organisation/{}">{}</a>'.format(
+        self.assertHTMLEqual(
+            '<a href="/tests/organisation/{}" target="_self">{}</a>'.format(
                 orga.id,
                 name + '&lt;br/&gt;',
             ),
@@ -86,12 +86,28 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
                 'label': 'My favorite <i>one</i>',
             }))
 
-        self.assertEqual(
-            '<a href="/tests/organisation/{}">{}</a>'.format(
+        self.assertHTMLEqual(
+            '<a href="/tests/organisation/{}" target="_self">{}</a>'.format(
                 orga.id,
                 'My favorite &lt;i&gt;one&lt;/i&gt;'
             ),
             render2,
+        )
+
+        # Other tag ---
+        with self.assertNoException():
+            render3 = Template(
+                r'{% load creme_widgets %}'
+                r'{% widget_entity_hyperlink my_entity user label=label target="_blank" %}'
+            ).render(Context({
+                'user': user,
+                'my_entity': orga,
+                'label': name,
+            }))
+
+        self.assertEqual(
+            f'<a href="/tests/organisation/{orga.id}" target="_blank">{name}</a>',
+            render3,
         )
 
     def test_widget_entity_hyperlink02(self):
@@ -119,7 +135,9 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             ).render(ctxt)
 
         self.assertHTMLEqual(
-            f'<a href="/tests/organisation/{orga.id}" class="is_deleted">{orga}</a>',
+            f'<a href="/tests/organisation/{orga.id}" target="_self" class="is_deleted">'
+            f'{orga}'
+            f'</a>',
             render1,
         )
 
@@ -131,7 +149,7 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
             ).render(ctxt)
 
         self.assertHTMLEqual(
-            f'<a href="/tests/organisation/{orga.id}">{orga}</a>',
+            f'<a href="/tests/organisation/{orga.id}" target="_self">{orga}</a>',
             render2,
         )
 

@@ -12,6 +12,7 @@ from creme.activities.constants import REL_SUB_ACTIVITY_SUBJECT
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
     Currency,
@@ -746,11 +747,16 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
 
         self.assertIsNone(opportunity.estimated_sales)
         self.assertIsNone(opportunity.chance_to_win)
-        self.assertEqual(number_format('0.0'), funf(opportunity, user).for_html())
+        # self.assertEqual(number_format('0.0'), funf(opportunity, user).for_html())
+        self.assertEqual(number_format('0.0'), funf(opportunity, user).render(ViewTag.HTML_LIST))
 
         opportunity.estimated_sales = 1000
         opportunity.chance_to_win   = 10
-        self.assertEqual(number_format('100.0'), funf(opportunity, user).for_html())
+        # self.assertEqual(number_format('100.0'), funf(opportunity, user).for_html())
+        self.assertEqual(
+            number_format('100.0'),
+            funf(opportunity, user).render(ViewTag.HTML_LIST),
+        )
 
     @skipIfCustomOrganisation
     def test_get_weighted_sales02(self):
@@ -769,7 +775,8 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         funf = function_field_registry.get(Opportunity, 'get_weighted_sales')
 
         with self.assertNumQueries(0):
-            w_sales = funf(opportunity, user).for_html()
+            # w_sales = funf(opportunity, user).for_html()
+            w_sales = funf(opportunity, user).render(ViewTag.HTML_LIST)
 
         self.assertEqual(_('Error: «Estimated sales» is hidden'), w_sales)
 

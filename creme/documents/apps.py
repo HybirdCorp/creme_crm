@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2015-2022  Hybird
+#    Copyright (C) 2015-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -91,20 +91,37 @@ class DocumentsConfig(CremeAppConfig):
         fields_config_registry.register_models(self.Document, self.Folder)
 
     def register_field_printers(self, field_printers_registry):
-        from creme.creme_core.gui import field_printers
+        # from creme.creme_core.gui import field_printers
+        #
+        # from . import gui
+        #
+        # Document = self.Document
+        # field_printers.print_foreignkey_html.register(
+        #     model=Document,
+        #     printer=gui.print_fk_image_html,
+        # )
+        # field_printers.print_many2many_html.register(
+        #     Document,
+        #     printer=gui.print_doc_summary_html,
+        #     enumerator=field_printers.M2MPrinterForHTML.enumerator_entity,
+        # )
+        from django.db import models
 
         from . import gui
 
         Document = self.Document
-        field_printers.print_foreignkey_html.register(
-            model=Document,
-            printer=gui.print_fk_image_html,
-        )
-        field_printers.print_many2many_html.register(
-            Document,
-            printer=gui.print_doc_summary_html,
-            enumerator=field_printers.M2MPrinterForHTML.enumerator_entity,
-        )
+        printers = field_printers_registry.printers_for_field_type
+
+        for field in (models.ForeignKey, models.OneToOneField):
+            for printer in printers(type=field, tags='html*'):
+                printer.register(model=Document, printer=gui.print_fk_image_html)
+
+        for printer in printers(type=models.ManyToManyField, tags='html*'):
+            printer.register(
+                model=Document,
+                printer=gui.print_doc_summary_html,
+                enumerator=printer.enumerator_entity,
+            )
 
     def register_filefields_download(self, filefield_download_registry):
         filefield_download_registry.register(
