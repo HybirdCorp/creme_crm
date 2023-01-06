@@ -12,6 +12,7 @@ from creme.creme_core.core.function_field import (
     FunctionFieldResultsList,
     function_field_registry,
 )
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
     CremeProperty,
@@ -383,9 +384,11 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a>'
             f'</li><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            result.for_html(),
+            # result.for_html(),
+            result.render(ViewTag.HTML_LIST),
         )
-        self.assertEqual('Awesome/Wonderful', result.for_csv())
+        # self.assertEqual('Awesome/Wonderful', result.for_csv())
+        self.assertEqual('Awesome/Wonderful', result.render(ViewTag.TEXT_PLAIN))
 
     def test_properties_functionfield02(self):  # Prefetch with populate_entities()
         user = self.user
@@ -415,11 +418,13 @@ class EntityTestCase(CremeTestCase):
             f'<li><a href="{ptype1.get_absolute_url()}">{ptype1.text}</a></li>'
             f'<li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li>'
             f'</ul>',
-            result1.for_html(),
+            # result1.for_html(),
+            result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
             f'<ul><li><a href="{ptype2.get_absolute_url()}">{ptype2.text}</a></li></ul>',
-            result2.for_html(),
+            # result2.for_html(),
+            result2.render(ViewTag.HTML_LIST),
         )
 
     def test_customfield_value(self):

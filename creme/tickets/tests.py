@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 
 import creme.creme_core.tests.views.base as views_base
 from creme.creme_core.core.function_field import function_field_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import HeaderFilter, RelationType
 from creme.creme_core.templatetags.creme_date import timedelta_pprint
 from creme.creme_core.tests.base import CremeTestCase
@@ -172,7 +173,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
         self.assertIsNotNone(funf)
-        self.assertEqual('', funf(ticket, user).for_html())
+        # self.assertEqual('', funf(ticket, user).for_html())
+        self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
         self.assertRedirects(response, ticket.get_absolute_url())
 
@@ -214,14 +216,16 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertIsNone(ticket.closing_date)
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        self.assertEqual('', funf(ticket, user).for_html())
+        # self.assertEqual('', funf(ticket, user).for_html())
+        self.assertEqual('', funf(ticket, user).render(ViewTag.HTML_LIST))
 
         ticket.status = get_status(pk=CLOSED_PK)
         ticket.save()
         self.assertDatetimesAlmostEqual(now(), ticket.closing_date)
         self.assertEqual(
             timedelta_pprint(ticket.closing_date - ticket.created),
-            funf(ticket, user).for_html(),
+            # funf(ticket, user).for_html(),
+            funf(ticket, user).render(ViewTag.HTML_LIST),
         )
 
     def test_get_resolving_duration02(self):
@@ -238,7 +242,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
 
         funf = function_field_registry.get(Ticket, 'get_resolving_duration')
-        self.assertEqual('?', funf(ticket, user).for_html())
+        # self.assertEqual('?', funf(ticket, user).for_html())
+        self.assertEqual('?', funf(ticket, user).render(ViewTag.HTML_LIST))
 
     def test_editview01(self):
         user = self.login()
@@ -320,7 +325,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertTrue(ticket.closing_date)
 
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
-        self.assertTrue(ffield.for_html())
+        # self.assertTrue(ffield.for_html())
+        self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
     def test_editview03(self):
         "Custom closing status."
@@ -359,7 +365,8 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         self.assertTrue(ticket.closing_date)
 
         ffield = function_field_registry.get(Ticket, 'get_resolving_duration')(ticket, user)
-        self.assertTrue(ffield.for_html())
+        # self.assertTrue(ffield.for_html())
+        self.assertTrue(ffield.render(ViewTag.HTML_LIST))
 
     def test_listview01(self):
         self.login()

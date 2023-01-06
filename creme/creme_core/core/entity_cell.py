@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+import warnings
 from collections import defaultdict
 from typing import DefaultDict, Iterable, Sequence  # Callable
 
@@ -30,6 +31,7 @@ from django.utils.html import escape, format_html, format_html_join
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
+from ..gui.view_tag import ViewTag
 from ..models import CremeEntity, CustomField, FieldsConfig, RelationType
 from ..models import fields as core_fields
 from ..utils.collections import ClassKeyedMap
@@ -215,11 +217,23 @@ class EntityCell:
         """
         pass
 
-    # TODO: factorise render_* => like FunctionField, result that can be html, csv...
     def render_html(self, entity: CremeEntity, user) -> str:
-        raise NotImplementedError
+        # raise NotImplementedError
+        warnings.warn(
+            'EntityCell.render_html() is deprecated ; use render() instead.',
+            DeprecationWarning
+        )
+        return self.render(entity, user, ViewTag.HTML_DETAIL)
 
     def render_csv(self, entity: CremeEntity, user) -> str:
+        # raise NotImplementedError
+        warnings.warn(
+            'EntityCell.render_csv() is deprecated ; use render() instead.',
+            DeprecationWarning
+        )
+        return self.render(entity, user, ViewTag.TEXT_PLAIN)
+
+    def render(self, entity: CremeEntity, user, tag: ViewTag) -> str:
         raise NotImplementedError
 
     @property
@@ -408,10 +422,13 @@ class EntityCellActions(EntityCell):
             if action.is_visible
         ])
 
-    def render_html(self, entity, user):
-        return ''
+    # def render_html(self, entity, user):
+    #     return ''
+    #
+    # def render_csv(self, entity, user):
+    #     return ''
 
-    def render_csv(self, entity, user):
+    def render(self, entity: CremeEntity, user, tag):
         return ''
 
     @cached_property
@@ -427,7 +444,8 @@ class EntityCellRegularField(EntityCell):
     def __init__(self, model, name, field_info: FieldInfo, is_hidden=False):
         "Use build() instead of using this constructor directly."
         self._field_info = field_info
-        self._printer_html = self._printer_csv = None
+        # self._printer_html = self._printer_csv = None
+        self._printers = {}
         is_excluded = FieldsConfig.LocalCache().is_fieldinfo_hidden(field_info)
 
         super().__init__(
@@ -480,32 +498,46 @@ class EntityCellRegularField(EntityCell):
     def populate_entities(cells, entities, user):
         populate_related(entities, [cell.value for cell in cells])
 
-    def render_html(self, entity, user):
-        printer = self._printer_html
+    # def render_html(self, entity, user):
+    #     printer = self._printer_html
+    #
+    #     if printer is None:
+    #         from ..gui.field_printers import field_printers_registry
+    #
+    #         self._printer_html = printer = field_printers_registry.build_field_printer(
+    #             model=entity.__class__,
+    #             field_name=self.value,
+    #             output='html',
+    #         )
+    #
+    #     return printer(entity, user)
+    #
+    # def render_csv(self, entity, user):
+    #     printer = self._printer_csv
+    #
+    #     if printer is None:
+    #         from ..gui.field_printers import field_printers_registry
+    #
+    #         self._printer_csv = printer = field_printers_registry.build_field_printer(
+    #             model=entity.__class__,
+    #             field_name=self.value,
+    #             output='csv',
+    #         )
+    #
+    #     return printer(entity, user)
+
+    def render(self, entity, user, tag):
+        printer = self._printers.get(tag)
 
         if printer is None:
-            # TODO: pass the 'field_printers_registry' in a context dict when building our instance
-            #       (see EntityCellFunctionField too)
+            # TODO: pass the 'field_printers_registry' in a context dict when
+            #       building our instance? (see EntityCellFunctionField too)
             from ..gui.field_printers import field_printers_registry
 
-            self._printer_html = printer = field_printers_registry.build_field_printer(
+            self._printers[tag] = printer = field_printers_registry.build_field_printer(
                 model=entity.__class__,
                 field_name=self.value,
-                output='html',
-            )
-
-        return printer(entity, user)
-
-    def render_csv(self, entity, user):
-        printer = self._printer_csv
-
-        if printer is None:
-            from ..gui.field_printers import field_printers_registry
-
-            self._printer_csv = printer = field_printers_registry.build_field_printer(
-                model=entity.__class__,
-                field_name=self.value,
-                output='csv',
+                tag=tag,
             )
 
         return printer(entity, user)
@@ -536,22 +568,42 @@ class EntityCellCustomField(EntityCell):
 
         return format_html('<ul>{}</ul>', li_tags) if li_tags else ''
 
+    _HTML_EXTRA_RENDERER = {
+        CustomField.ENUM:
+            lambda entity, cf_value, user, cfield:
+            escape(cf_value) if cf_value is not None else '',
+        CustomField.MULTI_ENUM:
+            _multi_enum_html.__func__,
+    }
     _EXTRA_RENDERERS = {
-        'html': {
+        # 'html': {
+        #     CustomField.ENUM:
+        #         lambda entity, cf_value, user, cfield:
+        #             escape(cf_value) if cf_value is not None else '',
+        #     CustomField.MULTI_ENUM:
+        #         _multi_enum_html.__func__,
+        # },
+        # 'csv': {
+        #     CustomField.ENUM:
+        #         lambda entity, cf_value, user, cfield:
+        #             str(cf_value) if cf_value is not None else '',
+        #     CustomField.MULTI_ENUM:
+        #         lambda entity, cf_value, user, cfield:
+        #             ' / '.join(str(val) for val in cf_value.get_enumvalues())
+        #             if cf_value is not None else '',
+        # },
+        ViewTag.HTML_DETAIL: _HTML_EXTRA_RENDERER.copy(),
+        ViewTag.HTML_LIST:   _HTML_EXTRA_RENDERER.copy(),
+        ViewTag.HTML_FORM:   _HTML_EXTRA_RENDERER.copy(),
+
+        ViewTag.TEXT_PLAIN: {
             CustomField.ENUM:
                 lambda entity, cf_value, user, cfield:
-                    escape(cf_value) if cf_value is not None else '',
-            CustomField.MULTI_ENUM:
-                _multi_enum_html.__func__,
-        },
-        'csv': {
-            CustomField.ENUM:
-                lambda entity, cf_value, user, cfield:
-                    str(cf_value) if cf_value is not None else '',
+                str(cf_value) if cf_value is not None else '',
             CustomField.MULTI_ENUM:
                 lambda entity, cf_value, user, cfield:
-                    ' / '.join(str(val) for val in cf_value.get_enumvalues())
-                    if cf_value is not None else '',
+                ' / '.join(str(val) for val in cf_value.get_enumvalues())
+                if cf_value is not None else '',
         },
     }
 
@@ -566,15 +618,17 @@ class EntityCellCustomField(EntityCell):
             is_excluded=customfield.is_deleted,
         )
 
-        # NB: We set these methods in instance's scope to avoid the building of
-        #     their internal renderer at each call.
-        self.render_html = self._get_renderer('html')
-        self.render_csv  = self._get_renderer('csv')
+        # # NB: We set these methods in instance's scope to avoid the building of
+        # #     their internal renderer at each call.
+        # self.render_html = self._get_renderer('html')
+        # self.render_csv  = self._get_renderer('csv')
+        self._printers = {}
 
     @classmethod
     def build(cls,
               model: type[Model],
-              customfield_id: str) -> EntityCellCustomField | None:
+              customfield_id: str,
+              ) -> EntityCellCustomField | None:
         # NB: we prefer use the cache with all model's CustomFields because of
         #     high probability to use several CustomFields in the same request.
         try:
@@ -595,34 +649,68 @@ class EntityCellCustomField(EntityCell):
     def _get_field_class(self):
         return type(self._customfield.value_class._meta.get_field('value'))
 
-    def _get_renderer(self, output: str):
-        cfield = self.custom_field
+    # def _get_renderer(self, output: str):
+    #     cfield = self.custom_field
+    #
+    #     renderer = self._EXTRA_RENDERERS[output].get(cfield.field_type)
+    #     if renderer is not None:
+    #         def _aux(entity, user):
+    #             cf_value = entity.get_custom_value(cfield)
+    #             return renderer(entity, cf_value, user, cfield)
+    #     else:
+    #         from ..gui.field_printers import field_printers_registry
+    #
+    #         field_cls = self._get_field_class()
+    #         # HACK: need an API for that
+    #         printer = field_printers_registry._printers_maps[output][field_cls]
+    #         regular_field = field_cls()
+    #
+    #         def _aux(entity, user):
+    #             cf_value = entity.get_custom_value(cfield)
+    #
+    #             return printer(
+    #                 entity,
+    #                 cf_value.value,
+    #                 user,
+    #                 regular_field,  # <== HACK
+    #             ) if cf_value is not None else ''
+    #
+    #     return _aux
 
-        renderer = self._EXTRA_RENDERERS[output].get(cfield.field_type)
-        if renderer is not None:
-            def _aux(entity, user):
-                cf_value = entity.get_custom_value(cfield)
-                return renderer(entity, cf_value, user, cfield)
-        else:
-            # TODO: see EntityCellRegularField for remark on registry
-            from ..gui.field_printers import field_printers_registry
+    def render(self, entity, user, tag):
+        printer = self._printers.get(tag)
 
-            field_cls = self._get_field_class()
-            # HACK: need an API for that
-            printer = field_printers_registry._printers_maps[output][field_cls]
-            regular_field = field_cls()
+        if printer is None:
+            cfield = self.custom_field
 
-            def _aux(entity, user):
-                cf_value = entity.get_custom_value(cfield)
+            renderer = self._EXTRA_RENDERERS.get(tag).get(cfield.field_type)
+            if renderer is not None:
+                def printer(entity, user):
+                    cf_value = entity.get_custom_value(cfield)
+                    return renderer(entity, cf_value, user, cfield)
+            else:
+                # TODO: see EntityCellRegularField for remark on registry
+                from ..gui.field_printers import field_printers_registry
 
-                return printer(
-                    entity,
-                    cf_value.value,
-                    user,
-                    regular_field,  # <== HACK
-                ) if cf_value is not None else ''
+                field_cls = self._get_field_class()
+                regular_printer = next(
+                    field_printers_registry.printers_for_field_type(type=field_cls, tags=tag)
+                )
+                regular_field = field_cls()
 
-        return _aux
+                def printer(entity, user):
+                    cf_value = entity.get_custom_value(cfield)
+
+                    return regular_printer(
+                        instance=entity,
+                        value=cf_value.value,
+                        user=user,
+                        field=regular_field,  # <== HACK
+                    ) if cf_value is not None else ''
+
+            self._printers[tag] = printer
+
+        return printer(entity, user)
 
     @staticmethod
     def populate_entities(cells, entities, user):
@@ -691,11 +779,14 @@ class EntityCellFunctionField(EntityCell):
         for cell in cells:
             cell.function_field.populate_entities(entities, user)
 
-    def render_html(self, entity, user):
-        return self.function_field(entity, user).for_html()
+    # def render_html(self, entity, user):
+    #     return self.function_field(entity, user).for_html()
+    #
+    # def render_csv(self, entity, user):
+    #     return self.function_field(entity, user).for_csv()
 
-    def render_csv(self, entity, user):
-        return self.function_field(entity, user).for_csv()
+    def render(self, entity, user, tag):
+        return self.function_field(entity, user).render(tag)
 
     @cached_property
     def title(self):
@@ -752,38 +843,75 @@ class EntityCellRelation(EntityCell):
             [cell.relation_type.id for cell in cells]
         )
 
-    def render_html(self, entity, user):
-        from ..templatetags.creme_widgets import widget_entity_hyperlink
+    # def render_html(self, entity, user):
+    #     from ..templatetags.creme_widgets import widget_entity_hyperlink
+    #
+    #     related_entities = entity.get_related_entities(self.value, True)
+    #
+    #     if not related_entities:
+    #         return ''
+    #
+    #     if len(related_entities) == 1:
+    #         return widget_entity_hyperlink(related_entities[0], user)
+    #
+    #     sort_key = collator.sort_key
+    #     related_entities.sort(key=lambda e: sort_key(str(e)))
+    #
+    #     return format_html(
+    #         '<ul>{}</ul>',
+    #         format_html_join(
+    #             '', '<li>{}</li>',
+    #             ([widget_entity_hyperlink(e, user)] for e in related_entities)
+    #         )
+    #     )
+    #
+    # def render_csv(self, entity, user):
+    #     has_perm = user.has_perm_to_view
+    #     return '/'.join(sorted(
+    #         (
+    #             str(o)
+    #             for o in entity.get_related_entities(self.value, True)
+    #             if has_perm(o)
+    #         ),
+    #         key=collator.sort_key,
+    #     ))
 
-        related_entities = entity.get_related_entities(self.value, True)
+    def render(self, entity, user, tag):
+        if tag in {ViewTag.HTML_DETAIL, ViewTag.HTML_LIST, ViewTag.HTML_FORM}:
+            from ..templatetags.creme_widgets import widget_entity_hyperlink
 
-        if not related_entities:
-            return ''
+            related_entities = entity.get_related_entities(self.value, True)
+            a_target = '_blank' if tag == ViewTag.HTML_FORM else '_self'
 
-        if len(related_entities) == 1:
-            return widget_entity_hyperlink(related_entities[0], user)
+            if not related_entities:
+                return ''
 
-        sort_key = collator.sort_key
-        related_entities.sort(key=lambda e: sort_key(str(e)))
+            if len(related_entities) == 1:
+                return widget_entity_hyperlink(related_entities[0], user, target=a_target)
 
-        return format_html(
-            '<ul>{}</ul>',
-            format_html_join(
-                '', '<li>{}</li>',
-                ([widget_entity_hyperlink(e, user)] for e in related_entities)
+            sort_key = collator.sort_key
+            related_entities.sort(key=lambda e: sort_key(str(e)))
+
+            return format_html(
+                '<ul>{}</ul>',
+                format_html_join(
+                    '', '<li>{}</li>',
+                    (
+                        [widget_entity_hyperlink(e, user, target=a_target)]
+                        for e in related_entities
+                    ),
+                ),
             )
-        )
-
-    def render_csv(self, entity, user):
-        has_perm = user.has_perm_to_view
-        return '/'.join(sorted(
-            (
-                str(o)
-                for o in entity.get_related_entities(self.value, True)
-                if has_perm(o)
-            ),
-            key=collator.sort_key,
-        ))
+        else:
+            has_perm = user.has_perm_to_view
+            return '/'.join(sorted(
+                (
+                    str(o)
+                    for o in entity.get_related_entities(self.value, True)
+                    if has_perm(o)
+                ),
+                key=collator.sort_key,
+            ))
 
     @property
     def title(self):

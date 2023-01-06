@@ -5,6 +5,7 @@
 
   Users side :
   ------------
+    # The link in the list-views selectors are now opened in other tabs automatically.
     # Apps :
         * Creme_config :
             - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
@@ -23,16 +24,25 @@
             - in your 'Populator', remove the argument "groups_desc" of 'CustomFormConfigItem.objects.create_if_needed()'.
           The section "CustomForms" of the tutorials has been updated; & you can see how vanilla apps are made of course.
         # Deprecations :
-            - The method 'creme_core.gui.field_printers._FieldPrintersRegistry.register()' is deprecated ;
-              use the method 'register_model_field_type()' instead.
-              Hint: check if you defined 'register_field_printers()' in your own files "apps.py".
-              (beware: the arguments are now keyword-only) :
-                 'field_printers_registry.register_model_field_type(type=CharField, printer=my_print_function)'
+            - In the class 'creme_core.core.entity_cell.EntityCell' (& child classes), the methods
+              'render_html()' & 'render_csv()' are deprecated ; user 'render()' instead.
+            - In the class 'creme_core.core.function_field.FunctionFieldResult' (& child classes), the methods
+              'for_html()' & 'for_csv()' are deprecated ; use 'render()' instead.
+            - In the class 'creme_core.gui.field_printers._FieldPrintersRegistry' :
+                - The method 'register()' is deprecated ; use the method 'register_model_field_type()' instead.
+                  Hint: check if you defined 'register_field_printers()' in your own files "apps.py".
+                  (beware: the arguments are now keyword-only) :
+                     'field_printers_registry.register_model_field_type(type=CharField, printer=my_print_function)'
+                - The methods 'get_html_field_value()' & 'get_csv_field_value()' are now deprecated ; use 'get_field_value()' instead.
+            - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} is deprecated ;
+              use "tag" instead.
         # You can now register a field-printer for a specific field. Example (in your "apps.py") :
             def register_field_printers(self, field_printers_registry):
                 field_printers_registry.register_model_field(
                     model=Contact, field_name='last_name', printer=my_lastname_printer,
                 )
+        # In 'creme_core.templatetags' :
+            - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
 
     Breaking changes :
     ------------------
@@ -73,10 +83,25 @@
                 * Products :
                     - In 'forms.fields', the classes 'CategoryField' & 'CreatorCategorySelector' have been removed.
                     - The function-view 'views.product.get_subcategories()' (URL named "products__subcategories") has been removed.
+        # In 'creme_core.core.entity_cell' :
+            - In the class 'EntityCellRegularField', the attributes '_printer_html' & '_printer_csv' have been removed.
+            - In the class 'EntityCellCustomField' :
+                - The class attribute '_EXTRA_RENDERERS' has been reworked.
+                - The method '_get_renderer()' has been removed.
         # In 'creme_core.gui' :
             - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
             - In 'field_printers' :
-                 - The signature of the printer functions/methods (i.e. named '[simple_]print_*') has changed :
+                - These global objects have been removed :
+                    - print_foreignkey_html, print_foreignkey_csv
+                    - print_many2many_html, print_many2many_csv
+                - These functions has been removed :
+                  simple_print_csv(), print_decimal_csv(), print_boolean_csv(), print_date_csv(), print_datetime_csv()
+                - The class 'M2MPrinterForCSV' has been removed.
+                - These methods have been removed :
+                    - FKPrinter.print_fk_entity_text()
+                    - M2MPrinterForHTML.printer_html(), M2MPrinterForHTML.printer_entity_html()
+                    - _FieldPrintersRegistry._build_field_printer()
+                - The signature of the printer functions/methods (i.e. named '[simple_]print_*') has changed :
                     - The arguments are now keyword-only (because there are lots of arguments).
                     - The argument "entity" has been renamed "instance" (because printers can be used on non-CremeEntity instances).
                     - The argument "fval" has been renamed "value".
@@ -88,7 +113,7 @@
                     - The arguments are now keyword-only.
                     - The argument "related_entity" has been renamed "related_instance".
                     - The argument "fval" has been renamed "manager".
-               - In the method 'FileFieldPrinterForHTML._render_download()', the argument "entity" has been renamed "instance".
+                - In the method 'FileFieldPrinterForHTML._render_download()', the argument "entity" has been renamed "instance".
         # In 'creme_core.models', the only argument of the following methods is now positional only :
             - RelationType.is_compatible()
             - custom_field.CustomFieldManager.compatible()
@@ -115,7 +140,8 @@
     (they should not cause problem if you have not deeply modified the source code of Creme)
 
         # In the class 'creme_core.gui.field_printers._FieldPrintersRegistry', the following attributes have been removed/replaced :
-          _html_printers, _csv_printers, _printers_maps.
+          _html_printers, _csv_printers, _printers_maps, _choice_printers.
+        # In the class 'creme_core.templatetags.creme_cells.CellRenderNode', the class attribute 'RENDER_METHODS' has been removed.
 
 
 == Version 2.4 ==

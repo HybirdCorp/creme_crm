@@ -12,6 +12,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import function_field_registry
 from creme.creme_core.forms.listview import TextLVSWidget
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     BrickHomeLocation,
@@ -125,7 +126,9 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
     def test_function_field01(self):
         funf = function_field_registry.get(CremeEntity, 'assistants-get_memos')
         self.assertIsNotNone(funf)
-        self.assertEqual('<ul></ul>', funf(self.entity, self.user).for_html())
+        self.assertEqual(
+            '<ul></ul>', funf(self.entity, self.user).render(ViewTag.HTML_LIST),
+        )
 
         # ---
         field_class = funf.search_field_builder
@@ -164,7 +167,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertHTMLEqual(
             '<ul><li>Content02</li><li>Content01</li></ul>',
-            result.for_html(),
+            result.render(ViewTag.HTML_LIST),
         )
 
     def test_function_field03(self):
@@ -188,11 +191,11 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         self.assertHTMLEqual(
             '<ul><li>Content02</li><li>Content01</li></ul>',
-            result1.for_html(),
+            result1.render(ViewTag.HTML_LIST),
         )
         self.assertHTMLEqual(
             '<ul><li>Content04</li><li>Content03</li></ul>',
-            result2.for_html(),
+            result2.render(ViewTag.HTML_LIST),
         )
 
     def test_merge(self):

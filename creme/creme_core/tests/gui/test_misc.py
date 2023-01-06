@@ -12,6 +12,7 @@ from creme.creme_core.gui.icons import Icon, IconRegistry
 from creme.creme_core.gui.last_viewed import LastViewedItem
 from creme.creme_core.gui.quick_forms import QuickFormsRegistry
 from creme.creme_core.gui.statistics import _StatisticsRegistry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeEntity,
     FakeContact,
@@ -510,3 +511,34 @@ class GuiTestCase(CremeTestCase):
             [apps.get_app_config('persons')],
             [*registry.get_needing_apps(Document, 'categories')],
         )
+
+    def test_viewtag(self):
+        self.assertListEqual(
+            [ViewTag.HTML_DETAIL], [*ViewTag.smart_generator(ViewTag.HTML_DETAIL)],
+        )
+        self.assertListEqual(
+            [ViewTag.HTML_LIST], [*ViewTag.smart_generator(ViewTag.HTML_LIST)],
+        )
+
+        self.assertListEqual(
+            [ViewTag.HTML_DETAIL, ViewTag.HTML_LIST],
+            [*ViewTag.smart_generator([ViewTag.HTML_DETAIL, ViewTag.HTML_LIST])],
+        )
+
+        with self.assertRaises(TypeError):
+            [*ViewTag.smart_generator(['foobar', 2])]  # NOQA
+
+        self.assertListEqual(
+            [ViewTag.HTML_DETAIL, ViewTag.HTML_LIST, ViewTag.HTML_FORM],
+            [*ViewTag.smart_generator('html*')],
+        )
+        self.assertListEqual(
+            [ViewTag.TEXT_PLAIN],
+            [*ViewTag.smart_generator('text*')],
+        )
+        self.assertListEqual(
+            [ViewTag.HTML_DETAIL, ViewTag.HTML_LIST, ViewTag.HTML_FORM, ViewTag.TEXT_PLAIN],
+            [*ViewTag.smart_generator('*')],
+        )
+        with self.assertRaises(ValueError):
+            [*ViewTag.smart_generator('unknown')]  # NOQA

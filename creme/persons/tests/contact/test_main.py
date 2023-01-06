@@ -8,6 +8,7 @@ from django.utils.translation import pgettext
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui.field_printers import field_printers_registry
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CremeProperty,
     CremePropertyType,
@@ -1241,36 +1242,42 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(user, self.assertStillExists(briareos).user)
 
     def test_fk_user_printer01(self):
-        user = self.login()
+        user = self.create_user()
 
         deunan = Contact.objects.create(user=user, first_name='Deunan', last_name='Knut')
         kirika = user.linked_contact
 
-        get_html_val = field_printers_registry.get_html_field_value
+        render_field = partial(field_printers_registry.get_field_value, instance=deunan)
         self.assertEqual(
             f'<a href="{kirika.get_absolute_url()}">{kirika}</a>',
-            get_html_val(deunan, 'user', user),
+            render_field(field_name='user', user=user, tag=ViewTag.HTML_DETAIL),
+        )
+        self.assertEqual(
+            f'<a href="{kirika.get_absolute_url()}" target="_blank">{kirika}</a>',
+            render_field(field_name='user', user=user, tag=ViewTag.HTML_FORM),
         )
         self.assertEqual(
             '<em>{}</em>'.format(pgettext('persons-is_user', 'None')),
-            get_html_val(deunan, 'is_user', user)
+            render_field(field_name='is_user', user=user, tag=ViewTag.HTML_DETAIL),
         )
 
         self.assertEqual(
             str(user),
-            field_printers_registry.get_csv_field_value(deunan, 'user', user),
+            render_field(field_name='user', user=user, tag=ViewTag.TEXT_PLAIN),
         )
 
     def test_fk_user_printer02(self):
         "Team."
-        user = self.login()
+        user = self.create_user()
 
         eswat = CremeUser.objects.create(username='eswat', is_team=True)
         deunan = Contact.objects.create(user=eswat, first_name='Deunan', last_name='Knut')
 
         self.assertEqual(
             str(eswat),
-            field_printers_registry.get_html_field_value(deunan, 'user', user),
+            field_printers_registry.get_field_value(
+                instance=deunan, field_name='user', user=user, tag=ViewTag.HTML_DETAIL,
+            ),
         )
 
     def test_fk_user_printer03(self):
@@ -1290,19 +1297,22 @@ class ContactTestCase(_BaseTestCase):
         kirika = other_user.linked_contact
         self.assertEqual(other_user, kirika.user)
 
-        get_html_val = field_printers_registry.get_html_field_value
+        render_field = partial(
+            field_printers_registry.get_field_value,
+            user=user, field_name='user', tag=ViewTag.HTML_DETAIL,
+        )
         self.assertHTMLEqual(
             f'<a href="{mireille.get_absolute_url()}">'
             f'{mireille.first_name} {mireille.last_name}'
             f'</a>',
-            get_html_val(mireille, 'user', user),
+            render_field(instance=mireille),
         )
         self.assertEqual(
             _('{first_name} {last_name}.').format(
                 first_name=other_user.first_name,
                 last_name=other_user.last_name[0],
             ),
-            get_html_val(kirika, 'user', user),
+            render_field(instance=kirika),
         )
 
     @skipIfCustomOrganisation

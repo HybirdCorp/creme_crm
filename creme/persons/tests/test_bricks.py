@@ -644,7 +644,6 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         def get_phones(brick_node):
             return [
-                # n.text
                 n.text.strip()
                 for n in brick_node.findall('.//td[@data-type="phone"]')
                 if n.text

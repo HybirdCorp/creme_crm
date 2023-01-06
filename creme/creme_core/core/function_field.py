@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,12 +18,14 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import TYPE_CHECKING, Iterable, Iterator
 
 from django.db.models import Model
 from django.utils.formats import number_format
 from django.utils.html import escape, format_html, format_html_join
 
+from ..gui.view_tag import ViewTag
 from ..utils.collections import InheritedDataChain
 
 if TYPE_CHECKING:
@@ -40,23 +42,43 @@ class FunctionFieldResult:
         self._data: str = str_data
 
     def __str__(self):
-        return self.for_html()
+        # return self.for_html()
+        return self.render(ViewTag.HTML_DETAIL)
 
     def for_html(self) -> str:
-        return escape(self._data)
+        # return escape(self._data)
+        warnings.warn(
+            'FunctionFieldResult.for_html() is deprecated; use render() instead.',
+            DeprecationWarning,
+        )
+        return self.render(ViewTag.HTML_DETAIL)
 
     def for_csv(self) -> str:
-        return self._data
+        # return self._data
+        warnings.warn(
+            'FunctionFieldResult.for_csv() is deprecated; use render() instead.',
+            DeprecationWarning,
+        )
+        return self.render(ViewTag.TEXT_PLAIN)
+
+    def render(self, tag: ViewTag):
+        return self._data if tag == ViewTag.TEXT_PLAIN else escape(self._data)
 
 
 class FunctionFieldDecimal(FunctionFieldResult):
-    def for_html(self) -> str:
-        # TODO: escape() ?
-        # TODO: ?? "if self._data is not None else ''"
-        return number_format(self._data, force_grouping=True)
-
-    def for_csv(self) -> str:
-        return number_format(self._data)
+    # def for_html(self) -> str:
+    #     return number_format(self._data, force_grouping=True)
+    #
+    # def for_csv(self) -> str:
+    #     return number_format(self._data)
+    def render(self, tag):
+        return (
+            number_format(self._data)
+            if tag == ViewTag.TEXT_PLAIN else
+            # TODO: escape() ?
+            # TODO: "if self._data is not None else ''" ?
+            number_format(self._data, force_grouping=True)
+        )
 
 
 class FunctionFieldLink(FunctionFieldResult):
@@ -65,7 +87,25 @@ class FunctionFieldLink(FunctionFieldResult):
         self._url = url
         self._is_deleted = is_deleted
 
-    def for_html(self) -> str:
+    # def for_html(self) -> str:
+    #     return format_html(
+    #         '<a href="{}" class="is_deleted">{}</a>'
+    #         if self._is_deleted else
+    #         '<a href="{}">{}</a>',
+    #         self._url, self._data,
+    #     )
+    def render(self, tag):
+        if tag == ViewTag.TEXT_PLAIN:
+            return self._data
+
+        if tag == ViewTag.HTML_FORM:
+            return format_html(
+                '<a href="{}" class="is_deleted" target="_blank">{}</a>'
+                if self._is_deleted else
+                '<a href="{}" target="_blank">{}</a>',
+                self._url, self._data,
+            )
+
         return format_html(
             '<a href="{}" class="is_deleted">{}</a>'
             if self._is_deleted else
@@ -107,7 +147,7 @@ class FunctionField:
 
     def __call__(self, entity, user):
         """"@return An instance of FunctionField object
-        (so you can call for_html()/for_csv() on the result).
+        (so you can call render() on the result).
         """
         return self.result_type(getattr(entity, self.name)())
 
@@ -120,17 +160,28 @@ class FunctionFieldResultsList(FunctionFieldResult):
     def __init__(self, iterable: Iterable[FunctionFieldResult]):
         self._data: list[FunctionFieldResult] = [*iterable]  # type: ignore
 
-    def for_html(self) -> str:
-        return format_html(
-            '<ul>{}</ul>',
-            format_html_join(
-                '', '<li>{}</li>',
-                ([e.for_html()] for e in self._data)
+    # def for_html(self) -> str:
+    #     return format_html(
+    #         '<ul>{}</ul>',
+    #         format_html_join(
+    #             '', '<li>{}</li>',
+    #             ([e.for_html()] for e in self._data)
+    #         )
+    #     )
+    #
+    # def for_csv(self) -> str:
+    #     return '/'.join(e.for_csv() for e in self._data)
+    def render(self, tag):
+        return (
+            '/'.join(e.render(tag) for e in self._data)
+            if tag == ViewTag.TEXT_PLAIN else
+            format_html(
+                '<ul>{}</ul>',
+                format_html_join(
+                    '', '<li>{}</li>', ([e.render(tag)] for e in self._data)
+                )
             )
         )
-
-    def for_csv(self) -> str:
-        return '/'.join(e.for_csv() for e in self._data)
 
 
 class _FunctionFieldRegistry:

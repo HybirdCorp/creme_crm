@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,6 +43,7 @@ from creme.creme_core.gui.actions import ActionsRegistry
 from creme.creme_core.gui.actions import (
     actions_registry as global_actions_registry,
 )
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import CremeEntity
 from creme.creme_core.models.entity_filter import (
     EntityFilter,
@@ -75,7 +76,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
      - Choice of HeaderFilters (i.e. columns of the list).
      - Choice of EntityFilters (i.e. which entities to display).
      - Pagination, with a fast pagination mode when there is a lot of entities
-       Related settings : PAGE_SIZES, DEFAULT_PAGE_SIZE_IDX, FAST_QUERY_MODE_THRESHOLD.
+       Related settings: PAGE_SIZES, DEFAULT_PAGE_SIZE_IDX, FAST_QUERY_MODE_THRESHOLD.
      - Ordering: some columns can be used to order the list ; the chosen column
        is used as main order criterion, the model's meta ordering information are used
        as secondary criteria.
@@ -99,6 +100,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     title = _('List of {models}')
 
+    view_tag = ViewTag.HTML_LIST
     mode: SelectionMode | None = None
     default_selection_mode: SelectionMode = SelectionMode.MULTIPLE
 
@@ -278,6 +280,7 @@ class EntitiesList(base.PermissionsMixin, base.TitleMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['view_tag'] = self.view_tag
         context['content_template'] = self.content_template_name
 
         context['model'] = self.model
@@ -653,9 +656,12 @@ class BaseEntitiesListPopup(EntitiesList):
     """Base class for list-view in inner-popup."""
     template_name = 'creme_core/generics/entities-popup.html'
     is_popup_view = True
+    view_tag = ViewTag.HTML_FORM
 
     # TODO: true HeaderFilter creation in inner popup
     def handle_no_header_filter(self, request):
         # TODO: title ('ERROR' ?)
         # TODO: remove the second button (selection button)
-        return HttpResponse(gettext('The desired list does not have any view, please create one.'))
+        return HttpResponse(
+            gettext('The desired list does not have any view, please create one.'),
+        )

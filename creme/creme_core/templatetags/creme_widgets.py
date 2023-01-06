@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -274,13 +274,14 @@ class IconRendererNode(TemplateNode):
 
 # WIDGET ICON [END] ------------------------------------------------------------
 
+# TODO: "target" argument?
 @register.simple_tag
 def widget_hyperlink(instance, label=None):
     """ Prints a <a> tag referencing the page of a model instance.
     @param instance: Instance of DjangoModel which has a method 'get_absolute_url()'
            BEWARE: it must not be a CremeEntity instance, or an auxiliary instance,
            because the permissions are not checked.
-    @param label: String use as label of the link ; by default the label used is
+    @param label: String used as label of the link; by default the label used is
            'instance.__str__()'.
 
     Eg:
@@ -299,28 +300,34 @@ def widget_hyperlink(instance, label=None):
 
 
 @register.simple_tag
-def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None):
-    """" Prints a <a> tag referencing the detail-view of an entity instance.
-    @param instance: Instance of a model inheriting CremeEntity which has
+def widget_entity_hyperlink(entity, user, ignore_deleted=False, label=None,
+                            target: str = '_self',  # TODO: Literal? Enum?
+                            ):
+    """Prints a <a> tag referencing the detail-view of an entity instance.
+    @param entity: Instance of a model inheriting CremeEntity which has
            overridden the method 'get_absolute_url()'.
     @param user: 'django.contrib.auth.get_user_model()' instance corresponding
            to the logged user (in order to use credentials correctly).
-   @param ignore_deleted: Boolean indicating if entities marked as deleted should
-          be display like other ones. Default value is 'False'.
-    @param label: String use as label of the link ; by default the label used is
+    @param ignore_deleted: Boolean indicating if entities marked as deleted should
+           be display like other ones. Default value is 'False'.
+    @param label: String used as label of the link; by default the label used is
            'entity.__str__()'.
+    @param target: Used to build the HTML attribute <target="...">.
+           So the value should be in: "_self", "_blank", "_parent", "_top".
 
     Eg:
       {% widget_entity_hyperlink my_entity user %}
       {% widget_entity_hyperlink my_entity user ignored_deleted=True %}
       {% widget_entity_hyperlink my_entity user label='An interesting entity' %}
+      {% widget_entity_hyperlink my_entity user target='_blank' %}
     """
     entity = entity.get_real_entity()
 
     if user.has_perm_to_view(entity):
         return format_html(
-            '<a href="{url}"{deleted}>{label}</a>',
+            '<a href="{url}" target="{target}"{deleted}>{label}</a>',
             url=entity.get_absolute_url(),
+            target=target,
             deleted=(
                 mark_safe(' class="is_deleted"')
                 if entity.is_deleted and not ignore_deleted else
