@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -107,7 +107,7 @@ class RelationsBrick(QuerysetBrick):
         if info_are_ok:
             self._reloading_info = info
         else:
-            # We do not let leave 'None' (because it means 'first render').
+            # We do not leave 'None' (because it means 'first render').
             self._reloading_info = {}
             logger.warning('Invalid reloading extra_data for RelationsBrick: %s', info)
 
@@ -412,7 +412,7 @@ class JobBrick(Brick):
         if info_are_ok:
             self._reloading_info = info
         else:
-            # We do not let leave 'None' (because it means 'first render').
+            # We do not leave 'None' (because it means 'first render').
             self._reloading_info = {}
             logger.warning('Invalid reloading extra_data for JobBrick: %s', info)
 
