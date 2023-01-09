@@ -1,6 +1,46 @@
 {% extends 'creme_core/bricks/base/paginated-table.html' %}
-{% load i18n creme_bricks creme_config_tags %}
-{% load url from creme_core_tags %}
+{% load i18n creme_bricks creme_widgets creme_config_tags %}
+{% load is_ajax url from creme_core_tags %}
+
+{% comment %}
+    TODO: build a clean/generic system integrated to bricks instead.
+    Here we use an <input> outside of the brick in order to avoid create a new
+    brick 'action' (with a consistent state after a reloading), & so it's an
+    easier way to get a first working version.
+{% endcomment %}
+{% block brick_before %}
+  {% if search_fields and not request|is_ajax %}
+    <div class="creme_config-users-brick-search">{% trans 'Filter the users' as search_label %}
+        {% widget_icon name='search' size='form-widget' label=search_label %}
+        <input type="search" class="creme_config-users-brick-search-input" placeholder="{{search_label}}" title="{% blocktranslate with fields=search_fields|join:', ' %}Filter the displayed users. Fields used: {{fields}}.{% endblocktranslate %}" />
+    </div>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('.creme_config-users-brick-search-input').each(function() {
+                var input = $(this);
+                var previousSearch = null;
+
+                /* "search" event triggered when Enter is typed, or the input cleared with the X button  */
+                input.on('search', function(e) {
+                    e.stopPropagation();
+
+                    var newSearch = input.val();
+                    if (newSearch !== previousSearch) {
+                        $('.brick.creme_config-users-brick').each(function() {
+                            var brick_element = $(this);
+                            /* TODO: in brick's API? */
+                            brick_element.attr('data-brick-reloading-info', JSON.stringify({search: newSearch}));
+                            brick_element.creme().widget().brick().refresh();
+                        });
+
+                        previousSearch = newSearch;
+                    }
+                });
+            });
+        });
+    </script>
+  {% endif %}
+{% endblock %}
 
 {% block brick_extra_class %}{{block.super}} creme_config-users-brick{% endblock %}
 
@@ -71,4 +111,8 @@
     </tr>
     {% endfor %}
 {% endwith %}
+{% endblock %}
+
+{% block brick_table_empty %}
+    {% translate 'No user found' %}
 {% endblock %}

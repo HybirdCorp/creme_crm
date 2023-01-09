@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -18,6 +18,8 @@
 
 import logging
 from collections import defaultdict
+from functools import reduce
+from operator import or_
 
 from django.apps import apps
 from django.conf import settings
@@ -73,6 +75,7 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.registry import creme_registry
 from creme.creme_core.utils.content_type import entity_ctypes
+from creme.creme_core.utils.string import smart_split
 from creme.creme_core.utils.unicode_collation import collator
 
 from . import constants
@@ -541,6 +544,7 @@ class UsersBrick(_ConfigAdminBrick):
     dependencies = (User,)
     order_by = 'username'
     template_name = 'creme_config/bricks/users.html'
+    search_fields = ['username', 'last_name', 'first_name']
 
     def detailview_display(self, context):
         users = User.objects.filter(is_team=False)
@@ -555,7 +559,25 @@ class UsersBrick(_ConfigAdminBrick):
         if hide_inactive:
             users = users.exclude(is_active=False)
 
-        btc = self.get_template_context(context, users, hide_inactive=hide_inactive)
+        search_fields = self.search_fields
+        if search_fields and self._reloading_info:
+            search = str(self._reloading_info.get('search'))
+            if search:
+                users = users.filter(reduce(
+                    or_,
+                    (
+                        Q(**{f'{f_name}__icontains': word})
+                        for word in smart_split(search)
+                        for f_name in search_fields
+                    ),
+                ))
+
+        get_field = User._meta.get_field
+        btc = self.get_template_context(
+            context, users,
+            hide_inactive=hide_inactive,
+            search_fields=[get_field(f_name).verbose_name for f_name in search_fields],
+        )
         page = btc['page']
         page_users = page.object_list
         TIME_ZONE = settings.TIME_ZONE

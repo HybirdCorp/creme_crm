@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,8 +36,8 @@ from creme.creme_core.models import lock
 from creme.creme_core.views import generic
 from creme.creme_core.views.bricks import BrickStateExtraDataSetting
 
+from .. import constants
 from ..bricks import UsersBrick
-from ..constants import BRICK_STATE_HIDE_INACTIVE_USERS
 from ..forms import user as user_forms
 
 logger = logging.getLogger(__name__)
@@ -192,4 +192,4 @@ class UserActivation(generic.CheckedView):
 
 class HideInactiveUsers(BrickStateExtraDataSetting):
     brick_cls = UsersBrick
-    data_key = BRICK_STATE_HIDE_INACTIVE_USERS
+    data_key = constants.BRICK_STATE_HIDE_INACTIVE_USERS

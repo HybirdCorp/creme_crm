@@ -5,6 +5,9 @@
 
   Users side :
   ------------
+    # Apps :
+        * Creme_config :
+            - In the Users' configuration page, displayed Users can be filtered (by user-name, first name & last name).
 
   Developers side :
   -----------------
