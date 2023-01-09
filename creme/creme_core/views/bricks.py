@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -220,7 +220,7 @@ class BrickStateSetting(generic.CheckedView):
 
 class BrickStateExtraDataSetting(generic.CheckedView):
     """Base view to set the extra data of a BrickState instance.
-     The default behaviour is too set boolean values, but you can customise your
+     The default behaviour is to set boolean values, but you can customise your
      view by overriding the method 'cast_value()' in your own view.
 
      In your custom view you should at least set the classes attributes
