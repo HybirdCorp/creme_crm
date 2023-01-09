@@ -20,7 +20,7 @@ from ..base import CremeTestCase
 
 class CremeQueryTagsTestCase(CremeTestCase):
     def test_entities_count01(self):
-        "Super user."
+        "Superuser."
         user = self.login()
 
         create_orga = FakeOrganisation.objects.create

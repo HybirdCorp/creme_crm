@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -224,7 +224,7 @@ def get_merge_form_builder(model, base_form_class=_PersonMergeForm):
         if not is_hidden(attr_name):
             for field in fields:
                 form_fieldname = prefix + field.name
-                # NB: we do no set the argument "fields_config" because we do not
+                # NB: we don't set the argument "fields_config" because we don't
                 #     want to mark fields as required (we check that in the form,
                 #     required fields are used only with not empty addresses).
                 attrs[form_fieldname] = mergefield_factory(field)

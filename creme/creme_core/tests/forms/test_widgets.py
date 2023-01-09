@@ -138,7 +138,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect" >
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="A">
         <optgroup label="Group A">
             <option value="1">A</option>
@@ -170,7 +170,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="40"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -198,7 +198,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect" less
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2" selected>B</option>
@@ -226,7 +226,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect" less="30"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -289,7 +289,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -319,7 +319,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -354,7 +354,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -385,7 +385,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect">
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -415,7 +415,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect" less>
+     widget="ui-creme-checklistselect" less selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1">A</option>
         <option value="2">B</option>
@@ -455,7 +455,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
         self.assertTrue(select.creation_allowed)
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect" >
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
     </select>
     <span class="checklist-counter"></span>
@@ -485,7 +485,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect" >
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="a">#1</option>
         <option value="b">#2</option>
@@ -520,7 +520,7 @@ class UnorderedMultipleChoiceTestCase(CremeTestCase):
 
         html = '''
 <div class="ui-creme-widget widget-auto ui-creme-checklistselect"
-     widget="ui-creme-checklistselect" >
+     widget="ui-creme-checklistselect" selectall="3">
     <select multiple="multiple" class="ui-creme-input" name="{name}">
         <option value="1" disabled help="is disabled">Choice #1</option>
         <option value="2" help="">Choice #2</option>

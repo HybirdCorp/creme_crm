@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# The following code is an heavy modification of:
+# The following code is a heavy modification of:
 #  https://djangosnippets.org/snippets/3003/
 
 ################################################################################
 # Copyright (c)  2013  asfaltboy
-# Copyright (c)  2015-2021  Hybird
+# Copyright (c)  2015-2022  Hybird
 #
 # Redistribution and use in source and binary forms, with or without modification,
 # are permitted provided that the following conditions are met:

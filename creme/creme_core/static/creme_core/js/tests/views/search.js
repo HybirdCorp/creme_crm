@@ -1,3 +1,4 @@
+/* globals FunctionFaker */
 (function($) {
 
 var MOCK_SINGLE_RESPONSE = {
@@ -181,9 +182,14 @@ QUnit.test('creme.search.SearchBox.search (focus => open popover)', function() {
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(1);
+
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
+    }, 100);
 });
 
 QUnit.test('creme.search.SearchBox.search (click outside => close popover)', function() {
@@ -197,15 +203,23 @@ QUnit.test('creme.search.SearchBox.search (click outside => close popover)', fun
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(2);
 
-    $('.glasspane').trigger('click');
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+        $('.glasspane').trigger('click');
+
+        setTimeout(function() {
+            equal(false, search.isOpened());
+            equal(0, element.find('.inline-search-results.showing').length);
+            equal(0, $('.glasspane').length);
+            start();
+        }, 100);
+    }, 100);
 });
 
 QUnit.test('creme.search.SearchBox.search (length < default min length)', function() {
@@ -555,14 +569,214 @@ QUnit.test('creme.search.SearchBox.keys (escape => close popover)', function() {
 
     element.find('input[type="text"]').focus();
 
-    equal(true, search.isOpened());
-    equal(1, element.find('.inline-search-results.showing').length);
-    equal(1, $('.glasspane').length);
+    stop(2);
 
-    element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
+    setTimeout(function() {
+        equal(true, search.isOpened());
+        equal(1, element.find('.inline-search-results.showing').length);
+        equal(1, $('.glasspane').length);
+        start();
 
-    equal(false, search.isOpened());
-    equal(0, element.find('.inline-search-results.showing').length);
-    equal(0, $('.glasspane').length);
+        element.find('input[type="text"]').trigger($.Event("keydown", {keyCode: 27}));
+
+        setTimeout(function() {
+            equal(false, search.isOpened());
+            equal(0, element.find('.inline-search-results.showing').length);
+            equal(0, $('.glasspane').length);
+            start();
+        }, 100);
+    }, 100);
 });
+
+QUnit.parameterize('creme.search.SearchBox.search (debounce)', [
+    [{
+        debounceDelay: 0,
+        secondTypingDelay: 100
+    }, {
+        calls: {
+            firstTyping: [['sin']],
+            secondTyping: [['sin'], ['sing']]
+        }
+    }],
+    [{
+        debounceDelay: 200,
+        secondTypingDelay: 100
+    }, {
+        // The second input 'sing' occurs BEFORE the debounce delay, so 'sin' is ignored
+        calls: {
+            firstTyping: [],
+            secondTyping: [['sing']]
+        }
+    }],
+    [{
+        debounceDelay: 100,
+        secondTypingDelay: 200
+    }, {
+        calls: {
+            firstTyping: [['sin']],
+            secondTyping: [['sin'], ['sing']]
+        }
+    }]
+], function(params, expected, assert) {
+    var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
+    var search = new creme.search.SearchBox({
+        debounceDelay: params.debounceDelay,
+        searchUrl: 'mock/search',
+        advancedSearchUrl: 'mock/advancedsearch'
+    });
+
+    var faker = new FunctionFaker();
+    search._startSearch = faker.wrap();
+
+    search.bind(element);
+
+    // type 'sin'
+    search._input.val('sin').trigger('input');
+
+    // type 'sing' 100ms later
+    setTimeout(function() {
+        search._input.val('sing').trigger('input');
+    }, params.secondTypingDelay);
+
+    stop(2);
+
+    // Before first debounce
+    setTimeout(function() {
+        deepEqual(expected.calls.firstTyping, faker.calls());
+        start();
+    }, params.debounceDelay + 50);
+
+    // Before second debounce
+    setTimeout(function() {
+        deepEqual(expected.calls.secondTyping, faker.calls());
+        start();
+    }, params.secondTypingDelay + params.debounceDelay + 50);
+});
+
+QUnit.parameterize('creme.search.SearchBox.search (async)', [
+    [{
+        backendDelay: 0,
+        debounceDelay: 200,
+        secondTypingDelay: 100
+    }, {
+        // The second input 'sing' occurs BEFORE the debounce delay, so 'sin' is ignored
+        queries: {
+            beforeFirstFetch: [],
+            afterFirstFetch: [],
+            afterSecondFetch: [
+                ['GET', {value: 'sing'}]
+            ]
+        }
+    }],
+    [{
+        backendDelay: 300,
+        debounceDelay: 200,
+        secondTypingDelay: 100
+    }, {
+        // The second input 'sing' occurs BEFORE the debounce delay, so 'sin' is ignored
+        queries: {
+            beforeFirstFetch: [],
+            afterFirstFetch: [],
+            afterSecondFetch: [
+                ['GET', {value: 'sing'}]
+            ]
+        }
+    }],
+    [{
+        backendDelay: 0,
+        debounceDelay: 100,
+        secondTypingDelay: 300
+    }, {
+        // The second input 'sing' occurs AFTER the debounce delay, so 'sin' is here
+        queries: {
+            beforeFirstFetch: [],
+            afterFirstFetch: [
+                ['GET', {value: 'sin'}]
+            ],
+            afterSecondFetch: [
+                ['GET', {value: 'sin'}],
+                ['GET', {value: 'sing'}]
+            ]
+        }
+    }],
+    [{
+        backendDelay: 200,
+        debounceDelay: 100,
+        secondTypingDelay: 300
+    }, {
+        // The second input 'sing' occurs AFTER the debounce delay, so 'sin' is here
+        queries: {
+            beforeFirstFetch: [],
+            afterFirstFetch: [
+                ['GET', {value: 'sin'}]
+            ],
+            afterSecondFetch: [
+                ['GET', {value: 'sin'}],
+                ['GET', {value: 'sing'}]
+            ]
+        }
+    }],
+    [{
+        backendDelay: 500,
+        debounceDelay: 100,
+        secondTypingDelay: 200
+    }, {
+        // The second input 'sing' occurs AFTER the debounce delay, so 'sin' is here
+        queries: {
+            beforeFirstFetch: [],
+            afterFirstFetch: [
+                ['GET', {value: 'sin'}]
+            ],
+            afterSecondFetch: [
+                ['GET', {value: 'sin'}],
+                ['GET', {value: 'sing'}]
+            ]
+        }
+    }]
+], function(params, expected, assert) {
+    var element = $(this.createSearchBoxHtml()).appendTo(this.qunitFixture());
+    var search = new creme.search.SearchBox({
+        debounceDelay: params.debounceDelay,
+        searchUrl: 'mock/search',
+        advancedSearchUrl: 'mock/advancedsearch'
+    }).bind(element);
+
+    this.backend.options.sync = false;
+    this.backend.options.delay = params.backendDelay;
+
+    // search._debugTimestamp = new Date().getTime();
+
+    // type 'sin'
+    search._input.val('sin').trigger('input');
+
+    // type 'sing' 100ms later
+    setTimeout(function() {
+        search._input.val('sing').trigger('input');
+    }, params.secondTypingDelay);
+
+    stop(3);
+
+    // Before first fetch response
+    setTimeout(function() {
+        console.log('before first debounce', params.debounceDelay - 50);
+        deepEqual(expected.queries.beforeFirstFetch, this.mockBackendUrlCalls('mock/search'));
+        start();
+    }.bind(this), params.debounceDelay - 50);
+
+    // After first fetch response : debounce + backend
+    setTimeout(function() {
+        console.log('after first fetch max delay', params.debounceDelay + params.backendDelay + 100);
+        deepEqual(expected.queries.afterFirstFetch, this.mockBackendUrlCalls('mock/search'));
+        start();
+    }.bind(this), params.debounceDelay + params.backendDelay + 50);
+
+    // After second fetch response : second input + debounce + backend
+    var secondFetchDelay = params.secondTypingDelay + params.debounceDelay + params.backendDelay + 50;
+    setTimeout(function() {
+        console.log('after second fetch max delay', secondFetchDelay);
+        deepEqual(expected.queries.afterSecondFetch, this.mockBackendUrlCalls('mock/search'));
+        start();
+    }.bind(this), secondFetchDelay);
+});
+
 }(jQuery));

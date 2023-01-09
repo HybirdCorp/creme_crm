@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -140,7 +140,7 @@ class ReportHand:
         related_entities = self._get_filtered_related_entities(entity, user)
         gen_values = self._handle_report_values
 
-        # "(None,)" : even if sub-scope if empty, with must generate empty columns for this line
+        # "(None,)" : even if sub-scope is empty, we must generate empty columns for this line
         return [gen_values(e, user, related_entities) for e in related_entities or (None,)]
 
     def _get_value_flattened_subreport(self,

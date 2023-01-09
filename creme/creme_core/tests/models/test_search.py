@@ -133,7 +133,7 @@ class SearchConfigTestCase(CremeTestCase):
         )
 
     def test_manager_create_if_needed03(self):
-        "For super users."
+        "For superusers."
         self.login()
 
         sc_item = SearchConfigItem.objects.create_if_needed(

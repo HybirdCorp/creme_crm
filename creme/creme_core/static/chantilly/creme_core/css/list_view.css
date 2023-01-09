@@ -257,6 +257,10 @@
     min-width: 50px;
 }
 
+.listview .lv-search-header .lv-state-field.invalid {
+    background-color: #ff778b;
+}
+
 .listview .lv-search-header .lv-search-daterange {
     display: -webkit-flex;
     display: -ms-flexbox;

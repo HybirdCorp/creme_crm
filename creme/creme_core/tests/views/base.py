@@ -132,6 +132,19 @@ class BrickTestCaseMixin:
         if button_node is not None:
             self.fail(f'The <a> markup with href="{url}" has been unexpectedly found.')
 
+    def get_brick_table_column_titles(self, brick_node):
+        row_node = self.get_html_node_or_fail(
+            brick_node, './/table[@class="brick-table-content"]/thead/tr'
+        )
+
+        return [span.text for span in row_node.findall('.//th/span')]
+
+    def get_brick_table_rows(self, brick_node):
+        body_node = self.get_html_node_or_fail(
+            brick_node, './/table[@class="brick-table-content"]/tbody'
+        )
+        return body_node.findall('.//tr')
+
 
 class ButtonTestCaseMixin:
     def get_instance_buttons_node(self, tree):

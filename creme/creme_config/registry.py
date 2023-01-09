@@ -250,7 +250,7 @@ class _ModelConfig:
         @param form_class: Class inheriting <django.forms.ModelForm>
                (tips: use creme.creme_core.forms.CremeModelForm) ;
                None means a form is generated.
-        @param url_name: Name of an URL (without argument)
+        @param url_name: Name of a URL (without argument)
                None means "creme_config__create_instance" will be used.
         @param enable_func: Function which takes 1 argument (the user doing the request)
                & return a boolean (False means the user cannot create an instance of the model).
@@ -277,7 +277,7 @@ class _ModelConfig:
         @param form_class: Class inheriting <django.forms.ModelForm>
                (tips: use creme.creme_core.forms.CremeModelForm) ;
                None means a form is generated.
-        @param url_name: Name of an URL (without 1 argument, the edited instance's ID)
+        @param url_name: Name of a URL (without 1 argument, the edited instance's ID)
                None means "creme_config__edit_instance" will be used.
         @param enable_func: Function which takes 2 arguments (an instance of the
                configured model & the user doing the request) & return a boolean
@@ -490,9 +490,9 @@ class _ConfigRegistry:
         @param model: Class inheriting <django.db.Model>.
         @param model_name: String (only alphanumerics & _ are allowed) use in the
                configuration URLs to identify this model among the app models.
-               <None> (default value) means an automatic name will will generated.
-        @return: A ModelConfig instance (tips so you can call creation()/edition()
-                directly on the result, in a fluent way).
+               <None> (default value) means an automatic name will be generated.
+        @return: A ModelConfig instance (so you can call creation()/edition()
+                 directly on the result, in a fluent way).
         """
         return self.get_app_registry(
             app_label=model._meta.app_label,

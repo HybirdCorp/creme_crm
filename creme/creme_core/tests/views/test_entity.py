@@ -368,10 +368,10 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             ('test-object_provides',  'provided by'),
             is_custom=False,
         )[0]
-        creat_rel = partial(Relation.objects.create, user=user, subject_entity=entity01)
-        rel1 = creat_rel(type=rtype1, object_entity=entity02)
-        rel2 = creat_rel(type=rtype2, object_entity=entity03)
-        rel3 = creat_rel(type=rtype2, object_entity=entity03, subject_entity=entity02)
+        create_rel = partial(Relation.objects.create, user=user, subject_entity=entity01)
+        rel1 = create_rel(type=rtype1, object_entity=entity02)
+        rel2 = create_rel(type=rtype2, object_entity=entity03)
+        rel3 = create_rel(type=rtype2, object_entity=entity03, subject_entity=entity02)
 
         ptype = CremePropertyType.objects.smart_update_or_create(
             str_pk='test-prop_eva', text='has eva',
@@ -1028,7 +1028,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
     def test_clone03(self):
-        "Not super user with right credentials."
+        "Not superuser with right credentials."
         user = self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(None)
 
@@ -1036,7 +1036,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertPOST200(self.CLONE_URL, data={'id': mario.id}, follow=True)
 
     def test_clone04(self):
-        "Not super user without creation credentials => error."
+        "Not superuser without creation credentials => error."
         self.login(is_superuser=False)
         self._set_all_creds_except_one(None)
 
@@ -1048,7 +1048,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(count, FakeContact.objects.count())
 
     def test_clone05(self):
-        "Not super user without VIEW credentials => error."
+        "Not superuser without VIEW credentials => error."
         self.login(is_superuser=False, creatable_models=[FakeContact])
         self._set_all_creds_except_one(EntityCredentials.VIEW)
 
@@ -1195,7 +1195,7 @@ class EntityViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         }
 
         create_contact = FakeContact.objects.create
-        # Phone is OK and but not readable
+        # Phone is OK but not readable
         onizuka = create_contact(
             user=self.other_user, first_name='Eikichi', last_name='Onizuka', mobile=phone,
         )

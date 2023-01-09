@@ -439,7 +439,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         entry_id = CustomURLEntry.id
         url = self._build_special_level1_url(entry_id)
         ctxt1 = self.assertGET200(url).context
-        self.assertEqual(_('Add an URL entry'), ctxt1.get('title'))
+        self.assertEqual(_('Add a URL entry'), ctxt1.get('title'))
 
         with self.assertNoException():
             fields = ctxt1['form'].fields

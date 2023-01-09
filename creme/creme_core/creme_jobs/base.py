@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2021  Hybird
+#    Copyright (C) 2016-2022  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -168,8 +168,8 @@ class JobType:
         job. It is only meaningful for PSEUDO_PERIODIC type.
         @param job: <creme_core.models.Job> instance (related to this type).
         @param now_value: <datetime> object representing 'now'.
-        @return <None> -> the job has not to be woke up.
-                A <datetime> instance -> the job should be woke up at this time.
+        @return <None> -> the job has not to be woken up.
+                A <datetime> instance -> the job should be woken up at this time.
                 If it's in the past, it means the job should be run immediately
                 (tip: you can simply return 'now_value').
         """

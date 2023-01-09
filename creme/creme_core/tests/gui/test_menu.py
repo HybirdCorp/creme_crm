@@ -519,7 +519,7 @@ class MenuTestCase(CremeTestCase):
         label = 'Python'
         url = 'http://www.python.org'
 
-        self.assertEqual(_('Add an URL entry'), CustomURLEntry.creation_label)
+        self.assertEqual(_('Add a URL entry'), CustomURLEntry.creation_label)
         self.assertIs(CustomURLEntry.single_instance, False)
 
         # ---
@@ -1480,7 +1480,7 @@ class MenuTestCase(CremeTestCase):
         self.assertEqual(4,        children3.config_item_id)
 
     def test_registry03(self):
-        "Container does not accepts children."
+        "Container does not accept children."
         container_item = MenuConfigItem(id=1, entry_id=RecentEntitiesEntry.id)
         sub_item = MenuConfigItem(
             id=2, entry_id=FakeContactsEntry.id, parent_id=container_item.id

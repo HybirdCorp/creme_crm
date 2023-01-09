@@ -736,12 +736,12 @@ QUnit.parametrize('creme.listview.core (daterange search widget, keydown)', [
                 title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
                 search: (
                     '<th class="lv-column sortable search sorted">' +
-                        '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">' +
+                        '<div class="lv-search-daterange" data-lv-search-widget="daterange">' +
                             '<div class="date-start">' +
-                                '<input name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
+                                '<input class="lv-state-field" name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
                             '</div>' +
                             '<div class="date-end">' +
-                                '<input name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
+                                '<input class="lv-state-field" name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
                             '</div>' +
                         '</div>' +
                     '</th>'
@@ -758,7 +758,7 @@ QUnit.parametrize('creme.listview.core (daterange search widget, keydown)', [
     equal(listview.pager().isBound(), false);
     equal(listview.header().isBound(), false);
 
-    var columnSearch = table.find('.lv-search-header .lv-column .lv-state-field');
+    var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
     equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
 
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
@@ -788,7 +788,7 @@ QUnit.parametrize('creme.listview.core (daterange search widget, keydown)', [
 });
 
 
-QUnit.test('creme.listview.core (daterange search widget, change)', function(daterange_input_id, assert) {
+QUnit.test('creme.listview.core (daterange search widget, change)', function(assert) {
     var element = $(this.createListViewHtml({
         tableclasses: ['listview-standalone'],
         reloadurl: 'mock/listview/reload',
@@ -796,12 +796,12 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(dat
                 title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
                 search: (
                     '<th class="lv-column sortable search sorted">' +
-                        '<div class="lv-state-field lv-search-daterange" data-lv-search-widget="daterange">' +
+                        '<div class="lv-search-daterange" data-lv-search-widget="daterange">' +
                             '<div class="date-start">' +
-                                '<input name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
+                                '<input class="lv-state-field" name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
                             '</div>' +
                             '<div class="date-end">' +
-                                '<input name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
+                                '<input class="lv-state-field" name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
                             '</div>' +
                         '</div>' +
                     '</th>'
@@ -818,7 +818,7 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(dat
     equal(listview.pager().isBound(), false);
     equal(listview.header().isBound(), false);
 
-    var columnSearch = table.find('.lv-search-header .lv-column .lv-state-field');
+    var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
     equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
 
     deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
@@ -853,6 +853,61 @@ QUnit.test('creme.listview.core (daterange search widget, change)', function(dat
     ], this.mockBackendUrlCalls('mock/listview/reload'));
 });
 
+
+QUnit.parametrize('creme.listview.core (daterange search widget, change, invalid)', [
+    '12', '12-12', '35-12-2020'
+], function(invalidValue, assert) {
+    var element = $(this.createListViewHtml({
+        tableclasses: ['listview-standalone'],
+        reloadurl: 'mock/listview/reload',
+        columns: [this.createCheckAllColumnHtml(), {
+                title: '<th class="sorted lv-column sortable cl_lv">Name</th>',
+                search: (
+                    '<th class="lv-column sortable search sorted">' +
+                        '<div class="lv-search-daterange" data-lv-search-widget="daterange">' +
+                            '<div class="date-start">' +
+                                '<input class="lv-state-field" name="search-regular_field-start" id="id_search-regular_field-start" data-format="dd-mm-yy" value="19-06-2020"/>' +
+                            '</div>' +
+                            '<div class="date-end">' +
+                                '<input class="lv-state-field" name="search-regular_field-end" id="id_search-regular_field-end" data-format="dd-mm-yy" value="20-06-2020"/>' +
+                            '</div>' +
+                        '</div>' +
+                    '</th>'
+                )
+            }
+        ]
+    })).appendTo(this.qunitFixture());
+//    var table = element.find('table:first');
+    var table = element.find('table').first();
+    var listview = creme.widget.create(element);
+
+    equal(listview.isStandalone(), true);
+    equal(listview.count(), 0);
+    equal(listview.pager().isBound(), false);
+    equal(listview.header().isBound(), false);
+
+    var columnSearch = table.find('.lv-search-header .lv-column .lv-search-daterange');
+    equal(columnSearch.is('[data-lv-search-widget="daterange"]'), true);
+
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+    equal(listview.controller().reloadUrl(), 'mock/listview/reload');
+
+    var start = columnSearch.find('#id_search-regular_field-start');
+    var end = columnSearch.find('#id_search-regular_field-end');
+
+    // enter key on date input
+    start.val(invalidValue);
+    start.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+
+    // ignore the call
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+
+    end.val(invalidValue);
+    end.trigger($.Event('keydown', {keyCode: 13, which: 13}));
+
+    // ignore the call
+    deepEqual([], this.mockBackendUrlCalls('mock/listview/reload'));
+});
 
 QUnit.test('creme.listview.core (custom search widget)', function(assert) {
     var element = $(this.createListViewHtml({

@@ -4,10 +4,11 @@ from decimal import Decimal
 from functools import partial
 
 from django.conf import settings
+from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme import products
-from creme.creme_core.models import Relation
+from creme.creme_core.models import FieldsConfig, Relation
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities import bricks, constants
 from creme.persons import get_contact_model
@@ -34,7 +35,7 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
 
         opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
         opp02 = Opportunity.objects.create(
-            user=self.user, name='Opp#2', sales_phase=opp01.sales_phase,
+            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
             emitter=emitter, target=target,
         )
 
@@ -207,3 +208,100 @@ class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
         self.assertNoInstanceLink(brick_node, contact03)
         self.assertNoInstanceLink(brick_node, contact04)
         self.assertNoInstanceLink(brick_node, contact05)
+
+    # TODO: test title (several cases)
+    def test_targeting01(self):
+        user = self.login()
+
+        opp01, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        Opportunity.objects.create(
+            user=user, name='Opp#2', sales_phase=opp01.sales_phase,
+            emitter=emitter, target=target,
+        )
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.TargettingOpportunitiesBrick.id_,
+        )
+
+        self.assertListEqual(
+            [
+                _('Name'),
+                _('Sales phase'),
+                _('Estimated sales'),
+                _('Made sales'),
+                _('Action'),
+            ],
+            self.get_brick_table_column_titles(brick_node),
+        )
+
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(2, len(rows))
+
+        table_cells1 = rows[0].findall('.//td')
+        self.assertEqual(5, len(table_cells1))
+        # TODO: test content
+
+    def test_targeting02(self):
+        "Field 'Estimated sales' is hidden."
+        self.login()
+
+        FieldsConfig.objects.create(
+            content_type=Opportunity,
+            descriptions=[('estimated_sales', {FieldsConfig.HIDDEN: True})],
+        )
+
+        _opp, target, _emitter = self._create_opportunity_n_organisations(name='Opp#1')
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.TargettingOpportunitiesBrick.id_,
+        )
+
+        self.assertListEqual(
+            [
+                _('Name'),
+                _('Sales phase'),
+                # _('Estimated sales'),
+                _('Made sales'),
+                _('Action'),
+            ],
+            self.get_brick_table_column_titles(brick_node),
+        )
+
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(4, len(rows[0].findall('.//td')))
+        # TODO: test content
+
+    def test_targeting03(self):
+        "Field 'Made sales' is hidden."
+        self.login()
+
+        FieldsConfig.objects.create(
+            content_type=Opportunity,
+            descriptions=[('made_sales', {FieldsConfig.HIDDEN: True})],
+        )
+
+        _opp, target, _emitter = self._create_opportunity_n_organisations(name='Opp#1')
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            bricks.TargettingOpportunitiesBrick.id_,
+        )
+
+        self.assertListEqual(
+            [
+                _('Name'),
+                _('Sales phase'),
+                _('Estimated sales'),
+                # _('Made sales'),
+                _('Action'),
+            ],
+            self.get_brick_table_column_titles(brick_node),
+        )
+
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(4, len(rows[0].findall('.//td')))

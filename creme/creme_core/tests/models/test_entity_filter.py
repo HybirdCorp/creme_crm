@@ -107,7 +107,7 @@ class EntityFiltersTestCase(CremeTestCase):
             self,
             efilter, model, ids, case_insensitive=False, use_distinct=False):
         msg = (
-            '(NB: maybe you have case sensitive problems with your DB configuration).'
+            '(NB: maybe you have case-sensitive problems with your DB configuration).'
             if case_insensitive else ''
         )
 
@@ -290,7 +290,7 @@ class EntityFiltersTestCase(CremeTestCase):
     def test_manager_smart_update_or_create04(self):
         """Private sub-filters
             - must belong to the same user
-            - OR to one one his teams
+            - OR to one of his teams
         """
         user = self.user
         other_user = self.other_user
@@ -1703,7 +1703,7 @@ class EntityFiltersTestCase(CremeTestCase):
             build(operator=operators.EQUALS, field_name='first_name', values=['Jet']),
         ])
 
-        # NB: create an other condition that has he last id (so if we delete the
+        # NB: create another condition that has he last id (so if we delete the
         #     first condition, and recreate another one, the id will be different)
         EntityFilter.objects.smart_update_or_create(
             'test-filter02', 'Faye', FakeContact, is_custom=True,
@@ -2125,7 +2125,7 @@ class EntityFiltersTestCase(CremeTestCase):
         ptype1 = create_ptype(str_pk='test-prop_pretty',    text='Pretty')
         ptype2 = create_ptype(str_pk='test-prop_beautiful', text='Beautiful')
 
-        # We want a condition with the same name than the one for ptype1
+        # We want a condition with the same name as the one for ptype1
         subfilter = EntityFilter.objects.create(
             id=ptype1.id,
             name='Do not delete me please',
@@ -2258,7 +2258,7 @@ class EntityFiltersTestCase(CremeTestCase):
         "RelationType is deleted."
         loves = self._aux_test_relations()
 
-        # We want a condition with the same name than the one for loves
+        # We want a condition with the same name as the one for loves
         subfilter = EntityFilter.objects.create(
             id=str(loves.id),
             name='Do not delete me please',
@@ -3112,7 +3112,7 @@ class EntityFiltersTestCase(CremeTestCase):
         custom_field01 = create_cf(name='Size (cm)')
         custom_field02 = create_cf(name='IQ')
 
-        # We want a condition with the same name than the one for custom_field01
+        # We want a condition with the same name as the one for custom_field01
         subfilter = EntityFilter.objects.create(
             id=str(custom_field01.id),
             name='Do not delete me please',
@@ -3902,7 +3902,7 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertNotIn(ef3, efl)
 
     def test_filterlist02(self):
-        "Private filters + not super user (+ team management)."
+        "Private filters + not superuser (+ team management)."
         self.client.logout()
 
         super_user = self.other_user
