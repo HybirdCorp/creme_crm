@@ -1,7 +1,5 @@
 == Version 2.3.9 Work in progress (not released -- this is a draft) ==
 
- TODO: compile changed .*po files (creme_core)
-
   Users side :
   ------------
     # In the listview pages
