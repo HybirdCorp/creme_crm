@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -107,7 +107,6 @@ class Searcher:
         Each word must be contained in (at least) one field.
 
         @param words: Searched strings.
-        # @param fields: Sequence of <creme_core.models.search.SearchField> objects.
         @param cells: Sequence of <creme_core.core.entity_cell.EntityCell> objects.
         @return: Instance of <django.db.models.query.Q>.
         """

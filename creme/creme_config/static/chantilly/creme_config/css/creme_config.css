@@ -85,6 +85,10 @@ li.ui-creme-navigation-item-id_creme_config-main > svg:nth-child(2) {
     color: #818485;
 }
 
+.creme_config-users-brick-search {
+    margin-bottom: 3px;
+}
+
 /* UserRoles brick */
 
 .creme_config-roles-brick .role-creds > ul {

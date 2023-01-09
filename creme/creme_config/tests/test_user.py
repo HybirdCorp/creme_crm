@@ -1,4 +1,5 @@
 from functools import partial
+from json import dumps as json_dump
 from unittest import skipIf
 
 from django.conf import settings
@@ -179,6 +180,122 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         }
         self.assertIn(user.username, usernames)
         self.assertIn(self.other_user.username, usernames)
+
+    @parameterized.expand([
+        ('username', 'user-username'),
+        ('last_name', 'user-lastname'),
+        ('first_name', 'user-firstname'),
+    ])
+    def test_portal_search_single_word(self, field_name, css_class):
+        self.login()
+
+        # This user has different values for fields 'first_name', 'last_name' & 'username'
+        user = User.objects.get(username='root')
+
+        field_value = getattr(user, field_name)
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={
+                'brick_id': [UsersBrick.id_],
+                'extra_data': json_dump({UsersBrick.id_: {'search': field_value[1:4]}}),
+            },
+        )
+        bricks_info = response.json()
+        self.assertIsList(bricks_info, length=1)
+
+        brick_info = bricks_info[0]
+        self.assertIsList(brick_info, length=2)
+        self.assertEqual(UsersBrick.id_, brick_info[0])
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(brick_info[1]),
+            UsersBrick.id_,
+        )
+        self.assertCountEqual(
+            [field_value],
+            [n.text for n in brick_node.findall(f'.//td[@class="{css_class}"]')],
+        )
+
+        build_url = self._build_edit_url
+        self.assertBrickHasAction(
+            brick_node, url=build_url(user.id), action_type='edit',
+        )
+        self.assertBrickHasNoAction(brick_node, url=build_url(self.user.id))
+        self.assertBrickHasNoAction(brick_node, url=build_url(self.other_user.id))
+
+    def test_portal_search_multiple_words01(self):
+        "No double quote => words are separated."
+        user = self.login()
+        other_user = self.other_user
+        root = User.objects.get(username='root')
+
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={
+                'brick_id': [UsersBrick.id_],
+                'extra_data': json_dump({
+                    UsersBrick.id_: {
+                        'search': f'{user.username[1:4]} {other_user.last_name[1:4]}',
+                    },
+                }),
+            },
+        )
+        bricks_info = response.json()
+        self.assertIsList(bricks_info, length=1)
+
+        brick_info = bricks_info[0]
+        self.assertIsList(brick_info, length=2)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(brick_info[1]), UsersBrick.id_,
+        )
+
+        build_url = self._build_edit_url
+        self.assertBrickHasAction(
+            brick_node, url=build_url(user.id), action_type='edit',
+        )
+        self.assertBrickHasAction(
+            brick_node, url=build_url(other_user.id), action_type='edit',
+        )
+        self.assertBrickHasNoAction(brick_node, url=build_url(root.id))
+
+    def test_portal_search_multiple_words02(self):
+        "Double quote => words are grouped."
+        user = self.login()
+        other_user = self.other_user
+
+        user.last_name = 'De La Sainte Grenade'
+        user.save()
+
+        other_user.last_name = 'Grenade'
+        other_user.save()
+
+        response = self.assertGET200(
+            reverse('creme_core__reload_bricks'),
+            data={
+                'brick_id': [UsersBrick.id_],
+                'extra_data': json_dump({
+                    UsersBrick.id_: {
+                        'search': '"Sainte Grena"',
+                    },
+                }),
+            },
+        )
+        bricks_info = response.json()
+        self.assertIsList(bricks_info, length=1)
+
+        brick_info = bricks_info[0]
+        self.assertIsList(brick_info, length=2)
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(brick_info[1]), UsersBrick.id_,
+        )
+
+        build_url = self._build_edit_url
+        self.assertBrickHasAction(
+            brick_node, url=build_url(user.id), action_type='edit',
+        )
+        self.assertBrickHasNoAction(brick_node, url=build_url(other_user.id))
 
     @skipIfNotCremeUser
     @skipIfCustomContact
