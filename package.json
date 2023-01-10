@@ -18,7 +18,7 @@
         "follow-redirects": "1.15.2",
         "graceful-fs": "^4.2.10",
         "has-flag": "^5.0.0",
-        "jquery": "3.6.0",
+        "jquery": "3.6.3",
         "js-yaml": "^4",
         "jsdom": "20.0.0",
         "json-schema": ">=0.4.0",
