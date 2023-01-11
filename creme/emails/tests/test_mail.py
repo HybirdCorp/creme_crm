@@ -35,8 +35,8 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
+from .. import bricks
 from ..actions import BulkEntityEmailResendAction, EntityEmailResendAction
-from ..bricks import MailsHistoryBrick
 from ..constants import (  # MAIL_STATUS_NOTSENT, MAIL_STATUS_SENDINGERROR, MAIL_STATUS_SENT
     REL_OBJ_MAIL_RECEIVED,
     REL_OBJ_MAIL_SENT,
@@ -122,11 +122,12 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         self.assertEqual([contact.id], c_recipients.initial)
 
+        # ---
         sender = user.linked_contact.email
         body = 'Freeze !'
         body_html = '<p>Freeze !</p>'
         subject = 'Under arrest'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={
                 'user':         user.id,
@@ -137,7 +138,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 'body_html':    body_html,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         email = self.get_object_or_fail(EntityEmail, sender=sender, recipient=recipient)
         self.assertEqual(user,             email.user)
@@ -155,12 +156,35 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
             subject_entity=email, type=REL_SUB_MAIL_RECEIVED, object_entity=contact,
         )
 
-        response = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
-        self.assertTemplateUsed(response, 'emails/view_entity_mail.html')
+        # ---
+        response3 = self.assertGET200(reverse('emails__view_email', args=(email.id,)))
+        self.assertTemplateUsed(response3, 'emails/view_entity_mail.html')
 
-        response = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
-        self.assertTemplateUsed(response, 'creme_core/generics/detail-popup.html')
+        body_brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=bricks.EmailHTMLBodyBrick.id_,
+        )
+        iframe_node1 = body_brick_node.find('.//iframe')
+        self.assertIsNotNone(iframe_node1)
+        self.assertEqual(
+            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+            iframe_node1.attrib.get('src'),
+        )
 
+        # ---
+        response4 = self.assertGET200(reverse('emails__view_email_popup', args=(email.id,)))
+        self.assertTemplateUsed(response4, 'creme_core/generics/detail-popup.html')
+
+        popup_brick_node = self.get_brick_node(
+            self.get_html_tree(response4.content), brick_id=bricks.MailPopupBrick.id_,
+        )
+        iframe_node2 = popup_brick_node.find('.//iframe')
+        self.assertIsNotNone(iframe_node2)
+        self.assertEqual(
+            reverse('creme_core__sanitized_html_field', args=(email.id, 'body_html')),
+            iframe_node2.attrib.get('src'),
+        )
+
+        # ---
         messages = mail.outbox
         self.assertEqual(1, len(messages))
 
@@ -1111,7 +1135,7 @@ better &amp; lighter than the previous one.
 
         response = self.assertGET200(contact.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=MailsHistoryBrick.id_,
+            self.get_html_tree(response.content), brick_id=bricks.MailsHistoryBrick.id_,
         )
         self.assertBrickTitleEqual(
             brick_node,
