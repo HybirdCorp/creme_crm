@@ -14,6 +14,7 @@ from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.job import get_queue
 from creme.creme_core.gui.history import html_history_registry
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     FakeOrganisation,
     HistoryLine,
     Job,
@@ -21,13 +22,21 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.models.history import TYPE_AUX_CREATION
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.models import Civility
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
-from ..bricks import MailsBrick
+from ..bricks import (
+    LwMailPopupBrick,
+    LwMailsHistoryBrick,
+    MailsBrick,
+    SendingBrick,
+    SendingHTMLBodyBrick,
+    SendingsBrick,
+)
 from ..constants import SETTING_EMAILCAMPAIGN_SENDER
 from ..creme_jobs import campaign_emails_send_type
 from ..models import EmailRecipient, EmailSending, LightWeightEmail
@@ -47,7 +56,7 @@ from .base import (
 @skipIfCustomEmailCampaign
 @skipIfCustomEmailTemplate
 @skipIfCustomMailingList
-class SendingsTestCase(_EmailsTestCase):
+class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @staticmethod
     def _build_add_url(campaign):
         return reverse('emails__create_sending', args=(campaign.id,))
@@ -303,8 +312,8 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertEqual(old_hlines_count + 1, HistoryLine.objects.count())
 
         hline = HistoryLine.objects.order_by('-id').first()
-        self.assertEqual(camp.id,          hline.entity.id)
-        self.assertEqual(TYPE_AUX_CREATION,    hline.type)
+        self.assertEqual(camp.id,           hline.entity.id)
+        self.assertEqual(TYPE_AUX_CREATION, hline.type)
         # self.assertListEqual(
         #     [
         #         _('Add <{type}>: “{value}”').format(
@@ -334,6 +343,10 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response1, 'creme_core/generics/detail-popup.html')
         self.assertEqual(_('Details of the email'), response1.context.get('title'))
         self.assertEqual('DENY', response1.get('X-Frame-Options'))
+        popup_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content), brick_id=LwMailPopupBrick.id_,
+        )
+        self.assertIsNone(popup_brick_node.find('.//iframe'))
 
         # ---
         response2 = self.assertGET200(reverse('emails__lw_mail_body', args=(mail.id,)))
@@ -351,6 +364,12 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertContains(response3, contacts[0].email)
         self.assertContains(response3, orgas[0].email)
 
+        tree3 = self.get_html_tree(response3.content)
+        self.get_brick_node(tree3, brick_id=SendingBrick.id_)
+
+        body_brick_node = self.get_brick_node(tree3, brick_id=SendingHTMLBodyBrick.id_)
+        self.assertIsNone(body_brick_node.find('.//iframe'))
+
         # HTML body ----------------------------------------------------------
         body_url = reverse('emails__sending_body', args=(sending.id,))
         self.assertPOST405(body_url)
@@ -358,6 +377,30 @@ class SendingsTestCase(_EmailsTestCase):
         response4 = self.assertGET200(body_url)
         self.assertEqual(b'', response4.content)
         self.assertEqual('SAMEORIGIN', response4.get('X-Frame-Options'))
+
+        # History brick --------------------------------------------------------
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=LwMailsHistoryBrick, order=1, zone=BrickDetailviewLocation.RIGHT, model=Contact,
+        )
+
+        contact1 = contacts[0]
+        contact1_mail = next(mail for mail in mails if mail.recipient_entity_id == contact1.id)
+        response5 = self.assertGET200(contact1.get_absolute_url())
+        history_brick_node = self.get_brick_node(
+            self.get_html_tree(response5.content),
+            LwMailsHistoryBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            history_brick_node,
+            count=1,
+            title='{count} Campaign email in the history',
+            plural_title='{count} Campaign emails in the history',
+        )
+        self.assertBrickHasAction(
+            history_brick_node,
+            url=reverse('emails__view_lw_mail', args=(contact1_mail.pk,)),
+            action_type='view',
+        )
 
         # Test delete campaign -------------------------------------------------
         camp.trash()
@@ -406,7 +449,7 @@ class SendingsTestCase(_EmailsTestCase):
         template = EmailTemplate.objects.create(
             user=user, name='name', subject=subject, body=body, body_html=body_html,
         )
-        response = self.client.post(
+        response1 = self.client.post(
             self._build_add_url(camp),
             data={
                 'sender':   'vicious@reddragons.mrs',
@@ -414,7 +457,7 @@ class SendingsTestCase(_EmailsTestCase):
                 'template': template.id,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response1)
 
         with self.assertNoException():
             sending = self.refresh(camp).sendings_set.all()[0]
@@ -447,9 +490,33 @@ class SendingsTestCase(_EmailsTestCase):
             self.client.get(reverse('emails__lw_mail_body', args=(mail1.id,))).content,
         )
 
+        # Detail view ----------------------------------------------------------
+        response2 = self.assertGET200(sending.get_absolute_url())
+        body_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content), brick_id=SendingHTMLBodyBrick.id_,
+        )
+        iframe_node1 = body_brick_node.find('.//iframe')
+        self.assertIsNotNone(iframe_node1)
+        self.assertEqual(
+            reverse('emails__sending_body', args=(sending.id,)),
+            iframe_node1.attrib.get('src'),
+        )
+
+        # Email Detail view ----------------------------------------------------
+        response3 = self.assertGET200(reverse('emails__view_lw_mail', args=(mail1.id,)))
+        email_brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=LwMailPopupBrick.id_,
+        )
+        iframe_node2 = email_brick_node.find('.//iframe')
+        self.assertIsNotNone(iframe_node2)
+        self.assertEqual(
+            reverse('emails__lw_mail_body', args=(mail1.id,)),
+            iframe_node2.attrib.get('src'),
+        )
+
         # View template --------------------------------------------------------
-        response = self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
-        self.assertEqual(template.body_html.encode(), response.content)
+        response4 = self.assertGET200(reverse('emails__sending_body', args=(sending.id,)))
+        self.assertEqual(template.body_html.encode(), response4.content)
 
         # Delete sending -------------------------------------------------------
         ct = ContentType.objects.get_for_model(EmailSending)
@@ -735,6 +802,41 @@ class SendingsTestCase(_EmailsTestCase):
         self.assertGET403(reverse('emails__sending_body', args=(sending.id,)))
         self.assertGET403(reverse('emails__view_lw_mail', args=(lw_mail.id,)))
 
+    def test_sending_bricks(self):
+        user = self.login()
+
+        camp = EmailCampaign.objects.create(user=user, name='Camp#1')
+        create_sending = partial(
+            EmailSending.objects.create,
+            sender='vicious@reddragons.mrs',
+            campaign=camp,
+        )
+        sending1 = create_sending(
+            sending_date=now(),
+            body='My body is ready #1',
+            body_html='My body is <b>ready</b> #1',
+        )
+        sending2 = create_sending(
+            sending_date=now() + timedelta(days=2),
+            body='My body is ready #2',
+            body_html='My body is <b>ready</b> #2',
+        )
+
+        response = self.assertGET200(camp.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content), brick_id=SendingsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Sending', plural_title='{count} Sendings',
+        )
+        self.assertBrickHasAction(
+            brick_node, url=sending1.get_absolute_url(), action_type='redirect',
+        )
+        self.assertBrickHasAction(
+            brick_node, url=sending2.get_absolute_url(), action_type='redirect',
+        )
+
     def test_reload_sending_bricks01(self):
         "Not super-user."
         user = self.login(is_superuser=False)
@@ -885,9 +987,9 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_refresh_job01(self):
         "Restore campaign with sending which has to be sent."
-        self.login()
+        user = self.login()
         job = self._get_job()
-        camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
+        camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
 
         EmailSending.objects.create(
             campaign=camp,
@@ -907,8 +1009,8 @@ class SendingsTestCase(_EmailsTestCase):
 
     def test_refresh_job02(self):
         "Restore campaign with sending which does not have to be sent."
-        self.login()
-        camp = EmailCampaign.objects.create(user=self.user, name='camp01', is_deleted=True)
+        user = self.login()
+        camp = EmailCampaign.objects.create(user=user, name='camp01', is_deleted=True)
 
         EmailSending.objects.create(
             campaign=camp,

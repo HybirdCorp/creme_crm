@@ -3,17 +3,19 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.models import FakeOrganisation, SetCredentials
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.documents.tests.base import (
     Document,
     _DocumentsTestCase,
     skipIfCustomDocument,
 )
 
+from ..bricks import AttachmentsBrick, TemplateHTMLBodyBrick
 from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
 @skipIfCustomEmailTemplate
-class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
+class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase):
     @staticmethod
     def _build_rm_attachment_url(template):
         return reverse('emails__remove_attachment_from_template', args=(template.id,))
@@ -24,11 +26,12 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         url = reverse('emails__create_template')
         self.assertGET200(url)
 
+        # ---
         name = 'my_template'
         subject = 'Insert a joke *here*'
         body = 'blablabla {{first_name}}'
         body_html = '<p>blablabla {{last_name}}</p>'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             follow=True,
             data={
@@ -39,7 +42,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                 'body_html': body_html,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         template = self.get_object_or_fail(EmailTemplate, name=name)
         self.assertEqual(subject,   template.subject)
@@ -48,8 +51,18 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         self.assertFalse([*template.attachments.all()])
 
         # ----
-        response = self.assertGET200(template.get_absolute_url())
-        self.assertTemplateUsed(response, 'emails/view_template.html')
+        response3 = self.assertGET200(template.get_absolute_url())
+        self.assertTemplateUsed(response3, 'emails/view_template.html')
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=TemplateHTMLBodyBrick.id_,
+        )
+        iframe_node = brick_node.find('.//iframe')
+        self.assertIsNotNone(iframe_node)
+        self.assertEqual(
+            reverse('creme_core__sanitized_html_field', args=(template.id, 'body_html')),
+            iframe_node.attrib.get('src'),
+        )
 
     def test_createview02(self):
         "Attachments."
@@ -65,7 +78,7 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
         subject = 'Very important'
         body = 'Hello {{name}}'
         body_html = '<p>Hi {{name}}</p>'
-        response = self.client.post(
+        response1 = self.client.post(
             reverse('emails__create_template'),
             follow=True,
             data={
@@ -77,13 +90,26 @@ class TemplatesTestCase(_DocumentsTestCase, _EmailsTestCase):
                 'attachments': self.formfield_value_multi_creator_entity(doc1, doc2),
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response1)
 
         template = self.get_object_or_fail(EmailTemplate, name=name)
         self.assertEqual(subject,   template.subject)
         self.assertEqual(body,      template.body)
         self.assertEqual(body_html, template.body_html)
-        self.assertSetEqual({doc1, doc2}, {*template.attachments.all()})
+        self.assertCountEqual([doc1, doc2], template.attachments.all())
+
+        # ----
+        response2 = self.assertGET200(template.get_absolute_url())
+
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content), brick_id=AttachmentsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2, title='{count} Attachment', plural_title='{count} Attachments',
+        )
+        self.assertInstanceLink(brick_node, doc1)
+        self.assertInstanceLink(brick_node, doc2)
 
     def test_createview03(self):
         "Validation error."

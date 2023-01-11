@@ -1,11 +1,40 @@
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
+
+from ..bricks import MySignaturesBrick
 from ..models import EmailSignature
 from .base import EmailTemplate, _EmailsTestCase, skipIfCustomEmailTemplate
 
 
-class SignaturesTestCase(_EmailsTestCase):
+class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
+    def test_brick(self):
+        user = self.login(is_superuser=False)
+
+        signature = EmailSignature.objects.create(
+            user=user,
+            name='Polite signature',
+            body='I love you',
+        )
+
+        response = self.assertGET200(reverse('creme_config__user_settings'))
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            MySignaturesBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='My signature ({count})',
+            plural_title='My signatures ({count})',
+        )
+        self.assertBrickHasAction(
+            brick_node,
+            url=signature.get_edit_absolute_url(),
+            action_type='edit',
+        )
+
     def test_create(self):
         self.login(is_superuser=False)
         self.assertFalse(EmailSignature.objects.count())
@@ -42,7 +71,7 @@ class SignaturesTestCase(_EmailsTestCase):
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Edit «{object}»').format(object=signature),
-            response.context.get('title')
+            response.context.get('title'),
         )
 
         # ---

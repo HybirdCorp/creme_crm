@@ -15,12 +15,14 @@ from creme.creme_core.models import (
     FieldsConfig,
     SetCredentials,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.emails.models import EmailRecipient
 from creme.persons.tests.base import (
     skipIfCustomContact,
     skipIfCustomOrganisation,
 )
 
+from .. import bricks
 from .base import (
     Contact,
     EmailCampaign,
@@ -32,7 +34,7 @@ from .base import (
 
 
 @skipIfCustomMailingList
-class MailingListsTestCase(_EmailsTestCase):
+class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
     @staticmethod
     def _build_addcontact_url(mlist):
         return reverse('emails__add_contacts_to_mlist', args=(mlist.id,))
@@ -61,7 +63,7 @@ class MailingListsTestCase(_EmailsTestCase):
 
         name = 'my_mailinglist'
         description = 'My friends'
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user': user.pk,
@@ -69,12 +71,13 @@ class MailingListsTestCase(_EmailsTestCase):
                 'description': description,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         ml = self.get_object_or_fail(MailingList, name=name)
         self.assertEqual(description, ml.description)
 
-        response = self.assertGET200(ml.get_absolute_url())
-        self.assertTemplateUsed(response, 'emails/view_mailing_list.html')
+        # ---
+        response3 = self.assertGET200(ml.get_absolute_url())
+        self.assertTemplateUsed(response3, 'emails/view_mailing_list.html')
 
     def test_edit(self):
         user = self.login()
@@ -84,15 +87,16 @@ class MailingListsTestCase(_EmailsTestCase):
         url = mlist.get_edit_absolute_url()
         self.assertGET200(url)
 
+        # ---
         name += '_edited'
-        response = self.client.post(
+        response2 = self.client.post(
             url, follow=True,
             data={
                 'user': user.pk,
                 'name': name,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
         self.assertEqual(name, self.refresh(mlist).name)
 
     def test_listview(self):
@@ -133,12 +137,25 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNoFormError(response2)
         self.assertSetEqual({mlist01, mlist02}, {*campaign.mailing_lists.all()})
 
+        response3 = self.assertGET200(campaign.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick_id=bricks.MailingListsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Related mailing list',
+            plural_title='{count} Related mailing lists',
+        )
+        self.assertInstanceLink(brick_node, mlist01)
+        self.assertInstanceLink(brick_node, mlist02)
+
         # Duplicates ---------------------
         mlist03 = create_ml(name='Ml03')
-        response3 = post(mlist01, mlist03)
-        self.assertEqual(200, response3.status_code)
+        response4 = post(mlist01, mlist03)
+        self.assertEqual(200, response4.status_code)
         self.assertFormError(
-            response3, 'form', 'mailing_lists',
+            response4, 'form', 'mailing_lists',
             # _('This entity does not exist.')
             _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )
@@ -214,7 +231,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertEqual('\r', detect(['abcdeefgij\r', 'klmo\nnp']))
         self.assertEqual('\r', detect(['abcdeefgij\r', 'klmonp']))
 
-    def test_recipients01(self):
+    def test_recipients(self):
         user = self.login()
 
         mlist = MailingList.objects.create(user=user, name='ml01')
@@ -222,12 +239,12 @@ class MailingListsTestCase(_EmailsTestCase):
 
         url = reverse('emails__add_recipients', args=(mlist.id,))
 
-        context = self.assertGET200(url).context
+        context1 = self.assertGET200(url).context
         self.assertEqual(
             _('New recipients for «{entity}»').format(entity=mlist),
-            context.get('title')
+            context1.get('title')
         )
-        self.assertEqual(EmailRecipient.multi_save_label, context.get('submit_label'))
+        self.assertEqual(EmailRecipient.multi_save_label, context1.get('submit_label'))
 
         # --------------------
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
@@ -237,10 +254,21 @@ class MailingListsTestCase(_EmailsTestCase):
             {r.address for r in mlist.emailrecipient_set.all()}
         )
 
+        response2 = self.assertGET200(mlist.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content), bricks.EmailRecipientsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Not linked recipient',
+            plural_title='{count} Not linked recipients',
+        )
+
         # --------------------
         # Invalid address
-        response = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})
-        self.assertFormError(response, 'form', 'recipients', _('Enter a valid email address.'))
+        response3 = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})
+        self.assertFormError(response3, 'form', 'recipients', _('Enter a valid email address.'))
 
         # --------------------
         recipient = mlist.emailrecipient_set.all()[0]
@@ -278,7 +306,7 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertNoFormError(self.client.post(url, data={'recipients': csvfile}))
         self.assertSetEqual(
             {recipient1, recipient2},
-            {r.address for r in mlist.emailrecipient_set.all()}
+            {r.address for r in mlist.emailrecipient_set.all()},
         )
 
         csvfile.close()
@@ -301,10 +329,10 @@ class MailingListsTestCase(_EmailsTestCase):
         mlist = MailingList.objects.create(user=user, name='ml01')
         url = self._build_addcontact_url(mlist)
 
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New contacts for «{entity}»').format(entity=mlist),
             context.get('title')
@@ -317,14 +345,22 @@ class MailingListsTestCase(_EmailsTestCase):
             create(first_name='Jet',   last_name='Black',   email='jet.black@bebop.com'),
         ]
 
-        # see MultiCreatorEntityField
-        response = self.client.post(
-            url,
-            data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))},
+        response2 = self.client.post(
+            url, data={'recipients': self.formfield_value_multi_creator_entity(*recipients)},
         )
-        self.assertNoFormError(response)
-        self.assertSetEqual(
-            {c.id for c in recipients}, {c.id for c in mlist.contacts.all()},
+        self.assertNoFormError(response2)
+        self.assertCountEqual(recipients, mlist.contacts.all())
+
+        # Brick -----------------
+        response3 = self.assertGET200(mlist.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), bricks.ContactsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Contact recipient',
+            plural_title='{count} Contact recipients',
         )
 
         # --------------------
@@ -483,26 +519,36 @@ class MailingListsTestCase(_EmailsTestCase):
         response = self.assertGET200(url)
         self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context1 = response.context
         self.assertEqual(
             _('New organisations for «{entity}»').format(entity=mlist),
-            context.get('title')
+            context1.get('title')
         )
-        self.assertEqual(_('Link the organisations'), context.get('submit_label'))
+        self.assertEqual(_('Link the organisations'), context1.get('submit_label'))
 
+        # ---
         create = partial(Organisation.objects.create, user=user)
         recipients = [
             create(name='NERV',  email='contact@nerv.jp'),
             create(name='Seele', email='contact@seele.jp'),
         ]
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={'recipients': self.formfield_value_multi_creator_entity(*recipients)},
         )
-        self.assertNoFormError(response)
-        self.assertSetEqual(
-            {c.id for c in recipients},
-            {*mlist.organisations.values_list('id', flat=True)},
+        self.assertNoFormError(response2)
+        self.assertCountEqual(recipients, mlist.organisations.all())
+
+        # Brick -----------------
+        response3 = self.assertGET200(mlist.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), bricks.OrganisationsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=2,
+            title='{count} Organisation recipient',
+            plural_title='{count} Organisations recipients',
         )
 
         # --------------------
@@ -633,13 +679,13 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertFalse(mlist02.children.exists())
 
         url = reverse('emails__add_child_mlists', args=(mlist01.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        context = response1.context
         self.assertEqual(
             _('New child list for «{entity}»').format(entity=mlist01),
-            context.get('title')
+            context.get('title'),
         )
         self.assertEqual(_('Link the mailing list'), context.get('submit_label'))
 
@@ -647,6 +693,32 @@ class MailingListsTestCase(_EmailsTestCase):
         self.assertPOST200(url, data={'child': mlist02.id})
         self.assertListEqual([mlist02.id], [ml.id for ml in mlist01.children.all()])
         self.assertFalse(mlist02.children.exists())
+
+        # Children Brick -----------------
+        response3 = self.assertGET200(mlist01.get_absolute_url())
+        children_brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), bricks.ChildListsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            children_brick_node,
+            count=1,
+            title='{count} Child List',
+            plural_title='{count} Child Lists',
+        )
+        self.assertInstanceLink(children_brick_node, mlist02)
+
+        # Parents Brick -----------------
+        response4 = self.assertGET200(mlist02.get_absolute_url())
+        parents_brick_node = self.get_brick_node(
+            self.get_html_tree(response4.content), bricks.ParentListsBrick.id_,
+        )
+        self.assertBrickTitleEqual(
+            parents_brick_node,
+            count=1,
+            title='{count} Parent list',
+            plural_title='{count} Parent lists',
+        )
+        self.assertInstanceLink(parents_brick_node, mlist01)
 
         # --------------------
         self.assertPOST200(
