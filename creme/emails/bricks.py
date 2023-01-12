@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -91,7 +91,8 @@ class SendingHTMLBodyBrick(_HTMLBodyBrick):
         return reverse('emails__sending_body', args=(instance.id,))
 
 
-class _RelatedEntitesBrick(QuerysetBrick):
+# class _RelatedEntitesBrick(QuerysetBrick):
+class _RelatedEntitiesBrick(QuerysetBrick):
     # id_           = 'SET ME'
     # dependencies  = 'SET ME'
     # verbose_name  = 'SET ME'
@@ -110,7 +111,7 @@ class _RelatedEntitesBrick(QuerysetBrick):
         return self._render(btc)
 
 
-class MailingListsBrick(_RelatedEntitesBrick):
+class MailingListsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'mailing_lists')
     verbose_name = _('Mailing lists')
     dependencies = (MailingList,)
@@ -144,7 +145,7 @@ class EmailRecipientsBrick(QuerysetBrick):
         ))
 
 
-class ContactsBrick(_RelatedEntitesBrick):
+class ContactsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'contacts')
     verbose_name = _('Contacts recipients')
     dependencies = (Contact,)
@@ -161,7 +162,7 @@ class ContactsBrick(_RelatedEntitesBrick):
         ].get_for_model(Contact).is_fieldname_hidden('email')
 
 
-class OrganisationsBrick(_RelatedEntitesBrick):
+class OrganisationsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'organisations')
     verbose_name = _('Organisations recipients')
     dependencies = (Organisation,)
@@ -177,7 +178,7 @@ class OrganisationsBrick(_RelatedEntitesBrick):
         ].get_for_model(Organisation).is_fieldname_hidden('email')
 
 
-class ChildListsBrick(_RelatedEntitesBrick):
+class ChildListsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'child_lists')
     verbose_name = _('Child mailing lists')
     dependencies = (MailingList,)
@@ -189,7 +190,7 @@ class ChildListsBrick(_RelatedEntitesBrick):
         return entity.children.all()
 
 
-class ParentListsBrick(_RelatedEntitesBrick):
+class ParentListsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'parent_lists')
     verbose_name = _('Parent mailing lists')
     dependencies = (MailingList,)
@@ -201,7 +202,7 @@ class ParentListsBrick(_RelatedEntitesBrick):
         return entity.parents_set.all()
 
 
-class AttachmentsBrick(_RelatedEntitesBrick):
+class AttachmentsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'attachments')
     verbose_name = _('Attachments')
     dependencies = (Document,)
