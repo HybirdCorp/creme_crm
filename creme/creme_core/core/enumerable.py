@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2018-2022  Hybird
+#    Copyright (C) 2018-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ class Enumerator:
         """
         self.field = field
 
-    def choices(self, user, *, term=None, only=None, limit=None) -> list[dict]:
+    def choices(self, user, *, term=None, only=None, limit=None, q=None) -> list[dict]:
         """Return the list of choices (see below) available for the given user.
         Abstract method.
 
@@ -52,6 +52,7 @@ class Enumerator:
         @param user: Instance of User.
         @param term: Search words.
         @param only: List only choices with these values
+        @param q: Extra filter for the choices
         @return: List of choice-dictionaries.
         """
         raise NotImplementedError
@@ -172,7 +173,7 @@ class QSEnumerator(Enumerator):
     def filter_only(self, queryset, values):
         return queryset.filter(id__in=values)
 
-    def choices(self, user, *, term=None, only=None, limit=None):
+    def choices(self, user, *, term=None, only=None, limit=None, q=None):
         queryset = self._queryset(user)
 
         if term:
