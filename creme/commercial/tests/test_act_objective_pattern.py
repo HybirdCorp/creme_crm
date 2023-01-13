@@ -149,7 +149,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         detail_response = self.assertGET200(pattern.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(detail_response.content),
-            brick_id=PatternComponentsBrick.id_,
+            brick=PatternComponentsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node, count=1, title='{count} Objective', plural_title='{count} Objectives',
@@ -262,7 +262,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         # ---
         detail_response = self.assertGET200(pattern.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(detail_response.content), brick_id=PatternComponentsBrick.id_,
+            self.get_html_tree(detail_response.content), brick=PatternComponentsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node, count=3, title='{count} Objective', plural_title='{count} Objectives',

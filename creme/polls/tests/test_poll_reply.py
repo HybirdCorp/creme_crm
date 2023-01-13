@@ -426,7 +426,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         # ----------------------------------------------------------------------
         response = self.assertGET200(preply.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), PollReplyLinesBrick.id_,
+            self.get_html_tree(response.content), brick=PollReplyLinesBrick,
         )
 
         questions = set()

@@ -55,7 +55,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.CustomFieldsBrick.id_,
+            brick=bricks.CustomFieldsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -566,7 +566,7 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.CustomEnumsBrick.id_
+            brick=bricks.CustomEnumsBrick,
         )
 
         cfield2 = create_cfield(

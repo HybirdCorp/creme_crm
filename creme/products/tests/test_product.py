@@ -88,8 +88,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertTemplateUsed(response, 'products/bricks/images.html')
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            ImagesBrick.id_,
+            self.get_html_tree(response.content), brick=ImagesBrick,
         )
         self.assertEqual(_('Images'), self.get_brick_title(brick_node))
 
@@ -128,8 +127,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
 
         response = self.assertGET200(product.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick_id=ImagesBrick.id_,
+            self.get_html_tree(response.content), brick=ImagesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

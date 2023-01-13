@@ -20,8 +20,7 @@ class SignaturesTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response = self.assertGET200(reverse('creme_config__user_settings'))
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            MySignaturesBrick.id_,
+            self.get_html_tree(response.content), brick=MySignaturesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

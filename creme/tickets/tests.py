@@ -114,8 +114,7 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            TicketBrick.id_,
+            self.get_html_tree(response.content), brick=TicketBrick,
         )
         self.assertEqual(
             _('Information on the ticket'),

@@ -620,7 +620,7 @@ class ExportTestCase(BrickTestCaseMixin, _BillingTestCase):
             reverse('creme_config__app_portal', args=('billing',))
         )
         self.get_brick_node(
-            self.get_html_tree(response.content), BillingExportersBrick.id_,
+            self.get_html_tree(response.content), brick=BillingExportersBrick,
         )
 
         # TODO: complete

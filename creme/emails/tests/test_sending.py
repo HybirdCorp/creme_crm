@@ -344,7 +344,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertEqual(_('Details of the email'), response1.context.get('title'))
         self.assertEqual('DENY', response1.get('X-Frame-Options'))
         popup_brick_node = self.get_brick_node(
-            self.get_html_tree(response1.content), brick_id=LwMailPopupBrick.id_,
+            self.get_html_tree(response1.content), brick=LwMailPopupBrick,
         )
         self.assertIsNone(popup_brick_node.find('.//iframe'))
 
@@ -365,9 +365,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertContains(response3, orgas[0].email)
 
         tree3 = self.get_html_tree(response3.content)
-        self.get_brick_node(tree3, brick_id=SendingBrick.id_)
+        self.get_brick_node(tree3, brick=SendingBrick)
 
-        body_brick_node = self.get_brick_node(tree3, brick_id=SendingHTMLBodyBrick.id_)
+        body_brick_node = self.get_brick_node(tree3, brick=SendingHTMLBodyBrick)
         self.assertIsNone(body_brick_node.find('.//iframe'))
 
         # HTML body ----------------------------------------------------------
@@ -387,8 +387,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         contact1_mail = next(mail for mail in mails if mail.recipient_entity_id == contact1.id)
         response5 = self.assertGET200(contact1.get_absolute_url())
         history_brick_node = self.get_brick_node(
-            self.get_html_tree(response5.content),
-            LwMailsHistoryBrick.id_,
+            self.get_html_tree(response5.content), brick=LwMailsHistoryBrick,
         )
         self.assertBrickTitleEqual(
             history_brick_node,
@@ -493,7 +492,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Detail view ----------------------------------------------------------
         response2 = self.assertGET200(sending.get_absolute_url())
         body_brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content), brick_id=SendingHTMLBodyBrick.id_,
+            self.get_html_tree(response2.content), brick=SendingHTMLBodyBrick,
         )
         iframe_node1 = body_brick_node.find('.//iframe')
         self.assertIsNotNone(iframe_node1)
@@ -505,7 +504,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Email Detail view ----------------------------------------------------
         response3 = self.assertGET200(reverse('emails__view_lw_mail', args=(mail1.id,)))
         email_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=LwMailPopupBrick.id_,
+            self.get_html_tree(response3.content), brick=LwMailPopupBrick,
         )
         iframe_node2 = email_brick_node.find('.//iframe')
         self.assertIsNotNone(iframe_node2)
@@ -824,7 +823,7 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response = self.assertGET200(camp.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=SendingsBrick.id_,
+            self.get_html_tree(response.content), brick=SendingsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

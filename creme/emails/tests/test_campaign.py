@@ -34,12 +34,12 @@ class CampaignTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTemplateUsed(response3, 'emails/view_campaign.html')
 
         sending_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=SendingsBrick.id_,
+            self.get_html_tree(response3.content), brick=SendingsBrick,
         )
         self.assertEqual(_('Sendings'), self.get_brick_title(sending_brick_node))
 
         ml_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=MailingListsBrick.id_,
+            self.get_html_tree(response3.content), brick=MailingListsBrick,
         )
         self.assertEqual(_('Mailing lists'), self.get_brick_title(ml_brick_node))
 

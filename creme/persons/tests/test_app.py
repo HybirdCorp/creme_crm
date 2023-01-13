@@ -63,7 +63,7 @@ class PersonsAppTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.assertGET200(reverse('creme_config__portal'))
         self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.ManagedOrganisationsBrick.id_,
+            brick=bricks.ManagedOrganisationsBrick,
         )
 
     def test_transform_target_into_prospect01(self):

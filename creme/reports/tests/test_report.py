@@ -202,12 +202,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         self.assertTemplateUsed(response, 'reports/view_report.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node1 = self.get_brick_node(tree, ReportFieldsBrick.id_)
+        brick_node1 = self.get_brick_node(tree, brick=ReportFieldsBrick)
         self.assertEqual(
             _('Columns of the report'), self.get_brick_title(brick_node1),
         )
 
-        brick_node2 = self.get_brick_node(tree, ReportGraphChartListBrick.id_)
+        brick_node2 = self.get_brick_node(tree, brick=ReportGraphChartListBrick)
         self.assertEqual(
             pgettext('reports-graphs', 'Graphs'), self.get_brick_title(brick_node2),
         )

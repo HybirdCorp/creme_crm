@@ -100,7 +100,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertEqual(self.MINE_URL, cxt_url)
 
         tree1 = self.get_html_tree(response1.content)
-        info_brick_node1 = self.get_brick_node(tree1, JobBrick.id_)
+        info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
         info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
         self.assertBrickHeaderHasNoButton(info_buttons1, job.get_edit_absolute_url())
         self.assertBrickHeaderHasNoButton(info_buttons1, job.get_delete_absolute_url())
@@ -111,7 +111,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             info_buttons1, reverse('creme_core__enable_job', args=(job.id,)),
         )
 
-        self.get_brick_node(tree1, EntityJobErrorsBrick.id_)
+        self.get_brick_node(tree1, brick=EntityJobErrorsBrick)
 
         # ---
         job.status = Job.STATUS_OK
@@ -119,7 +119,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content), JobBrick.id_,
+            self.get_html_tree(response2.content), brick=JobBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
         # TODO: test back URL (assertBrickHeaderHasButton => get_button_or_fail())
@@ -178,7 +178,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response1, 'creme_core/job/detail.html')
 
         tree1 = self.get_html_tree(response1.content)
-        info_brick_node1 = self.get_brick_node(tree1, JobBrick.id_)
+        info_brick_node1 = self.get_brick_node(tree1, brick=JobBrick)
         info_buttons1 = self.get_brick_header_buttons(info_brick_node1)
         self.assertBrickHeaderHasButton(
             info_buttons1,
@@ -194,7 +194,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
             info_buttons1, reverse('creme_core__enable_job', args=(job.id,)),
         )
 
-        self.get_brick_node(tree1, JobErrorsBrick.id_)
+        self.get_brick_node(tree1, brick=JobErrorsBrick)
 
         # -----
         job.enabled = False
@@ -202,7 +202,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response2 = self.assertGET200(url)
         info_brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content), JobBrick.id_,
+            self.get_html_tree(response2.content), brick=JobBrick,
         )
         info_buttons2 = self.get_brick_header_buttons(info_brick_node2)
         self.assertBrickHeaderHasButton(
@@ -414,7 +414,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), JobsBrick.id_
+            self.get_html_tree(response.content), brick=JobsBrick,
         )
         counter = Counter(
             n.text for n in brick_node.findall('.//td[@class="job-type"]')
@@ -487,7 +487,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         )
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, MyJobsBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=MyJobsBrick)
         self.assertListEqual(
             [str(_('Core'))] * job_count,
             [n.text for n in brick_node.findall('.//td[@class="job-app"]')],
@@ -504,7 +504,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._create_batchprocess_job()
         response1 = self.assertGET200(self.MINE_URL)
         brick_node1 = self.get_brick_node(
-            self.get_html_tree(response1.content), MyJobsBrick.id_
+            self.get_html_tree(response1.content), brick=MyJobsBrick,
         )
         job_vname = str(batch_process_type.verbose_name)
         self.assertListEqual(
@@ -515,7 +515,7 @@ class JobViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self._create_batchprocess_job(user=self.other_user)
         response2 = self.assertGET200(self.MINE_URL)
         brick_node2 = self.get_brick_node(
-            self.get_html_tree(response2.content), MyJobsBrick.id_
+            self.get_html_tree(response2.content), brick=MyJobsBrick,
         )
         self.assertListEqual(
             [job_vname],  # Only job1

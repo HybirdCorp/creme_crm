@@ -479,7 +479,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         response = self.assertGET200(may.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=FavoritePersonsBrick.id_,
+            brick=FavoritePersonsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -513,7 +513,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         response = self.assertGET200(may.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=FavoritePersonsBrick.id_,
+            brick=FavoritePersonsBrick,
         )
 
         buttons_node = self.get_brick_header_buttons(brick_node)
@@ -540,7 +540,7 @@ class MobilePersonsTestCase(BrickTestCaseMixin, MobileBaseTestCase):
         response = self.assertGET200(kof.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=FavoritePersonsBrick.id_,
+            brick=FavoritePersonsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

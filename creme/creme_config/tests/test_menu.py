@@ -466,7 +466,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             response.context.get('bricks_reload_url'),
         )
 
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), brick=MenuBrick)
         self.assertBrickTitleEqual(
             brick_node,
             count=1,
@@ -487,7 +487,7 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self._build_simple_menu(superuser=True)
 
         response = self.assertGET200(self.PORTAL_URL)
-        brick_node = self.get_brick_node(self.get_html_tree(response.content), MenuBrick.id_)
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), brick=MenuBrick)
         self.assertBrickTitleEqual(
             brick_node,
             count=3,

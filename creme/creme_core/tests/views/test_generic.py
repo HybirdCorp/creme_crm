@@ -94,8 +94,8 @@ class DetailTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         # -----
         tree = self.get_html_tree(response.content)
-        self.get_brick_node(tree, PropertiesBrick.id_)
-        self.get_brick_node(tree, MODELBRICK_ID)
+        self.get_brick_node(tree, brick=PropertiesBrick)
+        self.get_brick_node(tree, brick=MODELBRICK_ID)
 
     def test_entity_detail_no_object(self):
         self.login()

@@ -33,7 +33,7 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'polls/bricks/person-preplies.html')
 
         self.get_brick_node(
-            self.get_html_tree(response.content), PersonPollRepliesBrick.id_,
+            self.get_html_tree(response.content), brick=PersonPollRepliesBrick,
         )
 
     @skipIfCustomOrganisation
@@ -43,5 +43,5 @@ class PollsAppTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(gaimos.get_absolute_url())
 
         self.get_brick_node(
-            self.get_html_tree(response.content), PersonPollRepliesBrick.id_,
+            self.get_html_tree(response.content), brick=PersonPollRepliesBrick,
         )

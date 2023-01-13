@@ -1134,8 +1134,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response1 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            AlertsBrick.id_,
+            self.get_html_tree(response1.content), brick=AlertsBrick,
         )
 
         self.assertTrue(alert_found(detail_brick_node, alert1))
@@ -1149,8 +1148,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response2 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            AlertsBrick.id_,
+            self.get_html_tree(response2.content), brick=AlertsBrick,
         )
 
         self.assertTrue(alert_found(home_brick_node, alert1))
@@ -1166,8 +1164,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response3 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node_hidden = self.get_brick_node(
-            self.get_html_tree(response3.content),
-            AlertsBrick.id_,
+            self.get_html_tree(response3.content), brick=AlertsBrick,
         )
 
         self.assertTrue(alert_found(detail_brick_node_hidden, alert1))
@@ -1177,8 +1174,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # Home + hide validated ---
         response4 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node_hidden = self.get_brick_node(
-            self.get_html_tree(response4.content),
-            AlertsBrick.id_,
+            self.get_html_tree(response4.content), brick=AlertsBrick,
         )
 
         self.assertTrue(alert_found(home_brick_node_hidden, alert1))

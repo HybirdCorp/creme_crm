@@ -129,7 +129,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         response3 = self.assertGET200(strategy.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content),
-            brick_id=bricks.SegmentDescriptionsBrick.id_,
+            brick=bricks.SegmentDescriptionsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -351,7 +351,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         # ---
         response3 = self.assertGET200(strategy.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=bricks.AssetsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.AssetsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -413,7 +413,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         # ---
         response3 = self.assertGET200(strategy.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=bricks.CharmsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.CharmsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -539,7 +539,7 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         detail_response = self.assertGET200(strategy.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(detail_response.content),
-            brick_id=bricks.EvaluatedOrgasBrick.id_,
+            brick=bricks.EvaluatedOrgasBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

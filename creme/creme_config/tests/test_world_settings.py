@@ -30,12 +30,10 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/portals/world-settings.html')
         self.assertEqual(
             reverse('creme_core__reload_bricks'),
-            response.context.get('bricks_reload_url')
+            response.context.get('bricks_reload_url'),
         )
 
-        self.get_brick_node(
-            self.get_html_tree(response.content), WorldSettingsBrick.id_,
-        )
+        self.get_brick_node(self.get_html_tree(response.content), brick=WorldSettingsBrick)
 
     @override_settings(MENU_ICON_MAX_SIZE=4092)
     def test_edit_menu_icon01(self):

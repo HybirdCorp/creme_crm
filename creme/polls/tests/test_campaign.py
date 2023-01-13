@@ -37,7 +37,9 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'polls/view_campaign.html')
         self.assertContains(response, camp.name)
         self.assertTemplateUsed(response, 'polls/bricks/campaign-preplies.html')
-        self.get_brick_node(self.get_html_tree(response.content), PollCampaignRepliesBrick.id_)
+        self.get_brick_node(
+            self.get_html_tree(response.content), brick=PollCampaignRepliesBrick,
+        )
 
     def test_createview01(self):
         user = self.login()

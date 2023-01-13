@@ -119,7 +119,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(rita.get_absolute_url())
         doc = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(doc, PropertiesBrick.id_)
+        brick_node = self.get_brick_node(doc, brick=PropertiesBrick)
         self.assertInstanceLink(brick_node, ptype01)
         self.assertInstanceLink(brick_node, ptype02)
         self.assertNoInstanceLink(brick_node, ptype03)

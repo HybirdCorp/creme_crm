@@ -96,7 +96,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         # ---
         doc = self.get_html_tree(response.content)
-        users_brick_node = self.get_brick_node(doc, UsersBrick.id_)
+        users_brick_node = self.get_brick_node(doc, brick=UsersBrick)
         self.assertBrickTitleEqual(
             users_brick_node,
             count=3, title='{count} User', plural_title='{count} Users',
@@ -111,7 +111,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsNone(users_brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
 
         # ---
-        teams_brick_node = self.get_brick_node(doc, TeamsBrick.id_)
+        teams_brick_node = self.get_brick_node(doc, brick=TeamsBrick)
         self.assertBrickTitleEqual(
             teams_brick_node,
             count=1, title='{count} Team', plural_title='{count} Teams',
@@ -131,10 +131,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         state.save()
 
         response = self.assertGET200(reverse('creme_config__users'))
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick_id,
-        )
+        brick_node = self.get_brick_node(self.get_html_tree(response.content), brick_id)
 
         usernames = {
             n.text
@@ -156,8 +153,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_config__users'))
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            UsersBrick.id_,
+            self.get_html_tree(response.content), brick=UsersBrick,
         )
 
         self.assertIsNotNone(brick_node.find('.//th[@data-key="regular_field-time_zone"]'))
@@ -174,8 +170,7 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_config__users'))
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            UsersBrick.id_,
+            self.get_html_tree(response.content), brick=UsersBrick,
         )
 
         usernames = {
@@ -1340,7 +1335,7 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertIsList(get('apps_usersettings_bricks'))  # TODO: improve
 
         doc = self.get_html_tree(response.content)
-        self.get_brick_node(doc, BrickMypageLocationsBrick.id_)
+        self.get_brick_node(doc, brick=BrickMypageLocationsBrick)
 
     @override_settings(THEMES=[
         ('icecream',  'Ice cream'),

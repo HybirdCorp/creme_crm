@@ -34,8 +34,7 @@ class EntityFilterConfigTestCase(BrickTestCaseMixin, CremeTestCase):
 
     def _ctype_labels_from_brick(self, response):
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            EntityFiltersBrick.id_,
+            self.get_html_tree(response.content), brick=EntityFiltersBrick,
         )
 
         return [

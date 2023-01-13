@@ -95,8 +95,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         response = self.assertGET200(invoice.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            bricks.TargetBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.TargetBrick,
         )
         self.assertInstanceLink(brick_node, source)
         self.assertInstanceLink(brick_node, target)
@@ -1079,8 +1078,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         # ---
         response = self.assertGET200(invoice.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            bricks.TotalBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.TotalBrick,
         )
 
         exc_total_node = self.get_html_node_or_fail(

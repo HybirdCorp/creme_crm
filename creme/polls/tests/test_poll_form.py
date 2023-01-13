@@ -142,8 +142,8 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(pform.get_absolute_url())
 
         tree = self.get_html_tree(response.content)
-        self.get_brick_node(tree, PollFormLinesBrick.id_)
-        self.get_brick_node(tree, PollRepliesBrick.id_)
+        self.get_brick_node(tree, brick=PollFormLinesBrick)
+        self.get_brick_node(tree, brick=PollRepliesBrick)
 
     def test_createview01(self):
         user = self.login()
@@ -279,7 +279,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(pform.get_absolute_url())
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=PollFormLinesBrick.id_,
+            self.get_html_tree(response.content), brick=PollFormLinesBrick,
         )
         self.assertEqual(
             ngettext(
@@ -528,7 +528,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(pform.get_absolute_url())
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, PollFormLinesBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=PollFormLinesBrick)
         self.assertEqual(
             ngettext(
                 '{count} Question',

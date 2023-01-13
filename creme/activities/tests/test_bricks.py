@@ -115,7 +115,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             })
 
         tree = self.get_html_tree(render)
-        brick_node = self.get_brick_node(tree, ParticipantsBrick.id_)
+        brick_node = self.get_brick_node(tree, ParticipantsBrick)
         self.assertInstanceLink(brick_node, c1)
         self.assertInstanceLink(brick_node, c2)
         self.assertNoInstanceLink(brick_node, c3)
@@ -168,7 +168,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             })
 
         tree = self.get_html_tree(render)
-        brick_node = self.get_brick_node(tree, SubjectsBrick.id_)
+        brick_node = self.get_brick_node(tree, SubjectsBrick)
         self.assertInstanceLink(brick_node, c2)
         self.assertInstanceLink(brick_node, c3)
         self.assertInstanceLink(brick_node, orga)
@@ -207,27 +207,27 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         tree = self.get_html_tree(response.content)
 
-        brick_node1 = self.get_brick_node(tree, ParticipantsBrick.id_)
+        brick_node1 = self.get_brick_node(tree, ParticipantsBrick)
         self.assertInstanceLink(brick_node1, c1)
         self.assertInstanceLink(brick_node1, c2)
         self.assertNoInstanceLink(brick_node1, c3)
         self.assertNoInstanceLink(brick_node1, c4)
         self.assertNoInstanceLink(brick_node1, c5)
 
-        brick_node2 = self.get_brick_node(tree, SubjectsBrick.id_)
+        brick_node2 = self.get_brick_node(tree, SubjectsBrick)
         self.assertInstanceLink(brick_node2, c3)
         self.assertInstanceLink(brick_node2, c4)
         self.assertNoInstanceLink(brick_node2, c1)
         self.assertNoInstanceLink(brick_node2, c2)
         self.assertNoInstanceLink(brick_node2, c5)
 
-        brick_node3 = self.get_brick_node(tree, RelatedCalendarBrick.id_)
+        brick_node3 = self.get_brick_node(tree, RelatedCalendarBrick)
         self.assertListEqual(
             [f'background-color:#{cal.get_color};'],
             [
                 n.attrib.get('style')
                 for n in brick_node3.findall('.//div[@class="activity-calendar-color-square"]')
-            ]
+            ],
         )
 
     @skipIfCustomContact
@@ -296,7 +296,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         response = self.assertGET200(contact.get_absolute_url())
         tree = self.get_html_tree(response.content)
 
-        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick)
         self.assertInstanceLink(future_brick_node, future[0])
         self.assertInstanceLink(future_brick_node, future[1])
         self.assertInstanceLink(future_brick_node, future[2])
@@ -312,7 +312,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         self.assertIn(future[2].minutes, future_minutes)
         self.assertNotIn(future[3].minutes, future_minutes)
 
-        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick)
         self.assertInstanceLink(past_brick_node, past[0])
         self.assertInstanceLink(past_brick_node, past[1])
         self.assertInstanceLink(past_brick_node, past[2])
@@ -385,14 +385,14 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         response1 = self.assertGET200(reverse('creme_core__home'))
         tree = self.get_html_tree(response1.content)
 
-        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick)
         self.assertInstanceLink(future_brick_node, future[0])
         self.assertInstanceLink(future_brick_node, future[1])
         self.assertInstanceLink(future_brick_node, future[2])
         self.assertNoInstanceLink(future_brick_node, future[3])
         self.assertNoInstanceLink(future_brick_node, past[0])
 
-        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick)
         self.assertInstanceLink(past_brick_node, past[0])
         self.assertInstanceLink(past_brick_node, past[1])
         self.assertInstanceLink(past_brick_node, past[2])
@@ -471,7 +471,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         response = self.assertGET200(orga.get_absolute_url())
         tree = self.get_html_tree(response.content)
 
-        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick.id_)
+        future_brick_node = self.get_brick_node(tree, FutureActivitiesBrick)
         self.assertInstanceLink(future_brick_node, future[0])
         self.assertInstanceLink(future_brick_node, future[1])
         self.assertInstanceLink(future_brick_node, future[2])
@@ -485,7 +485,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             },
         )
 
-        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick.id_)
+        past_brick_node = self.get_brick_node(tree, PastActivitiesBrick)
         self.assertInstanceLink(past_brick_node, past[0])
         self.assertInstanceLink(past_brick_node, past[1])
         self.assertInstanceLink(past_brick_node, past[2])
@@ -1179,7 +1179,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         response = self.assertGET200(reverse('creme_config__user_settings'))
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, UserCalendarsBrick.id_)
+        brick_node = self.get_brick_node(tree, UserCalendarsBrick)
 
         self.assertCountEqual(
             [f'background-color:#{cal.get_color};' for cal in [cal1, cal2]],

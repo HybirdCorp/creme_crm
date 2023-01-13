@@ -274,8 +274,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response1 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            UserMessagesBrick.id_,
+            self.get_html_tree(response1.content), brick=UserMessagesBrick,
         )
 
         self.assertTrue(message_found(detail_brick_node, msg1))
@@ -289,8 +288,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response2 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            UserMessagesBrick.id_,
+            self.get_html_tree(response2.content), brick=UserMessagesBrick,
         )
 
         self.assertTrue(message_found(home_brick_node, msg1))

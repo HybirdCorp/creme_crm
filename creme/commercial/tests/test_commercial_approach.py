@@ -69,7 +69,7 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
 
     def _get_commap_brick_node(self, response):
         tree = self.get_html_tree(response.content)
-        return self.get_brick_node(tree, ApproachesBrick.id_)
+        return self.get_brick_node(tree, brick=ApproachesBrick)
 
     def _get_commap_titles(self, response):
         brick_node = self._get_commap_brick_node(response)

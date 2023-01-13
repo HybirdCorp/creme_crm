@@ -213,7 +213,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/google/detail-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, GoogleDetailMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=GoogleDetailMapBrick)
         self.assertEqual(_('Map'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
@@ -249,7 +249,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/detail-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, OpenStreetMapDetailMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=OpenStreetMapDetailMapBrick)
         self.assertEqual(_('Map'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
@@ -275,7 +275,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/google/filtered-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, GoogleFilteredMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=GoogleFilteredMapBrick)
         self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
@@ -305,7 +305,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/filtered-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, OpenStreetMapFilteredMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=OpenStreetMapFilteredMapBrick)
         self.assertEqual(_('Maps By Filter'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
@@ -337,7 +337,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/google/neighbours-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, GoogleNeighboursMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=GoogleNeighboursMapBrick)
         self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(
@@ -373,7 +373,7 @@ class MapBrickTestCase(BrickTestCaseMixin, GeoLocationBaseTestCase):
         self.assertTemplateUsed(response, 'geolocation/bricks/osm/neighbours-map.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, OpenStreetMapNeighboursMapBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=OpenStreetMapNeighboursMapBrick)
         self.assertEqual(_('Around this place'), self.get_brick_title(brick_node))
 
         script_node = self.get_html_node_or_fail(

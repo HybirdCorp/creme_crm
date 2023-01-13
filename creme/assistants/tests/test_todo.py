@@ -287,8 +287,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response1 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            TodosBrick.id_,
+            self.get_html_tree(response1.content), brick=TodosBrick,
         )
 
         self.assertTrue(todo_found(detail_brick_node,  todo1))
@@ -302,8 +301,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response2 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            TodosBrick.id_,
+            self.get_html_tree(response2.content), brick=TodosBrick,
         )
 
         self.assertTrue(todo_found(home_brick_node, todo1))
@@ -320,8 +318,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response3 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node_hidden = self.get_brick_node(
-            self.get_html_tree(response3.content),
-            TodosBrick.id_,
+            self.get_html_tree(response3.content), brick=TodosBrick,
         )
 
         self.assertTrue(todo_found(detail_brick_node_hidden, todo1))
@@ -331,8 +328,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         # Home + hide validated ---
         response4 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node_hidden = self.get_brick_node(
-            self.get_html_tree(response4.content),
-            TodosBrick.id_,
+            self.get_html_tree(response4.content), brick=TodosBrick,
         )
 
         self.assertTrue(todo_found(home_brick_node_hidden, todo1))
@@ -549,7 +545,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertFalse(JobResult.objects.filter(job=job))
 
         response = self.assertGET200(job.get_absolute_url())
-        self.get_brick_node(self.get_html_tree(response.content), JobErrorsBrick.id_)
+        self.get_brick_node(self.get_html_tree(response.content), brick=JobErrorsBrick)
 
     def test_reminder02(self):
         "Minimum hour (SettingValue) is in the future."

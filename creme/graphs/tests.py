@@ -65,8 +65,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         # self.assertTemplateUsed(response, 'graphs/bricks/graph-hat-bar.html')
 
         tree = self.get_html_tree(response.content)
-        self.get_brick_node(tree, RootNodesBrick.id_)
-        self.get_brick_node(tree, OrbitalRelationTypesBrick.id_)
+        self.get_brick_node(tree, brick=RootNodesBrick)
+        self.get_brick_node(tree, brick=OrbitalRelationTypesBrick)
 
     def test_graph_edit(self):
         user = self.login()
