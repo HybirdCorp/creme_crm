@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -34,7 +34,7 @@ class AbstractMailingList(CremeEntity):
     )
     contacts = models.ManyToManyField(
         settings.PERSONS_CONTACT_MODEL,
-        verbose_name=_('Contacts recipients'),
+        verbose_name=_('Contact-recipients'),
         editable=False,
     )
     organisations = models.ManyToManyField(

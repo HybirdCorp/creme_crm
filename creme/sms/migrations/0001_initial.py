@@ -59,7 +59,7 @@ class Migration(migrations.Migration):
                     'contacts',
                     models.ManyToManyField(
                         to=settings.PERSONS_CONTACT_MODEL,
-                        verbose_name='Contacts recipients', editable=False,
+                        verbose_name='Contact-recipients', editable=False,
                     )
                 ),
             ],

@@ -359,8 +359,8 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             brick_node,
             count=2,
-            title='{count} Contact recipient',
-            plural_title='{count} Contact recipients',
+            title='{count} Contact-recipient',
+            plural_title='{count} Contact-recipients',
         )
 
         # --------------------
@@ -547,8 +547,8 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             brick_node,
             count=2,
-            title='{count} Organisation recipient',
-            plural_title='{count} Organisations recipients',
+            title='{count} Organisation-recipient',
+            plural_title='{count} Organisation-recipients',
         )
 
         # --------------------
@@ -715,8 +715,8 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertBrickTitleEqual(
             parents_brick_node,
             count=1,
-            title='{count} Parent list',
-            plural_title='{count} Parent lists',
+            title='{count} Parent List',
+            plural_title='{count} Parent Lists',
         )
         self.assertInstanceLink(parents_brick_node, mlist01)
 

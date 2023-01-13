@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -36,7 +36,7 @@ class AddContactsForm(CremeForm):
     )
 
     blocks = FieldBlockManager({
-        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+        'id': 'general', 'label': _('Contact-recipients'), 'fields': '*',
     })
 
     def __init__(self, entity, *args, **kwargs):
@@ -88,7 +88,7 @@ class AddPersonsFromFilterForm(CremeForm):  # private class ???
 
 class AddContactsFromFilterForm(AddPersonsFromFilterForm):
     blocks = FieldBlockManager({
-        'id': 'general', 'label': _('Contacts recipients'), 'fields': '*',
+        'id': 'general', 'label': _('Contact-recipients'), 'fields': '*',
     })
 
     person_model = Contact
