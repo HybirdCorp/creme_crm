@@ -50,13 +50,21 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
         only = request.GET.get(self.only_arg)
         return only.split(',') if only is not None else None
 
-    def get(self, request, *args, **kwargs):
+    def get_enumerable_choices(self, request, *args, **kwargs):
         limit = self.get_limit(request)
         only = self.get_only(request)
         term = request.GET.get(self.term_arg)
 
+        return self.get_enumerator().choices(
+            user=request.user,
+            only=only,
+            limit=limit,
+            term=term
+        )
+
+    def get(self, request, *args, **kwargs):
         return self.response_class(
-            self.get_enumerator().choices(user=request.user, only=only, limit=limit, term=term),
+            self.get_enumerable_choices(request, *args, **kwargs),
             safe=False,  # Result is not a dictionary
         )
 
@@ -64,12 +72,30 @@ class ChoicesView(base.ContentTypeRelatedMixin, base.CheckedView):
 class FieldChoicesView(ChoicesView):
     field_url_kwarg = 'field'
     registry = enumerable_registry
+    q_arg = 'q'
 
     def check_related_ctype(self, ctype):
         self.request.user.has_perm_to_access_or_die(ctype.app_label)
 
     def get_field_name(self):
         return self.kwargs[self.field_url_kwarg]
+
+    def get_q(self, request):
+        q = request.GET.get(self.q_arg)
+
+    def get_enumerable_choices(self, request, *args, **kwargs):
+        limit = self.get_limit(request)
+        only = self.get_only(request)
+        term = request.GET.get(self.term_arg)
+        q = request.GET.get(self.q_arg)
+
+        return self.get_enumerator().choices(
+            user=request.user,
+            only=only,
+            limit=limit,
+            term=term,
+            q=q,
+        )
 
     def get_enumerator(self):
         try:
