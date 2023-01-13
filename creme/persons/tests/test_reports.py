@@ -119,7 +119,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
         contact = user.linked_contact
         response = self.assertGET200(contact.get_absolute_url())
         dom = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
+        brick_node = self.get_brick_node(dom, brick=ibci.brick_id)
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
         volatile_span = self.get_html_node_or_fail(
@@ -172,7 +172,7 @@ class PersonsReportsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response1 = self.assertGET200(contact.get_absolute_url())
         dom = self.get_html_tree(response1.content)
-        brick_node = self.get_brick_node(dom, brick_id=ibci.brick_id)
+        brick_node = self.get_brick_node(dom, brick=ibci.brick_id)
         self.assertBrickHasClass(brick_node, 'is-empty')
 
         # --

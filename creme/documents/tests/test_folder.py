@@ -766,13 +766,13 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         response = self.assertGET200(folder.get_absolute_url())
         tree = self.get_html_tree(response.content)
 
-        brick_node1 = self.get_brick_node(tree, FolderDocsBrick.id_)
+        brick_node1 = self.get_brick_node(tree, brick=FolderDocsBrick)
         self.assertInstanceLink(brick_node1, doc1)
         self.assertInstanceLink(brick_node1, doc2)
         self.assertInstanceLink(brick_node1, doc4)  # TODO: see bricks.py
         self.assertNoInstanceLink(brick_node1, doc3)
 
-        brick_node2 = self.get_brick_node(tree, ChildFoldersBrick.id_)
+        brick_node2 = self.get_brick_node(tree, brick=ChildFoldersBrick)
         self.assertInstanceLink(brick_node2, child1)
         self.assertInstanceLink(brick_node2, child2)
         self.assertNoInstanceLink(brick_node2, child3)

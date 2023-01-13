@@ -138,7 +138,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         response = self.client.get(orga.get_absolute_url())
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            PrettyOtherAddressesBrick.id_,
+            brick=PrettyOtherAddressesBrick,
         )
         fields = {
             elt.text

@@ -345,9 +345,12 @@
             - The component 'creme.component.Chosen' is now deprecated & has been renamed as 'creme.form.Chosen'.
               It's no longer used in media generation but it still exists to ease migrations.
             - The jQuery extension 'gccolor' has been removed.
-        # In 'creme_core.tests.base._CremeTestCase' :
-            - the method 'build_inneredit_url()' has been replaced by 'build_inneredit_uri()'.
-            - the method 'build_bulkupdate_url()' has been replaced by 'build_bulkupdate_uri()'.
+        # In 'creme_core.tests:
+            - In 'base._CremeTestCase' :
+                - The method 'build_inneredit_url()' has been replaced by 'build_inneredit_uri()'.
+                - The method 'build_bulkupdate_url()' has been replaced by 'build_bulkupdate_uri()'.
+            - In the method 'views.base.BrickTestCaseMixin.get_brick_node()', the argument "brick_id" has been renamed "brick" ;
+              it accepts now Brick classes too.
         # Apps :
             * Creme_config :
                 - The brick 'MenuBrick' has been reworked (to manage menu per role) ; the template variable "entries" is now a list of dictionaries.

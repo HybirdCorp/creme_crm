@@ -65,8 +65,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
     def _get_address_brick_node(self, entity, brick_cls):
         response = self.assertGET200(entity.get_absolute_url())
         return self.get_brick_node(
-            self.get_html_tree(response.content),
-            brick_cls.id_,
+            self.get_html_tree(response.content), brick=brick_cls,
         )
 
     def _assertInDetailedAddress(self,
@@ -196,7 +195,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(c.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.ContactCardHatBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
         )
 
         self.assertInstanceLink(brick_node, opp1)
@@ -223,7 +222,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(target_orga.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.OrganisationCardHatBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.OrganisationCardHatBrick,
         )
 
         self.assertInstanceLink(brick_node, opp1)
@@ -260,7 +259,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(c.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.ContactCardHatBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.ContactCardHatBrick,
         )
 
         self.assertInstanceLink(brick_node, act1)
@@ -297,7 +296,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(orga.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.OrganisationCardHatBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.OrganisationCardHatBrick,
         )
 
         self.assertInstanceLink(brick_node, act1)
@@ -622,7 +621,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         def get_brick_node():
             response = self.assertGET200(url)
             return self.get_brick_node(
-                self.get_html_tree(response.content), bricks.ManagersBrick.id_,
+                self.get_html_tree(response.content), brick=bricks.ManagersBrick,
             )
 
         brick_node1 = get_brick_node()
@@ -697,7 +696,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertGET200(o.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.ManagersBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.ManagersBrick,
         )
 
         self.assertEqual(1, len(brick_node.findall('.//td[@data-table-primary-column]')))
@@ -737,7 +736,7 @@ class BricksTestCase(BrickTestCaseMixin, CremeTestCase):
         url = o1.get_absolute_url()
         response = self.assertGET200(url)
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), bricks.EmployeesBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.EmployeesBrick,
         )
         self.assertInstanceLink(brick_node, c1)
         self.assertInstanceLink(brick_node, c2)

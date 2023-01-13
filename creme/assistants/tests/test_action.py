@@ -218,16 +218,14 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response1 = self.assertGET200(self.entity.get_absolute_url())
 
         detail_brick_node_ok = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            ActionsOnTimeBrick.id_,
+            self.get_html_tree(response1.content), brick=ActionsOnTimeBrick,
         )
         self.assertTrue(action_found(detail_brick_node_ok, action_ok1))
         self.assertTrue(action_found(detail_brick_node_ok, action_ok2))
         self.assertFalse(action_found(detail_brick_node_ok, action_ok3))
 
         detail_brick_node_ko = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            ActionsNotOnTimeBrick.id_,
+            self.get_html_tree(response1.content), brick=ActionsNotOnTimeBrick,
         )
         self.assertTrue(action_found(detail_brick_node_ko, action_ko1))
         self.assertTrue(action_found(detail_brick_node_ko, action_ko2))
@@ -241,8 +239,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         response2 = self.assertGET200(reverse('creme_core__home'))
 
         home_brick_node_ok = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            ActionsOnTimeBrick.id_,
+            self.get_html_tree(response2.content), brick=ActionsOnTimeBrick,
         )
         self.assertTrue(action_found(home_brick_node_ok, action_ok1))
         self.assertTrue(action_found(home_brick_node_ok, action_ok2))
@@ -251,8 +248,7 @@ class ActionTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertInstanceLink(home_brick_node_ok, entity2)
 
         home_brick_node_ko = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            ActionsNotOnTimeBrick.id_,
+            self.get_html_tree(response2.content), brick=ActionsNotOnTimeBrick,
         )
         self.assertTrue(action_found(home_brick_node_ko, action_ko1))
         self.assertTrue(action_found(home_brick_node_ko, action_ko2))

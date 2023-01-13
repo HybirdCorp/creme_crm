@@ -35,7 +35,7 @@ class PropertyTypeTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), PropertyTypesBrick.id_,
+            self.get_html_tree(response.content), brick=PropertyTypesBrick,
         )
         self.assertInstanceLink(brick_node, ptype1)
         self.assertInstanceLink(brick_node, ptype2)

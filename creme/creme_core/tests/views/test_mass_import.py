@@ -168,7 +168,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertRedirects(response, job.get_absolute_url())
 
         tree = self.get_html_tree(response.content)
-        self.get_brick_node(tree, MassImportJobErrorsBrick.id_)
+        self.get_brick_node(tree, brick=MassImportJobErrorsBrick)
 
         mass_import_type.execute(job)
 

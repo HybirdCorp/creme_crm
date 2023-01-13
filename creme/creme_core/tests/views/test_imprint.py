@@ -73,7 +73,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         response = self.assertGET200(orga.get_absolute_url())
 
         document = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(document, ImprintsBrick.id_)
+        brick_node = self.get_brick_node(document, brick=ImprintsBrick)
         self.assertBrickHasClass(brick_node, 'creme_core-imprints-brick')
         self.assertBrickHasNotClass(brick_node, 'is-empty')
 
@@ -95,7 +95,7 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_core__home'))
         document = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(document, ImprintsBrick.id_)
+        brick_node = self.get_brick_node(document, brick=ImprintsBrick)
         self.assertInstanceLink(brick_node, orga1)
         self.assertInstanceLink(brick_node, orga2)
 
@@ -108,6 +108,6 @@ class ImprintViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         response = self.assertGET200(reverse('creme_core__home'))
         document = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(document, ImprintsBrick.id_)
+        brick_node = self.get_brick_node(document, brick=ImprintsBrick)
         self.assertBrickHasClass(brick_node, 'is-empty')
         self.assertNoInstanceLink(brick_node, orga)

@@ -242,7 +242,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         response3 = self.assertGET200(detail_url)
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content),
-            brick_id=bricks.ProductLinesBrick.id_,
+            brick=bricks.ProductLinesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -447,7 +447,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         response3 = self.assertGET200(detail_url)
         brick_node = self.get_brick_node(
             self.get_html_tree(response3.content),
-            brick_id=bricks.ServiceLinesBrick.id_,
+            brick=bricks.ServiceLinesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

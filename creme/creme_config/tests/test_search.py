@@ -73,8 +73,7 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            SearchConfigBrick.id_,
+            self.get_html_tree(response.content), brick=SearchConfigBrick,
         )
         title_node = self.get_html_node_or_fail(
             brick_node, ".//div[@class='search-config-group-title']",

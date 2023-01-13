@@ -481,7 +481,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         # ---
         detail_response = self.assertGET200(act.get_absolute_url())
         tree = self.get_html_tree(detail_response.content)
-        brick_node = self.get_brick_node(tree, bricks.ActObjectivesBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=bricks.ActObjectivesBrick)
         self.assertBrickTitleEqual(
             brick_node, count=1, title='{count} Objective', plural_title='{count} Objectives',
         )
@@ -1084,7 +1084,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         detail_response1 = self.assertGET200(act.get_absolute_url())
         brick_node1 = self.get_brick_node(
-            self.get_html_tree(detail_response1.content), bricks.RelatedOpportunitiesBrick.id_
+            self.get_html_tree(detail_response1.content),
+            brick=bricks.RelatedOpportunitiesBrick,
         )
         self.assertEqual(_('Opportunities'), self.get_brick_title(brick_node1))
 
@@ -1132,7 +1133,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         detail_response2 = self.assertGET200(act.get_absolute_url())
         brick_node2 = self.get_brick_node(
             self.get_html_tree(detail_response2.content),
-            brick_id=bricks.RelatedOpportunitiesBrick.id_,
+            brick=bricks.RelatedOpportunitiesBrick,
         )
         self.assertBrickTitleEqual(
             brick_node2,

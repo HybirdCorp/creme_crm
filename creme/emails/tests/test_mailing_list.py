@@ -139,7 +139,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response3 = self.assertGET200(campaign.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=bricks.MailingListsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.MailingListsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -256,7 +256,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response2 = self.assertGET200(mlist.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content), bricks.EmailRecipientsBrick.id_,
+            self.get_html_tree(response2.content), brick=bricks.EmailRecipientsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -354,7 +354,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Brick -----------------
         response3 = self.assertGET200(mlist.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), bricks.ContactsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.ContactsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -542,7 +542,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Brick -----------------
         response3 = self.assertGET200(mlist.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), bricks.OrganisationsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.OrganisationsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -697,7 +697,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Children Brick -----------------
         response3 = self.assertGET200(mlist01.get_absolute_url())
         children_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), bricks.ChildListsBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.ChildListsBrick,
         )
         self.assertBrickTitleEqual(
             children_brick_node,
@@ -710,7 +710,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # Parents Brick -----------------
         response4 = self.assertGET200(mlist02.get_absolute_url())
         parents_brick_node = self.get_brick_node(
-            self.get_html_tree(response4.content), bricks.ParentListsBrick.id_,
+            self.get_html_tree(response4.content), brick=bricks.ParentListsBrick,
         )
         self.assertBrickTitleEqual(
             parents_brick_node,

@@ -412,7 +412,7 @@ class DocumentTestCase(BrickTestCaseMixin, _DocumentsTestCase):
 
         response = self.assertGET200(entity.get_absolute_url())
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, LinkedDocsBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=LinkedDocsBrick)
         self.assertInstanceLink(brick_node, doc1)
         self.assertInstanceLink(brick_node, doc2)
 

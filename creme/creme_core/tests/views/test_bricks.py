@@ -513,7 +513,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/properties.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, PropertiesBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=PropertiesBrick)
         self.assertInstanceLink(brick_node, ptype1)
         self.assertInstanceLink(brick_node, ptype3)
         self.assertNoInstanceLink(brick_node, ptype2)
@@ -548,7 +548,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/relations.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, RelationsBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=RelationsBrick)
         self.assertInstanceLink(brick_node, tenma)
         self.assertInstanceLink(brick_node, uran)
         self.assertEqual('{}', brick_node.attrib.get('data-brick-reloading-info'))
@@ -739,7 +739,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/custom-fields.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, CustomFieldsBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=CustomFieldsBrick)
         self.assertEqual(
             # number_format(strength, use_l10n=True, force_grouping=True),
             number_format(strength, force_grouping=True),
@@ -769,7 +769,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/history.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, HistoryBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=HistoryBrick)
 
         h_info = []
         cls_prefix = 'history-line-'
@@ -807,7 +807,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/history.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, HistoryBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=HistoryBrick)
         self.assertInstanceLink(brick_node, atom)
         self.assertInstanceLink(brick_node, tenma)
 
@@ -848,7 +848,7 @@ class BrickViewTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'creme_core/bricks/statistics.html')
 
         tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, StatisticsBrick.id_)
+        brick_node = self.get_brick_node(tree, brick=StatisticsBrick)
 
         stats_info = {}
 

@@ -600,7 +600,7 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         self.assertEqual(rgraph, response_info.context.get('object'))
         brick_node = self.get_brick_node(
             self.get_html_tree(response_info.content),
-            brick_id=InstanceBricksInfoBrick.id_,
+            brick=InstanceBricksInfoBrick,
         )
         vname_node = self.get_html_node_or_fail(brick_node, './/td[@data-table-primary-column]')
         self.assertEqual(_('No volatile column'), vname_node.text)

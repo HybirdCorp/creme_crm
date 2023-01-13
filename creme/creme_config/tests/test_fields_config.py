@@ -52,7 +52,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'creme_config/portals/fields-config.html')
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=FieldsConfigsBrick.id_,
+            self.get_html_tree(response.content), brick=FieldsConfigsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -81,7 +81,7 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         response = self.assertGET200(reverse('creme_config__fields'))
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), FieldsConfigsBrick.id_,
+            self.get_html_tree(response.content), brick=FieldsConfigsBrick,
         )
 
         error_node = self.get_html_node_or_fail(brick_node, './/ul[@class="errorlist"]/li')

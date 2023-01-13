@@ -246,8 +246,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response1 = self.assertGET200(self.entity.get_absolute_url())
         detail_brick_node = self.get_brick_node(
-            self.get_html_tree(response1.content),
-            MemosBrick.id_,
+            self.get_html_tree(response1.content), brick=MemosBrick,
         )
 
         self.assertTrue(memo_found(detail_brick_node, memo1))
@@ -261,8 +260,7 @@ class MemoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         response2 = self.assertGET200(reverse('creme_core__home'))
         home_brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content),
-            MemosBrick.id_,
+            self.get_html_tree(response2.content), brick=MemosBrick,
         )
 
         self.assertTrue(memo_found(home_brick_node, memo1))

@@ -192,7 +192,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.get_brick_node(
             self.get_html_tree(response.content),
-            bricks.CustomFormsBrick.id_,
+            brick=bricks.CustomFormsBrick,
         )
 
     def test_form_creation_for_role01(self):

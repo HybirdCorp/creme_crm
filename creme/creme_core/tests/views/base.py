@@ -53,7 +53,10 @@ class ViewsTestCase(CremeTestCase):
 
 
 class BrickTestCaseMixin:
-    def get_brick_node(self, tree, brick_id):
+    # def get_brick_node(self, tree, brick_id):
+    def get_brick_node(self, tree, brick):
+        brick_id = getattr(brick, 'id_', brick)
+
         brick_node = tree.find(f".//div[@id='{brick_id}']")
         if brick_node is None:
             self.fail(f'The brick id="{brick_id}" is not found.')

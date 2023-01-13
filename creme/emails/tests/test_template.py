@@ -55,7 +55,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         self.assertTemplateUsed(response3, 'emails/view_template.html')
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=TemplateHTMLBodyBrick.id_,
+            self.get_html_tree(response3.content), brick=TemplateHTMLBodyBrick,
         )
         iframe_node = brick_node.find('.//iframe')
         self.assertIsNotNone(iframe_node)
@@ -102,7 +102,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         response2 = self.assertGET200(template.get_absolute_url())
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response2.content), brick_id=AttachmentsBrick.id_,
+            self.get_html_tree(response2.content), brick=AttachmentsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

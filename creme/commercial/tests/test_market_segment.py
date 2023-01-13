@@ -89,7 +89,7 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         )
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=SegmentsBrick.id_,
+            self.get_html_tree(response.content), brick=SegmentsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

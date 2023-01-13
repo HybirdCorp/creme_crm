@@ -232,7 +232,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ---
         tree = self.get_html_tree(response.content)
-        info_brick_node = self.get_brick_node(tree, proj_bricks.ProjectExtraInfoBrick.id_)
+        info_brick_node = self.get_brick_node(tree, brick=proj_bricks.ProjectExtraInfoBrick)
         self.assertListEqual(
             [
                 currency(0, project.currency),  # Cost
@@ -242,7 +242,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        task_brick_node = self.get_brick_node(tree, proj_bricks.ProjectTasksBrick.id_)
+        task_brick_node = self.get_brick_node(tree, brick=proj_bricks.ProjectTasksBrick)
         self.assertEqual(
             _('Related tasks'),
             self.get_brick_title(task_brick_node),
@@ -275,7 +275,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         # ---
         tree = self.get_html_tree(response.content)
-        info_brick_node = self.get_brick_node(tree, proj_bricks.ProjectExtraInfoBrick.id_)
+        info_brick_node = self.get_brick_node(tree, brick=proj_bricks.ProjectExtraInfoBrick)
         self.assertListEqual(
             [
                 currency(300, project.currency),  # Cost
@@ -285,7 +285,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
 
         # ---
-        task_brick_node = self.get_brick_node(tree, proj_bricks.ProjectTasksBrick.id_)
+        task_brick_node = self.get_brick_node(tree, brick=proj_bricks.ProjectTasksBrick)
         self.assertBrickTitleEqual(
             task_brick_node,
             count=1, title='{count} Related task', plural_title='{count} Related tasks',
@@ -917,7 +917,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         detail_response = self.assertGET200(task.get_absolute_url())
         tree = self.get_html_tree(detail_response.content)
 
-        resources_brick_node = self.get_brick_node(tree, proj_bricks.TaskResourcesBrick.id_)
+        resources_brick_node = self.get_brick_node(tree, brick=proj_bricks.TaskResourcesBrick)
         self.assertBrickTitleEqual(
             resources_brick_node,
             count=1,
@@ -925,7 +925,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             plural_title='{count} Resources assigned to this task',
         )
 
-        activities_brick_node = self.get_brick_node(tree, proj_bricks.TaskActivitiesBrick.id_)
+        activities_brick_node = self.get_brick_node(tree, brick=proj_bricks.TaskActivitiesBrick)
         self.assertBrickTitleEqual(
             activities_brick_node,
             count=1,

@@ -67,7 +67,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=bricks.EmailSyncConfigItemsBrick.id_,
+            brick=bricks.EmailSyncConfigItemsBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -294,7 +294,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=bricks.EmailsToSyncBrick.id_,
+            brick=bricks.EmailsToSyncBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,
@@ -316,7 +316,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response = self.assertGET200(reverse('emails__sync_portal'))
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content),
-            brick_id=bricks.EmailsToSyncBrick.id_,
+            brick=bricks.EmailsToSyncBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

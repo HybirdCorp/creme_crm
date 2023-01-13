@@ -116,8 +116,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertTemplateUsed(response, 'events/bricks/event-hat-bar.html')
 
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content),
-            ResultsBrick.id_,
+            self.get_html_tree(response.content), brick=ResultsBrick,
         )
         self.assertEqual(_('Results'), self.get_brick_title(brick_node))
 

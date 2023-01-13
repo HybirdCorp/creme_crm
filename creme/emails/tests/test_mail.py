@@ -161,7 +161,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTemplateUsed(response3, 'emails/view_entity_mail.html')
 
         body_brick_node = self.get_brick_node(
-            self.get_html_tree(response3.content), brick_id=bricks.EmailHTMLBodyBrick.id_,
+            self.get_html_tree(response3.content), brick=bricks.EmailHTMLBodyBrick,
         )
         iframe_node1 = body_brick_node.find('.//iframe')
         self.assertIsNotNone(iframe_node1)
@@ -175,7 +175,7 @@ class EntityEmailTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertTemplateUsed(response4, 'creme_core/generics/detail-popup.html')
 
         popup_brick_node = self.get_brick_node(
-            self.get_html_tree(response4.content), brick_id=bricks.MailPopupBrick.id_,
+            self.get_html_tree(response4.content), brick=bricks.MailPopupBrick,
         )
         iframe_node2 = popup_brick_node.find('.//iframe')
         self.assertIsNotNone(iframe_node2)
@@ -1135,7 +1135,7 @@ better &amp; lighter than the previous one.
 
         response = self.assertGET200(contact.get_absolute_url())
         brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick_id=bricks.MailsHistoryBrick.id_,
+            self.get_html_tree(response.content), brick=bricks.MailsHistoryBrick,
         )
         self.assertBrickTitleEqual(
             brick_node,

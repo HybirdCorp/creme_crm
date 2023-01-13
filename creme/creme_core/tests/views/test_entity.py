@@ -721,7 +721,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
         self.assertTemplateUsed(response, 'creme_core/trash.html')
 
         doc = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(doc, TrashBrick.id_)
+        brick_node = self.get_brick_node(doc, brick=TrashBrick)
         self.assertInstanceLink(brick_node, entity1)
         self.assertNoInstanceLink(brick_node, entity2)
         self.assertBrickHasAction(
@@ -742,7 +742,7 @@ class EntityViewsTestCase(BrickTestCaseMixin, ViewsTestCase):
 
         response = self.assertGET200(reverse('creme_core__trash'))
         doc = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(doc, TrashBrick.id_)
+        brick_node = self.get_brick_node(doc, brick=TrashBrick)
         self.assertInstanceLink(brick_node, entity)
         self.assertBrickHasNoAction(
             brick_node, url=self._build_delete_url(entity),
