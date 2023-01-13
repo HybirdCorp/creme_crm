@@ -147,7 +147,7 @@ class EmailRecipientsBrick(QuerysetBrick):
 
 class ContactsBrick(_RelatedEntitiesBrick):
     id_ = QuerysetBrick.generate_id('emails', 'contacts')
-    verbose_name = _('Contacts recipients')
+    verbose_name = _('Contact-recipients')
     dependencies = (Contact,)
     template_name = 'emails/bricks/contacts.html'
     target_ctypes = (MailingList,)
