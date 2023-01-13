@@ -5,12 +5,18 @@ from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
-from creme.creme_core.models import Currency, SetCredentials
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    Currency,
+    SetCredentials,
+)
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import (
     skipIfCustomAddress,
     skipIfCustomOrganisation,
 )
 
+from ..bricks import ReceivedSalesOrdersBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..models import SalesOrderStatus
 from .base import (
@@ -24,7 +30,7 @@ from .base import (
 
 @skipIfCustomOrganisation
 @skipIfCustomSalesOrder
-class SalesOrderTestCase(_BillingTestCase):
+class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_related_creation_url(target):
         return reverse('billing__create_related_order', args=(target.id,))
@@ -325,3 +331,49 @@ class SalesOrderTestCase(_BillingTestCase):
     def test_mass_import_update(self):
         self.login()
         self._aux_test_csv_import_update(SalesOrder, SalesOrderStatus)
+
+    def test_brick(self):
+        user = self.login()
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=ReceivedSalesOrdersBrick, order=600,
+            zone=BrickDetailviewLocation.RIGHT, model=Organisation,
+        )
+
+        source, target = self.create_orgas(user=user)
+
+        response1 = self.assertGET200(target.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            brick=ReceivedSalesOrdersBrick,
+        )
+        self.assertEqual(_('Received sales orders'), self.get_brick_title(brick_node1))
+
+        # ---
+        order = SalesOrder.objects.create(
+            user=user, name='My Quote',
+            status=SalesOrderStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response2 = self.assertGET200(target.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=ReceivedSalesOrdersBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2,
+            count=1,
+            title='{count} Received sales order',
+            plural_title='{count} Received sales orders',
+        )
+        self.assertListEqual(
+            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node2),
+        )
+        rows = self.get_brick_table_rows(brick_node2)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(4, len(table_cells))
+        self.assertInstanceLink(table_cells[0], entity=order)

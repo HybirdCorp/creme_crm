@@ -5,15 +5,19 @@ from functools import partial
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
+from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.billing import bricks
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     CremeEntity,
     Currency,
+    FieldsConfig,
     Relation,
     RelationType,
     SetCredentials,
@@ -313,7 +317,49 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertAddressContentEqual(target.shipping_address, invoice.shipping_address)
         self.assertEqual(invoice, invoice.shipping_address.owner)
 
-        self.assertGET200(invoice.get_absolute_url())
+        # ---
+        detail_url = invoice.get_absolute_url()
+        response1 = self.assertGET200(detail_url)
+        pretty_brick_node = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            brick=bricks.BillingPrettyAddressBrick,
+        )
+        self.assertEqual(_('Addresses'), self.get_brick_title(pretty_brick_node))
+        self.assertBrickHasAction(
+            pretty_brick_node,
+            url=f'{invoice.billing_address.get_edit_absolute_url()}?type=billing',
+            action_type='edit',
+        )
+        self.assertBrickHasAction(
+            pretty_brick_node,
+            url=f'{invoice.shipping_address.get_edit_absolute_url()}?type=shipping',
+            action_type='edit',
+        )
+
+        # ---
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=bricks.BillingDetailedAddressBrick,
+            order=600,
+            zone=BrickDetailviewLocation.RIGHT,
+            model=Invoice,
+        )
+
+        response2 = self.assertGET200(detail_url)
+        detailed_brick_node = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=bricks.BillingDetailedAddressBrick,
+        )
+        self.assertEqual(_('Addresses'), self.get_brick_title(detailed_brick_node))
+        self.assertBrickHasAction(
+            detailed_brick_node,
+            url=f'{invoice.billing_address.get_edit_absolute_url()}?type=billing',
+            action_type='edit',
+        )
+        self.assertBrickHasAction(
+            detailed_brick_node,
+            url=f'{invoice.shipping_address.get_edit_absolute_url()}?type=shipping',
+            action_type='edit',
+        )
 
     def test_createview_error(self):
         "Credentials errors with Organisation."
@@ -1362,6 +1408,129 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self._aux_test_csv_import(
             Invoice, InvoiceStatus, update=True, number_help_text=False,
         )
+
+    def test_brick01(self):
+        user = self.login()
+        source, target = self.create_orgas(user=user)
+
+        response1 = self.assertGET200(target.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            brick=bricks.ReceivedInvoicesBrick,
+        )
+        self.assertEqual(_('Received invoices'), self.get_brick_title(brick_node1))
+
+        # ---
+        invoice = Invoice.objects.create(
+            user=user, name='My Invoice',
+            status=InvoiceStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+        invoice.generate_number(source)
+        invoice.save()
+
+        response2 = self.assertGET200(target.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=bricks.ReceivedInvoicesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2,
+            count=1,
+            title='{count} Received invoice',
+            plural_title='{count} Received invoices',
+        )
+        self.assertListEqual(
+            [_('Name'), _('Number'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node2),
+        )
+        rows = self.get_brick_table_rows(brick_node2)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(5, len(table_cells))
+        self.assertInstanceLink(table_cells[0], entity=invoice)
+        self.assertEqual(invoice.number, table_cells[1].text)
+        self.assertEqual(
+            date_format(invoice.expiration_date, 'DATE_FORMAT'),
+            table_cells[2].text,
+        )
+        self.assertEqual(invoice.status.name, table_cells[3].text)
+        # TODO: test table_cells[4]
+
+    def test_brick02(self):
+        "Field 'expiration_date' is hidden."
+        user = self.login()
+        source, target = self.create_orgas(user=user)
+
+        FieldsConfig.objects.create(
+            content_type=Invoice,
+            descriptions=[
+                ('expiration_date',  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        Invoice.objects.create(
+            user=user, name='My Quote',
+            status=InvoiceStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.ReceivedInvoicesBrick,
+        )
+        self.assertListEqual(
+            [_('Name'), _('Number'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node),
+        )
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(1, len(rows))
+        self.assertEqual(4, len(rows[0].findall('.//td')))
+
+    @override_settings(HIDDEN_VALUE='?')
+    def test_brick03(self):
+        "No VIEW permission."
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'])
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        source, target = self.create_orgas(user=user)
+
+        Invoice.objects.create(
+            user=self.other_user, name='My Quote',
+            status=InvoiceStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=bricks.ReceivedInvoicesBrick,
+        )
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(5, len(table_cells))
+        self.assertEqual('?', table_cells[0].text)
+        self.assertEqual('?', table_cells[1].text)
+        self.assertEqual('?', table_cells[2].text)
+        self.assertEqual('?', table_cells[3].text)
+        self.assertEqual('?', table_cells[4].text)
 
 
 @skipIfCustomOrganisation

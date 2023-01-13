@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.test.utils import override_settings
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
@@ -15,8 +16,10 @@ from creme.creme_core.gui.custom_form import FieldGroupList
 from creme.creme_core.models import (
     Currency,
     CustomFormConfigItem,
+    FieldsConfig,
     SetCredentials,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.constants import REL_SUB_PROSPECT
 from creme.persons.tests.base import (
     skipIfCustomAddress,
@@ -24,6 +27,7 @@ from creme.persons.tests.base import (
 )
 
 from ..actions import ExportQuoteAction
+from ..bricks import ReceivedQuotesBrick
 from ..constants import REL_SUB_BILL_ISSUED, REL_SUB_BILL_RECEIVED
 from ..custom_forms import QUOTE_CREATION_CFORM
 from ..forms.base import BillingSourceSubCell, BillingTargetSubCell
@@ -43,7 +47,7 @@ from .base import (
 
 @skipIfCustomOrganisation
 @skipIfCustomQuote
-class QuoteTestCase(_BillingTestCase):
+class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     def test_detailview01(self):
         "Cannot create Sales Orders => convert button disabled."
         self.login(
@@ -101,10 +105,10 @@ class QuoteTestCase(_BillingTestCase):
         self.assertEqual(1, len(managed_orgas))
 
         managed_orga = managed_orgas[0]
-        response = self.assertGET200(reverse('billing__create_quote'))
+        response1 = self.assertGET200(reverse('billing__create_quote'))
 
         with self.assertNoException():
-            fields = response.context['form'].fields
+            fields = response1.context['form'].fields
             source_f = fields[self.SOURCE_KEY]
             number_f = fields['number']
 
@@ -751,3 +755,120 @@ class QuoteTestCase(_BillingTestCase):
             query = query_info['sql']
             self.assertNotIn('billing_productline', query)
             self.assertNotIn('billing_serviceline', query)
+
+    def test_brick01(self):
+        user = self.login()
+        source, target = self.create_orgas(user=user)
+
+        response1 = self.assertGET200(target.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            brick=ReceivedQuotesBrick,
+        )
+        self.assertEqual(_('Received quotes'), self.get_brick_title(brick_node1))
+
+        # ---
+        quote = Quote.objects.create(
+            user=user, name='My Quote',
+            status=QuoteStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response2 = self.assertGET200(target.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=ReceivedQuotesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2, count=1,
+            title='{count} Received quote', plural_title='{count} Received quotes',
+        )
+        self.assertListEqual(
+            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node2),
+        )
+        rows = self.get_brick_table_rows(brick_node2)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(4, len(table_cells))
+        self.assertInstanceLink(table_cells[0], entity=quote)
+        self.assertEqual(
+            date_format(quote.expiration_date, 'DATE_FORMAT'),
+            table_cells[1].text,
+        )
+        self.assertEqual(quote.status.name, table_cells[2].text)
+        # TODO: test table_cells[3]
+
+    def test_brick02(self):
+        "Field 'expiration_date' is hidden."
+        user = self.login()
+        source, target = self.create_orgas(user=user)
+
+        FieldsConfig.objects.create(
+            content_type=Quote,
+            descriptions=[
+                ('expiration_date',  {FieldsConfig.HIDDEN: True}),
+            ],
+        )
+
+        Quote.objects.create(
+            user=user, name='My Quote',
+            status=QuoteStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=ReceivedQuotesBrick,
+        )
+        self.assertListEqual(
+            [_('Name'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node),
+        )
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(1, len(rows))
+        self.assertEqual(3, len(rows[0].findall('.//td')))
+
+    @override_settings(HIDDEN_VALUE='?')
+    def test_brick03(self):
+        "No VIEW permission."
+        user = self.login(is_superuser=False, allowed_apps=['persons', 'billing'])
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.CHANGE
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        source, target = self.create_orgas(user=user)
+
+        Quote.objects.create(
+            user=self.other_user, name='My Quote',
+            status=QuoteStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response = self.assertGET200(target.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=ReceivedQuotesBrick,
+        )
+        rows = self.get_brick_table_rows(brick_node)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(4, len(table_cells))
+        self.assertEqual('?', table_cells[0].text)
+        self.assertEqual('?', table_cells[1].text)
+        self.assertEqual('?', table_cells[2].text)
+        self.assertEqual('?', table_cells[3].text)

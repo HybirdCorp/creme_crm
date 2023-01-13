@@ -7,14 +7,17 @@ from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.models import (
+    BrickDetailviewLocation,
     Currency,
     FakeOrganisation,
     FieldsConfig,
     Relation,
     SetCredentials,
 )
+from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.persons.tests.base import skipIfCustomOrganisation
 
+from ..bricks import CreditNotesBrick, ReceivedCreditNotesBrick
 from ..constants import (
     REL_SUB_BILL_ISSUED,
     REL_SUB_BILL_RECEIVED,
@@ -35,7 +38,7 @@ from .base import (
 
 @skipIfCustomOrganisation
 @skipIfCustomCreditNote
-class CreditNoteTestCase(_BillingTestCase):
+class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_editcomment_url(credit_note):
         return reverse('billing__edit_cnote_comment', args=(credit_note.id,))
@@ -85,6 +88,26 @@ class CreditNoteTestCase(_BillingTestCase):
         expected_total = Decimal('1')
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
+
+        # ---
+        response = self.assertGET200(invoice.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response.content),
+            brick=CreditNotesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Credit Note',
+            plural_title='{count} Credit Notes',
+        )
+        self.assertInstanceLink(brick_node, entity=credit_note)
+        self.assertBrickHasAction(
+            brick_node,
+            url=self._build_editcomment_url(credit_note),
+            action_type='edit',
+        )
+        # TODO: complete (hidden fields, no view permission)
 
     @skipIfCustomInvoice
     @skipIfCustomProductLine
@@ -739,5 +762,51 @@ class CreditNoteTestCase(_BillingTestCase):
 
         credit_note = self.create_credit_note_n_orgas('Credit Note 001')[0]
         self.assertGET403(self._build_editcomment_url(credit_note))
+
+    def test_brick(self):
+        user = self.login()
+        BrickDetailviewLocation.objects.create_if_needed(
+            brick=ReceivedCreditNotesBrick, order=600,
+            zone=BrickDetailviewLocation.RIGHT, model=Organisation,
+        )
+
+        source, target = self.create_orgas(user=user)
+
+        response1 = self.assertGET200(target.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content),
+            brick=ReceivedCreditNotesBrick,
+        )
+        self.assertEqual(_('Received credit notes'), self.get_brick_title(brick_node1))
+
+        # ---
+        credit_note = CreditNote.objects.create(
+            user=user, name='My Quote',
+            status=CreditNoteStatus.objects.all()[0],
+            source=source, target=target,
+            expiration_date=date(year=2023, month=6, day=1),
+        )
+
+        response2 = self.assertGET200(target.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content),
+            brick=ReceivedCreditNotesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2,
+            count=1,
+            title='{count} Received credit note',
+            plural_title='{count} Received credit notes',
+        )
+        self.assertListEqual(
+            [_('Name'), _('Expiration date'), _('Status'), _('Total without VAT')],
+            self.get_brick_table_column_titles(brick_node2),
+        )
+        rows = self.get_brick_table_rows(brick_node2)
+        self.assertEqual(1, len(rows))
+
+        table_cells = rows[0].findall('.//td')
+        self.assertEqual(4, len(table_cells))
+        self.assertInstanceLink(table_cells[0], entity=credit_note)
 
     # TODO: complete (other views)
