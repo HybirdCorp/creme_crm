@@ -6,23 +6,87 @@ from django.utils.translation import gettext as _
 from parameterized import parameterized
 
 from creme import products
-from creme.creme_core.models import FieldsConfig, Relation
+from creme.creme_core.constants import MODELBRICK_ID
+from creme.creme_core.models import (
+    BrickDetailviewLocation,
+    FieldsConfig,
+    Relation,
+)
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.opportunities import bricks, constants
 from creme.persons import get_contact_model
-from creme.persons.tests.base import skipIfCustomContact
+from creme.persons.tests.base import (
+    skipIfCustomContact,
+    skipIfCustomOrganisation,
+)
 from creme.products.models import SubCategory
 from creme.products.tests.base import skipIfCustomProduct, skipIfCustomService
 
 from .base import (
     OpportunitiesBaseTestCase,
     Opportunity,
+    Organisation,
     skipIfCustomOpportunity,
 )
 
 
 @skipIfCustomOpportunity
+@skipIfCustomOrganisation
 class BricksTestCase(BrickTestCaseMixin, OpportunitiesBaseTestCase):
+    # TODO: OpportunityBrick
+    def test_basic(self):
+        self.login()
+        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+
+        response1 = self.assertGET200(opp.get_absolute_url())
+        tree1 = self.get_html_tree(response1.content)
+        self.get_brick_node(tree1, brick=bricks.OppTotalBrick)  # TODO: improve tests...
+        self.assertNoBrick(tree1, brick_id=MODELBRICK_ID)
+
+        # ---
+        BrickDetailviewLocation.objects.create_for_model_brick(
+            model=Opportunity, order=1, zone=BrickDetailviewLocation.RIGHT,
+        )
+        response2 = self.assertGET200(opp.get_absolute_url())
+        tree2 = self.get_html_tree(response2.content)
+        brick_node = self.get_brick_node(tree2, brick=MODELBRICK_ID)
+        self.assertEqual(
+            _('Information on the opportunity'),
+            self.get_brick_title(brick_node),
+        )
+
+    def test_target01(self):
+        "Source is displayed."
+        self.login()
+        opp, target, emitter = self._create_opportunity_n_organisations(name='Opp#1')
+        self.assertEqual(
+            2, Organisation.objects.filter(is_managed=True, is_deleted=False).count(),
+        )
+
+        response = self.assertGET200(opp.get_absolute_url())
+        tree = self.get_html_tree(response.content)
+
+        brick_node = self.get_brick_node(tree, brick=bricks.OppTargetBrick)
+        self.assertInstanceLink(brick_node, target)
+        self.assertInstanceLink(brick_node, emitter)
+
+    def test_target02(self):
+        "Source is not displayed."
+        self.login()
+        opp, target, emitter = self._create_opportunity_n_organisations(
+            name='Opp#1', managed=False,
+        )
+        self.assertEqual(
+            1, Organisation.objects.filter(is_managed=True, is_deleted=False).count(),
+        )
+
+        response = self.assertGET200(opp.get_absolute_url())
+        tree = self.get_html_tree(response.content)
+
+        brick_node = self.get_brick_node(tree, brick=bricks.OppTargetBrick)
+        self.assertInstanceLink(brick_node, target)
+        self.assertNoInstanceLink(brick_node, emitter)
+
     @skipIfCustomContact
     def test_hat_card01(self):
         "All contacts can be displayed."
