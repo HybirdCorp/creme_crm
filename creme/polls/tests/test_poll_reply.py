@@ -1752,7 +1752,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertRedirects(response, preply.get_absolute_url())
         self.assertTrue(self.refresh(preply).is_complete)
 
-        self.assertGET404(self._build_fill_url(preply))  # All questions are answered
+        # All questions are answered
+        response = self.client.get(self._build_fill_url(preply))
+        self.assertRedirects(response, preply.pform.get_absolute_url())
 
     def test_fillview_wizard02(self):
         "Wizard: no line (SHOULD NOT HAPPEN...)."
