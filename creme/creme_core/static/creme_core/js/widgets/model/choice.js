@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2021  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -47,7 +47,7 @@ creme.model.ChoiceRenderer = creme.model.ListRenderer.sub({
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
-            .toggleAttr('disabled', data.disabled === true)
+            .toggleProp('disabled', data.disabled === true)
             .prop('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
@@ -187,7 +187,7 @@ creme.model.ChoiceGroupRenderer = creme.model.ChoiceRenderer.sub({
 
         // upgrade to Jquery 1.9x : selected is a property and attr() method should not be used.
         item.attr('value', value)
-            .toggleAttr('disabled', data.disabled === true)
+            .toggleProp('disabled', data.disabled === true)
             .prop('selected', data.selected === true)
             .toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .html(data.label);
@@ -305,22 +305,22 @@ creme.model.CheckListRenderer = creme.model.ListRenderer.sub({
         var disabled = (data.disabled || data.readonly) || this._disabled;
         var readonly = data.readonly || false;
 
-        checkbox.toggleAttr('disabled', data.disabled || disabled)
+        checkbox.toggleProp('disabled', data.disabled || disabled)
                 .attr('value', value)
                 .attr('checklist-index', index)
                 .data('checklist-item', {data: data, index: index});
 
         checkbox.prop('checked', data.selected);
 
-        $('.checkbox-label-text', item).toggleAttr('disabled', disabled)
+        $('.checkbox-label-text', item).toggleProp('disabled', disabled)
                                        .html(data.label);
 
-        $('.checkbox-label-help', item).toggleAttr('disabled', disabled)
+        $('.checkbox-label-help', item).toggleProp('disabled', disabled)
                                        .html(data.help);
 
         item.toggleAttr('tags', data.tags, (data.tags || []).join(' '))
             .toggleClass('hidden', !data.visible)
-            .toggleAttr('disabled', disabled)
+            .toggleProp('disabled', disabled)
             .toggleAttr('readonly', readonly)
             .attr('checklist-index', index);
     },
