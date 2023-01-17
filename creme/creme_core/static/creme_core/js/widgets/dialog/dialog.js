@@ -266,7 +266,7 @@ creme.dialog.Dialog = creme.component.Component.sub({
         button.removeClass('ui-state-focus ui-state-hover ui-state-active');
 
         button.toggleClass('ui-state-disabled', !enabled);
-        button.toggleAttr('disabled', !enabled);
+        button.toggleProp('disabled', !enabled);
 
         if ((!this.options.autoFocus && focus === 'auto') || focus === true) {
             button.trigger('focus');
