@@ -1005,7 +1005,7 @@
     padding: 5px 10px;
 
     cursor: default;
-    cursor: not-allowed;
+/*    cursor: not-allowed; */
 
     text-align: left;
     font-weight: 600;
