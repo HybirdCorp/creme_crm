@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2012-2022  Hybird
+#    Copyright (C) 2012-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -167,7 +167,8 @@ def fill(request, preply_id):
     user.has_perm_to_change_or_die(preply)
 
     if preply.is_complete:
-        raise Http404(gettext('All questions have been answered.'))
+        logger.warn('All questions have been answered.')
+        return redirect(preply.pform)
 
     tree = ReplySectionTree(preply)
     line_node = tree.next_question_to_answer
