@@ -100,6 +100,10 @@ ul.bline-error-list > li {
     top: 3px;
 }
 
+.billing-list-brick .billing-brick-list-empty-error {
+    color: #f08080;
+}
+
 .billing-item .billing-select-account {
     opacity: 0;
     visibility: hidden;
