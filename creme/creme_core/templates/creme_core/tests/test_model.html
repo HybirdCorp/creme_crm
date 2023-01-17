@@ -19,7 +19,7 @@
         creme.test.CheckboxListRenderer = creme.model.ListRenderer.sub({
             createItem: function(target, before, data, index) {
                 var checkbox = $('<label>').append($('<input type="checkbox">').attr('value', data.value)
-                                                                               .toggleAttr('disabled', data.disabled)
+                                                                               .toggleProp('disabled', data.disabled)
                                                                                .text(data.label))
                                            .append($('<span>').html(data.label));
 
@@ -30,7 +30,7 @@
                 if (data !== previous) {
                     $('span', item).html(data.label);
                     $('input', item).attr('value', data.value)
-                                    .toggleAttr('disabled', data.disabled);
+                                    .toggleProp('disabled', data.disabled);
                 }
             },
 
@@ -63,7 +63,7 @@
                 renderer.redraw();
 
                 model.bind(['remove', 'clear', 'reset', 'add'], function() {
-                    selector.toggleAttr('disabled', this.length() <= 1);
+                    selector.toggleProp('disabled', this.length() <= 1);
                 });
 
                 add.on('click', function() {
@@ -124,7 +124,7 @@
                 renderer.redraw();
 
                 filteredmodel.bind(['remove', 'clear', 'reset', 'add'], function() {
-                    selector.toggleAttr('disabled', this.length() <= 1);
+                    selector.toggleProp('disabled', this.length() <= 1);
                 });
 
                 input.on('change keyup', function() {
