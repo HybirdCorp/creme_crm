@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         dependencies: '',
         multiple: false,
         sortable: false,
-        autocomplete: false
+        autocomplete: false,
+        cache: undefined
     },
 
     _create: function(element, options, cb, sync) {
@@ -43,6 +44,8 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
         this._url = new creme.utils.Template(options.url);
         this._filter = new creme.utils.Template(options.filter);
         this._dependencies = Array.isArray(options.dependencies) ? options.dependencies : (options.dependencies ? options.dependencies.split(' ') : []);
+
+        this.cacheMode(element, options.cache || element.data("cache") || 'full');
 
         this._initModel(element, options);
         this._initAutocomplete(element, options);
@@ -164,8 +167,18 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
         var selected = this.val(element);
 
-        this._model.fetch({fields: ['id', 'unicode'], sort: 'unicode'}, {backend: {dataType: 'json', sync: sync}}, {
+        this._model.fetch({
+            fields: ['id', 'unicode'],
+            sort: 'unicode'
+        }, {
+            backend: {
+                dataType: 'json',
+                sync: sync,
+                forcecache: this._forceCache
+            }
+        }, {
             done:  function(event, data) {
+                self._forceCache = (self.cacheMode() === 'ignore');
                 self.val(element, selected);
                 creme.object.invoke(cb, element, data);
             },
@@ -255,6 +268,18 @@ creme.widget.DynamicSelect = creme.widget.declare('ui-creme-dselect', {
 
     model: function(element) {
         return this._model;
+    },
+
+    cacheMode: function(element, mode) {
+        if (mode === undefined) {
+            return this._cacheMode;
+        }
+
+        Assert.in(mode, ['ignore', 'force', 'full']);
+
+        this._forceCache = (mode !== 'full');
+        this._cacheMode = mode;
+        return this;
     },
 
     _onSelectionChange: function(element, previous) {

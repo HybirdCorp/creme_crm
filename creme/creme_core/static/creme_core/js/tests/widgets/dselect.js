@@ -353,7 +353,9 @@ QUnit.test('creme.widget.DynamicSelect.url (force empty url)', function(assert) 
     widget.reload({name: 'options', content: ''});
 
     deepEqual([
-        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true
+         }]
     ], this.mockBackendCalls());
 
     equal(3, $('option', element).length);
@@ -374,7 +376,9 @@ QUnit.test('creme.widget.DynamicSelect.url (force empty url)', function(assert) 
     deepEqual([], this.mockListenerCalls('fetch-done'));
     deepEqual([], this.mockListenerCalls('fetch-error'));
     deepEqual([
-        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true
+         }]
     ], this.mockBackendCalls());
 
     equal('', widget.url());
@@ -415,7 +419,9 @@ QUnit.test('creme.widget.DynamicSelect.url (template, ok)', function(assert) {
         ]
     ], this.mockListenerCalls('fetch-done').map(function(d) { return d[1]; }));
     deepEqual([
-        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true
+         }]
     ], this.mockBackendCalls());
 
     this.resetMockListenerCalls();
@@ -438,8 +444,12 @@ QUnit.test('creme.widget.DynamicSelect.url (template, ok)', function(assert) {
     ], this.mockListenerCalls('fetch-done').map(function(d) { return d[1]; }));
     deepEqual([], this.mockListenerCalls('error'));
     deepEqual([
-        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}],
-        ['mock/options/42', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true}
+        ],
+        ['mock/options/42', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true}
+        ]
     ], this.mockBackendCalls());
 });
 
@@ -486,7 +496,9 @@ QUnit.test('creme.widget.DynamicSelect.reload (valid template => ok)', function(
     ], this.mockListenerCalls('done').map(function(d) { return d[1]; }));
     deepEqual([], this.mockListenerCalls('error'));
     deepEqual([
-        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true
+        }]
     ], this.mockBackendCalls());
 
     equal(widget.url(), 'mock/options');
@@ -511,7 +523,9 @@ QUnit.test('creme.widget.DynamicSelect.reload (valid template => empty data)', f
     deepEqual([[element, []]], this.mockListenerCalls('done'));
     deepEqual([], this.mockListenerCalls('error'));
     deepEqual([
-        ['mock/options/empty', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {delay: 500, enableUriSearch: false, dataType: 'json', sync: true}]
+        ['mock/options/empty', 'GET', {fields: ['id', 'unicode'], sort: 'unicode'}, {
+            delay: 500, enableUriSearch: false, dataType: 'json', forcecache: false, sync: true
+         }]
     ], this.mockBackendCalls());
 
     equal(widget.url(), 'mock/options/empty');
@@ -769,6 +783,40 @@ QUnit.test('creme.widget.DynamicSelect.val (reload)', function(assert) {
     equal('24', $('option:nth(1)', element).attr('value'));
     equal('5', $('option:nth(2)', element).attr('value'));
     equal('12.5', $('option:nth(3)', element).attr('value'));
+});
+
+QUnit.parameterize('creme.widget.DynamicSelect.val (reload, cache)', [
+    ['full', 0],
+    ['force', 1],
+    ['ignore', 2]
+], function(cacheMode, expected, assert) {
+    var element = this.createDynamicSelectTag();
+    this.appendOptionTag(element, 'a', 1);
+
+    this.setMockBackendGET({
+        'mock/options': this.backend.responseJSON(200, [[1, 'a']])
+    });
+
+    var backend = new creme.ajax.CacheBackend(this.backend, {sync: true});
+
+    // Pre-fill the backend cache
+    backend.get('mock/options', {fields: ['id', 'unicode'], sort: 'unicode'}, _.noop, _.noop, {dataType: 'json'});
+    equal(this.mockBackendUrlCalls('mock/options').length, 1);
+
+    this.resetMockBackendCalls();
+    equal(this.mockBackendUrlCalls('mock/options').length, 0);
+
+    var widget = creme.widget.create(element, {
+        backend: backend,
+        cache: cacheMode
+    });
+
+    equal(cacheMode, widget.cacheMode());
+
+    widget.url('mock/options');
+    widget.url('mock/options');
+
+    equal(this.mockBackendUrlCalls('mock/options').length, expected);
 });
 
 QUnit.test('creme.widget.DynamicSelect.val (reload, not exists)', function(assert) {
