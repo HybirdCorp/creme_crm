@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import timedelta
 from functools import partial
 from io import StringIO
 
@@ -29,7 +29,6 @@ from ..management.commands.activities_create_default_calendars import (
     Command as CalCommand,
 )
 from ..models import Calendar
-from ..utils import get_last_day_of_a_month
 from .base import _ActivitiesTestCase, skipIfCustomActivity
 
 Activity = get_activity_model()
@@ -1534,42 +1533,6 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(self.refresh(cal12).is_default)
         self.assertFalse(self.refresh(cal21).is_default)
         self.assertFalse(self.refresh(cal22).is_default)
-
-    def test_get_last_day_of_a_month(self):
-        self.assertEqual(
-            date(year=2016, month=1, day=31),
-            get_last_day_of_a_month(date(year=2016, month=1, day=1)),
-        )
-        self.assertEqual(
-            date(year=2016, month=1, day=31),
-            get_last_day_of_a_month(date(year=2016, month=1, day=18)),
-        )
-
-        # Other 31 days
-        self.assertEqual(
-            date(year=2016, month=3, day=31),
-            get_last_day_of_a_month(date(year=2016, month=3, day=17)),
-        )
-
-        # 30 days
-        self.assertEqual(
-            date(year=2016, month=4, day=30),
-            get_last_day_of_a_month(date(year=2016, month=4, day=17)),
-        )
-        self.assertEqual(
-            date(year=2016, month=4, day=30),
-            get_last_day_of_a_month(date(year=2016, month=4, day=30)),
-        )
-
-        # February
-        self.assertEqual(
-            date(year=2016, month=2, day=29),
-            get_last_day_of_a_month(date(year=2016, month=2, day=17)),
-        )
-        self.assertEqual(
-            date(year=2015, month=2, day=28),
-            get_last_day_of_a_month(date(year=2015, month=2, day=17)),
-        )
 
     @parameterized.expand([
         (

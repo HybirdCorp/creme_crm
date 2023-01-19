@@ -5,7 +5,6 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
-from django.forms.utils import ValidationError
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str  # force_text
@@ -57,7 +56,6 @@ from ..forms.activity import (
 )
 from ..forms.fields import ActivitySubTypeField
 from ..models import ActivitySubType, ActivityType, Calendar, Status
-from ..utils import check_activity_collisions
 from .base import (
     Activity,
     Contact,
@@ -2244,137 +2242,6 @@ class ActivityTestCase(_ActivitiesTestCase):
         activity2 = self.refresh(activity2)
         self.assertEqual(ACTIVITYTYPE_INDISPO, activity2.type_id)
         self.assertEqual(subtype,              activity2.sub_type)
-
-    def _check_activity_collisions(self, activity_start, activity_end, participants,
-                                   busy=True, exclude_activity_id=None):
-        collisions = check_activity_collisions(
-            activity_start, activity_end, participants,
-            busy=busy, exclude_activity_id=exclude_activity_id,
-        )
-        if collisions:
-            raise ValidationError(collisions)
-
-    @skipIfCustomContact
-    def test_collision01(self):
-        user = self.login()
-
-        create_activity = partial(
-            Activity.objects.create,
-            user=user,
-            type_id=constants.ACTIVITYTYPE_MEETING,
-            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
-        )
-        create_dt = self.create_datetime
-
-        with self.assertNoException():
-            act01 = create_activity(
-                title='call01',
-                type_id=constants.ACTIVITYTYPE_PHONECALL,
-                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
-                start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
-                end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
-            )
-            act02 = create_activity(
-                title='meet01',
-                start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
-                end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
-            )
-            act03 = create_activity(
-                title='meet02', busy=True,
-                start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
-                end=create_dt(year=2010, month=10, day=1, hour=19, minute=0),
-            )
-
-            create_contact = partial(Contact.objects.create, user=user)
-            c1 = create_contact(first_name='first_name1', last_name='last_name1')
-            c2 = create_contact(first_name='first_name2', last_name='last_name2')
-
-            create_rel = partial(
-                Relation.objects.create,
-                subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY, user=user,
-            )
-            create_rel(object_entity=act01)
-            create_rel(object_entity=act02)
-            create_rel(object_entity=act03)
-
-        check_coll = partial(self._check_activity_collisions, participants=[c1, c2])
-
-        try:
-            # No collision
-            # Next day
-            check_coll(
-                activity_start=create_dt(year=2010, month=10, day=2, hour=12, minute=0),
-                activity_end=create_dt(year=2010,   month=10, day=2, hour=13, minute=0),
-            )
-
-            # One minute before
-            check_coll(
-                activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
-                activity_end=create_dt(year=2010,   month=10, day=1, hour=11, minute=59),
-            )
-
-            # One minute after
-            check_coll(
-                activity_start=create_dt(year=2010, month=10, day=1, hour=13, minute=1),
-                activity_end=create_dt(year=2010,   month=10, day=1, hour=13, minute=10),
-            )
-            # Not busy
-            check_coll(
-                activity_start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
-                activity_end=create_dt(year=2010,   month=10, day=1, hour=15, minute=0),
-                busy=False
-            )
-        except ValidationError as e:
-            self.fail(str(e))
-
-        # Collision with act01
-        # Before
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=30),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
-            participants=[c1, c2],
-        )
-
-        # After
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
-            participants=[c1, c2],
-        )
-
-        # Shorter
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=10),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
-            participants=[c1, c2],
-        )
-
-        # Longer
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
-            participants=[c1, c2],
-        )
-
-        # Busy1
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=17, minute=30),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
-            participants=[c1, c2],
-        )
-
-        # Busy2
-        self.assertRaises(
-            ValidationError, self._check_activity_collisions,
-            activity_start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
-            activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
-            busy=False, participants=[c1, c2],
-        )
 
     def test_listviews(self):
         user = self.login()
