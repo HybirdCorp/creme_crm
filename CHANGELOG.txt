@@ -50,6 +50,7 @@
               So the trigger date is finally updated when the Activity's start is modified (a very old annoying behaviour disappears).
             - The inner-edition is now available for these fields: start, end, is_all_day, busy.
               Notice that they are always edited all together with a composite widget.
+            - The iCal export has been reworked.
         * Emails :
             - The synchronisation of external emails has been totally reworked & separated from the app "crudity".
               This feature allows Creme to fetch emails from some mailboxes to potentially create true Email entities
@@ -130,7 +131,9 @@
             - Apps :
                 * Activities :
                     - In 'forms.fields', the classes 'ActivityTypeField' & 'ActivityTypeWidget' are deprecated.
+                    - The method 'models.AbstractActivity.as_ical_event()' is deprecated.
                     - The view class 'views.activity.TypeChoices' (corresponding to the URL named "activities__get_types") is deprecated.
+                    - In 'utils', the functions 'get_ical_date()' & 'get_ical' are deprecated ; use 'ICalEncoder' instead.
                 * Emails :
                     - In the class 'emails.models._Email' :
                         - 'Status.SYNCHRONIZED_SPAM' & 'Status.SYNCHRONIZED_WAITING' are deprecated.
@@ -389,7 +392,8 @@
                   the URL changed too ("activities/activity/add_indispo" => "activities/activity/add_unavailability").
                 - The class 'forms.fields.ActivitySubTypeField' replaces 'ActivityTypeField' in all forms ; it could break some of your unit tests.
                 - In 'forms.BaseCustomForm', the method '_get_activity_type_n_subtype()' has been renamed '_get_activity_subtype()' and
-                  returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType)
+                  returns an 'ActivitySubType' instead of a tuple (ActivityType, ActivitySubType).
+                - The function-view 'views.activity.download_ical()' has been replaced by the class 'ICalExport'.
                 - The global object 'custom_forms.UNAVAILABILITY_CREATION_FROM' has been correctly renamed "UNAVAILABILITY_CREATION_CFORM".
             * Products :
                 - The module 'forms.product' has been renamed 'forms.bulk_update'

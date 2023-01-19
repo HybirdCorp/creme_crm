@@ -33,10 +33,10 @@ from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.auth.decorators import (
-    login_required,
-    permission_required,
-)
+# from creme.creme_core.auth.decorators import (
+#     login_required,
+#     permission_required,
+# )
 from creme.creme_core.gui.custom_form import CustomFormDescriptor
 from creme.creme_core.gui.listview import CreationButton
 from creme.creme_core.http import CremeJsonResponse
@@ -49,7 +49,8 @@ from creme.persons import get_contact_model
 from .. import constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
-from ..utils import get_ical
+# from ..utils import get_ical
+from ..utils import ICalEncoder
 
 Activity = get_activity_model()
 _CREATION_PERM_STR = cperm(Activity)
@@ -298,23 +299,52 @@ class MeetingsList(TypedActivitiesList):
     internal_q = Q(type=constants.ACTIVITYTYPE_MEETING)
 
 
-@login_required
-@permission_required('activities')
-def download_ical(request):
-    act_ids = request.GET.getlist('id')
+# @login_required
+# @permission_required('activities')
+# def download_ical(request):
+#     act_ids = request.GET.getlist('id')
+#
+#     activities = EntityCredentials.filter(
+#         queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
+#     )
+#
+#     return HttpResponse(
+#         get_ical(activities),
+#         headers={
+#             'Content-Type': 'text/calendar',
+#             'Content-Disposition': 'attachment; filename="Calendar.ics"',
+#         },
+#     )
+class ICalExport(base.CheckedView):
+    permissions = 'activities'
+    id_arg = 'id'
+    encoder_class = ICalEncoder
+    attachment_name = 'Calendar.ics'
 
-    # TODO: is_deleted=False ??
-    activities = EntityCredentials.filter(
-        queryset=Activity.objects.filter(pk__in=act_ids), user=request.user,
-    )
+    def get_activity_ids(self):
+        return self.request.GET.getlist(self.id_arg)
 
-    return HttpResponse(
-        get_ical(activities),
-        headers={
-            'Content-Type': 'text/calendar',
-            'Content-Disposition': 'attachment; filename="Calendar.ics"',
-        },
-    )
+    def get_activities(self):
+        # TODO: is_deleted=False ?
+        # TODO: remove duplicates ?
+        # TODO: ignore floating activities ?
+        return Activity.objects.filter(pk__in=self.get_activity_ids())
+
+    def get_encoder(self):
+        return self.encoder_class()
+
+    def get(self, request, *args, **kwargs):
+        return HttpResponse(
+            self.get_encoder().encode(
+                activities=EntityCredentials.filter(
+                    queryset=self.get_activities(), user=request.user,
+                ),
+            ),
+            headers={
+                'Content-Type': 'text/calendar',
+                'Content-Disposition': f'attachment; filename="{self.attachment_name}"',
+            },
+        )
 
 
 class TypeChoices(base.CheckedView):
