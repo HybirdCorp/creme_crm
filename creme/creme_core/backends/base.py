@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2021  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,9 +26,9 @@ class ImportBackend:
     verbose_name: defines the backend for the user, currently unused for import backends.
     help_text: a help text used in the import form.
     """
-    id: str = 'OVERLOAD ME'
-    verbose_name: str = 'OVERLOAD ME'
-    help_text: str = 'OVERLOAD ME'
+    id: str = 'OVERRIDE ME'
+    verbose_name: str = 'OVERRIDE ME'
+    help_text: str = 'OVERRIDE ME'
 
     def __init__(self, f):
         """Abstract constructor.
@@ -52,21 +52,20 @@ class ExportBackend:
     verbose_name: defines the backend for the user, used in the select backend popup.
     help_text: currently unused.
     """
-    id: str = 'OVERLOAD ME'
-    verbose_name: str = 'OVERLOAD ME'
-    help_text: str = 'OVERLOAD ME'
+    id: str = 'OVERRIDE ME'
+    verbose_name: str = 'OVERRIDE ME'
+    help_text: str = 'OVERRIDE ME'
 
     response: HttpResponseBase
 
     def writerow(self, row):
-        """
-        Appends a row.
+        """Appends a row.
         @param row: the row list.
         """
         raise NotImplementedError
 
     def save(self, filename: str, user):
-        """Save the file
+        """Saves the file.
         @param filename: file name.
         @param user: owner of the file ;
               instance of <django.contrib.auth.get_user_model()>.
