@@ -8,8 +8,20 @@
     # The filters (i.e. in list-views) now accept conditions like <URL-field "web_site" contains "foobar"> without validation error.
     # Dialogs are now shrank to the frame's height.
     # Apps:
+        * Activities :
+            - The iCal export has been reworked.
         * Creme_config :
             - In the users' brick, the style of the lines for disabled users has been improved.
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # Apps :
+            * Activities :
+                - The method 'models.AbstractActivity.as_ical_event()' is deprecated (will be removed in creme 2.5).
+                - In 'utils', the functions 'get_ical_date()' & 'get_ical' are deprecated (will be removed in creme 2.5) ; use 'ICalEncoder' instead.
 
 
 == Version 2.3.9 ==
