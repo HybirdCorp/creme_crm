@@ -2,15 +2,195 @@ from datetime import date
 from functools import partial
 
 import pytz
+from django.core.exceptions import ValidationError
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import override as override_tz
 from django.utils.translation import pgettext
 
 from creme import __version__ as creme_version
+from creme.creme_core.models import Relation
+from creme.persons.tests.base import skipIfCustomContact
 
 from .. import constants
-from ..utils import ICalEncoder, PytzToVtimezone
-from .base import Activity, _ActivitiesTestCase, skipIfCustomActivity
+from ..utils import (
+    ICalEncoder,
+    PytzToVtimezone,
+    check_activity_collisions,
+    get_last_day_of_a_month,
+)
+from .base import Activity, Contact, _ActivitiesTestCase, skipIfCustomActivity
+
+
+class UtilsTestCase(_ActivitiesTestCase):
+    def test_get_last_day_of_a_month(self):
+        self.assertEqual(
+            date(year=2016, month=1, day=31),
+            get_last_day_of_a_month(date(year=2016, month=1, day=1)),
+        )
+        self.assertEqual(
+            date(year=2016, month=1, day=31),
+            get_last_day_of_a_month(date(year=2016, month=1, day=18)),
+        )
+
+        # Other 31 days
+        self.assertEqual(
+            date(year=2016, month=3, day=31),
+            get_last_day_of_a_month(date(year=2016, month=3, day=17)),
+        )
+
+        # 30 days
+        self.assertEqual(
+            date(year=2016, month=4, day=30),
+            get_last_day_of_a_month(date(year=2016, month=4, day=17)),
+        )
+        self.assertEqual(
+            date(year=2016, month=4, day=30),
+            get_last_day_of_a_month(date(year=2016, month=4, day=30)),
+        )
+
+        # February
+        self.assertEqual(
+            date(year=2016, month=2, day=29),
+            get_last_day_of_a_month(date(year=2016, month=2, day=17)),
+        )
+        self.assertEqual(
+            date(year=2015, month=2, day=28),
+            get_last_day_of_a_month(date(year=2015, month=2, day=17)),
+        )
+
+    def _check_activity_collisions(self,
+                                   activity_start, activity_end,
+                                   participants,
+                                   busy=True, exclude_activity_id=None,
+                                   ):
+        collisions = check_activity_collisions(
+            activity_start, activity_end, participants,
+            busy=busy, exclude_activity_id=exclude_activity_id,
+        )
+        if collisions:
+            raise ValidationError(collisions)
+
+    @skipIfCustomContact
+    def test_collision01(self):
+        user = self.login()
+
+        create_activity = partial(
+            Activity.objects.create,
+            user=user,
+            type_id=constants.ACTIVITYTYPE_MEETING,
+            sub_type_id=constants.ACTIVITYSUBTYPE_MEETING_MEETING,
+        )
+        create_dt = self.create_datetime
+
+        with self.assertNoException():
+            act01 = create_activity(
+                title='call01',
+                type_id=constants.ACTIVITYTYPE_PHONECALL,
+                sub_type_id=constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING,
+                start=create_dt(year=2010, month=10, day=1, hour=12, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=13, minute=0),
+            )
+            act02 = create_activity(
+                title='meet01',
+                start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=15, minute=0),
+            )
+            act03 = create_activity(
+                title='meet02', busy=True,
+                start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
+                end=create_dt(year=2010, month=10, day=1, hour=19, minute=0),
+            )
+
+            create_contact = partial(Contact.objects.create, user=user)
+            c1 = create_contact(first_name='first_name1', last_name='last_name1')
+            c2 = create_contact(first_name='first_name2', last_name='last_name2')
+
+            create_rel = partial(
+                Relation.objects.create,
+                subject_entity=c1, type_id=constants.REL_SUB_PART_2_ACTIVITY, user=user,
+            )
+            create_rel(object_entity=act01)
+            create_rel(object_entity=act02)
+            create_rel(object_entity=act03)
+
+        check_coll = partial(self._check_activity_collisions, participants=[c1, c2])
+
+        try:
+            # No collision
+            # Next day
+            check_coll(
+                activity_start=create_dt(year=2010, month=10, day=2, hour=12, minute=0),
+                activity_end=create_dt(year=2010,   month=10, day=2, hour=13, minute=0),
+            )
+
+            # One minute before
+            check_coll(
+                activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
+                activity_end=create_dt(year=2010,   month=10, day=1, hour=11, minute=59),
+            )
+
+            # One minute after
+            check_coll(
+                activity_start=create_dt(year=2010, month=10, day=1, hour=13, minute=1),
+                activity_end=create_dt(year=2010,   month=10, day=1, hour=13, minute=10),
+            )
+            # Not busy
+            check_coll(
+                activity_start=create_dt(year=2010, month=10, day=1, hour=14, minute=0),
+                activity_end=create_dt(year=2010,   month=10, day=1, hour=15, minute=0),
+                busy=False
+            )
+        except ValidationError as e:
+            self.fail(str(e))
+
+        # Collision with act01
+        # Before
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=30),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
+            participants=[c1, c2],
+        )
+
+        # After
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
+            participants=[c1, c2],
+        )
+
+        # Shorter
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=12, minute=10),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=12, minute=30),
+            participants=[c1, c2],
+        )
+
+        # Longer
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=11, minute=0),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=13, minute=30),
+            participants=[c1, c2],
+        )
+
+        # Busy1
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=17, minute=30),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
+            participants=[c1, c2],
+        )
+
+        # Busy2
+        self.assertRaises(
+            ValidationError, self._check_activity_collisions,
+            activity_start=create_dt(year=2010, month=10, day=1, hour=18, minute=0),
+            activity_end=create_dt(year=2010, month=10, day=1, hour=18, minute=30),
+            busy=False, participants=[c1, c2],
+        )
 
 
 @skipIfCustomActivity
