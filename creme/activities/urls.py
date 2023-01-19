@@ -50,7 +50,10 @@ calendar_patterns = [
 
 urlpatterns = [
     re_path(
-        r'^activities/ical[/]?$', activity.download_ical, name='activities__dl_ical',
+        r'^activities/ical[/]?$',
+        # activity.download_ical,
+        activity.ICalExport.as_view(),
+        name='activities__dl_ical',
     ),
 
     # DEPRECATED
