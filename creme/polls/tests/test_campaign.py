@@ -37,9 +37,47 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertTemplateUsed(response, 'polls/view_campaign.html')
         self.assertContains(response, camp.name)
         self.assertTemplateUsed(response, 'polls/bricks/campaign-preplies.html')
-        self.get_brick_node(
+
+        brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=PollCampaignRepliesBrick,
         )
+        self.assertEqual(
+            _('Filled form replies'), self.get_brick_title(brick_node),
+        )
+
+    def test_detailview02(self):
+        user = self.login()
+        camp = PollCampaign.objects.create(user=user, name='Camp', expected_count=2)
+        pform = PollForm.objects.create(user=user, name='Form')
+
+        create_reply = partial(PollReply.objects.create, user=user, pform=pform, campaign=camp)
+        create_reply(name='Reply#1')
+
+        response1 = self.assertGET200(camp.get_absolute_url())
+        brick_node1 = self.get_brick_node(
+            self.get_html_tree(response1.content), brick=PollCampaignRepliesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node1,
+            count=1,
+            title='{count} Filled form reply',
+            plural_title='{count} Filled form replies',
+        )
+        self.get_html_node_or_fail(brick_node1, './/td[@class="brick-table-data-error"]')
+
+        # ----
+        create_reply(name='Reply#2')
+        response2 = self.assertGET200(camp.get_absolute_url())
+        brick_node2 = self.get_brick_node(
+            self.get_html_tree(response2.content), brick=PollCampaignRepliesBrick,
+        )
+        self.assertBrickTitleEqual(
+            brick_node2,
+            count=2,
+            title='{count} Filled form reply',
+            plural_title='{count} Filled form replies',
+        )
+        self.get_html_node_or_fail(brick_node2, './/td[@class="brick-table-data-valid"]')
 
     def test_createview01(self):
         user = self.login()
@@ -54,7 +92,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         expected_count = 8
         start = date(year=2013, month=7, day=26)
         due_date = date(year=2013, month=8, day=27)
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -66,8 +104,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'segment':        segment.id,
                 'expected_count': expected_count,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         camp = self.get_object_or_fail(PollCampaign, name=name)
         self.assertEqual(user, camp.user)
@@ -90,7 +127,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         expected_count = 10
         start = date(year=2013, month=9,  day=26)
         due_date = date(year=2013, month=10, day=27)
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -101,8 +138,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'due_date':       due_date,
                 'expected_count': expected_count,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         camp = self.refresh(camp)
         self.assertEqual(goal, camp.goal)
@@ -144,7 +180,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         name = 'Reply'
         reply_number = 2
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             self.ADD_REPLY_URL,
             follow=True,
             data={
@@ -154,8 +190,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'number':   reply_number,
                 'campaign': camp.id,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
@@ -169,20 +204,20 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform, camp = self._create_pform_n_campaign()
 
         url = reverse('polls__create_reply_from_campaign', args=(camp.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
+        get_ctxt1 = response1.context.get
         self.assertEqual(
             _('New replies for «{entity}»').format(entity=camp),
-            context.get('title'),
+            get_ctxt1('title'),
         )
-        self.assertEqual(PollReply.multi_save_label, context.get('submit_label'))
+        self.assertEqual(PollReply.multi_save_label, get_ctxt1('submit_label'))
 
         # ---
         name = 'Reply'
         reply_number = 2
-        response = self.client.post(
+        self.assertNoFormError(self.client.post(
             url,
             follow=True,
             data={
@@ -191,8 +226,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'pform':  pform.id,
                 'number': reply_number,
             },
-        )
-        self.assertNoFormError(response)
+        ))
 
         for i in range(1, reply_number + 1):
             preply = self.get_object_or_fail(PollReply, name=f'{name}#{i}')
