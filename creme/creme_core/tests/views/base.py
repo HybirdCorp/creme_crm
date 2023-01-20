@@ -116,7 +116,7 @@ class BrickTestCaseMixin:
                 '(URLs found: {found}).'.format(
                     url=url,
                     found=', '.join(
-                        '"{}"'.format(a.attrib.get('href'))
+                        f'"{a.attrib.get("href")}"'
                         for a in buttons_node.findall('.//a')
                     ),
                 )

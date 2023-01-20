@@ -7,10 +7,10 @@ from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import smart_str
 from django.utils.translation import gettext as _
-from django.utils.translation import ngettext
 from parameterized import parameterized
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.gui.bricks import Brick
 from creme.creme_core.models import SetCredentials
 from creme.creme_core.tests.views.base import BrickTestCaseMixin
 
@@ -34,7 +34,7 @@ get_ct = ContentType.objects.get_for_model
 
 
 @skipIfCustomPollForm
-class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
+class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
     @classmethod
     def conds_formfield_entry(cls, source, choice):
         return {'source': source, 'choice': choice}
@@ -143,7 +143,27 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         tree = self.get_html_tree(response.content)
         self.get_brick_node(tree, brick=PollFormLinesBrick)
-        self.get_brick_node(tree, brick=PollRepliesBrick)
+
+        replies_node = self.get_brick_node(tree, brick=PollRepliesBrick)
+        self.assertEqual(_('Replies'), self.get_brick_title(replies_node))
+        self.assertBrickHeaderHasNoButton(
+            self.get_brick_header_buttons(replies_node),
+            reverse('polls__create_reply_from_pform', args=(pform.id,)),
+        )
+
+        hat_node = self.get_brick_node(tree, brick=Brick.GENERIC_HAT_BRICK_ID)
+        self.assertListEqual(
+            [
+                reverse('polls__form_stats', args=(pform.id,)),
+                pform.get_edit_absolute_url(),
+                pform.get_delete_absolute_url(),
+                pform.get_clone_absolute_url(),
+            ],
+            [
+                a.attrib.get('href')
+                for a in hat_node.findall('.//a[@class="bar-button"]')
+            ],
+        )
 
     def test_createview01(self):
         user = self.login()
@@ -281,13 +301,11 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         brick_node = self.get_brick_node(
             self.get_html_tree(response.content), brick=PollFormLinesBrick,
         )
-        self.assertEqual(
-            ngettext(
-                '{count} Section',
-                '{count} Sections',
-                1,
-            ).format(count=1),
-            self.get_brick_title(brick_node),
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Section',
+            plural_title='{count} Sections',
         )
 
     def test_add_section02(self):
@@ -437,7 +455,7 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         # self.assertIn(_('There is at least one question in this section.'), response.content)
 
     def test_delete_section03(self):
-        "Empty sub sections are deleted."
+        "Empty sub-sections are deleted."
         user = self.login()
         pform = PollForm.objects.create(user=user, name='Form#1')
 
@@ -489,17 +507,17 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         pform = PollForm.objects.create(user=user, name='Form#1')
 
         url = self.build_addline_url(pform)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
-        context = response.context
+        context1 = response1.context
         self.assertEqual(
             _('New question for «{entity}»').format(entity=pform),
-            context.get('title'),
+            context1.get('title'),
         )
-        self.assertEqual(PollFormLine.save_label, context.get('submit_label'))
+        self.assertEqual(PollFormLine.save_label, context1.get('submit_label'))
 
         with self.assertNoException():
-            fields = context['form'].fields
+            fields = context1['form'].fields
 
         self.assertNotIn('index', fields)
 
@@ -525,17 +543,16 @@ class PollFormsTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(desc, plt.description)
 
         # ---
-        response = self.assertGET200(pform.get_absolute_url())
-
-        tree = self.get_html_tree(response.content)
-        brick_node = self.get_brick_node(tree, brick=PollFormLinesBrick)
-        self.assertEqual(
-            ngettext(
-                '{count} Question',
-                '{count} Questions',
-                1,
-            ).format(count=1),
-            self.get_brick_title(brick_node),
+        response3 = self.assertGET200(pform.get_absolute_url())
+        brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content),
+            brick=PollFormLinesBrick
+        )
+        self.assertBrickTitleEqual(
+            brick_node,
+            count=1,
+            title='{count} Question',
+            plural_title='{count} Questions',
         )
 
     def test_add_line_text01(self):

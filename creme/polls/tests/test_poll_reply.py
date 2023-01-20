@@ -21,7 +21,7 @@ from creme.persons.tests.base import (
     skipIfCustomOrganisation,
 )
 
-from ..bricks import PollReplyLinesBrick
+from ..bricks import PollRepliesBrick, PollReplyLinesBrick
 from ..core import PollLineType
 from ..models import (
     PollFormLine,
@@ -356,13 +356,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         )
 
         url = self.ADD_REPLY_URL
-        response = self.assertGET200(url)
-        context = response.context
-        self.assertEqual(_('Create replies'),   context.get('title'))
-        self.assertEqual(_('Save the replies'), context.get('submit_label'))
+        response1 = self.assertGET200(url)
+        get_ctxt1 = response1.context.get
+        self.assertEqual(_('Create replies'),   get_ctxt1('title'))
+        self.assertEqual(_('Save the replies'), get_ctxt1('submit_label'))
 
+        # ---
         name = 'Reply#1'
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             follow=True,
             data={
@@ -371,7 +372,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'pform': pform.id,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         preply = self.get_object_or_fail(PollReply, name=name)
         self.assertEqual(user,       preply.user)
@@ -386,7 +387,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         line_ids = [line.id for line in lines]
         self.assertEqual(sorted(line_ids), line_ids)
 
-        self.assertRedirects(response, preply.get_absolute_url())
+        self.assertRedirects(response2, preply.get_absolute_url())
 
         # ----------------------------------------------------------------------
         line1 = lines[0]
@@ -424,22 +425,42 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertEqual(line3, line4.conditions.all()[0].source)
 
         # ----------------------------------------------------------------------
-        response = self.assertGET200(preply.get_absolute_url())
-        brick_node = self.get_brick_node(
-            self.get_html_tree(response.content), brick=PollReplyLinesBrick,
+        response3 = self.assertGET200(preply.get_absolute_url())
+        lines_brick_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick=PollReplyLinesBrick,
         )
 
-        questions = set()
-        for question_node in brick_node.findall(".//div[@class='poll-title-label']"):
-            span_node = question_node.find('span')
-            self.assertIsNotNone(span_node)
-            questions.add(span_node.text)
-
+        questions = {
+            self.get_html_node_or_fail(question_node, 'span').text
+            for question_node in lines_brick_node.findall(".//div[@class='poll-title-label']")
+        }
         self.assertIn(line1.question, questions)
         self.assertIn(line2.question, questions)
 
+        # PollForm detail ------------------------------------------------------
+        response4 = self.assertGET200(pform.get_absolute_url())
+        replies_node = self.get_brick_node(
+            self.get_html_tree(response4.content), brick=PollRepliesBrick,
+        )
+        self.assertBrickTitleEqual(
+            replies_node,
+            count=1,
+            title='{count} Reply',
+            plural_title='{count} Repliess',
+        )
+        self.assertBrickHeaderHasButton(
+            self.get_brick_header_buttons(replies_node),
+            url=reverse('polls__create_reply_from_pform', args=(pform.id,)),
+            label=_('Create replies'),
+        )
+        self.assertBrickHasAction(
+            replies_node,
+            url=reverse('polls__fill_reply', args=(preply.id,)),
+            action_type='redirect',
+        )
+
     def test_createview02(self):
-        "Create view: validation error when no PollForm"
+        "Create view: validation error when no PollForm."
         user = self.login()
         response = self.assertPOST200(
             self.ADD_REPLY_URL,
@@ -1709,6 +1730,16 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertNoFormError(self._fill(preply, ''))
         self.assertEqual('', self.refresh(rline).answer)
         self.assertTrue(self.refresh(preply).is_complete)
+
+        # PollForm detail ------------------------------------------------------
+        response3 = self.assertGET200(pform.get_absolute_url())
+        replies_node = self.get_brick_node(
+            self.get_html_tree(response3.content), brick=PollRepliesBrick,
+        )
+        self.assertBrickHasNoAction(
+            replies_node,
+            url=reverse('polls__fill_reply', args=(preply.id,)),
+        )
 
     def test_fillview_not_applicable01(self):
         self.login()
