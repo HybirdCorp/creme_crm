@@ -2,6 +2,6 @@
 {% if sort_by %}
     <span class="brick-table-sortable{% if sort_by.sorted %} brick-table-sorted{% endif %}" {% if help %}title="{{help}}"{% endif %} data-sort-order="{{sort_by.order}}" data-sort-field="{{sort_by.field}}">{{title}}</span>
 {% else %}
-    <span title="{{help}}">{{title}}</span>
+    <span {% if help %}title="{{help}}"{% endif %}>{{title}}</span>
 {% endif %}
 </th>
