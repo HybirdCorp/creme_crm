@@ -23,7 +23,7 @@
     {% for rtype in page.object_list %}
     <tr>
         <td {% brick_table_data_status primary %}>
-            <span class="orbital-rtype{% if not rtype.enable %} orbital-rtype-disabled{% endif %}">{{rtype}}</span>
+            <span class="orbital-rtype{% if not rtype.enabled %} orbital-rtype-disabled{% endif %}">{{rtype}}</span>
         </td>
         <td {% brick_table_data_status action %}>
             {% brick_table_action id='delete' url=remove_rtype_url __id=rtype.pk label=_('Remove this type') icon='unlink' enabled=has_perm %}
