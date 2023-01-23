@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -44,7 +44,7 @@ class Category(MinionModel):
 # class SubCategory(CremeModel):
 class SubCategory(MinionModel):
     name = models.CharField(_('Name of the sub-category'), max_length=100)
-    description = models.CharField(_('Description'), max_length=100)
+    description = models.CharField(_('Description'), max_length=100, blank=True)
     category = models.ForeignKey(
         Category,
         verbose_name=_('Parent category'), on_delete=models.CASCADE,
