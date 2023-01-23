@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,11 +71,13 @@ class EditRootNodeForm(core_forms.CremeModelForm):
         model = RootNode
         exclude = ()
 
-    # NB only useful for the generic view edit_related_to_entity()
     def __init__(self, entity, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = entity
-        self.fields['relation_types'].queryset = RelationType.objects.filter(
-            Q(enabled=True)
-            | Q(id__in=self.instance.relation_types.values_list('id', flat=True))
+
+        initial_rtype_ids = self.instance.relation_types.values_list('id', flat=True)
+        rtypes_field = self.fields['relation_types']
+        rtypes_field.queryset = RelationType.objects.filter(
+            Q(enabled=True) | Q(id__in=initial_rtype_ids)
         )
+        rtypes_field.initial = initial_rtype_ids

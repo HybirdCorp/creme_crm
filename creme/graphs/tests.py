@@ -368,6 +368,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertIn(rtype01.id, rtype_ids)
         self.assertIn(rtype02.id, rtype_ids)
         self.assertNotIn(disabled_rtype.id, rtype_ids)
+        self.assertCountEqual([rtype01.id], rtypes_f.initial)
 
         # ---
         self.assertNoFormError(
