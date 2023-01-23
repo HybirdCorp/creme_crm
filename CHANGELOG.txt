@@ -71,7 +71,7 @@
         * Persons :
             - The Organisation's bricks "Managers" & "Employees" propose now to edit the related contacts, using the new multi-fields inner-edition feature.
         * Products :
-            - The field 'models.Category.description' is not mandatory anymore.
+            - In 'models', the fields 'Category.description' & 'SubCategory.description' are not mandatory anymore.
         * Billing :
             - When a Quote is converted to an Invoice, a relationship is now created between them.
         * Opportunities :
