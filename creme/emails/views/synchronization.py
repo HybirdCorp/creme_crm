@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -123,7 +123,7 @@ class _BaseEmailToSyncMultiOperation(EmailToSyncPermissionsMixin, generic.Checke
             raise BadRequestError(f'Bad POST argument ({e})') from e
 
         if not ids:
-            raise BadRequestError('Empty "ids" argument.')
+            raise BadRequestError(f'Empty "{self.ids_arg}" argument.')
 
         return ids
 
