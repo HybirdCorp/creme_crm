@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 11-10-2022 pour la version 2.4 de Creme
+:Version: 24-01-2023 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -66,11 +66,12 @@ Pour des raisons de brièveté, nous parlerons nous aussi d'"app" pour notre mod
 
 Avant tout assurez vous d'avoir une instance de Creme fonctionnelle :
 
- - Vous avez un *virtualenv* dans lequel Creme 2.3 est installé ;
+ - Vous avez un *virtualenv* dans lequel Creme 2.4 est installé ;
    dans le reste du document nous partirons du principe que notre *virtualenv*
    est activé (c'est nécessaire pour avoir accès à la commande ``creme``).
  - Vous avez créé un projet (on considérera dans le reste du document qu'il
    s'appelle «my_project») avec la commande ``creme creme_start_project my_project``.
+ - Vous vous êtes déplacé dans le répertoire ``my_project/`` (celui qui est parent).
  - Vous avez modifié le fichier ``my_project/settings.py`` à votre convenance.
  - Vous avez configuré votre SGBDR ; notez que dans le cas du développement
    d'un module comme ici, utiliser *SQLite* la majorité du temps est tout à fait

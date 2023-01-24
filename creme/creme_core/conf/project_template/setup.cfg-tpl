@@ -1,9 +1,9 @@
 [metadata]
 name = {{ project_name }}
-author = my_awesome_compagny.com
-author_email = contact@my_awesome_compagny.com
+author = my_awesome_company.com
+author_email = contact@my_awesome_company.com
 url = https://www.my_awesome_compagny.com
-version = attr: __version__
+version = attr: {{ project_name }}.__version__
 
 description = Describe briefly your wonderful project here
 long_description = file: README

@@ -25,6 +25,8 @@
         - SOFTWARE_LABEL is "Creme" by default.
         - ENTITIES_DELETION_ALLOWED can disable the definitive deletion of entities.
           It's true by default (deletion is allowed), & staff user can always delete entities (to fix privacy issue for example).
+    # The command "creme_start_project" has been improved to get a 'setup.py' that works
+      (if you want to install your project in your virtual environment).
     # Apps :
         * Creme_config :
             - The email addresses of active users must be unique.

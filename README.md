@@ -133,8 +133,8 @@ with the virtualenv activated, use the following command which creates a new fol
 ```
 
 Settings:
-The newly created file "my_project/settings.py" gives all the information for a
-basic installation with the minimal information you must fill.
+The newly created file "my_project/my_project/settings.py" gives all the information
+for a basic installation with the minimal information you must fill.
 
 For an upgrade from the previous version of Creme :
  - See the section "UPGRADE NOTE" corresponding to the new version in the file CHANGELOG.txt.
@@ -143,7 +143,8 @@ For an upgrade from the previous version of Creme :
 
 
 Filling the DB tables & creating the static asset:
-Run the following commands (new installations AND upgrades from Creme 2.2):
+You must be in the parent folder "my_project/" (i.e. not "my_project/my_project/").
+Run the following commands (new installations AND upgrades from Creme 2.3):
 ```sh
 >> creme migrate --settings=my_project.settings
 >> creme creme_populate --settings=my_project.settings

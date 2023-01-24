@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 02-12-2022 for Creme 2.4
+:Version: 24-01-2023 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -63,11 +63,12 @@ word "app" for our module.
 
 Firstly you must have a working instance of Creme:
 
- - You have a *virtualenv* with an installed Creme 2.3 ;
+ - You have a *virtualenv* with an installed Creme 2.4 ;
    in this document we start from the principle that your *virtualenv*
    is activated (it's necessary to get the command ``creme``).
  - You have created a project (in this document we call it «my_project») with
    the command ``creme creme_start_project my_project``.
+ - You have moved in the folder named ``my_project/`` (the parent one).
  - You have edited the file ``my_project/settings.py`` as you wish.
  - You have configured your RDBMS ; notice that when developing a module like
    here, using *SQLite* most of the time is alright (but test with RDBMS used in
