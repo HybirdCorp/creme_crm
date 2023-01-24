@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -93,7 +93,7 @@ class ConditionOperator:
     """Some child classes of
     <creme_core.core.entity_filter.condition_handler.FilterConditionHandler> can
     use different operators (e.g. "equal", greater than", "contains"...) when
-    performing the SQL query. These operator are modeled with <ConditionOperator>.
+    performing the SQL query. These operators are modeled with <ConditionOperator>.
 
     The main feature is the method <get_q()> with provides a <Q> instance to
     perform the wanted SQL query.
@@ -104,6 +104,7 @@ class ConditionOperator:
     _NO_SUBPART_VALIDATION_FIELDS = {
         models.EmailField,
         models.IPAddressField,
+        models.URLField,
     }
 
     # Integer ID (see EQUALS & its friends) used for registration.
