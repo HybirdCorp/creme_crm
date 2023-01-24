@@ -5,9 +5,10 @@
 
   Users side :
   ------------
-    # Dialogs are shrank to the frame's height.
+    # The filters (i.e. in list-views) now accept conditions like <URL-field "web_site" contains "foobar"> without validation error.
+    # Dialogs are now shrank to the frame's height.
     # Apps:
-        * Polls :
+        * Creme_config :
             - In the users' brick, the style of the lines for disabled users has been improved.
 
 

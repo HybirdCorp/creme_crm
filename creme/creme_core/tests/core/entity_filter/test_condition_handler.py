@@ -674,7 +674,7 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual([value],     handler._values)
 
     def test_regularfield_condition02(self):
-        "Operator class."
+        "Operator as class."
         fname = 'name'
         value = 'Nerv'
         condition = RegularFieldConditionHandler.build_condition(
@@ -690,10 +690,10 @@ class FilterConditionHandlerTestCase(CremeTestCase):
         self.assertEqual(fname, condition.name)
         self.assertDictEqual(
             {'operator': operators.ICONTAINS, 'values': [value]},
-            condition.value
+            condition.value,
         )
 
-    def test_regularfield_condition03(self):
+    def test_regularfield_condition_error(self):
         "Build condition + errors."
         ValueError = FilterConditionHandler.ValueError
         build_4_field = RegularFieldConditionHandler.build_condition
@@ -755,32 +755,59 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             values=[500000, 'not an integer'],
         )
 
-    def test_regularfield_condition04(self):
+    def test_regularfield_condition_emailfield(self):
         "Email + sub-part validation."
         build = partial(
             RegularFieldConditionHandler.build_condition,
             model=FakeOrganisation, field_name='email',
         )
 
-        # Problem a part of a email address is not a valid email address
+        # Problem a part of an email address is not a valid email address
         with self.assertRaises(FilterConditionHandler.ValueError) as cm:
             build(operator=operators.EQUALS, values=['misato'])
         self.assertEqual(
             "['{}']".format(_('Enter a valid email address.')),
-            cm.exception.args[0],
+            # cm.exception.args[0],
+            str(cm.exception),
         )
 
         # ---
         with self.assertNoException():
             build(operator=operators.ISTARTSWITH, values=['misato'])
 
+        # TODO: should not work (fix it in creme 2.5)
         with self.assertNoException():
             build(operator=operators.RANGE, values=['misato', 'yui'])
 
         with self.assertNoException():
             build(operator=operators.EQUALS, values=['misato@nerv.jp'])
 
-    def test_regularfield_condition05(self):
+    def test_regularfield_condition_urlfield(self):
+        "Email + sub-part validation."
+        build = partial(
+            RegularFieldConditionHandler.build_condition,
+            model=FakeOrganisation, field_name='url_site',
+        )
+
+        # Problem a part of a URL is not a valid URL
+        with self.assertRaises(FilterConditionHandler.ValueError) as cm:
+            build(operator=operators.EQUALS, values=['misato'])
+        self.assertEqual(
+            "['{}']".format(_('Enter a valid URL.')),
+            str(cm.exception),
+        )
+
+        # ---
+        with self.assertNoException():
+            build(operator=operators.ISTARTSWITH, values=['http'])
+
+        with self.assertNoException():
+            build(operator=operators.CONTAINS_NOT, values=['http'])
+
+        with self.assertNoException():
+            build(operator=operators.EQUALS, values=['http://nerv.jp/misato'])
+
+    def test_regularfield_condition_credentials(self):
         "Credentials for entity FK."
         user = self.login()
         other_user = self.other_user
