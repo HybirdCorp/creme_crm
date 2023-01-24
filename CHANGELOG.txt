@@ -6,6 +6,9 @@
   Users side :
   ------------
     # Dialogs are shrank to the frame's height.
+    # Apps:
+        * Polls :
+            - In the users' brick, the style of the lines for disabled users has been improved.
 
 
 == Version 2.3.9 ==
