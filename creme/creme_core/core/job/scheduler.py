@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2016-2022  Hybird
+#    Copyright (C) 2016-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -125,9 +125,9 @@ class JobScheduler:
             if job.user:
                 if jtype.periodic != JobType.NOT_PERIODIC:
                     logger.warning(
-                        'JobScheduler: job "%s" is a user job and should be'
+                        'JobScheduler: job %r is a user job and should be'
                         ' not periodic -> period is ignored.',
-                        repr(job),
+                        job,
                     )
 
                 users_jobs.appendleft(job)
@@ -136,16 +136,16 @@ class JobScheduler:
                     heappush(system_jobs, (self._next_wakeup(job, now_value), job.id, job))
                 else:
                     logger.warning(
-                        'JobScheduler: job "%s" is a system job and should be'
+                        'JobScheduler: job %r is a system job and should be'
                         ' (pseudo-)periodic -> job is ignored.',
-                        repr(job),
+                        job,
                     )
 
     def _next_wakeup(self,
                      job: Job,
                      reference_run: datetime | None = None,
                      ) -> datetime:
-        """Computes the next valid wake up, which must be on the form of
+        """Computes the next valid waking up, which must be on the form of
         reference_run + N * period, & be > now_value.
         """
         next_wakeup: datetime
@@ -178,13 +178,13 @@ class JobScheduler:
                 users_jobs.appendleft(user_job)
         else:
             logger.warning(
-                'JobScheduler: try to start the job "%s", which is a'
+                'JobScheduler: try to start the job %r, which is a'
                 ' system job -> command is ignored.',
-                repr(user_job),
+                user_job,
             )
 
     def _start_job(self, job: Job):
-        logger.info('JobScheduler: start %s', repr(job))
+        logger.info('JobScheduler: start %r', job)
 
         self._procs[job.id] = python_subprocess(
             f'import django; '
@@ -194,7 +194,7 @@ class JobScheduler:
         )
 
     def _end_job(self, job: Job):
-        logger.info('JobScheduler: end %s', repr(job))
+        logger.info('JobScheduler: end %r', job)
         proc = self._procs.pop(job.id, None)
         if proc is not None:
             proc.wait()  # TODO: use return code ??
@@ -218,8 +218,9 @@ class JobScheduler:
                 if job.type.periodic == JobType.NOT_PERIODIC:
                     logger.critical(
                         'JobScheduler.handle_command_end() -> '
-                        'job "%s" is a system job and should be '
-                        '(pseudo-)periodic -> job is ignored.', repr(job),
+                        'job %r is a system job and should be '
+                        '(pseudo-)periodic -> job is ignored.',
+                        job,
                     )
                 else:
                     try:
@@ -227,7 +228,8 @@ class JobScheduler:
                     except KeyError:
                         logger.warning(
                             'JobScheduler.handle_command_end() ->  try to end '
-                            'the job "%s" which was not started -> command is ignored', repr(job),
+                            'the job %r which was not started -> command is ignored',
+                            job,
                         )
                     else:
                         if job.enabled:  # Job may have been disabled during its execution
@@ -247,7 +249,7 @@ class JobScheduler:
         job_id = cmd.data_id
 
         if job_id in self._system_jobs_starts:
-            # If the job is running -> the new wake up is computed at the end
+            # If the job is running -> the new waking up is computed at the end
             # of its execution ; so we ignore it.
             logger.info(
                 'JobScheduler.handle_command_refresh() -> try to REFRESH the job "%s",'
@@ -269,13 +271,13 @@ class JobScheduler:
         else:
             logger.warning(
                 'JobScheduler.handle_command_refresh() -> invalid (system) jod ID: %s',
-                job_id
+                job_id,
             )
             return
 
         try:
-            # NB: we do not use the result (which indicates a change, because pseudo-periodic jobs
-            #     could need a new wakeup date without change in the job instance.
+            # NB: we do not use the result (which indicates a change), because pseudo-periodic
+            #     jobs could need a new waking up date without change in the job instance.
             job.update(cmd.data)
         except Exception as e:
             logger.warning(
@@ -286,8 +288,8 @@ class JobScheduler:
 
         if not job.enabled:
             logger.warning(
-                'JobScheduler.handle_command_refresh() -> REFRESH job "%s": disabled',
-                repr(job)
+                'JobScheduler.handle_command_refresh() -> REFRESH job %r: disabled',
+                job,
             )
             return
 
@@ -296,7 +298,7 @@ class JobScheduler:
         # XXX: this is an UGLY HACK. We have received a REFRESH command, but the
         #  data which should be used to compute the next wake up could be not
         #  available because of a transaction (i.e. the command has been sent
-        #  during this transaction) ; we force a wake up in a short time & pray
+        #  during this transaction) ; we force a waking up in a short time & pray
         #  that the migration is finished.
         #  TODO: improve this.
         #    => IDEA: create a transaction marker within the transaction, send
@@ -308,8 +310,8 @@ class JobScheduler:
 
         heappush(system_jobs, (next_wakeup, job.id, job))
         logger.warning(
-            'JobScheduler.handle_command_refresh() -> REFRESH job "%s": next wake up at %s',
-            repr(job), date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
+            'JobScheduler.handle_command_refresh() -> REFRESH job %r: next wake up at %s',
+            job, date_format(localtime(next_wakeup), 'DATETIME_FORMAT'),
         )
 
     def _handle_command_start(self, cmd: Command) -> None:
