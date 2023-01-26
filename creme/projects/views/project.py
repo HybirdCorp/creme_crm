@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,6 +20,7 @@ from django.db.transaction import atomic
 from django.shortcuts import redirect
 from django.utils.translation import gettext as _
 
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.views import generic
 
@@ -56,6 +57,10 @@ class ProjectCreation(generic.EntityCreation):
     def get_initial(self):
         initial = super().get_initial()
         initial['status'] = ProjectStatus.objects.first()
+
+        # TODO: this line should be useless, it seems the new 2.4 field/widget
+        #       does not manages the model default value correctly.
+        initial['currency'] = DEFAULT_CURRENCY_PK
 
         return initial
 
