@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,7 +28,6 @@ from creme.creme_core.auth.decorators import (
 )
 from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.views import generic
-from creme.creme_core.views.decorators import jsonify
 
 from .. import custom_forms, get_graph_model
 from ..constants import DEFAULT_HFILTER_GRAPH
@@ -66,18 +65,6 @@ def dl_png(request, graph_id):
             request, 'graphs/graph_error.html',
             {'error_message': gettext('This graph is too big!')},
         )
-
-
-@login_required
-@permission_required('graphs')
-@jsonify
-def chart_data(request, graph_id):
-    graph = get_object_or_404(Graph, pk=graph_id)
-
-    user = request.user
-    user.has_perm_to_view_or_die(graph)
-
-    return list(graph.get_chart_data(user))
 
 
 class RelationTypeRemoving(generic.base.EntityRelatedMixin, generic.CremeDeletion):
