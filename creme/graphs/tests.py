@@ -656,3 +656,108 @@ class RelationChartBrickTestCase(BrickTestCaseMixin, CremeTestCase):
                 'url': contact_A.get_absolute_url()
             }
         ], key=str))
+
+    def test_chart_data_orbital_relations(self):
+        self.maxDiff = None
+
+        user = self.login()
+
+        is_employee, has_employee = RelationType.objects.smart_update_or_create(
+            ('test-subject_employee', 'is employed by'),
+            ('test-object_employee',  'has employee'),
+        )
+
+        is_manager, has_manager = RelationType.objects.smart_update_or_create(
+            ('test-subject_manager', 'is managed by'),
+            ('test-object_manager',  'has manager'),
+        )
+
+        def add_employee(orga, contact):
+            Relation.objects.safe_get_or_create(
+                user=user, type=is_employee, subject_entity=contact, object_entity=orga
+            )
+
+        def add_manager(manager, contact):
+            Relation.objects.safe_get_or_create(
+                user=user, type=is_manager, subject_entity=contact, object_entity=manager
+            )
+
+        orga_A = FakeOrganisation.objects.create(user=user, name='Orga A')
+
+        contact_A = FakeContact.objects.create(user=user, first_name='John', last_name='A')
+        contact_B = FakeContact.objects.create(user=user, first_name='John', last_name='B')
+        contact_C = FakeContact.objects.create(user=user, first_name='John', last_name='C')
+
+        add_employee(orga_A, contact_A)
+        add_employee(orga_A, contact_B)
+        add_employee(orga_A, contact_C)
+
+        add_manager(contact_C, contact_A)
+        add_manager(contact_C, contact_B)
+
+        graph = Graph.objects.create(user=user, name='Graph01')
+
+        node = RootNode.objects.create(graph=graph, real_entity=orga_A)
+        node.relation_types.set([has_employee])
+        graph.orbital_relation_types.set([is_manager])
+
+        data = RelationChartBrick().get_chart_data({
+            'object': graph,
+            'user': user
+        })
+
+        self.assertEqual(sorted(data, key=str), sorted([
+            # First the root nodes
+            {
+                'id': orga_A.pk,
+                'label': str(orga_A),
+                'url': orga_A.get_absolute_url()
+            },
+            # "is employee" relations to the Orga A
+            {
+                'id': contact_A.pk,
+                'parent': orga_A.pk,
+                'label': str(contact_A),
+                'relation': {
+                    'label': str(has_employee.predicate),
+                    'id': has_employee.id,
+                },
+                'url': contact_A.get_absolute_url()
+            }, {
+                'id': contact_B.pk,
+                'parent': orga_A.pk,
+                'label': str(contact_B),
+                'relation': {
+                    'label': str(has_employee.predicate),
+                    'id': has_employee.id,
+                },
+                'url': contact_B.get_absolute_url()
+            }, {
+                'id': contact_C.pk,
+                'parent': orga_A.pk,
+                'label': str(contact_C),
+                'relation': {
+                    'label': str(has_employee.predicate),
+                    'id': has_employee.id,
+                },
+                'url': contact_C.get_absolute_url()
+            }, {
+                'id': contact_C.pk,
+                'parent': contact_A.pk,
+                'label': str(contact_C),
+                'relation': {
+                    'label': str(is_manager.predicate),
+                    'id': is_manager.id,
+                },
+                'url': contact_C.get_absolute_url()
+            }, {
+                'id': contact_C.pk,
+                'parent': contact_B.pk,
+                'label': str(contact_C),
+                'relation': {
+                    'label': str(is_manager.predicate),
+                    'id': is_manager.id,
+                },
+                'url': contact_C.get_absolute_url()
+            }
+        ], key=str))
