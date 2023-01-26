@@ -11,12 +11,6 @@ urlpatterns = [
     ),
 
     re_path(
-        r'^graph/(?P<graph_id>\d+)/chart/data[/]?$',
-        graph.chart_data,
-        name='graphs__chart_data',
-    ),
-
-    re_path(
         r'^graph/(?P<graph_id>\d+)/relation_types/add[/]?$',
         graph.RelationTypesAdding.as_view(),
         name='graphs__add_rtypes',
