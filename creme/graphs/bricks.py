@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -91,6 +91,7 @@ class RelationChartBrick(ChartBrick):
 
     def get_graph_chart_data(self, graph, user):
         root_nodes = graph.get_root_nodes(user)
+        orbital_entities = {}
 
         for node in root_nodes:
             root_entity = node.real_entity
@@ -106,18 +107,38 @@ class RelationChartBrick(ChartBrick):
             }
 
             for relation in relations:
-                orbital_entity = relation.real_object
+                entity = orbital_entities.get(relation.object_entity_id)
+
+                if entity is None:
+                    entity = relation.real_object
+                    orbital_entities[relation.object_entity_id] = entity
 
                 yield {
-                    'id': orbital_entity.pk,
+                    'id': entity.pk,
                     'parent': root_entity.pk,
-                    'label': str(orbital_entity),
+                    'label': str(entity),
                     'relation': {
                         'label': str(relation.type.predicate),
                         'id': relation.type.id,
                     },
-                    'url': orbital_entity.get_absolute_url(),
+                    'url': entity.get_absolute_url(),
                 }
+
+        orbital_relations = graph.get_orbital_relations(limit_to=orbital_entities.keys())
+
+        for relation in orbital_relations:
+            entity = orbital_entities[relation.object_entity_id]
+
+            yield {
+                'id': relation.object_entity_id,
+                'parent': relation.subject_entity_id,
+                'label': str(entity),
+                'relation': {
+                    'label': str(relation.type.predicate),
+                    'id': relation.type.id,
+                },
+                'url': entity.get_absolute_url(),
+            }
 
     def get_chart_data(self, context):
         return list(
