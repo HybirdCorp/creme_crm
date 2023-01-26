@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -84,8 +84,11 @@ class AbstractGraph(CremeEntity):
         return [
             root
             # for root in RootNode.objects.filter(graph=self.id).select_related('entity')
-            for root in RootNode.objects.filter(graph=self.id).prefetch_related('real_entity')
-            if not root.entity.is_deleted and has_perm_to_view(root.entity)
+            for root in (
+                RootNode.objects.filter(graph=self.id)
+                                .select_related('entity')
+                                .prefetch_related('real_entity')
+            ) if not root.entity.is_deleted and has_perm_to_view(root.entity)
         ]
 
     def get_root_node_relations(self, root, user):
@@ -99,6 +102,26 @@ class AbstractGraph(CremeEntity):
             relation for relation in relations
             if user.has_perm_to_view(relation.real_object)
         ]
+
+    def get_orbital_relations(self, limit_to=()):
+        orbital_rtype_ids = self.orbital_relation_types.values_list('pk', flat=True)
+
+        if orbital_rtype_ids:
+            qs = Relation.objects.filter(
+                type_id__in=orbital_rtype_ids,
+            )
+
+            if limit_to:
+                qs = qs.filter(
+                    subject_entity__in=limit_to,
+                    object_entity__in=limit_to,
+                )
+
+            qs.select_related('type')
+        else:
+            qs = Relation.objects.none()
+
+        return qs
 
     def generate_png(self, user):
         warnings.warn(
@@ -140,19 +163,18 @@ class AbstractGraph(CremeEntity):
             # subject = root.entity
             subject = root.real_entity
             str_subject = str(subject)
+
+            relations = self.get_root_node_relations(root, user)
             # relations = subject.relations.filter(
             #     type__in=root.relation_types.all(),
             # ).select_related('object_entity', 'type')
             # Relation.populate_real_object_entities(relations)  # Small optimisation
-            relations = subject.relations.filter(
-                type__in=root.relation_types.all(),
-            ).select_related('type').prefetch_related('real_object')
 
             for relation in relations:
                 # object_entity = relation.object_entity
                 object_entity = relation.real_object
-                if not user.has_perm_to_view(object_entity):
-                    continue
+                #  if not user.has_perm_to_view(object_entity):
+                #     continue
 
                 object_as_str = str(object_entity)
 
