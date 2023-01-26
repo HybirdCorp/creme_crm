@@ -152,6 +152,11 @@ class RelationChartBrick(ChartBrick):
 class RootNodesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('graphs', 'root_nodes')
     verbose_name = _('Root nodes')
+    description = _(
+        'The Root nodes are the entities in the center of the Graph, associated '
+        'with some relationship types, to retrieve entities linked to the root entities.\n'
+        'App: Graphs'
+    )
     dependencies = (RootNode,)
     template_name = 'graphs/bricks/root-nodes.html'
     target_ctypes = (get_graph_model(),)
@@ -180,6 +185,11 @@ class RootNodesBrick(QuerysetBrick):
 class OrbitalRelationTypesBrick(QuerysetBrick):
     id_ = QuerysetBrick.generate_id('graphs', 'orbital_rtypes')
     verbose_name = _('Peripheral types of relationship')
+    description = _(
+        'These types of relationship are displayed in the Graph between entities '
+        'which are linked to the root entities.\n'
+        'App: Graphs'
+    )
     dependencies = (RootNode,)
     template_name = 'graphs/bricks/orbital-rtypes.html'
     target_ctypes = (get_graph_model(),)
