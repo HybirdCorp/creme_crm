@@ -1,6 +1,7 @@
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.test.utils import override_settings
 from django.urls.base import reverse
 from django.utils.translation import gettext as _
@@ -17,6 +18,7 @@ from creme.creme_core.forms.enumerable import (
     EnumerableSelect,
 )
 from creme.creme_core.models.auth import CremeUser
+from creme.creme_core.models.base import CremeModel
 from creme.creme_core.tests.fake_models import FakeSector
 
 from ..base import CremeTestCase
@@ -433,6 +435,32 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         ]
 
         self.assertListEqual(expected, [c.as_dict() for c in field.choices])
+
+    def test_initial_from_model_default(self):
+        farming, industry, software = FakeSector.objects.order_by('pk')
+
+        class FakeDefaultFKFieldModel(CremeModel):
+            sector = models.ForeignKey(
+                FakeSector,
+                on_delete=models.SET_NULL,
+                default=industry.pk,
+            )
+
+        field = EnumerableChoiceField(
+            FakeDefaultFKFieldModel, 'sector', empty_label='No value...'
+        )
+
+        self.assertIsNone(field.empty_label)
+        self.assertEqual(industry.pk, field.initial)
+        self.assertIsNone(field.user)
+
+        field = EnumerableChoiceField(
+            FakeDefaultFKFieldModel, 'sector', empty_label='No value...', initial=software.pk
+        )
+
+        self.assertIsNone(field.empty_label)
+        self.assertEqual(software.pk, field.initial)
+        self.assertIsNone(field.user)
 
     def test_clean_value(self):
         farming = FakeSector.objects.order_by('pk').first()

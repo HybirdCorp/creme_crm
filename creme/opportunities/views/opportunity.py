@@ -20,7 +20,6 @@ from django.utils.translation import gettext_lazy as _
 
 from creme import persons
 from creme.creme_core.auth import build_creation_perm as cperm
-from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.views import generic
 from creme.creme_core.views.generic.base import EntityRelatedMixin
 
@@ -38,10 +37,6 @@ class _BaseOpportunityCreation(generic.EntityCreation):
     def get_initial(self):
         initial = super().get_initial()
         initial['sales_phase'] = SalesPhase.objects.first()
-
-        # TODO: this line should be useless, it seems the new 2.4 field/widget
-        #       does not manages the model default value correctly.
-        initial['currency'] = DEFAULT_CURRENCY_PK
 
         return initial
 
