@@ -1,13 +1,12 @@
-
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.db import models
 from django.test.utils import override_settings
 from django.urls.base import reverse
 from django.utils.translation import gettext as _
 from django.utils.translation import override as override_language
 from parameterized import parameterized
 
+from creme.creme_core.constants import DEFAULT_CURRENCY_PK
 from creme.creme_core.core.enumerable import EmptyEnumerator
 from creme.creme_core.forms.enumerable import (
     DEFAULT_LIMIT,
@@ -17,12 +16,15 @@ from creme.creme_core.forms.enumerable import (
     EnumerableChoiceSet,
     EnumerableSelect,
 )
-from creme.creme_core.models.auth import CremeUser
-from creme.creme_core.models.base import CremeModel
-from creme.creme_core.tests.fake_models import FakeSector
+from creme.creme_core.models import (
+    CremeUser,
+    Currency,
+    FakeContact,
+    FakeInvoice,
+    FakeSector,
+)
 
 from ..base import CremeTestCase
-from ..fake_models import FakeContact
 from ..forms.base import FieldTestCase
 
 
@@ -437,30 +439,23 @@ class EnumerableChoiceFieldTestCase(FieldTestCase):
         self.assertListEqual(expected, [c.as_dict() for c in field.choices])
 
     def test_initial_from_model_default(self):
-        farming, industry, software = FakeSector.objects.order_by('pk')
-
-        class FakeDefaultFKFieldModel(CremeModel):
-            sector = models.ForeignKey(
-                FakeSector,
-                on_delete=models.SET_NULL,
-                default=industry.pk,
-            )
-
-        field = EnumerableChoiceField(
-            FakeDefaultFKFieldModel, 'sector', empty_label='No value...'
+        field1 = EnumerableChoiceField(
+            FakeInvoice, 'currency', empty_label='No value…',
         )
 
-        self.assertIsNone(field.empty_label)
-        self.assertEqual(industry.pk, field.initial)
-        self.assertIsNone(field.user)
+        self.assertIsNone(field1.empty_label)
+        self.assertEqual(DEFAULT_CURRENCY_PK, field1.initial)
+        self.assertIsNone(field1.user)
 
-        field = EnumerableChoiceField(
-            FakeDefaultFKFieldModel, 'sector', empty_label='No value...', initial=software.pk
+        # ---
+        other_currency = Currency.objects.exclude(id=DEFAULT_CURRENCY_PK)[0]
+        field2 = EnumerableChoiceField(
+            FakeInvoice, 'currency', empty_label='No value…', initial=other_currency.pk,
         )
 
-        self.assertIsNone(field.empty_label)
-        self.assertEqual(software.pk, field.initial)
-        self.assertIsNone(field.user)
+        self.assertIsNone(field2.empty_label)
+        self.assertEqual(other_currency.pk, field2.initial)
+        self.assertIsNone(field2.user)
 
     def test_clean_value(self):
         farming = FakeSector.objects.order_by('pk').first()
