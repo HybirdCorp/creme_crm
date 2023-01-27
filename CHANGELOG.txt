@@ -1,3 +1,22 @@
+== Version 2.5 Work in progress (not released -- this is a draft) ==
+
+  Users side :
+  ------------
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+
+    Breaking changes :
+    ------------------
+
+    Internal breaking changes :
+    ---------------------------
+    (they should not cause problem if you have not deeply modified the source code of Creme)
+
+
 == Version 2.4 ==
 
   UPGRADE NOTE :
