@@ -17,11 +17,13 @@ else:
     from django.utils.translation import gettext_lazy as _
     from django.utils.translation import pgettext_lazy
 
+    from ..constants import DEFAULT_CURRENCY_PK
     from ..core.entity_filter import EF_USER
     # from .fake_constants import FAKE_DISCOUNT_UNIT, FAKE_PERCENT_UNIT
     from ..models import (
         CremeEntity,
         CremeModel,
+        Currency,
         EntityFilter,
         Language,
         Vat,
@@ -583,6 +585,10 @@ else:
         expiration_date = models.DateField(
             _('Expiration date'), blank=True, null=True,
         ).set_tags(optional=True)
+        currency = models.ForeignKey(
+            Currency, verbose_name=_('Currency'), related_name='+',
+            default=DEFAULT_CURRENCY_PK, on_delete=models.PROTECT,
+        )
 
         periodicity = core_fields.DatePeriodField(
             _('Periodicity of the generation'), blank=True, null=True,

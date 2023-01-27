@@ -1489,6 +1489,13 @@ class Migration(migrations.Migration):
                     ('number', models.CharField(max_length=100, verbose_name='Number', blank=True)),
                     ('issuing_date', models.DateField(null=True, verbose_name='Issuing date', blank=True)),
                     ('expiration_date', models.DateField(null=True, verbose_name='Expiration date', blank=True)),
+                    (
+                        'currency',
+                        models.ForeignKey(
+                            verbose_name='Currency', to='creme_core.Currency',
+                            related_name='+', on_delete=models.PROTECT, default=1,
+                        )
+                    ),
                     ('periodicity', core_fields.DatePeriodField(null=True, verbose_name='Periodicity of the generation', blank=True)),
                     (
                         'total_vat',
