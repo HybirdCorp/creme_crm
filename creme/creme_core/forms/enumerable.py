@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -258,6 +258,13 @@ class EnumerableChoiceField(mforms.ChoiceField):
     def __init__(self, model: type[Model], field_name: str, *, user=None, empty_label="---------",
                  required=True, label=None, initial=None, help_text='', limit=None,
                  **kwargs):
+        field = model._meta.get_field(field_name)
+
+        # Handles the model field default value. See ForeignKey.formfield implementation.
+        if field.has_default() and initial is None:
+            initial = field.default
+            kwargs.setdefault('show_hidden_initial', callable(initial))
+
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__(). See ModelChoiceField implementation.
         mforms.Field.__init__(
@@ -267,7 +274,7 @@ class EnumerableChoiceField(mforms.ChoiceField):
         )
 
         self.enum = self.enumerable(
-            field=model._meta.get_field(field_name),
+            field=field,
             user=user,
             limit=limit,
         )
