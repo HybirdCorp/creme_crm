@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -49,7 +49,8 @@ from creme.persons import get_contact_model
 from .. import constants, custom_forms, get_activity_model
 from ..forms import activity as act_forms
 from ..models import ActivitySubType, ActivityType
-from ..utils import get_ical
+# from ..utils import get_ical
+from ..utils import ICalEncoder
 
 Activity = get_activity_model()
 
@@ -308,7 +309,11 @@ def download_ical(request):
     #
     # return response
     return HttpResponse(
-        get_ical(activities),
+        ICalEncoder().encode(
+            activities=EntityCredentials.filter(
+                queryset=activities, user=request.user,
+            ),
+        ),
         headers={
             'Content-Type': 'text/calendar',
             'Content-Disposition': 'attachment; filename="Calendar.ics"',

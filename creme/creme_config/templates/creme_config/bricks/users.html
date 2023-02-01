@@ -38,7 +38,7 @@
 {% block brick_table_rows %}
 {% with admin_perm=user.is_superuser %}{% translate 'Superuser' as superuser_label %}
     {% for user in page.object_list %}
-    <tr>
+    <tr{% if not user.is_active %} class="user-disabled"{% endif %}>
         <td class="user-username" {% brick_table_data_status primary %}>{{user.username}}</td>
         <td class="user-lastname" >{{user.last_name}}</td>
         <td class="user-firstname" >{{user.first_name}}</td>

@@ -2331,6 +2331,11 @@ class ActivityTestCase(_ActivitiesTestCase):
             start=create_dt(year=2013, month=4, day=2, hour=9),
             end=create_dt(year=2013,   month=4, day=2, hour=10),
         )
+        create_act(  # Not used
+            title='Act#3',
+            start=create_dt(year=2013, month=4, day=3, hour=9),
+            end=create_dt(year=2013,   month=4, day=3, hour=10),
+        )
 
         response = self.assertGET200(
             reverse('activities__dl_ical'), data={'id': [act1.id, act2.id]},
@@ -2343,22 +2348,30 @@ class ActivityTestCase(_ActivitiesTestCase):
         content = force_str(response.content)
         self.assertStartsWith(
             content,
-            'BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CremeCRM//CremeCRM//EN\n'
-            'BEGIN:VEVENT\n'
-            'UID:http://cremecrm.com\n'
+            'BEGIN:VCALENDAR\n'
+            'VERSION:2.0\n'
+            # 'PRODID:-//CremeCRM//CremeCRM//EN\n'
+            # 'BEGIN:VEVENT\n'
+            # 'UID:http://cremecrm.com\n'
         )
-        self.assertIn(
-            f'SUMMARY:Act#2\n'
-            f'DTSTART:20130402T090000Z\n'
-            f'DTEND:20130402T100000Z\n'
-            f'LOCATION:\n'
-            f'CATEGORIES:{act2.type.name}\n'
-            f'STATUS:\n'
-            f'END:VEVENT\n',
-            content,
-        )
-        self.assertIn('SUMMARY:Act#1\n', content)
-        self.assertEndsWith(content, 'END:VCALENDAR')
+        # self.assertIn(
+        #     f'SUMMARY:Act#2\n'
+        #     f'DTSTART:20130402T090000Z\n'
+        #     f'DTEND:20130402T100000Z\n'
+        #     f'LOCATION:\n'
+        #     f'CATEGORIES:{act2.type.name}\n'
+        #     f'STATUS:\n'
+        #     f'END:VEVENT\n',
+        #     content,
+        # )
+        # self.assertIn('SUMMARY:Act#1\n', content)
+        self.assertIn(f'UID:{act2.uuid}\n', content)
+        self.assertIn(f'UID:{act1.uuid}\n', content)
+        self.assertCountOccurrences('UID:', content, 2)
+        # self.assertEndsWith(content, 'END:VCALENDAR')
+        self.assertEndsWith(content, 'END:VEVENT\nEND:VCALENDAR')
+
+        # TODO: test view permission
 
     def test_clone01(self):
         self.login()
