@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 24-01-2023 pour la version 2.4 de Creme
+:Version: 03-02-2023 pour la version 2.4 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -245,8 +245,6 @@ Maintenant créons un autre répertoire, ``models/``, dans lequel nous nous pla�
 Puis créons dedans un fichier nommé ``beaver.py`` (notez le singulier) à l'aide
 notre éditeur de texte préféré, contenant le texte suivant : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import models
     from django.utils.translation import gettext_lazy as _
 
@@ -282,8 +280,6 @@ En plus des champs contenus en base (fields), nous déclarons :
 
 Là encore, pour que le répertoire ``models/`` soit un module, nous devons y mettre
 un second fichier nommé ``__init__.py``, et qui contient : ::
-
-    # -*- coding: utf-8 -*-
 
     from .beaver import Beaver
 
@@ -337,8 +333,6 @@ Déclarer notre app
 
 Tout d'abord, créons un nouveau fichier ``my_project/beavers/apps.py`` qui contient : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
@@ -390,8 +384,6 @@ ainsi que le ``__init__.py`` habituel : ::
 
 Dans ``views/``, nous créons le fichier ``beaver.py`` tel que : ::
 
-    # -*- coding: utf-8 -*-
-
     from creme.creme_core.views import generic
 
     from ..models import Beaver
@@ -409,8 +401,6 @@ répertoire ``nom_de_votre_appli/``.
 
 Nous n'avons donc pas à toucher à ``creme/urls.py`` et nous créons juste le
 fichier ``urls.py`` dans ``my_project/beavers/`` tel que : ::
-
-    # -*- coding: utf-8 -*-
 
     from django.urls import re_path
 
@@ -431,8 +421,6 @@ Notez :
 Rajoutons enfin la méthode ``get_lv_absolute_url()`` dans notre modèle. Cette
 méthode permettra par exemple de revenir sur la liste des castors lorsqu'on
 supprimera une fiche castor : ::
-
-    # -*- coding: utf-8 -*-
 
     [...]
 
@@ -467,8 +455,6 @@ Créez un répertoire ``my_project/beavers/forms``, avec le coutumier ``__init__
 
 
 Dans ``forms/``, nous créons alors le fichier ``beaver.py`` : ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext_lazy as _
 
@@ -512,9 +498,6 @@ Rajoutons l'entrée qui référence ``beaver.BeaverCreation`` dans ``beavers/url
 Il reste à mettre une méthode ``get_create_absolute_url()`` dans notre modèle,
 ainsi que les attributs ``creation_label`` et ``save_label``, qui permettent de
 nommer correctement les éléments d'interface (bouton, menu etc…) : ::
-
-    # -*- coding: utf-8 -*-
-
 
     class Beaver(CremeEntity):
         [...]
@@ -564,8 +547,6 @@ inquiétez pas, ça sera réglé un peu plus tard.
 Pour que les prochaines créations de castor n'aboutissent pas sur une erreur 404,
 nous créons la méthode ``get_absolute_url()`` : ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
 
@@ -602,8 +583,6 @@ Rajoutons l'URL associée : ::
 
 Ainsi que la méthode ``get_edit_absolute_url`` : ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
 
@@ -619,8 +598,6 @@ Faire apparaître les entrées dans le menu
 
 Nous déclarons 2 entrées de menu (une pour la vue en liste, une pour la vue de
 création), dans un nouveau fichier ``my_project/beavers/menu.py`` : ::
-
-    # -*- coding: utf-8 -*-
 
     from creme.creme_core.gui import menu
 
@@ -701,8 +678,6 @@ sera exécuté au déploiement, et créera la vue de liste et les entrées de me
 Créez le fichier ``my_project/beavers/constants.py``, qui contiendra comme son
 nom l'indique des constantes : ::
 
-    # -*- coding: utf-8 -*-
-
     # NB: ceci sera l'identifiant de notre vue de liste par défaut. Pour éviter
     #     les collisions entre apps, la convention est de construire une valeur
     #     de la forme 'mon_app' + 'hf_' + 'mon_model'.
@@ -710,8 +685,6 @@ nom l'indique des constantes : ::
 
 
 Puis créons un fichier : ``my_project/beavers/populate.py``. ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext as _
 
@@ -859,7 +832,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2021-11-25 11:10+0100\n"
+    "POT-Creation-Date: 2023-02-03 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -906,7 +879,7 @@ Le fichier ``django.po`` ressemble à quelque chose comme ça (les dates seront
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2021-11-24 11:10+0100\n"
+    "POT-Creation-Date: 2023-02-03 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -968,8 +941,6 @@ les castors malades, et appeler un vétérinaire en conséquence.
 
 Créez un fichier ``my_project/beavers/models/status.py`` : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import models
     from django.utils.translation import gettext_lazy as _
     from django.utils.translation import pgettext_lazy
@@ -1013,8 +984,6 @@ de l'app plus '-'.
 
 Modifiez ``models/__init__.py`` : ::
 
-    # -*- coding: utf-8 -*-
-
     from .beaver import Beaver
     from .status import Status  # <-- NEW
 
@@ -1041,8 +1010,6 @@ Un fichier nommé en fonction de la date du jour vient d'être créé. Une fois
 celui-ci renommé en ``0003_populate_default_status.py``, ouvrez le.
 Il devrait ressembler à ça : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import migrations, models
 
 
@@ -1057,8 +1024,6 @@ Il devrait ressembler à ça : ::
 
 
 Éditez le pour obtenir : ::
-
-    # -*- coding: utf-8 -*-
 
     from django.db import migrations, models
 
@@ -1135,8 +1100,6 @@ des statuts. Les utilisateurs auront donc dès le départ plusieurs statuts
 utilisables. Dans le fichier ``beavers/constants.py``, on rajoute des
 constantes : ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
     STATUS_HEALTHY = 1
@@ -1149,15 +1112,17 @@ Utilisons tout de suite ces constantes ; modifiez ``populate.py`` : ::
     from .constants import STATUS_HEALTHY, STATUS_SICK
     from .models import Beaver, Status
 
-
-    def populate(self):
+    class Populator(BasePopulator):
         [...]
 
-        already_populated = Status.objects.exists()
+        def populate(self):
+            [...]
 
-        if not already_populated:
-            Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
-            Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
+            already_populated = Status.objects.exists()
+
+            if not already_populated:
+                Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
+                Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
 
 
 En mettant l'attribut ``is_custom`` à ``False``, on rend ces 2 ``Status`` non
@@ -1219,8 +1184,6 @@ gère ce modèle (méthode ``brick_class()``).
 **Allons un peu loin** : si vous voulez que les **utilisateurs puissent choisir l'ordre**
 des statuts (dans les formulaires, dans la recherche rapide des vues de liste etc…),
 vous devez rajouter un champ ``order`` comme ceci : ::
-
-    # -*- coding: utf-8 -*-
 
     [...]
 
@@ -1575,8 +1538,6 @@ castor, nous passons l'identifiant du castor dans l'URL, pour que la vue puisse 
 
 Dans un nouveau fichier de vue ``my_project/beavers/views/ticket.py`` : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.shortcuts import get_object_or_404
     from django.utils.translation import gettext as _
 
@@ -1616,8 +1577,6 @@ Dans ``beavers/urls.py`` : ::
 
 Créons le ficher ``beavers/buttons.py`` (ce nom n'est pas une obligation, mais
 une convention) : ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext_lazy as _
 
@@ -1779,8 +1738,6 @@ Nous allons ici faire un CustomForm simple pour créer nos castors. Tout
 d'abord, à la racine de notre app (``my_project/beavers/`` donc), nous créons
 le fichier ``custom_forms.py`` : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.gui.custom_form import CustomFormDescriptor
@@ -1875,11 +1832,11 @@ formulaire personnalisées ; modifions ``views/beaver.py`` : ::
         form_class = custom_forms.BEAVER_CREATION_CFORM  # <== NEW
 
 
-Maintenant votre vue de création devrait réfléter la configuration que vous
+Maintenant votre vue de création devrait refléter la configuration que vous
 donnez à votre formulaire.
 
 **Un peu plus loin** : il y a plusieurs moyens de faire des traitements un peu
-plus spécifiques dans un formulaire personnalisé, gràce à certains attributs
+plus spécifiques dans un formulaire personnalisé, grâce à certains attributs
 de ``CustomFormDescriptor`` :
 
 - vous pouvez exclure des champs via l'attribut ``excluded_fields``.
@@ -2021,7 +1978,7 @@ recherche : ::
             [...]
 
             # Notez l'attribut "cell" de type 'creme_core.core.entity_cell.EntityCell' ;
-            # ici on s'en sert pour récupérér le nom de la 'ForeignKey'.
+            # ici on s'en sert pour récupérer le nom de la 'ForeignKey'.
             fk_name = self.cell.value
 
             # On fabrique notre instance de Q(), que l'on renvoie enfin
@@ -2044,7 +2001,7 @@ Dans le fichier ``creme/persons/apps.py``, on enregistre le champ de recherche :
 
             from .forms.listview import AddressFKField
 
-            # 'search_field_registry' est une registry aborescente ; on récupère
+            # 'search_field_registry' est une registry arborescente ; on récupère
             # dans l'ordre :
             #  - la sous-registry des champs normaux.
             #  - la sous-registry des 'ForeignKey'.
@@ -2191,7 +2148,7 @@ la méthode ``ForeignKey.formfield()`` (définie dans Django) : ::
 
             from creme.creme_config.forms.fields import CreatorModelChoiceField
 
-            # Ici on stocke la méthode originelle....
+            # Ici on stocke la méthode originelle...
             original_fk_formfield = ForeignKey.formfield
 
             def new_fk_formfield(self, **kwargs):
@@ -2286,8 +2243,6 @@ d'une de vos apps personnelles (comme *beavers*), dans la méthode
 ``all_apps_ready()``. Ici un exemple qui rajoute un champ dans le formulaire
 de création des utilisateurs (notez qu'il faudrait aussi *hooker* la méthode
 ``save()`` pour utiliser ce champ ; cet exercice est laissé au lecteur) : ::
-
-    # -*- coding: utf-8 -*-
 
     [...]
 
@@ -2447,8 +2402,6 @@ les choses correctement, elle devra être avant ``tickets`` (avec
 
 Notre ``AppConfig`` va déclarer que l'on étend ``tickets`` : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
@@ -2467,8 +2420,6 @@ Dans ``my_tickets/models.py``, il faut déclarer un modèle qui va se substituer
 ``tickets.models.AbstractTicket`` (sachant que toutes les entités utilisent un
 schéma similaire). Il est important de garder ``Ticket`` comme nom de modèle,
 afin d'éviter tout un tas de petits désagréments/bugs : ::
-
-    # -*- coding: utf-8 -*-
 
     from django.db.models import DecimalField
     from django.utils.translation import gettext_lazy as _
@@ -2534,12 +2485,9 @@ Dans notre cas, les vues de base devraient tout à fait suffire (les formulaires
 seront assez intelligents pour utiliser les nouveaux champs éditables par exemple),
 et donc nous pouvons définir ``my_project/my_tickets/urls.py`` tel que : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.urls import re_path
 
     from creme.tickets.views import ticket
-
 
     urlpatterns += [
         re_path(r'^my_tickets[/]?$',                        ticket.TicketsList.as_view(),    name='tickets__list_tickets'),
@@ -2561,8 +2509,6 @@ de classes qui peuvent être facilement étendues. Par exemple, si vous voulez
 définir la vue de création de ``my_tickets.models.Ticket`` avec votre propre
 formulaire (dont l'écriture n'est pas traité ici, vous savez déjà le faire),
 vous pourriez écrire quelque chose comme ça : ::
-
-    # -*- coding: utf-8 -*-
 
     from creme.tickets.views.ticket import TicketCreation
 
@@ -2960,14 +2906,11 @@ il n'y a donc pas de risque d'avoir un comportement bugué (une clé utilisée
 
 Dans un fichier ``my_project/beavers/setting_keys.py`` mettez : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import SettingKey
 
     from .constants import BEAVER_KEY_ID
-
 
     beaver_key = SettingKey(
         id=BEAVER_KEY_ID,
@@ -3050,14 +2993,11 @@ configuration (même remarque sur le préfixe/unicité) : ::
 
 Dans le fichier ``setting_keys.py`` à la racine de l'app mettez : ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import UserSettingKey
 
     from .constants import BEAVER_USER_KEY_ID
-
 
     beaver_user_key = UserSettingKey(
         id=BEAVER_USER_KEY_ID,
@@ -3183,9 +3123,6 @@ Tout d'abord nous allons créer le type de job, qui va contenir le code de notre
 Pour cela notre app doit contenir un *package* ``creme_jobs`` ; si votre app doit
 contenir plusieurs jobs, vous pouvez opter pour un répertoire ``beavers/creme_jobs/``.
 Ici on va juste créer un simple fichier ``beavers/creme_jobs.py`` : ::
-
-
-    # -*- coding: utf-8 -*-
 
     from django.conf import settings
     from django.utils.translation import gettext
@@ -3380,8 +3317,6 @@ navigateur Web.
 
 Pour notre module *beavers*, voici un exemple qui teste la vue de création.
 Créez un fichier ``beavers/tests.py`` : ::
-
-    # -*- coding: utf-8 -*-
 
     from datetime import date
 
