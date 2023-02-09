@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -102,11 +102,7 @@ class Dummy:
         self.duration = mark_safe(print_duration(
             self, f'{randint(0, 23)}:{randint(0, 59)}:{randint(0, 59)}', user, None
         ))
-        self.foreignkey = (
-            None
-            if property is None else
-            mark_safe(print_foreignkey_html(self, property, user, None))
-        )
+        self.foreignkey = mark_safe(print_foreignkey_html(self, user, user, None))
         # API Breaking : TODO refactor this
 #         self.image = MockImage(image_url, random_choice(TEST_IMAGES_SIZES)).html(self)
 #         property = CremeProperty.objects.first()
