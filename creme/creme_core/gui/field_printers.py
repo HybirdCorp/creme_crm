@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -300,7 +300,8 @@ print_foreignkey_html = FKPrinter(
 
 print_foreignkey_csv = FKPrinter(
     none_printer=lambda *args, **kwargs: '',
-    default_printer=simple_print_html,
+    # default_printer=simple_print_html,
+    default_printer=simple_print_csv,
 ).register(
     model=CremeEntity, printer=FKPrinter.print_fk_entity_csv,
 )
