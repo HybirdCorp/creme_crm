@@ -170,6 +170,7 @@ class OperatorTestCase(CremeTestCase):
                 'boolean', 'boolean__null',
                 'fk', 'fk__null',
                 'user', 'user__null',
+                'choices', 'choices__null',
             },
             op.allowed_fieldtypes,
         )
@@ -361,7 +362,7 @@ class OperatorTestCase(CremeTestCase):
         op = operators.IsEmptyOperator()
         self.assertFalse(op.accept_subpart)
         self.assertSetEqual(
-            {'string', 'fk__null', 'user__null', 'enum__null', 'boolean__null'},
+            {'string', 'fk__null', 'user__null', 'enum__null', 'boolean__null', 'choices__null'},
             op.allowed_fieldtypes,
         )
         # TODO: complete

@@ -315,7 +315,7 @@ entity_filter_patterns = [
         name='creme_core__efilters',
     ),
     re_path(
-        r'^users/json[/]?$',
+        r'^users/(?P<ct_id>\d+)/(?P<field>[\w]+)/json[/]?$',
         entity_filter.UserChoicesView.as_view(),
         name='creme_core__efilter_user_choices',
     ),

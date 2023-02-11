@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -40,6 +40,13 @@ from creme.creme_core.models import CremeEntity, CustomField
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.utils.url import TemplateURLBuilder
 
+from ...views.entity_filter import EntityFilterUserEnumerator
+from ..enumerable import (
+    EnumerableChoiceSet,
+    EnumerableSelect,
+    EnumerableSelectMultiple,
+    FieldEnumerableChoiceSet,
+)
 from ..widgets import (
     ChainedInput,
     DateRangeSelect,
@@ -70,6 +77,41 @@ _HAS_RELATION_OPTIONS = OrderedDict([
 ])
 
 
+class UserEnumerableSelect(EnumerableSelect):
+    is_required = True
+
+    def __init__(self, field, filter_type=EF_USER, attrs=None):
+        user_ctype = ContentType.objects.get_for_model(field.model)
+        user_choices_url = reverse(
+            'creme_core__efilter_user_choices', args=(user_ctype.id, field.name)
+        )
+
+        super().__init__(
+            enumerable=EnumerableChoiceSet(
+                empty_label=None,
+                enumerator=EntityFilterUserEnumerator(
+                    field=field,
+                    filter_type=filter_type,
+                ),
+                url=f'{user_choices_url}?filter_type={filter_type}'
+            ),
+            attrs=attrs,
+        )
+
+
+class FieldEnumerableSelect(EnumerableSelectMultiple):
+    is_required = True
+
+    def __init__(self, field, attrs=None):
+        super().__init__(
+            enumerable=FieldEnumerableChoiceSet(
+                field=field,
+                empty_label=None,
+            ),
+            attrs=attrs,
+        )
+
+
 class FieldConditionSelector(ChainedInput):
     def __init__(
             self,
@@ -88,44 +130,64 @@ class FieldConditionSelector(ChainedInput):
 
     def _build_valueinput(self, field_attrs):
         pinput = PolymorphicInput(
-            key='${field.type}.${operator.id}',
+            key='${field.type}.${operator.id}.${field.name}',
             attrs={'auto': False},
         )
 
         EQUALS_OPS = f'{operators.EQUALS}|{operators.EQUALS_NOT}'
         add_input = pinput.add_input
+
+        def is_enumerable_field(field):
+            return isinstance(field, ModelRelatedField) and (
+                not issubclass(field.remote_field.model, (CremeEntity, get_user_model()))
+                and field.get_tag(FieldTag.ENUMERABLE)
+            )
+
+        def is_choices_field(field):
+            return not isinstance(field, ModelRelatedField) and field.choices
+
+        for field_info in self.fields:
+            name, model_fields = field_info
+            field = model_fields[-1]
+
+            if is_enumerable_field(field):
+                add_input(
+                    f'^enum(__null)?.({EQUALS_OPS}).{name}$',
+                    widget=FieldEnumerableSelect, attrs=field_attrs,
+                    field=field,
+                )
+            elif is_choices_field(field):
+                add_input(
+                    f'^choices(__null)?.({EQUALS_OPS}).{name}$',
+                    widget=DynamicSelectMultiple, attrs=field_attrs,
+                    options=field.choices,
+                )
+
+        user_field = self.model._meta.get_field('user')
+
         add_input(
-            f'^enum(__null)?.({EQUALS_OPS})$',
-            widget=DynamicSelectMultiple, attrs=field_attrs,
-            # TODO: use a GET arg instead of using a TemplateURLBuilder ?
-            # TODO: remove "field.ctype" ?
-            url=TemplateURLBuilder(
-                field=(TemplateURLBuilder.Word, '${field.name}'),
-            ).resolve(
-                'creme_core__enumerable_choices',
-                kwargs={'ct_id': ContentType.objects.get_for_model(self.model).id},
-            ),
+            f'^user(__null)?.({EQUALS_OPS}).*$',
+            widget=UserEnumerableSelect, attrs={
+                **field_attrs,
+                # json datatype will consider __operand__ as an invalid value
+                # and replaced by "null"
+                'datatype': 'string',
+            },
+            field=user_field,
+            filter_type=self.filter_type
         )
 
-        pinput.add_dselect(
-            f'^user(__null)?.({EQUALS_OPS})$',
-            '{}?filter_type={}'.format(
-                reverse('creme_core__efilter_user_choices'),
-                self.filter_type,
-            ),
-            attrs=field_attrs,
-        )
         add_input(
-            f'^fk(__null)?.({EQUALS_OPS})$',
+            f'^fk(__null)?.({EQUALS_OPS}).*$',
             widget=EntitySelector, attrs={'auto': False},
             content_type='${field.ctype}',
         )
         add_input(
-            f'^date(__null)?.{operators.RANGE}$',
+            f'^date(__null)?.{operators.RANGE}.*$',
             widget=NullableDateRangeSelect, attrs={'auto': False},
         )
         add_input(
-            f'^date(__null)?.({EQUALS_OPS})$',
+            f'^date(__null)?.({EQUALS_OPS}).*$',
             widget=DynamicInput, type='date', attrs={'auto': False},
         )
         add_input(
@@ -133,7 +195,7 @@ class FieldConditionSelector(ChainedInput):
             options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         add_input(
-            f'(string|.*__null).({operators.ISEMPTY})$',
+            f'(string|.*__null).({operators.ISEMPTY}).*$',
             widget=DynamicSelect, options=_BOOL_OPTIONS, attrs=field_attrs,
         )
         pinput.set_default_input(widget=DynamicInput, attrs={'auto': False})
@@ -207,6 +269,9 @@ class FieldConditionSelector(ChainedInput):
                 return 'enum' + isnull
 
             return 'fk' + isnull
+
+        if field.choices is not None:
+            return 'choices' + isnull
 
         if isinstance(field, ModelDateField):
             return 'date' + isnull
