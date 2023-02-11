@@ -68,6 +68,7 @@ FIELDTYPES_ALL = {
     'boolean', 'boolean__null',
     'fk', 'fk__null',
     'user', 'user__null',
+    'choices', 'choices__null',
 }
 FIELDTYPES_ORDERABLE = {
     'number', 'number__null',
@@ -82,6 +83,7 @@ FIELDTYPES_NULLABLE = {
     'fk__null',
     'user__null',
     'enum__null',
+    'choices__null',
     'boolean__null',
 }
 FIELDTYPES_STRING = {

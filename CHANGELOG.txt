@@ -7,6 +7,9 @@
   ------------
     # The version of Django has been upgraded to "4.1".
     # The link in the list-views selectors are now opened in other tabs automatically.
+    # In entity filter form:
+        - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.
+        - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
     # Apps :
         * Creme_config :
             - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
@@ -68,6 +71,12 @@
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
         # Database indexes were added to improve general performance with large volumes of data on:
             - creme_core.HistoryLine
+        # In 'creme_core.forms.EnumerableChoiceSet' :
+            - The 'url' property can override 'creme_core__enumerable_choices' path provided by the new 'default_url' property.
+        # In 'creme_core.forms':
+            - 'EnumerableChoiceSet' is now a base class that requires an Enumerator instead of a model Field and an EnumerableRegistry.
+            - A new 'FieldEnumerableChoiceSet' inherits from 'EnumerableChoiceSet' and have all its previous features.
+            - New 'EnumerableSelectMultiple' that supports multiple selection.
 
     Breaking changes :
     ------------------
@@ -113,6 +122,10 @@
             - In the class 'EntityCellCustomField' :
                 - The class attribute '_EXTRA_RENDERERS' has been reworked.
                 - The method '_get_renderer()' has been removed.
+        # In 'creme_core.forms.entity_filter':
+            - 'EnumerableSelectMultiple' are now used for EntityFilter regular field conditions instead of 'DynamicSelectMultiple'.
+            - The url 'creme_core__efilter_user_choices' has changed and follows the 'users/{ct_id}/{field}/json[/]?$' pattern like the
+              default enumerable choices url.
         # In 'creme_core.gui' :
             - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
             - In 'field_printers' :

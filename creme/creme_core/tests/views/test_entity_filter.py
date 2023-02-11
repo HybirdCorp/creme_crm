@@ -1852,7 +1852,6 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
 class UserChoicesTestCase(ViewsTestCase):
     EF_TEST = 26
-    URL = reverse('creme_core__efilter_user_choices')
 
     @classmethod
     def setUpClass(cls):
@@ -1884,6 +1883,8 @@ class UserChoicesTestCase(ViewsTestCase):
         cls.SuperUsersOperand = SuperUsersOperand
         cls.MainUserOperand   = MainUserOperand
 
+        cls.contact_ctype = ContentType.objects.get_for_model(FakeContact)
+
     @classmethod
     def tearDownClass(cls):
         super().tearDownClass()
@@ -1900,12 +1901,14 @@ class UserChoicesTestCase(ViewsTestCase):
         )
         self.assertGreater(str(user), str(first_user))
 
-        url = self.URL
+        url = reverse(
+            'creme_core__efilter_user_choices', args=(self.contact_ctype.pk, 'user')
+        )
         choices1 = self.assertGET200(url).json()
         self.assertIsList(choices1, min_length=3)
 
-        self.assertListEqual(
-            ['__currentuser__', _('Current user')],
+        self.assertEqual(
+            {'value': '__currentuser__', 'label': _('Current user')},
             choices1[0],
         )
 
@@ -1913,8 +1916,8 @@ class UserChoicesTestCase(ViewsTestCase):
             user_id = u.id
 
             for i, choice in enumerate(choices1):
-                if user_id == choice[0]:
-                    return i, choice[1]
+                if user_id == choice['value']:
+                    return i, choice['label']
 
             self.fail(f'User "{u}" not found in {choices1}')
 
@@ -1942,14 +1945,17 @@ class UserChoicesTestCase(ViewsTestCase):
         ).json()
         self.assertEqual(choices1, choices3)
 
-        self.assertGET404(url + '?filter_type=1024')
+        self.assertGET(400, url + '?filter_type=1024')
 
     def test_user_choices02(self):
         "Other registered operands."
         self.login()
 
+        url = reverse(
+            'creme_core__efilter_user_choices', args=(self.contact_ctype.pk, 'user')
+        )
         choices = self.assertGET200(
-            f'{self.URL}?filter_type={self.EF_TEST}'
+            f'{url}?filter_type={self.EF_TEST}'
         ).json()
-        self.assertEqual(self.MainUserOperand.type_id,   choices[0][0])
-        self.assertEqual(self.SuperUsersOperand.type_id, choices[1][0])
+        self.assertEqual(self.MainUserOperand.type_id,   choices[0]['value'])
+        self.assertEqual(self.SuperUsersOperand.type_id, choices[1]['value'])

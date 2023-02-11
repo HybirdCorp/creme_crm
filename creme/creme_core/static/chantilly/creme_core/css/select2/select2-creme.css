@@ -89,6 +89,7 @@
     border: 1px solid #aaa;
     border-radius: 4px;
     cursor: text;
+    min-height: 26px;
 }
 
 .select2-container--creme .select2-selection--multiple .select2-selection__rendered {
@@ -118,8 +119,8 @@
     border-radius: 4px;
     cursor: default;
     float: left;
-    margin-right: 5px;
-    margin-top: 5px;
+    margin-right: 2px;
+    margin-top: 2px;
     padding: 0 5px;
 }
 
@@ -186,6 +187,7 @@
     outline: 0;
     box-shadow: none;
     -webkit-appearance: textfield;
+    margin-top: 2px;
 }
 
 .select2-container--creme .select2-results > .select2-results__options {
@@ -299,4 +301,3 @@
 .select2-container--creme .select2-results .select2-results__create-title:hover {
     text-decoration: underline;
 }
-

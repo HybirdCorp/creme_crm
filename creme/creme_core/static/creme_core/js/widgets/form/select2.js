@@ -622,7 +622,7 @@ creme.form.Select2 = creme.component.Component.sub({
         }, undefined, true);
 
         if (options.allowClear && Object.isEmpty(element.find('option[value=""]'))) {
-            element.append($('<option value="">${placeholder}</option>'.template({placeholder: placeholder})));
+            element.append($('<option value="">${placeholder}</option>'.template({placeholder: placeholder || '…'})));
         }
 
         /*
