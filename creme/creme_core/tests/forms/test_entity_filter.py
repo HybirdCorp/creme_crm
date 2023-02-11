@@ -248,6 +248,29 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             str([_('Select a valid choice. That choice is not one of the available choices.')])
         )
 
+    def test_clean_invalid_static_choice(self):
+        """Static choice field with invalid value."""
+        clean = RegularFieldsConditionsField(
+            model=FakeInvoiceLine,
+            efilter_registry=efilter_registry,
+        ).clean
+        err = self.assertFieldRaises(
+            ValidationError, clean,
+            self.build_data({
+                'operator': operators.EQUALS,
+                'name':     'discount_unit',
+                'value':    'unknown',
+            }),
+        )[0]
+        self.assertEqual(
+            err.messages[0],
+            str([
+                _('Select a valid choice. %(value)s is not one of the available choices.') % {
+                    'value': 'unknown',
+                },
+            ])
+        )
+
     def test_clean_invalid_many2many_id(self):
         clean = RegularFieldsConditionsField(
             model=FakeContact,
@@ -604,31 +627,58 @@ class RegularFieldsConditionsFieldTestCase(FieldTestCase):
             condition.value,
         )
 
+    def test_static_choices(self):
+        "Static choice field."
+        clean = RegularFieldsConditionsField(
+            model=FakeInvoiceLine,
+            efilter_registry=efilter_registry,
+        ).clean
+        operator = operators.EQUALS
+        name = 'discount_unit'
+        value = FakeInvoiceLine.Discount.AMOUNT
+        conditions = clean(self.build_data({
+            'operator': operator,
+            'name':     name,
+            'value':    value,
+        }))
+        self.assertEqual(1, len(conditions))
+
+        condition = conditions[0]
+        self.assertEqual(RegularFieldConditionHandler.type_id, condition.type)
+        self.assertEqual(name,                                 condition.name)
+        self.assertDictEqual(
+            {'operator': operator, 'values': [str(value)]},
+            condition.value,
+        )
+
     def test_choicetypes(self):
         "Field choice types."
         field_choicetype = FieldConditionSelector.field_choicetype
-        get_field = FakeContact._meta.get_field
+        get_contact_field = FakeContact._meta.get_field
 
-        civility_field = get_field('civility')
+        civility_field = get_contact_field('civility')
         self.assertTrue(civility_field.get_tag('enumerable'))
         self.assertTrue(civility_field.get_tag(FieldTag.ENUMERABLE))
         self.assertFalse(issubclass(civility_field.remote_field.model, CremeEntity))
         self.assertEqual(field_choicetype(civility_field), 'enum__null')
 
-        self.assertEqual(field_choicetype(get_field('birthday')), 'date__null')
-        self.assertEqual(field_choicetype(get_field('created')),  'date')
+        self.assertEqual(field_choicetype(get_contact_field('birthday')), 'date__null')
+        self.assertEqual(field_choicetype(get_contact_field('created')),  'date')
 
-        self.assertEqual(field_choicetype(get_field('address')),  'fk__null')
+        self.assertEqual(field_choicetype(get_contact_field('address')),  'fk__null')
 
-        self.assertEqual(field_choicetype(get_field('user')),     'user')
-        self.assertEqual(field_choicetype(get_field('is_user')),  'user__null')
+        self.assertEqual(field_choicetype(get_contact_field('user')),     'user')
+        self.assertEqual(field_choicetype(get_contact_field('is_user')),  'user__null')
 
-        image_field = get_field('image')
+        image_field = get_contact_field('image')
         self.assertTrue(image_field.get_tag(FieldTag.ENUMERABLE))
         self.assertIsSubclass(image_field.remote_field.model, CremeEntity)
         self.assertEqual(field_choicetype(image_field), 'fk__null')
 
-        self.assertEqual(field_choicetype(get_field('languages')), 'enum__null')
+        self.assertEqual(field_choicetype(get_contact_field('languages')), 'enum__null')
+
+        discount_unit_field = FakeInvoiceLine._meta.get_field('discount_unit')
+        self.assertEqual(field_choicetype(discount_unit_field), 'choices__null')
 
     def test_iendswith_valuelist(self):
         "Multi values."

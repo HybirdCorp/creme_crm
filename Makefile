@@ -31,6 +31,12 @@ clean:
 	find . -type d -empty -print -delete
 
 
+## Cleanup database
+.PHONY: reset-db
+reset-db:
+	creme reset_db --noinput --close-sessions
+
+
 ## Upgrade the Python development requirements
 ## .PHONY: install-dev
 ## install-dev:

@@ -13,8 +13,8 @@ from creme.creme_core.forms.enumerable import (
     NO_LIMIT,
     EnumerableChoice,
     EnumerableChoiceField,
-    EnumerableChoiceSet,
     EnumerableSelect,
+    FieldEnumerableChoiceSet,
 )
 from creme.creme_core.models import (
     CremeUser,
@@ -29,7 +29,7 @@ from ..forms.base import FieldTestCase
 
 
 @override_settings(FORM_ENUMERABLE_LIMIT=100)
-class EnumerableChoiceSetTestCase(CremeTestCase):
+class FieldEnumerableChoiceSetTestCase(CremeTestCase):
     maxDiff = None
 
     @parameterized.expand([
@@ -39,12 +39,12 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
     ])
     def test_limit(self, limit, setting_limit, expected):
         with override_settings(FORM_ENUMERABLE_LIMIT=setting_limit):
-            enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('user'), limit=limit)
+            enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('user'), limit=limit)
 
         self.assertEqual(expected, enumerable.limit)
 
     def test_empty_enumerator(self):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('first_name'))
         self.assertIsInstance(enumerable.enumerator, EmptyEnumerator)
 
         choices, more = enumerable.choices()
@@ -55,9 +55,32 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         self.assertFalse(more)
         self.assertEqual([], list(groups))
 
+    def test_default_url(self):
+        field = FakeContact._meta.get_field('user')
+        field_ctype = ContentType.objects.get_for_model(field.model)
+        enumerable = FieldEnumerableChoiceSet(field)
+
+        default_url = reverse(
+            'creme_core__enumerable_choices', args=(field_ctype.id, 'user')
+        )
+
+        self.assertEqual(enumerable.url, default_url)
+        self.assertEqual(enumerable.default_url, default_url)
+
+    def test_custom_url(self):
+        field = FakeContact._meta.get_field('user')
+        field_ctype = ContentType.objects.get_for_model(field.model)
+        enumerable = FieldEnumerableChoiceSet(field, url='new_enumerable_choices_view')
+
+        self.assertEqual(enumerable.url, 'new_enumerable_choices_view')
+        self.assertEqual(
+            enumerable.default_url,
+            reverse('creme_core__enumerable_choices', args=(field_ctype.id, 'user'))
+        )
+
     def test_choices(self):
         user = CremeUser.objects.first()
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('user'))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('user'))
 
         choices, more = enumerable.choices()
 
@@ -68,7 +91,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
 
     def test_choices__empty_label(self):
         user = CremeUser.objects.first()
-        enumerable = EnumerableChoiceSet(
+        enumerable = FieldEnumerableChoiceSet(
             FakeContact._meta.get_field('user'),
             empty_label='No value'
         )
@@ -98,7 +121,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
             EnumerableChoice(mireille.pk, str(mireille)).as_dict(),
         ]
 
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('user'), limit=limit)
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('user'), limit=limit)
         choices, more = enumerable.choices()
 
         expected = available_choices if limit == NO_LIMIT else available_choices[:limit]
@@ -107,7 +130,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         self.assertEqual(more, has_more)
 
     def test_choices__selected(self):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
         farming, industry, software = FakeSector.objects.order_by('pk')
         sector_A = FakeSector.objects.create(title='Sector A')
         sector_B = FakeSector.objects.create(title='Sector B')
@@ -128,7 +151,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         ], [c.as_dict() for c in choices])
 
     def test_choices__selected__outside_limit(self):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
 
         farming, industry, software = FakeSector.objects.order_by('pk')
 
@@ -149,7 +172,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         ], [c.as_dict() for c in choices])
 
     def test_choices__selected__count_over_limit(self):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
         _, industry, software = FakeSector.objects.order_by('pk')
 
         FakeSector.objects.create(title='Sector A')
@@ -189,7 +212,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         team_B = CremeUser.objects.create(username='BTeam', is_team=True)
         team_B.teammates = [fulbert]
 
-        enumerable = EnumerableChoiceSet(
+        enumerable = FieldEnumerableChoiceSet(
             FakeContact._meta.get_field('user'),
             empty_label='No value'
         )
@@ -248,7 +271,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         team_B = CremeUser.objects.create(username='BTeam', is_team=True)
         team_B.teammates = [fulbert]
 
-        enumerable = EnumerableChoiceSet(
+        enumerable = FieldEnumerableChoiceSet(
             FakeContact._meta.get_field('user'),
             limit=limit
         )
@@ -283,7 +306,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
 
     @parameterized.expand(['sector', 'civility', 'position'])
     def test_url(self, field_name):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field(field_name))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field(field_name))
 
         ctype = ContentType.objects.get_for_model(FakeContact)
 
@@ -293,7 +316,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
         )
 
     def test_to_python(self):
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=3)
 
         farming, industry, software = FakeSector.objects.order_by('pk')
 
@@ -309,7 +332,7 @@ class EnumerableChoiceSetTestCase(CremeTestCase):
 
     def test_to_python__invalid_value(self):
         field = FakeContact._meta.get_field('sector')
-        enumerable = EnumerableChoiceSet(field)
+        enumerable = FieldEnumerableChoiceSet(field)
         self.assertEqual([], enumerable.to_python([self.UNUSED_PK]))
 
 
@@ -323,7 +346,7 @@ class EnumerableSelectTestCase(CremeTestCase):
         sector_B = FakeSector.objects.create(title='Sector B')
         sector_C = FakeSector.objects.create(title='Sector C')
 
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
         widget = EnumerableSelect(enumerable)
 
         self.assertHTMLEqual(
@@ -346,7 +369,7 @@ class EnumerableSelectTestCase(CremeTestCase):
     def test_render_url(self):
         farming, industry, software = FakeSector.objects.order_by('pk')
 
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'))
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'))
         widget = EnumerableSelect(enumerable)
         widget.create_url = url = reverse(
             'creme_config__create_instance_from_widget', args=('creme_core', 'fake_sector'),
@@ -373,7 +396,7 @@ class EnumerableSelectTestCase(CremeTestCase):
         FakeSector.objects.create(title='Sector B')
         FakeSector.objects.create(title='Sector C')
 
-        enumerable = EnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
+        enumerable = FieldEnumerableChoiceSet(FakeContact._meta.get_field('sector'), limit=4)
         widget = EnumerableSelect(enumerable)
 
         self.assertHTMLEqual(
