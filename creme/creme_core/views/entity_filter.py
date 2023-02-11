@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,30 +20,34 @@ import logging
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import FieldDoesNotExist, PermissionDenied
+from django.db.models import Field
 from django.db.models.deletion import ProtectedError
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from django.utils.functional import partition
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext, pgettext_lazy
 
+from creme.creme_core.enumerators import UserEnumerator
+
 from .. import utils
 from ..auth.decorators import login_required
 from ..core.entity_filter import EF_USER, entity_filter_registries
-from ..core.exceptions import ConflictError
+from ..core.exceptions import BadRequestError, ConflictError
 from ..forms.entity_filter import forms as efilter_forms
 from ..gui.listview import ListViewState
 from ..http import CremeJsonResponse
 from ..models import EntityFilter, RelationType
 from ..utils import db as db_utils
-from ..utils import get_from_GET_or_404
 from ..utils.content_type import entity_ctypes
 from ..utils.unicode_collation import collator
 from . import generic
 from .decorators import jsonify
 from .entity import EntityDeletionMixin
+from .enumerable import ChoicesView
 from .generic import base
 
 logger = logging.getLogger(__name__)
@@ -270,48 +274,69 @@ class EntityFilterChoices(base.ContentTypeRelatedMixin, base.CheckedView):
         )
 
 
-# TODO: generalize this view to all enumerable models (inherit enumerable view ?)
-#       anyway, we need other examples of operand...
-class UserChoicesView(base.CheckedView):
-    response_class = CremeJsonResponse
-    filter_type_arg = 'filter_type'
+class EntityFilterUserEnumerator(UserEnumerator):
+    def __init__(
+        self,
+        field: Field,
+        filter_type=EF_USER,
+        search_fields=None,
+        limit_choices_to=None
+    ):
+        self.efilter_registry = self.get_efilter_registry(filter_type)
+        super().__init__(field, search_fields, limit_choices_to)
 
-    def get_registry(self):
-        ftype = get_from_GET_or_404(
-            self.request.GET, key=self.filter_type_arg, cast=int,
-            default=EF_USER,  # TODO: make mandatory ?
-        )
-
+    def get_efilter_registry(self, filter_type):
         try:
-            return entity_filter_registries[ftype]
-        except KeyError as e:
-            raise Http404('Invalid filter type') from e
+            return entity_filter_registries[filter_type]
+        except KeyError:
+            raise BadRequestError(f'Unknown entity filter type {filter_type}')
 
-    def get_operands(self):
-        user = self.request.user
-
-        for operand in self.get_registry().operands(user):
+    def get_user_operands(self, user):
+        for operand in self.efilter_registry.operands(user):
             if issubclass(operand.model, User):
                 yield operand
 
-    def get(self, request, *args, **kwargs):
+    def to_python(self, user, values):
+        operands = {o.type_id for o in self.get_user_operands(user)}
+
+        op_ids, pks = partition(lambda v: v in operands, values)
+        return [*op_ids, *self._queryset(user).filter(pk__in=pks)]
+
+    def choices(self, user, *, term=None, only=None, limit=None):
         sort_key = collator.sort_key
+        choices = [
+            {
+                'value': op.type_id,
+                'label': op.verbose_name,
+            } for op in self.get_user_operands(user)
+        ]
+        choices.sort(key=lambda d: sort_key(d['label']))
 
-        def choice_key(c):
-            return sort_key(c[1])
-
-        # TODO: return group for teams & inactive users (see UserEnumerator)
-        #       => fix the JavaScript side (it concatenates the group label at the end)
-        return self.response_class(
-            [
-                *sorted(
-                    ((op.type_id, op.verbose_name) for op in self.get_operands()),
-                    key=choice_key,
-                ),
-                *sorted(
-                    ((e.id, str(e)) for e in User.objects.all()),
-                    key=choice_key,
-                ),
-            ],
-            safe=False,  # Result is not a dictionary
+        choices.extend(
+            super().choices(user, term=term, only=only)
         )
+
+        return choices[:limit] if limit else choices
+
+
+class UserChoicesView(ChoicesView):
+    filter_type_arg = 'filter_type'
+
+    def get_enumerator(self):
+        model = self.get_ctype().model_class()
+        field_name = self.get_field_name()
+
+        try:
+            field = model._meta.get_field(field_name)
+        except FieldDoesNotExist as e:
+            raise Http404('This field does not exist.') from e
+
+        return EntityFilterUserEnumerator(field, filter_type=self.filter_type)
+
+    def get(self, request, *args, **kwargs):
+        try:
+            self.filter_type = int(request.GET.get('filter_type', EF_USER))
+        except ValueError as e:
+            raise BadRequestError(e) from e
+
+        return super().get(request, *args, **kwargs)

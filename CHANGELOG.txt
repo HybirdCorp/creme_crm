@@ -2,9 +2,32 @@
 
   Users side :
   ------------
+     # In entity filter form:
+        - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.
+        - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
      # Apps :
         * Activities :
             - An icon was missing in the theme "chantilly" ('images/meeting_48.png').
+
+
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # In 'creme_core.forms.EnumerableChoiceSet' :
+            - The 'url' property can override 'creme_core__enumerable_choices' path provided by the new 'default_url' property.
+        # In 'creme_core.forms':
+            - 'EnumerableChoiceSet' is now a base class that requires an Enumerator instead of a model Field and an EnumerableRegistry.
+            - A new 'FieldEnumerableChoiceSet' inherits from 'EnumerableChoiceSet' and have all its previous features.
+            - New 'EnumerableSelectMultiple' that supports multiple selection.
+
+    Breaking changes :
+    ------------------
+        # In 'creme_core.forms.entity_filter':
+            - 'EnumerableSelectMultiple' are now used for EntityFilter regular field conditions instead of 'DynamicSelectMultiple'.
+            - The url 'creme_core__efilter_user_choices' has changed and follows the 'users/{ct_id}/{field}/json[/]?$' pattern like the
+              default enumerable choices url.
 
 
 == Version 2.4.10 ==

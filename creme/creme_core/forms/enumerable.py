@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022-2023  Hybird
+#    Copyright (C) 2022-2024  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -75,29 +75,17 @@ class EnumerableChoice:
 
 
 class EnumerableChoiceSet:
-    enumerable_registry = enumerable.enumerable_registry
-
-    def __init__(self, field, *,
+    def __init__(self, enumerator: enumerable.Enumerator, *,
                  user=None, empty_label=None,
-                 registry: enumerable._EnumerableRegistry | None = None,
-                 limit: int | None = None):
-        registry = registry or self.enumerable_registry
+                 limit: int | None = None,
+                 url: str | None = None):
         limit = limit or get_form_enumerable_limit()
 
-        self.field = field
         self.user = user
         self.empty_label = empty_label
         self.limit = limit
-
-        try:
-            self.enumerator = registry.enumerator_by_field(field)
-        except ValueError:
-            logger.debug(
-                'Unable to find an enumerator for the field "%s" '
-                "(ignore this if it's at startup)", field
-            )
-            # TODO : field.related_model.all() ?
-            self.enumerator = enumerable.EmptyEnumerator(field)
+        self.url = url
+        self.enumerator = enumerator
 
     @property
     def limit(self):
@@ -196,8 +184,52 @@ class EnumerableChoiceSet:
     def to_python(self, values):
         return self.enumerator.to_python(self.user, values)
 
+
+class FieldEnumerableChoiceSet(EnumerableChoiceSet):
+    enumerable_registry = enumerable.enumerable_registry
+
+    def __init__(self, field, *,
+                 user=None, empty_label=None,
+                 registry: enumerable._EnumerableRegistry | None = None,
+                 enumerator: enumerable.Enumerator | None = None,
+                 limit: int | None = None,
+                 url: str | None = None):
+        self.field = field
+
+        if enumerator is None:
+            registry = registry or self.enumerable_registry
+            enumerator = self.get_field_enumerator(registry, field)
+
+        super().__init__(
+            enumerator,
+            user=user,
+            empty_label=empty_label,
+            limit=limit,
+            url=url
+        )
+
+    def get_field_enumerator(self, registry, field):
+        try:
+            return registry.enumerator_by_field(field)
+        except ValueError:
+            logger.debug(
+                'Unable to find an enumerator for the field "%s" '
+                "(ignore this if it's at startup)", field
+            )
+            # TODO : field.related_model.all() ?
+            return enumerable.EmptyEnumerator(field)
+
     @property
     def url(self):
+        # Using a lazy property to prevent import loops with default_url at startup.
+        return self._url or self.default_url
+
+    @url.setter
+    def url(self, url: str | None):
+        self._url = url
+
+    @property
+    def default_url(self):
         ctype = ContentType.objects.get_for_model(self.field.model)
         return reverse(
             'creme_core__enumerable_choices', args=(ctype.id, self.field.name)
@@ -246,8 +278,24 @@ class EnumerableSelect(widgets.Select):
         return attrs
 
 
+class EnumerableSelectMultiple(EnumerableSelect):
+    allow_multiple_selected = True
+
+    def value_from_datadict(self, data, files, name):
+        try:
+            getter = data.getlist
+        except AttributeError:
+            getter = data.get
+        return getter(name)
+
+    def value_omitted_from_data(self, data, files, name):
+        # An unselected <select multiple> doesn't appear in POST data, so it's
+        # never known if the value is actually omitted.
+        return False
+
+
 class EnumerableChoiceField(mforms.ChoiceField):
-    enumerable: type[EnumerableChoiceSet] = EnumerableChoiceSet
+    enumerable: type[EnumerableChoiceSet] = FieldEnumerableChoiceSet
     widget: type[EnumerableSelect] = EnumerableSelect
 
     default_error_messages = {
