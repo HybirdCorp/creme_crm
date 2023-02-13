@@ -542,7 +542,15 @@ else:
             return reverse('creme_core__list_fake_mlists')
 
     class FakeEmailCampaign(CremeEntity):
+        class Status(models.IntegerChoices):
+            WAITING    = 1, 'Waiting',
+            SENT_OK    = 2, 'Sent',
+            SENT_ERROR = 3, 'Sent (errors)',
+
         name = models.CharField(_('Name of the campaign'), max_length=100)
+        status = models.PositiveIntegerField(
+            'Status', choices=Status.choices, default=Status.WAITING,
+        )
         mailing_lists = models.ManyToManyField(
             FakeMailingList, verbose_name=_('Related mailing lists'), blank=True,
         )

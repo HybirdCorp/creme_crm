@@ -1559,6 +1559,14 @@ class Migration(migrations.Migration):
                     ),
                     ('name', models.CharField(max_length=100, verbose_name='Name of the campaign')),
                     (
+                        'status',
+                        models.PositiveIntegerField(
+                            verbose_name='Status',
+                            choices=[(1, 'Waiting'), (2, 'Sent'), (3, 'Sent (errors)')],
+                            default=1,
+                        )
+                    ),
+                    (
                         'mailing_lists',
                         models.ManyToManyField(
                             to='creme_core.FakeMailingList', verbose_name='Related mailing lists', blank=True,

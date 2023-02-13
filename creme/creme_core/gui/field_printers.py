@@ -615,9 +615,6 @@ class _FieldPrintersRegistry:
             self._for_choice = choice_printer
             self._m2m_joiner = m2m_joiner
 
-        def __getitem__(self, field):
-            return self._for_fields.get(field) or self._for_field_types[field.__class__]
-
         def register_model_field_type(self, type: type[models.Field], printer: FieldPrinter):
             self._for_field_types[type] = printer
 
@@ -680,7 +677,11 @@ class _FieldPrintersRegistry:
                     def printer(obj: Model, user):
                         return self._m2m_joiner(sub_values(obj, user))
             else:
-                print_func = self._for_choice if base_field.choices else self[base_field]
+                print_func = self._for_fields.get(base_field) or (
+                    self._for_choice
+                    if base_field.choices else
+                    self._for_field_types[base_field.__class__]
+                )
 
                 def printer(obj, user):
                     return print_func(
@@ -941,6 +942,9 @@ class _FieldPrintersRegistry:
                                 tags: ViewTag | Iterable[ViewTag] | str,
                                 ) -> _FieldPrintersRegistry:
         """Register a printer for fields with a "choices" attribute.
+        Notice that a field-with-a-choices-attribute which has a registered
+        specific printer (see register_model_field()) will be renderer with
+        its specific printer and not the choice-printer.
         @param printer: A callable object. See print_choice() for arguments/return.
         @param tags: see <ViewTag.smart_generator()> for valid values.
         @return Self to chain calls.
