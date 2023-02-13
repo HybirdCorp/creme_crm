@@ -401,6 +401,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('description', _('Description')),
             ('modified',    _('Last modification')),
             ('name',        _('Name of the campaign')),
+            ('status',      'Status'),
         ]
         choices = meta.ModelFieldEnumerator(FakeEmailCampaign).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)
@@ -411,11 +412,11 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             (lambda model, field, depth: field.get_internal_type() != 'ForeignKey'),
             viewable=True,
         ).choices()
-        expected.append(('mailing_lists', _('Related mailing lists')))
+        expected.insert(4, ('mailing_lists', _('Related mailing lists')))
         self.assertEqual(expected, choices, choices)
 
     def test_field_enumerator06(self):
-        "Filter/exclude : multiple conditions + field true attributes."
+        "Filter/exclude: several conditions + field real attributes."
         self._deactivate_translation()
 
         expected = [

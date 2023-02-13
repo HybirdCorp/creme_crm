@@ -1245,7 +1245,7 @@ class FieldsPrintersTestCase(CremeTestCase):
                 tags=ViewTag.HTML_DETAIL,
             )
 
-    def test_registry_choice01(self):
+    def test_registry_print_choice(self):
         user = CremeUser()
 
         registry = _FieldPrintersRegistry()
@@ -1267,7 +1267,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         self.assertEqual('', render_field(instance=l3, tag=ViewTag.HTML_DETAIL))
         self.assertEqual('', render_field(instance=l3, tag=ViewTag.TEXT_PLAIN))
 
-    def test_registry_choice02(self):
+    def test_registry_register_choice_printer01(self):
         user = CremeUser()
 
         registry = _FieldPrintersRegistry()
@@ -1307,6 +1307,46 @@ class FieldsPrintersTestCase(CremeTestCase):
                 instance=line, field_name='discount_unit', user=user,
             ),
         )
+
+    def test_registry_register_choice_printer02(self):
+        "Register choice-printer for specific field."
+        user = CremeUser()
+        registry = _FieldPrintersRegistry()
+
+        def print_discount_html(*, instance, value, user, field):
+            return '<em>{}</em>'.format(getattr(instance, f'get_{field.name}_display')())
+
+        registry.register_model_field(
+            model=FakeInvoiceLine,
+            field_name='discount_unit',
+            tags=ViewTag.HTML_DETAIL,
+            printer=print_discount_html,
+        )
+
+        line = FakeInvoiceLine(discount_unit=FakeInvoiceLine.Discount.PERCENT)
+        label = _('Percent')
+        self.assertEqual(
+            f'<em>{label}</em>',
+            registry.get_field_value(
+                instance=line, field_name='discount_unit', user=user,
+                tag=ViewTag.HTML_DETAIL,
+            ),
+        )
+        self.assertEqual(
+            label,
+            registry.get_field_value(
+                instance=line, field_name='discount_unit', user=user,
+            ),
+        )  # printer not used (other tag)
+
+        camp = FakeEmailCampaign(status=FakeEmailCampaign.Status.SENT_OK)
+        self.assertEqual(
+            'Sent',
+            registry.get_field_value(
+                instance=camp, field_name='status', user=user,
+                tag=ViewTag.HTML_DETAIL,
+            ),
+        )  # printer not used (other field)
 
     def test_registry_numeric(self):
         user = self.create_user()
