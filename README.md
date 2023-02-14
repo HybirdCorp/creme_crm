@@ -106,7 +106,6 @@ Installation with 'pip':
    - libxslt1-dev
    - default-jre
    - libjpeg-dev
-   - [DEPRECATED] graphviz & graphviz-dev (if you want the optional app 'graphs')
 
 
 ### Install
