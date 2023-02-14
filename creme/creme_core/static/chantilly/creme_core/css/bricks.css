@@ -447,6 +447,10 @@
     background-color: #f08080;
 }
 
+.brick-table .brick-table-content tbody .brick-table-data-highlighted {
+    background-color: #a8dbff;
+}
+
 /* brick types - table type - end */
 
 /* action buttons in tables */
