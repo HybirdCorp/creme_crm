@@ -10,6 +10,8 @@ TODO: compile messages (reports).
     # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
       (this case does not exist in vanilla).
     # Apps :
+        * Persons :
+            - The indicators "Customer" & "Supplier" are now displayed on the Contacts' detail-view too.
         * Assistants :
             - The deadline of validated Alerts & ToDos is now displayed in blue.
 

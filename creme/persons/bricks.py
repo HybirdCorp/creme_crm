@@ -225,6 +225,7 @@ class ContactCardHatBrick(Brick):
     def detailview_display(self, context):
         contact = context['object']
         user = context['user']
+        managed_orgas = Organisation.objects.filter_managed_by_creme()
         is_hidden = context['fields_configs'].get_for_model(Contact).is_fieldname_hidden
         max_organisations = self.max_related_organisations
 
@@ -262,6 +263,16 @@ class ContactCardHatBrick(Brick):
             employers=employers,
             employers_count=employers_count,
             REL_OBJ_EMPLOYED_BY=constants.REL_OBJ_EMPLOYED_BY,
+
+            # TODO: factorise (see OrganisationCardHatBrick)
+            is_customer=managed_orgas.filter(
+                relations__type=constants.REL_OBJ_CUSTOMER_SUPPLIER,
+                relations__object_entity=contact.id,
+            ).exists(),
+            is_supplier=managed_orgas.filter(
+                relations__type=constants.REL_SUB_CUSTOMER_SUPPLIER,
+                relations__object_entity=contact.id,
+            ).exists(),
 
             activities=Activities4Card.get(context, contact),
             neglected_indicator=NeglectedContactIndicator(context, contact),
