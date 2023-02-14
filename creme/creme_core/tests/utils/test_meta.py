@@ -402,6 +402,7 @@ class ModelFieldEnumeratorTestCase(CremeTestCase):
             ('modified',    _('Last modification')),
             ('name',        _('Name of the campaign')),
             ('status',      'Status'),
+            ('type',        'Type'),
         ]
         choices = meta.ModelFieldEnumerator(FakeEmailCampaign).filter(viewable=True).choices()
         self.assertEqual(expected, choices, choices)

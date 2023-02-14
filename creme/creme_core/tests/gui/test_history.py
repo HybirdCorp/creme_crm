@@ -346,6 +346,44 @@ class HistoryRenderTestCase(CremeTestCase):
             self.render_line(self.refresh(hline3), user),
         )
 
+    def test_render_edition_choices(self):
+        "Field with <choices> attribute."
+        user = self.create_user()
+
+        camp = FakeEmailCampaign.objects.create(
+            user=user, name='Campaign for Seele products',
+            status=FakeEmailCampaign.Status.WAITING,
+            type=None,
+        )
+
+        camp = self.refresh(camp)
+        camp.status = FakeEmailCampaign.Status.SENT_OK
+        camp.type = FakeEmailCampaign.Type.EXTERNAL
+        camp.save()
+
+        hline = self.get_hline()
+        self.assertEqual(history.TYPE_EDITION, hline.type)
+        self.assertHTMLEqual(
+            format_html(
+                '<div class="history-line history-line-edition">'
+                ' <ul>'
+                '  <li>{mod1}</li>'
+                '  <li>{mod2}</li>'
+                ' </ul>'
+                '<div>',
+                mod1=mark_safe(self.FMT_2_VALUES(
+                    field='<span class="field-change-field_name">Type</span>',
+                    value='<span class="field-change-new_value">External</span>',
+                )),
+                mod2=mark_safe(self.FMT_3_VALUES(
+                    field='<span class="field-change-field_name">Status</span>',
+                    oldvalue='<span class="field-change-old_value">Waiting</span>',
+                    value='<span class="field-change-new_value">Sent</span>',
+                )),
+            ),
+            self.render_line(hline, user),
+        )
+
     def test_render_edition_set_null01(self):
         "BooleanField."
         user = self.create_user()
