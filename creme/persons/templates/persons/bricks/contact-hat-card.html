@@ -16,6 +16,14 @@
 {% endblock %}
 
 {% block card_indicators %}
+    {# TODO: factorise with "organisation-hat-card.html" #}
+    {% if is_customer %}
+        <div class='business-card-indicator'>{% translate 'Customer' %}</div>
+    {% endif %}
+    {% if is_supplier %}
+        <div class='business-card-indicator'>{% translate 'Supplier' %}</div>
+    {% endif %}
+
 {% with neg_label=neglected_indicator.label %}
     {% if neg_label %}<div class='business-card-indicator business-card-warning-indicator'>{{neg_label}}</div>{% endif %}
 {% endwith %}
