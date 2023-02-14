@@ -7,6 +7,8 @@ TODO: compile messages (reports).
 
   Users side :
   ------------
+    # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
+      (this case does not exist in vanilla).
     # Apps :
         * Assistants :
             - The deadline of validated Alerts & ToDos is now displayed in blue.
