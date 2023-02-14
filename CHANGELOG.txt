@@ -1,5 +1,7 @@
 == Version 2.4.1 Work in progress (not released -- this is a draft) ==
 
+TODO: compile messages (reports).
+
 == Version 2.4 ==
 
   UPGRADE NOTE :
