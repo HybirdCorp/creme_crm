@@ -2,6 +2,16 @@
 
 TODO: compile messages (reports).
 
+  UPGRADE NOTE :
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Apps :
+        * Assistants :
+            - The deadline of validated Alerts & ToDos is now displayed in blue.
+
+
 == Version 2.4 ==
 
   UPGRADE NOTE :

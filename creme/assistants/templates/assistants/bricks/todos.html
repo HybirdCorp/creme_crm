@@ -49,7 +49,7 @@
         <td>{% print_field object=todo field='title' %}</td>
         <td>{% print_field object=todo field='description' %}</td>
         {% if todo.deadline %}
-            <td class="{% if todo.is_ok or todo.deadline >= today %}brick-table-data-valid{% else %}brick-table-data-error{% endif %}">{{todo.deadline|date:'DATETIME_FORMAT'}}</td>
+            <td class="{% if todo.is_ok %}brick-table-data-highlighted{% elif todo.deadline >= today %}brick-table-data-valid{% else %}brick-table-data-error{% endif %}">{{todo.deadline|date:'DATETIME_FORMAT'}}</td>
         {% else %}
             <td class="{% if todo.is_ok %}brick-table-data-valid{% else %}{{row_color}}{% endif %}"></td>
         {% endif %}
