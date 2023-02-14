@@ -2,6 +2,13 @@
 
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 3.2 (3.2.17 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # Apps :
+        * Assistants :
+            - The deadline of validated Alerts & ToDos is now displayed in blue.
 
 
 == Version 2.3.10 ==
