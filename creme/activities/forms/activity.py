@@ -28,7 +28,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.db.models import Q
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, make_aware
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -36,7 +36,7 @@ import creme.creme_core.forms as core_forms
 from creme.creme_core.gui.custom_form import CustomFormExtraSubCell
 from creme.creme_core.models import Relation, RelationType
 from creme.creme_core.utils.chunktools import iter_as_chunk
-from creme.creme_core.utils.dates import make_aware_dt
+# from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons import get_contact_model
 
 from .. import constants, get_activity_model
@@ -478,12 +478,15 @@ class BaseCustomForm(core_forms.CremeEntityForm):
                     code='floating_cannot_busy',
                 )
 
-            start = make_aware_dt(datetime.combine(start_date, start_time or time()))
+            # start = make_aware_dt(datetime.combine(start_date, start_time or time()))
+            start = make_aware(datetime.combine(start_date, start_time or time()))
 
             if end_date:
-                end = make_aware_dt(datetime.combine(end_date, end_time or time()))
+                # end = make_aware_dt(datetime.combine(end_date, end_time or time()))
+                end = make_aware(datetime.combine(end_date, end_time or time()))
             elif end_time is not None:
-                end = make_aware_dt(datetime.combine(start_date, end_time))
+                # end = make_aware_dt(datetime.combine(start_date, end_time))
+                end = make_aware(datetime.combine(start_date, end_time))
             else:
                 tdelta = activity_type.as_timedelta()
 
@@ -500,8 +503,10 @@ class BaseCustomForm(core_forms.CremeEntityForm):
                 end = start + tdelta
 
             if is_all_day or floating_type == constants.FLOATING_TIME:
-                start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
-                end   = make_aware_dt(datetime.combine(end,   time(hour=23, minute=59)))
+                # start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
+                start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
+                # end   = make_aware_dt(datetime.combine(end,   time(hour=23, minute=59)))
+                end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
 
             if start > end:
                 raise ValidationError(

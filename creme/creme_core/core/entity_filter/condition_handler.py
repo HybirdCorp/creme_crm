@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from django.db.models import (
     Q,
 )
 from django.utils.formats import date_format
-from django.utils.timezone import now
+from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
 
 import creme.creme_core.forms.entity_filter.fields as ef_fields
@@ -50,7 +50,8 @@ from creme.creme_core.models import (
 )
 from creme.creme_core.models.custom_field import _TABLES
 from creme.creme_core.utils.date_range import date_range_registry
-from creme.creme_core.utils.dates import date_2_dict, make_aware_dt
+# from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.utils.dates import date_2_dict
 from creme.creme_core.utils.meta import FieldInfo, is_date_field
 
 from . import (
@@ -672,7 +673,8 @@ class DateFieldHandlerMixin:
                         f'{cls.__name__}._load_daterange_kwargs() -> '
                         f'invalid data for date ({e})')
                 else:
-                    kwargs[key] = make_aware_dt(dt)
+                    # kwargs[key] = make_aware_dt(dt)
+                    kwargs[key] = make_aware(dt)
 
         return kwargs
 

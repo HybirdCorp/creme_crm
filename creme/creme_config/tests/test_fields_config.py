@@ -259,9 +259,16 @@ class FieldsConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-ctype': 'unknown',
             },
         )
-        self.assertFormError(
-            response2, 'form', 'ctype',
-            _('Select a valid choice. That choice is not one of the available choices.'),
+        # self.assertFormError(
+        #     response2, 'form', 'ctype',
+        #     _('Select a valid choice. That choice is not one of the available choices.'),
+        # )
+        self.assertWizardFormError(
+            response2,
+            field='ctype',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
         self.assertFalse(FieldsConfig.objects.filter(content_type=ctype).exists())
 

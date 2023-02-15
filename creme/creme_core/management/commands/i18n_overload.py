@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +23,16 @@
 ################################################################################
 
 from collections import defaultdict
-from datetime import datetime
+# from datetime import datetime
 from os import listdir, makedirs
 from pathlib import Path
 
-import pytz
+# import pytz
 from django.apps import apps
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 from django.utils.encoding import smart_str
+from django.utils.timezone import localtime, now
 
 
 # TODO: factorise with i18n_duplicates ?
@@ -199,9 +200,10 @@ class Command(BaseCommand):
                 'Content-Transfer-Encoding': '8bit',
             }
 
-        catalog.metadata['POT-Creation-Date'] = pytz.timezone(
-            settings.TIME_ZONE
-        ).localize(datetime.now()).strftime('%Y-%m-%d %H:%M%z')
+        # catalog.metadata['POT-Creation-Date'] = pytz.timezone(
+        #     settings.TIME_ZONE
+        # ).localize(datetime.now()).strftime('%Y-%m-%d %H:%M%z')
+        catalog.metadata['POT-Creation-Date'] = localtime(now()).strftime('%Y-%m-%d %H:%M%z')
 
         terms = [smart_str(arg) for arg in args]
         entry_count = 0

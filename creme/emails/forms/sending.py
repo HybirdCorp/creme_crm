@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -26,14 +26,14 @@ from django.forms import (
     ValidationError,
 )
 from django.template.base import Template, VariableNode
-from django.utils.timezone import now
+from django.utils.timezone import make_aware, now
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.forms import CreatorEntityField, CremeModelForm
 from creme.creme_core.forms.widgets import CalendarWidget
+# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.models import HistoryLine, SettingValue
-from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import get_emailtemplate_model
 from ..models.sending import EmailSending, LightWeightEmail
@@ -122,7 +122,8 @@ class SendingCreateForm(CremeModelForm):
                 )
             else:
                 get_data = cleaned_data.get
-                sending_date = make_aware_dt(datetime.combine(
+                # sending_date = make_aware_dt(datetime.combine(
+                sending_date = make_aware(datetime.combine(
                     sending_date,
                     time(
                         hour=int(get_data('hour') or 0),

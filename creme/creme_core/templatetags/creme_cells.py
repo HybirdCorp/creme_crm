@@ -60,7 +60,8 @@ class RFieldCellNode(TemplateNode):
             context[asvar_name] = cell
             return ''
 
-        return cell
+        # return cell
+        return str(cell)
 
 
 # TODO: merge with InstanceRFieldCellNode ? add some assertions ?

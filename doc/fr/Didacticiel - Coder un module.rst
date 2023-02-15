@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 06-02-2023 pour la version 2.5 de Creme
+:Version: 15-02-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -30,8 +30,8 @@ Creme est développé en utilisant un cadriciel (framework) Python spécialisé 
 la création de sites et applications Web : Django_.
 Si vous comptez réellement développer des modules pour Creme, la connaissance de
 Django sera sûrement nécessaire. Heureusement la documentation de celui-ci est vraiment
-complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/3.2/.
-Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/3.2/intro/overview/>`_
+complète et bien faite ; vous la trouverez ici : https://docs.djangoproject.com/fr/4.0/.
+Dans un premier temps, avoir lu le `didacticiel <https://docs.djangoproject.com/fr/4.0/intro/overview/>`_
 devrait suffire.
 
 Creme utilise aussi la bibliothèque JavaScript (JS) jQuery_ ; il se peut que pour
@@ -3399,6 +3399,11 @@ distincts des formats utilisés pour le simple affichage (``DATE_FORMAT``,
 
 Selon la valeur de la clé de *settings* ``USE_L10N``, l'endroit où sont lues les
 chaînes de format est différent.
+
+**Attention** : cette clé est désormais obsolète dans Django 4.X et sera
+supprimée dans Django 5.X, où toutes les dates et les nombres seront toujours
+affichées en fonctions de la langue.
+
 
 Cas USE_L10N = True
 *******************

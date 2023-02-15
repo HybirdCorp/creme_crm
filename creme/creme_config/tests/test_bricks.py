@@ -1730,9 +1730,16 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-ctype': ct_contact.pk,
             },
         )
-        self.assertFormError(
-            response, 'form', 'ctype',
-            _('Select a valid choice. That choice is not one of the available choices.')
+        # self.assertFormError(
+        #     response, 'form', 'ctype',
+        #     _('Select a valid choice. That choice is not one of the available choices.')
+        # )
+        self.assertWizardFormError(
+            response,
+            field='ctype',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.',
+            ),
         )
 
     def test_relationbrick_add_cells03(self):
@@ -2410,9 +2417,16 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
 
-        self.assertFormError(
-            response2, 'form', 'ctype',
-            _('Select a valid choice. That choice is not one of the available choices.'),
+        # self.assertFormError(
+        #     response2, 'form', 'ctype',
+        #     _('Select a valid choice. That choice is not one of the available choices.'),
+        # )
+        self.assertWizardFormError(
+            response2,
+            field='ctype',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))

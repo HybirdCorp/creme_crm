@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,6 +25,7 @@ from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
 from django.forms import Field
 from django.forms.widgets import Select
+from django.utils.timezone import make_aware
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
 
@@ -35,7 +36,7 @@ from creme.creme_core.forms.mass_import import (
     ImportForm4CremeEntity,
 )
 from creme.creme_core.models import Relation, RelationType
-from creme.creme_core.utils.dates import make_aware_dt
+# from creme.creme_core.utils.dates import make_aware_dt
 from creme.persons.models import Civility
 
 from .. import constants
@@ -637,7 +638,9 @@ def get_massimport_form_builder(header_dict, choices):
                 null_time = time(0)
 
                 if start.time() == null_time and (not end or end.time() == null_time):
-                    instance.end = make_aware_dt(datetime.combine(start, time(hour=23, minute=59)))
+                    # instance.end = make_aware_dt(
+                    #     datetime.combine(start, time(hour=23, minute=59)))
+                    instance.end = make_aware(datetime.combine(start, time(hour=23, minute=59)))
                     instance.floating_type = constants.FLOATING_TIME
                 elif not end:
                     instance.end = start + instance.type.as_timedelta()

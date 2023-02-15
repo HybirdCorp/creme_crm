@@ -163,9 +163,10 @@ LANGUAGES = [
 # to load the internationalization machinery.
 USE_I18N = True
 
+# DEPRECATED (+ default value is True)
 # If you set this to True, Django will format dates, numbers and calendars
 # according to user current locale.
-USE_L10N = True
+# USE_L10N = True
 
 LOCALE_PATHS = [join(CREME_ROOT, 'locale')]
 
@@ -207,8 +208,8 @@ SECRET_KEY = ''
 
 # A list of strings representing the host/domain names that this Django site can serve.
 # You should set this list for security purposes.
-# See: https://docs.djangoproject.com/en/3.2/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = '*'
+# See: https://docs.djangoproject.com/en/4.0/ref/settings/#allowed-hosts
+# ALLOWED_HOSTS = []
 
 # SITE: URLs / PATHS / ... [END]################################################
 

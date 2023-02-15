@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2013 Tim Babych
 # Copyright (c) 2016 Daniel Hahler
-# Copyright (c) 2016-2020 Hybird
+# Copyright (c) 2016-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -51,14 +51,16 @@ class LowNullsSQLCompiler(SQLCompiler):
 
 class LowNullsQuery(models.sql.query.Query):
     """Uses a LowNullsSQLCompiler"""
-    def get_compiler(self, using=None, connection=None):
+    def get_compiler(self, using=None, connection=None, elide_empty=True):
         if using is None:
             if connection is None:
                 raise ValueError('Need either using or connection')
         else:
             connection = connections[using]
 
-        return LowNullsSQLCompiler(self, connection, using)
+        return LowNullsSQLCompiler(
+            self, connection=connection, using=using, elide_empty=elide_empty,
+        )
 
 
 class LowNullsQuerySet(models.QuerySet):

@@ -776,8 +776,11 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '0-can_unlink': False,
             },
         )
-        self.assertFormError(
-            response, 'form', None, _('No action has been selected.'),
+        # self.assertFormError(
+        #     response, 'form', None, _('No action has been selected.'),
+        # )
+        self.assertWizardFormError(
+            response, errors=_('No action has been selected.'),
         )
 
     def test_add_credentials_with_filter01(self):
@@ -1135,9 +1138,12 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
                 '1-use_or': 'False',
             },
         )
-        self.assertFormError(
-            response, 'form', None,
-            _('The filter must have at least one condition.'),
+        # self.assertFormError(
+        #     response, 'form', None,
+        #     _('The filter must have at least one condition.'),
+        # )
+        self.assertWizardFormError(
+            response, errors=_('The filter must have at least one condition.'),
         )
 
     @skipIfNotInstalled('creme.persons')
