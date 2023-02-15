@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -25,7 +25,7 @@ from functools import reduce
 from operator import or_ as or_op
 from typing import TYPE_CHECKING
 
-import pytz
+# import pytz
 from django.apps import apps
 from django.conf import settings
 from django.contrib.auth.models import (
@@ -39,7 +39,7 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import models
 from django.db.models import Q, QuerySet
 from django.utils.functional import partition
-from django.utils.timezone import now
+from django.utils.timezone import now, zoneinfo
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -921,7 +921,12 @@ class CremeUser(AbstractBaseUser):
 
     time_zone = models.CharField(
         _('Time zone'), max_length=50, default=settings.TIME_ZONE,
-        choices=[(tz, tz) for tz in pytz.common_timezones],
+        # choices=[(tz, tz) for tz in pytz.common_timezones],
+        # TODO: (note from Python's doc)
+        #   These values are not designed to be exposed to end-users; for user facing elements,
+        #   applications should use something like CLDR (the Unicode Common Locale Data Repository)
+        #   to get more user-friendly strings
+        choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
     ).set_tags(viewable=False)
     theme = models.CharField(
         _('Theme'),

@@ -1,11 +1,11 @@
 import uuid
 from decimal import Decimal
 
-import pytz
+# import pytz
 from django.conf import settings
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import migrations, models
-from django.utils.timezone import now
+from django.utils.timezone import now, zoneinfo
 
 import creme.creme_core.models.deletion as creme_deletion
 import creme.creme_core.models.fields as core_fields
@@ -137,7 +137,8 @@ class Migration(migrations.Migration):
                     models.CharField(
                         default=settings.TIME_ZONE,
                         max_length=50, verbose_name='Time zone',
-                        choices=[(tz, tz) for tz in pytz.common_timezones],
+                        # choices=[(tz, tz) for tz in pytz.common_timezones],
+                        choices=[(tz, tz) for tz in zoneinfo.available_timezones()],
                     )
                 ),
                 (

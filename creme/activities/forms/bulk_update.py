@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2022  Hybird
+#    Copyright (C) 2022-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,12 +21,12 @@ from datetime import datetime, time, timedelta
 from django import forms
 from django.core.exceptions import ValidationError
 from django.db.models.query_utils import Q
-from django.utils.timezone import localtime
+from django.utils.timezone import localtime, make_aware
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import ngettext
 
+# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.gui.bulk_update import FieldOverrider
-from creme.creme_core.utils.dates import make_aware_dt
 
 from .. import constants
 from ..utils import check_activity_collisions
@@ -131,12 +131,15 @@ class RangeOverrider(FieldOverrider):
                     code='floating_cannot_busy',
                 )
 
-            start = make_aware_dt(datetime.combine(start_date, start_time or time()))
+            # start = make_aware_dt(datetime.combine(start_date, start_time or time()))
+            start = make_aware(datetime.combine(start_date, start_time or time()))
 
             if end_date:
-                end = make_aware_dt(datetime.combine(end_date, end_time or time()))
+                # end = make_aware_dt(datetime.combine(end_date, end_time or time()))
+                end = make_aware(datetime.combine(end_date, end_time or time()))
             elif end_time is not None:
-                end = make_aware_dt(datetime.combine(start_date, end_time))
+                # end = make_aware_dt(datetime.combine(start_date, end_time))
+                end = make_aware(datetime.combine(start_date, end_time))
             else:
                 tdelta = instance.type.as_timedelta()
 
@@ -153,8 +156,10 @@ class RangeOverrider(FieldOverrider):
                 end = start + tdelta
 
             if is_all_day or floating_type == constants.FLOATING_TIME:
-                start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
-                end   = make_aware_dt(datetime.combine(end,   time(hour=23, minute=59)))
+                # start = make_aware_dt(datetime.combine(start, time(hour=0, minute=0)))
+                start = make_aware(datetime.combine(start, time(hour=0, minute=0)))
+                # end   = make_aware_dt(datetime.combine(end,   time(hour=23, minute=59)))
+                end   = make_aware(datetime.combine(end,   time(hour=23, minute=59)))
 
             if start > end:
                 raise ValidationError(

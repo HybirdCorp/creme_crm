@@ -5,6 +5,7 @@
 
   Users side :
   ------------
+    # The version of Django has been upgraded to "4.0".
     # The link in the list-views selectors are now opened in other tabs automatically.
     # Apps :
         * Creme_config :
@@ -13,6 +14,15 @@
 
   Developers side :
   -----------------
+    - The version of 'Django' is now "4.0".
+      You should probably read the following releases notes for Django versions :
+        - https://docs.djangoproject.com/en/4.1/releases/4.0/
+          Some important items :
+            - The 'settings.py' value 'USE_L10N' is now deprecated.
+            - The 'settings.py' value ALLOWED_HOSTS must be a list.
+            - In classes inheriting 'django.template.Node', the method 'render()' must return a string.
+            - Some changes in te form rendering may break your unit tests when using a wizard + 'assertFormError()' ;
+              use our new 'assertWizardFormError()' in these cases.
 
     Non breaking changes :
     ----------------------
@@ -36,6 +46,7 @@
                 - The methods 'get_html_field_value()' & 'get_csv_field_value()' are now deprecated ; use 'get_field_value()' instead.
             - In 'creme_core.templatetags.creme_cells', the argument "output" of '{% cell_render %} is deprecated ;
               use "tag" instead.
+            - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated ; use 'django.utils.timezone.make_aware()' instead.
         # You can now register a field-printer for a specific field. Example (in your "apps.py") :
             def register_field_printers(self, field_printers_registry):
                 field_printers_registry.register_model_field(
@@ -130,6 +141,8 @@
         # Apps :
             * Documents :
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
+            * Activities :
+                - The class 'utils.PytzToVtimezone' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
             * CTI :

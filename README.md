@@ -62,30 +62,28 @@ virtual env, in order to keep the old one working).
 ### Dependencies
 
  - Python 3.8+
- - MySQL 5.7+ (or MariaDB 10.2+) or PostGreSQL 9.6+ (or SQLite which is included with Python)
+ - MySQL 5.7+ (or MariaDB 10.2+) or PostGreSQL 10+ (or SQLite which is included with Python)
  - A web server compatible with Python, like Apache 2.4
  - Redis 3+
  - These Python packages :
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
-     - Django 3.2
-     - redis 4.0
-     - python-dateutil 2.8
-     - bleach 4.1
-     - Pillow 8.4
-     - django-formtools 2.3
+     - Django
+     - redis
+     - python-dateutil
+     - bleach
+     - Pillow
+     - django-formtools
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
-     - csscompressor 0.9
-     - rJSmin 1.2
+     - csscompressor
+     - rJSmin
    - Optional :
      - creme.billing :
        If you want PDF export, you can use :
        - xhtml2pdf (default)
        - weasyprint (easy to install on Linux ; harder on Windows)
        - you can also use the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
-     - creme.graphs :
-       - pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
 
 Installation with 'pip':
  - You should probably use "virtualenv".

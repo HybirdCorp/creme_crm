@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2014-2022  Hybird
+#    Copyright (C) 2014-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -33,7 +33,7 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_str
 from django.utils.functional import partition
-from django.utils.timezone import localtime, now
+from django.utils.timezone import localtime, make_aware, now
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_POST
 
@@ -47,7 +47,8 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.models import CremeEntity, EntityCredentials, Relation
 from creme.creme_core.utils import get_from_GET_or_404, get_from_POST_or_404
 from creme.creme_core.utils.chunktools import iter_as_chunk
-from creme.creme_core.utils.dates import dt_from_ISO8601, make_aware_dt
+# from creme.creme_core.utils.dates import make_aware_dt
+from creme.creme_core.utils.dates import dt_from_ISO8601
 from creme.creme_core.views.decorators import jsonify
 from creme.creme_core.views.utils import build_cancel_path
 from creme.persons.views.contact import ContactCreation
@@ -709,8 +710,10 @@ def phonecall_workflow_postponed(request):
 
     tomorrow = now() + timedelta(days=1)
     dt_combine = datetime.combine
-    postponed.start = make_aware_dt(dt_combine(tomorrow, time(hour=0,  minute=0)))
-    postponed.end   = make_aware_dt(dt_combine(tomorrow, time(hour=23, minute=59)))
+    # postponed.start = make_aware_dt(dt_combine(tomorrow, time(hour=0,  minute=0)))
+    postponed.start = make_aware(dt_combine(tomorrow, time(hour=0,  minute=0)))
+    # postponed.end   = make_aware_dt(dt_combine(tomorrow, time(hour=23, minute=59)))
+    postponed.end   = make_aware(dt_combine(tomorrow, time(hour=23, minute=59)))
 
     postponed.clone()
 

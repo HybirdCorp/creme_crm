@@ -1,6 +1,6 @@
 ################################################################################
 #
-# Copyright (c) 2009-2022 Hybird
+# Copyright (c) 2009-2023 Hybird
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,7 @@
 
 from __future__ import annotations
 
+import warnings
 from datetime import date, datetime, timedelta
 from time import strptime as time_strptime
 
@@ -52,7 +53,7 @@ def dt_from_ISO8601(dt_str: str) -> datetime:
     @return A datetime instance.
     @throws ValueError
     """
-    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), utc)
+    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=utc)
 
 
 def dt_to_ISO8601(dt: datetime) -> str:
@@ -67,7 +68,7 @@ def date_from_ISO8601(d_str: str) -> date:
     """Returns a date instance parsed from the ISO 8601 format
     (the date part of the format).
     @param d_str: A string representing a date.
-    @return A datetime.date instance
+    @return A datetime.date instance.
     """
     return date(*time_strptime(d_str, DATE_ISO8601_FMT)[:3])
 
@@ -86,12 +87,14 @@ def dt_from_str(dt_str: str) -> datetime | None:
     dt = parse_datetime(dt_str)
 
     if dt:
-        return make_aware_dt(dt) if is_naive(dt) else dt
+        # return make_aware_dt(dt) if is_naive(dt) else dt
+        return make_aware(dt) if is_naive(dt) else dt
 
     for fmt_name in ('DATETIME_INPUT_FORMATS', 'DATE_INPUT_FORMATS'):
         for fmt in formats.get_format(fmt_name):
             try:
-                return make_aware_dt(datetime(*time_strptime(dt_str, fmt)[:6]))
+                # return make_aware_dt(datetime(*time_strptime(dt_str, fmt)[:6]))
+                return make_aware(datetime(*time_strptime(dt_str, fmt)[:6]))
             except ValueError:
                 continue
             except TypeError:
@@ -122,6 +125,11 @@ def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
            None => raise an exception.
     @return A (aware) datetime.
     """
+    warnings.warn(
+        'creme_core.utils.dates.make_aware_dt() is deprecated ; '
+        'use django.utils.timezone.make_aware() instead.',
+        DeprecationWarning
+    )
     return make_aware(dt, is_dst=is_dst)
 
 

@@ -1,10 +1,11 @@
-from datetime import date
+from datetime import date, datetime
 from functools import partial
 
-import pytz
+# import pytz
 from django.core.exceptions import ValidationError
 from django.utils.timezone import get_current_timezone
 from django.utils.timezone import override as override_tz
+from django.utils.timezone import zoneinfo
 from django.utils.translation import pgettext
 
 from creme import __version__ as creme_version
@@ -12,9 +13,10 @@ from creme.creme_core.models import Relation
 from creme.persons.tests.base import skipIfCustomContact
 
 from .. import constants
+# from ..utils import PytzToVtimezone
 from ..utils import (
     ICalEncoder,
-    PytzToVtimezone,
+    ZoneinfoToVtimezone,
     check_activity_collisions,
     get_last_day_of_a_month,
 )
@@ -260,8 +262,85 @@ class ICalEncoderTestCase(_ActivitiesTestCase):
             encoder.encode_activity(activity, tz=get_current_timezone()),
         )
 
-    def test_PytzToVtimezone01(self):
-        tz = pytz.timezone('Europe/Paris')
+#     def test_PytzToVtimezone01(self):
+#         tz = pytz.timezone('Europe/Paris')
+#         self.assertEqual(
+#             """BEGIN:VTIMEZONE
+# TZID:Europe/Paris
+# BEGIN:STANDARD
+# TZOFFSETFROM:+0200
+# TZOFFSETTO:+0100
+# DTSTART:20091025T000300
+# RDATE:20101031T000300
+# TZNAME:CET
+# END:STANDARD
+# BEGIN:DAYLIGHT
+# TZOFFSETFROM:+0100
+# TZOFFSETTO:+0200
+# DTSTART:20100328T000200
+# TZNAME:CEST
+# END:DAYLIGHT
+# END:VTIMEZONE""",
+#             PytzToVtimezone.generate_vtimezone(
+#                 pytz_timezone=tz,
+#                 date_from=date(year=2010, month=1, day=1),
+#                 date_to=date(year=2010, month=12, day=31),
+#             ),
+#         )
+#         self.assertEqual(
+#             """BEGIN:VTIMEZONE
+# TZID:Europe/Paris
+# BEGIN:STANDARD
+# TZOFFSETFROM:+0200
+# TZOFFSETTO:+0100
+# DTSTART:20091025T000300
+# RDATE:20101031T000300
+# RDATE:20111030T000300
+# TZNAME:CET
+# END:STANDARD
+# BEGIN:DAYLIGHT
+# TZOFFSETFROM:+0100
+# TZOFFSETTO:+0200
+# DTSTART:20100328T000200
+# RDATE:20110327T000200
+# TZNAME:CEST
+# END:DAYLIGHT
+# END:VTIMEZONE""",
+#             PytzToVtimezone.generate_vtimezone(
+#                 pytz_timezone=tz,
+#                 date_from=date(year=2010, month=1, day=1),
+#                 date_to=date(year=2011, month=12, day=31),
+#             ),
+#         )
+#
+#     def test_PytzToVtimezone02(self):
+#         tz = pytz.timezone('Europe/London')
+#         self.assertEqual(
+#             """BEGIN:VTIMEZONE
+# TZID:Europe/London
+# BEGIN:STANDARD
+# TZOFFSETFROM:+0100
+# TZOFFSETTO:-0000
+# DTSTART:20091025T000200
+# RDATE:20101031T000200
+# TZNAME:GMT
+# END:STANDARD
+# BEGIN:DAYLIGHT
+# TZOFFSETFROM:-0000
+# TZOFFSETTO:+0100
+# DTSTART:20100328T000100
+# TZNAME:BST
+# END:DAYLIGHT
+# END:VTIMEZONE""",
+#             PytzToVtimezone.generate_vtimezone(
+#                 pytz_timezone=tz,
+#                 date_from=date(year=2010, month=1, day=1),
+#                 date_to=date(year=2010, month=12, day=31),
+#             ),
+#         )
+
+    def test_ZoneinfoToVtimezone01(self):
+        tz = zoneinfo.ZoneInfo('Europe/Paris')
         self.assertEqual(
             """BEGIN:VTIMEZONE
 TZID:Europe/Paris
@@ -279,10 +358,10 @@ DTSTART:20100328T000200
 TZNAME:CEST
 END:DAYLIGHT
 END:VTIMEZONE""",
-            PytzToVtimezone.generate_vtimezone(
-                pytz_timezone=tz,
-                date_from=date(year=2010, month=1, day=1),
-                date_to=date(year=2010, month=12, day=31),
+            ZoneinfoToVtimezone.generate_vtimezone(
+                timezone=tz,
+                date_from=datetime(year=2010, month=1, day=1),
+                date_to=datetime(year=2010, month=12, day=31),
             ),
         )
         self.assertEqual(
@@ -304,15 +383,15 @@ RDATE:20110327T000200
 TZNAME:CEST
 END:DAYLIGHT
 END:VTIMEZONE""",
-            PytzToVtimezone.generate_vtimezone(
-                pytz_timezone=tz,
-                date_from=date(year=2010, month=1, day=1),
-                date_to=date(year=2011, month=12, day=31),
+            ZoneinfoToVtimezone.generate_vtimezone(
+                timezone=tz,
+                date_from=datetime(year=2010, month=1, day=1),
+                date_to=datetime(year=2011, month=12, day=31),
             ),
         )
 
-    def test_PytzToVtimezone02(self):
-        tz = pytz.timezone('Europe/London')
+    def test_ZoneinfoToVtimezone02(self):
+        tz = zoneinfo.ZoneInfo('Europe/London')
         self.assertEqual(
             """BEGIN:VTIMEZONE
 TZID:Europe/London
@@ -330,10 +409,10 @@ DTSTART:20100328T000100
 TZNAME:BST
 END:DAYLIGHT
 END:VTIMEZONE""",
-            PytzToVtimezone.generate_vtimezone(
-                pytz_timezone=tz,
-                date_from=date(year=2010, month=1, day=1),
-                date_to=date(year=2010, month=12, day=31),
+            ZoneinfoToVtimezone.generate_vtimezone(
+                timezone=tz,
+                date_from=datetime(year=2010, month=1, day=1),
+                date_to=datetime(year=2010, month=12, day=31),
             ),
         )
 

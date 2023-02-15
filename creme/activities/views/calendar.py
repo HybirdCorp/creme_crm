@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -30,7 +30,12 @@ from django.db.transaction import atomic
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.urls import reverse
-from django.utils.timezone import get_current_timezone, make_naive, now
+from django.utils.timezone import (
+    get_current_timezone,
+    make_aware,
+    make_naive,
+    now,
+)
 from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
@@ -38,7 +43,7 @@ from creme.creme_core.core.exceptions import ConflictError
 from creme.creme_core.http import CremeJsonResponse
 from creme.creme_core.models import DeletionCommand, EntityCredentials, Job
 from creme.creme_core.utils import bool_from_str_extended, get_from_POST_or_404
-from creme.creme_core.utils.dates import make_aware_dt
+# from creme.creme_core.utils.dates import make_aware_dt
 from creme.creme_core.utils.unicode_collation import collator
 from creme.creme_core.views import generic
 
@@ -52,9 +57,10 @@ Activity = get_activity_model()
 
 
 def _js_timestamp_to_datetime(timestamp):
-    "@raise ValueError"
+    # "@raise ValueError."
     # JS gives us milliseconds
-    return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
+    # return make_aware_dt(datetime.fromtimestamp(float(timestamp) / 1000))
+    return make_aware(datetime.fromtimestamp(float(timestamp) / 1000))
 
 
 class CalendarView(generic.CheckedTemplateView):
@@ -249,7 +255,8 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
         if timestamp is not None:
             try:
-                return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
+                # return make_aware_dt(datetime.fromtimestamp(float(timestamp)))
+                return make_aware(datetime.fromtimestamp(float(timestamp)))
             except Exception:
                 logger.exception('ActivitiesData._get_datetime(key=%s)', key)
 

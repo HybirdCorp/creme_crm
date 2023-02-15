@@ -19,6 +19,7 @@ from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import RequestFactory, TestCase, TransactionTestCase
+from django.test.testcases import to_list
 from django.urls import reverse
 from django.utils.formats import get_format
 from django.utils.timezone import get_current_timezone, make_aware, utc
@@ -455,6 +456,35 @@ class _CremeTestCase:
                         f"The field '{field}' on formset '{formset}' number "
                         f"{form_index} contains errors: {field_errors}"
                     )
+
+    def assertWizardFormError(self, response, wizard='wizard', field=None, errors=()):
+        try:
+            wizard_obj = response.context[wizard]
+        except KeyError:
+            self.fail(f'The wizard "{wizard}" was not used to render the response')
+
+        form_obj = wizard_obj['form']
+
+        for err in to_list(errors):
+            if field:
+                if field in form_obj.errors:
+                    field_errors = form_obj.errors[field]
+                    self.assertTrue(
+                        err in field_errors,
+                        f'The field "{field}" on wizard "{wizard}" does not contain '
+                        f'the error ''"{err}" (actual errors: {field_errors!r})'
+                    )
+                elif field in form_obj.fields:
+                    self.fail(f'The field {field} on wizard "{wizard}" contains no errors')
+                else:
+                    self.fail(f'The wizard {wizard} does not contain the field "{field}"')
+            else:
+                non_field_errors = form_obj.non_field_errors()
+                self.assertTrue(
+                    err in non_field_errors,
+                    f'The wizard "{wizard}" does not contain the non-field error "{err}" '
+                    f'(actual errors: {non_field_errors or "none"})'
+                )
 
     def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
         self.assertEqual(status, response.status_code)

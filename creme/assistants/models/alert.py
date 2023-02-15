@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,13 @@ from datetime import datetime, time
 
 from django.db import models
 from django.urls import reverse
+from django.utils.timezone import make_aware
 from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
+# from creme.creme_core.utils.dates import make_aware_dt
 import creme.creme_core.models.fields as core_fields
-from creme.creme_core.utils.dates import make_aware_dt
 
 
 class AlertManager(models.Manager):
@@ -88,7 +89,8 @@ class Alert(core_models.CremeModel):
 
         if origin:
             if not isinstance(origin, datetime):
-                origin = make_aware_dt(datetime.combine(origin, time()))
+                # origin = make_aware_dt(datetime.combine(origin, time()))
+                origin = make_aware(datetime.combine(origin, time()))
 
             return origin + (sign * period.as_timedelta())
 

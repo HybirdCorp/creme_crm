@@ -8,12 +8,13 @@ from django.http import Http404
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.urls import reverse
+# from pytz import timezone
 from django.utils.timezone import is_aware, is_naive, make_aware
 from django.utils.timezone import override as override_tz
+from django.utils.timezone import zoneinfo
 from django.utils.translation import gettext, gettext_lazy
 from django.utils.translation import override as override_language
 from PIL.Image import open as open_img
-from pytz import timezone
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.global_info import clear_global_info
@@ -513,7 +514,8 @@ class DatesTestCase(CremeTestCase):
                     year=2018, month=2, day=4, hour=19,
                     minute=41, second=25, microsecond=123000,
                 ),
-                timezone=timezone('Europe/Paris'),  # DST: +1h
+                # timezone=timezone('Europe/Paris'),  # DST: +1h
+                timezone=zoneinfo.ZoneInfo('Europe/Paris'),  # DST: +1h
             )),
         )
         self.assertEqual(
@@ -647,14 +649,18 @@ class DatesTestCase(CremeTestCase):
         )
 
     def test_to_utc(self):
-        tz = timezone('Europe/Paris')  # +01:00
-        dt = tz.localize(
-            datetime(year=2016, month=11, day=23, hour=18, minute=28),
-            is_dst=True,
+        # tz = timezone('Europe/Paris')  # +01:00
+        # dt = tz.localize(
+        #     datetime(year=2016, month=11, day=23, hour=18, minute=28),
+        #     is_dst=True,
+        # )
+        dt = datetime(
+            year=2016, month=11, day=23, hour=18, minute=28,
+            tzinfo=zoneinfo.ZoneInfo('Europe/Paris'),  # +01:00
         )
         self.assertEqual(
             datetime(year=2016, month=11, day=23, hour=17, minute=28),
-            to_utc(dt)
+            to_utc(dt),
         )
 
     def test_date_from_ISO8601(self):
@@ -669,6 +675,7 @@ class DatesTestCase(CremeTestCase):
             date_to_ISO8601(date(year=2016, month=11, day=23)),
         )
 
+    # DEPRECATED
     @override_tz('Europe/London')
     def test_make_aware_dt01(self):
         dt = datetime(year=2016, month=12, day=13, hour=14, minute=35)
@@ -683,6 +690,7 @@ class DatesTestCase(CremeTestCase):
         self.assertEqual(35,   dt2.minute)
         self.assertEqual(timedelta(hours=0), dt2.tzinfo.utcoffset(dt2))
 
+    # DEPRECATED
     @override_tz('Europe/Paris')
     def test_make_aware_dt02(self):
         dt = make_aware_dt(datetime(year=2016, month=12, day=13, hour=14, minute=35))
@@ -694,6 +702,7 @@ class DatesTestCase(CremeTestCase):
         self.assertEqual(35,   dt.minute)
         self.assertEqual(timedelta(hours=1), dt.tzinfo.utcoffset(dt))
 
+    # DEPRECATED
     @override_tz('Europe/Paris')  # This Time zone uses daylight saving time (DST)
     def test_make_aware_dt03(self):
         with self.assertNoException():
@@ -706,7 +715,8 @@ class DatesTestCase(CremeTestCase):
         self.assertEqual(30,   dt.day)
         self.assertEqual(2,    dt.hour)
         self.assertEqual(30,   dt.minute)
-        self.assertEqual(timedelta(hours=1), dt.tzinfo.utcoffset(dt))
+        # self.assertEqual(timedelta(hours=1), dt.tzinfo.utcoffset(dt))
+        self.assertEqual(timedelta(hours=2), dt.tzinfo.utcoffset(dt))
 
 
 class UnicodeCollationTestCase(CremeTestCase):

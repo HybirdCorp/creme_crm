@@ -49,6 +49,7 @@ urlpatterns = [
         auth_views.LoginView.as_view(
             template_name='mobile/login.html',
             authentication_form=forms.MobileAuthenticationForm,
+            # TODO: use attribute 'next_page'?
             extra_context={'REDIRECT_FIELD_NAME': REDIRECT_FIELD_NAME},
         ),
         name='mobile__login',
