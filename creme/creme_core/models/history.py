@@ -1158,7 +1158,7 @@ def _log_deletion(sender, instance, **kwargs):
         return
 
     # When we are dealing with CremeEntities, we check that we are dealing
-    # with the final class, because the signal is send several times, with
+    # with the final class, because the signal is sent several times, with
     # several 'level' of class. We don't want to create several HistoryLines
     # (and some things are deleted by higher levels that make objects
     # inconsistent & that can cause 'crashes').
