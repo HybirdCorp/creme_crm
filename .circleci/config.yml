@@ -51,7 +51,8 @@ commands:
       # Require setuptools v46.4.0 at least
       - run: ~/venv/bin/pip install -U pip setuptools
       - run: echo "source ~/venv/bin/activate" >> $BASH_ENV
-      - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,graphs]
+#      - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql,graphs]
+      - run: pip install -U -e << pipeline.parameters.source_path >>[dev,mysql,pgsql]
       - run: pip freeze
       - run: pip list --outdated
 
