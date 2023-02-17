@@ -251,8 +251,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'actions',
-            _('This field is invalid with this model.'),
+            response.context['form'],
+            field='actions',
+            errors=_('This field is invalid with this model.'),
         )
 
 # TODO: uncomment when a model has a field with batchable type and not inner
@@ -335,8 +336,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'actions',
-            _('The field «%(field)s» can not be used twice.') % {
+            response.context['form'],
+            field='actions',
+            errors=_('The field «%(field)s» can not be used twice.') % {
                 'field': _('First name'),
             },
         )
@@ -361,7 +363,7 @@ class BatchProcessViewsTestCase(ViewsTestCase):
         )
         self.assertSetEqual(
             {orga02, orga03},
-            {*efilter.filter(FakeOrganisation.objects.all())}
+            {*efilter.filter(FakeOrganisation.objects.all())},
         )  # <== not 'orga01'
 
         response = self.client.post(
@@ -436,8 +438,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'filter',
-            _(
+            response.context['form'],
+            field='filter',
+            errors=_(
                 'Select a valid choice. '
                 'That choice is not one of the available choices.'
             ),

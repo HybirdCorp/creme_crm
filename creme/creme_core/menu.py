@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -69,6 +69,18 @@ class LogoutEntry(menu.FixedURLEntry):
     id = 'creme_core-logout'
     label = _('Log out')
     url_name = 'creme_logout'
+
+    def render(self, context):
+        return format_html(
+            '<form id="logout-form" method="post" action="{url}">'
+            # see django.template.backends.utils.csrf_input()
+            ' <input type="hidden" name="csrfmiddlewaretoken" value="{token}">'
+            ' <button type="submit">{label}</button>'
+            '</form>',
+            url=self.url,
+            label=self.render_label(context),
+            token=context.get('csrf_token'),
+        )
 
 
 class TrashEntry(menu.FixedURLEntry):

@@ -174,9 +174,9 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             args=('products', 'subcategory', sub_cat.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_products__service_sub_category',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_products__service_sub_category',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_delete_category(self):
@@ -188,8 +188,9 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             args=('products', 'category', cat.id),
         ))
         self.assertFormError(
-            response, 'form', 'replace_products__service_category',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_products__service_category',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_add_images(self):
@@ -215,16 +216,17 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         service.images.set([img_3])
 
         url = reverse('products__add_images_to_service', args=(service.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        get_ctxt1 = response1.context.get
         self.assertEqual(
             _('New images for «{entity}»').format(entity=service),
-            context.get('title'),
+            get_ctxt1('title'),
         )
-        self.assertEqual(_('Link the images'), context.get('submit_label'))
+        self.assertEqual(_('Link the images'), get_ctxt1('submit_label'))
 
+        # ---
         def post(*images):
             return self.client.post(
                 url,
@@ -234,15 +236,17 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
                 },
             )
 
-        response = post(img_1, img_4)
-        self.assertEqual(200, response.status_code)
+        response2 = post(img_1, img_4)
+        self.assertEqual(200, response2.status_code)
         self.assertFormError(
-            response, 'form', 'images',
-            _('Some entities are not linkable: {}').format(img_4),
+            response2.context['form'],
+            field='images',
+            errors=_('Some entities are not linkable: {}').format(img_4),
         )
 
-        response = post(img_1, img_2)
-        self.assertNoFormError(response)
+        # ---
+        response3 = post(img_1, img_2)
+        self.assertNoFormError(response3)
         self.assertSetEqual({img_1, img_2, img_3}, {*service.images.all()})
 
     def test_remove_image(self):

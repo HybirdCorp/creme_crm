@@ -93,18 +93,21 @@ class SettingTestCase(CremeTestCase):
         self.assertNoFormError(self.client.post(url, data={'value': hour}))
         self.assertEqual(hour, self.refresh(sv).value)
 
-        response = self.assertPOST200(url, data={'value': 24})
+        response1 = self.assertPOST200(url, data={'value': 24})
         self.assertFormError(
-            response, 'form', 'value',
-            _('Ensure this value is less than or equal to %(limit_value)s.') % {
+            response1.context['form'],
+            field='value',
+            errors=_('Ensure this value is less than or equal to %(limit_value)s.') % {
                 'limit_value': 23,
             },
         )
 
-        response = self.assertPOST200(url, data={'value': -1})
+        # ---
+        response2 = self.assertPOST200(url, data={'value': -1})
         self.assertFormError(
-            response, 'form', 'value',
-            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
+            response2.context['form'],
+            field='value',
+            errors=_('Ensure this value is greater than or equal to %(limit_value)s.') % {
                 'limit_value': 0,
             },
         )
@@ -127,7 +130,8 @@ class SettingTestCase(CremeTestCase):
 
         response = self.assertPOST200(url, data={'value': 42})
         self.assertFormError(
-            response, 'form', 'value', _('Enter a valid email address.'),
+            response.context['form'],
+            field='value', errors=_('Enter a valid email address.'),
         )
 
         email = 'd.knut.knut@eswat.ol'

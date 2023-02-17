@@ -149,8 +149,9 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={field_name: image_file},
             )
             self.assertFormError(
-                response, 'form', field_name,
-                _('The file is too large (maximum size: {} bytes)').format(
+                response.context['form'],
+                field=field_name,
+                errors=_('The file is too large (maximum size: {} bytes)').format(
                     number_format(MAX_SIZE),
                 ),
             )
@@ -173,8 +174,9 @@ class WorldSettingsTestCase(BrickTestCaseMixin, CremeTestCase):
             )
 
         self.assertFormError(
-            response, 'form', field_name,
-            _(
+            response.context['form'],
+            field=field_name,
+            errors=_(
                 "Upload a valid image. The file you uploaded was either not an "
                 "image or a corrupted image."
             ),

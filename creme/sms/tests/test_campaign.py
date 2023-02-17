@@ -122,15 +122,15 @@ class SMSCampaignTestCase(CremeTestCase):
         self.assertFalse(campaign.lists.exists())
 
         url = reverse('sms__add_mlists_to_campaign', args=(campaign.id,))
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/link-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/link-popup.html')
 
-        context = response.context
+        get_ctxt1 = response1.context.get
         self.assertEqual(
             _('New messaging lists for «{entity}»').format(entity=campaign),
-            context.get('title')
+            get_ctxt1('title'),
         )
-        self.assertEqual(_('Link the messaging lists'), context.get('submit_label'))
+        self.assertEqual(_('Link the messaging lists'), get_ctxt1('submit_label'))
 
         # ----
         def post(*mlists):
@@ -139,17 +139,18 @@ class SMSCampaignTestCase(CremeTestCase):
                 data={'messaging_lists': self.formfield_value_multi_creator_entity(*mlists)},
             )
 
-        response = post(mlist01, mlist02)
-        self.assertNoFormError(response)
+        response2 = post(mlist01, mlist02)
+        self.assertNoFormError(response2)
         self.assertSetEqual({mlist01, mlist02}, {*campaign.lists.all()})
 
         # Duplicates ---------------------
         mlist03 = create_ml(name='Ml03')
-        response = post(mlist01, mlist03)
-        self.assertEqual(200, response.status_code)
+        response3 = post(mlist01, mlist03)
+        self.assertEqual(200, response3.status_code)
         self.assertFormError(
-            response, 'form', 'messaging_lists',
-            _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
+            response3.context['form'],
+            field='messaging_lists',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )
 
     @skipIfCustomMessagingList

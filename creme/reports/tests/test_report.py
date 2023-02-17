@@ -494,12 +494,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 # '2-columns': '',
             },
         )
-
-        # TODO: assertWizardFormError ?
-        with self.assertNoException():
-            error = response3.context['wizard']['form'].errors['columns']
-
-        self.assertListEqual([_('This field is required.')], error)
+        form3 = response3.context['wizard']['form']
+        self.assertFormError(form3, field='columns', errors=_('This field is required.'))
 
     def test_editview01(self):
         user = self.login()
@@ -653,8 +649,11 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         # ---
         response2 = self.assertPOST200(uri, data={form_field_name: orga_filter.pk})
         self.assertFormError(
-            response2, 'form', form_field_name,
-            _('Select a valid choice. That choice is not one of the available choices.'),
+            response2.context['form'],
+            field=form_field_name,
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
         response3 = self.client.post(uri, data={form_field_name: contact_filter.pk})
@@ -697,8 +696,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         response = self.assertPOST200(uri, data={f'override-{field_name}': ''})
         self.assertFormError(
-            response, 'form', f'override-{field_name}',
-            _('The filter cannot be changed because it is private.'),
+            response.context['form'],
+            field=f'override-{field_name}',
+            errors=_('The filter cannot be changed because it is private.'),
         )
         self.assertEqual(efilter, self.refresh(report).filter)
 
@@ -752,8 +752,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', formfield_name,
-            _(
+            response2.context['form'],
+            field=formfield_name,
+            errors=_(
                 'Select a valid choice. '
                 'That choice is not one of the available choices.'
             ),
@@ -810,8 +811,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', formfield_name,
-            _(
+            response2.context['form'],
+            field=formfield_name,
+            errors=_(
                 'Filter field can only be updated when reports '
                 'target the same type of entities (e.g: only contacts).'
             ),
@@ -1194,7 +1196,8 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         response = self.assertPOST200(url, data={'date_field': date_field})
 
         self.assertFormError(
-            response, 'form', 'doc_type', _('This field is required.'),
+            response.context['form'],
+            field='doc_type', errors=_('This field is required.'),
         )
 
     def test_export_filter_form_missing_customrange(self):
@@ -1215,10 +1218,10 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'date_field': date_field,
             },
         )
-
         self.assertFormError(
-            response, 'form', '',
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 'If you chose a Date field, and select «customized» '
                 'you have to specify a start date and/or an end date.'
             ),
@@ -1239,12 +1242,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
                 'date_filter_0': 'unknown',
             },
         )
-
         self.assertFormError(
-            response, 'form', 'date_filter',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': 'unknown',
-            },
+            response.context['form'],
+            field='date_filter',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': 'unknown'},
         )
 
     def test_export_filter_form_no_datefield(self):
@@ -1786,10 +1789,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', 'columns',
-            _('This value is invalid: %(value)s') % {'value': hidden_fname1},
+            response1.context['form'],
+            field='columns',
+            errors=_('This value is invalid: %(value)s') % {'value': hidden_fname1},
         )
 
+        # ---
         response2 = self.client.post(
             url,
             data={
@@ -1885,8 +1890,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={'columns': f'regular_field-{fname}'},
         )
         self.assertFormError(
-            response, 'form', 'columns',
-            _('This value is invalid: %(value)s') % {'value': fname},
+            response.context['form'],
+            field='columns',
+            errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
 
     def test_edit_fields_errors02(self):
@@ -1899,8 +1905,9 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
             data={'columns': f'regular_field-{fname}'},
         )
         self.assertFormError(
-            response, 'form', 'columns',
-            _('This value is invalid: %(value)s') % {'value': fname},
+            response.context['form'],
+            field='columns',
+            errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
 
     def test_invalid_hands01(self):
@@ -2037,17 +2044,20 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
 
         self.assertGET409(self._build_linkreport_url(reg_rfield))  # Not a RFT_RELATION Field
 
+        # ---
         url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)
 
         # Incompatible CT
         img_report = self._build_image_report()
-        response = self.assertPOST200(url, data={'report': img_report.id})
+        response3 = self.assertPOST200(url, data={'report': img_report.id})
         self.assertFormError(
-            response, 'form', 'report',
-            _('«%(entity)s» violates the constraints.') % {'entity': img_report},
+            response3.context['form'],
+            field='report',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': img_report},
         )
 
+        # ---
         orga_report = self._build_orga_report()
         self.assertNoFormError(self.client.post(url, data={'report': orga_report.id}))
         self.assertEqual(orga_report, self.refresh(rel_rfield).sub_report)
@@ -2127,10 +2137,12 @@ class ReportTestCase(BrickTestCaseMixin, BaseReportsTestCase):
         url = self._build_linkreport_url(rel_rfield)
         self.assertGET200(url)
 
-        response = self.assertPOST200(url, data={'report': orga_report.id})
+        # ---
+        response2 = self.assertPOST200(url, data={'report': orga_report.id})
         self.assertFormError(
-            response, 'form', 'report',
-            _('«%(entity)s» violates the constraints.') % {'entity': orga_report},
+            response2.context['form'],
+            field='report',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': orga_report},
         )
 
         # Invalid field -> no 500 error

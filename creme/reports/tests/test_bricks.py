@@ -552,8 +552,9 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         # ---
         response_post_error = self.assertPOST200(url)
         self.assertFormError(
-            response_post_error, 'form', 'fetcher',
-            _('This field is required.'),
+            response_post_error.context['form'],
+            field='fetcher',
+            errors=_('This field is required.'),
         )
 
         self.assertNoFormError(self.client.post(url, data={'fetcher': RGF_NOLINK}))
@@ -588,10 +589,11 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         # ----------------------------------------------------------------------
         response_duplicate = self.assertPOST200(url, data={'fetcher': RGF_NOLINK})
         self.assertFormError(
-            response_duplicate, 'form', 'fetcher',
-            _('The instance block for «{graph}» with these parameters already exists!').format(
-                graph=rgraph.name,
-            ),
+            response_duplicate.context['form'],
+            field='fetcher',
+            errors=_(
+                'The instance block for «{graph}» with these parameters already exists!'
+            ).format(graph=rgraph.name),
         )
 
         # ----------------------------------------------------------------------
@@ -919,10 +921,11 @@ class JQplotReportGraphChartInstanceBrickTestCase(BrickTestCaseMixin, BaseReport
         choice = 'invalid'
         response = self.assertPOST200(url, data={'fetcher': choice})
         self.assertFormError(
-            response, 'form', 'fetcher',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': choice,
-            },
+            response.context['form'],
+            field='fetcher',
+            error=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': choice},
         )
 
     def test_add_graph_instance_brick03_error(self):

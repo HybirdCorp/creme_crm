@@ -346,8 +346,9 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'parent_folder',
-            _('«%(entity)s» violates the constraints.') % {'entity': folder},
+            response.context['form'],
+            field='parent_folder',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': folder},
         )
 
     def test_editview03(self):
@@ -371,8 +372,9 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'parent_folder',
-            _('This folder is one of the child folders of «%(folder)s»') % {
+            response.context['form'],
+            field='parent_folder',
+            errors=_('This folder is one of the child folders of «%(folder)s»') % {
                 'folder': folder1,
             },
         )
@@ -452,17 +454,19 @@ class FolderTestCase(BrickTestCaseMixin, _DocumentsTestCase):
         formfield_name = f'override-{field_name}'
         response1 = self.assertPOST200(uri, data={formfield_name: folder3.id})
         self.assertFormError(
-            response1, 'form', None,
-            _('This folder is one of the child folders of «%(folder)s»') % {
-                'folder': folder1,
-            },
+            response1.context['form'],
+            field=None,
+            errors=_(
+                'This folder is one of the child folders of «%(folder)s»'
+            ) % {'folder': folder1},
         )
 
         # -----
         response2 = self.client.post(uri, data={formfield_name: folder1.pk})
         self.assertFormError(
-            response2, 'form', formfield_name,
-            _('«%(entity)s» violates the constraints.') % {'entity': folder1},
+            response2.context['form'],
+            field=formfield_name,
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': folder1},
         )
 
     def test_inneredit_parent04(self):

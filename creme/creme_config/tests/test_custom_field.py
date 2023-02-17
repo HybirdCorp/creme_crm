@@ -214,8 +214,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('The choices list must not be empty if you choose the type "Choice list".'),
+            response.context['form'],
+            field=None,
+            errors=_(
+                'The choices list must not be empty if you choose the type "Choice list".'
+            ),
         )
 
     def test_add_ct_error02(self):
@@ -231,8 +234,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'enum_values',
-            _('The choice «{}» is duplicated.').format('Eva01'),
+            response.context['form'],
+            field='enum_values',
+            errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
 
     def test_add_ct_error03(self):
@@ -304,8 +308,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'name',
-            _('There is already a custom field with this name.'),
+            response.context['form'],
+            field='name',
+            errors=_('There is already a custom field with this name.'),
         )
 
     def test_add03(self):
@@ -322,8 +327,11 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             }
         )
         self.assertFormError(
-            response, 'form', None,
-            _('The choices list must not be empty if you choose the type "Choice list".'),
+            response.context['form'],
+            field=None,
+            errors=_(
+                'The choices list must not be empty if you choose the type "Choice list".'
+            ),
         )
 
     def test_add04(self):
@@ -340,8 +348,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             }
         )
         self.assertFormError(
-            response, 'form', 'enum_values',
-            _('The choice «{}» is duplicated.').format('Eva01'),
+            response.context['form'],
+            field='enum_values',
+            errors=_('The choice «{}» is duplicated.').format('Eva01'),
         )
 
     def test_edit01(self):
@@ -393,8 +402,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'name': name},
         )
         self.assertFormError(
-            response, 'form', 'name',
-            _('There is already a custom field with this name.'),
+            response.context['form'],
+            field='name',
+            errors=_('There is already a custom field with this name.'),
         )
 
     def test_edit03(self):
@@ -635,8 +645,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', 'choices',
-            _('The choice «{}» is duplicated.').format(eval01.value),
+            response1.context['form'],
+            field='choices',
+            errors=_('The choice «{}» is duplicated.').format(eval01.value),
         )
 
         response2 = self.assertPOST200(
@@ -647,8 +658,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', 'choices',
-            _('The choice «{}» is duplicated.').format('Ocaml'),
+            response2.context['form'],
+            field='choices',
+            errors=_('The choice «{}» is duplicated.').format('Ocaml'),
         )
 
     def test_add_enum_values03(self):
@@ -754,8 +766,9 @@ class CustomFieldsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'choice': eval01.value},
         )
         self.assertFormError(
-            response, 'form', 'choice',
-            _('The choice «{}» is duplicated.').format(eval01.value),
+            response.context['form'],
+            field='choice',
+            errors=_('The choice «{}» is duplicated.').format(eval01.value),
         )
 
     def test_add_enum_value03(self):

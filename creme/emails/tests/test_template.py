@@ -127,12 +127,13 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
             },
         )
 
+        form = response.context['form']
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
-            response, 'form', 'body', error_msg % {'vars': 'unexisting_var'},
+            form, field='body', errors=error_msg % {'vars': 'unexisting_var'},
         )
         self.assertFormError(
-            response, 'form', 'body_html', error_msg % {'vars': 'foobar_var'},
+            form, field='body_html', errors=error_msg % {'vars': 'foobar_var'},
         )
 
     def test_editview01(self):
@@ -183,7 +184,6 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
         template = EmailTemplate.objects.create(
             user=user, name='My template', subject='Hello', body='Complete me',
         )
-
         response = self.client.post(
             template.get_edit_absolute_url(),
             follow=True,
@@ -195,12 +195,13 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
                 'body_html': '<p>blablabla</p> {{foobar_var}}',
             },
         )
+        form = response.context['form']
         error_msg = _('The following variables are invalid: %(vars)s')
         self.assertFormError(
-            response, 'form', 'body', error_msg % {'vars': 'unexisting_var'},
+            form, field='body', errors=error_msg % {'vars': 'unexisting_var'},
         )
         self.assertFormError(
-            response, 'form', 'body_html', error_msg % {'vars': 'foobar_var'},
+            form, field='body_html', errors=error_msg % {'vars': 'foobar_var'},
         )
 
     def test_listview(self):

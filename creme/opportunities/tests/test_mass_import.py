@@ -277,7 +277,8 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             },
         )
         self.assertFormError(
-            response, 'form', 'sales_phase', _('This field is required.'),
+            response.context['form'],
+            field='sales_phase', errors=_('This field is required.'),
         )
 
     def test_mass_import04(self):
@@ -378,28 +379,33 @@ class MassImportTestCase(OpportunitiesBaseTestCase, MassImportBaseTestCaseMixin)
             'target_persons_contact_create': '',
         }
 
-        response = self.assertPOST200(
+        response1 = self.assertPOST200(
             url, data={**data, 'target_persons_organisation_create': True},
         )
+        form1 = response1.context['form']
         self.assertFormError(
-            response, 'form', 'target',
-            _('You are not allowed to create: %(model)s') % {'model': _('Organisation')},
+            form1,
+            field='target',
+            errors=_(
+                'You are not allowed to create: %(model)s'
+            ) % {'model': _('Organisation')},
         )
         self.assertFormError(
-            response, 'form', 'sales_phase', 'You can not create instances'
+            form1, field='sales_phase', errors='You can not create instances',
         )
 
+        # ---
         role.admin_4_apps = ['opportunities']
         role.save()
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
+        response2 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response2)
 
+        # ---
         role.creatable_ctypes.add(ContentType.objects.get_for_model(Organisation))
-        response = self.client.post(
-            url, follow=True,
-            data={**data, 'target_persons_organisation_create': True},
+        response3 = self.client.post(
+            url, follow=True, data={**data, 'target_persons_organisation_create': True},
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
     @skipIfCustomOrganisation
     def test_mass_import06(self):

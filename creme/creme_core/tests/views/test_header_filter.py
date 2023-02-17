@@ -244,10 +244,10 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
 
         response1 = post(self.other_user)
         msg = _('A private view of list must belong to you (or one of your teams).')
-        self.assertFormError(response1, 'form', 'user', msg)
+        self.assertFormError(response1.context['form'], field='user', errors=msg)
 
         response2 = post(a_team)
-        self.assertFormError(response2, 'form', 'user', msg)
+        self.assertFormError(response2.context['form'], field='user', errors=msg)
 
         response3 = post(my_team)
         self.assertNoFormError(response3)
@@ -308,8 +308,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             data={'cells': f'regular_field-{hidden_fname}'},
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': hidden_fname},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': hidden_fname},
         )
 
     def test_create_error03(self):
@@ -328,8 +329,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             data={'cells': f'relation-{disabled_rtype.id}'},
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This type of relationship is disabled.'),
+            response.context['form'],
+            field='cells',
+            errors=_('This type of relationship is disabled.'),
         )
 
     @override_settings(FILTERS_INITIAL_PRIVATE=True)
@@ -535,8 +537,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'user',
-            _('A private view of list must be assigned to a user/team.'),
+            response.context['form'],
+            field='user',
+            errors=_('A private view of list must be assigned to a user/team.'),
         )
 
     def test_edit09(self):
@@ -595,8 +598,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             data={'cells': f'regular_field-{hidden_fname2}'},
         )
         self.assertFormError(
-            response1, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': hidden_fname2},
+            response1.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': hidden_fname2},
         )
 
         # Was already in the HeaderFilter => still proposed
@@ -647,8 +651,9 @@ class HeaderFilterViewsTestCase(ViewsTestCase):
             data={'cells': f'relation-{disabled_rtype2.id}'},
         )
         self.assertFormError(
-            response1, 'form', 'cells',
-            _('This type of relationship is disabled.'),
+            response1.context['form'],
+            field='cells',
+            errors=_('This type of relationship is disabled.'),
         )
 
         # Was already in the HeaderFilter => still proposed

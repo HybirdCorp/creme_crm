@@ -451,7 +451,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
             # 'dyn_relations',
         }
         response2 = self.assertPOST200(url, data=data)
-        self.assertFormError(response2, 'form', 'source', _('Enter a valid value.'))
+        self.assertFormError(
+            response2.context['form'],
+            field='source', errors=_('Enter a valid value.'),
+        )
 
         response3 = self.assertPOST200(
             url,
@@ -467,7 +470,10 @@ class _BillingTestCase(_BillingTestCaseMixin,
                 'target_persons_contact_create':    True,
             },
         )
-        self.assertFormError(response3, 'form', 'source', _('This field is required.'))
+        self.assertFormError(
+            response3.context['form'],
+            field='source', errors=_('This field is required.'),
+        )
 
         response4 = self.client.post(
             url, follow=True,

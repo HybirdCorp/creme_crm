@@ -155,8 +155,9 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         response4 = post(mlist01, mlist03)
         self.assertEqual(200, response4.status_code)
         self.assertFormError(
-            response4, 'form', 'mailing_lists',
-            _('«%(entity)s» violates the constraints.') % {'entity': mlist01},
+            response4.context['form'],
+            field='mailing_lists',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': mlist01},
         )
 
     def test_ml_and_campaign02(self):
@@ -267,7 +268,10 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # --------------------
         # Invalid address
         response3 = self.assertPOST200(url, data={'recipients': 'faye.valentine#bebop.com'})
-        self.assertFormError(response3, 'form', 'recipients', _('Enter a valid email address.'))
+        self.assertFormError(
+            response3.context['form'],
+            field='recipients', errors=_('Enter a valid email address.'),
+        )
 
         # --------------------
         recipient = mlist.emailrecipient_set.all()[0]
@@ -640,14 +644,18 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         url = self._build_addorgafilter_url(mlist)
-        response = self.assertPOST200(url, data={'filters': priv_efilter.id})
+        response1 = self.assertPOST200(url, data={'filters': priv_efilter.id})
         self.assertFormError(
-            response, 'form', 'filters',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            response1.context['form'],
+            field='filters',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
-        response = self.client.post(url, data={'filters': efilter.id})
-        self.assertNoFormError(response)
+        # ---
+        response2 = self.client.post(url, data={'filters': efilter.id})
+        self.assertNoFormError(response2)
         self.assertEqual(expected_ids, {c.id for c in mlist.organisations.all()})
 
     @skipIfCustomOrganisation
@@ -738,20 +746,21 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         mlist02.children.add(mlist03)
 
         def post(parent, child):
-            return self.client.post(
+            response = self.client.post(
                 reverse('emails__add_child_mlists', args=(parent.id,)),
                 data={'child': child.id},
             )
+            return response.context['form']
 
         children_error = _('List already in the children')
-        self.assertFormError(post(mlist01, mlist02), 'form', 'child', children_error)
-        self.assertFormError(post(mlist01, mlist03), 'form', 'child', children_error)
+        self.assertFormError(post(mlist01, mlist02), field='child', errors=children_error)
+        self.assertFormError(post(mlist01, mlist03), field='child', errors=children_error)
 
         parents_error = _('List already in the parents')
-        self.assertFormError(post(mlist02, mlist01), 'form', 'child', parents_error)
-        self.assertFormError(post(mlist03, mlist01), 'form', 'child', parents_error)
+        self.assertFormError(post(mlist02, mlist01), field='child', errors=parents_error)
+        self.assertFormError(post(mlist03, mlist01), field='child', errors=parents_error)
         self.assertFormError(
-            post(mlist01, mlist01), 'form', 'child', _("A list can't be its own child")
+            post(mlist01, mlist01), field='child', errors=_("A list can't be its own child")
         )
 
     def test_ml_tree03(self):

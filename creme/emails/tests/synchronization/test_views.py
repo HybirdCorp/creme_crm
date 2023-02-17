@@ -529,8 +529,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             data={'person': self.formfield_value_generic_entity(contact)},
         )
         self.assertFormError(
-            response, 'form', 'person',
-            _('You are not allowed to link this entity: {}').format(contact),
+            response.context['form'],
+            field='person',
+            errors=_('You are not allowed to link this entity: {}').format(contact),
         )
 
     @skipIfCustomContact
@@ -559,8 +560,9 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         data = {'person': self.formfield_value_generic_entity(contact)}
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', 'person',
-            _(
+            response1.context['form'],
+            field='person',
+            errors=_(
                 'You are not allowed to edit «{}», so the email address cannot be updated'
             ).format(contact),
         )
@@ -917,7 +919,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             },
         )
         msg = _('This entity has no email address.')
-        self.assertFormError(response1, 'form', 'sender', msg)
+        self.assertFormError(response1.context['form'], field='sender', errors=msg)
 
         # ---
         response2 = self.assertPOST200(
@@ -928,7 +930,7 @@ class SynchronizationViewsTestCase(BrickTestCaseMixin, _EmailsTestCase):
                 'recipient': self.formfield_value_generic_entity(contact2),
             },
         )
-        self.assertFormError(response2, 'form', 'recipient', msg)
+        self.assertFormError(response2.context['form'], field='recipient', errors=msg)
 
     @skipIfCustomContact
     def test_accept_email_to_sync01(self):

@@ -384,9 +384,9 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
             args=('assistants', 'message_priority', priority.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_assistants__usermessage_priority',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_assistants__usermessage_priority',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_job(self):

@@ -347,10 +347,12 @@ class ContactMergeTestCase(_BaseTestCase):
 
         response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response2, 'form', f'billaddr_{r_field}',
-            _('The field «{}» has been configured as required.').format(_('City')),
+            response2.context['form'],
+            field=f'billaddr_{r_field}',
+            errors=_('The field «{}» has been configured as required.').format(_('City')),
         )
 
+        # ---
         city = 'Big blue'
         response3 = self.client.post(
             url,
@@ -399,9 +401,9 @@ class ContactMergeTestCase(_BaseTestCase):
         }
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            # response, 'form', None,
-            response, 'form', 'email',
-            _('This Contact is related to a user and must have an email address.'),
+            response.context['form'],
+            field='email',
+            errors=_('This Contact is related to a user and must have an email address.'),
         )
 
         response = self.client.post(
@@ -430,10 +432,10 @@ class ContactMergeTestCase(_BaseTestCase):
         contact02 = user.linked_contact
 
         url = self.build_merge_url(contact01, contact02)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            first_name_f = response.context['form'].fields['first_name']
+            first_name_f = response1.context['form'].fields['first_name']
 
         self.assertListEqual(
             [
@@ -445,6 +447,7 @@ class ContactMergeTestCase(_BaseTestCase):
             first_name_f.initial,
         )
 
+        # ---
         data = {
             'user_1':      user.id,
             'user_2':      user.id,
@@ -458,14 +461,15 @@ class ContactMergeTestCase(_BaseTestCase):
             'last_name_2':      contact01.last_name,
             'last_name_merged': contact01.last_name,
         }
-        response = self.assertPOST200(url, follow=True, data=data)
+        response2 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            # response, 'form', None,
-            response, 'form', 'email',
-            _('This Contact is related to a user and must have an email address.'),
+            response2.context['form'],
+            field='email',
+            errors=_('This Contact is related to a user and must have an email address.'),
         )
 
-        response = self.client.post(
+        # ---
+        response3 = self.client.post(
             url,
             follow=True,
             data={
@@ -475,7 +479,7 @@ class ContactMergeTestCase(_BaseTestCase):
                 'email_merged': contact02.email,
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         self.assertDoesNotExist(contact01)
 

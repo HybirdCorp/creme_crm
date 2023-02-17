@@ -57,11 +57,12 @@ class MessageTemplateTestCase(CremeTestCase):
             )
             if error:
                 self.assertFormError(
-                    response, 'form', None,
-                    error_msg % {
+                    response.context['form'],
+                    field=None,
+                    errors=error_msg % {
                         'length': len(subject) + len(body) + 3 + special_chars_count,
                         'max_length': 160,
-                    }
+                    },
                 )
             else:
                 self.assertNoFormError(response)

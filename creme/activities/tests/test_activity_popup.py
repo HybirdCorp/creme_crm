@@ -157,7 +157,7 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
                 }
             ),
         )
-        self.assertFormError(response, 'form', None, _('No participant'))
+        self.assertFormError(response.context['form'], field=None, errors=_('No participant'))
 
     def test_error_my_participation_no_calendar(self):
         "Selected myself as participant without calendar."
@@ -178,8 +178,9 @@ class ActivityCreatePopupTestCase(_ActivitiesTestCase):
             ),
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_MYPART_KEY,
-            _('Enter a value if you check the box.'),
+            response.context['form'],
+            field=self.EXTRA_MYPART_KEY,
+            errors=_('Enter a value if you check the box.'),
         )
 
     def test_my_participation(self):

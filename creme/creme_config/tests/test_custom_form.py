@@ -493,8 +493,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         excluded = 'description'  # see FAKEACTIVITY_CFORM
         response2 = post(*field_names, excluded)
         self.assertFormError(
-            response2, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': excluded},
+            response2.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': excluded},
         )
 
         response3 = post(*field_names)
@@ -807,8 +808,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
             self.assertFormError(
-                response, 'form', 'cells',
-                'The type of cell in invalid: {type_id}.'.format(
+                response.context['form'],
+                field='cells',
+                errors='The type of cell in invalid: {type_id}.'.format(
                     type_id=extra_cell.type_id,
                 ),
             )
@@ -838,8 +840,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': fname},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': fname},
         )
 
     def test_group_edition_customfield(self):
@@ -940,8 +943,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': cfields[0].id},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': cfields[0].id},
         )
 
     def test_group_edition_extrafield(self):
@@ -1021,8 +1025,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': 'fakeactivity_start'},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': 'fakeactivity_start'},
         )
 
     def test_group_edition_specialfield01(self):
@@ -1135,8 +1140,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': 'customfields'},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': 'customfields'},
         )
 
     def test_group_edition_extra_group(self):
@@ -1218,8 +1224,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
         excluded = 'description'  # see FAKEACTIVITY_CFORM
         response2 = post(*fields2, excluded)
         self.assertFormError(
-            response2, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': excluded},
+            response2.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': excluded},
         )
 
         response3 = post(*fields2)
@@ -1317,7 +1324,7 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             cfci.groups_as_dicts()[-1],
         )
 
-        # Cannot used same fields in another group ---
+        # Cannot use same fields in another group ---
         response = self.assertPOST200(
             url,
             data={
@@ -1329,8 +1336,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': cfields[1].id},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': cfields[1].id},
         )
 
     def test_group_creation_customfields_error(self):
@@ -1353,8 +1361,9 @@ class CustomFormTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': cfield.id},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': cfield.id},
         )
 
     def test_group_creation_properties(self):

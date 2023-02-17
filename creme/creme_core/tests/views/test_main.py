@@ -134,7 +134,9 @@ class MiscViewsTestCase(ViewsTestCase):
         self.login()
 
         self.assertIn('_auth_user_id', self.client.session)
-        response = self.assertGET200(reverse('creme_logout'), follow=True)
+        # response = self.assertGET200(reverse('creme_logout'), follow=True)
+        # TODO: with django5.0, test GET does not work
+        response = self.assertPOST200(reverse('creme_logout'), follow=True)
         self.assertNotIn('_auth_user_id', self.client.session)
 
         self.assertRedirects(response, reverse(settings.LOGIN_URL))

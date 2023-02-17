@@ -606,8 +606,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response1, 'form', 'fixed_relations',
-            Relation.error_messages['missing_subject_property'] % {
+            response1.context['form'],
+            field='fixed_relations',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': nerv,
                 'property': ptype,
                 'predicate': employs.predicate,
@@ -694,8 +695,9 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response1, 'form', 'fixed_relations',
-            Relation.error_messages['refused_subject_property'] % {
+            response1.context['form'],
+            field='fixed_relations',
+            errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': nerv,
                 'property': ptype,
                 'predicate': employs.predicate,
@@ -1392,14 +1394,16 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 },
             )
 
-        response = post()
+        response1 = post()
+        form1 = response1.context['form']
         self.assertFormError(
-            response, 'form', f'custom_field-{cf_enum.id}', 'You can not create choices',
+            form1, field=f'custom_field-{cf_enum.id}', errors='You can not create choices',
         )
         self.assertFormError(
-            response, 'form', f'custom_field-{cf_menum.id}', 'You can not create choices',
+            form1, field=f'custom_field-{cf_menum.id}', errors='You can not create choices',
         )
 
+        # ---
         role = self.role
         role.admin_4_apps = ['creme_config']
         role.save()
@@ -1460,7 +1464,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         response = post('notint')
         self.assertFormError(
-            response, 'form', f'custom_field-{cf_int.id}', _('Enter a whole number.')
+            response.context['form'],
+            field=f'custom_field-{cf_int.id}', errors=_('Enter a whole number.'),
         )
 
         response = post('180')
@@ -1489,10 +1494,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             self._build_import_url(FakeContact), data={'step': 0, 'document': doc.id},
         )
         self.assertFormError(
-            response, 'form', None,
-            _('Error reading document, unsupported file type: {file}.').format(
-                file=doc.filedata.name,
-            ),
+            response.context['form'],
+            field=None,
+            errors=_(
+                'Error reading document, unsupported file type: {file}.'
+            ).format(file=doc.filedata.name),
         )
 
     def test_import_error02(self):
@@ -1519,7 +1525,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'capital_defval': 'notint',
             },
         )
-        self.assertFormError(response, 'form', 'capital', _('Enter a whole number.'))
+        self.assertFormError(
+            response.context['form'],
+            field='capital', errors=_('Enter a whole number.'),
+        )
 
     def test_import_error03(self):
         "Required field without column or default value."
@@ -1528,9 +1537,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         lines = [('Capital',), ('1000',)]  # No 'Name'
 
         doc = self._build_csv_doc(lines, separator=';')
-        url = self._build_import_url(FakeOrganisation)
         response = self.assertPOST200(
-            url,
+            self._build_import_url(FakeOrganisation),
             data={
                 **self.lv_import_data,
                 'document': doc.id,
@@ -1540,7 +1548,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'capital_colselect': 1,
             },
         )
-        self.assertFormError(response, 'form', 'name', _('This field is required.'))
+        self.assertFormError(
+            response.context['form'],
+            field='name', errors=_('This field is required.'),
+        )
 
     def test_import_error04(self):
         "Required custom-field without column or default value."
@@ -1555,9 +1566,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
 
         lines = [('Ayanami', )]
         doc = self._build_csv_doc(lines, separator=';')
-        url = self._build_import_url(FakeContact)
         response = self.assertPOST200(
-            url,
+            self._build_import_url(FakeContact),
             data={
                 **self.lv_import_data,
                 'document': doc.id,
@@ -1569,11 +1579,13 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 # f'custom_field-{cf2.id}_defval': 1,
             },
         )
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', f'custom_field-{cf2.id}',
-            _('This field is required.')
+            form,
+            field=f'custom_field-{cf2.id}',
+            errors=_('This field is required.'),
         )
-        self.assertNotIn(f'custom_field-{cf1.id}', response.context['form'].errors)
+        self.assertNotIn(f'custom_field-{cf1.id}', form.errors)
 
     @override_settings(MAX_JOBS_PER_USER=1)
     def test_import_error05(self):
@@ -1621,7 +1633,10 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'position_create': True,
             },
         )
-        self.assertFormError(response, 'form', 'position', 'You can not create instances')
+        self.assertFormError(
+            response.context['form'],
+            field='position', errors='You can not create instances',
+        )
 
     def test_credentials03(self):
         "Creation credentials for related entities."
@@ -1650,8 +1665,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response, 'form', 'dyn_relations',
-            _('You are not allowed to create: %(model)s') % {'model': 'Test Organisation'}
+            response.context['form'],
+            field='dyn_relations',
+            errors=_(
+                'You are not allowed to create: %(model)s'
+            ) % {'model': 'Test Organisation'},
         )
 
     def test_import_with_update01(self):
@@ -1995,9 +2013,11 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             },
         )
         self.assertFormError(
-            response, 'form', 'position',
-            _('Select a valid choice. "{value}" is not one of the'
-              ' available sub-field.').format(value='invalid')
+            response.context['form'],
+            field='position',
+            errors=_(
+                'Select a valid choice. "{value}" is not one of the available sub-field.'
+            ).format(value='invalid'),
         )
 
     def test_fields_config_hidden(self):
@@ -2086,7 +2106,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         }
         response1 = self.client.post(url, follow=True, data=data)
         self.assertFormError(
-            response1, 'form', required_fname, _('This field is required.'),
+            response1.context['form'],
+            field=required_fname, errors=_('This field is required.'),
         )
 
         # ---

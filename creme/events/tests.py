@@ -168,8 +168,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'end_date',
-            _('The end date must be after the start date.'),
+            response.context['form'],
+            field='end_date',
+            errors=_('The end date must be after the start date.'),
         )
 
     def test_createview04(self):
@@ -760,8 +761,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'related_contacts',
-            _('Contact %(contact)s is present twice.') % {'contact': casca},
+            response.context['form'],
+            field='related_contacts',
+            errors=_('Contact %(contact)s is present twice.') % {'contact': casca},
         )
 
     @skipIfCustomContact
@@ -800,8 +802,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'related_contacts',
-            _('Some entities are not linkable: {}').format(casca),
+            response.context['form'],
+            field='related_contacts',
+            errors=_('Some entities are not linkable: {}').format(casca),
         )
 
     def test_delete_type(self):
@@ -922,8 +925,11 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response, 'form', 'cform_extra-opportunities_target',
-            _('Select a valid choice. That choice is not one of the available choices.'),
+            response.context['form'],
+            field='cform_extra-opportunities_target',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
         data['cform_extra-opportunities_target'] = hawks.id

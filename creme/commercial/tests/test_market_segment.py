@@ -53,8 +53,9 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         response = self.assertPOST200(url, data={'name': name})
         self.assertFormError(
-            response, 'form', 'name',
-            _('A segment with this name already exists'),
+            response.context['form'],
+            field='name',
+            errors=_('A segment with this name already exists'),
         )
 
     def test_create03(self):
@@ -69,8 +70,9 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         response = self.assertPOST200(self.ADD_SEGMENT_URL, data={'name': name})
         self.assertFormError(
-            response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname},
+            response.context['form'],
+            field='name',
+            errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_create04(self):
@@ -144,8 +146,9 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.get_edit_absolute_url(), data={'name': name},
         )
         self.assertFormError(
-            response, 'form', 'name',
-            _('A segment with this name already exists'),
+            response.context['form'],
+            field='name',
+            errors=_('A segment with this name already exists'),
         )
 
     def test_edit03(self):
@@ -164,12 +167,13 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             segment.get_edit_absolute_url(), data={'name': name},
         )
         self.assertFormError(
-            response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname},
+            response.context['form'],
+            field='name',
+            errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_edit04(self):
-        "No name change => no collision"
+        "No name change => no collision."
         self.login()
 
         name = 'Industry'
@@ -295,8 +299,11 @@ class MarketSegmentTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             self._build_delete_url(segment), data={'to_segment': segment.id},
         )
         self.assertFormError(
-            response, 'form', 'to_segment',
-            _('Select a valid choice. That choice is not one of the available choices.')
+            response.context['form'],
+            field='to_segment',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
     @skipIfCustomOrganisation

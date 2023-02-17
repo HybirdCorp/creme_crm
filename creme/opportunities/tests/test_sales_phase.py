@@ -107,12 +107,12 @@ class SalesPhaseTestCase(CremeTestCase):
         )
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
-            args=('opportunities', 'sales_phase', sp.id)
+            args=('opportunities', 'sales_phase', sp.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_opportunities__opportunity_sales_phase',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_opportunities__opportunity_sales_phase',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_full_clean(self):

@@ -443,9 +443,11 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = post(unlinkable_source, unlinkable_target)
         self.assertEqual(200, response.status_code)
+
+        form = response.context['form']
         msg_fmt = _('You are not allowed to link this entity: {}').format
-        self.assertFormError(response, 'form', self.SOURCE_KEY, msg_fmt(unlinkable_source))
-        self.assertFormError(response, 'form', self.TARGET_KEY, msg_fmt(unlinkable_target))
+        self.assertFormError(form, field=self.SOURCE_KEY, errors=msg_fmt(unlinkable_source))
+        self.assertFormError(form, field=self.TARGET_KEY, errors=msg_fmt(unlinkable_target))
 
         # ----
         source2, target2 = self.create_orgas(user=user)

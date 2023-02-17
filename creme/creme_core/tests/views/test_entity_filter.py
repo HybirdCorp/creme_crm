@@ -459,7 +459,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', field=None,
+            response.context['form'],
+            field=None,
             errors=_('The filter must have at least one condition.'),
         )
 
@@ -493,15 +494,15 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 },
             )
 
-        response = post(self.other_user)
+        response1 = post(self.other_user)
         msg = _('A private filter must belong to you (or one of your teams).')
-        self.assertFormError(response, 'form', 'user', msg)
+        self.assertFormError(response1.context['form'], field='user', errors=msg)
 
-        response = post(a_team)
-        self.assertFormError(response, 'form', 'user', msg)
+        response2 = post(a_team)
+        self.assertFormError(response2.context['form'], field='user', errors=msg)
 
-        response = post(my_team)
-        self.assertNoFormError(response)
+        response3 = post(my_team)
+        self.assertNoFormError(response3)
         self.get_object_or_fail(EntityFilter, name=name)
 
     def test_create07(self):
@@ -549,8 +550,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            ngettext(
+            response.context['form'],
+            field=None,
+            errors=ngettext(
                 'A private filter can only use public sub-filters, & '
                 'private sub-filters which belong to the same user and his teams.'
                 ' So this private sub-filter cannot be chosen: {}',
@@ -724,24 +726,28 @@ class EntityFilterViewsTestCase(ViewsTestCase):
         }
 
         def post(post_data):
-            return self.assertPOST200(
+            response = self.assertPOST200(
                 self._build_add_url(ct=self.ct_contact),
                 follow=True, data=post_data,
             )
 
-        response = post({**data, 'subfiltercondition': [subfilter.id]})
+            return response.context['form']
+
+        form1 = post({**data, 'subfiltercondition': [subfilter.id]})
         self.assertFormError(
-            response, 'form', 'subfiltercondition',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': subfilter.id,
-            },
+            form1,
+            field='subfiltercondition',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': subfilter.id},
         )
 
+        # ---
         rtype = RelationType.objects.smart_update_or_create(
             ('test-subject_love', 'Is loving'),
-            ('test-object_love',  'Is loved by')
+            ('test-object_love',  'Is loved by'),
         )[0]
-        response = post({
+        form2 = post({
             **data,
             'relationsubfiltercondition': self._build_subfilters_data(
                 rtype_id=rtype.id,
@@ -750,7 +756,7 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ),
         })
         self.assertFormError(
-            response, 'form', 'relationsubfiltercondition', _('This filter is invalid.')
+            form2, field='relationsubfiltercondition', errors=_('This filter is invalid.'),
         )
 
     def test_create_subfilters_n_private02(self):
@@ -806,19 +812,21 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 },
             )
 
-        response = post('')
-        self.assertEqual(200, response.status_code)
+        response1 = post('')
+        self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response, 'form', None,
-            ngettext(
+            response1.context['form'],
+            field=None,
+            errors=ngettext(
                 'Your filter must be private in order to use this private sub-filter: {}',
                 'Your filter must be private in order to use these private sub-filters: {}',
                 2
             ).format(f'{subfilter2.name}, {subfilter1.name}'),
         )
 
-        response = post('on')
-        self.assertNoFormError(response)
+        # ---
+        response2 = post('on')
+        self.assertNoFormError(response2)
         self.get_object_or_fail(EntityFilter, name=name)
 
     def test_create_subfilters_n_private03(self):
@@ -879,11 +887,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 },
             )
 
-        response = post(subfilter3)
-        self.assertEqual(200, response.status_code)
+        response1 = post(subfilter3)
+        self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response, 'form', None,
-            ngettext(
+            response1.context['form'],
+            field=None,
+            errors=ngettext(
                 'A private filter which belongs to a team can only use public sub-filters & '
                 'private sub-filters which belong to this team.'
                 ' So this private sub-filter cannot be chosen: {}',
@@ -894,8 +903,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             ).format(subfilter3.name),
         )
 
-        response = post(subfilter1, subfilter2)
-        self.assertNoFormError(response)
+        # ---
+        response2 = post(subfilter1, subfilter2)
+        self.assertNoFormError(response2)
         self.get_object_or_fail(EntityFilter, name=name)
 
     def test_non_filterable_fields01(self):
@@ -920,8 +930,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'regularfieldcondition',
-            _('This field is invalid with this model.')
+            response.context['form'],
+            field='regularfieldcondition',
+            errors=_('This field is invalid with this model.'),
         )
 
     def test_non_filterable_fields02(self):
@@ -945,8 +956,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'regularfieldcondition',
-            _('This field is invalid with this model.'),
+            response.context['form'],
+            field='regularfieldcondition',
+            errors=_('This field is invalid with this model.'),
         )
 
     def test_edit01(self):
@@ -1280,7 +1292,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', field=None,
+            response.context['form'],
+            field=None,
             errors=_('There is a cycle with a sub-filter.'),
         )
 
@@ -1323,8 +1336,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('A private filter must be assigned to a user/team.'),
+            response.context['form'],
+            field=None,
+            errors=_('A private filter must be assigned to a user/team.'),
         )
 
     def test_edit08(self):
@@ -1447,12 +1461,12 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             conditions=[SubFilterConditionHandler.build_condition(efilter1)],
         )
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on')
+        response1 = self._aux_edit_subfilter(efilter1, is_private='on')
         msg = _(
             'This filter cannot be private because it is a sub-filter for '
             'the public filter "{}"'
         ).format(efilter2.name)
-        self.assertFormError(response, 'form', None, msg)
+        self.assertFormError(response1.context['form'], field=None, errors=msg)
 
         # ----
         rtype = RelationType.objects.smart_update_or_create(
@@ -1465,8 +1479,8 @@ class EntityFilterViewsTestCase(ViewsTestCase):
                 model=FakeContact, rtype=rtype, has=True, subfilter=efilter1,
             ),
         ])
-        response = self._aux_edit_subfilter(efilter1, is_private='on')
-        self.assertFormError(response, 'form', None, msg)
+        response2 = self._aux_edit_subfilter(efilter1, is_private='on')
+        self.assertFormError(response2.context['form'], field=None, errors=msg)
 
     def test_edit_subfilter04(self):
         """The sub-filter becomes private:
@@ -1486,8 +1500,9 @@ class EntityFilterViewsTestCase(ViewsTestCase):
 
         response = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 'This filter cannot be private because it is a sub-filter '
                 'for a private filter of another user.'
             ),
@@ -1520,30 +1535,34 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             conditions=[SubFilterConditionHandler.build_condition(efilter1)],
         )
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on')
+        response1 = self._aux_edit_subfilter(efilter1, is_private='on')
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response1.context['form'],
+            field=None,
+            errors=_(
                 'This filter cannot be private and belong to a user because it '
                 'is a sub-filter for the filter "{}" which belongs to a team.'
             ).format(efilter2.name),
         )
 
+        # ---
         other_team = User.objects.create(username='TeamTitan', is_team=True)
         other_team.teammates = [user, self.other_user]
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on', user=other_team)
+        response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=other_team)
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response2.context['form'],
+            field=None,
+            errors=_(
                 'This filter cannot be private and belong to this team '
                 'because it is a sub-filter for the filter "{filter}" '
                 'which belongs to the team "{team}".'
             ).format(filter=efilter2.name, team=team),
         )
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
-        self.assertNoFormError(response)
+        # ---
+        response3 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
+        self.assertNoFormError(response3)
 
     def test_edit_subfilter06(self):
         """The sub-filter becomes private to a team + private parent belonging to a user:
@@ -1564,20 +1583,22 @@ class EntityFilterViewsTestCase(ViewsTestCase):
             conditions=[SubFilterConditionHandler.build_condition(efilter1)],
         )
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
+        response1 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response1.context['form'],
+            field=None,
+            errors=_(
                 'This filter cannot be private and belong to this team '
                 'because it is a sub-filter for the filter "{filter}" '
                 'which belongs to the user "{user}" (who is not a member of this team).'
-            ).format(filter=efilter2.name, user=self.other_user)
+            ).format(filter=efilter2.name, user=self.other_user),
         )
 
+        # ---
         team.teammates = [user, self.other_user]
 
-        response = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
-        self.assertNoFormError(response)
+        response2 = self._aux_edit_subfilter(efilter1, is_private='on', user=team)
+        self.assertNoFormError(response2)
 
     def _delete(self, efilter, **kwargs):
         return self.client.post(

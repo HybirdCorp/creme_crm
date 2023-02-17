@@ -314,9 +314,10 @@ class ContactTestCase(_BaseTestCase):
                 'last_name': contact.last_name,
             },
         )
+        form = response.context['form']
         msg = _('This field is required.')
-        self.assertFormError(response, 'form', 'first_name', msg)
-        self.assertFormError(response, 'form', 'email',      msg)
+        self.assertFormError(form, field='first_name', errors=msg)
+        self.assertFormError(form, field='email',      errors=msg)
 
         first_name = contact.first_name.lower()
         self.assertNotEqual(first_name, user.first_name)
@@ -725,8 +726,9 @@ class ContactTestCase(_BaseTestCase):
         msg = _(
             'You are not allowed to link with the «{models}» of this user.'
         ).format(models=_('Contacts'))
-        self.assertFormError(response1, 'form', 'user', msg)
+        self.assertFormError(response1.context['form'], field='user', errors=msg)
 
+        # ---
         response2 = self.assertPOST200(
             url2,
             follow=True,
@@ -735,7 +737,7 @@ class ContactTestCase(_BaseTestCase):
                 'rtype_for_organisation': REL_SUB_EMPLOYED_BY,
             },
         )
-        self.assertFormError(response2, 'form', 'user', msg)
+        self.assertFormError(response2.context['form'], field='user', errors=msg)
 
     @skipIfCustomOrganisation
     def test_create_linked_contact_error02(self):
@@ -889,8 +891,9 @@ class ContactTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', 'rtype_for_organisation',
-            Relation.error_messages['missing_subject_property'] % {
+            response1.context['form'],
+            field='rtype_for_organisation',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': orga,
                 'property': ptype1,
                 'predicate': rtype1.predicate,
@@ -912,8 +915,9 @@ class ContactTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', 'rtype_for_organisation',
-            Relation.error_messages['missing_subject_property'] % {
+            response2.context['form'],
+            field='rtype_for_organisation',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': Contact(last_name=last_name, first_name=first_name),
                 'property': ptype1,
                 'predicate': rtype2.predicate,
@@ -948,8 +952,9 @@ class ContactTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', 'rtype_for_organisation',
-            _(
+            response1.context['form'],
+            field='rtype_for_organisation',
+            errors=_(
                 'The entity «%(entity)s» has the property «%(property)s» which is '
                 'forbidden by the relationship «%(predicate)s».'
             ) % {

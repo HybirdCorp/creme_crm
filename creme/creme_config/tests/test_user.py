@@ -443,12 +443,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
 
+        form = response.context['form']
         msg = _('This field is required.')
-        self.assertFormError(response, 'form', 'first_name',   msg)
-        self.assertFormError(response, 'form', 'last_name',    msg)
-        self.assertFormError(response, 'form', 'email',        msg)
-        self.assertFormError(response, 'form', 'organisation', msg)
-        self.assertFormError(response, 'form', 'relation',     msg)
+        self.assertFormError(form, field='first_name',   errors=msg)
+        self.assertFormError(form, field='last_name',    errors=msg)
+        self.assertFormError(form, field='email',        errors=msg)
+        self.assertFormError(form, field='organisation', errors=msg)
+        self.assertFormError(form, field='relation',     errors=msg)
 
     @skipIfNotCremeUser
     def test_create_user_credentials(self):
@@ -495,11 +496,12 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'username',
-            _(
+            response.context['form'],
+            field='username',
+            errors=_(
                 'Enter a valid username. This value may contain only letters, numbers, '
                 'and @/./+/-/_ characters.'
-            )
+            ),
         )
 
     @skipIfNotCremeUser
@@ -521,22 +523,32 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             'organisation': orga.id,
             'relation':     REL_SUB_EMPLOYED_BY,
         }
-        response = self.assertPOST200(url, follow=True, data=data)
+        response1 = self.assertPOST200(url, follow=True, data=data)
+        form1 = response1.context['form']
         msg = _('This field is required.')
-        self.assertFormError(response, 'form', 'password_1', msg)
-        self.assertFormError(response, 'form', 'password_2', msg)
+        self.assertFormError(form1, field='password_1', errors=msg)
+        self.assertFormError(form1, field='password_2', errors=msg)
 
-        response = self.assertPOST200(
+        # ---
+        response2 = self.assertPOST200(
             url, follow=True, data={**data, 'password_1': 'passwd'},
         )
-        self.assertFormError(response, 'form', 'password_2', msg)
+        self.assertFormError(
+            response2.context['form'],
+            field='password_2', errors=msg,
+        )
 
-        response = self.assertPOST200(
+        # ---
+        response3 = self.assertPOST200(
             url, follow=True, data={**data, 'password_2': 'passwd'},
         )
-        self.assertFormError(response, 'form', 'password_1', msg)
+        self.assertFormError(
+            response3.context['form'],
+            field='password_1', errors=msg,
+        )
 
-        response = self.assertPOST200(
+        # ---
+        response4 = self.assertPOST200(
             url,
             follow=True,
             data={
@@ -546,12 +558,13 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'password_2',
-            # _("The two password fields didn't match."),
-            _("The two password fields didn’t match."),
+            response4.context['form'],
+            field='password_2',
+            errors=_("The two password fields didn’t match."),
         )
 
-        response = self.assertPOST200(
+        # ---
+        response5 = self.assertPOST200(
             url,
             follow=True,
             data={
@@ -561,7 +574,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'password_2', _('This password is entirely numeric.'),
+            response5.context['form'],
+            field='password_2',
+            errors=_('This password is entirely numeric.'),
         )
 
     @skipIfNotCremeUser
@@ -585,7 +600,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'username', _('A user with that username already exists.'),
+            response.context['form'],
+            field='username',
+            errors=_('A user with that username already exists.'),
         )
 
     @skipIfNotCremeUser
@@ -609,8 +626,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
 
         response1 = self.assertPOST200(self.ADD_URL, data)
         self.assertFormError(
-            response1, 'form', 'email',
-            _('An active user with the same email address already exists.'),
+            response1.context['form'],
+            field='email',
+            errors=_('An active user with the same email address already exists.'),
         )
 
         # ---
@@ -646,8 +664,11 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'relation',
-            _('Select a valid choice. That choice is not one of the available choices.'),
+            response.context['form'],
+            field='relation',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
     @skipIfNotCremeUser
@@ -683,8 +704,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
                 },
             )
             self.assertFormError(
-                response, 'form', 'password_2',
-                _("The password is too similar to the %(verbose_name)s.") % {
+                response.context['form'],
+                field='password_2',
+                errors=_('The password is too similar to the %(verbose_name)s.') % {
                     'verbose_name': field_verbose_name,
                 },
             )
@@ -866,8 +888,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_edit_url(user.id)
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', 'email',
-            _('An active user with the same email address already exists.'),
+            response1.context['form'],
+            field='email',
+            errors=_('An active user with the same email address already exists.'),
         )
 
         # ---
@@ -918,8 +941,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response2, 'form', 'old_password',
-            _('Your old password was entered incorrectly. Please enter it again.'),
+            response2.context['form'],
+            field='old_password',
+            errors=_('Your old password was entered incorrectly. Please enter it again.'),
         )
 
         # POST ---
@@ -963,7 +987,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             data={'password_1': password, 'password_2': password + '42'},
         )
         self.assertFormError(
-            response, 'form', 'password_2', _("The two password fields didn’t match."),
+            response.context['form'],
+            field='password_2',
+            errors=_("The two password fields didn’t match."),
         )
 
     @skipIfNotCremeUser
@@ -982,8 +1008,9 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
             url, data={'password_1': password, 'password_2': password}
         )
         self.assertFormError(
-            response, 'form', 'password_2',
-            ngettext(
+            response.context['form'],
+            field='password_2',
+            errors=ngettext(
                 'This password is too short. It must contain at least %(min_length)d character.',
                 'This password is too short. It must contain at least %(min_length)d characters.',
                 8
@@ -1369,15 +1396,21 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         url = self._build_delete_url(root)
         self.assertGET200(url)
 
-        response = self.assertPOST200(url)  # No data
-        self.assertFormError(response, 'form', 'to_user', _('This field is required.'))
+        response2 = self.assertPOST200(url)  # No data
+        self.assertFormError(
+            response2.context['form'],
+            field='to_user', errors=_('This field is required.'),
+        )
         self.assertEqual(count, User.objects.count())
 
         # Cannot move entities to deleted user
-        response = self.assertPOST200(url, {'to_user': root.id})
+        response3 = self.assertPOST200(url, {'to_user': root.id})
         self.assertFormError(
-            response, 'form', 'to_user',
-            _('Select a valid choice. That choice is not one of the available choices.'),
+            response3.context['form'],
+            field='to_user',
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
         self.assertStillExists(user)
 
@@ -1627,7 +1660,10 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
         self._register_key(sk)
 
         response = self.client.post(self._build_edit_user_svalue_url(sk), data={'value': ''})
-        self.assertFormError(response, 'form', 'value', _('This field is required.'))
+        self.assertFormError(
+            response.context['form'],
+            field='value', errors=_('This field is required.'),
+        )
 
     def test_edit_user_setting_value04(self):
         "Blank + STRING."

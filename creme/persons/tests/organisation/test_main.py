@@ -702,14 +702,15 @@ class OrganisationTestCase(_BaseTestCase):
             'customers_managed_orga': managed1.id,
             'customers_rtypes': [constants.REL_SUB_SUSPECT],
         }
-        response = self.assertPOST200(url, follow=True, data=data)
+        response1 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response, 'form', 'customers_managed_orga',
-            _('You are not allowed to link this entity: {}').format(managed1),
+            response1.context['form'],
+            field='customers_managed_orga',
+            errors=_('You are not allowed to link this entity: {}').format(managed1),
         )
 
         # ---
-        response = self.assertPOST200(
+        response2 = self.assertPOST200(
             url,
             follow=True,
             data={
@@ -719,18 +720,19 @@ class OrganisationTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'user',
-            _('You are not allowed to link with the «{models}» of this user.').format(
-                models=_('Organisations'),
-            ),
+            response2.context['form'],
+            field='user',
+            errors=_(
+                'You are not allowed to link with the «{models}» of this user.'
+            ).format(models=_('Organisations')),
         )
 
         # ---
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             url, follow=True,
             data={**data, 'customers_managed_orga': managed2.id},
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         orga = self.get_object_or_fail(Organisation, name=name)
         self.assertRelationCount(1, orga, constants.REL_SUB_SUSPECT, managed2)
@@ -989,32 +991,33 @@ class OrganisationTestCase(_BaseTestCase):
         orga3 = create_orga(name='RedTail')
 
         url = reverse('persons__orga_set_managed')
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
-        self.assertEqual(_('Add some managed organisations'), context.get('title'))
-        self.assertEqual(_('Save the modifications'),         context.get('submit_label'))
+        get_ctxt = response1.context.get
+        self.assertEqual(_('Add some managed organisations'), get_ctxt('title'))
+        self.assertEqual(_('Save the modifications'),         get_ctxt('submit_label'))
 
         # ---
-        response = self.client.post(
+        response2 = self.client.post(
             url,
             data={'organisations': self.formfield_value_multi_creator_entity(orga1, orga2)},
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response2)
 
         self.assertTrue(self.refresh(orga1).is_managed)
         self.assertTrue(self.refresh(orga2).is_managed)
         self.assertFalse(self.refresh(orga3).is_managed)
 
         # Managed Organisations are excluded
-        response = self.assertPOST200(
+        response3 = self.assertPOST200(
             url,
             data={'organisations': self.formfield_value_multi_creator_entity(orga1)},
         )
         self.assertFormError(
-            response, 'form', 'organisations',
-            _('«%(entity)s» violates the constraints.') % {'entity': orga1},
+            response3.context['form'],
+            field='organisations',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': orga1},
         )
 
     def test_set_orga_as_managed02(self):

@@ -337,8 +337,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_LEADERS_KEY,
-            _('Some entities are not linkable: {}').format(
+            response.context['form'],
+            field=self.EXTRA_LEADERS_KEY,
+            errors=_('Some entities are not linkable: {}').format(
                 _('Entity #{id} (not viewable)').format(id=manager.id),
             ),
         )
@@ -363,8 +364,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(
-            response, 'form', None,
-            _('Start ({start}) must be before end ({end}).').format(
+            response.context['form'],
+            field=None,
+            errors=_('Start ({start}) must be before end ({end}).').format(
                 start=date_format(create_dt(2012, 2, 16), 'DATE_FORMAT'),
                 end=date_format(create_dt(2012, 2, 15), 'DATE_FORMAT'),
             ),
@@ -458,8 +460,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         create_dt = self.create_datetime
         self.assertFormError(
-            response, 'form', None,
-            _('Start ({start}) must be before end ({end}).').format(
+            response.context['form'],
+            field=None,
+            errors=_('Start ({start}) must be before end ({end}).').format(
                 start=date_format(create_dt(2012, 3, 27), 'DATE_FORMAT'),
                 end=date_format(create_dt(2012, 3, 25), 'DATE_FORMAT'),
             ),
@@ -505,8 +508,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
 
         response1 = post('')
         self.assertEqual(200, response1.status_code)
-        self.assertFormError(response1, 'form', 'duration', _('This field is required.'))
+        self.assertFormError(
+            response1.context['form'],
+            field='duration', errors=_('This field is required.'),
+        )
 
+        # ---
         duration_1 = 50
         response2 = post(duration_1)
         self.assertNoFormError(response2)
@@ -519,6 +526,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertEqual(1,       task1.order)
         self.assertEqual(tstatus, task1.tstatus)
 
+        # ---
         duration_2 = 180
         dt_value = self.formfield_value_datetime
         response3 = self.client.post(
@@ -581,8 +589,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_PARENTTASKS_KEY,
-            _('«%(entity)s» violates the constraints.') % {'entity': task01},
+            response.context['form'],
+            field=self.EXTRA_PARENTTASKS_KEY,
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
 
     def test_task_createview03(self):
@@ -690,11 +699,11 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         task03 = self.create_task(project, 'Task')
 
         url = self._build_add_parent_task_url(task03)
-        response = self.assertGET200(url)
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/edit-popup.html')
+        response1 = self.assertGET200(url)
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/edit-popup.html')
         self.assertEqual(
             _('Adding parents to «{object}»').format(object=task03),
-            response.context.get('title'),
+            response1.context.get('title'),
         )
 
         # ---
@@ -704,6 +713,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         ))
         self.assertSetEqual({task01, task02}, {*task03.parent_tasks.all()})
 
+        # ---
         self.assertPOST200(
             reverse('projects__remove_parent_task'),
             data={'id': task03.id, 'parent_id': task01.id},
@@ -712,12 +722,14 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertListEqual([task02], [*task03.parent_tasks.all()])
 
         # Error: already parent
+        response4 = self.client.post(
+            url,
+            data={'parents': self.formfield_value_multi_creator_entity(task02)},
+        )
         self.assertFormError(
-            self.client.post(
-                url,
-                data={'parents': self.formfield_value_multi_creator_entity(task02)},
-            ),
-            'form', 'parents', _('«%(entity)s» violates the constraints.') % {'entity': task02},
+            response4.context['form'],
+            field='parents',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': task02},
         )
 
     @skipIfCustomTask
@@ -736,8 +748,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'parents': self.formfield_value_multi_creator_entity(task01)},
         )
         self.assertFormError(
-            response, 'form', 'parents',
-            _('«%(entity)s» violates the constraints.') % {'entity': task01},
+            response.context['form'],
+            field='parents',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': task01},
         )
 
     @skipIfCustomTask
@@ -750,7 +763,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         task02 = self.create_task(project, 'Task02')
         task03 = self.create_task(project, 'Task03')
 
-        self.assertEqual([task01], [*task01.get_subtasks()])
+        self.assertListEqual([task01], [*task01.get_subtasks()])
 
         build_url = self._build_add_parent_task_url
         field_value = self.formfield_value_multi_creator_entity
@@ -768,8 +781,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             build_url(task01), data={'parents': field_value(task03)},
         )
         self.assertFormError(
-            response, 'form', 'parents',
-            _('«%(entity)s» violates the constraints.') % {'entity': task03},
+            response.context['form'],
+            field='parents',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': task03},
         )
 
     @skipIfCustomTask
@@ -992,8 +1006,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         )
         self.assertEqual(1, len(self.refresh(task).related_activities))
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 '{participant} already participates to the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(
@@ -1130,8 +1145,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'resource',
-            _('«%(entity)s» violates the constraints.') % {'entity': worker},
+            response.context['form'],
+            field='resource',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': worker},
         )
 
     @skipIfCustomActivity
@@ -1180,8 +1196,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'resource',
-            _('«%(entity)s» violates the constraints.') % {'entity': contact},
+            response.context['form'],
+            field='resource',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': contact},
         )
 
     @skipIfCustomTask

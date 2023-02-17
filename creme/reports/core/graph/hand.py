@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2013-2022  Hybird
+#    Copyright (C) 2013-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -258,7 +258,12 @@ class _RGHRegularField(ReportGraphHand):
         build_url = self._listview_url_builder(extra_q=extra_q)
 
         field_name = _physical_field_name(self._field.model._meta.db_table, abscissa)
-        x_value_key = connection.ops.date_trunc_sql(kind, field_name)
+        # x_value_key = connection.ops.date_trunc_sql(kind, field_name)
+        x_sql, x_params = connection.ops.date_trunc_sql(
+            lookup_type=kind, sql=field_name, params=(),
+        )
+        schema_editor = connection.schema_editor()
+        x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
 
         for key, value in self._aggregate_dates_by_key(entities, abscissa, x_value_key, order):
             date = key
@@ -651,7 +656,13 @@ class _RGHCustomField(ReportGraphHand):
         entities = entities.filter(**{cfield_q_key: cfield})
 
         field_name = _physical_field_name(value_meta.db_table, 'value')
-        x_value_key = connection.ops.date_trunc_sql(kind, field_name)
+        # x_value_key = connection.ops.date_trunc_sql(kind, field_name)
+        # TODO: factorise
+        x_sql, x_params = connection.ops.date_trunc_sql(
+            lookup_type=kind, sql=field_name, params=(),
+        )
+        schema_editor = connection.schema_editor()
+        x_value_key = x_sql % tuple(schema_editor.quote_value(p) for p in x_params)
 
         for key, value in self._aggregate_by_key(entities, x_value_key, order):
             date = key

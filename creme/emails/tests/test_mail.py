@@ -430,8 +430,9 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('Both bodies cannot be empty at the same time.'),
+            response.context['form'],
+            field=None,
+            errors=_('Both bodies cannot be empty at the same time.'),
         )
 
     @skipIfCustomContact
@@ -466,13 +467,16 @@ better &amp; lighter than the previous one.
                 'body_html':    '<p>Freeze !</p>',
             },
         )
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', 'c_recipients',
-            _('The email address for {} is invalid').format(contact01),
+            form,
+            field='c_recipients',
+            errors=_('The email address for {} is invalid').format(contact01),
         )
         self.assertFormError(
-            response, 'form', 'o_recipients',
-            _('The email address for {} is invalid').format(orga01),
+            form,
+            field='o_recipients',
+            errors=_('The email address for {} is invalid').format(orga01),
         )
 
     @skipIfCustomContact
@@ -582,16 +586,19 @@ better &amp; lighter than the previous one.
 
         self.assertEqual(403, post(contact01).status_code)
 
-        response = post(contact02)
-        self.assertEqual(200, response.status_code)
+        response2 = post(contact02)
+        self.assertEqual(200, response2.status_code)
 
+        form2 = response2.context['form']
         self.assertFormError(
-            response, 'form', 'c_recipients',
-            _('Some entities are not linkable: {}').format(contact01),
+            form2,
+            field='c_recipients',
+            errors=_('Some entities are not linkable: {}').format(contact01),
         )
         self.assertFormError(
-            response, 'form', 'o_recipients',
-            _('Some entities are not linkable: {}').format(orga01),
+            form2,
+            field='o_recipients',
+            errors=_('Some entities are not linkable: {}').format(orga01),
         )
 
     def test_createview_no_recipient(self):
@@ -610,8 +617,9 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('Select at least a Contact or an Organisation'),
+            response.context['form'],
+            field=None,
+            errors=_('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomContact
@@ -653,8 +661,9 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('Select at least a Contact or an Organisation'),
+            response.context['form'],
+            field=None,
+            errors=_('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomOrganisation
@@ -696,8 +705,9 @@ better &amp; lighter than the previous one.
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('Select at least a Contact or an Organisation'),
+            response.context['form'],
+            field=None,
+            errors=_('Select at least a Contact or an Organisation'),
         )
 
     @skipIfCustomContact
@@ -791,12 +801,13 @@ better &amp; lighter than the previous one.
                 'body_html':    '<p>Freeze !</p>',
             },
         )
+        form = response.context['form']
         msg = _('«%(entity)s» violates the constraints.')
         self.assertFormError(
-            response, 'form', 'c_recipients', msg % {'entity': contact01},
+            form, field='c_recipients', errors=msg % {'entity': contact01},
         )
         self.assertFormError(
-            response, 'form', 'o_recipients', msg % {'entity': orga01},
+            form, field='o_recipients', errors=msg % {'entity': orga01},
         )
 
     @parameterized.expand([

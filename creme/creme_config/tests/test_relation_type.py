@@ -115,17 +115,20 @@ class RelationTypeTestCase(CremeTestCase):
                 'object_forbidden_properties':  [forbidden_pt_obj.id, pt_obj.id],
             },
         )
+        form = response1.context['form']
         msg = _(
             'These property types cannot be mandatory and forbidden at the '
             'same time: %(properties)s'
         )
         self.assertFormError(
-            response1, 'form', 'subject_forbidden_properties',
-            msg % {'properties': pt_sub.text},
+            form,
+            field='subject_forbidden_properties',
+            errors=msg % {'properties': pt_sub.text},
         )
         self.assertFormError(
-            response1, 'form', 'object_forbidden_properties',
-            msg % {'properties': pt_obj.text},
+            form,
+            field='object_forbidden_properties',
+            errors=msg % {'properties': pt_obj.text},
         )
 
         # OK ---
@@ -383,8 +386,9 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'predicate',
-            _('%(model_name)s with this %(field_label)s already exists.') % {
+            response.context['form'],
+            field='predicate',
+            errors=_('%(model_name)s with this %(field_label)s already exists.') % {
                 'model_name': _('Semi-fixed type of relationship'),
                 'field_label': _('Predicate'),
             },
@@ -401,10 +405,15 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
 
         url = self.ADD_URL
         predicate += ' (other)'
-        response = self.assertPOST200(url, data={'predicate': predicate})
-        self.assertFormError(response, 'form', 'semi_relation', _('This field is required.'))
+        response1 = self.assertPOST200(url, data={'predicate': predicate})
+        self.assertFormError(
+            response1.context['form'],
+            field='semi_relation',
+            errors=_('This field is required.'),
+        )
 
-        response = self.assertPOST200(
+        # ---
+        response2 = self.assertPOST200(
             url,
             data={
                 'predicate':     predicate,
@@ -412,8 +421,11 @@ class SemiFixedRelationTypeTestCase(CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('A semi-fixed type of relationship with this type and this object already exists.'),
+            response2.context['form'],
+            field=None,
+            errors=_(
+                'A semi-fixed type of relationship with this type and this object already exists.'
+            ),
         )
 
     def test_edit01(self):

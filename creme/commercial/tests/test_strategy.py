@@ -172,7 +172,8 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'name', _('A segment with this name already exists'),
+            response.context['form'],
+            field='name', errors=_('A segment with this name already exists'),
         )
 
     def test_segment_create02(self):
@@ -190,8 +191,9 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             self._build_add_segmentdesc_url(strategy), data={'name': name},
         )
         self.assertFormError(
-            response, 'form', 'name',
-            _('A property with the name «%(name)s» already exists') % {'name': pname},
+            response.context['form'],
+            field='name',
+            errors=_('A property with the name «%(name)s» already exists') % {'name': pname},
         )
 
     def test_segment_link(self):
