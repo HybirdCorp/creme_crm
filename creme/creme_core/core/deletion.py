@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2019-2022 Hybird
+#    Copyright (C) 2019-2023 Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import logging
+from typing import Iterable
 
 from django.contrib.contenttypes.models import ContentType
 from django.utils.translation import gettext as _
@@ -67,7 +68,7 @@ class ReplacersRegistry:
     # def __getitem__(self, type_id):
     #     return self._replacer_classes[type_id]
 
-    def serialize(self, replacers):
+    def serialize(self, replacers: Iterable[Replacer]) -> list:
         return [
             [r.type_id, r.as_dict()] for r in replacers
         ]

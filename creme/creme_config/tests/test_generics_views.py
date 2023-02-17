@@ -699,7 +699,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         response = self.assertPOST200(url)
-        self.assertFormError(response, 'form', fname, _('Deletion is not possible.'))
+        self.assertFormError(
+            response.context['form'],
+            field=fname, errors=_('Deletion is not possible.'),
+        )
 
     def test_delete08(self):
         "SET_DEFAULT."
@@ -1260,10 +1263,10 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         FakeActivity.objects.create(user=self.user, title='Comiket', type=atype2del)
 
         # GET ---
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            replace_field = response.context['form'].fields[fname]
+            replace_field = response1.context['form'].fields[fname]
 
         self.assertEqual(
             ngettext(
@@ -1281,8 +1284,11 @@ class GenericModelConfigTestCase(CremeTestCase, BrickTestCaseMixin):
         )
 
         # POST ---
-        response = self.assertPOST200(url)
-        self.assertFormError(response, 'form', fname, _('Deletion is not possible.'))
+        response2 = self.assertPOST200(url)
+        self.assertFormError(
+            response2.context['form'],
+            field=fname, errors=_('Deletion is not possible.'),
+        )
 
     def test_delete_hiddenfields07(self):
         "CREME_REPLACE_NULL."

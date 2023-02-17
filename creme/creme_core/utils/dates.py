@@ -24,18 +24,13 @@
 from __future__ import annotations
 
 import warnings
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from time import strptime as time_strptime
 
 from django.utils import formats
 from django.utils.dateparse import parse_datetime
-from django.utils.timezone import (
-    is_aware,
-    is_naive,
-    make_aware,
-    make_naive,
-    utc,
-)
+# from django.utils.timezone import utc
+from django.utils.timezone import is_aware, is_naive, make_aware, make_naive
 
 DATE_ISO8601_FMT     = '%Y-%m-%d'
 DATETIME_ISO8601_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
@@ -53,7 +48,8 @@ def dt_from_ISO8601(dt_str: str) -> datetime:
     @return A datetime instance.
     @throws ValueError
     """
-    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=utc)
+    # return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=utc)
+    return make_aware(datetime.strptime(dt_str, DATETIME_ISO8601_FMT), timezone=timezone.utc)
 
 
 def dt_to_ISO8601(dt: datetime) -> str:
@@ -135,7 +131,8 @@ def make_aware_dt(dt: datetime, is_dst: bool | None = False) -> datetime:
 
 def to_utc(dt: datetime) -> datetime:
     "Returns a naive datetime from an aware one (converted in UTC)."
-    return make_naive(dt, timezone=utc)
+    # return make_naive(dt, timezone=utc)
+    return make_naive(dt, timezone=timezone.utc)
 
 
 def round_hour(dt: datetime) -> datetime:

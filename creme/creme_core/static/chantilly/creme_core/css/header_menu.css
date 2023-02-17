@@ -223,6 +223,22 @@ span.ui-creme-navigation-text-entry {  /* Non-active entries */
 
 /* Menu entries separators [END] */
 
+.ui-creme-navigation-item-id_creme_core-logout button {
+    /* copy of <a> */
+    display: block;
+    text-decoration: none;
+    text-shadow: none;
+    padding: 5px 10px;
+    color: #ebebeb;
+
+    /* from ui-creme-navigation */
+    font-weight: 600;
+
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
 .ui-creme-navigation-punctuation {
     font-weight: 400;
 }

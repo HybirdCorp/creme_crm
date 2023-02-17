@@ -282,8 +282,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('Some entities are not linkable: {}').format(unlinkable),
+            response.context['form'],
+            field='relations',
+            errors=_('Some entities are not linkable: {}').format(unlinkable),
         )
         self.assertFalse(subject.relations.all())
 
@@ -305,8 +306,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('There are duplicates: %(duplicates)s') % {
+            response.context['form'],
+            field='relations',
+            errors=_('There are duplicates: %(duplicates)s') % {
                 'duplicates': f'({rtype1}, {object1})',
             },
         )
@@ -349,8 +351,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('An entity can not be linked to itself : %(entities)s') % {
+            response.context['form'],
+            field='relations',
+            errors=_('An entity can not be linked to itself : %(entities)s') % {
                 'entities': subject,
             },
         )
@@ -398,8 +401,9 @@ class RelationViewsTestCase(ViewsTestCase):
         )
         msg = Relation.error_messages['missing_subject_property']
         self.assertFormError(
-            response1, 'form', 'relations',
-            msg % {
+            response1.context['form'],
+            field='relations',
+            errors=msg % {
                 'entity': subject,
                 'property': ptype3,
                 'predicate': rtype1.predicate,
@@ -414,8 +418,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', 'relations',
-            msg % {
+            response2.context['form'],
+            field='relations',
+            errors=msg % {
                 'entity': subject,
                 'property': ptype3,
                 'predicate': rtype2.predicate,
@@ -468,8 +473,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', 'relations',
-            Relation.error_messages['refused_subject_property'] % {
+            response1.context['form'],
+            field='relations',
+            errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': subject,
                 'predicate': rtype1.predicate,
                 'property': ptype2,
@@ -517,8 +523,9 @@ class RelationViewsTestCase(ViewsTestCase):
         }
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', 'relations',
-            Relation.error_messages['missing_subject_property'] % {
+            response1.context['form'],
+            field='relations',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': rel_object,
                 'property': ptype3,
                 'predicate': sym_rtype.predicate,
@@ -669,8 +676,9 @@ class RelationViewsTestCase(ViewsTestCase):
         subject = self._create_contact()
         response = self.assertPOST200(self._build_add_url(subject))
         self.assertFormError(
-            response, 'form', None,
-            _('You must give one relationship at least.'),
+            response.context['form'],
+            field=None,
+            errors=_('You must give one relationship at least.'),
         )
 
     def test_add_relations_with_semi_fixed_duplicates(self):
@@ -699,8 +707,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('There are duplicates: %(duplicates)s') % {
+            response.context['form'],
+            field=None,
+            errors=_('There are duplicates: %(duplicates)s') % {
                 'duplicates': f'({rtype1}, {object1})',
             },
         )
@@ -771,8 +780,9 @@ class RelationViewsTestCase(ViewsTestCase):
         url = self._build_add_url(subject)
         response = self.assertPOST200(url, data={'semifixed_rtypes': [sfrt1.id]})
         self.assertFormError(
-            response, 'form', 'semifixed_rtypes',
-            Relation.error_messages['missing_subject_property'] % {
+            response.context['form'],
+            field='semifixed_rtypes',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': subject,
                 'property': ptype1,
                 'predicate': rtype1.predicate,
@@ -814,8 +824,9 @@ class RelationViewsTestCase(ViewsTestCase):
             data={'semifixed_rtypes': [sfrt.id]},
         )
         self.assertFormError(
-            response1, 'form', 'semifixed_rtypes',
-            Relation.error_messages['refused_subject_property'] % {
+            response1.context['form'],
+            field='semifixed_rtypes',
+            errors=Relation.error_messages['refused_subject_property'] % {
                 'entity': subject1,
                 'predicate': rtype.predicate,
                 'property': ptype1,
@@ -872,8 +883,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _(
+            response.context['form'],
+            field='relations',
+            errors=_(
                 'This type of relationship causes a constraint error '
                 '(id="%(rtype_id)s").'
             ) % {'rtype_id': rtype2.id},
@@ -1167,8 +1179,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('Some entities are not linkable: {}').format(unlinkable),
+            response.context['form'],
+            field='relations',
+            errors=_('Some entities are not linkable: {}').format(unlinkable),
         )
 
     def test_add_relations_bulk_circular(self):
@@ -1189,8 +1202,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            _('An entity can not be linked to itself : %(entities)s') % {
+            response.context['form'],
+            field='relations',
+            errors=_('An entity can not be linked to itself : %(entities)s') % {
                 'entities': f'{subject1}, {subject2}',
             },
         )
@@ -1223,8 +1237,9 @@ class RelationViewsTestCase(ViewsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'relations',
-            Relation.error_messages['missing_subject_property'] % {
+            response.context['form'],
+            field='relations',
+            errors=Relation.error_messages['missing_subject_property'] % {
                 'entity': subject,
                 'property': ptype2,
                 'predicate': rtype.predicate,

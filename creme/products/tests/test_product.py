@@ -173,8 +173,9 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', self.EXTRA_CATEGORY_KEY,
-            _('This field is required.'),
+            response2.context['form'],
+            field=self.EXTRA_CATEGORY_KEY,
+            errors=_('This field is required.'),
         )
 
         # ----
@@ -240,10 +241,12 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         response1 = post(img_1, img_3)
         self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response1, 'form', 'images',
-            _('Some entities are not linkable: {}').format(img_3),
+            response1.context['form'],
+            field='images',
+            errors=_('Some entities are not linkable: {}').format(img_3),
         )
 
+        # ---
         response2 = post(img_1, img_2)
         self.assertNoFormError(response2)
 
@@ -357,12 +360,12 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         product, cat, sub_cat = self._build_product_cat_subcat()
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
-            args=('products', 'subcategory', sub_cat.id)
+            args=('products', 'subcategory', sub_cat.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_products__product_sub_category',
-            _('Deletion is not possible.')
+            response.context['form'],
+            field='replace_products__product_sub_category',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_delete_category03(self):
@@ -374,8 +377,9 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             args=('products', 'category', cat.id),
         ))
         self.assertFormError(
-            response, 'form', 'replace_products__product_category',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_products__product_category',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_edit_inner_category(self):
@@ -521,21 +525,24 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         response2 = post(img_1, img_4)
         self.assertEqual(200, response2.status_code)
         self.assertFormError(
-            response2, 'form', 'images',
-            _('Some entities are not linkable: {}').format(img_4),
+            response2.context['form'],
+            field='images',
+            errors=_('Some entities are not linkable: {}').format(img_4),
         )
 
+        # ---
         response3 = post(img_1, img_2)
         self.assertNoFormError(response3)
         self.assertSetEqual({img_1, img_2, img_3}, {*product.images.all()})
 
-        # ------------
+        # ---
         img_5 = create_image(ident=5, user=user)
         response4 = post(img_1, img_5)
         self.assertEqual(200, response4.status_code)
         self.assertFormError(
-            response4, 'form', 'images',
-            _('«%(entity)s» violates the constraints.') % {'entity': img_1},
+            response4.context['form'],
+            field='images',
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': img_1},
         )
 
     def test_add_images02(self):
@@ -638,17 +645,19 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # Validation errors ------------------------
         msg = _('Select a valid sub-category.')
         response1 = self.assertPOST200(url, follow=True, data=data)
-        self.assertFormError(response1, 'form', 'categories', msg)
+        self.assertFormError(response1.context['form'], field='categories', errors=msg)
 
+        # ---
         response2 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_subcat_defval': self.UNUSED_PK},
         )
-        self.assertFormError(response2, 'form', 'categories', msg)
+        self.assertFormError(response2.context['form'], field='categories', errors=msg)
 
+        # ---
         response3 = self.assertPOST200(
             url, follow=True, data={**data, 'categories_subcat_defval': 'not a int'},
         )
-        self.assertFormError(response3, 'form', 'categories', msg)
+        self.assertFormError(response3.context['form'], field='categories', errors=msg)
 
         # OK ------------------------
         response4 = self.client.post(
@@ -746,8 +755,11 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             url, follow=True, data={**data, 'categories_subcat_colselect': 0},
         )
         self.assertFormError(
-            response1, 'form', 'categories',
-            _('Select a column for the sub-category if you select a column for the category.')
+            response1.context['form'],
+            field='categories',
+            errors=_(
+                'Select a column for the sub-category if you select a column for the category.'
+            ),
         )
 
         # OK --------------------------------------
@@ -995,7 +1007,8 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             url, follow=True, data={**data, 'categories_create': 'on'},
         )
         self.assertFormError(
-            response1, 'form', 'categories', 'You cannot create Category or SubCategory',
+            response1.context['form'],
+            field='categories', errors='You cannot create Category or SubCategory',
         )
 
         # OK --------------------------

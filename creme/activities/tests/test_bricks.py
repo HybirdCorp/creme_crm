@@ -575,8 +575,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'participants': self.formfield_value_multi_creator_entity(contact)},
         )
         self.assertFormError(
-            response, 'form', 'participants',
-            _('Some entities are not linkable: {}').format(contact),
+            response.context['form'],
+            field='participants',
+            errors=_('Some entities are not linkable: {}').format(contact),
         )
         self.assertFalse(Relation.objects.filter(
             object_entity=activity.id,
@@ -877,8 +878,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         # Avoid duplicates
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2, 'form', 'subjects',
-            ngettext(
+            response2.context['form'],
+            field='subjects',
+            errors=ngettext(
                 'This entity is already a subject: %(duplicates)s',
                 'These entities are already subjects: %(duplicates)s',
                 1,
@@ -925,8 +927,9 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'subjects': self.formfield_value_multi_generic_entity(orga)},
         )
         self.assertFormError(
-            response, 'form', 'subjects',
-            _('Some entities are not linkable: {}').format(orga),
+            response.context['form'],
+            field='subjects',
+            errors=_('Some entities are not linkable: {}').format(orga),
         )
         self.assertFalse(Relation.objects.filter(
             object_entity=activity.id,
@@ -946,7 +949,8 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
             data={'subjects': self.formfield_value_multi_generic_entity(bad_subject)},
         )
         self.assertFormError(
-            response, 'form', 'subjects', _('This content type is not allowed.'),
+            response.context['form'],
+            field='subjects', errors=_('This content type is not allowed.'),
         )
 
     @skipIfCustomContact

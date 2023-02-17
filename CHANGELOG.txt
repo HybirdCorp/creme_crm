@@ -5,7 +5,7 @@
 
   Users side :
   ------------
-    # The version of Django has been upgraded to "4.0".
+    # The version of Django has been upgraded to "4.1".
     # The link in the list-views selectors are now opened in other tabs automatically.
     # Apps :
         * Creme_config :
@@ -14,15 +14,18 @@
 
   Developers side :
   -----------------
-    - The version of 'Django' is now "4.0".
+    - The version of 'Django' is now "4.1".
       You should probably read the following releases notes for Django versions :
         - https://docs.djangoproject.com/en/4.1/releases/4.0/
           Some important items :
             - The 'settings.py' value 'USE_L10N' is now deprecated.
             - The 'settings.py' value ALLOWED_HOSTS must be a list.
             - In classes inheriting 'django.template.Node', the method 'render()' must return a string.
-            - Some changes in te form rendering may break your unit tests when using a wizard + 'assertFormError()' ;
-              use our new 'assertWizardFormError()' in these cases.
+        - https://docs.djangoproject.com/en/4.1/releases/4.1/
+          Some important items :
+            - The method 'assertFormError()' should now take a form instance.
+            - The logout view should be used with a POST request.
+            - A reverse FK now raises ValueError when calling related managers for unsaved objects.
 
     Non breaking changes :
     ----------------------

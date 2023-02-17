@@ -216,7 +216,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertEqual(target, prop_target)
 
     def test_createview03(self):
-        "Only contact & orga models are allowed as target"
+        "Only contact & orga models are allowed as target."
         user = self.login()
 
         create_camp = partial(FakeEmailCampaign.objects.create, user=user)
@@ -240,13 +240,18 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
                 self.EMITTER_KEY: emitter.id,
             },
         )
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', self.TARGET_KEY,
-            _('This content type is not allowed.'),
+            form,
+            field=self.TARGET_KEY,
+            errors=_('This content type is not allowed.'),
         )
         self.assertFormError(
-            response, 'form', self.EMITTER_KEY,
-            _('Select a valid choice. That choice is not one of the available choices.'),
+            form,
+            field=self.EMITTER_KEY,
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
         self.assertRaises(Opportunity.DoesNotExist, Opportunity.objects.get, name=name)
 
@@ -285,13 +290,14 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
 
+        form = response.context['form']
         fmt1 = _('You are not allowed to link this entity: {}').format
         fmt2 = _('Entity #{id} (not viewable)').format
         self.assertFormError(
-            response, 'form', self.TARGET_KEY,  fmt1(fmt2(id=target.id))
+            form, field=self.TARGET_KEY,  errors=fmt1(fmt2(id=target.id)),
         )
         self.assertFormError(
-            response, 'form', self.EMITTER_KEY, fmt1(fmt2(id=emitter.id))
+            form, field=self.EMITTER_KEY, errors=fmt1(fmt2(id=emitter.id)),
         )
 
     @skipIfCustomOrganisation
@@ -313,8 +319,11 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EMITTER_KEY,
-            _('Select a valid choice. That choice is not one of the available choices.')
+            response.context['form'],
+            field=self.EMITTER_KEY,
+            errors=_(
+                'Select a valid choice. That choice is not one of the available choices.'
+            ),
         )
 
     @skipIfCustomOrganisation
@@ -800,9 +809,9 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             args=('creme_core', 'currency', currency.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_opportunities__opportunity_currency',
-            _('Deletion is not possible.')
+            response.context['form'],
+            field='replace_opportunities__opportunity_currency',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_bulk_edit(self):

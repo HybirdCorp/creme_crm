@@ -102,8 +102,8 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         }
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2, 'form', f'override-{field_name}',
-            _('End is before start'),
+            response2.context['form'],
+            field=f'override-{field_name}', errors=_('End is before start'),
         )
 
         # ---
@@ -152,8 +152,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', f'override-{field_name}',
-            _("You can't set the end of your activity without setting its start"),
+            response1.context['form'],
+            field=f'override-{field_name}',
+            errors=_("You can't set the end of your activity without setting its start"),
         )
 
         # ---
@@ -242,8 +243,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
             data={**data, f'override-{field_name}_3': 'on'},
         )
         self.assertFormError(
-            response1, 'form', f'override-{field_name}',
-            _("A floating on the day activity can't busy its participants"),
+            response1.context['form'],
+            field=f'override-{field_name}',
+            errors=_("A floating on the day activity can't busy its participants"),
         )
 
         # ---
@@ -504,8 +506,9 @@ class ActivityInnerEditionTestCase(_ActivitiesTestCase):
         }
         response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response1, 'form', f'override-{field_name}',
-            _(
+            response1.context['form'],
+            field=f'override-{field_name}',
+            errors=_(
                 '{participant} already participates to the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(

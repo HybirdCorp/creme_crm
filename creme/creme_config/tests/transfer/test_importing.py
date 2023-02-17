@@ -231,7 +231,10 @@ class ImportingTestCase(CremeTestCase):
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
-        self.assertFormError(response, 'form', 'config', _('File content is not valid JSON.'))
+        self.assertFormError(
+            response.context['form'],
+            field='config', errors=_('File content is not valid JSON.'),
+        )
 
     def test_error02(self):
         "Invalid data."
@@ -240,10 +243,11 @@ class ImportingTestCase(CremeTestCase):
         json_file = StringIO(json_dump([]))
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
 
-        response = self.client.post(self.URL, data={'config': json_file})
+        response1 = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('File content is not valid (%(error)s).') % {
+            response1.context['form'],
+            field='config',
+            errors=_('File content is not valid (%(error)s).') % {
                 'error': _('main content must be a dictionary'),
             },
         )
@@ -252,10 +256,10 @@ class ImportingTestCase(CremeTestCase):
         json_file = StringIO(json_dump({'roles': 1}))  # 'roles' is not a list
         json_file.name = 'config-23-10-2017.csv'  # Django uses this
 
-        response = self.assertPOST200(self.URL, data={'config': json_file})
+        response2 = self.assertPOST200(self.URL, data={'config': json_file})
 
         with self.assertNoException():
-            errors = response.context['form'].errors
+            errors = response2.context['form'].errors
 
         self.assertIn('config', errors)
 
@@ -268,7 +272,8 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config', _('The file has an unsupported version.'),
+            response.context['form'],
+            field='config', errors=_('The file has an unsupported version.'),
         )
 
     def test_roles01(self):
@@ -562,8 +567,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This filter PK is invalid: «{}».').format(efilter_id),
+            response.context['form'],
+            field='config',
+            errors=_('This filter PK is invalid: «{}».').format(efilter_id),
         )
 
     def test_menu(self):
@@ -991,8 +997,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This property type cannot be overridden: «{}».').format(ptype),
+            response.context['form'],
+            field='config',
+            errors=_('This property type cannot be overridden: «{}».').format(ptype),
         )
 
     def test_relations_types01(self):
@@ -1090,7 +1097,7 @@ class ImportingTestCase(CremeTestCase):
         self.assertFalse(sym_rtype2.minimal_display)
 
     def test_relations_types02(self):
-        "Invalid subject PK"
+        "Invalid subject PK."
         self.login(is_staff=True)
 
         pka = 'creme_config-test_import_relations_types02'  # not '-subject_'
@@ -1111,8 +1118,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This relation type PK is invalid: «{}».').format(pka),
+            response.context['form'],
+            field='config',
+            errors=_('This relation type PK is invalid: «{}».').format(pka),
         )
 
     def test_relations_types03(self):
@@ -1135,8 +1143,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This relation type cannot be overridden: «{}».').format(rtype),
+            response.context['form'],
+            field='config',
+            errors=_('This relation type cannot be overridden: «{}».').format(rtype),
         )
 
     def test_relations_types04(self):
@@ -1162,8 +1171,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This property type PKs are invalid: {}.').format(ptype_pk),
+            response.context['form'],
+            field='config',
+            errors=_('This property type PKs are invalid: {}.').format(ptype_pk),
         )
 
     def test_relations_types05(self):
@@ -1269,8 +1279,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'There is already a fields configuration for the model «{}».'
             ).format('Test Contact'),
         )
@@ -1353,8 +1364,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This custom-field type is invalid: {}.').format(unknown_cfield_type),
+            response.context['form'],
+            field='config',
+            errors=_('This custom-field type is invalid: {}.').format(unknown_cfield_type),
         )
 
     def test_customfields03(self):
@@ -1377,8 +1389,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('There is already a custom-field with the same name: {}.').format(name),
+            response.context['form'],
+            field='config',
+            errors=_('There is already a custom-field with the same name: {}.').format(name),
         )
 
     def test_customfields04(self):
@@ -1399,8 +1412,11 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('There is already a custom-field with the same UUID: {}.').format(cfield.uuid),
+            response.context['form'],
+            field='config',
+            errors=_(
+                'There is already a custom-field with the same UUID: {}.'
+            ).format(cfield.uuid),
         )
 
     def test_headerfilters01(self):
@@ -1526,8 +1542,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This view of list cannot be overridden: «{}».').format(hf.name),
+            response.context['form'],
+            field='config',
+            errors=_('This view of list cannot be overridden: «{}».').format(hf.name),
         )
 
     def test_headerfilters03(self):
@@ -1679,8 +1696,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The column with type="{type}" is invalid in «{container}».').format(
                 type=cell_type,
                 container=_('view of list id="{id}"').format(id=hf_id),
@@ -1705,8 +1723,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The column with field="{field}" is invalid in «{container}».'
             ).format(
                 field=fname,
@@ -1732,13 +1751,14 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The column with custom-field="{uuid}" is invalid in «{container}».'
             ).format(
                 uuid=cf_uuid,
                 container=_('view of list id="{id}"').format(id=hf_id),
-            )
+            ),
         )
 
     def test_headerfilters_error04(self):
@@ -1762,8 +1782,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The column with function-field="{ffield}" is invalid in «{container}».'
             ).format(
                 ffield=ff_name,
@@ -1792,8 +1813,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The column with relation-type="{rtype}" is invalid in «{container}».'
             ).format(
                 rtype=rtype_id,
@@ -2153,8 +2175,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('This filter cannot be overridden: «{}».').format(efilter.name),
+            response.context['form'],
+            field='config',
+            errors=_('This filter cannot be overridden: «{}».').format(efilter.name),
         )
 
     def test_entityfilters03(self):
@@ -2362,10 +2385,11 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('The condition with type="{type}" is invalid in the filter id="{id}".').format(
-                type=unknown_cond_type, id=efilter_id,
-            )
+            response.context['form'],
+            field='config',
+            errors=_(
+                'The condition with type="{type}" is invalid in the filter id="{id}".'
+            ).format(type=unknown_cond_type, id=efilter_id),
         )
 
     def test_entityfilters_error02(self):
@@ -2415,8 +2439,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on property-type="{ptype}" is invalid '
                 'in the filter id="{id}".'
             ).format(ptype=ptype_id, id=ef_id),
@@ -2446,8 +2471,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on relation-type is invalid in the filter id="{id}" '
                 '(unknown relation-type={rtype}).'
             ).format(rtype=rtype_id, id=ef_id),
@@ -2479,11 +2505,12 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('The condition on relation-type is invalid '
-              'in the filter id="{id}" (unknown uuid={uuid}).').format(
-                rtype=rtype.id, id=ef_id, uuid=uuid_str,
-            ),
+            response.context['form'],
+            field='config',
+            errors=_(
+                'The condition on relation-type is invalid '
+                'in the filter id="{id}" (unknown uuid={uuid}).'
+            ).format(rtype=rtype.id, id=ef_id, uuid=uuid_str),
         )
 
     def test_entityfilters_error05(self):
@@ -2509,8 +2536,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on custom-field="{cfield}" is invalid in the '
                 'filter id="{id}".'
             ).format(cfield=cf_uuid, id=ef_id),
@@ -2534,13 +2562,16 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({
+            'version': self.VERSION, 'entity_filters': efilters_data,
+        }))
         json_file.name = 'config-07-11-2017.csv'
 
         response = self.assertPOST200(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on custom-field="{cfield}" is invalid in the '
                 'filter id="{id}".'
             ).format(cfield=cf_uuid, id=ef_id),
@@ -2562,14 +2593,19 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({
+            'version': self.VERSION, 'entity_filters': efilters_data,
+        }))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _('The condition on sub-filter="{subfilter}" is invalid in the '
-              'filter id="{id}".').format(subfilter=ef_id2, id=ef_id1)
+            response.context['form'],
+            field='config',
+            errors=_(
+                'The condition on sub-filter="{subfilter}" is invalid in the '
+                'filter id="{id}".'
+            ).format(subfilter=ef_id2, id=ef_id1),
         )
 
     def test_entityfilters_error08(self):
@@ -2595,13 +2631,16 @@ class ImportingTestCase(CremeTestCase):
             }],
         }]
 
-        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({
+            'version': self.VERSION, 'entity_filters': efilters_data,
+        }))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on related sub-filter="{subfilter}" is invalid '
                 'in the filter id="{id}" (unknown filter ID).'
             ).format(subfilter=ef_id2, id=ef_id1),
@@ -2644,13 +2683,16 @@ class ImportingTestCase(CremeTestCase):
             },
         ]
 
-        json_file = StringIO(json_dump({'version': self.VERSION, 'entity_filters': efilters_data}))
+        json_file = StringIO(json_dump({
+            'version': self.VERSION, 'entity_filters': efilters_data,
+        }))
         json_file.name = 'config-08-11-2017.csv'
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            _(
+            response.context['form'],
+            field='config',
+            errors=_(
                 'The condition on related sub-filter="{subfilter}" is invalid '
                 'in the filter id="{id}" (unknown relation-type ID).'
             ).format(subfilter=ef_id1, id=ef_id2),
@@ -2824,8 +2866,9 @@ class ImportingTestCase(CremeTestCase):
 
         response = self.client.post(self.URL, data={'config': json_file})
         self.assertFormError(
-            response, 'form', 'config',
-            f"The custom-form descriptor ID is invalid: {descriptor_id}",
+            response.context['form'],
+            field='config',
+            errors=f"The custom-form descriptor ID is invalid: {descriptor_id}",
         )
 
     def test_relation_bricks(self):

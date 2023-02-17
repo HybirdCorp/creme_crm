@@ -703,8 +703,9 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 },
             )
             self.assertFormError(
-                response, 'form', None,
-                _('The upper bound must be greater than the lower bound.'),
+                response.context['form'],
+                field=None,
+                errors=_('The upper bound must be greater than the lower bound.'),
             )
 
         post(10, 3)
@@ -811,7 +812,10 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                     'choices':  '\n'.join(choices),
                 },
             )
-            self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
+            self.assertFormError(
+                response.context['form'],
+                field=None, errors=_('Give 2 choices at least.'),
+            )
 
         post()
         post('White')
@@ -845,7 +849,10 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                     'choices':  '\n'.join(choices),
                 },
             )
-            self.assertFormError(response, 'form', None, _('Give 2 choices at least.'))
+            self.assertFormError(
+                response.context['form'],
+                field=None, errors=_('Give 2 choices at least.'),
+            )
 
         post()
         post('White')
@@ -1296,7 +1303,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
     def test_edit_line_choices04(self):
-        "Assert choices are not empty"
+        "Assert choices are not empty."
         self.login()
         line = self.create_enum_line([[1, 'White'], [2, 'Black'], [3, 'Red']])
         response = self.assertPOST200(
@@ -1312,7 +1319,8 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'old_choices', _('Choices can not be empty.'),
+            response.context['form'],
+            field='old_choices', errors=_('Choices can not be empty.'),
         )
 
     def test_edit_line_choices05(self):
@@ -1440,8 +1448,9 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'old_choices',
-            _(
+            response.context['form'],
+            field='old_choices',
+            errors=_(
                 'You can not delete the choice "%(choice)s" because it '
                 'is used in a condition by the question "%(question)s".'
             ) % {
@@ -1741,7 +1750,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
         )
 
         if error:
-            self.assertFormError(response, 'form', 'conditions', error)
+            self.assertFormError(response.context['form'], field='conditions', errors=error)
         else:
             self.assertNoFormError(response)
 
@@ -1805,7 +1814,10 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
                 'conditions': self.conds_formfield_value(source=line2.id, choice=1),
             },
         )
-        self.assertFormError(response, 'form', 'conditions', _('This source is invalid.'))
+        self.assertFormError(
+            response.context['form'],
+            field='conditions', errors=_('This source is invalid.'),
+        )
 
     def test_add_line_conditions_error02(self):
         "Line is disabled --> error."

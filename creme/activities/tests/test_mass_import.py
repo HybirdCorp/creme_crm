@@ -291,8 +291,9 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         # Validation errors ----------
         response = self.assertPOST200(self._build_import_url(Activity), data=data)
         self.assertFormError(
-            response, 'form', 'my_participation',
-            _('Enter a value if you check the box.'),
+            response.context['form'],
+            field='my_participation',
+            errors=_('Enter a value if you check the box.'),
         )
 
         response = self.assertPOST200(
@@ -302,7 +303,10 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'participants_first_name_colselect': 100,  # Invalid choice
             },
         )
-        self.assertFormError(response, 'form', 'participants', 'Invalid index')
+        self.assertFormError(
+            response.context['form'],
+            field='participants', errors='Invalid index',
+        )
 
         # ---------
         response = self.client.post(
@@ -511,14 +515,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
             'participants_pattern_colselect': 2,
         }
 
-        response = self.client.post(url, data={**data, 'participants_pattern': 5})
-        self.assertFormError(response, 'form', 'participants', 'Invalid pattern')
+        response1 = self.client.post(url, data={**data, 'participants_pattern': 5})
+        self.assertFormError(
+            response1.context['form'], field='participants', errors='Invalid pattern',
+        )
 
         # ----------
-        response = self.client.post(url, follow=True, data=data)
-        self.assertNoFormError(response)
+        response2 = self.client.post(url, follow=True, data=data)
+        self.assertNoFormError(response2)
 
-        self._execute_job(response)
+        self._execute_job(response2)
 
         act1 = self.get_object_or_fail(Activity, title=title1)
         self.assertRelationCount(1, act1, constants.REL_OBJ_PART_2_ACTIVITY, aoi)
@@ -701,17 +707,16 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
                 'participating_users': other_user.pk,
             },
         )
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', 'my_participation',
-            _('You are not allowed to link this entity: {}').format(
-                user.linked_contact,
-            ),
+            form,
+            field='my_participation',
+            errors=_('You are not allowed to link this entity: {}').format(user.linked_contact),
         )
         self.assertFormError(
-            response, 'form', 'participating_users',
-            _('Some entities are not linkable: {}').format(
-                other_user.linked_contact,
-            ),
+            form,
+            field='participating_users',
+            errors=_('Some entities are not linkable: {}').format(other_user.linked_contact),
         )
 
     @skipIfCustomContact

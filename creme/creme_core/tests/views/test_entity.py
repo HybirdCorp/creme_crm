@@ -1853,7 +1853,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', field_name, _('This field is required.'),
+            response.context['form'],
+            field=field_name, errors=_('This field is required.'),
         )
 
     def test_regular_field_empty(self):
@@ -1959,7 +1960,8 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', field_name, _('Enter a valid date.'),
+            response1.context['form'],
+            field=field_name, errors=_('Enter a valid date.'),
         )
 
         response2 = self.client.post(
@@ -1986,17 +1988,17 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertFalse(user.has_perm_to_view(forbidden))
 
         field_name = 'image'
-        url = self.build_bulkupdate_uri(model=FakeContact, field=field_name)
         response = self.assertPOST200(
-            url,
+            self.build_bulkupdate_uri(model=FakeContact, field=field_name),
             data={
                 'entities': [mario.id, luigi.id],
                 field_name: forbidden.id,
             },
         )
         self.assertFormError(
-            response, 'form', field_name,
-            _('You are not allowed to link this entity: {}').format(
+            response.context['form'],
+            field=field_name,
+            errors=_('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=forbidden.id),
             ),
         )
@@ -2150,21 +2152,20 @@ class BulkUpdateTestCase(_BulkEditTestCase):
         self.assertListEqual([*getattr(image1, m2m_name).all()], categories)
         self.assertListEqual([*getattr(image2, m2m_name).all()], categories[:1])
 
-        url = self.build_bulkupdate_uri(model=type(image1), field=m2m_name)
         invalid_pk = (FakeImageCategory.objects.aggregate(Max('id'))['id__max'] or 0) + 1
-
         response = self.client.post(
-            url,
+            self.build_bulkupdate_uri(model=type(image1), field=m2m_name),
             data={
                 'entities': [image1.id, image2.id],
                 m2m_name: [categories[0].pk, invalid_pk],
             },
         )
         self.assertFormError(
-            response, 'form', m2m_name,
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': invalid_pk,
-            },
+            response.context['form'],
+            field=m2m_name,
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': invalid_pk},
         )
 
         self.assertListEqual([*image1.categories.all()], categories)
@@ -2605,8 +2606,9 @@ class BulkUpdateTestCase(_BulkEditTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _('This Contact is related to a user and must have a first name.'),
+            response.context['form'],
+            field=None,
+            errors=_('This Contact is related to a user and must have a first name.'),
         )
 
     def test_other_field_validation_error_several_entities(self):
@@ -2715,7 +2717,10 @@ class InnerEditTestCase(_BulkEditTestCase):
             self.build_inneredit_uri(mario, field_name),
             data={field_name: 'whatever'},
         )
-        self.assertFormError(response, 'form', field_name, _('Enter a valid date.'))
+        self.assertFormError(
+            response.context['form'],
+            field=field_name, errors=_('Enter a valid date.'),
+        )
 
     def test_regular_field_not_allowed(self):
         "No permission."
@@ -2739,7 +2744,8 @@ class InnerEditTestCase(_BulkEditTestCase):
             data={field_name: ''},
         )
         self.assertFormError(
-            response, 'form', field_name, _('This field is required.'),
+            response.context['form'],
+            field=field_name, errors=_('This field is required.'),
         )
 
     def test_regular_field_not_editable(self):
@@ -2806,7 +2812,12 @@ class InnerEditTestCase(_BulkEditTestCase):
         # ---
         response2 = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            response2, 'form', field_name, _('This field is required.'),
+            response2.context['form'],
+            field=field_name,
+            errors=[
+                _('This field is required.'),
+                _('The field «{}» has been configured as required.').format(_('Phone')),
+            ],
         )
 
     def test_regular_field_fields_config_required02(self):
@@ -2845,9 +2856,10 @@ class InnerEditTestCase(_BulkEditTestCase):
         )
         self.assertFormError(
             # TODO?
-            # response2, 'form', field_name2, _('This field is required.'),
-            response2, 'form', None,
-            _('The field «{}» has been configured as required.').format(_('Mobile')),
+            # response2.context['form'], field_name2, _('This field is required.'),
+            response2.context['form'],
+            field=None,
+            errors=_('The field «{}» has been configured as required.').format(_('Mobile')),
         )
 
         # TODO?
@@ -2914,10 +2926,11 @@ class InnerEditTestCase(_BulkEditTestCase):
             uri, data={m2m_name: [categories[0].pk, invalid_pk]},
         )
         self.assertFormError(
-            response, 'form', m2m_name,
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': invalid_pk,
-            },
+            response.context['form'],
+            field=m2m_name,
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': invalid_pk},
         )
         self.assertCountEqual(categories, self.refresh(image).categories.all())
 
@@ -3001,7 +3014,10 @@ class InnerEditTestCase(_BulkEditTestCase):
             self.build_inneredit_uri(mario, 'last_name'),
             data={formfield_name: 'luigi'},
         )
-        self.assertFormError(response, 'form', formfield_name, error_msg)
+        self.assertFormError(
+            response.context['form'],
+            field=formfield_name, errors=error_msg,
+        )
 
     def test_regular_field_file01(self):
         user = self.login()
@@ -3156,8 +3172,9 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         response2 = self.assertPOST200(uri, data={field_name: 'Bros'})
         self.assertFormError(
-            response2, 'form', None,
-            _('This Contact is related to a user and must have a first name.'),
+            response2.context['form'],
+            field=None,
+            errors=_('This Contact is related to a user and must have a first name.'),
         )
 
     def test_both_edited_field_and_field_validation_error(self):
@@ -3175,7 +3192,8 @@ class InnerEditTestCase(_BulkEditTestCase):
 
         response = self.assertPOST200(uri, data={field_name: ''})
         self.assertFormError(
-            response, 'form', field_name, _('This field is required.'),
+            response.context['form'],
+            field=field_name, errors=_('This field is required.'),
         )
 
     def test_multi_fields(self):

@@ -727,7 +727,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 },
             )
             self.assertFormError(
-                response, 'form', 'locations',
+                response.context['form'],
+                field='locations',
                 errors=_('The following block should be displayed only once: «%(block)s»') % {
                     'block': brick.verbose_name,
                 },
@@ -864,10 +865,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         url = self._build_editdetail_url(ct=None)
-
         response = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response, 'form', 'locations', _('Your configuration is empty !')
+            response.context['form'],
+            field='locations', errors=_('Your configuration is empty !'),
         )
 
     def test_edit_detailview__invalid_json(self):
@@ -875,10 +876,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         url = self._build_editdetail_url(ct=None)
-
         response = self.assertPOST200(url, data={'locations': "{not a dict"})
         self.assertFormError(
-            response, 'form', 'locations', _('Enter a valid JSON.')
+            response.context['form'],
+            field='locations', errors=_('Enter a valid JSON.'),
         )
 
     @parameterized.expand([
@@ -892,10 +893,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         self.login()
 
         url = self._build_editdetail_url(ct=None)
-
         response = self.assertPOST200(url, data=payload)
         self.assertFormError(
-            response, 'form', 'locations', _("The value doesn't match the expected format.")
+            response.context['form'],
+            field='locations', errors=_("The value doesn't match the expected format."),
         )
 
     def test_delete_detailview01(self):
@@ -1730,16 +1731,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-ctype': ct_contact.pk,
             },
         )
-        # self.assertFormError(
-        #     response, 'form', 'ctype',
-        #     _('Select a valid choice. That choice is not one of the available choices.')
-        # )
-        self.assertWizardFormError(
-            response,
+        self.assertFormError(
+            response.context['wizard']['form'],
             field='ctype',
-            errors=_(
-                'Select a valid choice. That choice is not one of the available choices.',
-            ),
+            errors=_('Select a valid choice. That choice is not one of the available choices.'),
         )
 
     def test_relationbrick_add_cells03(self):
@@ -1862,8 +1857,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             )
             if error:
                 self.assertFormError(
-                    response, 'form', 'cells',
-                    _('This type of field can not be the first column.'),
+                    response.context['form'],
+                    field='cells',
+                    errors=_('This type of field can not be the first column.'),
                 )
             else:
                 self.assertNoFormError(response)
@@ -1895,8 +1891,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={'cells': f'regular_field-{field_name},regular_field-name'},
             )
             self.assertFormError(
-                response, 'form', 'cells',
-                _('This type of field can not be the first column.'),
+                response.context['form'],
+                field='cells',
+                errors=_('This type of field can not be the first column.'),
             )
 
         post('mailing_lists')
@@ -1924,8 +1921,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'cells': f'relation-{rt2.id},regular_field-name'},
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This type of field can not be the first column.'),
+            response.context['form'],
+            field='cells',
+            errors=_('This type of field can not be the first column.'),
         )
 
     def test_relationbrick_edit_cells05(self):
@@ -1963,8 +1961,9 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': hidden_fname2},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': hidden_fname2},
         )
 
         self.assertNoFormError(self.client.post(
@@ -2231,9 +2230,10 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                          f'regular_field-{hidden_fname}',
             },
         )
+        msg_fmt = _('This value is invalid: %(value)s')
         self.assertFormError(
-            response1, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': hidden_fname},
+            response1.context['form'],
+            field='cells', errors=msg_fmt % {'value': hidden_fname},
         )
 
         # ---------------------------
@@ -2248,8 +2248,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response2, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': prefix + hidden_subfname},
+            response2.context['form'],
+            field='cells', errors=msg_fmt % {'value': prefix + hidden_subfname},
         )
 
         # ----------------------------
@@ -2262,8 +2262,8 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             },
         )
         self.assertFormError(
-            response3, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': hidden_fkname},
+            response3.context['form'],
+            field='cells', errors=msg_fmt % {'value': hidden_fkname},
         )
 
     def test_edit_custombrick03(self):
@@ -2416,19 +2416,11 @@ class BricksConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 '0-name': 'foobar',
             },
         )
-
-        # self.assertFormError(
-        #     response2, 'form', 'ctype',
-        #     _('Select a valid choice. That choice is not one of the available choices.'),
-        # )
-        self.assertWizardFormError(
-            response2,
+        self.assertFormError(
+            response2.context['wizard']['form'],
             field='ctype',
-            errors=_(
-                'Select a valid choice. That choice is not one of the available choices.'
-            ),
+            errors=_('Select a valid choice. That choice is not one of the available choices.'),
         )
-
         self.assertFalse(CustomBrickConfigItem.objects.filter(content_type=contact_ct))
 
     def test_custombrick_wizard_config_step(self):

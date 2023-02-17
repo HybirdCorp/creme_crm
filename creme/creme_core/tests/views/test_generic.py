@@ -215,7 +215,10 @@ class CreationTestCase(ViewsTestCase):
                 'cancel_url': lv_url,
             },
         )
-        self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
+        self.assertFormError(
+            response.context['form'],
+            field='last_name', errors=_('This field is required.'),
+        )
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
     def test_entity_creation_permission01(self):
@@ -722,7 +725,10 @@ class EditionTestCase(ViewsTestCase):
                 'cancel_url': lv_url,
             },
         )
-        self.assertFormError(response, 'form', 'last_name', _('This field is required.'))
+        self.assertFormError(
+            response.context['form'],
+            field='last_name', errors=_('This field is required.'),
+        )
         self.assertEqual(lv_url, response.context.get('cancel_url'))
 
     def test_entity_edition_permission01(self):

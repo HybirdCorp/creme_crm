@@ -129,7 +129,8 @@ class DeletionCommandTestCase(CremeTestCase):
 
         self.assertEqual(field2, replacers[1].model_field)
 
-        with self.assertRaises(TypeError):
+        # with self.assertRaises(TypeError):  TODO?
+        with self.assertRaises(AttributeError):
             DeletionCommand.objects.create(
                 job=job,
                 instance_to_delete=sector,

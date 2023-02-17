@@ -561,7 +561,8 @@ class MenuConfigTestCase(BrickTestCaseMixin, CremeTestCase):
         # ---
         response3 = self.client.post(url, data={'label': label, 'url': 'invalid_url'})
         self.assertFormError(
-            response3, 'form', 'url', _('Enter a valid URL.'),
+            response3.context['form'],
+            field='url', errors=_('Enter a valid URL.'),
         )
 
     def test_add_special_level1_entry03(self):

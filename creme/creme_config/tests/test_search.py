@@ -207,8 +207,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             if not msg_fmt:
                 msg_fmt = _('This value is invalid: %(value)s')
             self.assertFormError(
-                response, 'form', 'cells',
-                msg_fmt % {'value': field_name},
+                response.context['form'],
+                field='cells',
+                errors=msg_fmt % {'value': field_name},
             )
 
         post('birthday')
@@ -230,8 +231,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'cells': f'regular_field-{field_name}'}
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': field_name},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': field_name},
         )
 
     def test_add_regular_fields_errors03(self):
@@ -242,8 +244,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
             data={'cells': f'regular_field-{field_name}'}
         )
         self.assertFormError(
-            response, 'form', 'cells',
-            _('This value is invalid: %(value)s') % {'value': field_name},
+            response.context['form'],
+            field='cells',
+            errors=_('This value is invalid: %(value)s') % {'value': field_name},
         )
 
     def test_add_custom_fields(self):
@@ -284,8 +287,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={'cells': f'custom_field-{cfield.id}'}
             )
             self.assertFormError(
-                response, 'form', 'cells',
-                _('This value is invalid: %(value)s') % {'value': cfield.id},
+                response.context['form'],
+                field='cells',
+                errors=_('This value is invalid: %(value)s') % {'value': cfield.id},
             )
 
         create_cfield = partial(CustomField.objects.create, content_type=ct)
@@ -367,8 +371,9 @@ class SearchConfigTestCase(BrickTestCaseMixin, CremeTestCase):
                 data={'cells': f'regular_field-{hidden_name}'}
             )
             self.assertFormError(
-                response, 'form', 'cells',
-                _('This value is invalid: %(value)s') % {'value': hidden_name},
+                response.context['form'],
+                field='cells',
+                errors=_('This value is invalid: %(value)s') % {'value': hidden_name},
             )
 
         post(hidden_fname1)

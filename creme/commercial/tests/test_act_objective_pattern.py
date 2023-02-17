@@ -350,7 +350,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         pattern = self._create_pattern()
         url = self._build_addcomp_url(pattern)
 
-        response = self.client.post(
+        response1 = self.client.post(
             url,
             data={
                 'name':         'Signed opportunities',
@@ -358,13 +358,15 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'success_rate',
-            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                'limit_value': 1,
-            },
+            response1.context['form'],
+            field='success_rate',
+            errors=_(
+                'Ensure this value is greater than or equal to %(limit_value)s.'
+            ) % {'limit_value': 1},
         )
 
-        response = self.client.post(
+        # ---
+        response2 = self.client.post(
             url,
             data={
                 'name':         'Signed opportunities',
@@ -372,10 +374,11 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'success_rate',
-            _('Ensure this value is less than or equal to %(limit_value)s.') % {
-                'limit_value': 100,
-            },
+            response2.context['form'],
+            field='success_rate',
+            errors=_(
+                'Ensure this value is less than or equal to %(limit_value)s.'
+            ) % {'limit_value': 100},
         )
 
     def test_get_component_tree(self):

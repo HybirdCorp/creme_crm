@@ -158,12 +158,14 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
             'description': '',
             'deadline':    self.formfield_value_date(2013, 6, 7),
         }
-        response = self.assertPOST200(url, data=data)
+        response1 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response, 'form', 'deadline_hour',
-            _('The hour is required if you set a date.'),
+            response1.context['form'],
+            field='deadline_hour',
+            errors=_('The hour is required if you set a date.'),
         )
 
+        # ---
         self.assertNoFormError(self.client.post(url, data={**data, 'deadline_hour': 9}))
 
         todo = self.get_object_or_fail(ToDo, title=title)

@@ -412,15 +412,18 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             },
         )
 
+        form = response2.context['form']
         link_error = _('You are not allowed to link this entity: {}')
         not_viewable_error = _('Entity #{id} (not viewable)').format
         self.assertFormError(
-            response2, 'form', self.SOURCE_KEY,
-            link_error.format(not_viewable_error(id=source.id)),
+            form,
+            field=self.SOURCE_KEY,
+            errors=link_error.format(not_viewable_error(id=source.id)),
         )
         self.assertFormError(
-            response2, 'form', self.TARGET_KEY,
-            link_error.format(not_viewable_error(id=target.id)),
+            form,
+            field=self.TARGET_KEY,
+            errors=link_error.format(not_viewable_error(id=target.id)),
         )
 
     def test_createview_payment_info01(self):
@@ -795,8 +798,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         url = invoice.get_edit_absolute_url()
 
         def post(discount):
-            return self.assertPOST200(
-                url, follow=True,
+            response = self.assertPOST200(
+                url,
+                follow=True,
                 data={
                     'user':     user.id,
                     'name':     invoice.name,
@@ -808,10 +812,11 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
                     self.TARGET_KEY: self.formfield_value_generic_entity(target),
                 },
             )
+            return response.context['form']
 
         msg = _('Enter a number between 0 and 100 (it is a percentage).')
-        self.assertFormError(post('150'), 'form', 'discount', msg)
-        self.assertFormError(post('-10'), 'form', 'discount', msg)
+        self.assertFormError(post('150'), field='discount', errors=msg)
+        self.assertFormError(post('-10'), field='discount', errors=msg)
 
     def test_editview_payment_info01(self):
         user = self.login()
@@ -920,7 +925,7 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertGET404(build_uri('shipping_address'))
 
     def test_inner_edit02(self):
-        "Discount"
+        "Discount."
         user = self.login()
 
         invoice = self.create_invoice_n_orgas('Invoice001', user=user)[0]
@@ -930,8 +935,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = self.assertPOST200(uri, data={field_name:  '110'})
         self.assertFormError(
-            response, 'form', field_name,
-            _('Enter a number between 0 and 100 (it is a percentage).'),
+            response.context['form'],
+            field=field_name,
+            errors=_('Enter a number between 0 and 100 (it is a percentage).'),
         )
 
     def test_generate_number01(self):
@@ -1300,12 +1306,12 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
 
         response = self.assertPOST200(reverse(
             'creme_config__delete_instance',
-            args=('creme_core', 'currency', currency.id)
+            args=('creme_core', 'currency', currency.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_billing__invoice_currency',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_billing__invoice_currency',
+            errors=_('Deletion is not possible.'),
         )
 
         invoice = self.assertStillExists(invoice)

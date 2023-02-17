@@ -681,9 +681,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
             'creme_config__delete_instance', args=('creme_core', 'vat_value', vat.id)
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_billing__productline_vat_value',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_billing__productline_vat_value',
+            errors=_('Deletion is not possible.'),
         )
 
     @skipIfCustomProductLine
@@ -865,8 +865,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 'You are not allowed to add this item to the catalog '
                 'because it is not on the fly'
             ),
@@ -891,8 +892,9 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         )
 
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 'You are not allowed to add this item to the catalog '
                 'because it is not on the fly'
             ),

@@ -562,9 +562,10 @@ END:VCARD"""
                 'create_or_attach_orga': True,
             },
         )
+        form = response.context['form']
         validation_text = _('Required, if you want to create organisation')
-        self.assertFormError(response, 'form', 'work_name', validation_text)
-        self.assertFormError(response, 'form', 'relation',  validation_text)
+        self.assertFormError(form, field='work_name', errors=validation_text)
+        self.assertFormError(form, field='relation',  errors=validation_text)
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count,    Organisation.objects.count())
 
@@ -983,13 +984,14 @@ END:VCARD"""
             'update_work_url_site': 'on',
             'update_work_address':  'on',
         }
-        response = self._post_step1(errors=True, data=data)
+        response1 = self._post_step1(errors=True, data=data)
+        form1 = response1.context['form']
         validation_text = _('Create organisation not checked')
-        self.assertFormError(response, 'form', 'update_work_name',     validation_text)
-        self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
-        self.assertFormError(response, 'form', 'update_work_email',    validation_text)
-        self.assertFormError(response, 'form', 'update_work_fax',      validation_text)
-        self.assertFormError(response, 'form', 'update_work_url_site', validation_text)
+        self.assertFormError(form1, field='update_work_name',     errors=validation_text)
+        self.assertFormError(form1, field='update_work_phone',    errors=validation_text)
+        self.assertFormError(form1, field='update_work_email',    errors=validation_text)
+        self.assertFormError(form1, field='update_work_fax',      errors=validation_text)
+        self.assertFormError(form1, field='update_work_url_site', errors=validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -1049,13 +1051,14 @@ END:VCARD"""
                 'update_work_address':  True,
             },
         )
+        form = response.context['form']
         validation_text = _('Organisation not selected')
-        self.assertFormError(response, 'form', 'update_work_name',     validation_text)
-        self.assertFormError(response, 'form', 'update_work_phone',    validation_text)
-        self.assertFormError(response, 'form', 'update_work_email',    validation_text)
-        self.assertFormError(response, 'form', 'update_work_fax',      validation_text)
-        self.assertFormError(response, 'form', 'update_work_url_site', validation_text)
-        self.assertFormError(response, 'form', 'update_work_address',  validation_text)
+        self.assertFormError(form, field='update_work_name',     errors=validation_text)
+        self.assertFormError(form, field='update_work_phone',    errors=validation_text)
+        self.assertFormError(form, field='update_work_email',    errors=validation_text)
+        self.assertFormError(form, field='update_work_fax',      errors=validation_text)
+        self.assertFormError(form, field='update_work_url_site', errors=validation_text)
+        self.assertFormError(form, field='update_work_address',  errors=validation_text)
 
         self.assertEqual(contact_count, Contact.objects.count())
 
@@ -1093,11 +1096,12 @@ END:VCARD"""
                 'update_work_address':  True,
             },
         )
+        form = response.context['form']
         validation_text = _('Required, if you want to update organisation')
-        self.assertFormError(response, 'form', 'work_phone',    validation_text)
-        self.assertFormError(response, 'form', 'work_email',    validation_text)
-        self.assertFormError(response, 'form', 'work_fax',      validation_text)
-        self.assertFormError(response, 'form', 'work_url_site', validation_text)
+        self.assertFormError(form, field='work_phone',    errors=validation_text)
+        self.assertFormError(form, field='work_email',    errors=validation_text)
+        self.assertFormError(form, field='work_fax',      errors=validation_text)
+        self.assertFormError(form, field='work_url_site', errors=validation_text)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -1671,8 +1675,9 @@ END:VCARD"""
 
         urlopen_mock.assert_called_once_with(url)
         self.assertFormError(
-            response2, 'form', 'image_encoded',
-            _(
+            response2.context['form'],
+            field='image_encoded',
+            errors=_(
                 'The referenced image is too large (limit is {} bytes).'
             ).format(10240),
         )
@@ -1726,7 +1731,7 @@ END:VCARD"""
             errors=True,
         )
         self.assertFormError(
-            response2, 'form', 'image_encoded', _('Invalid image data'),
+            response2.context['form'], field='image_encoded', errors=_('Invalid image data'),
         )
 
     @skipIfCustomContact
@@ -2154,14 +2159,16 @@ END:VCARD"""
         }
         response2 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response2, 'form', 'image',
-            _('This field is required.'),
+            response2.context['form'],
+            field='image',
+            errors=[
+                _('This field is required.'),
+                _('The field «{}» has been configured as required.').format(_('Photograph')),
+            ],
         )
 
         # ---
-        self._post_step1(
-            data={**data, 'image_encoded': encoded_image},
-        )
+        self._post_step1(data={**data, 'image_encoded': encoded_image})
 
         asuna = self.get_object_or_fail(
             Contact, first_name=first_name, last_name=last_name,
@@ -2215,8 +2222,9 @@ END:VCARD"""
             errors=True,
         )
         self.assertFormError(
-            response2, 'form', f'work_{req_fname}',
-            _('The field «{}» has been configured as required.').format(
+            response2.context['form'],
+            field=f'work_{req_fname}',
+            errors=_('The field «{}» has been configured as required.').format(
                 Organisation._meta.get_field(req_fname).verbose_name
             ),
         )
@@ -2245,26 +2253,26 @@ END:VCARD"""
             f'END:VCARD'
         )
 
-        data = {
-            'user': user.id,
-            'first_name': first_name,
-            'last_name': last_name,
+        response = self._post_step1(
+            data={
+                'user': user.id,
+                'first_name': first_name,
+                'last_name': last_name,
 
-            'create_or_attach_orga': True,
-            'relation': REL_SUB_EMPLOYED_BY,
-            'work_name': orga.name,
-            'organisation': orga.id,
+                'create_or_attach_orga': True,
+                'relation': REL_SUB_EMPLOYED_BY,
+                'work_name': orga.name,
+                'organisation': orga.id,
 
-            # f'update_work_{req_fname}': 'on',
-            # f'work_{req_fname}': '',  # <= empty
-        }
-        response1 = self._post_step1(
-            data=data,
+                # f'update_work_{req_fname}': 'on',
+                # f'work_{req_fname}': '',  # <= empty
+            },
             errors=True,
         )
         self.assertFormError(
-            response1, 'form', f'work_{req_fname}',
-            _('The field «{}» has been configured as required.').format(
+            response.context['form'],
+            field=f'work_{req_fname}',
+            errors=_('The field «{}» has been configured as required.').format(
                 Organisation._meta.get_field(req_fname).verbose_name
             ),
         )
@@ -2311,8 +2319,9 @@ END:VCARD"""
         }
         response2 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response2, 'form', f'work_{req_fname}',
-            _('The field «{}» has been configured as required.').format(label),
+            response2.context['form'],
+            field=f'work_{req_fname}',
+            errors=_('The field «{}» has been configured as required.').format(label),
         )
 
         # ---
@@ -2365,8 +2374,9 @@ END:VCARD"""
         }
         response2 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response2, 'form', f'work_{req_fname}',
-            _('The field «{}» has been configured as required.').format(
+            response2.context['form'],
+            field=f'work_{req_fname}',
+            errors=_('The field «{}» has been configured as required.').format(
                 Organisation._meta.get_field(req_fname).verbose_name
             ),
         )
@@ -2464,18 +2474,12 @@ END:VCARD"""
             # 'workaddr_code':     ...,
         }
         response2 = self._post_step1(data=data, errors=True)
-        self.assertFormError(
-            response2, 'form', f'homeaddr_{req_fname_vcf}',
-            _('The field «{}» has been configured as required.').format(
-                Address._meta.get_field(req_fname).verbose_name
-            ),
+        form2 = response2.context['form']
+        msg = _('The field «{}» has been configured as required.').format(
+            Address._meta.get_field(req_fname).verbose_name,
         )
-        self.assertFormError(
-            response2, 'form', f'workaddr_{req_fname_vcf}',
-            _('The field «{}» has been configured as required.').format(
-                Address._meta.get_field(req_fname).verbose_name
-            ),
-        )
+        self.assertFormError(form2, field=f'homeaddr_{req_fname_vcf}', errors=msg)
+        self.assertFormError(form2, field=f'workaddr_{req_fname_vcf}', errors=msg)
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -2527,8 +2531,9 @@ END:VCARD"""
 
         field_name = f'workaddr_{req_fname_vcf}'
         self.assertFormError(
-            response2, 'form', field_name,
-            _('The field «{}» has been configured as required.').format(
+            response2.context['form'],
+            field=field_name,
+            errors=_('The field «{}» has been configured as required.').format(
                 Address._meta.get_field(req_fname).verbose_name
             ),
         )
@@ -2603,8 +2608,9 @@ END:VCARD"""
 
         field_name = f'workaddr_{req_fname_vcf}'
         self.assertFormError(
-            response2, 'form', field_name,
-            _('The field «{}» has been configured as required.').format(
+            response2.context['form'],
+            field=field_name,
+            errors=_('The field «{}» has been configured as required.').format(
                 Address._meta.get_field(req_fname).verbose_name
             ),
         )
@@ -2660,9 +2666,11 @@ END:VCARD"""
         }
         response1 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response1, 'form', cf_name1, _('This field is required.'),
+            response1.context['form'],
+            field=cf_name1, errors=_('This field is required.'),
         )
 
+        # ---
         nickname = 'Asu'
         self._post_step1(data={**data, cf_name1: nickname})
 
@@ -2719,9 +2727,11 @@ END:VCARD"""
         }
         response1 = self._post_step1(data=data, errors=True)
         self.assertFormError(
-            response1, 'form', cf_name1, _('This field is required.'),
+            response1.context['form'],
+            field=cf_name1, errors=_('This field is required.'),
         )
 
+        # ---
         country = 'Japan'
         self._post_step1(data={**data, cf_name1: country})
 

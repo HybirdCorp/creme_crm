@@ -64,15 +64,15 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertFalse(entity.properties.all())
 
         url = reverse('creme_core__add_properties', args=(entity.id,))
-        context = self.assertGET200(url).context
+        context1 = self.assertGET200(url).context
         self.assertEqual(
             _('New properties for «{entity}»').format(entity=entity),
-            context.get('title'),
+            context1.get('title'),
         )
-        self.assertEqual(_('Add the properties'), context.get('submit_label'))
+        self.assertEqual(_('Add the properties'), context1.get('submit_label'))
 
         with self.assertNoException():
-            choices = context['form'].fields['types'].choices
+            choices = context1['form'].fields['types'].choices
 
         # Choices are sorted with 'text'
         choices = [*choices]
@@ -93,12 +93,13 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
 
         # ----------------------------------------------------------------------
         # One new and one old property
-        response = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})
+        response2 = self.assertPOST200(url, data={'types': [ptype01.id, ptype03.id]})
         self.assertFormError(
-            response, 'form', 'types',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': ptype01.id,
-            },
+            response2.context['form'],
+            field='types',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': ptype01.id},
         )
 
     def test_properties_brick(self):
@@ -372,18 +373,18 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         for entity in entities:
             self.assertEqual(0, entity.properties.count())
 
-        response = self.assertGET200(
+        response1 = self.assertGET200(
             self._build_bulk_url(entities[0].entity_type, *entities, GET=True)
         )
-        self.assertTemplateUsed(response, 'creme_core/generics/blockform/add-popup.html')
+        self.assertTemplateUsed(response1, 'creme_core/generics/blockform/add-popup.html')
 
-        context = response.context
-        get_ctxt = context.get
-        self.assertEqual(_('Multiple adding of properties'), get_ctxt('title'))
-        self.assertEqual(_('Add the properties'),            get_ctxt('submit_label'))
+        context1 = response1.context
+        get_ctxt1 = context1.get
+        self.assertEqual(_('Multiple adding of properties'), get_ctxt1('title'))
+        self.assertEqual(_('Add the properties'),            get_ctxt1('submit_label'))
 
         with self.assertNoException():
-            ptypes_choices = context['form'].fields['types'].choices
+            ptypes_choices = context1['form'].fields['types'].choices
 
         choices = [(choice[0].value, choice[1]) for choice in ptypes_choices]
         self.assertInChoices(value=ptype03.id, label=ptype03.text, choices=choices)
@@ -396,10 +397,14 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         # ---
         url = self._build_bulk_url(self.centity_ct)
         ids = [e.id for e in entities]
-        response = self.assertPOST200(url, data={'types': [], 'ids': ids})
-        self.assertFormError(response, 'form', 'types', _('This field is required.'))
+        response2 = self.assertPOST200(url, data={'types': [], 'ids': ids})
+        self.assertFormError(
+            response2.context['form'],
+            field='types', errors=_('This field is required.'),
+        )
 
-        response = self.client.post(
+        # ---
+        response3 = self.client.post(
             url,
             data={
                 'types': [ptype01.id, ptype02.id],
@@ -407,7 +412,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
                 'entities_lbl': '',
             },
         )
-        self.assertNoFormError(response)
+        self.assertNoFormError(response3)
 
         for entity in entities:
             self.assertEqual(2, entity.properties.count())

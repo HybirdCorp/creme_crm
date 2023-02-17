@@ -75,18 +75,19 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         url = self._build_add_url(camp)
-        response = self.assertGET200(url)
-        context = response.context
+        response1 = self.assertGET200(url)
+        context1 = response1.context
         self.assertEqual(
             _('New sending for «{entity}»').format(entity=camp),
-            context.get('title'),
+            context1.get('title'),
         )
-        self.assertEqual(EmailSending.save_label, context.get('submit_label'))
+        self.assertEqual(EmailSending.save_label, context1.get('submit_label'))
 
         with self.assertNoException():
-            sender = context['form'].fields['sender']
+            sender = context1['form'].fields['sender']
         self.assertIsNone(sender.initial)
 
+        # ---
         sender_email = 'vicious@reddragons.mrs'
         self.assertNoFormError(self.client.post(
             url,
@@ -98,14 +99,15 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         ))
 
         # --
-        response = self.assertGET200(url)
+        response3 = self.assertGET200(url)
 
         with self.assertNoException():
-            sender = response.context['form'].fields['sender']
+            sender = response3.context['form'].fields['sender']
 
         self.assertEqual(sender_email, sender.initial)
 
-        response = self.assertPOST200(
+        # ---
+        response4 = self.assertPOST200(
             url,
             data={
                 'sender':   'another_email@address.com',
@@ -114,8 +116,9 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'sender',
-            _(
+            response4.context['form'],
+            field='sender',
+            errors=_(
                 'You are not allowed to modify the sender address, '
                 'please contact your administrator.'
             ),
@@ -141,46 +144,50 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         )
 
         url = self._build_add_url(camp)
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            sender = response.context['form'].fields['sender']
+            sender_f1 = response1.context['form'].fields['sender']
 
         self.assertEqual(
             _(
                 'No sender email address has been configured, '
                 'please contact your administrator.'
             ),
-            sender.initial,
+            sender_f1.initial,
         )
-        sender_email = 'vicious@reddragons.mrs'
 
+        # ---
+        sender_email = 'vicious@reddragons.mrs'
+        response2 = self.client.post(
+            url,
+            data={
+                'sender': sender_email,
+                'type': EmailSending.Type.IMMEDIATE,
+                'template': template.id,
+            },
+        )
+        form2 = response2.context['form']
         self.assertFormError(
-            self.client.post(
-                url,
-                data={
-                    'sender': sender_email,
-                    'type': EmailSending.Type.IMMEDIATE,
-                    'template': template.id,
-                },
-            ),
-            'form', 'sender',
-            _(
+            form2,
+            field='sender',
+            errors=_(
                 'You are not allowed to modify the sender address, '
                 'please contact your administrator.'
             ),
         )
 
+        # ---
         sender_setting = SettingValue.objects.get(key_id=SETTING_EMAILCAMPAIGN_SENDER)
         sender_setting.value = sender_email
         sender_setting.save()
 
-        response = self.assertGET200(url)
+        response3 = self.assertGET200(url)
 
         with self.assertNoException():
-            sender = response.context['form'].fields['sender']
+            sender_f3 = response3.context['form'].fields['sender']
 
-        self.assertEqual(sender_email, sender.initial)
+        self.assertEqual(sender_email, sender_f3.initial)
 
         self.assertNoFormError(self.client.post(
             url,
@@ -634,25 +641,28 @@ class SendingsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         self.assertIsNotNone(wakeup)
         self.assertDatetimesAlmostEqual(sending.sending_date, wakeup)
 
+        # ---
         self.assertFormError(
-            post(data=data), 'form', 'sending_date',
-            _('Sending date required for a deferred sending'),
+            post(data=data).context['form'],
+            field='sending_date',
+            errors=_('Sending date required for a deferred sending'),
         )
 
+        # ---
         msg = _('Sending date must be is the future')
         self.assertFormError(
             post(data={
                 **data,
                 'sending_date': (now_value - timedelta(days=1)).strftime('%Y-%m-%d'),
-            }),
-            'form', 'sending_date', msg,
+            }).context['form'],
+            field='sending_date', errors=msg,
         )
         self.assertFormError(
             post(data={
                 **data,
                 'sending_date': now_value.strftime('%Y-%m-%d'),
-            }),
-            'form', 'sending_date', msg,
+            }).context['form'],
+            field='sending_date', errors=msg,
         )
 
     def test_create05(self):

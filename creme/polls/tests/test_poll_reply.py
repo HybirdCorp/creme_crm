@@ -470,7 +470,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                 'name': 'Reply#1',
             },
         )
-        self.assertFormError(response, 'form', 'pform', _('This field is required.'))
+        self.assertFormError(
+            response.context['form'], field='pform', errors=_('This field is required.'),
+        )
 
     def test_createview03(self):
         "Create view: validation error when no line."
@@ -487,8 +489,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'pform',
-            _('The form must contain one line at least.'),
+            response.context['form'],
+            field='pform',
+            errors=_('The form must contain one line at least.'),
         )
 
     def test_createview04(self):
@@ -512,8 +515,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             },
         )
         self.assertFormError(
-            response, 'form', 'pform',
-            _('The form must contain one line at least.'),
+            response.context['form'],
+            field='pform',
+            errors=_('The form must contain one line at least.'),
         )
 
     def test_createview05(self):
@@ -891,8 +895,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             data={'replies': self.formfield_value_multi_creator_entity(preply)},
         )
         self.assertFormError(
-            response, 'form', 'replies',
-            _('Some entities are not editable: {}').format(preply),
+            response.context['form'],
+            field='replies',
+            errors=_('Some entities are not editable: {}').format(preply),
         )
 
     @skipIfCustomActivity
@@ -1106,7 +1111,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     @skipIfCustomPollCampaign
     @skipIfCustomContact
     def test_editview03(self):
-        "Permissions for new related person"
+        "Permissions for new related person."
         user = self.login(is_superuser=False, allowed_apps=('creme_core', 'polls', 'persons'))
 
         SetCredentials.objects.create(
@@ -1138,13 +1143,14 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
                     'related_person': self.formfield_value_generic_entity(contact),
                 },
             )
-        response = post(claudette)
-        self.assertEqual(200, response.status_code)
+        response1 = post(claudette)
+        self.assertEqual(200, response1.status_code)
         self.assertFormError(
-            response, 'form', 'related_person',
-            _('You are not allowed to link this entity: {}').format(
+            response1.context['form'],
+            field='related_person',
+            errors=_('You are not allowed to link this entity: {}').format(
                 _('Entity #{id} (not viewable)').format(id=claudette.id),
-            )
+            ),
         )
 
         self.assertNoFormError(post(erina))
@@ -1308,8 +1314,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             uri, data={f'override-{field_name}': self.formfield_value_generic_entity(leina)},
         )
         self.assertFormError(
-            response, 'form', f'override-{field_name}',
-            _('You are not allowed to link this entity: {}').format(leina),
+            response.context['form'],
+            field=f'override-{field_name}',
+            errors=_('You are not allowed to link this entity: {}').format(leina),
         )
 
         # ----
@@ -1461,9 +1468,11 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one INT question."
         self.login()
         preply, rline = self._build_reply_with_int_line()
+        response = self._fill(preply, 'notanint', check_errors=False)
         self.assertFormError(
-            self._fill(preply, 'notanint', check_errors=False),
-            'form', 'answer', [_('Enter a whole number.')],
+            response.context['form'],
+            field='answer',
+            errors=_('Enter a whole number.'),
         )
 
         answer = 42
@@ -1476,20 +1485,27 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         lower_bound = 10
         upper_bound = 20
         preply, rline = self._build_reply_with_int_line(lower_bound, upper_bound)
+
+        response1 = self._fill(preply, 5, check_errors=False)
         self.assertFormError(
-            self._fill(preply, 5, check_errors=False), 'form', 'answer',
-            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                'limit_value': lower_bound,
-            },
+            response1.context['form'],
+            field='answer',
+            errors=_(
+                'Ensure this value is greater than or equal to %(limit_value)s.'
+            ) % {'limit_value': lower_bound},
         )
 
+        # ---
+        response2 = self._fill(preply, 25, check_errors=False)
         self.assertFormError(
-            self._fill(preply, 25, check_errors=False), 'form', 'answer',
-            _('Ensure this value is less than or equal to %(limit_value)s.') % {
-                'limit_value': upper_bound,
-            },
+            response2.context['form'],
+            field='answer',
+            errors=_(
+                'Ensure this value is less than or equal to %(limit_value)s.'
+            ) % {'limit_value': upper_bound},
         )
 
+        # ---
         answer = 15
         self.assertNoFormError(self._fill(preply, answer))
         rline_answer = self.refresh(rline).answer
@@ -1515,13 +1531,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "Fill one BOOL question : no answer (caused an issue)."
         self.login()
         preply, rline = self._build_reply_with_bool_line()
+        response = self.client.post(self._build_fill_url(preply), follow=True)
         self.assertFormError(
-            self.client.post(self._build_fill_url(preply), follow=True),
-            'form', 'answer', _('The answer is required.'),
+            response.context['form'], field='answer', errors=_('The answer is required.'),
         )
 
     def test_fillview_date01(self):
-        "One DATE question"
+        "One DATE question."
         self.login()
         pform = PollForm.objects.create(user=self.user, name='Form#1')
         fline = self._get_formline_creator(pform)(
@@ -1530,11 +1546,12 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
+        response1 = self._fill(preply, 'notanint', check_errors=False)
         self.assertFormError(
-            self._fill(preply, 'notanint', check_errors=False),
-            'form', 'answer', _('Enter a valid date.'),
+            response1.context['form'], field='answer', errors=_('Enter a valid date.'),
         )
 
+        # ---
         answer = date(year=2012, month=6, day=8)
         self.assertNoFormError(self._fill(preply, answer))
         self.assertEqual(answer, self.refresh(rline).answer)
@@ -1550,19 +1567,26 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = self.get_object_or_fail(PollReplyLine, pform_line=fline)
 
+        response1 = self._fill(preply, -1, check_errors=False)
         self.assertFormError(
-            self._fill(preply, -1, check_errors=False), 'form', 'answer',
-            _('Ensure this value is greater than or equal to %(limit_value)s.') % {
-                'limit_value': 0,
-            },
-        )
-        self.assertFormError(
-            self._fill(preply, 24, check_errors=False), 'form', 'answer',
-            _('Ensure this value is less than or equal to %(limit_value)s.') % {
-                'limit_value': 23,
-            },
+            response1.context['form'],
+            field='answer',
+            errors=_(
+                'Ensure this value is greater than or equal to %(limit_value)s.'
+            ) % {'limit_value': 0},
         )
 
+        # ---
+        response2 = self._fill(preply, 24, check_errors=False)
+        self.assertFormError(
+            response2.context['form'],
+            field='answer',
+            errors=_(
+                'Ensure this value is less than or equal to %(limit_value)s.'
+            ) % {'limit_value': 23},
+        )
+
+        # ---
         self._fill(preply, '17')
         self.assertEqual(17, self.refresh(rline).answer)
 
@@ -1579,27 +1603,33 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = PollReplyLine.objects.get(pform_line=fline)
 
-        response = self.assertGET200(self._build_fill_url(preply))
+        response1 = self.assertGET200(self._build_fill_url(preply))
 
         with self.assertNoException():
-            answer_field = response.context['form'].fields['answer']
+            answer_field = response1.context['form'].fields['answer']
 
         self.assertEqual(choices, answer_field.choices)
         self.assertIsInstance(answer_field.widget, Select)
 
+        # ---
         answer = 'Invalid choice'
+        response2 = self._fill(preply, answer, check_errors=False)
         self.assertFormError(
-            self._fill(preply, answer, check_errors=False), 'form', 'answer',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': answer
-            },
+            response2.context['form'],
+            field='answer',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': answer},
         )
 
+        # ---
+        response3 = self.client.post(self._build_fill_url(preply), follow=True)
         self.assertFormError(
-            self.client.post(self._build_fill_url(preply), follow=True),
-            'form', 'answer', _('The answer is required.'),
+            response3.context['form'],
+            field='answer', errors=_('The answer is required.'),
         )
 
+        # ---
         self.assertNoFormError(self._fill(preply, 2))
 
         rline_answer = self.refresh(rline).answer
@@ -1620,21 +1650,25 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         preply = self._build_preply_from_pform(pform, 'Reply#1')
         rline  = PollReplyLine.objects.get(pform_line=fline)
 
-        response = self.assertGET200(self._build_fill_url(preply))
+        response1 = self.assertGET200(self._build_fill_url(preply))
 
         with self.assertNoException():
-            answer_field = response.context['form'].fields['answer']
+            answer_field = response1.context['form'].fields['answer']
 
         self.assertEqual(choices, answer_field.choices)
         self.assertIsInstance(answer_field.widget, UnorderedMultipleChoiceWidget)
 
+        # ---
+        response2 = self._fill(preply, [5, 7], check_errors=False)
         self.assertFormError(
-            self._fill(preply, [5, 7], check_errors=False), 'form', 'answer',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': 5
-            },
+            response2.context['form'],
+            field='answer',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': 5},
         )
 
+        # ---
         self.assertNoFormError(self._fill(preply, [1, 2]))
 
         rline_answer = self.refresh(rline).answer
@@ -1645,12 +1679,13 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.login()
         preply, rline = self._build_reply_with_enumorstring_line()
         answer = 42
+        response = self._fill(preply, {'answer_0': answer, 'answer_1': ''}, check_errors=False)
         self.assertFormError(
-            self._fill(preply, {'answer_0': answer, 'answer_1': ''}, check_errors=False),
-            'form', 'answer',
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': answer,
-            },
+            response.context['form'],
+            field='answer',
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': answer},
         )
 
         self.assertNoFormError(self._fill(preply, {'answer_0': 2, 'answer_1': ''}))
@@ -1714,9 +1749,10 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         "If the answer is applicable, 'answer' field is required."
         self.login()
         preply, rline = self._build_reply_with_int_line()
+        response = self._fill(preply, '', not_applicable=False, check_errors=False)
         self.assertFormError(
-            self._fill(preply, '', not_applicable=False, check_errors=False),
-            'form', 'answer', _('The answer is required.'),
+            response.context['form'],
+            field='answer', errors=_('The answer is required.'),
         )
 
     def test_fillview_wizard01(self):

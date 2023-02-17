@@ -168,17 +168,18 @@ class ContactQuickFormTestCase(_BaseTestCase):
         orga_count = Organisation.objects.count()
 
         url = self._build_quickform_url()
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_f = response.context['form'].fields['organisation']
+            orga_f = response1.context['form'].fields['organisation']
 
         self.assertEqual(
             _('Enter the name of an existing Organisation.'),
             str(orga_f.help_text),
         )
 
-        response = self.client.post(
+        # ---
+        response2 = self.client.post(
             url,
             data={
                 'user':         user.id,
@@ -188,8 +189,9 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'organisation',
-            _('You are not allowed to create an Organisation.'),
+            response2.context['form'],
+            field='organisation',
+            errors=_('You are not allowed to create an Organisation.'),
         )
         self.assertEqual(contact_count, Contact.objects.count())
         self.assertEqual(orga_count, Organisation.objects.count())
@@ -277,13 +279,14 @@ class ContactQuickFormTestCase(_BaseTestCase):
         )
 
         url = self._build_quickform_url()
-        response = self.assertGET200(url)
+        response1 = self.assertGET200(url)
 
         with self.assertNoException():
-            orga_f = response.context['form'].fields['organisation']
+            orga_f = response1.context['form'].fields['organisation']
 
         self.assertIsNone(orga_f.initial)
 
+        # ---
         first_name = 'Faye'
         last_name = 'Valentine'
         data = {
@@ -291,14 +294,16 @@ class ContactQuickFormTestCase(_BaseTestCase):
             'first_name': 'Faye',
             'last_name':  'Valentine',
         }
-        response = self.client.post(url, data={**data, 'organisation': 'Bebop'})
+        response2 = self.client.post(url, data={**data, 'organisation': 'Bebop'})
         self.assertFormError(
-            response, 'form', None,
-            _('You are not allowed to link with the «{models}» of this user.').format(
-                models=_('Contacts'),
-            )
+            response2.context['form'],
+            field=None,
+            errors=_(
+                'You are not allowed to link with the «{models}» of this user.'
+            ).format(models=_('Contacts')),
         )
 
+        # ---
         self.assertNoFormError(self.client.post(url, data=data))
         self.get_object_or_fail(Contact, first_name=first_name, last_name=last_name)
 
@@ -322,8 +327,9 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'organisation',
-            _('Several Organisations with this name have been found.'),
+            response.context['form'],
+            field='organisation',
+            errors=_('Several Organisations with this name have been found.'),
         )
 
     @skipIfCustomOrganisation
@@ -382,7 +388,8 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', 'organisation', _('No linkable Organisation found.'),
+            response.context['form'],
+            field='organisation', errors=_('No linkable Organisation found.'),
         )
 
     def test_quickform11(self):
@@ -407,10 +414,11 @@ class ContactQuickFormTestCase(_BaseTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 'You are not allowed to link with the «{models}» of this user.'
-            ).format(models=_('Organisations'))
+            ).format(models=_('Organisations')),
         )
 
     @skipIfCustomOrganisation

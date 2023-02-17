@@ -348,18 +348,21 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_LINKED_KEY:    self.formfield_value_multi_generic_entity(dojo),
             },
         )
+
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', self.EXTRA_MYPART_KEY,
-            _('You are not allowed to link this entity: {}').format(mireille),
+            form,
+            field=self.EXTRA_MYPART_KEY,
+            errors=_('You are not allowed to link this entity: {}').format(mireille),
         )
 
         fmt = _('Some entities are not linkable: {}').format
         self.assertFormError(
-            response, 'form', self.EXTRA_PARTUSERS_KEY, fmt(other_user.linked_contact),
+            form, field=self.EXTRA_PARTUSERS_KEY, errors=fmt(other_user.linked_contact),
         )
-        self.assertFormError(response, 'form', self.EXTRA_OTHERPART_KEY, fmt(genma))
-        self.assertFormError(response, 'form', self.EXTRA_SUBJECTS_KEY,  fmt(akane))
-        self.assertFormError(response, 'form', self.EXTRA_LINKED_KEY,    fmt(dojo))
+        self.assertFormError(form, field=self.EXTRA_OTHERPART_KEY, errors=fmt(genma))
+        self.assertFormError(form, field=self.EXTRA_SUBJECTS_KEY,  errors=fmt(akane))
+        self.assertFormError(form, field=self.EXTRA_LINKED_KEY,    errors=fmt(dojo))
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
@@ -796,8 +799,9 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         response1 = self.assertPOST200(url, follow=True, data=data)
         self.assertFormError(
-            response1, 'form', None,
-            _("You can't set the end of your activity without setting its start"),
+            response1.context['form'],
+            field=None,
+            errors=_("You can't set the end of your activity without setting its start"),
         )
 
         response2 = self.assertPOST200(
@@ -805,7 +809,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             # data={**data, f'{self.EXTRA_START_KEY}_0': '2013-3-30'},
             data={**data, f'{self.EXTRA_START_KEY}_0': self.formfield_value_date(2013, 3, 30)},
         )
-        self.assertFormError(response2, 'form', None, _('End is before start'))
+        self.assertFormError(
+            response2.context['form'], field=None, errors=_('End is before start'),
+        )
 
         response3 = self.assertPOST200(
             url,
@@ -817,8 +823,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response3, 'form', None,
-            _("A floating on the day activity can't busy its participants"),
+            response3.context['form'],
+            field=None,
+            errors=_("A floating on the day activity can't busy its participants"),
         )
 
     def test_createview_errors02(self):
@@ -841,8 +848,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_SUBJECTS_KEY,
-            _('This content type is not allowed.'),
+            response.context['form'],
+            field=self.EXTRA_SUBJECTS_KEY,
+            errors=_('This content type is not allowed.'),
         )
 
     @skipIfCustomContact
@@ -869,9 +877,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_OTHERPART_KEY,
-            # _('This entity does not exist.'),
-            _('«%(entity)s» violates the constraints.') % {'entity': other},
+            response.context['form'],
+            field=self.EXTRA_OTHERPART_KEY,
+            errors=_('«%(entity)s» violates the constraints.') % {'entity': other},
         )
 
     def test_createview_errors04(self):
@@ -894,10 +902,11 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_PARTUSERS_KEY,
-            _('Select a valid choice. %(value)s is not one of the available choices.') % {
-                'value': user.id,
-            },
+            response.context['form'],
+            field=self.EXTRA_PARTUSERS_KEY,
+            errors=_(
+                'Select a valid choice. %(value)s is not one of the available choices.'
+            ) % {'value': user.id},
         )
 
     @skipIfNotInstalled('creme.assistants')
@@ -1017,8 +1026,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_ALERTPERIOD_KEY,
-            _('You cannot set a relative alert on a floating activity'),
+            response.context['form'],
+            field=self.EXTRA_ALERTPERIOD_KEY,
+            errors=_('You cannot set a relative alert on a floating activity'),
         )
 
     @skipIfNotInstalled('creme.assistants')
@@ -1270,7 +1280,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         }
         response2 = self.assertPOST200(url, data=data)
         self.assertFormError(
-            response2, 'form', self.EXTRA_SUBTYPE_KEY, _('This field is required.'),
+            response2.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY, errors=_('This field is required.'),
         )
 
         # ---
@@ -1621,8 +1632,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             }
         )
         self.assertFormError(
-            response, 'form', None,
-            _(
+            response.context['form'],
+            field=None,
+            errors=_(
                 '{participant} already participates to the activity '
                 '«{activity}» between {start} and {end}.'
             ).format(
@@ -1686,13 +1698,14 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response1, 'form', self.EXTRA_SUBTYPE_KEY,
-            ActivitySubTypeField.default_error_messages['invalid_choice'],
+            response1.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
         # ---
         subtype = ActivitySubType.objects.create(
-            id='hollydays', name='Hollydays', type_id=constants.ACTIVITYTYPE_INDISPO,
+            id='holidays', name='Holidays', type_id=constants.ACTIVITYTYPE_INDISPO,
         )
         response2 = self.client.post(
             url,
@@ -1881,8 +1894,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             data={form_field_name: constants.ACTIVITYTYPE_INDISPO},
         )
         self.assertFormError(
-            response, 'form', form_field_name,
-            ActivitySubTypeField.default_error_messages['invalid_choice'],
+            response.context['form'],
+            field=form_field_name,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
     def test_inner_edit_type04(self):
@@ -1910,8 +1924,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             uri, data={form_field_name: constants.ACTIVITYSUBTYPE_PHONECALL_INCOMING},
         )
         self.assertFormError(
-            response, 'form', form_field_name,
-            ActivitySubTypeField.default_error_messages['invalid_choice'],
+            response.context['form'],
+            field=form_field_name,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
         self.assertNoFormError(self.client.post(uri, data={form_field_name: subtype.id}))
@@ -2183,8 +2198,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             },
         )
         self.assertFormError(
-            response, 'form', self.EXTRA_SUBTYPE_KEY,
-            ActivitySubTypeField.default_error_messages['invalid_choice'],
+            response.context['form'],
+            field=self.EXTRA_SUBTYPE_KEY,
+            errors=ActivitySubTypeField.default_error_messages['invalid_choice'],
         )
 
     def test_unavailability_createview02(self):
@@ -2233,8 +2249,8 @@ class ActivityTestCase(_ActivitiesTestCase):
         )
         key = f'cform_extra-{UnavailabilityTypeSubCell.sub_type_id}'
         self.assertFormError(
-            response2, 'form', key,
-            _('This field is required.'),
+            response2.context['form'],
+            field=key, errors=_('This field is required.'),
         )
 
         # ---
@@ -2319,9 +2335,10 @@ class ActivityTestCase(_ActivitiesTestCase):
                 self.EXTRA_PARTUSERS_KEY: [user.id],
             },
         )
+        form = response.context['form']
         msg = _('This field is required.')
-        self.assertFormError(response, 'form', self.EXTRA_START_KEY, msg)
-        self.assertFormError(response, 'form', self.EXTRA_END_KEY,   msg)
+        self.assertFormError(form, field=self.EXTRA_START_KEY, errors=msg)
+        self.assertFormError(form, field=self.EXTRA_END_KEY,   errors=msg)
 
     def test_detete_activity_type01(self):
         self.login()
@@ -2369,9 +2386,9 @@ class ActivityTestCase(_ActivitiesTestCase):
             args=('activities', 'activity_type', atype.id),
         ))
         self.assertFormError(
-            response, 'form',
-            'replace_activities__activity_type',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_activities__activity_type',
+            errors=_('Deletion is not possible.'),
         )
 
     def test_dl_ical(self):

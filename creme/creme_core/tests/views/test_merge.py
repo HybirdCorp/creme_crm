@@ -657,9 +657,10 @@ class MergeViewsTestCase(ViewsTestCase):
                 'name_merged': '',  # <======
             },
         )
+        form2 = response2.context['form']
         msg = _('This field is required.')
-        self.assertFormError(response2, 'form', 'user', msg)
-        self.assertFormError(response2, 'form', 'name', msg)
+        self.assertFormError(form2, field='user', errors=msg)
+        self.assertFormError(form2, field='name', errors=msg)
 
     def test_error03(self):
         "Try to merge an entity with itself (by forging the URL)."
@@ -779,4 +780,7 @@ class MergeViewsTestCase(ViewsTestCase):
                 f'{fname}_merged': '',  # <======
             },
         )
-        self.assertFormError(response2, 'form', fname, _('This field is required.'))
+        self.assertFormError(
+            response2.context['form'],
+            field=fname, errors=_('This field is required.'),
+        )

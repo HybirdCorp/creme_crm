@@ -72,8 +72,23 @@ def creme_test_populate():
     reset_contenttype_cache()
 
 
-def creme_init_worker(counter):
-    _init_worker(counter)
+# def creme_init_worker(counter):
+def creme_init_worker(counter,
+                      initial_settings=None,
+                      serialized_contents=None,
+                      process_setup=None,
+                      process_setup_args=None,
+                      debug_mode=None,
+                      ):
+    # _init_worker(counter)
+    _init_worker(
+        counter=counter,
+        initial_settings=initial_settings,
+        serialized_contents=serialized_contents,
+        process_setup=process_setup,
+        process_setup_args=process_setup_args,
+        debug_mode=debug_mode,
+    )
     creme_test_populate()
 
 

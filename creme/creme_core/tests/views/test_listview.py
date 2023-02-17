@@ -90,8 +90,10 @@ class ListViewTestCase(ViewsTestCase):
         db_engine = settings.DATABASES['default']['ENGINE']
         if db_engine == 'django.db.backends.mysql':
             trash_sql = (
+                # 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
+                # 'WHERE `creme_core_cremeentity`.`is_deleted`'
                 'SELECT COUNT(*) AS `__count` FROM `creme_core_cremeentity` '
-                'WHERE `creme_core_cremeentity`.`is_deleted`'
+                'WHERE `creme_core_cremeentity`.`is_deleted` = 1'
             )
         elif db_engine == 'django.db.backends.sqlite3':
             trash_sql = (
@@ -115,7 +117,7 @@ class ListViewTestCase(ViewsTestCase):
                 optimized_counts.append(sql)
 
         if len(optimized_counts) != 1:
-            self.fail('{} fast queries found in:\n{}'.format(
+            self.fail('{} fast queries found (one was expected):\n{}'.format(
                 len(optimized_counts),
                 '\n'.join(f' - {sql}' for sql in optimized_counts),
             ))
@@ -1007,11 +1009,25 @@ class ListViewTestCase(ViewsTestCase):
                 },
             )
 
-        main_sql_match = re.compile(
-            r'SELECT .creme_core_cremeentity.\..id., .*'
-            r'.creme_core_fakecontact.\..last_name., .*'
-            r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
-        ).match
+        # main_sql_match = re.compile(
+        #     r'SELECT .creme_core_cremeentity.\..id., .*'
+        #     r'.creme_core_fakecontact.\..last_name., .*'
+        #     r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
+        # ).match
+        db_engine = settings.DATABASES['default']['ENGINE']
+        if db_engine == 'django.db.backends.mysql':
+            main_sql_match = re.compile(
+                r'SELECT .creme_core_cremeentity.\..id., .*'
+                r'.creme_core_fakecontact.\..last_name., .*'
+                r'WHERE .creme_core_cremeentity.\..is_deleted. = 0'
+            ).match
+        else:
+            main_sql_match = re.compile(
+                r'SELECT .creme_core_cremeentity.\..id., .*'
+                r'.creme_core_fakecontact.\..last_name., .*'
+                r'WHERE NOT .creme_core_cremeentity.\..is_deleted'
+            ).match
+
         main_sql = [sql for sql in context.captured_sql if main_sql_match(sql)]
 
         if not main_sql:

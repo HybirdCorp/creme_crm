@@ -3,7 +3,7 @@ from __future__ import annotations
 import sys
 import warnings
 from contextlib import ContextDecorator
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from json import dumps as json_dump
 from os.path import basename
 from tempfile import NamedTemporaryFile
@@ -19,10 +19,10 @@ from django.core.management import call_command
 from django.db.models.query_utils import Q
 from django.forms.formsets import BaseFormSet
 from django.test import RequestFactory, TestCase, TransactionTestCase
-from django.test.testcases import to_list
 from django.urls import reverse
 from django.utils.formats import get_format
-from django.utils.timezone import get_current_timezone, make_aware, utc
+# from django.utils.timezone import utc
+from django.utils.timezone import get_current_timezone, make_aware
 
 from ..global_info import clear_global_info
 from ..gui.icons import get_icon_by_name, get_icon_size_px
@@ -457,35 +457,6 @@ class _CremeTestCase:
                         f"{form_index} contains errors: {field_errors}"
                     )
 
-    def assertWizardFormError(self, response, wizard='wizard', field=None, errors=()):
-        try:
-            wizard_obj = response.context[wizard]
-        except KeyError:
-            self.fail(f'The wizard "{wizard}" was not used to render the response')
-
-        form_obj = wizard_obj['form']
-
-        for err in to_list(errors):
-            if field:
-                if field in form_obj.errors:
-                    field_errors = form_obj.errors[field]
-                    self.assertTrue(
-                        err in field_errors,
-                        f'The field "{field}" on wizard "{wizard}" does not contain '
-                        f'the error ''"{err}" (actual errors: {field_errors!r})'
-                    )
-                elif field in form_obj.fields:
-                    self.fail(f'The field {field} on wizard "{wizard}" contains no errors')
-                else:
-                    self.fail(f'The wizard {wizard} does not contain the field "{field}"')
-            else:
-                non_field_errors = form_obj.non_field_errors()
-                self.assertTrue(
-                    err in non_field_errors,
-                    f'The wizard "{wizard}" does not contain the non-field error "{err}" '
-                    f'(actual errors: {non_field_errors or "none"})'
-                )
-
     def assertNoWizardFormError(self, response, status=200, wizard='wizard'):
         self.assertEqual(status, response.status_code)
 
@@ -541,7 +512,7 @@ class _CremeTestCase:
                 subject_entity=subject_entity.id,
                 type=type_id,
                 object_entity=object_entity.id,
-            ).count()
+            ).count(),
         )
 
     def assertSameProperties(self, entity1, entity2):
@@ -625,14 +596,15 @@ class _CremeTestCase:
 
     @staticmethod
     def create_datetime(*args, **kwargs):
-        tz = utc if kwargs.pop('utc', False) else get_current_timezone()
+        tz = timezone.utc if kwargs.pop('utc', False) else get_current_timezone()
         return make_aware(datetime(*args, **kwargs), tz)
 
     @staticmethod
     def create_uploaded_file(*,
                              file_name: str,
                              dir_name: str,
-                             content: str | list[str] = 'I am the content'):
+                             content: str | list[str] = 'I am the content',
+                             ) -> str:
         from os import path as os_path
         from shutil import copy
 

@@ -259,15 +259,20 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             ),
         )
         self.assertEqual(200, response.status_code)
+
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', 'abscissa',
-            'This entity cell is not allowed.'
+            form,
+            field='abscissa',
+            errors='This entity cell is not allowed.'
         )
         self.assertFormError(
-            response, 'form', 'ordinate',
-            'This entity cell is not allowed.'
+            form,
+            field='ordinate',
+            errors='This entity cell is not allowed.'
         )
 
+        # ---
         aggregate = ReportGraph.Aggregator.MAX
         abscissa = 'created'
         self.assertNoFormError(post(
@@ -365,10 +370,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response, 'form', 'abscissa',
-            'This entity cell is not allowed.'
+            response.context['form'],
+            field='abscissa',
+            errors='This entity cell is not allowed.'
         )
 
+        # ---
         abscissa = 'created'
         self.assertNoFormError(post(abscissa_field=abscissa))
 
@@ -415,10 +422,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         response = post(abscissa_field='legal_form')
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response, 'form', 'abscissa',
-            'This entity cell is not allowed.'
+            response.context['form'],
+            field='abscissa',
+            errors='This entity cell is not allowed.'
         )
 
+        # ---
         aggregate = ReportGraph.Aggregator.AVG
         abscissa = 'modified'
         days = '25'
@@ -622,13 +631,12 @@ class ReportGraphTestCase(BrickTestCaseMixin,
                 ),
             },
         )
+        form = response.context['form']
         self.assertFormError(
-            response, 'form', 'abscissa',
-            'This entity cell is not allowed.'
+            form, field='abscissa', errors='This entity cell is not allowed.',
         )
         self.assertFormError(
-            response, 'form', 'ordinate',
-            'This entity cell is not allowed.'
+            form, field='ordinate', errors='This entity cell is not allowed.',
         )
 
     def test_createview_disabled_rtype(self):
@@ -659,8 +667,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response, 'form', 'abscissa',
-            'This entity cell is not allowed.'
+            response.context['form'],
+            field='abscissa',
+            errors='This entity cell is not allowed.',
         )
 
     def test_abscissa_info(self):
@@ -906,8 +915,9 @@ class ReportGraphTestCase(BrickTestCaseMixin,
             },
         )
         self.assertFormError(
-            response, 'form', 'ordinate',
-            'This entity cell is not allowed.'
+            response.context['form'],
+            field='ordinate',
+            errors='This entity cell is not allowed.',
         )
 
     def test_editview04(self):

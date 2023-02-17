@@ -125,7 +125,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 'segment':        segment.id,
             },
         )
-        self.assertFormError(response, 'form', None, _("Due date can't be before start."))
+        self.assertFormError(
+            response.context['form'],
+            field=None, errors=_("Due date can't be before start."),
+        )
         self.assertFalse(Act.objects.all())
 
     def test_create03(self):
@@ -136,7 +139,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         segment = self._create_segment()
 
         def post(**kwargs):
-            return self.assertPOST200(
+            response = self.assertPOST200(
                 self.ADD_URL,
                 follow=True,
                 data={
@@ -149,10 +152,12 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 },
             )
 
+            return response.context['form']
+
         msg = _('This field is required.')
         date_str = self.formfield_value_date(2011, 11, 20)
-        self.assertFormError(post(start=date_str),    'form', 'due_date', msg)
-        self.assertFormError(post(due_date=date_str), 'form', 'start',    msg)
+        self.assertFormError(post(start=date_str),    field='due_date', errors=msg)
+        self.assertFormError(post(due_date=date_str), field='start',    errors=msg)
 
     def create_act(self, name='NAME', expected_sales=1000):
         return Act.objects.create(
@@ -226,7 +231,10 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
                 'segment':         segment.id,
             },
         )
-        self.assertFormError(response, 'form', None, _("Due date can't be before start."))
+        self.assertFormError(
+            response.context['form'],
+            field=None, errors=_("Due date can't be before start."),
+        )
         self.assertEqual(date(year=2011, month=12, day=26), self.refresh(act).due_date)
 
     def test_listview(self):
@@ -533,7 +541,8 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         response = post(priv_efilter)
         self.assertEqual(200, response.status_code)
         self.assertFormError(
-            response, 'form', 'entity_counting', _('This filter is invalid.'),
+            response.context['form'],
+            field='entity_counting', errors=_('This filter is invalid.'),
         )
 
         response = post(pub_efilter)
@@ -1144,8 +1153,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
             args=('commercial', 'act_type', act.act_type_id),
         ))
         self.assertFormError(
-            response, 'form', 'replace_commercial__act_act_type',
-            _('Deletion is not possible.'),
+            response.context['form'],
+            field='replace_commercial__act_act_type',
+            errors=_('Deletion is not possible.'),
         )
 
     @skipIfCustomOrganisation
