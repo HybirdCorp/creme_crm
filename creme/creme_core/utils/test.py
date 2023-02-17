@@ -124,7 +124,7 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def __init__(self, *args, **kwargs):
         # Create the instance here to prevent issues if django.setup() was not called
-        # before the creme.utils.test import : could happend if 'spawn' is used
+        # before the creme.utils.test import : could happen if 'spawn' is used
         # for multiprocessing on Windows or OSX.
         self.test_loader = CremeTestLoader()
 
@@ -137,9 +137,9 @@ class CremeDiscoverRunner(DiscoverRunner):
 
     def setup_test_environment(self, **kwargs):
         super().setup_test_environment(**kwargs)
-        print('Creating mock media directory...')
+        self.log('Creating mock media directory...')
         self._mock_media_path = settings.MEDIA_ROOT = mkdtemp(prefix='creme_test_media')
-        print(f' ... {self._mock_media_path} created.')
+        self.log(f' ... {self._mock_media_path} created.')
         # script = (
         #     'import http.server;'
         #     'import os;'
@@ -166,7 +166,7 @@ class CremeDiscoverRunner(DiscoverRunner):
         if self._mock_media_path:
             settings.MEDIA_ROOT = self._original_media_root
 
-            print('Deleting mock media directory...')
+            self.log('Deleting mock media directory...')
             rmtree(self._mock_media_path)
             self._mock_media_path = None
 
