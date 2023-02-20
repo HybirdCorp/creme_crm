@@ -139,6 +139,8 @@
                   You should use mocking if you want to test code which retrieves files with HTTP (see in 'vcfs' or 'geolocation)'.
                   The attribute '_http_server' & the method '_clean_http_server()' have been removed.
         # Apps :
+            * Creme_config :
+                - 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'
             * Documents :
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
             * Activities :
