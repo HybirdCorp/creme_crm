@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2020  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -43,13 +43,13 @@ class UserSettings(generic.BricksView):
         context = super().get_context_data(**kwargs)
         context['theme_form'] = settings_forms.UserThemeForm(
             user=user, instance=user,
-        ).as_span()
+        ).as_div()  # ).as_span()
         context['tz_form'] = settings_forms.UserTimeZoneForm(
             user=user, instance=user,
-        ).as_span()
+        ).as_div()  # ).as_span()
         context['language_form'] = settings_forms.UserLanguageForm(
             user=user, instance=user,
-        ).as_span()
+        ).as_div()  # ).as_span()
         context['apps_usersettings_bricks'] = [*self.config_registry.user_bricks]
 
         return context
@@ -79,14 +79,16 @@ class _UserFieldSetting(generic.base.CremeFormView):
             return user
 
     def form_invalid(self, form):
-        return self.response_class({'form': form.as_span()})
+        # return self.response_class({'form': form.as_span()})
+        return self.response_class({'form': form.as_div()})
 
     def form_valid(self, form):
         form.save()
         return HttpResponse()
 
     def get(self, *args, **kwargs):
-        return self.response_class({'form': self.get_form().as_span()})
+        # return self.response_class({'form': self.get_form().as_span()})
+        return self.response_class({'form': self.get_form().as_div()})
 
 
 class ThemeSetting(_UserFieldSetting):
