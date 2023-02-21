@@ -1441,11 +1441,15 @@ class UserSettingsTestCase(CremeTestCase, BrickTestCaseMixin):
 
         theme_form = get('theme_form')
         self.assertIsInstance(theme_form, str)
-        self.assertIn('<span><label for="id_theme">', theme_form)
+        # self.assertIn('<span><label for="id_theme">', theme_form)
+        self.assertStartsWith(theme_form, '<div>')
+        self.assertIn('<label for="id_theme">', theme_form)
 
         tz_form = get('tz_form')
         self.assertIsInstance(tz_form, str)
-        self.assertIn('<span><label for="id_time_zone">', tz_form)
+        # self.assertIn('<span><label for="id_time_zone">', tz_form)
+        self.assertStartsWith(tz_form, '<div>')
+        self.assertIn('<label for="id_time_zone">', tz_form)
 
         self.assertIsList(get('apps_usersettings_bricks'))  # TODO: improve
 

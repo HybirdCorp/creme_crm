@@ -38,6 +38,8 @@
               'render_html()' & 'render_csv()' are deprecated ; user 'render()' instead.
             - In the class 'creme_core.core.function_field.FunctionFieldResult' (& child classes), the methods
               'for_html()' & 'for_csv()' are deprecated ; use 'render()' instead.
+            - The method 'creme_core.forms.base.HookableFormMixin.as_span()' is deprecated ;
+              use 'as_div()'/'as_ul()'/... instead.
             - In the class 'creme_core.gui.field_printers._FieldPrintersRegistry' :
                 - The method 'register()' is deprecated ; use the method 'register_model_field_type()' instead.
                   Hint: check if you defined 'register_field_printers()' in your own files "apps.py".
