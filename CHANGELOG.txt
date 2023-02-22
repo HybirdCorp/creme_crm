@@ -3,6 +3,7 @@
 TODO: compile messages (reports).
 
   UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.18 or more).
     - You should re-generate the media files (creme generatemedia --settings=[...]).
 
   Users side :

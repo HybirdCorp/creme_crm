@@ -69,11 +69,11 @@ virtual env, in order to keep the old one working).
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
      - Django 3.2
-     - redis 4.0
+     - redis 4.1
      - python-dateutil 2.8
-     - bleach 4.1
-     - Pillow 8.4
-     - django-formtools 2.3
+     - bleach 5.0
+     - Pillow 9.2
+     - django-formtools 2.4
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
      - csscompressor 0.9
@@ -85,7 +85,7 @@ virtual env, in order to keep the old one working).
        - weasyprint (easy to install on Linux ; harder on Windows)
        - you can also use the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
      - creme.graphs :
-       - pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
+       - [DEPRECATED] pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
 
 Installation with 'pip':
  - You should probably use "virtualenv".
