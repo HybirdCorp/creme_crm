@@ -694,7 +694,7 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
             opps_page = response.context['page_obj']
 
         self.assertEqual(2, opps_page.paginator.count)
-        self.assertSetEqual({opp1, opp2}, {*opps_page.object_list})
+        self.assertCountEqual([opp1, opp2], opps_page.object_list)
 
     @skipIfCustomOrganisation
     @override_settings(ENTITIES_DELETION_ALLOWED=True)

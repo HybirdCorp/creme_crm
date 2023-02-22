@@ -472,9 +472,9 @@ by a man named Tochiro.
         )
         cf_value.value.set([enum_value1, enum_value2])
 
-        self.assertSetEqual(
-            {enum_value1, enum_value2},
-            {*self.refresh(cf_value).value.all()}
+        self.assertCountEqual(
+            [enum_value1, enum_value2],
+            self.refresh(cf_value).value.all(),
         )
 
         formfield = cfield.get_formfield(custom_value=cf_value, user=orga.user)
@@ -516,9 +516,9 @@ by a man named Tochiro.
         with self.assertNumQueries(3):
             cf_value.set_value_n_save([enum_value1, enum_value2])
 
-        self.assertSetEqual(
-            {enum_value1, enum_value2},
-            {*self.refresh(cf_value).value.all()},
+        self.assertCountEqual(
+            [enum_value1, enum_value2],
+            self.refresh(cf_value).value.all(),
         )
 
     def test_delete(self):

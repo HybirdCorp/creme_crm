@@ -329,14 +329,14 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, chiaki.linked_contact)
 
         get_def_calendar = Calendar.objects.get_default_calendar
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 my_calendar,
                 get_def_calendar(other_user),
                 get_def_calendar(furuichi),
                 get_def_calendar(chiaki),
-            },
-            {*act1.calendars.all()},
+            ],
+            act1.calendars.all(),
         )
 
         self.assertRelationCount(1, act1, REL_OBJ_PART_2_ACTIVITY, participant1)
@@ -1143,7 +1143,7 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
 
         ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([last_name], user)
-        self.assertSetEqual({aoi, ittosai}, {*contacts})
+        self.assertCountEqual([aoi, ittosai], contacts)
         self.assertEqual(
             (_('Several contacts were found for the search «{}»').format(last_name),),
             err_msg,
@@ -1260,17 +1260,17 @@ class MassImportActivityTestCase(_ActivitiesTestCase, MassImportBaseTestCaseMixi
         aoi = create_contact(first_name='Aoi')
         oga = create_contact(first_name='Tatsumi', last_name='Oga')
         contacts, err_msg = ext.extract_value(['Aoi Kunieda#Tatsumi Oga'], user)
-        self.assertSetEqual({aoi, oga}, {*contacts})
+        self.assertCountEqual([aoi, oga], contacts)
         self.assertFalse(err_msg)
 
         contacts, err_msg = ext.extract_value(['Aoi Kunieda#Tatsumi Oga#'], user)
-        self.assertSetEqual({aoi, oga}, {*contacts})
+        self.assertCountEqual([aoi, oga], contacts)
 
         # -------
         searched = 'Kunieda'
         ittosai = create_contact(first_name='Ittôsai')
         contacts, err_msg = ext.extract_value([searched], user)
-        self.assertSetEqual({aoi, ittosai}, {*contacts})
+        self.assertCountEqual([aoi, ittosai], contacts)
         self.assertListEqual(
             [_('Several contacts were found for the search «{}»').format(searched)],
             err_msg,

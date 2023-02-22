@@ -257,7 +257,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertEqual(1, acts_page.number)
         self.assertEqual(2, acts_page.paginator.count)
-        self.assertSetEqual({*acts}, {*acts_page.object_list})
+        self.assertCountEqual(acts, acts_page.object_list)
 
     def test_detailview(self):
         self.login()
@@ -1122,11 +1122,9 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         create_rel(subject_entity=opp02)
 
         act = self.refresh(act)  # Refresh cache
-        opps = act.get_related_opportunities()
-        self.assertEqual(2, len(opps))
-        self.assertSetEqual({opp01, opp02}, {*opps})
-        self.assertEqual(2000, self.refresh(act).get_made_sales())
-        self.assertEqual(5000, self.refresh(act).get_estimated_sales())
+        self.assertCountEqual([opp01, opp02], act.get_related_opportunities())
+        self.assertEqual(2000, act.get_made_sales())
+        self.assertEqual(5000, act.get_estimated_sales())
 
         # ---
         detail_response2 = self.assertGET200(act.get_absolute_url())
@@ -1143,7 +1141,7 @@ class ActTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         # --
         opp01.trash()
-        self.assertEqual([opp02], self.refresh(act).get_related_opportunities())
+        self.assertListEqual([opp02], self.refresh(act).get_related_opportunities())
 
     def test_delete_type(self):
         self.login()

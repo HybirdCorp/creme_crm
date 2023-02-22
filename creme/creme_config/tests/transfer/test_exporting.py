@@ -305,14 +305,14 @@ class ExportingTestCase(CremeTestCase):
         role_info = roles_info[0]
         self.assertIsInstance(role_info, dict)
         self.assertEqual(role.name, role_info.get('name'))
-        self.assertSetEqual(
-            {'creme_core', 'persons'},
-            {*role_info.get('allowed_apps')},
+        self.assertCountEqual(
+            ['creme_core', 'persons'],
+            role_info.get('allowed_apps'),
         )
         self.assertListEqual(['persons'], role_info.get('admin_4_apps'))
-        self.assertSetEqual(
-            {'creme_core.fakecontact', 'creme_core.fakeorganisation'},
-            {*role_info.get('creatable_ctypes', ())},
+        self.assertCountEqual(
+            ['creme_core.fakecontact', 'creme_core.fakeorganisation'],
+            role_info.get('creatable_ctypes', ()),
         )
         self.assertListEqual(
             ['creme_core.fakecontact'],

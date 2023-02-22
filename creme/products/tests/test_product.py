@@ -251,7 +251,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         self.assertNoFormError(response2)
 
         product = self.get_object_or_fail(Product, name=name)
-        self.assertSetEqual({img_1, img_2}, {*product.images.all()})
+        self.assertCountEqual([img_1, img_2], product.images.all())
 
     @skipIfCustomProduct
     def test_editview(self):
@@ -320,7 +320,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
             products_page = response.context['page_obj']
 
         self.assertEqual(2, products_page.paginator.count)
-        self.assertSetEqual({*products}, {*products_page.object_list})
+        self.assertCountEqual(products, products_page.object_list)
 
     def test_delete_category01(self):
         self.login()
@@ -533,7 +533,7 @@ class ProductTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # ---
         response3 = post(img_1, img_2)
         self.assertNoFormError(response3)
-        self.assertSetEqual({img_1, img_2, img_3}, {*product.images.all()})
+        self.assertCountEqual([img_1, img_2, img_3], product.images.all())
 
         # ---
         img_5 = create_image(ident=5, user=user)

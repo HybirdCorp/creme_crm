@@ -358,8 +358,8 @@ class CalendarTestCase(_ActivitiesTestCase):
             others_calendars = dict(ctxt['others_calendars'])
             other_cal_ids = ctxt['others_selected_calendar_ids']
 
-        self.assertSetEqual({act1, act2, act4}, {*floating_acts})
-        self.assertSetEqual({cal1}, {*my_cals})
+        self.assertCountEqual([act1, act2, act4], floating_acts)
+        self.assertCountEqual([cal1], my_cals)
         self.assertSetEqual({cal1.id}, my_cal_ids)
 
         self.assertCountEqual([cal2, cal4], others_calendars.get(other_user))
@@ -411,7 +411,7 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertSetEqual(
             {def_cal.id},
             response.context.get('my_selected_calendar_ids'),
-            Calendar.objects.values('id', 'name')
+            Calendar.objects.values('id', 'name'),
         )
 
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
@@ -1127,21 +1127,14 @@ class CalendarTestCase(_ActivitiesTestCase):
 
         # Getting the view again => use Calendars in session
         response = self.assertGET200(self.CALENDAR_URL)
-        self.assertSetEqual(
-            {cal1},
-            {
-                *Calendar.objects.filter(
-                    id__in=response.context.get('my_selected_calendar_ids'),
-                ),
-            },
+        get_ctxt = response.context.get
+        self.assertCountEqual(
+            [cal1],
+            Calendar.objects.filter(id__in=get_ctxt('my_selected_calendar_ids')),
         )
-        self.assertSetEqual(
-            {cal3},
-            {
-                *Calendar.objects.filter(
-                    id__in=response.context.get('others_selected_calendar_ids'),
-                ),
-            },
+        self.assertCountEqual(
+            [cal3],
+            Calendar.objects.filter(id__in=get_ctxt('others_selected_calendar_ids')),
         )
 
         sessions_after = self._get_user_sessions(user)
@@ -1512,9 +1505,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertNoFormError(self.client.post(url, {'to_user': user.id}))
         self.assertDoesNotExist(other_user)
 
-        self.assertSetEqual(
-            {cal11.id, cal12.id, cal21.id, cal22.id},
-            {*Calendar.objects.filter(user=user).values_list('id', flat=True)},
+        self.assertCountEqual(
+            [cal11.id, cal12.id, cal21.id, cal22.id],
+            Calendar.objects.filter(user=user).values_list('id', flat=True),
         )
         self.assertTrue(self.refresh(cal11).is_default)
         self.assertFalse(self.refresh(cal12).is_default)
@@ -1575,9 +1568,9 @@ class CalendarTestCase(_ActivitiesTestCase):
         self.assertFalse(Calendar.objects.filter(user=user3))
         self.assertFalse(Calendar.objects.filter(user=user4))
 
-        self.assertSetEqual(
-            {cal4_1, cal4_2},
-            {*Calendar.objects.filter(user=user5)},
+        self.assertCountEqual(
+            [cal4_1, cal4_2],
+            Calendar.objects.filter(user=user5),
         )
 
         self.assertFalse(stderr.getvalue())

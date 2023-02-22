@@ -253,7 +253,7 @@ class EntityTestCase(CremeTestCase):
                      'birthday', 'image']:
             self.assertEqual(getattr(naruto, attr), getattr(kage_bunshin, attr))
 
-        self.assertSetEqual({*naruto.languages.all()}, {*kage_bunshin.languages.all()})
+        self.assertCountEqual(naruto.languages.all(), kage_bunshin.languages.all())
 
     def test_clone03(self):
         create_cf = partial(

@@ -45,12 +45,9 @@ class HistoryConfigTestCase(CremeTestCase):
         # ---
         rtype_ids = [rtype01.id, rtype02.id]
         self.assertNoFormError(self.client.post(url, data={'relation_types': rtype_ids}))
-
-        hc_items = HistoryConfigItem.objects.all()
-        self.assertEqual(2, len(hc_items))
-        self.assertSetEqual(
-            {*rtype_ids},
-            {hc_item.relation_type.id for hc_item in hc_items},
+        self.assertCountEqual(
+            rtype_ids,
+            [item.relation_type.id for item in HistoryConfigItem.objects.all()],
         )
 
     def test_add02(self):

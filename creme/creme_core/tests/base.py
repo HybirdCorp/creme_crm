@@ -516,13 +516,10 @@ class _CremeTestCase:
         )
 
     def assertSameProperties(self, entity1, entity2):
-        def properties_desc(entity):
-            return [*entity.properties.values_list('type', flat=True)]
-
-        pd1 = properties_desc(entity1)
-        pd2 = properties_desc(entity2)
-        self.assertEqual(len(pd1), len(pd2))
-        self.assertSetEqual({*pd1}, {*pd2})
+        self.assertCountEqual(
+            entity1.properties.values_list('type', flat=True),
+            entity2.properties.values_list('type', flat=True),
+        )
 
     def assertSameRelations(self, entity1, entity2, exclude_internal=True):
         def relations_desc(entity):
@@ -531,12 +528,9 @@ class _CremeTestCase:
             if exclude_internal:
                 qs = qs.exclude(type__is_internal=True)
 
-            return [*qs]
+            return qs
 
-        rd1 = relations_desc(entity1)
-        rd2 = relations_desc(entity2)
-        self.assertEqual(len(rd1), len(rd2))
-        self.assertSetEqual({*rd1}, {*rd2})
+        self.assertCountEqual(relations_desc(entity1), relations_desc(entity2))
 
     def assertSameRelationsNProperties(self, entity1, entity2, exclude_internal=True):
         self.assertSameProperties(entity1, entity2)
@@ -652,33 +646,30 @@ class _CremeTestCase:
             content_type=ContentType.objects.get_for_model(model),
         )
 
-    def get_relationtype_or_fail(
-            self,
-            pk,
-            sub_models=(),
-            obj_models=(),
-            sub_props=(),
-            obj_props=()):
+    def get_relationtype_or_fail(self, pk,
+                                 sub_models=(), obj_models=(),
+                                 sub_props=(), obj_props=(),
+                                 ):
         try:
             rt = RelationType.objects.get(pk=pk)
         except RelationType.DoesNotExist:
-            self.fail(f'Bad populate: unfoundable RelationType with pk={pk}')
+            self.fail(f'Bad populate: RelationType with pk={pk} cannot be found')
 
         get_ct = ContentType.objects.get_for_model
-        self.assertListEqual(
-            sorted((get_ct(model) for model in sub_models), key=lambda ct: ct.id),
-            [*rt.subject_ctypes.order_by('id')],
+        self.assertCountEqual(
+            [get_ct(model) for model in sub_models],
+            rt.subject_ctypes.all(),
         )
-        self.assertListEqual(
-            sorted((get_ct(model) for model in obj_models), key=lambda ct: ct.id),
-            [*rt.object_ctypes.order_by('id')],
+        self.assertCountEqual(
+            [get_ct(model) for model in obj_models],
+            rt.object_ctypes.order_by('id'),
         )
 
-        self.assertSetEqual(
-            {*sub_props}, {*rt.subject_properties.values_list('id', flat=True)}
+        self.assertCountEqual(
+            sub_props, rt.subject_properties.values_list('id', flat=True),
         )
-        self.assertSetEqual(
-            {*obj_props}, {*rt.object_properties.values_list('id', flat=True)}
+        self.assertCountEqual(
+            obj_props, rt.object_properties.values_list('id', flat=True),
         )
 
         self.assertNotEqual(
@@ -695,9 +686,9 @@ class _CremeTestCase:
             self.fail(f'Bad populate: unfoundable CremePropertyType with pk={pk}')
 
         get_ct = ContentType.objects.get_for_model
-        self.assertSetEqual(
-            {get_ct(model).id for model in models},
-            {*pt.subject_ctypes.values_list('id', flat=True)},
+        self.assertCountEqual(
+            [get_ct(model) for model in models],
+            pt.subject_ctypes.all(),
         )
 
         return pt

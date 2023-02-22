@@ -157,4 +157,4 @@ class MessageTemplateTestCase(CremeTestCase):
             tplt_page = response.context['page_obj']
 
         self.assertEqual(2, tplt_page.paginator.count)
-        self.assertSetEqual({template1, template2}, {*tplt_page.object_list})
+        self.assertCountEqual([template1, template2], tplt_page.object_list)

@@ -1307,7 +1307,7 @@ class RelationViewsTestCase(ViewsTestCase):
         with self.assertNoException():
             allowed_rtypes = response.context['form'].fields['relations'].allowed_rtypes
 
-        self.assertSetEqual({self.rtype01, self.rtype02}, {*allowed_rtypes})
+        self.assertCountEqual([self.rtype01, self.rtype02], allowed_rtypes)
 
         response = self.client.post(
             self._build_bulk_add_url(FakeContact),
@@ -1535,7 +1535,7 @@ class RelationViewsTestCase(ViewsTestCase):
 
         relations = self.subject.relations.filter(type=self.rtype)
         self.assertEqual(2, len(relations))
-        self.assertSetEqual({*object_ids}, {r.object_entity_id for r in relations})
+        self.assertCountEqual(object_ids, [r.object_entity_id for r in relations])
 
     def test_add_relations_with_same_type02(self):
         "An entity does not exist."

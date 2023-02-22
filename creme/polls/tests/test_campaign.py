@@ -158,7 +158,7 @@ class PollCampaignsTestCase(_PollsTestCase, BrickTestCaseMixin):
 
         self.assertEqual(1, camps_page.number)
         self.assertEqual(len(camps), camps_page.paginator.count)
-        self.assertSetEqual({*camps}, {*camps_page.object_list})
+        self.assertCountEqual(camps, camps_page.object_list)
 
     def _create_pform_n_campaign(self):
         user  = self.user

@@ -1143,8 +1143,8 @@ class EnhancedMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertSetEqual(set(), field.initial)
 
         clean = field.clean
-        self.assertSetEqual({'1', '3'}, {*clean([1, 3])})
-        self.assertSetEqual({'1', '3'}, {*clean(['1', '3'])})
+        self.assertCountEqual(['1', '3'], clean([1, 3]))
+        self.assertCountEqual(['1', '3'], clean(['1', '3']))
 
         # NB: we need a 0-argument constructor
         field_builder = partial(EnhancedMultipleChoiceField, choices=choices)
@@ -1453,8 +1453,9 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertFoundChoice(sector2.id, sector2.title, choices)
 
         clean = field.clean
-        self.assertSetEqual({sector1, sector3}, {*clean([sector1.id, sector3.id])})
-        self.assertSetEqual({sector1, sector3}, {*clean([str(sector1.id), str(sector3.id)])})
+        expected = [sector1, sector3]
+        self.assertCountEqual(expected, clean([sector1.id, sector3.id]))
+        self.assertCountEqual(expected, clean([str(sector1.id), str(sector3.id)]))
 
         # NB: we need a 0-argument constructor
         field_builder = partial(
@@ -1523,9 +1524,9 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         self.assertEqual(frozenset([sector2.id]), field2.forced_values)
 
         clean = field2.clean
-        expected = {sector1, sector2}
-        self.assertSetEqual(expected, {*clean([sector1.id, sector2.id])})
-        self.assertSetEqual(expected, {*clean([sector1.id])})
+        expected = [sector1, sector2]
+        self.assertCountEqual(expected, clean([sector1.id, sector2.id]))
+        self.assertCountEqual(expected, clean([sector1.id]))
 
     def test_forced_values02(self):
         "Use <to_field_name>."
@@ -1543,9 +1544,9 @@ class EnhancedModelMultipleChoiceFieldTestCase(FieldTestCase):
         field = field_builder(forced_values=[sector2.title])
 
         clean = field.clean
-        expected = {sector1, sector2}
-        self.assertSetEqual(expected, {*clean([sector1.title, sector2.title])})
-        self.assertSetEqual(expected, {*clean([sector1.title])})
+        expected = [sector1, sector2]
+        self.assertCountEqual(expected, clean([sector1.title, sector2.title]))
+        self.assertCountEqual(expected, clean([sector1.title]))
 
         # --
         choices = [*field.choices]

@@ -805,11 +805,7 @@ class NeglectedOrganisationsBrickTestCase(CremeTestCase):
             subject_entity=customer02, object_entity=mng_orga,
             type=RelationType.objects.get(pk=constants.REL_SUB_PROSPECT),
         )
-        neglected_orgas = self._get_neglected_orgas()
-        self.assertEqual(2, len(neglected_orgas))
-        self.assertSetEqual(
-            {customer01.id, customer02.id}, {orga.id for orga in neglected_orgas},
-        )
+        self.assertCountEqual([customer01, customer02], self._get_neglected_orgas())
 
         create_rel(subject_entity=customer02, object_entity=mng_orga, type=rtype_customer)
         self.assertEqual(2, len(self._get_neglected_orgas()))

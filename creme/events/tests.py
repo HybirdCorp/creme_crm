@@ -231,7 +231,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             events_page = response.context['page_obj']
 
         self.assertEqual(2, events_page.paginator.count)
-        self.assertSetEqual({event1, event2}, {*events_page.object_list})
+        self.assertCountEqual([event1, event2], events_page.object_list)
 
     def test_listview_add_related_opport_action(self):
         user = self.login()
@@ -618,7 +618,7 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             contacts_page = response.context['page_obj']
 
         self.assertEqual(3, contacts_page.paginator.count)
-        self.assertSetEqual({casca, judo, griffith}, {*contacts_page.object_list})
+        self.assertCountEqual([casca, judo, griffith], contacts_page.object_list)
 
     @staticmethod
     def relations_types(contact, event):
@@ -734,9 +734,9 @@ class EventsTestCase(BrickTestCaseMixin, CremeTestCase):
             [constants.REL_SUB_CAME_EVENT],
             self.relations_types(griffith, event),
         )
-        self.assertSetEqual(
-            {constants.REL_SUB_IS_INVITED_TO, constants.REL_SUB_CAME_EVENT},
-            {*self.relations_types(rickert, event)},
+        self.assertCountEqual(
+            [constants.REL_SUB_IS_INVITED_TO, constants.REL_SUB_CAME_EVENT],
+            self.relations_types(rickert, event),
         )
         self.assertListEqual(
             [constants.REL_SUB_CAME_EVENT],

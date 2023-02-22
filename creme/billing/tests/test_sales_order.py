@@ -296,7 +296,7 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
             orders_page = response.context['page_obj']
 
         self.assertEqual(2, orders_page.paginator.count)
-        self.assertSetEqual({order1, order2}, {*orders_page.paginator.object_list})
+        self.assertCountEqual([order1, order2], orders_page.paginator.object_list)
 
     def test_delete_status(self):
         self.login()

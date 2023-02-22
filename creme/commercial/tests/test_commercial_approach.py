@@ -261,9 +261,9 @@ class CommercialApproachTestCase(CremeTestCase, BrickTestCaseMixin):
         meeting = self.get_object_or_fail(Activity, type=ACTIVITYTYPE_MEETING, title=title)
 
         comapps = CommercialApproach.objects.filter(related_activity=meeting)
-        self.assertEqual(3, len(comapps))
-        self.assertSetEqual(
-            {genma, ranma, dojo}, {comapp.creme_entity for comapp in comapps},
+        self.assertCountEqual(
+            [genma, ranma, dojo],
+            [comapp.creme_entity for comapp in comapps],
         )
 
         now_value = now()

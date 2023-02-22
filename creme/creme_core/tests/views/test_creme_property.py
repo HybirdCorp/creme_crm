@@ -86,10 +86,7 @@ class PropertyViewsTestCase(ViewsTestCase, BrickTestCaseMixin):
         self.assertNotInChoices(value=ptype05.id, choices=choices)
 
         self.assertNoFormError(self.client.post(url, data={'types': [ptype01.id, ptype02.id]}))
-
-        properties = entity.properties.all()
-        self.assertEqual(2, len(properties))
-        self.assertSetEqual({ptype01, ptype02}, {p.type for p in properties})
+        self.assertCountEqual([ptype01, ptype02], [p.type for p in entity.properties.all()])
 
         # ----------------------------------------------------------------------
         # One new and one old property

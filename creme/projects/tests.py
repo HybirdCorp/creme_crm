@@ -554,7 +554,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         task2 = tasks2[0]
         self.assertListEqual([task1.id], [t.id for t in task2.parent_tasks.all()])
 
-        self.assertSetEqual({*tasks}, {*project.get_tasks()})
+        self.assertCountEqual(tasks, project.get_tasks())
         self.assertEqual(duration_1 + duration_2, project.get_expected_duration())
 
     @skipIfCustomTask
@@ -711,7 +711,7 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
             url,
             data={'parents': self.formfield_value_multi_creator_entity(task01, task02)},
         ))
-        self.assertSetEqual({task01, task02}, {*task03.parent_tasks.all()})
+        self.assertCountEqual([task01, task02], task03.parent_tasks.all())
 
         # ---
         self.assertPOST200(
@@ -770,12 +770,12 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(self.client.post(
             build_url(task02), data={'parents': field_value(task01)},
         ))
-        self.assertSetEqual({task01, task02}, {*task01.get_subtasks()})
+        self.assertCountEqual([task01, task02], task01.get_subtasks())
 
         self.assertNoFormError(self.client.post(
             build_url(task03), data={'parents': field_value(task02)},
         ))
-        self.assertSetEqual({task01, task02, task03}, {*task01.get_subtasks()})
+        self.assertCountEqual([task01, task02, task03], task01.get_subtasks())
 
         response = self.client.post(
             build_url(task01), data={'parents': field_value(task03)},
@@ -1366,9 +1366,9 @@ class ProjectsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertRelationCount(0, worker1, REL_SUB_PART_AS_RESOURCE, activity)
 
         get_cal = Calendar.objects.get_default_calendar
-        self.assertSetEqual(
-            {get_cal(user), get_cal(self.other_user)},
-            {*activity.calendars.all()},
+        self.assertCountEqual(
+            [get_cal(user), get_cal(self.other_user)],
+            activity.calendars.all(),
         )
 
     @skipIfCustomTask

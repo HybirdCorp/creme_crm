@@ -507,7 +507,7 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         self.assertEqual(pcall, phone_call)
         self.assertNotIn('called_contact', context)
         self.assertEqual(zalem, orga)
-        self.assertSetEqual({gally, contact}, {*contacts})
+        self.assertCountEqual([gally, contact], contacts)
         self.assertListEqual([kuzu], orgas)
 
     @skipIfCustomOrganisation
@@ -687,8 +687,8 @@ class MobileActivitiesTestCase(MobileBaseTestCase):
         )
 
         get_cal = Calendar.objects.get_default_calendar
-        self.assertSetEqual(
-            {get_cal(user), get_cal(self.other_user)}, {*pcall.calendars.all()}
+        self.assertCountEqual(
+            [get_cal(user), get_cal(self.other_user)], pcall.calendars.all(),
         )
 
     def test_phone_call_wf_failed04(self):

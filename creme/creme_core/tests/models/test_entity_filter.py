@@ -1981,12 +1981,12 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         ptype1.delete()
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
                 (PropertyConditionHandler.type_id,  ptype2.id),
-            },
-            {*efilter.conditions.values_list('type', 'name')},
+            ],
+            efilter.conditions.values_list('type', 'name'),
         )
 
     def _aux_test_relations(self):
@@ -2115,12 +2115,12 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         loves.delete()
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 (SubFilterConditionHandler.type_id, str(subfilter.id)),
                 (RelationConditionHandler.type_id,  str(self.hates.id)),
-            },
-            {*efilter.conditions.values_list('type', 'name')}
+            ],
+            efilter.conditions.values_list('type', 'name'),
         )
 
     def test_relations06(self):
@@ -2971,12 +2971,12 @@ class EntityFiltersTestCase(CremeTestCase):
         )
 
         custom_field01.delete()
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 (SubFilterConditionHandler.type_id,   str(subfilter.id)),
                 (CustomFieldConditionHandler.type_id, str(custom_field02.id)),
-            },
-            {*efilter.conditions.values_list('type', 'name')},
+            ],
+            efilter.conditions.values_list('type', 'name'),
         )
 
     def test_customfield_deletion02(self):
@@ -3304,11 +3304,9 @@ class EntityFiltersTestCase(CremeTestCase):
         efilter.set_conditions([cond1, cond2])
 
         with self.assertNoException():
-            filtered = [*efilter.filter(FakeContact.objects.all())]
+            filtered = {c.id for c in efilter.filter(FakeContact.objects.all())}
 
-        self.assertSetEqual(
-            {*self._get_ikari_case_sensitive()}, {c.id for c in filtered},
-        )
+        self.assertSetEqual({*self._get_ikari_case_sensitive()}, filtered)
         self.assertEqual(1, len(efilter.get_conditions()))
 
     def test_invalid_datefield(self):
@@ -3329,11 +3327,9 @@ class EntityFiltersTestCase(CremeTestCase):
         self.assertEqual(1, len(efilter.get_conditions()))
 
         with self.assertNoException():
-            filtered = [*efilter.filter(FakeContact.objects.all())]
+            filtered = {c.id for c in efilter.filter(FakeContact.objects.all())}
 
-        self.assertSetEqual(
-            {*self._get_ikari_case_sensitive()}, {c.id for c in filtered},
-        )
+        self.assertSetEqual({*self._get_ikari_case_sensitive()}, filtered)
 
     def test_invalid_subfilter(self):
         build_4_field = partial(

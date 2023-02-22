@@ -252,7 +252,7 @@ class RecurrentsTicketsTestCase(RecurrentsTestCase):
             gens_page = response.context['page_obj']
 
         self.assertEqual(2, gens_page.paginator.count)
-        self.assertSetEqual({gen1, gen2}, {*gens_page.object_list})
+        self.assertCountEqual([gen1, gen2], gens_page.object_list)
 
     @skipIfCustomTicket
     @skipIfCustomTicketTemplate

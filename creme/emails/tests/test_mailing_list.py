@@ -135,7 +135,7 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
 
         response2 = post(mlist01, mlist02)
         self.assertNoFormError(response2)
-        self.assertSetEqual({mlist01, mlist02}, {*campaign.mailing_lists.all()})
+        self.assertCountEqual([mlist01, mlist02], campaign.mailing_lists.all())
 
         response3 = self.assertGET200(campaign.get_absolute_url())
         brick_node = self.get_brick_node(
@@ -249,9 +249,8 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         # --------------------
         recipients = ['spike.spiegel@bebop.com', 'jet.black@bebop.com']
         self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
-        self.assertSetEqual(
-            {*recipients},
-            {r.address for r in mlist.emailrecipient_set.all()}
+        self.assertCountEqual(
+            recipients, [r.address for r in mlist.emailrecipient_set.all()],
         )
 
         response2 = self.assertGET200(mlist.get_absolute_url())
@@ -418,9 +417,9 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         create(first_name='Ed', last_name='Wong', email='ed.wong@bebop.com', is_deleted=True),
         self.assertNoFormError(self.client.post(url, data={}))
 
-        contacts = {*Contact.objects.filter(is_deleted=False)}
+        contacts = Contact.objects.filter(is_deleted=False)
         self.assertGreaterEqual(len(contacts), 2)
-        self.assertSetEqual(contacts, {*mlist.contacts.all()})
+        self.assertCountEqual(contacts, mlist.contacts.all())
 
     @skipIfCustomContact
     def test_ml_contacts_filter02(self):
@@ -605,9 +604,9 @@ class MailingListsTestCase(BrickTestCaseMixin, _EmailsTestCase):
         create_orga(name='Seele', email='contact@seele.jp')
         self.assertNoFormError(self.client.post(url, data={}))
 
-        orgas = {*Organisation.objects.all()}
+        orgas = Organisation.objects.all()
         self.assertGreaterEqual(len(orgas), 2)
-        self.assertSetEqual(orgas, {*mlist.organisations.all()})
+        self.assertCountEqual(orgas, mlist.organisations.all())
 
     @skipIfCustomOrganisation
     def test_ml_orgas_filter02(self):

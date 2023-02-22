@@ -109,7 +109,7 @@ class SMSCampaignTestCase(CremeTestCase):
             camp_page = response.context['page_obj']
 
         self.assertEqual(2, camp_page.paginator.count)
-        self.assertSetEqual({camp1, camp2}, {*camp_page.object_list})
+        self.assertCountEqual([camp1, camp2], camp_page.object_list)
 
     @skipIfCustomMessagingList
     def test_messaging_list01(self):
@@ -141,7 +141,7 @@ class SMSCampaignTestCase(CremeTestCase):
 
         response2 = post(mlist01, mlist02)
         self.assertNoFormError(response2)
-        self.assertSetEqual({mlist01, mlist02}, {*campaign.lists.all()})
+        self.assertCountEqual([mlist01, mlist02], campaign.lists.all())
 
         # Duplicates ---------------------
         mlist03 = create_ml(name='Ml03')

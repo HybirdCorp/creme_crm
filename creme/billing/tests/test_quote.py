@@ -519,7 +519,7 @@ class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
             quotes_page = response.context['page_obj']
 
         self.assertEqual(2, quotes_page.paginator.count)
-        self.assertSetEqual({quote1, quote2}, {*quotes_page.paginator.object_list})
+        self.assertCountEqual([quote1, quote2], quotes_page.paginator.object_list)
 
     def test_listview_actions(self):
         user = self.login()

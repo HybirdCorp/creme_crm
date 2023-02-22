@@ -586,7 +586,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         quotes = entities.object_list
         self.assertEqual(3, len(quotes))
         self.assertTrue(all(isinstance(q, Quote) for q in quotes))
-        self.assertSetEqual({quote1, quote3, quote4}, {*quotes})
+        self.assertCountEqual([quote1, quote3, quote4], quotes)
 
         self.assertEqual(
             _('List of {models}').format(models=_('Quotes')),
@@ -657,7 +657,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         except KeyError:
             self.fail(response1.content)
 
-        self.assertSetEqual({quote1, quote4}, {*entities.object_list})
+        self.assertCountEqual([quote1, quote4], entities.object_list)
 
         fmt = _('List of {models} received by {target}').format
         self.assertEqual(
@@ -728,7 +728,7 @@ class BillingTestCase(OpportunitiesBaseTestCase):
         except KeyError:
             self.fail(response.content)
 
-        self.assertSetEqual({quote1, quote3}, {*entities.object_list})
+        self.assertCountEqual([quote1, quote3], entities.object_list)
 
         fmt = _('List of {models} issued by {emitter}').format
         self.assertEqual(

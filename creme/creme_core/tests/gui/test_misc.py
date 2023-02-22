@@ -437,10 +437,7 @@ class GuiTestCase(CremeTestCase):
         self.assertIs(FakeContactQuickForm,      registry.get_form_class(FakeContact))
         self.assertIs(FakeOrganisationQuickForm, registry.get_form_class(FakeOrganisation))
 
-        self.assertSetEqual(
-            {FakeContact, FakeOrganisation},
-            {*registry.models}
-        )
+        self.assertCountEqual([FakeContact, FakeOrganisation], registry.models)
 
         # ---
         class OtherContactQuickForm(CremeEntityQuickForm):
@@ -481,9 +478,9 @@ class GuiTestCase(CremeTestCase):
             FakeContact, FakeOrganisation,
         ).register_models(FakeImage)
 
-        self.assertSetEqual(
-            {FakeContact, FakeOrganisation, FakeImage},
-            set(registry.models),
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation, FakeImage],
+            registry.models,
         )
         self.assertIs(registry.is_model_registered(FakeContact), True)
 

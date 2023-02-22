@@ -243,7 +243,7 @@ class TemplatesTestCase(BrickTestCaseMixin, _DocumentsTestCase, _EmailsTestCase)
             data={'attachments': self.formfield_value_multi_creator_entity(doc1, doc2)},
         )
         self.assertNoFormError(response)
-        self.assertSetEqual({doc1, doc2}, {*template.attachments.all()})
+        self.assertCountEqual([doc1, doc2], template.attachments.all())
 
     def test_add_attachments02(self):
         user = self.login()

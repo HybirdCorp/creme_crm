@@ -206,10 +206,7 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         team.teammates = users
 
         self._create_usermessage('TITLE', 'BODY', None, [team], self.entity)
-
-        messages = UserMessage.objects.all()
-        self.assertEqual(2, len(messages))
-        self.assertSetEqual({*users}, {msg.recipient for msg in messages})
+        self.assertCountEqual(users, [msg.recipient for msg in UserMessage.objects.all()])
 
     def test_create05(self):
         "Teams and isolated users with non-void intersections."
@@ -230,10 +227,9 @@ class UserMessageTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self._create_usermessage(
             'TITLE', 'BODY', None, [team01, team02, users[0], users[3]], self.entity,
         )
-
-        messages = UserMessage.objects.all()
-        self.assertEqual(4, len(messages))
-        self.assertSetEqual({*users}, {msg.recipient for msg in messages})
+        self.assertCountEqual(
+            users, [msg.recipient for msg in UserMessage.objects.all()],
+        )
 
     def test_brick(self):
         user = self.user

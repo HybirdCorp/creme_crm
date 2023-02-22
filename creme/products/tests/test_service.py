@@ -151,7 +151,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
             services_page = response.context['page_obj']
 
         self.assertEqual(2, services_page.paginator.count)
-        self.assertSetEqual({*services}, {*services_page.object_list})
+        self.assertCountEqual(services, services_page.object_list)
 
     def _build_service_cat_subcat(self):
         cat = Category.objects.create(name='Mecha', description='Mechanical devices')
@@ -247,7 +247,7 @@ class ServiceTestCase(BrickTestCaseMixin, _ProductsTestCase):
         # ---
         response3 = post(img_1, img_2)
         self.assertNoFormError(response3)
-        self.assertSetEqual({img_1, img_2, img_3}, {*service.images.all()})
+        self.assertCountEqual([img_1, img_2, img_3], service.images.all())
 
     def test_remove_image(self):
         user = self.login()

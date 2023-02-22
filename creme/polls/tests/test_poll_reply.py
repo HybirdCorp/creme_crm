@@ -1354,7 +1354,7 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             preply_page = response.context['page_obj']
 
         self.assertEqual(2, preply_page.paginator.count)
-        self.assertSetEqual({preply1, preply2}, {*preply_page.object_list})
+        self.assertCountEqual([preply1, preply2], preply_page.object_list)
 
     def test_delete_type(self):
         "Set to NULL."
@@ -2342,19 +2342,19 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
     def test_stats_rline_boolean(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.BOOL, 1)
-        self.assertSetEqual({(_('Yes'), 1), (_('No'), 0)}, {*rline.stats})
+        self.assertCountEqual([(_('Yes'), 1), (_('No'), 0)], rline.stats)
 
     def test_stats_rline_boolean_false(self):
         self.login()
         rline = self._build_rline_for_stat(PollLineType.BOOL, 0)
-        self.assertSetEqual({(_('Yes'), 0), (_('No'), 1)}, {*rline.stats})
+        self.assertCountEqual([(_('Yes'), 0), (_('No'), 1)], rline.stats)
 
     def test_stats_rline_enum(self):
         self.login()
         rline = self._build_rline_for_stat(
             PollLineType.ENUM, 1, [[1, 'European'], [2, 'African']],
         )
-        self.assertSetEqual({('European', 1), ('African', 0)}, {*rline.stats})
+        self.assertCountEqual([('European', 1), ('African', 0)], rline.stats)
 
     def test_stats_rline_multi_enum(self):
         self.login()
@@ -2362,9 +2362,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             PollLineType.MULTI_ENUM, [2, 3],
             [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
-        self.assertSetEqual(
-            {('White', 0), ('Black', 1), ('Green', 1), ('Purple', 0)},
-            {*rline.stats}
+        self.assertCountEqual(
+            [('White', 0), ('Black', 1), ('Green', 1), ('Purple', 0)],
+            rline.stats,
         )
 
     def test_stats_rline_enum_or_string(self):
@@ -2374,9 +2374,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             {'answer_0': 0, 'answer_1': 'doh?'},
             [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
-        self.assertSetEqual(
-            {('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)},
-            {*rline.stats},
+        self.assertCountEqual(
+            [('White', 0), ('Black', 0), ('Green', 0), ('Purple', 0), (_('Other'), 1)],
+            rline.stats,
         )
 
     def test_stats_rline_enum_or_string_custom(self):
@@ -2386,9 +2386,9 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
             {'answer_0': 2, 'answer_1': ''},
             [[1, 'White'], [2, 'Black'], [3, 'Green'], [4, 'Purple']],
         )
-        self.assertSetEqual(
-            {('White', 0), ('Black', 1), ('Green', 0), ('Purple', 0), (_('Other'), 0)},
-            {*rline.stats},
+        self.assertCountEqual(
+            [('White', 0), ('Black', 1), ('Green', 0), ('Purple', 0), (_('Other'), 0)],
+            rline.stats,
         )
 
     def test_stats_rline_not_applicable(self):
@@ -2456,56 +2456,54 @@ class PollRepliesTestCase(_PollsTestCase, BrickTestCaseMixin):
         self.assertFalse(node1.answer_zeros)
 
         self.assertEqual(node2.answer_count, 3)
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 (answer_2_1, 2, round((2.0 * 100.0) / 3.0, 3)),
                 (answer_2_4, 1, round((1.0 * 100.0) / 3.0, 3)),
-            },
-            {*node2.answer_stats},
+            ],
+            node2.answer_stats,
         )
         self.assertFalse(node2.answer_zeros)
 
         self.assertEqual(node3.answer_count, 3)
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 ('European', 1, round((1.0 * 100.0) / 3.0, 3)),
                 ('African',  2, round((2.0 * 100.0) / 3.0, 3)),
-            },
-            {*node3.answer_stats},
+            ],
+            node3.answer_stats,
         )
         self.assertFalse(node3.answer_zeros)
 
         self.assertEqual(node4.answer_count, 6)
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 ('White',  3, round((3.0 * 100.0) / 6.0, 3)),
                 ('Black',  2, round((2.0 * 100.0) / 6.0, 3)),
                 ('Purple', 1, round((1.0 * 100.0) / 6.0, 3)),
-            },
-            {*node4.answer_stats},
+            ],
+            node4.answer_stats,
         )
-        self.assertSetEqual(
-            {
-                ('Green',  0, 0.0),
-            },
-            {*node4.answer_zeros}
+        self.assertCountEqual(
+            [('Green',  0, 0.0)],
+            node4.answer_zeros,
         )
 
         self.assertEqual(node5.answer_count, 3)
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 ('White',   1, round((1.0 * 100.0) / 3.0, 3)),
                 (_('Other'), 2, round((2.0 * 100.0) / 3.0, 3)),
-            },
-            {*node5.answer_stats},
+            ],
+            node5.answer_stats,
         )
-        self.assertSetEqual(
-            {
+        self.assertCountEqual(
+            [
                 ('Black',   0, 0.0),
                 ('Green',   0, 0.0),
                 ('Purple',  0, 0.0),
-            },
-            {*node5.answer_zeros}
+            ],
+            node5.answer_zeros,
         )
 
     def test_statsview(self):
