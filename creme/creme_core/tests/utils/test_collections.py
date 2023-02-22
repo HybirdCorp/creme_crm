@@ -149,9 +149,9 @@ class ClassKeyedMapTestCase(CremeTestCase):
         self.assertSetEqual(keys_set, {*ckm})
         self.assertSetEqual(keys_set, {*ckm.keys()})
 
-        self.assertSetEqual({1, 2, None}, {*ckm.values()})
-        self.assertSetEqual(
-            {(Klass1, 1), (Klass2, 2), (Klass3, None)}, {*ckm.items()}
+        self.assertCountEqual([1, 2, None], ckm.values())
+        self.assertCountEqual(
+            [(Klass1, 1), (Klass2, 2), (Klass3, None)], ckm.items(),
         )
 
         self.assertStartsWith(repr(ckm), 'ClassKeyedMap(')

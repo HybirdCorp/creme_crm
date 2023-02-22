@@ -2639,7 +2639,7 @@ class ReportGraphTestCase(BrickTestCaseMixin,
         )
 
         x_asc, y_asc = rgraph.fetch(user)
-        self.assertSetEqual({str(lannisters), str(starks)}, {*x_asc})
+        self.assertCountEqual([str(lannisters), str(starks)], x_asc)
 
         index = x_asc.index
         fmt = '/tests/contacts?q_filter={}'.format

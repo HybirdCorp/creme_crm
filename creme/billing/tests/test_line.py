@@ -533,13 +533,11 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 ).values_list('object_entity', flat=True),
             ],
         )
-        self.assertSetEqual(
-            {product_line.pk, product_line2.pk},
-            {
-                *rel_filter(
-                    type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
-                ).values_list('subject_entity', flat=True),
-            },
+        self.assertCountEqual(
+            [product_line.pk, product_line2.pk],
+            rel_filter(
+                type=REL_SUB_LINE_RELATED_ITEM, object_entity=product,
+            ).values_list('subject_entity', flat=True),
         )
 
     @skipIfCustomServiceLine
@@ -569,21 +567,17 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 ).values_list('object_entity', flat=True)
             ],
         )
-        self.assertListEqual(
+        self.assertCountEqual(
             [service_line2.pk],
-            [
-                *rel_filter(
-                    type=REL_SUB_HAS_LINE, subject_entity=invoice2,
-                ).values_list('object_entity', flat=True)
-            ],
+            rel_filter(
+                type=REL_SUB_HAS_LINE, subject_entity=invoice2,
+            ).values_list('object_entity', flat=True)
         )
-        self.assertSetEqual(
-            {service_line1.pk, service_line2.pk},
-            {
-                *rel_filter(
-                    type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
-                ).values_list('subject_entity', flat=True)
-            },
+        self.assertCountEqual(
+            [service_line1.pk, service_line2.pk],
+            rel_filter(
+                type=REL_SUB_LINE_RELATED_ITEM, object_entity=service,
+            ).values_list('subject_entity', flat=True)
         )
 
     @skipIfCustomProductLine

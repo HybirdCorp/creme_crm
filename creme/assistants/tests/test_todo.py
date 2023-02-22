@@ -343,10 +343,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
 
         todos = ToDo.objects.filter(entity=self.entity.id)
         self.assertEqual(3, len(todos))
-        self.assertSetEqual(
-            {*ToDo.objects.values_list('id', flat=True)},
-            {t.id for t in todos},
-        )
+        self.assertCountEqual(ToDo.objects.all(), todos)
 
         self.assertGreaterEqual(TodosBrick.page_size, 2)
 
@@ -390,8 +387,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         with self.assertNoException():
             page = response.context['page']
 
-        self.assertEqual(2, len(page.object_list))
-        self.assertSetEqual({*todos}, {*page.object_list})
+        self.assertCountEqual(todos, page.object_list)
 
     @staticmethod
     def _oldify_todo(todo):
@@ -664,11 +660,9 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         )
 
         self.execute_reminder_job()
-
-        messages = mail.outbox
-        self.assertEqual(2, len(messages))
-        self.assertSetEqual(
-            {(teammate.email,), (user.email,)}, {tuple(m.to) for m in messages}
+        self.assertCountEqual(
+            [(teammate.email,), (user.email,)],
+            [tuple(m.to) for m in mail.outbox],
         )
 
     def test_reminder05(self):
@@ -870,8 +864,7 @@ class TodoTestCase(BrickTestCaseMixin, AssistantsTestCase):
         self.assertIsInstance(todos, QuerySet)
         self.assertEqual(ToDo, todos.model)
 
-        self.assertSetEqual({todo1, todo3}, {*todos})
-        self.assertEqual(2, len(todos))
+        self.assertCountEqual([todo1, todo3], todos)
 
     def test_brick_hide_validated_todos(self):
         user = self.user

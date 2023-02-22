@@ -2252,9 +2252,7 @@ class CredentialsTestCase(CremeTestCase):
         self.assertFalse(other.has_perm_to_change(entity2))
 
         # 'teams' property------------------------------------------------------
-        teams = user.teams
-        self.assertEqual(2, len(teams))
-        self.assertSetEqual({team1, team2}, {*teams})
+        self.assertCountEqual([team1, team2], user.teams)
 
         with self.assertNumQueries(0):  # Teams are cached
             user.teams  # NOQA
@@ -2552,9 +2550,10 @@ class CredentialsTestCase(CremeTestCase):
         with self.assertNoException():
             qs2 = EntityCredentials.filter_entities(user, qs)
 
-        result = [e.get_real_entity() for e in qs2]
-        self.assertEqual(4, len(result))
-        self.assertSetEqual({self.contact1, self.contact2, orga1, orga2}, {*result})
+        self.assertCountEqual(
+            [self.contact1, self.contact2, orga1, orga2],
+            [e.get_real_entity() for e in qs2],
+        )
 
         # ------
         with self.assertRaises(ValueError):
@@ -2586,10 +2585,9 @@ class CredentialsTestCase(CremeTestCase):
         self.assertIsInstance(qs2, QuerySet)
         self.assertIs(qs2.model, CremeEntity)
 
-        result = [e.get_real_entity() for e in qs2]
-        self.assertEqual(4, len(result))
-        self.assertSetEqual(
-            {self.contact1, self.contact2, orga1, orga2}, {*result},
+        self.assertCountEqual(
+            [self.contact1, self.contact2, orga1, orga2],
+            [e.get_real_entity() for e in qs2],
         )
 
     def test_filter_entities03(self):
@@ -2631,11 +2629,11 @@ class CredentialsTestCase(CremeTestCase):
         filter_entities = EntityCredentials.filter_entities
         self.assertSetEqual(
             {contact1, contact3, orga1, orga2},
-            {e.get_real_entity() for e in filter_entities(user, qs, perm=VIEW)}
+            {e.get_real_entity() for e in filter_entities(user, qs, perm=VIEW)},
         )
         self.assertSetEqual(
             {contact1, contact2, contact3, orga1, orga2},
-            {e.get_real_entity() for e in filter_entities(user, qs, perm=CHANGE)}
+            {e.get_real_entity() for e in filter_entities(user, qs, perm=CHANGE)},
         )
         self.assertFalse(filter_entities(user, qs, perm=EntityCredentials.DELETE))
 

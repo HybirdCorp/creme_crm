@@ -30,16 +30,13 @@ class CrudityRegistryTestCase(CrudityTestCase):
 
         ifetcher1 = crudity_registry.get_fetcher('test1')
         self.assertIsInstance(ifetcher1, registry.FetcherInterface)
-        self.assertEqual([f11, f12], ifetcher1.fetchers)
+        self.assertListEqual([f11, f12], ifetcher1.fetchers)
 
         ifetcher2 = crudity_registry.get_fetcher('test2')
         self.assertIsInstance(ifetcher2, registry.FetcherInterface)
-        self.assertEqual([f21, f22], ifetcher2.fetchers)
+        self.assertListEqual([f21, f22], ifetcher2.fetchers)
 
-        self.assertSetEqual(
-            {ifetcher1, ifetcher2},
-            {*crudity_registry.get_fetchers()}
-        )
+        self.assertCountEqual([ifetcher1, ifetcher2], crudity_registry.get_fetchers())
 
     def test_register_fetchers02(self):
         crudity_registry = self.crudity_registry
@@ -58,9 +55,9 @@ class CrudityRegistryTestCase(CrudityTestCase):
         crudity_registry = self.crudity_registry
         crudity_registry.register_backends([FakeContactBackend, FakeOrganisationBackend])
         crudity_registry.register_backends([FakeDocumentBackend])
-        self.assertSetEqual(
-            {FakeContact, FakeOrganisation, FakeDocument},
-            {*crudity_registry._backends}
+        self.assertCountEqual(
+            [FakeContact, FakeOrganisation, FakeDocument],
+            crudity_registry._backends,
         )
 
     def test_register_input01(self):

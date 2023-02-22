@@ -227,7 +227,7 @@ class PollFormsTestCase(BrickTestCaseMixin, _PollsTestCase):
             pform_page = response.context['page_obj']
 
         self.assertEqual(2, pform_page.paginator.count)
-        self.assertSetEqual({pform1, pform2}, {*pform_page.object_list})
+        self.assertCountEqual([pform1, pform2], pform_page.object_list)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
     def test_deleteview01(self):

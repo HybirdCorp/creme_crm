@@ -260,8 +260,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertEqual({*apps},     role.allowed_apps)
         self.assertEqual({*adm_apps}, role.admin_4_apps)
 
-        self.assertSetEqual({ct_contact, ct_doc}, {*role.creatable_ctypes.all()})
-        self.assertListEqual([ct_contact],        [*role.exportable_ctypes.all()])
+        self.assertCountEqual([ct_contact, ct_doc], role.creatable_ctypes.all())
+        self.assertCountEqual([ct_contact],         role.exportable_ctypes.all())
 
         setcreds = role.credentials.all()
         self.assertEqual(1, len(setcreds))
@@ -2069,8 +2069,8 @@ class UserRoleTestCase(CremeTestCase, BrickTestCaseMixin):
         self.assertSetEqual({*apps},     role.allowed_apps)
         self.assertSetEqual({*adm_apps}, role.admin_4_apps)
 
-        self.assertSetEqual({ct_contact, ct_doc}, {*role.creatable_ctypes.all()})
-        self.assertListEqual([ct_contact],        [*role.exportable_ctypes.all()])
+        self.assertCountEqual([ct_contact, ct_doc], role.creatable_ctypes.all())
+        self.assertCountEqual([ct_contact],         role.exportable_ctypes.all())
         self.assertEqual(1, role.credentials.count())
 
     def test_edition_wizard02(self):

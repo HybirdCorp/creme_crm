@@ -2915,7 +2915,7 @@ class InnerEditTestCase(_BulkEditTestCase):
         categories = [create_cat(name='A'), create_cat(name='B'), create_cat(name='C')]
 
         image = self.create_image('image', user, categories)
-        self.assertSetEqual({*image.categories.all()}, {*categories})
+        self.assertCountEqual(image.categories.all(), categories)
 
         invalid_pk = self.UNUSED_PK
         self.assertFalse(FakeImageCategory.objects.filter(id=invalid_pk))

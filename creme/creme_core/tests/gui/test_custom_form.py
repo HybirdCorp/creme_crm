@@ -2774,7 +2774,7 @@ class CustomFormDescriptorTestCase(CremeTestCase):
         self.assertEqual(form_desc2, registry.get(form_desc2.id))
         self.assertEqual(form_desc3, registry.get(form_desc3.id))
 
-        self.assertSetEqual({form_desc1, form_desc2, form_desc3}, {*registry})
+        self.assertCountEqual([form_desc1, form_desc2, form_desc3], registry)
 
         # TODO ?
         # registry.unregister(form_desc1, form_desc3)

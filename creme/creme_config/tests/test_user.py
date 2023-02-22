@@ -1361,8 +1361,8 @@ class UserTestCase(CremeTestCase, BrickTestCaseMixin):
         hybird = User.objects.create(username='hybird', is_staff=True)
 
         url = self._build_delete_url(hybird)
-        self.assertGET(404, url)
-        self.assertPOST(404, url, {'to_user': user.id})
+        self.assertGET404(url)
+        self.assertPOST404(url, {'to_user': user.id})
 
     @skipIfNotCremeUser
     def test_delete_user_during_transfer(self):

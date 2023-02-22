@@ -124,7 +124,7 @@ class FileHandlingTestCase(CremeTestCase):
 
         path2 = fcreator.create()
         name2 = 'foobar_1.txt'
-        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
+        self.assertCountEqual([name1, name2], listdir(dir_path))
         self.assertEqual(join(dir_path, name2), path2)
 
     def test_file_creator02(self):
@@ -140,7 +140,7 @@ class FileHandlingTestCase(CremeTestCase):
 
         fcreator.create()
         name2 = 'stuff_{}.txt'.format(date.today().strftime('%d%m%Y'))
-        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
+        self.assertCountEqual([name1, name2], listdir(dir_path))
 
         with self.assertRaises(FileCreator.Error):
             fcreator.create()
@@ -164,11 +164,11 @@ class FileHandlingTestCase(CremeTestCase):
         fcreator.create()
         date_str = date.today().strftime('%d%m%Y')
         name2 = f'stuff_{date_str}.txt'
-        self.assertSetEqual({name1, name2}, {*listdir(dir_path)})
+        self.assertCountEqual([name1, name2], listdir(dir_path))
 
         fcreator.create()
         name3 = f'stuff_{date_str}_1.txt'
-        self.assertSetEqual({name1, name2, name3}, {*listdir(dir_path)})
+        self.assertCountEqual([name1, name2, name3], listdir(dir_path))
 
     def test_file_creator04(self):
         "Max trials"
@@ -195,12 +195,9 @@ class FileHandlingTestCase(CremeTestCase):
         fcreator.create()
 
         fcreator.create()
-        self.assertSetEqual(
-            {
-                name,
-                'fo_{}.txt'.format(date.today().strftime('%d%m%Y')),
-            },
-            {*listdir(dir_path)},
+        self.assertCountEqual(
+            [name, f'fo_{date.today().strftime("%d%m%Y")}.txt'],
+            listdir(dir_path),
         )
 
     def test_file_creator06(self):

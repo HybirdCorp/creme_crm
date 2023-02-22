@@ -1071,9 +1071,7 @@ class AlertTestCase(BrickTestCaseMixin, AssistantsTestCase):
         create_alert(title='Alert#2', user=team2)  # No (other team)
         alert3 = create_alert(title='Alert#3', user=team1)
 
-        alerts = Alert.objects.filter_by_user(user=user)
-        self.assertSetEqual({alert1, alert3}, {*alerts})
-        self.assertEqual(2, len(alerts))
+        self.assertCountEqual([alert1, alert3], Alert.objects.filter_by_user(user=user))
 
     def test_brick(self):
         user = self.user

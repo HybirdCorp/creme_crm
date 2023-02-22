@@ -77,13 +77,13 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
     def test_listview(self):
         user = self.login()
         create_strategy = partial(Strategy.objects.create, user=user)
-        strategies = {create_strategy(name='Strat#1'), create_strategy(name='Strat#2')}
+        strategies = [create_strategy(name='Strat#1'), create_strategy(name='Strat#2')]
         response = self.assertGET200(reverse('commercial__list_strategies'))
 
         with self.assertNoException():
             strategies_page = response.context['page_obj']
 
-        self.assertSetEqual(strategies, {*strategies_page.object_list})
+        self.assertCountEqual(strategies, strategies_page.object_list)
 
     def test_segment_add(self):
         user = self.login()
@@ -877,22 +877,21 @@ class StrategyTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
         self._set_segment_category(strategy, individual, orga, 4)
 
         strategy = self.refresh(strategy)
-        self.assertListEqual([], [*segment_ids(strategy, orga, 3)])
-        self.assertSetEqual(
-            {association.id, individual.id},
-            {*segment_ids(strategy, orga, 4)},
+        self.assertFalse([*segment_ids(strategy, orga, 3)])
+        self.assertCountEqual(
+            [association.id, individual.id],
+            segment_ids(strategy, orga, 4),
         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 
         self._set_segment_category(strategy, individual, orga, 2)
 
         strategy = self.refresh(strategy)  # (cache....)
-        self.assertListEqual([association.id], [*segment_ids(strategy, orga, 4)])
-        self.assertListEqual([],               [*segment_ids(strategy, orga, 3)])
-        self.assertListEqual([industry.id],    [*segment_ids(strategy, orga, 1)])
-        self.assertSetEqual(
-            {community.id, individual.id},
-            {*segment_ids(strategy, orga, 2)}
+        self.assertCountEqual([association.id], segment_ids(strategy, orga, 4))
+        self.assertFalse([*segment_ids(strategy, orga, 3)])
+        self.assertCountEqual([industry.id], segment_ids(strategy, orga, 1))
+        self.assertCountEqual(
+            [community.id, individual.id], segment_ids(strategy, orga, 2),
         )
         self.assertEqual(1, MarketSegmentCategory.objects.count())
 

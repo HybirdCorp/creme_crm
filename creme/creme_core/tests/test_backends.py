@@ -14,11 +14,11 @@ class BackendsTestCase(CremeTestCase):
 
         self.assertEqual(CSVImportBackend, registry.get_backend_class(CSVImportBackend.id))
         self.assertEqual(XLSImportBackend, registry.get_backend_class(XLSImportBackend.id))
-        self.assertSetEqual(
-            {CSVImportBackend, XLSImportBackend}, {*registry.backend_classes}
+        self.assertCountEqual(
+            [CSVImportBackend, XLSImportBackend], registry.backend_classes,
         )
-        self.assertSetEqual(
-            {CSVImportBackend.id, XLSImportBackend.id}, {*registry.extensions}
+        self.assertCountEqual(
+            [CSVImportBackend.id, XLSImportBackend.id], registry.extensions,
         )
 
     def test_registration_errors01(self):

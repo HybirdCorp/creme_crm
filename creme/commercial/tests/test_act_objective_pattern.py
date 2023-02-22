@@ -112,7 +112,7 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertEqual(1, patterns_page.number)
         self.assertEqual(3, patterns_page.paginator.count)
-        self.assertSetEqual({*patterns}, {*patterns_page.object_list})
+        self.assertCountEqual(patterns, patterns_page.object_list)
 
     def test_add_root_pattern_component01(self):
         "No parent component, no counted relation."
@@ -452,16 +452,17 @@ class ActObjectivePatternTestCase(BrickTestCaseMixin, CommercialBaseTestCase):
 
         self.assertNoFormError(self._delete_comp(comp01), status=302)
 
-        remaining_ids = pattern.components.values_list('id', flat=True)
-        self.assertEqual(3, len(remaining_ids))
-        self.assertSetEqual({comp00.id, comp05.id, comp06.id}, {*remaining_ids})
+        self.assertCountEqual(
+            [comp00.id, comp05.id, comp06.id],
+            pattern.components.values_list('id', flat=True),
+        )
         self.assertDoesNotExist(comp01)
         self.assertDoesNotExist(comp02)
         self.assertDoesNotExist(comp03)
         self.assertDoesNotExist(comp04)
 
     def assertCompNamesEqual(self, comp_qs, *names):
-        self.assertSetEqual({*names}, {*comp_qs.values_list('name', flat=True)})
+        self.assertCountEqual(names, comp_qs.values_list('name', flat=True))
 
     def test_actobjectivepattern_clone01(self):
         pattern = self._create_pattern()

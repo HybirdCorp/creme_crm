@@ -111,9 +111,9 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
             ['SIMPLE_ALGO'] * 3,
             [algoconf.name_algo for algoconf in algoconfs],
         )
-        self.assertSetEqual(
-            {Quote, Invoice, SalesOrder},
-            {algoconf.ct.model_class() for algoconf in algoconfs}
+        self.assertCountEqual(
+            [Quote, Invoice, SalesOrder],
+            [algoconf.ct.model_class() for algoconf in algoconfs],
         )
 
         simpleconfs = SimpleBillingAlgo.objects.filter(organisation=orga)
@@ -121,9 +121,9 @@ class AppTestCase(BrickTestCaseMixin, _BillingTestCase):
             [0] * 3,
             [simpleconf.last_number for simpleconf in simpleconfs]
         )
-        self.assertSetEqual(
-            {Quote, Invoice, SalesOrder},
-            {simpleconf.ct.model_class() for simpleconf in simpleconfs}
+        self.assertCountEqual(
+            [Quote, Invoice, SalesOrder],
+            [simpleconf.ct.model_class() for simpleconf in simpleconfs],
         )
 
     def _merge_organisations(self, orga1, orga2):

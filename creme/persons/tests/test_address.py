@@ -79,7 +79,7 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
                 'name', 'address', 'zipcode', 'city',
                 'department', 'state', 'country',
             },
-            {*Address.info_field_names()}
+            {*Address.info_field_names()},
         )
 
     def test_empty_fields(self):
@@ -647,13 +647,11 @@ class AddressTestCase(CremeTestCase, BrickTestCaseMixin):
         create_billing_address(address='42 Fish street',  owner=orga5)
         create_billing_address(name='Towel',              owner=orga6)
 
-        self.assertSetEqual(
-            {orga3, orga4},
-            {
-                *Organisation.objects
-                             .filter(id__in=orga_ids)
-                             .filter(to_python(value='towel')),
-            },
+        self.assertCountEqual(
+            [orga3, orga4],
+            Organisation.objects
+                        .filter(id__in=orga_ids)
+                        .filter(to_python(value='towel')),
         )
 
     def test_search_field02(self):

@@ -1380,7 +1380,7 @@ class MenuTestCase(CremeTestCase):
 
         # -------------
         registry.register(FakeContactsEntry, CremeEntry)
-        self.assertSetEqual({FakeContactsEntry, CremeEntry}, {*registry.entry_classes})
+        self.assertCountEqual([FakeContactsEntry, CremeEntry], registry.entry_classes)
 
         entries = registry.get_entries(items)
         self.assertIsList(entries, length=1)

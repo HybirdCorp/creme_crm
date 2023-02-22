@@ -599,9 +599,9 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
             invoices_page = response.context['page_obj']
 
         self.assertEqual(2, invoices_page.paginator.count)
-        self.assertSetEqual(
-            {invoice1, invoice2},
-            {*invoices_page.paginator.object_list},
+        self.assertCountEqual(
+            [invoice1, invoice2],
+            invoices_page.paginator.object_list,
         )
 
     def test_listview_export_actions(self):

@@ -677,10 +677,9 @@ class ActivityTestCase(_ActivitiesTestCase):
         relations = Relation.objects.filter(
             subject_entity=act.id, type=constants.REL_OBJ_PART_2_ACTIVITY,
         )
-        self.assertEqual(3, len(relations))
-        self.assertSetEqual(
-            {musashi.linked_contact, kojiro.linked_contact, user.linked_contact},
-            {r.real_object for r in relations},
+        self.assertCountEqual(
+            [musashi.linked_contact, kojiro.linked_contact, user.linked_contact],
+            [r.real_object for r in relations],
         )
 
     def test_createview_light_customform(self):
@@ -2135,7 +2134,7 @@ class ActivityTestCase(_ActivitiesTestCase):
 
         self.assertEqual(1, activities_page.number)
         self.assertEqual(2, activities_page.paginator.count)
-        self.assertSetEqual({*acts}, {*activities_page.object_list})
+        self.assertCountEqual(acts, activities_page.object_list)
 
         # Phone calls
         response = self.assertGET200(reverse('activities__list_phone_calls'))

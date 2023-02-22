@@ -314,8 +314,8 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertSetEqual(
             entities, {rnode.real_entity for rnode in rnodes},
         )
-        self.assertSetEqual(
-            {rtype01, rtype02}, {*rnodes[0].relation_types.all()},
+        self.assertCountEqual(
+            [rtype01, rtype02], rnodes[0].relation_types.all(),
         )
 
         # Delete
@@ -373,7 +373,7 @@ class GraphsTestCase(BrickTestCaseMixin, CremeTestCase):
         self.assertNoFormError(
             self.client.post(url, data={'relation_types': [rtype01.id, rtype02.id]})
         )
-        self.assertSetEqual({rtype01, rtype02}, {*rnode.relation_types.all()})
+        self.assertCountEqual([rtype01, rtype02], rnode.relation_types.all())
 
     def test_edit_rootnode02(self):
         "Disabled relation types are already selected => still proposed."

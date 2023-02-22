@@ -361,9 +361,9 @@ class BatchProcessViewsTestCase(ViewsTestCase):
                 ),
             ],
         )
-        self.assertSetEqual(
-            {orga02, orga03},
-            {*efilter.filter(FakeOrganisation.objects.all())},
+        self.assertCountEqual(
+            [orga02, orga03],
+            efilter.filter(FakeOrganisation.objects.all()),
         )  # <== not 'orga01'
 
         response = self.client.post(

@@ -333,8 +333,8 @@ class ImportingTestCase(CremeTestCase):
         get_ct = ContentType.objects.get_for_model
         contact_ct = get_ct(FakeContact)
         orga_ct    = get_ct(FakeOrganisation)
-        self.assertSetEqual({contact_ct, orga_ct}, {*role.creatable_ctypes.all()})
-        self.assertListEqual([contact_ct],         [*role.exportable_ctypes.all()])
+        self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
+        self.assertCountEqual([contact_ct],          role.exportable_ctypes.all())
 
         credentials = [*role.credentials.all()]
         self.assertEqual(3, len(credentials))
@@ -428,8 +428,8 @@ class ImportingTestCase(CremeTestCase):
         self.assertSetEqual({'documents'},            role.admin_4_apps)
 
         orga_ct = get_ct(FakeOrganisation)
-        self.assertSetEqual({contact_ct, orga_ct}, {*role.creatable_ctypes.all()})
-        self.assertListEqual([orga_ct],            [*role.exportable_ctypes.all()])
+        self.assertCountEqual([contact_ct, orga_ct], role.creatable_ctypes.all())
+        self.assertCountEqual([orga_ct],             role.exportable_ctypes.all())
 
         all_credentials = [*role.credentials.all()]
         self.assertEqual(1, len(all_credentials))
@@ -1218,7 +1218,7 @@ class ImportingTestCase(CremeTestCase):
             is_custom=True, id=rtype_data['id'], predicate=rtype_data['predicate'],
         )
         ptype2 = self.get_object_or_fail(CremePropertyType, id=ptype2_id)
-        self.assertSetEqual({ptype1, ptype2}, {*rtype.subject_properties.all()})
+        self.assertCountEqual([ptype1, ptype2], rtype.subject_properties.all())
 
     def test_fields_config01(self):
         self.login(is_staff=True)
@@ -1337,16 +1337,16 @@ class ImportingTestCase(CremeTestCase):
 
         cfield_data = cfields_data[2]
         cfield3 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
-        self.assertSetEqual(
-            {*cfield_data['choices']},
-            {*cfield3.customfieldenumvalue_set.values_list('value', flat=True)},
+        self.assertCountEqual(
+            cfield_data['choices'],
+            cfield3.customfieldenumvalue_set.values_list('value', flat=True),
         )
 
         cfield_data = cfields_data[3]
         cfield4 = self.get_object_or_fail(CustomField, name=cfield_data['name'])
-        self.assertSetEqual(
-            {*cfield_data['choices']},
-            {*cfield4.customfieldenumvalue_set.values_list('value', flat=True)},
+        self.assertCountEqual(
+            cfield_data['choices'],
+            cfield4.customfieldenumvalue_set.values_list('value', flat=True),
         )
 
     def test_customfields02(self):

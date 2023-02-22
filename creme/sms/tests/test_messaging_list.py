@@ -85,7 +85,7 @@ class MessagingListTestCase(CremeTestCase):
             mlist_page = response.context['page_obj']
 
         self.assertEqual(2, mlist_page.paginator.count)
-        self.assertSetEqual({camp1, camp2}, {*mlist_page.object_list})
+        self.assertCountEqual([camp1, camp2], mlist_page.object_list)
 
     def test_recipients(self):
         user = self.login()
@@ -105,10 +105,7 @@ class MessagingListTestCase(CremeTestCase):
         # --------------------
         recipients = ['11223344', '55667788']
         self.assertPOST200(url, follow=True, data={'recipients': '\n'.join(recipients)})
-        self.assertSetEqual(
-            {*recipients},
-            {r.phone for r in mlist.recipient_set.all()}
-        )
+        self.assertCountEqual(recipients, [r.phone for r in mlist.recipient_set.all()])
 
         # --------------------
         recipient = mlist.recipient_set.all()[0]
@@ -182,10 +179,7 @@ class MessagingListTestCase(CremeTestCase):
             data={'recipients': '[{}]'.format(','.join(str(c.id) for c in recipients))},
         )
         self.assertNoFormError(response)
-        self.assertSetEqual(
-            {c.id for c in recipients},
-            {c.id for c in mlist.contacts.all()}
-        )
+        self.assertCountEqual(recipients, mlist.contacts.all())
 
         # --------------------
         contact_to_del = recipients[0]
@@ -239,9 +233,9 @@ class MessagingListTestCase(CremeTestCase):
         create(first_name='Ed',    last_name='Wong',    phone='78998778', is_deleted=True),
         self.assertNoFormError(self.client.post(url, data={}))
 
-        contacts = {*Contact.objects.filter(is_deleted=False)}
+        contacts = Contact.objects.filter(is_deleted=False)
         self.assertGreaterEqual(len(contacts), 2)
-        self.assertSetEqual(contacts, {*mlist.contacts.all()})
+        self.assertCountEqual(contacts, mlist.contacts.all())
 
     @skipIfCustomContact
     def test_ml_contacts_filter02(self):
@@ -253,7 +247,6 @@ class MessagingListTestCase(CremeTestCase):
             create_contact(first_name='Genma', last_name='Saotome'),
             create_contact(first_name='Akane', last_name='Tendô'),
         ]
-        expected_ids = {recipients[0].id, recipients[1].id}
 
         efilter = EntityFilter.objects.smart_update_or_create(
             'test-filter01', 'Saotome', Contact, is_custom=True,
@@ -265,7 +258,7 @@ class MessagingListTestCase(CremeTestCase):
                 ),
             ],
         )
-        self.assertSetEqual(expected_ids, {c.id for c in efilter.filter(Contact.objects.all())})
+        self.assertCountEqual(recipients[:2], efilter.filter(Contact.objects.all()))
 
         EntityFilter.objects.smart_update_or_create(
             'test-filter02', 'Useless', FakeOrganisation, is_custom=True,
@@ -293,7 +286,7 @@ class MessagingListTestCase(CremeTestCase):
         )
 
         self.assertNoFormError(self.client.post(url, data={'filters': efilter.id}))
-        self.assertSetEqual(expected_ids, {c.id for c in mlist.contacts.all()})
+        self.assertCountEqual(recipients[:2], mlist.contacts.all())
 
     def test_ml_contacts_filter03(self):
         "Not a MailingList."
