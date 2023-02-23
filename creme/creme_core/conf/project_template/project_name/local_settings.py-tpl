@@ -10,6 +10,14 @@ ADMINS = []
 # HINT: use 'creme build_secret_key --settings={{ project_name }}.settings' to generate it.
 SECRET_KEY = '{{ secret_key }}'
 
+# A list of strings representing the host/domain names that this Django site can serve.
+# You should set this list for security purposes.
+# See: https://docs.djangoproject.com/en/{{ docs_version }}/ref/settings/#allowed-hosts
+# The default value is <['*']> & it will match anything ; set a narrower value
+# or provide your own validation (with in a middleware for example).
+# ALLOWED_HOSTS = ['.localhost', '127.0.0.1', '[::1]']
+# ALLOWED_HOSTS = ['www.example.com']
+
 # Database
 # https://docs.djangoproject.com/en/{{ docs_version }}/ref/settings/#databases
 DATABASES = {
