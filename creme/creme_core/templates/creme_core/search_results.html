@@ -4,7 +4,9 @@
 
 {% block page_title %}{% translate 'Search results' %} - {% endblock %}
 
-{% block extrahead %}
+{# {% block extrahead %} #}
+{% block head %}
+    {{block.super}}
 {% translate 'Search results: %d entity' as singular_msg %}{% translate 'Search results: %d entities' as plural_msg %}
 <script type="text/javascript">
     $(document).ready(function() {

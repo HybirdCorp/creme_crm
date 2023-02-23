@@ -4,7 +4,9 @@
 
 {% block page_title %}{% translate 'Calendars' %} - {% endblock %}
 
-{% block extrahead %}
+{# {% block extrahead %} #}
+{% block head %}
+    {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {
             new creme.activities.CalendarController({
