@@ -3,7 +3,8 @@
 
 {% block page_title %}{% blocktranslate %}Preview {{object}}{% endblocktranslate %} - {% endblock %}
 
-{% block extrahead %}
+{# {% block extrahead %} #}
+{% block head %}
     {{block.super}}
     <script type='text/javascript'>
         $(document).ready(function() {

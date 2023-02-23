@@ -5,7 +5,9 @@
 
 {% block page_title %}{% translate 'Waiting actions' %} - {% endblock %}
 
-{% block extrahead %}
+{# {% block extrahead %} #}
+{% block head %}
+    {{block.super}}
 {# TODO: the 'refresh' button should be disabled when the page it loaded, & be enabled after the first automatic refreshing #}
     <script type="text/javascript">
         $(document).ready(function() {
