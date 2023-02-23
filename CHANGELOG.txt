@@ -29,6 +29,11 @@
 
     Non breaking changes :
     ----------------------
+        # A new context processor 'creme.creme_core.context_processors.get_base_template' injects now
+          the new settings.py variable 'BASE_HTML' (default value: "creme_core/base.html").
+          All pages which extended "creme_core/base.html" have been updated to use this variable.
+          So you can now customise the base structure of the pages, because your our own base template can extend "creme_core/base.html"
+          (i.e. you do not have to override it with a copy-pasted version anymore).
         # In order to allow the resetting of CustomForms, the good way to describe the fresh configuration is to use the new
           class 'creme.creme_core.gui.custom_form.CustomFormDefault' & stop describing the fields in the "populate" scripts
           (so the fields are listed only once, & forms built by "populate" scripts & the resetting view will be the same).
