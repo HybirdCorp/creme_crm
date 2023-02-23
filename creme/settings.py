@@ -215,6 +215,13 @@ ALLOWED_HOSTS = ['*']
 
 # SITE: URLs / PATHS / ... [END]################################################
 
+# Name of the base template used by all the common pages (there are some exceptions
+# like the login & "About" pages, which can be customised with their own way).
+# It's useful to make a customisation which applies on all the pages
+# (like a telemetry script).
+# Hint: you can start your own base template with {% extends 'creme_core/base.html' %}.
+BASE_HTML = 'creme_core/base.html'
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -235,6 +242,7 @@ TEMPLATES = [
                 # Creme additional processors
                 'django.template.context_processors.request',
 
+                'creme.creme_core.context_processors.get_base_template',
                 'creme.creme_core.context_processors.get_version',
                 'creme.creme_core.context_processors.get_django_version',
                 'creme.creme_core.context_processors.get_software_label',
