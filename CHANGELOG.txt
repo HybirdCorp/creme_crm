@@ -152,6 +152,9 @@
                 - The class 'utils.PytzToVtimezone' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
+            * Polls :
+                - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
+                  has been removed ; use '{{block.super}}' instead.
             * CTI :
                 - The function 'utils.print_phone_html()' has been fixed with the new printers signature.
 
