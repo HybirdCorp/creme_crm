@@ -26,6 +26,7 @@ from creme.persons.constants import (
     REL_SUB_MANAGES,
     UUID_FIRST_CONTACT,
 )
+from creme.persons.forms.address import AddressesGroup
 from creme.persons.models import Civility, Position, Sector
 
 from ..base import (
@@ -141,7 +142,7 @@ class ContactTestCase(_BaseTestCase):
         with self.assertNoException():
             contact2.clean()
 
-    def test_createview01(self):
+    def test_createview(self):
         user = self.login()
 
         url = reverse('persons__create_contact')
@@ -170,8 +171,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
-    def test_createview02(self):
-        "With addresses."
+    def test_createview_with_addresses(self):
         user = self.login()
 
         first_name = 'Spike'
@@ -218,6 +218,173 @@ class ContactTestCase(_BaseTestCase):
         self.assertContains(response2, b_address)
         self.assertContains(response2, s_address)
 
+    @skipIfCustomAddress
+    def test_createview_with_addresses_errors01(self):
+        """Validation error (custom model validation on Address
+        -- for swapped or hooked models) ; field error.
+        """
+        user = self.login()
+        error_msg = 'Please fill the city too'
+
+        def clean_address(this):
+            if this.address and not this.city:
+                raise ValidationError({
+                    'city': ValidationError(error_msg),
+                })
+
+        original_clean = Address.clean
+
+        url = reverse('persons__create_contact')
+
+        first_name = 'Spike'
+        last_name = 'Spiegel'
+        b_address = '7 Corgy street'
+        b_city = 'Mars City'
+        data = {
+            'user': user.pk,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'billing_address-address': b_address,
+            # 'shipping_address-address': ...,
+        }
+
+        try:
+            Address.clean = clean_address
+
+            response1 = self.client.post(url, follow=True, data=data)
+            self.assertFormError(
+                response1.context['form'],
+                field='billing_address-city',
+                errors=error_msg,
+            )
+
+            # ---
+            response2 = self.client.post(
+                url,
+                follow=True,
+                data={
+                    **data,
+
+                    'billing_address-city': b_city,
+                },
+            )
+            self.assertNoFormError(response2)
+        finally:
+            Address.clean = original_clean
+
+        contact = self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
+        self.assertIsNone(contact.shipping_address)
+
+        billing_address = contact.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address, billing_address.address)
+        self.assertEqual(b_city,    billing_address.city)
+
+    @skipIfCustomAddress
+    def test_createview_with_addresses_errors02(self):
+        "Validation error (custom model validation...) ; non field-error."
+        user = self.login()
+        error_msg = 'Please fill the city too'
+
+        def clean_address(this):
+            if this.address and not this.city:
+                raise ValidationError(error_msg)
+
+        original_clean = Address.clean
+
+        try:
+            Address.clean = clean_address
+
+            response = self.client.post(
+                reverse('persons__create_contact'),
+                data={
+                    'user': user.pk,
+                    'first_name': 'Spike',
+                    'last_name': 'Spiegel',
+
+                    'billing_address-address': '7 Corgy street',
+                    'shipping_address-address': '8 Corgy street',
+                },
+            )
+            self.assertFormError(
+                response.context['form'],
+                field=None,
+                errors=[
+                    _('{address_field}: {error}').format(
+                        address_field=field,
+                        error=error_msg,
+                    ) for field in (_('Billing address'), _('Shipping address'))
+                ],
+            )
+        finally:
+            Address.clean = original_clean
+
+    @skipIfCustomAddress
+    def test_createview_with_addresses_errors03(self):
+        "Custom address which raises field error."
+        user = self.login()
+        error_msg = 'Please fill the city too'
+
+        original_form = AddressesGroup.sub_form_class
+
+        class TestForm(original_form):
+            def clean_city(this):
+                cleaned = this.cleaned_data
+                city = cleaned['city']
+
+                if not city and cleaned['address']:
+                    raise ValidationError(error_msg)
+
+                return city
+
+        url = reverse('persons__create_contact')
+
+        first_name = 'Spike'
+        last_name = 'Spiegel'
+        b_address = '7 Corgy street'
+        b_city = 'Mars City'
+        data = {
+            'user': user.pk,
+            'first_name': first_name,
+            'last_name': last_name,
+
+            'billing_address-address': b_address,
+            # 'shipping_address-address': ...,
+        }
+
+        try:
+            AddressesGroup.sub_form_class = TestForm
+
+            response1 = self.client.post(url, follow=True, data=data)
+            self.assertFormError(
+                response1.context['form'],
+                field='billing_address-city',
+                errors=error_msg,
+            )
+
+            # ---
+            response2 = self.client.post(
+                url,
+                follow=True,
+                data={
+                    **data,
+
+                    'billing_address-city': b_city,
+                },
+            )
+            self.assertNoFormError(response2)
+        finally:
+            AddressesGroup.sub_form_class = original_form
+
+        contact = self.get_object_or_fail(Contact, last_name=last_name, first_name=first_name)
+        self.assertIsNone(contact.shipping_address)
+
+        billing_address = contact.billing_address
+        self.assertIsNotNone(billing_address)
+        self.assertEqual(b_address, billing_address.address)
+        self.assertEqual(b_city,    billing_address.city)
+
     def test_editview01(self):
         user = self.login()
         first_name = 'Faye'
@@ -247,7 +414,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertRedirects(response, contact.get_absolute_url())
 
     @skipIfCustomAddress
-    def test_editview02(self):
+    def test_editview_with_addresses(self):
         "Edit addresses."
         user = self.login()
 
@@ -300,7 +467,7 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(state,   contact.billing_address.state)
         self.assertEqual(country, contact.shipping_address.country)
 
-    def test_editview03(self):
+    def test_editview_is_user01(self):
         "Contact is a user => sync."
         user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
@@ -350,8 +517,8 @@ class ContactTestCase(_BaseTestCase):
         self.assertEqual(last_name,  user.last_name)
         self.assertEqual(email,      user.email)
 
-    def test_editview04(self):
-        "Contact is a user + emails is hidden (crashed)."
+    def test_editview_is_user02(self):
+        "Contact is a user + field 'email' is hidden (crashed)."
         user = self.login()
         contact = self.get_object_or_fail(Contact, is_user=user)
 
@@ -1015,7 +1182,7 @@ class ContactTestCase(_BaseTestCase):
             self.assertAddressOnlyContentEqual(address, address2)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete01(self):
+    def test_delete(self):
         user = self.login()
         naruto = Contact.objects.create(user=user, first_name='Naruto', last_name='Uzumaki')
         url = naruto.get_delete_absolute_url()
@@ -1030,14 +1197,14 @@ class ContactTestCase(_BaseTestCase):
         self.assertDoesNotExist(naruto)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete02(self):
-        "Can not delete if the Contact corresponds to an user."
+    def test_delete_is_user01(self):
+        "Can not delete if the Contact corresponds to a user."
         user = self.login()
         contact = user.linked_contact
         self.assertPOST409(contact.get_delete_absolute_url(), follow=True)
 
     @override_settings(ENTITIES_DELETION_ALLOWED=True)
-    def test_delete03(self):
+    def test_delete_is_user02(self):
         "Can not trash if the Contact corresponds to a user."
         user = self.login()
         contact = user.linked_contact

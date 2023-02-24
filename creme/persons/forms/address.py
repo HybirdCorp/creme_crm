@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,10 @@
 ################################################################################
 
 import logging
+from collections import defaultdict
 
+from django.core.exceptions import NON_FIELD_ERRORS, ValidationError
+from django.utils.translation import gettext
 from django.utils.translation import gettext_lazy as _
 
 from creme.creme_core.core.exceptions import ConflictError
@@ -121,6 +124,40 @@ class AddressesGroup(ExtraFieldGroup):
             if not is_field_hidden(fk):
                 yield fk
 
+    def _clean_address(self, form, addr_fieldname, verbose_name):
+        instance = form.instance
+        addr_form = self.sub_form_class(
+            entity=instance,
+            user=form.user,
+            instance=getattr(instance, addr_fieldname),
+            prefix=addr_fieldname,
+            data=form.data,
+        )
+
+        if not addr_form.is_valid():
+            # We have to improve the errors to integrate them correctly in the
+            # containing Contact/Organisation form.
+            for field, errors in addr_form.errors.items():
+                if field == NON_FIELD_ERRORS:
+                    yield field, [
+                        gettext('{address_field}: {error}').format(
+                            address_field=verbose_name, error=error,
+                        ) for error in errors
+                    ]
+                else:
+                    yield addr_form.add_prefix(field), errors
+
+    def clean(self, form):
+        clean_addr = self._clean_address
+
+        errors = defaultdict(list)
+        for fk in self._visible_address_fks():
+            for field, field_errors in clean_addr(form, fk.name, fk.verbose_name):
+                errors[field].extend(field_errors)
+
+        if errors:
+            raise ValidationError(errors)
+
     def formfields(self, instance, user):
         for fk in self._visible_address_fks():
             yield from self._address_formfield(
@@ -134,6 +171,8 @@ class AddressesGroup(ExtraFieldGroup):
         return ctxt
 
     def _save_address(self, form, addr_fieldname, verbose_name):
+        # TODO: factorise (see _clean_address()).
+        #       build the forms once & store them in an attribute?
         instance = form.instance
         save_instance = False
         address = getattr(instance, addr_fieldname)
@@ -153,8 +192,9 @@ class AddressesGroup(ExtraFieldGroup):
                 setattr(instance, addr_fieldname, addr_form.save())
                 save_instance = True
         else:
-            logger.debug(
-                'Address form (%s) is not valid: %s',
+            # TODO: raise an exception?
+            logger.critical(
+                'Address form (%s) is not valid: %s (have you called clean()?)',
                 addr_fieldname, addr_form.errors,
             )
 
