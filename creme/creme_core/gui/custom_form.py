@@ -495,7 +495,7 @@ class FieldGroupList:
                    base_form_class=CremeEntityForm,
                    exclude_fields: Container[str] = (),
                    ) -> type[CremeEntityForm]:
-        """Main method of the custom-form system: it generate our final form class."""
+        """Main method of the custom-form system: it generates our final form class."""
         model = self.model
 
         cells_groups: list[FieldGroup] = []
