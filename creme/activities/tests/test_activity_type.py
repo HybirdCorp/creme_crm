@@ -32,17 +32,22 @@ class ActivityTypeTestCase(_ActivitiesTestCase):
         # ---
         sub_type.is_custom = False
 
-        # with self.assertRaises(ValueError):  # TODO: creme2.5
-        with self.assertLogs(level='CRITICAL') as logs_manager2:
+        # with self.assertLogs(level='CRITICAL') as logs_manager2:
+        with self.assertRaises(ValueError) as cm:
             sub_type.save()
 
-        self.assertListEqual(
-            logs_manager2.output,
-            [
-                f'CRITICAL:creme.activities.models.other_models:'
-                f'the ActivitySubType id="{sub_type.id}" is not custom,'
-                f'so the related ActivityType cannot be custom.'
-            ],
+        # self.assertListEqual(
+        #     logs_manager2.output,
+        #     [
+        #         f'CRITICAL:creme.activities.models.other_models:'
+        #         f'the ActivitySubType id="{sub_type.id}" is not custom,'
+        #         f'so the related ActivityType cannot be custom.'
+        #     ],
+        # )
+        self.assertEqual(
+            f'The ActivitySubType id="{sub_type.id}" is not custom,'
+            f'so the related ActivityType cannot be custom.',
+            str(cm.exception),
         )
 
         # ---

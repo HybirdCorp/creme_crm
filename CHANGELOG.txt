@@ -171,6 +171,8 @@
             * Documents :
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
             * Activities :
+                - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'
+                  (in <Creme 2.4> it was just a log).
                 - The class 'utils.PytzToVtimezone' has been removed.
             * Billing :
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
