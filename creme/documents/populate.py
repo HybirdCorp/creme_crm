@@ -50,7 +50,8 @@ from . import (
     get_folder_model,
     menu,
 )
-from .models import DocumentCategory, FolderCategory
+# from .models import DocumentCategory
+from .models import FolderCategory
 
 logger = logging.getLogger(__name__)
 
@@ -81,38 +82,36 @@ class Populator(BasePopulator):
             },
         )[0]
 
-        # TODO: move in 'emails' app in Creme2.5
-        create_folder_cat(
-            uuid=constants.UUID_FOLDER_CAT_EMAILS,
-            defaults={
-                'name': _('Documents received by email'),
-                'is_custom': False,
-            },
-        )
+        # create_folder_cat(
+        #     uuid=constants.UUID_FOLDER_CAT_EMAILS,
+        #     defaults={
+        #         'name': _('Documents received by email'),
+        #         'is_custom': False,
+        #     },
+        # )
 
-        # TODO: created by 'products' & 'persons' app ?
-        create_doc_cat = DocumentCategory.objects.get_or_create
-        create_doc_cat(
-            uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
-            defaults={
-                'name': _('Product image'),
-                'is_custom': False,
-            },
-        )
-        create_doc_cat(
-            uuid=constants.UUID_DOC_CAT_IMG_ORGA,
-            defaults={
-                'name': _('Organisation logo'),
-                'is_custom': False,
-            },
-        )
-        create_doc_cat(
-            uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
-            defaults={
-                'name': _('Contact photograph'),
-                'is_custom': False,
-            },
-        )
+        # create_doc_cat = DocumentCategory.objects.get_or_create
+        # create_doc_cat(
+        #     uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
+        #     defaults={
+        #         'name': _('Product image'),
+        #         'is_custom': False,
+        #     },
+        # )
+        # create_doc_cat(
+        #     uuid=constants.UUID_DOC_CAT_IMG_ORGA,
+        #     defaults={
+        #         'name': _('Organisation logo'),
+        #         'is_custom': False,
+        #     },
+        # )
+        # create_doc_cat(
+        #     uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
+        #     defaults={
+        #         'name': _('Contact photograph'),
+        #         'is_custom': False,
+        #     },
+        # )
 
         # ---------------------------
         user = get_user_model().objects.get_admin()
@@ -135,7 +134,7 @@ class Populator(BasePopulator):
                 defaults={
                     'user':  user,
                     'title': _('Images'),
-                }
+                },
             )
 
         # ---------------------------

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Documents 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2023-02-24 11:24+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -177,18 +177,6 @@ msgstr "document concerné par"
 
 msgid "Documents related to entities"
 msgstr "Documents crées à partir des fiches"
-
-msgid "Documents received by email"
-msgstr "Documents reçus par e-mail"
-
-msgid "Product image"
-msgstr "Image de produit"
-
-msgid "Organisation logo"
-msgstr "Logo de société"
-
-msgid "Contact photograph"
-msgstr "Photo de contact"
 
 msgid "Folder containing all the documents related to entities"
 msgstr "Classeur contenant tous les documents créés à partir des fiches"

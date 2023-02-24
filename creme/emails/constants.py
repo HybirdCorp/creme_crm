@@ -19,3 +19,5 @@ DEFAULT_HFILTER_TEMPLATE    = 'emails-hf_template'
 DEFAULT_HFILTER_EMAIL       = 'emails-hf_email'
 
 SETTING_EMAILCAMPAIGN_SENDER = 'emails-emailcampaign_sender'
+
+UUID_FOLDER_CAT_EMAILS = '7161caaa-013b-4c32-ac19-19da7cee4561'
