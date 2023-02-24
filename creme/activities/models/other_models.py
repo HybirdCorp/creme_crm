@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
-import logging
+# import logging
 from datetime import timedelta
 
 from django.db import models
@@ -97,11 +97,14 @@ class ActivitySubType(CremeModel):
 
     def save(self, *args, **kwargs):
         if not self.is_custom and self.type.is_custom:
-            # raise ValueError(...) TODO: in creme2.5
-            logging.getLogger(__name__).critical(
-                'the ActivitySubType id="%s" is not custom,'
-                'so the related ActivityType cannot be custom.',
-                self.id,
+            # logging.getLogger(__name__).critical(
+            #     'the ActivitySubType id="%s" is not custom,'
+            #     'so the related ActivityType cannot be custom.',
+            #     self.id,
+            # )
+            raise ValueError(
+                f'The ActivitySubType id="{self.id}" is not custom,'
+                f'so the related ActivityType cannot be custom.'
             )
 
         super().save(*args, **kwargs)
