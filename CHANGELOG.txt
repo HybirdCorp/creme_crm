@@ -169,6 +169,10 @@
             * Creme_config :
                 - 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'
             * Documents :
+                - Some constants have been moved :
+                    - 'UUID_DOC_CAT_IMG_ORGA' & 'UUID_DOC_CAT_IMG_CONTACT' to the app 'persons'.
+                    - 'UUID_DOC_CAT_IMG_PRODUCT' to the app 'products'.
+                    - 'UUID_FOLDER_CAT_EMAILS' to the app 'emails'.
                 - In 'gui', the functions 'print_fk_image_html()' & 'print_doc_summary_html' have been fixed with the new printers signature.
             * Activities :
                 - A 'ValueError' is raised when you try to create a not custom 'ActivitySubType' related to a custom 'ActivityType'

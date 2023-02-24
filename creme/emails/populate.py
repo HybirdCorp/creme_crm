@@ -42,6 +42,7 @@ from creme.creme_core.models import (
     SettingValue,
 )
 from creme.creme_core.utils.date_period import date_period_registry
+from creme.documents.models import FolderCategory
 
 from . import bricks, buttons, constants, creme_jobs, custom_forms, menu
 from .setting_keys import emailcampaign_sender
@@ -50,7 +51,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core', 'persons']
+    dependencies = ['creme_core', 'persons', 'documents']
 
     def populate(self):
         already_populated = RelationType.objects.filter(
@@ -291,6 +292,15 @@ class Populator(BasePopulator):
                 'language':    settings.LANGUAGE_CODE,
                 'periodicity': date_period_registry.get_period('minutes', 30),
                 'status':      Job.STATUS_OK,
+            },
+        )
+
+        # ---------------------------
+        FolderCategory.objects.get_or_create(
+            uuid=constants.UUID_FOLDER_CAT_EMAILS,
+            defaults={
+                'name': _('Documents received by email'),
+                'is_custom': False,
             },
         )
 

@@ -12,10 +12,13 @@ from creme.creme_core.tests.views.base import BrickTestCaseMixin
 from creme.creme_core.utils.file_handling import FileCreator
 from creme.documents import get_document_model
 # from creme.documents.constants import DOCUMENTS_FROM_EMAILS
-from creme.documents.constants import UUID_FOLDER_CAT_EMAILS
 from creme.documents.models import FolderCategory
 from creme.emails import bricks
-from creme.emails.constants import REL_SUB_MAIL_RECEIVED, REL_SUB_MAIL_SENT
+from creme.emails.constants import (
+    REL_SUB_MAIL_RECEIVED,
+    REL_SUB_MAIL_SENT,
+    UUID_FOLDER_CAT_EMAILS,
+)
 from creme.emails.models import (
     EmailSyncConfigItem,
     EmailToSync,

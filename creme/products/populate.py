@@ -40,6 +40,7 @@ from creme.creme_core.models import (
     MenuConfigItem,
     SearchConfigItem,
 )
+from creme.documents.models import DocumentCategory
 
 from . import (
     bricks,
@@ -56,7 +57,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core']
+    dependencies = ['creme_core', 'documents']
 
     def populate(self):
         Product = get_product_model()
@@ -225,6 +226,15 @@ class Populator(BasePopulator):
         create_searchconf = SearchConfigItem.objects.create_if_needed
         create_searchconf(Product, ['name', 'description', 'category__name', 'sub_category__name'])
         create_searchconf(Service, ['name', 'description', 'category__name', 'sub_category__name'])
+
+        # ---------------------------
+        DocumentCategory.objects.get_or_create(
+            uuid=constants.UUID_DOC_CAT_IMG_PRODUCT,
+            defaults={
+                'name': _('Product image'),
+                'is_custom': False,
+            },
+        )
 
         # ---------------------------
         # NB: no straightforward way to test that this populate script has not been already run

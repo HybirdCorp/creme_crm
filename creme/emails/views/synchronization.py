@@ -33,10 +33,10 @@ from creme.creme_core.utils import get_from_POST_or_404
 from creme.creme_core.utils.serializers import json_encode
 from creme.creme_core.views import generic
 from creme.documents import get_document_model, get_folder_model
-# from creme.documents.constants import DOCUMENTS_FROM_EMAILS
-from creme.documents.constants import UUID_FOLDER_CAT_EMAILS
+# from creme.documents.constants import UUID_FOLDER_CAT_EMAILS
 from creme.documents.models import FolderCategory
 from creme.emails import get_entityemail_model
+from creme.emails.constants import UUID_FOLDER_CAT_EMAILS
 
 from .. import constants
 from ..creme_jobs import entity_emails_sync_type
@@ -231,7 +231,6 @@ class EmailToSyncAcceptation(_BaseEmailToSyncMultiOperation):
         if attached_files:
             folder = get_folder_model().objects.get_or_create(
                 user=user,
-                # category=FolderCategory.objects.get(pk=DOCUMENTS_FROM_EMAILS),
                 category=FolderCategory.objects.get(uuid=UUID_FOLDER_CAT_EMAILS),
                 defaults={
                     'title': gettext("{username}'s files received by email").format(

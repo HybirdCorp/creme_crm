@@ -52,6 +52,7 @@ from creme.creme_core.models import (
     SearchConfigItem,
 )
 from creme.creme_core.utils import create_if_needed
+from creme.documents.models import DocumentCategory
 
 from . import bricks, buttons, constants, custom_forms, menu
 # from .forms.address import AddressesGroup
@@ -61,7 +62,7 @@ logger = logging.getLogger(__name__)
 
 
 class Populator(BasePopulator):
-    dependencies = ['creme_core']
+    dependencies = ['creme_core', 'documents']
 
     def populate(self):
         already_populated = RelationType.objects.filter(
@@ -333,6 +334,23 @@ class Populator(BasePopulator):
         create_sci = SearchConfigItem.objects.create_if_needed
         create_sci(Contact, ['last_name', 'first_name', 'phone', 'mobile', 'email'])
         create_sci(Organisation, ['name', 'phone', 'email', 'sector__title', 'legal_form__title'])
+
+        # ---------------------------
+        create_doc_cat = DocumentCategory.objects.get_or_create
+        create_doc_cat(
+            uuid=constants.UUID_DOC_CAT_IMG_ORGA,
+            defaults={
+                'name': _('Organisation logo'),
+                'is_custom': False,
+            },
+        )
+        create_doc_cat(
+            uuid=constants.UUID_DOC_CAT_IMG_CONTACT,
+            defaults={
+                'name': _('Contact photograph'),
+                'is_custom': False,
+            },
+        )
 
         # ---------------------------
         if not already_populated:

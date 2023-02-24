@@ -1,2 +1,4 @@
 DEFAULT_HFILTER_PRODUCT = 'products-hf_product'
 DEFAULT_HFILTER_SERVICE = 'products-hf_service'
+
+UUID_DOC_CAT_IMG_PRODUCT = 'a6624a65-7f02-4952-8cd8-02449e5b507b'
