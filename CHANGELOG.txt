@@ -14,6 +14,14 @@
         * Creme_config :
             - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
             - In the Users' configuration page, displayed Users can be filtered (by user-name, first name & last name).
+        * Activities :
+            - A color field has been added to Status.
+        * Billing :
+            - A color field has been added to Statuses.
+        * Opportunities :
+            - A color field has been added to SalesPhase.
+        * Tickets :
+            - A color field has been added to Status.
 
   Developers side :
   -----------------
@@ -188,6 +196,8 @@
                 - The function 'utils.print_discount()' has been fixed with the new printers signature.
             * Graphs :
                 - The template "graphs/graph_error.html" has been removed.
+            * Tickets :
+                - In 'models.status.BASE_STATUS', the tuples contain an additional column for colors.
             * Polls :
                 - In the template "polls/bricks/preplies.html", the block '{% block poll_replies_extra_rows %}'
                   has been removed ; use '{{block.super}}' instead.

@@ -4,6 +4,7 @@ from functools import partial
 
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
@@ -13,6 +14,7 @@ from creme.creme_core.auth import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.custom_form import FieldGroupList
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     Currency,
     CustomFormConfigItem,
@@ -48,6 +50,29 @@ from .base import (
 @skipIfCustomOrganisation
 @skipIfCustomQuote
 class QuoteTestCase(BrickTestCaseMixin, _BillingTestCase):
+    def test_status(self):
+        user = self.create_user()
+        status = QuoteStatus.objects.create(name='OK', color='00FF00')
+        ctxt = {
+            'user': user,
+            'quote': Quote(user=user, name='OK Quote', status=status),
+        }
+        template = Template(
+            r'{% load creme_core_tags %}'
+            r'{% print_field object=quote field="status" tag=tag %}'
+        )
+        self.assertEqual(
+            status.name,
+            template.render(Context({**ctxt, 'tag': ViewTag.TEXT_PLAIN})).strip(),
+        )
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
+
     def test_detailview01(self):
         "Cannot create Sales Orders => convert button disabled."
         self.login(

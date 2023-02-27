@@ -226,13 +226,29 @@ class BillingConfig(CremeAppConfig):
         )
 
     def register_field_printers(self, field_printers_registry):
+        from django.db.models import ForeignKey
+
+        from creme.creme_core.gui.field_printers import FKPrinter
+
+        from . import models, utils
         from .models.fields import BillingDiscountField
-        from .utils import print_discount
 
         # field_printers_registry.register(BillingDiscountField, print_discount)
         field_printers_registry.register_model_field_type(
-            type=BillingDiscountField, printer=print_discount, tags='html*',
+            type=BillingDiscountField, printer=utils.print_discount, tags='html*',
         )
+
+        # TODO: models.OneToOneField? ManyToManyField?
+        for printer in field_printers_registry.printers_for_field_type(
+            type=ForeignKey, tags='html*',
+        ):
+            for model in (
+                models.InvoiceStatus,
+                models.QuoteStatus,
+                models.CreditNoteStatus,
+                models.SalesOrderStatus,
+            ):
+                printer.register(model=model, printer=FKPrinter.print_fk_colored_html)
 
     def register_function_fields(self, function_field_registry):
         from creme import persons

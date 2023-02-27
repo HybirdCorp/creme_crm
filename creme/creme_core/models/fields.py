@@ -33,6 +33,7 @@ from django.utils.translation import gettext_lazy as _
 
 from ..core import validators
 from ..core.field_tags import FieldTag
+from ..utils.color import random_pastel_color
 from ..utils.date_period import DatePeriod, date_period_registry
 from ..utils.serializers import json_encode
 
@@ -56,9 +57,13 @@ class ColorField(models.CharField):
     default_validators = [validators.validate_color]
     description = _('HTML Color')
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, verbose_name=_('Color'), *args, **kwargs):
         kwargs['max_length'] = 6  # TODO: accepts 8 too (if alpha is needed) ?
-        super().__init__(*args, **kwargs)
+        super().__init__(verbose_name=verbose_name, *args, **kwargs)
+
+    @staticmethod
+    def random():
+        return random_pastel_color().html[1:]
 
     def formfield(self, **kwargs):
         from ..forms.fields import ColorField as ColorFormField  # Lazy loading

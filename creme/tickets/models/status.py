@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import MinionModel
-from creme.creme_core.models.fields import BasicAutoField
+from creme.creme_core.models import fields as core_fields
 
 OPEN_PK       = 1
 CLOSED_PK     = 2
@@ -30,11 +30,11 @@ DUPLICATED_PK = 4
 WONTFIX_PK    = 5
 
 BASE_STATUS = (
-    (OPEN_PK,        pgettext_lazy('tickets-status', 'Open'),       False),
-    (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed'),     True),
-    (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid'),    False),
-    (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated'), False),
-    (WONTFIX_PK,     _("Won't fix"),                                False),
+    (OPEN_PK,        pgettext_lazy('tickets-status', 'Open'),       False, 'f8f223'),
+    (CLOSED_PK,      pgettext_lazy('tickets-status', 'Closed'),     True,  '1dd420'),
+    (INVALID_PK,     pgettext_lazy('tickets-status', 'Invalid'),    False, 'adadad'),
+    (DUPLICATED_PK,  pgettext_lazy('tickets-status', 'Duplicated'), False, 'ababab'),
+    (WONTFIX_PK,     _("Won't fix"),                                False, 'a387ab'),
 )
 
 
@@ -49,7 +49,8 @@ class Status(MinionModel):
             'not be updated automatically (i.e. closing dates will not be set).'
         ),
     )
-    order = BasicAutoField(_('Order'))  # Used by creme_config
+    order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
+    color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     creation_label = pgettext_lazy('tickets-status', 'Create a status')
 

@@ -2,6 +2,7 @@ from datetime import date
 from functools import partial
 
 from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import number_format
@@ -127,6 +128,29 @@ class OpportunitiesTestCase(OpportunitiesBaseTestCase):
         self.assertTrue(rtype.subject_ctypes.filter(id=opp_ct.id).exists())
         self.assertTrue(rtype.subject_ctypes.filter(id=get_ct(Contact).id).exists())
         self.assertTrue(rtype.symmetric_type.object_ctypes.filter(id=opp_ct.id).exists())
+
+    def test_sales_phase(self):
+        user = self.create_user()
+        phase = SalesPhase.objects.create(name='OK', color='00FF00')
+        ctxt = {
+            'user': user,
+            'opportunity': Opportunity(user=user, name='Opp', sales_phase=phase),
+        }
+        template = Template(
+            r'{% load creme_core_tags %}'
+            r'{% print_field object=opportunity field="sales_phase" tag=tag %}'
+        )
+        self.assertEqual(
+            phase.name,
+            template.render(Context({**ctxt, 'tag': ViewTag.TEXT_PLAIN})).strip(),
+        )
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{phase.color};" />'
+            f' <span>{phase.name}</span>'
+            f'</div>',
+            template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
 
     @skipIfCustomOrganisation
     def test_createview01(self):

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from creme import billing, persons
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.function_field import (
     FunctionField,
+    FunctionFieldColorAndLabel,
     FunctionFieldDecimal,
     FunctionFieldResult,
 )
@@ -44,8 +45,9 @@ Quote   = billing.get_quote_model()
 
 
 class TemplateBaseVerboseStatusField(FunctionField):
-    name = 'get_verbose_status'
+    name = 'get_verbose_status'  # TODO: "billing-template_status"
     verbose_name = _('Status')
+    result_type = FunctionFieldColorAndLabel
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,20 +56,21 @@ class TemplateBaseVerboseStatusField(FunctionField):
     def __call__(self, entity, user):
         cache = self._cache
         e_id = entity.id
-        vstatus = cache.get(e_id)
+        status = cache.get(e_id)
 
-        if vstatus is None or vstatus.id != entity.status_id:
+        if status is None or status.id != entity.status_id:
             status_model = entity.ct.model_class()._meta.get_field('status').remote_field.model
 
             try:
-                vstatus = status_model.objects.get(id=entity.status_id)
+                status = status_model.objects.get(id=entity.status_id)
             except status_model.DoesNotExist as e:
                 logger.warning('Invalid status in TemplateBase(id=%s) [%s]', e_id, e)
-                vstatus = status_model(id=entity.status_id, name='')
+                status = status_model(id=entity.status_id, name='')  # TODO: color='000000'?
 
-            cache[e_id] = vstatus
+            cache[e_id] = status
 
-        return self.result_type(vstatus.name)
+        # return self.result_type(status.name)
+        return self.result_type(label=status.name, color=status.color)
 
     # TODO
     # def populate_entities(self, entities, user):

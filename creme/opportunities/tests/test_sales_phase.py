@@ -44,6 +44,13 @@ class SalesPhaseTestCase(CremeTestCase):
         self.assertEqual(1, sp1.order)
         self.assertEqual(2, sp2.order)
 
+    def test_color(self):
+        phase1 = SalesPhase(name='OK')
+        color1 = phase1.color
+        self.assertIsInstance(color1, str)
+        self.assertEqual(6, len(color1))
+        self.assertNotEqual(color1, SalesPhase(name='KO').color)
+
     def test_creme_config_brick(self):
         self.login()
         self.assertGET200(reverse('creme_config__app_portal', args=('opportunities',)))

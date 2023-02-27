@@ -761,3 +761,9 @@ img.entity-summary {
     height: 64px;
     width: 64px;
 }
+
+.ui-creme-colored_status .ui-creme-color_indicator {
+    width: 11px;
+    height: 11px;
+    display: inline-block;
+}

@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -29,7 +29,7 @@ from django.utils.translation import pgettext_lazy
 
 import creme.creme_core.models as core_models
 from creme.creme_core.constants import DEFAULT_CURRENCY_PK
-from creme.creme_core.models.fields import BasicAutoField
+from creme.creme_core.models import fields as core_fields
 from creme.persons import get_organisation_model
 from creme.persons.workflow import transform_target_into_prospect
 
@@ -38,7 +38,8 @@ from .. import constants
 
 class SalesPhase(core_models.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
-    order = BasicAutoField(_('Order'))
+    order = core_fields.BasicAutoField(_('Order'))
+    color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     won  = models.BooleanField(pgettext_lazy('opportunities-sales_phase', 'Won'),  default=False)
     lost = models.BooleanField(pgettext_lazy('opportunities-sales_phase', 'Lost'), default=False)

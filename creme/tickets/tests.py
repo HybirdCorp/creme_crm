@@ -4,6 +4,7 @@ from unittest import skipIf
 
 from django.apps import apps
 from django.contrib.contenttypes.models import ContentType
+from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.timezone import now
@@ -47,13 +48,14 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
                      views_base.BrickTestCaseMixin,
                      CremeTestCase):
     def test_populate(self):
-        for pk, name, is_closed in BASE_STATUS:
+        for pk, name, is_closed, color in BASE_STATUS:
             try:
                 status = Status.objects.get(pk=pk)
             except Status.DoesNotExist:
                 self.fail(f"Bad populate: status with pk={pk} ({name}) doesn't exist")
             else:
                 self.assertEqual(name, status.name)
+                self.assertEqual(color, status.color)
                 self.assertFalse(status.is_custom)
                 self.assertIsNotNone(status.order)
                 self.assertIs(status.is_closed, is_closed)
@@ -81,6 +83,29 @@ class TicketTestCase(views_base.MassImportBaseTestCaseMixin,
             self.assertTrue(
                 rtype.symmetric_type.object_ctypes.filter(id=ticket_ct.id).exists()
             )
+
+    def test_status(self):
+        user = self.create_user()
+        status = Status.objects.create(name='OK', color='00FF00')
+        ctxt = {
+            'user': user,
+            'ticket': Ticket(user=user, title='OK Ticket', status=status),
+        }
+        template = Template(
+            r'{% load creme_core_tags %}'
+            r'{% print_field object=ticket field="status" tag=tag %}'
+        )
+        self.assertEqual(
+            status.name,
+            template.render(Context({**ctxt, 'tag': ViewTag.TEXT_PLAIN})).strip(),
+        )
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
 
     def test_detailview01(self):
         user = self.login()

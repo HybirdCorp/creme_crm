@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -24,7 +24,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeModel, MinionModel
-from creme.creme_core.models.fields import BasicAutoField
+from creme.creme_core.models import fields as core_fields
 
 
 class SettlementTerms(MinionModel):
@@ -44,7 +44,8 @@ class SettlementTerms(MinionModel):
 
 class AbstractStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
-    order = BasicAutoField(_('Order'))
+    order = core_fields.BasicAutoField(_('Order'))
+    color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
 

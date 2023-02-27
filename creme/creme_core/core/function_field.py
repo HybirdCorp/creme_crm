@@ -114,6 +114,26 @@ class FunctionFieldLink(FunctionFieldResult):
         )
 
 
+class FunctionFieldColorAndLabel(FunctionFieldResult):
+    def __init__(self, label: str, color: str):
+        super().__init__(label)
+        self._color = color
+
+    def render(self, tag):
+        if tag == ViewTag.TEXT_PLAIN:
+            return self._data
+
+        # tag == ViewTag.HTML_*:
+        # TODO: factorise with FKPrinter.print_fk_colored_html()?
+        return format_html(
+            '<div class="ui-creme-colored_status">'
+            ' <div class="ui-creme-color_indicator" style="background-color:#{};" />'
+            ' <span>{}</span>'
+            '</div>',
+            self._color,
+            self._data,
+        )
+
 # TODO: other types (date, datetime...)
 
 
@@ -216,9 +236,7 @@ class _FunctionFieldRegistry:
 
     # TODO: accept instance too ?
     # TODO: 'default' argument ?
-    def get(self,
-            model: type[Model],
-            name: str) -> FunctionField | None:
+    def get(self, model: type[Model], name: str) -> FunctionField | None:
         """Get an instance of FunctionField related to a model, and by its name, if it exists.
         The function field if searched in the parent model too.
 

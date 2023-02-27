@@ -558,7 +558,7 @@ class ColorFieldTestCase(FieldTestCase):
 
         self.assertHTMLEqual(
             f'<p>'
-            f'<label for="id_color">{label}&nbsp;:</label>'
+            f'<label for="id_color">{label}{_(":")}</label>'
             f'<input type="color" name="color" value="#{color}" required id="id_color">'
             f'</p>',
             form.as_p(),
@@ -574,7 +574,7 @@ class ColorFieldTestCase(FieldTestCase):
 
         self.assertHTMLEqual(
             f'<p>'
-            f'<label for="id_color">{label}&nbsp;:</label>'
+            f'<label for="id_color">{label}{_(":")}</label>'
             f'<input type="color" name="color" required id="id_color">'
             f'</p>',
             form.as_p(),
