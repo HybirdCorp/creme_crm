@@ -2,10 +2,12 @@ from datetime import date
 from decimal import Decimal
 from functools import partial
 
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth import EntityCredentials
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     Currency,
@@ -53,10 +55,33 @@ class CreditNoteTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(expected_total, invoice.total_no_vat)
         self.assertEqual(expected_total, invoice.total_vat)
 
+    def test_status(self):
+        user = self.create_user()
+        status = CreditNoteStatus.objects.create(name='OK', color='00FF00')
+        order = CreditNote(user=user, name='OK Note', status=status)
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_core_tags %}'
+                r'{% print_field object=order field="status" tag=tag %}'
+            ).render(Context({
+                'user': user,
+                'order': order,
+                'tag': ViewTag.HTML_DETAIL,
+            }))
+
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            render,
+        )
+
     @skipIfCustomInvoice
     @skipIfCustomProductLine
     def test_createview01(self):
-        "Credit note total < billing document total where the credit note is applied"
+        "Credit note total < billing document total where the credit note is applied."
         user = self.login()
         self.assertGET200(reverse('billing__create_cnote'))
 

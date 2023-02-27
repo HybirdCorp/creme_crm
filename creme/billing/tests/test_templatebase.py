@@ -58,27 +58,43 @@ class TemplateBaseTestCase(_BillingTestCase):
         )
 
     def test_detailview(self):
-        invoice_status1 = self.get_object_or_fail(InvoiceStatus, pk=3)
-        tpl = self._create_templatebase(Invoice, invoice_status1.id)
+        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        tpl = self._create_templatebase(Invoice, invoice_status.id)
         response = self.assertGET200(tpl.get_absolute_url())
         self.assertTemplateUsed(response, 'billing/view_template.html')
 
     def test_status_function_field(self):
-        invoice_status = self.get_object_or_fail(InvoiceStatus, pk=3)
-        tpl = self._create_templatebase(Invoice, invoice_status.id)
+        status = self.get_object_or_fail(InvoiceStatus, pk=3)
+        tpl = self._create_templatebase(Invoice, status.id)
 
         with self.assertNoException():
             funf = function_field_registry.get(TemplateBase, 'get_verbose_status')
 
         self.assertIsNotNone(funf)
 
+        # ---
         with self.assertNumQueries(1):
-            status_str = funf(tpl, self.user).render(ViewTag.HTML_LIST)
+            render1 = funf(tpl, self.user).render(ViewTag.TEXT_PLAIN)
 
-        self.assertEqual(str(invoice_status), status_str)
+        self.assertEqual(str(status), render1)
 
+        # ---
         with self.assertNumQueries(0):
-            funf(tpl, self.user).render(ViewTag.HTML_LIST)
+            render2 = funf(tpl, self.user).render(ViewTag.HTML_LIST)
+
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            render2,
+        )
+
+        # ---
+        with self.assertNumQueries(0):
+            render3 = funf(tpl, self.user).render(ViewTag.HTML_LIST)
+
+        self.assertEqual(render2, render3)
 
     @skipIfCustomInvoice
     def test_create_invoice01(self):

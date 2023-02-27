@@ -9,6 +9,7 @@ from django.utils.translation import gettext as _
 from creme.creme_core.core.entity_cell import EntityCellFunctionField
 from creme.creme_core.core.function_field import (
     FunctionField,
+    FunctionFieldColorAndLabel,
     FunctionFieldDecimal,
     FunctionFieldLink,
     FunctionFieldResult,
@@ -220,6 +221,19 @@ class FunctionFieldsTestCase(CremeTestCase):
         self.assertHTMLEqual(
             f'<a href="{url}" class="is_deleted" target="_blank">{label}</a>',
             result.render(ViewTag.HTML_FORM),
+        )
+
+    def test_result_color_and_label(self):
+        label = 'My Contacts'
+        color = 'FF5522'
+        result = FunctionFieldColorAndLabel(label=label, color=color)
+        self.assertEqual(label, result.render(ViewTag.TEXT_PLAIN))
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{color};" />'
+            f' <span>{label}</span>'
+            f'</div>',
+            result.render(ViewTag.HTML_DETAIL),
         )
 
     def test_result_list(self):

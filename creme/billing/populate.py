@@ -184,30 +184,38 @@ class Populator(BasePopulator):
             create_if_needed(InvoiceStatus, {'pk': pk}, name=name, **kwargs)
 
         create_invoice_status(
-            1, pgettext('billing-invoice', 'Draft'),      order=1, is_custom=False,
+            1, pgettext('billing-invoice', 'Draft'),
+            order=1, is_custom=False,
         )  # Default status
         create_invoice_status(
-            2, pgettext('billing-invoice', 'To be sent'), order=2, is_custom=False,
+            2, pgettext('billing-invoice', 'To be sent'),
+            order=2, is_custom=False,
         )
 
         if not already_populated:
             create_invoice_status(
-                3, pgettext('billing-invoice', 'Sent'),            order=3, pending_payment=True,
+                3, pgettext('billing-invoice', 'Sent'),
+                order=3, pending_payment=True,
             )
             create_invoice_status(
-                4, pgettext('billing-invoice', 'Resulted'),        order=5,
+                4, pgettext('billing-invoice', 'Resulted'),
+                order=5,
             )
             create_invoice_status(
-                5, pgettext('billing-invoice', 'Partly resulted'), order=4, pending_payment=True,
+                5, pgettext('billing-invoice', 'Partly resulted'),
+                order=4, pending_payment=True,
             )
             create_invoice_status(
-                6, _('Collection'),                                order=7,
+                6, _('Collection'),
+                order=7,
             )
             create_invoice_status(
-                7, _('Resulted collection'),                       order=6,
+                7, _('Resulted collection'),
+                order=6,
             )
             create_invoice_status(
-                8, pgettext('billing-invoice', 'Canceled'),        order=8,
+                8, pgettext('billing-invoice', 'Canceled'),
+                order=8,
             )
 
         # CreditNote Status ---------------------------
@@ -543,11 +551,23 @@ class Populator(BasePopulator):
                 create_if_needed(QuoteStatus, {'pk': pk}, name=name, **kwargs)
 
             # Default status
-            create_quote_status(1, pgettext('billing-quote', 'Pending'),  order=2)
+            create_quote_status(
+                1, pgettext('billing-quote', 'Pending'),
+                order=2,
+            )
 
-            create_quote_status(2, pgettext('billing-quote', 'Accepted'), order=3, won=True)
-            create_quote_status(3, pgettext('billing-quote', 'Rejected'), order=4)
-            create_quote_status(4, pgettext('billing-quote', 'Created'),  order=1)
+            create_quote_status(
+                2, pgettext('billing-quote', 'Accepted'),
+                order=3, won=True, color='1dd420',
+            )
+            create_quote_status(
+                3, pgettext('billing-quote', 'Rejected'),
+                order=4,
+            )
+            create_quote_status(
+                4, pgettext('billing-quote', 'Created'),
+                order=1,
+            )
 
             # ---------------------------
             create_if_needed(SettlementTerms, {'pk': 1}, name=_('30 days'))

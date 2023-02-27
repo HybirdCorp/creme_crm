@@ -5,6 +5,7 @@ from functools import partial
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db.models.deletion import ProtectedError
+from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.formats import date_format
@@ -13,6 +14,7 @@ from django.utils.translation import gettext as _
 from creme.billing import bricks
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.gui import actions
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     CremeEntity,
@@ -67,6 +69,29 @@ class InvoiceTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_gennumber_url(invoice):
         return reverse('billing__generate_invoice_number', args=(invoice.id,))
+
+    def test_status(self):
+        user = self.create_user()
+        status = InvoiceStatus.objects.create(name='OK', color='00FF00')
+        invoice = Invoice(user=user, name='OK Invoice', status=status)
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_core_tags %}'
+                r'{% print_field object=invoice field="status" tag=tag %}'
+            ).render(Context({
+                'user': user,
+                'invoice': invoice,
+                'tag': ViewTag.HTML_DETAIL,
+            }))
+
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            render,
+        )
 
     def test_source_n_target01(self):
         "Creation."

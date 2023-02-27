@@ -1,10 +1,12 @@
 from datetime import date
 from decimal import Decimal
 
+from django.template import Context, Template
 from django.urls import reverse
 from django.utils.translation import gettext as _
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     BrickDetailviewLocation,
     Currency,
@@ -34,6 +36,29 @@ class SalesOrderTestCase(BrickTestCaseMixin, _BillingTestCase):
     @staticmethod
     def _build_related_creation_url(target):
         return reverse('billing__create_related_order', args=(target.id,))
+
+    def test_status(self):
+        user = self.create_user()
+        status = SalesOrderStatus.objects.create(name='OK', color='00FF00')
+        order = SalesOrder(user=user, name='OK Order', status=status)
+
+        with self.assertNoException():
+            render = Template(
+                r'{% load creme_core_tags %}'
+                r'{% print_field object=order field="status" tag=tag %}'
+            ).render(Context({
+                'user': user,
+                'order': order,
+                'tag': ViewTag.HTML_DETAIL,
+            }))
+
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            render,
+        )
 
     def test_detailview01(self):
         self.login(

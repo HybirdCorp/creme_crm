@@ -362,9 +362,17 @@ class Populator(BasePopulator):
         if not already_populated:
             create_sphase = SalesPhase.objects.create
             create_sphase(order=1, name=_('Forthcoming'))
-            create_sphase(order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'))
-            create_sphase(order=5, name=pgettext('opportunities-sales_phase', 'Won'), won=True)
-            create_sphase(order=6, name=pgettext('opportunities-sales_phase', 'Lost'), lost=True)
+            create_sphase(
+                order=4, name=pgettext('opportunities-sales_phase', 'Abandoned'),
+            )
+            create_sphase(
+                order=5, name=pgettext('opportunities-sales_phase', 'Won'),
+                won=True, color='1dd420',
+            )
+            create_sphase(
+                order=6, name=pgettext('opportunities-sales_phase', 'Lost'),
+                lost=True, color='ae4444',
+            )
             create_sphase(order=3, name=_('Under negotiation'))
             create_sphase(order=2, name=_('In progress'))
 

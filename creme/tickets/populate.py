@@ -79,12 +79,13 @@ class Populator(BasePopulator):
             RelationType.objects.get(pk=REL_SUB_ACTIVITY_SUBJECT).add_subject_ctypes(Ticket)
 
         # ---------------------------
-        for pk, name, is_closed in BASE_STATUS:
+        for pk, name, is_closed, color in BASE_STATUS:
             create_if_needed(
                 Status,
                 {'pk': pk},
                 name=str(name),
                 is_closed=is_closed,
+                color=color,
                 is_custom=False,
                 order=pk,
             )

@@ -339,6 +339,18 @@ class FKPrinter:
             )
         )
 
+    @staticmethod
+    def print_fk_colored_html(*, instance: Model, value, user, field: Field) -> str:
+        """Printer for models with a 'color' field."""
+        return format_html(
+            '<div class="ui-creme-colored_status">'
+            ' <div class="ui-creme-color_indicator" style="background-color:#{};"></div>'
+            ' <span>{}</span>'
+            '</div>',
+            value.color,
+            str(value),
+        )
+
     def __init__(self,
                  none_printer: NonePrinter,
                  default_printer: FieldPrinter,

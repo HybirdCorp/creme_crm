@@ -24,7 +24,7 @@ from django.utils.translation import gettext_lazy as _
 from django.utils.translation import pgettext_lazy
 
 from creme.creme_core.models import CremeModel, MinionModel
-from creme.creme_core.models.fields import DurationField
+from creme.creme_core.models import fields as core_fields
 
 # TODO: use MinionModel for ActivityType & ActivitySubType
 #       => convert "id" from strings to integers, add constants for UUIDs
@@ -40,7 +40,7 @@ class ActivityType(CremeModel):
     name = models.CharField(_('Name'), max_length=100)
 
     default_day_duration = models.IntegerField(_('Default day duration')).set_tags(viewable=False)
-    default_hour_duration = DurationField(
+    default_hour_duration = core_fields.DurationField(
         _('Default hour duration'), max_length=15,
     ).set_tags(viewable=False)
 
@@ -113,6 +113,7 @@ class ActivitySubType(CremeModel):
 class Status(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
     description = models.TextField(_('Description'))
+    color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     creation_label = pgettext_lazy('activities-status', 'Create a status')
 

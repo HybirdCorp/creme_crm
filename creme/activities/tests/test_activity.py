@@ -5,12 +5,14 @@ from django.apps import apps
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.forms import ModelMultipleChoiceField
+from django.template import Context, Template
 from django.test.utils import override_settings
 from django.urls import reverse
 from django.utils.encoding import force_str
 from django.utils.timezone import now
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
+from PIL.ImageColor import getrgb
 
 from creme.creme_core.auth.entity_credentials import EntityCredentials
 from creme.creme_core.core.entity_cell import EntityCellRegularField
@@ -19,6 +21,7 @@ from creme.creme_core.forms import LAYOUT_REGULAR, ReadonlyMessageField
 from creme.creme_core.forms.widgets import Label
 from creme.creme_core.gui import actions
 from creme.creme_core.gui.custom_form import FieldGroup, FieldGroupList
+from creme.creme_core.gui.view_tag import ViewTag
 from creme.creme_core.models import (
     CustomFormConfigItem,
     EntityFilter,
@@ -203,6 +206,43 @@ class ActivityTestCase(_ActivitiesTestCase):
     #         ],
     #         response2.json(),
     #     )
+
+    def test_status01(self):
+        status1 = Status(name='OK')
+        color1 = status1.color
+        self.assertIsInstance(color1, str)
+        self.assertEqual(6, len(color1))
+
+        with self.assertNoException():
+            getrgb(f'#{color1}')
+
+        # ---
+        status2 = Status(name='KO')
+        self.assertNotEqual(color1, status2.color)
+
+    def test_status02(self):
+        "Render."
+        user = self.create_user()
+        status = Status.objects.create(name='OK', color='00FF00')
+        ctxt = {
+            'user': user,
+            'activity': Activity(user=user, title='OK Ticket', status=status),
+        }
+        template = Template(
+            r'{% load creme_core_tags %}'
+            r'{% print_field object=activity field="status" tag=tag %}'
+        )
+        self.assertEqual(
+            status.name,
+            template.render(Context({**ctxt, 'tag': ViewTag.TEXT_PLAIN})).strip()
+        )
+        self.assertHTMLEqual(
+            f'<div class="ui-creme-colored_status">'
+            f' <div class="ui-creme-color_indicator" style="background-color:#{status.color};" />'
+            f' <span>{status.name}</span>'
+            f'</div>',
+            template.render(Context({**ctxt, 'tag': ViewTag.HTML_DETAIL})),
+        )
 
     @skipIfCustomContact
     @skipIfCustomOrganisation
