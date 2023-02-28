@@ -548,14 +548,36 @@ class ColorFieldTestCase(FieldTestCase):
         self.assertEqual('123ABC', clean('123abc'))
 
     def test_render(self):
+        label = 'My color'
+        color = '123abc'
+
         class ColorForm(Form):
-            color = ColorField()
+            color = ColorField(label=label)
 
-        form = ColorForm(data={'color': '123abc'})
+        form = ColorForm(data={'color': color})
 
-        self.assertInHTML(
-            '<input id="id_color" name="color" type="color" value="#123abc" required/>',
-            form.as_p()
+        self.assertHTMLEqual(
+            f'<p>'
+            f'<label for="id_color">{label}{_(":")}</label>'
+            f'<input type="color" name="color" value="#{color}" required id="id_color">'
+            f'</p>',
+            form.as_p(),
+        )
+
+    def test_render_empty(self):
+        label = 'Color'
+
+        class ColorForm(Form):
+            color = ColorField(label=label)
+
+        form = ColorForm()
+
+        self.assertHTMLEqual(
+            f'<p>'
+            f'<label for="id_color">{label}{_(":")}</label>'
+            f'<input type="color" name="color" required id="id_color">'
+            f'</p>',
+            form.as_p(),
         )
 
 
