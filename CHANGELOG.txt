@@ -19,6 +19,7 @@
     ----------------------
         # The creation of small models (status etc...) during a mass-import is now disabled
           for models with disabled creation (or with a customised view) in 'creme_config'.
+        # The field 'forms.fields.ColorField' behaves now correctly with empty value.
 
 
 == Version 2.3.10 ==

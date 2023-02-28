@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -1642,6 +1642,12 @@ class ColorField(fields.CharField):
 
     def __init__(self, *, max_length=6, min_length=6, **kwargs):
         super().__init__(max_length=max_length, min_length=min_length, **kwargs)
+
+    def to_python(self, value):
+        return value[1:] if value and value.startswith('#') else value
+
+    def prepare_value(self, value):
+        return f'#{value}' if value else ''
 
     def clean(self, value):
         return super().clean(value).upper()
