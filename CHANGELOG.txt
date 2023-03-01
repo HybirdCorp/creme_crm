@@ -1,7 +1,5 @@
 == Version 2.4.1 Work in progress (not released -- this is a draft) ==
 
-TODO: compile messages (reports).
-
   UPGRADE NOTE :
     - You should upgrade the minor version of Django 3.2 (3.2.18 or more).
     - You should re-generate the media files (creme generatemedia --settings=[...]).
@@ -10,6 +8,7 @@ TODO: compile messages (reports).
   ------------
     # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
       (this case does not exist in vanilla).
+    # Some JS libs were updated.
     # Apps :
         * Persons :
             - The indicators "Customer" & "Supplier" are now displayed on the Contacts' detail-view too.
