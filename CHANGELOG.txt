@@ -66,6 +66,8 @@
                 )
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
+        # Database indexes were added to improve general performance with large volumes of data on:
+            - creme_core.HistoryLine
 
     Breaking changes :
     ------------------
@@ -267,7 +269,7 @@
         * Crudity :
             - The support of InfoPath files has been removed.
         * Geolocation :
-            - Map markers now display more information when hovered: the actual address information. The title's importance has also been reduced, 
+            - Map markers now display more information when hovered: the actual address information. The title's importance has also been reduced,
               as it's usually less useful on a map than the address itself.
 
   Developers side :

@@ -785,6 +785,9 @@ class HistoryLine(Model):
         app_label = 'creme_core'
         verbose_name = _('Line of history')
         verbose_name_plural = _('Lines of history')
+        indexes = [
+            models.Index(fields=['entity_id', '-id'], name='hline__entity_detailview')
+        ]
 
     def __repr__(self):
         return (
