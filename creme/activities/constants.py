@@ -1,3 +1,5 @@
+import warnings
+
 from django.utils.translation import gettext_lazy as _
 
 REL_SUB_LINKED_2_ACTIVITY = 'activities-subject_linked_2_activity'
@@ -66,13 +68,29 @@ EFILTER_PARTICIPATE = 'activities-participate'
 
 DEFAULT_HFILTER_ACTIVITY = 'activities-hf_activity'
 
-DEFAULT_CALENDAR_COLOR = 'C1D9EC'
-COLOR_POOL = (
-    'c1d9ec', '94c6db',  # Blue icecream
-    'f7cbc6', 'f7b5ad',  # Pink icecream
-    'b9fae5', '61ffcd',  # Turquoises
-    'fff4b8', 'ffe96e',  # Yellows
-    'd4ffb8', 'b4ff82',  # Greens
-    'f9b3ff', 'f36bff',  # Pink-mallow
-    'ffcea6', 'ffab66',  # Oranges
-)
+
+def __getattr__(name):
+    if name == 'DEFAULT_CALENDAR_COLOR':
+        warnings.warn(
+            'DEFAULT_CALENDAR_COLOR is deprecated.',
+            DeprecationWarning,
+        )
+        return 'C1D9EC'
+
+    if name == 'COLOR_POOL':
+        warnings.warn(
+            'COLOR_POOL is deprecated.',
+            DeprecationWarning,
+        )
+
+        return (
+            'c1d9ec', '94c6db',  # Blue icecream
+            'f7cbc6', 'f7b5ad',  # Pink icecream
+            'b9fae5', '61ffcd',  # Turquoises
+            'fff4b8', 'ffe96e',  # Yellows
+            'd4ffb8', 'b4ff82',  # Greens
+            'f9b3ff', 'f36bff',  # Pink-mallow
+            'ffcea6', 'ffab66',  # Oranges
+        )
+
+    raise AttributeError(f'module {__name__!r} has no attribute {name!r}')

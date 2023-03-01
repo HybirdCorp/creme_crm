@@ -133,6 +133,7 @@ class Migration(migrations.Migration):
                     creme_fields.ColorField(
                         max_length=6, verbose_name='Color',
                         help_text='It is used on the calendar view to colorize Activities.',
+                        default=creme_fields.ColorField.random,
                     )
                 ),
                 (

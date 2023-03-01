@@ -35,15 +35,71 @@ Activity = get_activity_model()
 
 
 class CalendarManagerTestCase(_ActivitiesTestCase):
+    def test_deprecated_constants(self):
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message='DEFAULT_CALENDAR_COLOR is deprecated.'
+        ):
+            from ..constants import DEFAULT_CALENDAR_COLOR
+
+        self.assertEqual('C1D9EC', DEFAULT_CALENDAR_COLOR)
+
+        # ---
+        with self.assertWarnsMessage(
+            expected_warning=DeprecationWarning,
+            expected_message='COLOR_POOL is deprecated.'
+        ):
+            from ..constants import COLOR_POOL
+
+        self.assertIsInstance(COLOR_POOL, tuple)
+        self.assertIn('c1d9ec', COLOR_POOL)
+
+        # ---
+        with self.assertRaises(ImportError):
+            from ..constants import UNKNOWN  # NOQA
+
+    @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
+    def test_mngr_create_default_calendar01(self):
+        user = self.create_user()
+        self.assertFalse(Calendar.objects.filter(user=user))
+
+        cal1 = Calendar.objects.create_default_calendar(user=user)
+        self.assertEqual(_("{user}'s calendar").format(user=user), cal1.name)
+        self.assertTrue(cal1.is_default)
+        self.assertFalse(cal1.is_custom)
+        self.assertFalse(cal1.is_public)
+        self.assertTrue(cal1.color)
+
+        name2 = 'Default'
+        color2 = '0f0f0f'
+        cal2 = Calendar.objects.create_default_calendar(
+            user=user, name=name2, is_public=True, color=color2,
+        )
+        self.assertEqual(name2, cal2.name)
+        self.assertTrue(cal2.is_default)
+        self.assertFalse(cal2.is_custom)
+        self.assertTrue(cal2.is_public)
+        self.assertEqual(color2, cal2.color)
+
+        # default not checked (<check_for_default=False>)
+        self.assertTrue(self.refresh(cal1).is_default)
+
+        cal3 = Calendar.objects.create_default_calendar(user=user, check_for_default=True)
+        self.assertTrue(cal3.is_default)
+        self.assertFalse(self.refresh(cal1).is_default)
+        self.assertFalse(self.refresh(cal2).is_default)
+
     @override_settings(ACTIVITIES_DEFAULT_CALENDAR_IS_PUBLIC=None)
     def test_mngr_default_calendar01(self):
         user = self.create_user()
         self.assertFalse(Calendar.objects.filter(user=user))
 
-        with self.assertNumQueries(3):
+        # with self.assertNumQueries(3):
+        with self.assertNumQueries(2):
             def_cal = Calendar.objects.get_default_calendar(user)
 
         self.assertEqual(_("{user}'s calendar").format(user=user), def_cal.name)
+        self.assertTrue(def_cal.color)
 
         def_cal2 = self.assertUserHasDefaultCalendar(user)
         self.assertEqual(def_cal, def_cal2)
