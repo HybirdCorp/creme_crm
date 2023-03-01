@@ -1,6 +1,6 @@
 /*******************************************************************************
     Creme is a free/open-source Customer Relationship Management software
-    Copyright (C) 2009-2022  Hybird
+    Copyright (C) 2009-2023  Hybird
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -265,7 +265,7 @@ creme.dialog.FormDialog = creme.dialog.Dialog.sub({
 
             self._appendButton(buttons, id, label, submitCb,
                                {data: data, order: order, noValidate: noValidate});
-        }).toggleAttr('disabled', true);
+        }).toggleProp('disabled', true);
 
         if (Object.isEmpty(buttons)) {
             this._appendButton(buttons, 'send', gettext('Save'), submitCb);

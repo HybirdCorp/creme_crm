@@ -809,8 +809,8 @@ CREME_LIB_JS = [
 
     'creme_core/js/media.js',
     'creme_core/js/lib/underscore/underscore-1.13.2.js',
-    'creme_core/js/jquery/3.x/jquery-3.6.0.js',
-    'creme_core/js/jquery/3.x/jquery-migrate-3.3.2.js',
+    'creme_core/js/jquery/3.x/jquery-3.6.3.js',
+    'creme_core/js/jquery/3.x/jquery-migrate-3.4.0.js',
     'creme_core/js/jquery/ui/jquery-ui-1.13.1.js',
     'creme_core/js/jquery/ui/jquery-ui-locale.js',
     # 'creme_core/js/jquery/extensions/jqplot-1.0.8/excanvas.js',
@@ -832,7 +832,7 @@ CREME_LIB_JS = [
     'creme_core/js/jquery/extensions/jquery.form-3.51.js',
     # 'creme_core/js/jquery/extensions/chosen.jquery-0.9.15-unchosen.js',
     'creme_core/js/jquery/extensions/jquery.floatthead-2.2.4.js',
-    'creme_core/js/lib/momentjs/moment-2.24.0.js',
+    'creme_core/js/lib/momentjs/moment-2.29.4.js',
     'creme_core/js/lib/momentjs/locale/en-us.js',
     'creme_core/js/lib/momentjs/locale/fr-fr.js',
     'creme_core/js/lib/editor/tinymce.3.4.9.js',
@@ -963,7 +963,7 @@ CREME_CORE_JS = [
 
 CREME_OPTLIB_JS = [
     ('creme.activities', 'activities/js/jquery/extensions/fullcalendar-3.10.2.js'),
-    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.6.0.js'),
+    ('creme.geolocation', 'geolocation/js/lib/leaflet-1.7.1.js'),
     ('creme.sketch', 'sketch/js/lib/d3-6.7.0.js'),
     ('creme.sketch', 'sketch/js/lib/filesaver-2.0.4.js'),
 ]

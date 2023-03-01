@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 24-01-2023 for Creme 2.4
+:Version: 03-02-2023 for Creme 2.4
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -231,8 +231,6 @@ Now we create another directory, ``models/``, and move into it: ::
 Then we create a file named ``beaver.py`` (notice the singular form) with our
 favorite text editor, containing the following code: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import models
     from django.utils.translation import gettext_lazy as _
 
@@ -268,8 +266,6 @@ In addition to the fields, we declare to:
 
 One again, to make the directory ``models/`` a module, we must put inside a
 second file named ``__init__.py``, containing: ::
-
-    # -*- coding: utf-8 -*-
 
     from .beaver import Beaver
 
@@ -322,8 +318,6 @@ Declare our app
 
 First, we create a new file ``my_project/beavers/apps.py`` containing: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
@@ -373,8 +367,6 @@ usual file ``__init__.py``: ::
 
 In ``views/``, we create the file ``beaver.py`` like: ::
 
-    # -*- coding: utf-8 -*-
-
     from creme.creme_core.views import generic
 
     from ..models import Beaver
@@ -391,8 +383,6 @@ the directory ``name_of_your_app/``.
 
 So we do not have to modify ``creme/urls.py`` and we just create the file
 ``urls.py`` in ``my_project/beavers/``: ::
-
-    # -*- coding: utf-8 -*-
 
     from django.urls import re_path
 
@@ -412,8 +402,6 @@ Notice that :
 Finally we add the method ``get_lv_absolute_url()`` in our model. This method
 will make possible to return to the bevaars' list when we delete a beaver, for
 example: ::
-
-    # -*- coding: utf-8 -*-
 
     [...]
 
@@ -448,8 +436,6 @@ Create a directory ``my_project/beavers/forms``, with the usual ``__init__.py``:
 
 
 In ``forms/``, we create then the file ``beaver.py``: ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext_lazy as _
 
@@ -493,9 +479,6 @@ We add the entry referencing ``beaver.BeaverCreation`` in ``beavers/urls.py``: :
 It remains a method ``get_create_absolute_url()`` to add in our model, and
 the attributes ``creation_label`` and ``save_label``, which allows to name
 correctly some interface elements (button, menu etc…): ::
-
-    # -*- coding: utf-8 -*-
-
 
     class Beaver(CremeEntity):
         [...]
@@ -543,8 +526,6 @@ will be fixed soon.
 In order the next creations of beaver do not lead to error 404, we create the
 method ``get_absolute_url()``: ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
 
@@ -581,8 +562,6 @@ Add the related URL: ::
 
 And the method ``get_edit_absolute_url``: ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
 
@@ -598,8 +577,6 @@ Add entries in the menu
 
 We declare 2 menu entries (one for the list view, one for the creation view),
 in a new file ``my_project/beavers/menu.py``: ::
-
-    # -*- coding: utf-8 -*-
 
     from creme.creme_core.gui import menu
 
@@ -681,8 +658,6 @@ which create this view of list, and the menu entries.
 Let's create the file ``my_project/beavers/constants.py``, which contains some
 constants of course: ::
 
-    # -*- coding: utf-8 -*-
-
     # NB: this will be the identifier of or default HeaderFilter. To avoid
     #     collisions between apps, the convention is to build a value with
     #     the shape 'my_app' + 'hf_' + 'my_model'.
@@ -690,8 +665,6 @@ constants of course: ::
 
 
 Then we create a file : ``my_project/beavers/populate.py``. ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext as _
 
@@ -834,7 +807,7 @@ The file ``django.po`` looks like (dates will be different of course): ::
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2021-11-25 11:10+0100\n"
+    "POT-Creation-Date: 2023-02-03 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -881,7 +854,7 @@ Edit this file by filling the translations in strings "msgstr": ::
     msgstr ""
     "Project-Id-Version: PACKAGE VERSION\n"
     "Report-Msgid-Bugs-To: \n"
-    "POT-Creation-Date: 2021-11-25 11:10+0100\n"
+    "POT-Creation-Date: 2023-02-03 11:10+0100\n"
     "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
     "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
     "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -942,8 +915,6 @@ if it's needed.
 
 Create a file ``my_project/beavers/models/status.py``: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import models
     from django.utils.translation import gettext_lazy as _, pgettext_lazy
 
@@ -983,8 +954,6 @@ In Creme, we use contexts with prefix 'app_name-'.
 
 Edit ``models/__init__.py``: ::
 
-    # -*- coding: utf-8 -*-
-
     from .beaver import Beaver
     from .status import Status  # <-- NEW
 
@@ -1010,8 +979,6 @@ A file named from te current date has just ben created. Rename it
 ``0003_populate_default_status.py``, then open it in your editor.
 It should look like this: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import migrations, models
 
 
@@ -1027,10 +994,7 @@ It should look like this: ::
 
 Edit it to get: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.db import migrations, models
-
 
     def populate_status(apps, schema_editor):
         apps.get_model('beavers', 'Status').objects.create(id=1, name='Healthy', is_custom=False)
@@ -1102,8 +1066,6 @@ First, we are going to improve our ``populate.py``, by creating some status at
 deployment. So the users will get immediately several choices os status. In the
 file ``beavers/constants.py``, we add some constants: ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
 
     STATUS_HEALTHY = 1
@@ -1116,15 +1078,17 @@ We use these constants right now ; edit ``populate.py``: ::
     from .constants import STATUS_HEALTHY, STATUS_SICK
     from .models import Beaver, Status
 
-
-    def populate(self):
+    class Populator(BasePopulator):
         [...]
 
-        already_populated = Status.objects.exists()
+        def populate(self):
+            [...]
 
-        if not already_populated:
-            Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
-            Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
+            already_populated = Status.objects.exists()
+
+            if not already_populated:
+                Status.objects.create(id=STATUS_HEALTHY, name=_('Healthy'), is_custom=False)
+                Status.objects.create(id=STATUS_SICK,    name=_('Sick'),    is_custom=False)
 
 
 By setting the attribute ``is_custom`` to ``False``, we make these 2 ``Status``
@@ -1186,8 +1150,6 @@ which manage this model (method ``brick_class()``).
 **A bit further** : if you want the **users can choose the order** of the
 statuses (in forms, in list-views quick-search etc…), you have to add a field
 ``order`` like that: ::
-
-    # -*- coding: utf-8 -*-
 
     [...]
 
@@ -1534,8 +1496,6 @@ the ID of the beaver in the URL, in order the view can retrieve it.
 
 In a new view file ``my_project/beavers/views/ticket.py``: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.shortcuts import get_object_or_404
     from django.utils.translation import gettext as _
 
@@ -1575,8 +1535,6 @@ In ``beavers/urls.py``: ::
 
 Let's create the file ``beavers/buttons.py`` (this name is not mandatory, but
 it's a convention): ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext_lazy as _
 
@@ -1730,8 +1688,6 @@ with a GUI : customisable forms (CustomForms).
 
 Let's add a simple CustomForm to create our beavers. First, in the root of our
 app (i.e. ``my_project/beavers/``), we create le file ``custom_forms.py``: ::
-
-    # -*- coding: utf-8 -*-
 
     from django.utils.translation import gettext_lazy as _
 
@@ -2219,10 +2175,7 @@ Here an example which adds a field in the creation form for users (notice you
 should hook the method ``save()`` too, in order to use this new field ; this
 task is left as exercise...): ::
 
-    # -*- coding: utf-8 -*-
-
     [...]
-
 
     class BeaversConfig(CremeAppConfig):
         name = 'my_project.beavers'
@@ -2364,8 +2317,6 @@ This app must be added in INSTALLED_APPS ; beware it must be before ``tickets``
 
 Our ``AppConfig`` must declare that it extends ``tickets``: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.apps import CremeAppConfig
@@ -2384,8 +2335,6 @@ In ``my_project/models.py``, we must define a model which will replace
 ``tickets.models.AbstractTicket`` (notice that all entity type use a similar
 scheme). It's important to keep ``Ticket`` as model name, in order to avoid
 lots of annoying behaviours or bugs: ::
-
-    # -*- coding: utf-8 -*-
 
     from django.db.models import DecimalField
     from django.utils.translation import gettext_lazy as _
@@ -2446,12 +2395,9 @@ customised model, we must provide our own URLs which are sure to work.
 In our case, the base views should be enough (forms are smart enough to use the
 new editable fields), and so you can define ``my_project/my_tickets/urls.py`` like: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.urls import re_path
 
     from creme.tickets.views import ticket
-
 
     urlpatterns += [
         re_path(r'^my_tickets[/]?$',                        ticket.TicketsList.as_view(),    name='tickets__list_tickets'),
@@ -2470,8 +2416,6 @@ each time it's possible ; the base apps provide class-based views which can
 easily be extended. For example, if you want to define the creation view
 ``my_tickets.models.Ticket`` with your own form (writing it won't be treated,
 you already know how to do), you could write something like that: ::
-
-    # -*- coding: utf-8 -*-
 
     from creme.tickets.views.ticket import TicketCreation
 
@@ -2846,14 +2790,11 @@ an exception is raised at start.
 
 In a new file ``my_project/beavers/setting_keys.py`` at your app's root: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import SettingKey
 
     from .constants import BEAVER_KEY_ID
-
 
     beaver_key = SettingKey(
         id=BEAVER_KEY_ID,
@@ -2932,14 +2873,11 @@ prefix/uniqueness): ::
 
 In ``setting_keys.py`` at the app's root: ::
 
-    # -*- coding: utf-8 -*-
-
     from django.utils.translation import gettext_lazy as _
 
     from creme.creme_core.core.setting_key import UserSettingKey
 
     from .constants import BEAVER_USER_KEY_ID
-
 
     beaver_user_key = UserSettingKey(
         id=BEAVER_USER_KEY_ID,
@@ -3059,9 +2997,6 @@ First, we create the type of our job, which contains the task's code. Our app
 must contains a package ``creme_jobs`` ; if your app get several job types, you
 can use a directory ``beavers/creme_jobs/``.
 Here we just create a single file ``beavers/creme_jobs.py``: ::
-
-
-    # -*- coding: utf-8 -*-
 
     from django.conf import settings
     from django.utils.translation import gettext
@@ -3246,8 +3181,6 @@ debug your code without constantly refresh your Web browser.
 
 For our module *beavers*, here an example which tests the creation view.
 Add a file ``beavers/tests.py``: ::
-
-    # -*- coding: utf-8 -*-
 
     from datetime import date
 

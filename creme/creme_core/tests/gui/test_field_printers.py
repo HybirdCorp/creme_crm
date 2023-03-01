@@ -898,7 +898,7 @@ class FieldsPrintersTestCase(CremeTestCase):
         img3 = create_img(name='My img#3', is_deleted=True)
         prod.images.set([img1, img2, img3])
 
-        self.assertHTMLEqual(
+        self.assertEqual(
             f'{img1}/{settings.HIDDEN_VALUE}',
             print_many2many_csv(prod, prod.images, user, field)
         )

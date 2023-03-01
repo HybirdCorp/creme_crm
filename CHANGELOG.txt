@@ -1,3 +1,21 @@
+== Version 2.4.1 ==
+
+  UPGRADE NOTE :
+    - You should upgrade the minor version of Django 3.2 (3.2.18 or more).
+    - You should re-generate the media files (creme generatemedia --settings=[...]).
+
+  Users side :
+  ------------
+    # The render of history lines on fields with "choices" attribute & <null=True> has been fixed
+      (this case does not exist in vanilla).
+    # Some JS libs were updated.
+    # Apps :
+        * Persons :
+            - The indicators "Customer" & "Supplier" are now displayed on the Contacts' detail-view too.
+        * Assistants :
+            - The deadline of validated Alerts & ToDos is now displayed in blue.
+
+
 == Version 2.4 ==
 
   UPGRADE NOTE :

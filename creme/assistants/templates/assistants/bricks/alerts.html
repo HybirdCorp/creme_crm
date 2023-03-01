@@ -44,7 +44,9 @@
         {% endif %}
         <td>{% print_field object=alert field='user' %}</td>
         <td data-type="date"
-          {% if alert.trigger_date is None %}
+          {% if alert.is_validated %}
+            class="brick-table-data-highlighted"
+          {% elif alert.trigger_date is None %}
             class="brick-table-data-error" title="{% translate 'The date cannot be computed (related field is empty)' %}"
           {% elif alert.trigger_date >= today %}
             class="brick-table-data-valid" title="{% translate 'The date is not expired' %}"

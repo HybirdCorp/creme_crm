@@ -55,7 +55,7 @@ It's recommended to use a database engine which supports transactions :
  - SQLite support is principally done for developers, but it remains a solution
    for small databases (e.g. a use as mono-user app with the server running of your computer).
 
-You probably should use 'virtualenv' (for an upgrade from Creme 2.2, you should create a new
+You probably should use 'virtualenv' (for an upgrade from Creme 2.3, you should create a new
 virtual env, in order to keep the old one working).
 
 
@@ -69,11 +69,11 @@ virtual env, in order to keep the old one working).
    (exact versions of Python packages are indicated in the 'setup.cfg' file)
    - Mandatory :
      - Django 3.2
-     - redis 4.0
+     - redis 4.1
      - python-dateutil 2.8
-     - bleach 4.1
-     - Pillow 8.4
-     - django-formtools 2.3
+     - bleach 5.0
+     - Pillow 9.2
+     - django-formtools 2.4
      - xlrd (to import contacts, organisations, activities, tickets... from xls files)
      - xlwt (to export all types of entities -- like contacts or organisations -- as xls files)
      - csscompressor 0.9
@@ -85,18 +85,18 @@ virtual env, in order to keep the old one working).
        - weasyprint (easy to install on Linux ; harder on Windows)
        - you can also use the binary "pdflatex" (Ubuntu package 'texlive-latex-base').
      - creme.graphs :
-       - pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
+       - [DEPRECATED] pygraphviz 1.5 (seems unavailable on Windows -- you'll need 'graphviz' too)
 
 Installation with 'pip':
  - You should probably use "virtualenv".
  - To install Creme itself :
-   - You can just install from pyPI: 'pip install creme-crm==2.3'
+   - You can just install from pyPI: 'pip install creme-crm==2.4'
    - If you retrieved the source, you can use the following command at the source's root: 'pip install -e .'
  - About DB server :
    - If you use MySQL/MariaDB, you must add the 'mysql' flag :
-     'pip install creme-crm[mysql]==2.3' (or 'pip install -e .[mysql]' with the source).
+     'pip install creme-crm[mysql]==2.4' (or 'pip install -e .[mysql]' with the source).
    - For PostGreSQL,  you must add the 'pgsql' flag :
-     'pip install creme-crm[pgsql]==2.3' (or 'pip install -e .[pgsql]' with the source).
+     'pip install creme-crm[pgsql]==2.4' (or 'pip install -e .[pgsql]' with the source).
    - SQLite doesn't require a specific flag (see RECOMMENDATIONS).
  - Notice some of these Python packages need system libraries to be installed.
    For example, here a list of Debian/Ubuntu packages you'll have to install before:
@@ -123,9 +123,6 @@ For an upgrade from the previous major version, back up your existing DB
 (of course you should back up regularly, even when you do not upgrade Creme...).
 
 Project creation:
-In Creme 2.3, the project layout has changed: Creme is now used a regular Python package,
-and your instance is cleanly separated.
-
 For new installations AND for upgrades from Creme 2.3, create a new project ;
 with the virtualenv activated, use the following command which creates a new folder:
 ```sh
