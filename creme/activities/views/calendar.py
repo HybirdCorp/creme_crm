@@ -243,7 +243,7 @@ class ActivitiesData(CalendarsMixin, generic.CheckedView):
 
             'url': reverse('activities__view_activity_popup', args=(activity.id,)),
 
-            'color':    f'#{calendar.get_color}',
+            'color':    f'#{calendar.color}',
             'editable': user.has_perm_to_change(activity),
             'calendar': calendar.id,
             'type':     activity.type.name,

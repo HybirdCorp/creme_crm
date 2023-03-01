@@ -16,6 +16,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ################################################################################
 
+from __future__ import annotations
+
+import warnings
 from collections import defaultdict
 
 from django.db import models
@@ -25,47 +28,57 @@ from django.utils.translation import gettext_lazy as _
 import creme.creme_core.models.fields as core_fields
 from creme.creme_core.models import CremeModel
 
-from ..constants import COLOR_POOL, DEFAULT_CALENDAR_COLOR
-
 
 class CalendarManager(models.Manager):
     def new_color(self):
+        warnings.warn(
+            'CalendarManager.new_color() is deprecated.',
+            DeprecationWarning,
+        )
+        from ..constants import COLOR_POOL
+
         return COLOR_POOL[self.count() % len(COLOR_POOL)]
 
-    def create_default_calendar(
-            self,
-            user, *,
-            name=None, color=None, is_public=False, check_for_default=False):
+    def create_default_calendar(self,
+                                user, *,
+                                name: str | None = None,
+                                color: str | None = None,
+                                is_public: bool = False,
+                                check_for_default: bool = False
+                                ) -> Calendar:
         """Creates a default Calendar for a given user.
 
         @param user: 'django.contrib.auth.get_user_model()' instance.
-        @param name: Name of the new calendar ; <None> means a default one will
-               be generated.
-        @param color: HTML color string ; <None> means a default one will be picked.
-        @param is_public: Boolean.
+        @param name: Name of the new calendar;
+               <None> means a default one will be generated.
+        @param color: HTML color string (without the "#" prefix);
+               <None> means a random one will be picked.
+        @param is_public: If 'True' the Activities on this calendar are visible by all users.
         @param check_for_default: Boolean ;
-               <True> means than a query is performed to search if another
-               default Calendar exists (it is set to is_default=false if needed).
-               <False> by default ; so you SHOULD check if there is already
+               - <True> means than a query is performed to search if another
+               default Calendar exists (it is set to <is_default=False> if needed).
+               - <False> by default ; so you SHOULD check if there is already
                another default Calendar.
-        @return: A Calendar instance.
+        @return: A 'Calendar' instance.
         """
+        kwargs = {} if not color else {'color': color}
         cal = self.model(
             name=name or gettext("{user}'s calendar").format(user=user),
             user=user, is_default=True, is_custom=False,
             is_public=is_public,
-            color=color or self.new_color(),
+            # color=color or self.new_color(),
+            **kwargs
         )
         cal._enable_default_checking = check_for_default
         cal.save()
 
         return cal
 
-    def get_default_calendar(self, user):
+    def get_default_calendar(self, user) -> Calendar:
         """Get the user's default Calendar ; creates it if necessary.
 
         @param user: 'django.contrib.auth.get_user_model()' instance.
-        @return: A Calendar instance.
+        @return: A 'Calendar' instance.
         """
         calendars = self.filter(user=user).order_by('-is_default')[:2]
 
@@ -86,7 +99,12 @@ class CalendarManager(models.Manager):
 
         return cal
 
-    def get_default_calendars(self, users):
+    def get_default_calendars(self, users) -> dict[int, Calendar]:
+        """Get the default Calendars of several users at once efficiently.
+
+        @param users: Iterable of 'django.contrib.auth.get_user_model()' instances.
+        @return: Dictionary with users' IDs as keys & 'Calendar' instances as values.
+        """
         default_calendars = {}
         calendar_ids_to_set = []
         calendar_ids_to_unset = []
@@ -120,7 +138,7 @@ class CalendarManager(models.Manager):
             if user_id not in calendars_per_users:
                 default_calendars[user_id] = self.create_default_calendar(
                     user,
-                    color=COLOR_POOL[(len(default_calendars) + user_id) % len(COLOR_POOL)],
+                    # color=COLOR_POOL[(len(default_calendars) + user_id) % len(COLOR_POOL)],
                 )
 
         return default_calendars
@@ -145,6 +163,7 @@ class Calendar(CremeModel):
     color = core_fields.ColorField(
         # _('Color'),
         help_text=_('It is used on the calendar view to colorize Activities.'),
+        default=core_fields.ColorField.random,
     )
 
     # Used by creme_config
@@ -167,8 +186,13 @@ class Calendar(CremeModel):
         return self.name
 
     @property
-    def get_color(self):  # TODO: rename (safe_color ?)
-        "Color can be null, so in this case a default color is used in templates."
+    def get_color(self):
+        warnings.warn(
+            'Calendar.get_color() is deprecated; use Calendar.color instead.',
+            DeprecationWarning,
+        )
+        from ..constants import DEFAULT_CALENDAR_COLOR
+
         return self.color or DEFAULT_CALENDAR_COLOR
 
     def delete(self, using=None, keep_parents=False):
@@ -184,8 +208,8 @@ class Calendar(CremeModel):
     def save(self, *args, **kwargs):
         mngr = type(self).objects
 
-        if not self.color:
-            self.color = mngr.new_color()
+        # if not self.color:
+        #     self.color = mngr.new_color()
 
         check = self._enable_default_checking
 

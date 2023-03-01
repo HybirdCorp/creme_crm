@@ -70,6 +70,12 @@
             - The function 'creme_core.utils.dates.make_aware_dt()' is now deprecated ; use 'django.utils.timezone.make_aware()' instead.
             - In the template "creme_core/base.html", the '{% block extrahead %}' is deprecated ;
               use the new '{% block head %}' with '{{block.super}}' instead.
+            - Apps :
+                * Activities :
+                    - In 'constants', 'DEFAULT_CALENDAR_COLOR' & 'COLOR_POOL' are deprecated.
+                    - In 'models.calendar' :
+                        - The method 'CalendarManager.new_color()' is deprecated.
+                        - The method 'Calendar.get_color()' is deprecated; use 'Calendar.color' instead.
         # You can now register a field-printer for a specific field. Example (in your "apps.py") :
             def register_field_printers(self, field_printers_registry):
                 field_printers_registry.register_model_field(

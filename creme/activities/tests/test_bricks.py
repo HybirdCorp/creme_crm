@@ -223,7 +223,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
 
         brick_node3 = self.get_brick_node(tree, RelatedCalendarBrick)
         self.assertListEqual(
-            [f'background-color:#{cal.get_color};'],
+            [f'background-color:#{cal.color};'],
             [
                 n.attrib.get('style')
                 for n in brick_node3.findall('.//div[@class="activity-calendar-color-square"]')
@@ -1186,7 +1186,7 @@ class ActivityBricksTestCase(BrickTestCaseMixin, _ActivitiesTestCase):
         brick_node = self.get_brick_node(tree, UserCalendarsBrick)
 
         self.assertCountEqual(
-            [f'background-color:#{cal.get_color};' for cal in [cal1, cal2]],
+            [f'background-color:#{cal.color};' for cal in [cal1, cal2]],
             [
                 n.attrib.get('style')
                 # TODO: make uniform?
