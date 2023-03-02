@@ -16,6 +16,7 @@
     {% brick_table_column_for_field ctype=objects_ctype field='name' status='primary nowrap' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_default' %}
     {% brick_table_column_for_field ctype=objects_ctype field='is_public' %}
+    {% brick_table_column_for_field ctype=objects_ctype field='color' %}
     {% brick_table_column title=_('Actions') status='action' colspan=2 %}
 {% endblock %}
 
@@ -28,6 +29,7 @@
         </td>
         <td>{% print_field object=calendar field='is_default' %}</td>
         <td>{% print_field object=calendar field='is_public' %}</td>
+        <td>{% print_field object=calendar field='color' %}</td>
         <td {% brick_table_data_status action %}>{% url 'activities__edit_calendar' calendar.id as edit_url %}
             {% brick_table_action id='edit' url=edit_url label=_('Edit this calendar') %}
         </td>
