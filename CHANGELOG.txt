@@ -12,6 +12,12 @@
         * Assistants :
             - The deadline of validated Alerts & ToDos is now displayed in blue.
 
+  Users side :
+  ------------
+    # Apps :
+        * Activities :
+            - The 'color' field was missing in the Calendar block of "My settings".
+
   Developers side :
   -----------------
 
