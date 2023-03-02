@@ -1,5 +1,11 @@
 == Version 2.4.2 Work in progress (not released -- this is a draft) ==
 
+  Users side :
+  ------------
+    # Apps :
+        * Activities :
+            - The 'color' field was missing in the Calendar block of "My settings".
+
   Developers side :
   -----------------
 
