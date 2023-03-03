@@ -1,5 +1,13 @@
 == Version 2.4.2 Work in progress (not released -- this is a draft) ==
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The creation of small models (status etc...) during a mass-import is now disabled
+          for models with disabled creation (or with a customised view) in 'creme_config'.
+
 
 == Version 2.4.1 ==
 
