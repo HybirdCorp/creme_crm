@@ -5,6 +5,7 @@ from django.forms import CharField
 from django.forms.widgets import TextInput
 from django.utils.translation import gettext as _
 
+from creme.creme_core.forms import CremeModelForm
 from creme.creme_core.forms.mass_import import (
     CustomFieldExtractor,
     CustomfieldExtractorField,
@@ -89,7 +90,8 @@ class ExtractorTestCase(CremeTestCase):
             subfield_search='title',
             subfield_model=FakeSector,
             multiple=False,
-            create_if_unfound=False,
+            # create_if_unfound=False,
+            creation_form_class=None,
         )
 
         sector1, sector2 = FakeSector.objects.all()[:2]
@@ -121,7 +123,12 @@ class ExtractorTestCase(CremeTestCase):
         )
 
     def test_extract04(self):
-        "Sub-field search + create_if_unfound=True."
+        "Sub-field search + creation form class."
+        class FakeSectorForm(CremeModelForm):
+            class Meta:
+                model = FakeSector
+                fields = '__all__'
+
         extractor = RegularFieldExtractor(
             column_index=3,
             default_value=None,
@@ -131,7 +138,8 @@ class ExtractorTestCase(CremeTestCase):
             subfield_search='title',
             subfield_model=FakeSector,
             multiple=False,
-            create_if_unfound=True,
+            # create_if_unfound=True,
+            creation_form_class=FakeSectorForm,
         )
 
         title = 'Planes'

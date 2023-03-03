@@ -122,17 +122,20 @@
             - In the class 'EntityCellCustomField' :
                 - The class attribute '_EXTRA_RENDERERS' has been reworked.
                 - The method '_get_renderer()' has been removed.
-        # In 'creme_core.forms.entity_filter':
-            - 'EnumerableSelectMultiple' are now used for EntityFilter regular field conditions instead of 'DynamicSelectMultiple'.
-            - The url 'creme_core__efilter_user_choices' has changed and follows the 'users/{ct_id}/{field}/json[/]?$' pattern like the
-              default enumerable choices url.
+        # In 'creme_core.forms' :
+            - In 'entity_filter', he widget class 'creme_core.forms.enumerable.EnumerableSelectMultiple'
+              is now used for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
+            - In 'mass_import' :
+                - In the class 'RegularFieldExtractorField', the attribute '_can_create' has been removed.
+                - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
+                  has been replaced by 'creation_form_class'.
         # In 'creme_core.gui' :
             - The only argument of 'bricks._BrickRegistry.get_brick_4_object()' is now positional only.
             - In 'field_printers' :
                 - These global objects have been removed :
                     - print_foreignkey_html, print_foreignkey_csv
                     - print_many2many_html, print_many2many_csv
-                - These functions has been removed :
+                - These functions have been removed :
                   simple_print_csv(), print_decimal_csv(), print_boolean_csv(), print_date_csv(), print_datetime_csv()
                 - The class 'M2MPrinterForCSV' has been removed.
                 - These methods have been removed :
@@ -158,6 +161,9 @@
             - custom_field.CustomFieldManager.get_for_model()
         # The method 'creme_core.tests.base._CremeTestCase.http_file()' has been removed ;
           see the note about 'creme_core.utils.test.CremeDiscoverRunner' below.
+        # In 'creme_core.urls' :
+            - The URL 'creme_core__efilter_user_choices' has changed and follows the pattern 'users/{ct_id}/{field}/json[/]?$'
+              like the default enumerable choices URL.
         # In 'creme_core.utils' :
             - The only argument of the function 'content_type.as_ctype()' is now positional only.
             - In 'test' :

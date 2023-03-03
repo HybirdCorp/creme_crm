@@ -29,7 +29,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist, ValidationError
 from django.core.validators import EMPTY_VALUES
 from django.db.models import BooleanField as ModelBooleanField
-from django.db.models import ManyToManyField, prefetch_related_objects
+from django.db.models import ManyToManyField, Model, prefetch_related_objects
 from django.db.transaction import atomic
 from django.forms.models import modelform_factory
 from django.forms.widgets import HiddenInput, Select, Widget
@@ -186,11 +186,11 @@ class BaseExtractorWidget(Widget):
 # Extractors (and related field/widget) for regular model's fields--------------
 
 class RegularFieldExtractor(SingleColumnExtractor):
-    def __init__(
-            self,
-            column_index: int,
-            default_value,
-            value_castor: ValueCastor):
+    def __init__(self,
+                 column_index: int,
+                 default_value,
+                 value_castor: ValueCastor,
+                 ):
         super().__init__(column_index=column_index)
         self._default_value = default_value
         self._value_castor = value_castor
@@ -199,19 +199,21 @@ class RegularFieldExtractor(SingleColumnExtractor):
         self._m2m = None
         self._fk_form = None
 
-    def set_subfield_search(
-            self,
-            subfield_search,
-            subfield_model,
-            multiple,
-            create_if_unfound):
-        self._subfield_search = str(subfield_search)
+    def set_subfield_search(self,
+                            subfield_search: str,
+                            subfield_model: type[Model],
+                            multiple: bool,
+                            # create_if_unfound,
+                            creation_form_class: type[CremeModelForm] | None,
+                            ) -> None:
+        # self._subfield_search = str(subfield_search)
+        self._subfield_search = subfield_search
         self._fk_model = subfield_model
         self._m2m = multiple
 
-        if create_if_unfound:
-            # TODO: creme_config form ??
-            self._fk_form = modelform_factory(subfield_model, fields='__all__')
+        # if create_if_unfound:
+        #     self._fk_form = modelform_factory(subfield_model, fields='__all__')
+        self._fk_form = creation_form_class
 
     def extract_value(self, line, user) -> ExtractedTuple:
         value = self._default_value
@@ -235,13 +237,28 @@ class RegularFieldExtractor(SingleColumnExtractor):
                         fk_form = self._fk_form
 
                         if fk_form:  # Try to create the referenced instance
-                            creator = fk_form(data=data)
+                            # creator = fk_form(data=data)
+                            # We want to create an instance with only one field,
+                            # even if there are several required fields.
+                            # So we fall back to initial values (corresponding
+                            # to 'default' in model if form has not been customised).
+                            empty_form = fk_form(user=user)
+                            for field_name, field in empty_form.fields.items():
+                                data.setdefault(
+                                    field_name,
+                                    empty_form.get_initial_for_field(
+                                        field=field, field_name=field_name,
+                                    ),
+                                )
+
+                            creator = fk_form(user=user, data=data)
 
                             if creator.is_valid():
                                 creator.save()
 
                                 value = creator.instance
                             else:
+                                # TODO: form errors in the message too
                                 err_msg = gettext(
                                     'Error while extracting value: tried to retrieve '
                                     'and then build «{value}» (column {column}) on {model}. '
@@ -347,7 +364,15 @@ class RegularFieldExtractorField(forms.Field):
         'invalid_subfield': _(
             'Select a valid choice. "{value}" is not one of the available sub-field.'
         ),
+        'subfield_cannot_create': (
+            'You can not create a «{model}» with only a value for «{field}»'
+        ),
     }
+    not_searchable_fields = (
+        # We exclude BooleanField because it is certainly useless to search on it
+        # (a model with only 2 valid values could be replaced by static values).
+        ModelBooleanField,
+    )
 
     # TODO: default values + properties which update widget
     def __init__(self, *, choices, modelfield, modelform_field, **kwargs):
@@ -358,8 +383,13 @@ class RegularFieldExtractorField(forms.Field):
         self._modelfield = modelfield
         self._user = None
 
-        # If True and field is a FK/M2M -> the referenced model can be created
-        self._can_create = False
+        # self._can_create = False
+        # If not None and field is a FK/M2M -> the referenced model can be
+        # created with this form
+        self._creation_form_class = False
+
+        # Name of the field which can be used to create instances on-the-go
+        self._creator_field_name = None
 
         self._subfield_choices = None
 
@@ -376,43 +406,88 @@ class RegularFieldExtractorField(forms.Field):
         return self._user
 
     @user.setter
+    # def user(self, user):
+    #     self._user = user
+    #     remote_field = self._modelfield.remote_field
+    #
+    #     if remote_field:
+    #         model = remote_field.model
+    #         creation_perm = False
+    #         app_name = model._meta.app_label
+    #
+    #         try:
+    #             config_registry.get_app_registry(app_name).get_model_conf(model=model)
+    #         except (KeyError, NotRegisteredInConfig):
+    #             pass
+    #         else:
+    #             creation_perm = user.has_perm_to_admin(app_name)
+    #
+    #         sf_choices = ModelFieldEnumerator(
+    #             model=model,
+    #         ).filter(
+    #             viewable=True,
+    #         ).exclude(
+    #             lambda model, field, depth: isinstance(field, ModelBooleanField),
+    #         ).choices()
+    #
+    #         widget = self.widget
+    #         self._subfield_choices = widget.subfield_select = sf_choices
+    #         widget.propose_creation = self._can_create = (
+    #             creation_perm and (len(sf_choices) == 1)
+    #         )
     def user(self, user):
         self._user = user
         remote_field = self._modelfield.remote_field
 
+        subfield_choices = None
+        creation_form_cls = None
+        creator_field_name = None
+
         if remote_field:
             model = remote_field.model
-            creation_perm = False
             app_name = model._meta.app_label
 
             try:
-                model_conf = config_registry.get_app_registry(app_name).get_model_conf(model=model)
+                model_conf = config_registry.get_app_registry(app_name)\
+                                            .get_model_conf(model=model)
             except (KeyError, NotRegisteredInConfig):
-                creator = None
+                pass
             else:
-                creation_perm = user.has_perm_to_admin(app_name)
-                creator = model_conf.creator
+                if user.has_perm_to_admin(app_name):
+                    creator = model_conf.creator
+                    if creator.enable_func(user=user) and not creator.url_name:
+                        form_cls = creator.form_class
+                        mandatory_fields = [
+                            field_name
+                            for field_name, field in form_cls(user=user).fields.items()
+                            if field.required and not field.initial
+                        ]
 
-            # TODO: we should improve this (use the Form from creme_config ?)
-            # NB: we exclude BooleanField because it is certainly useless to search on it
-            #     (a model with only 2 valid values could be replaced by static values)
-            sf_choices = ModelFieldEnumerator(
+                        if len(mandatory_fields) == 1:
+                            creator_field_name = mandatory_fields[0]
+                            creation_form_cls = form_cls
+
+            # TODO: check that the only field is in 'subfield_choices'
+            # TODO: do not sort choices alphabetically ?
+            subfield_choices = ModelFieldEnumerator(
                 model=model,
             ).filter(
                 viewable=True,
             ).exclude(
-                lambda model, field, depth: isinstance(field, ModelBooleanField),
-            ).choices()
-
-            widget = self.widget
-            self._subfield_choices = widget.subfield_select = sf_choices
-            widget.propose_creation = self._can_create = (
-                creation_perm
-                and creator
-                and creator.enable_func(user=user)
-                and not creator.url_name
-                and (len(sf_choices) == 1)
+                lambda model, field, depth: isinstance(field, self.not_searchable_fields),
+            ).choices(
+                printer=lambda field: (
+                    _('{field} [CREATION]').format(field=field.verbose_name)
+                    if field.name == creator_field_name else
+                    str(field.verbose_name)
+                ),
             )
+
+        widget = self.widget
+        self._subfield_choices = widget.subfield_select  = subfield_choices
+        self._creation_form_class = creation_form_cls
+        widget.propose_creation = bool(creation_form_cls)
+        self._creator_field_name = creator_field_name
 
     def clean(self, value):
         try:
@@ -441,7 +516,8 @@ class RegularFieldExtractorField(forms.Field):
             # TODO: better message ?
             raise ValidationError(self.error_messages['invalid'], code='invalid') from e
 
-        if not self._can_create and subfield_create:
+        # if not self._can_create and subfield_create:
+        if not self._creation_form_class and subfield_create:
             raise ValidationError('You can not create instances')
 
         extractor = RegularFieldExtractor(col_index, def_value, self._original_field.clean)
@@ -459,12 +535,24 @@ class RegularFieldExtractorField(forms.Field):
                         code='invalid_subfield',
                     )
 
-                modelfield = self._modelfield
+                model_field = self._modelfield
+                remote_model = model_field.remote_field.model
+                if subfield_create and subfield_search != self._creator_field_name:
+                    raise ValidationError(
+                        self.error_messages['subfield_cannot_create'].format(
+                            model=remote_model._meta.verbose_name,
+                            field=remote_model._meta.get_field(subfield_search).verbose_name,
+                        ),
+                        code='subfield_cannot_create',
+                    )
+
                 extractor.set_subfield_search(
-                    subfield_search, modelfield.remote_field.model,
-                    multiple=isinstance(modelfield, ManyToManyField),
+                    subfield_search,
+                    subfield_model=remote_model,
+                    multiple=isinstance(model_field, ManyToManyField),
                     # TODO: improve widget to disable creation check instead of hide it.
-                    create_if_unfound=subfield_create,
+                    # create_if_unfound=subfield_create,
+                    creation_form_class=self._creation_form_class if subfield_create else None,
                 )
 
         return extractor

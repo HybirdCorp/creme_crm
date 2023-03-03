@@ -20,7 +20,7 @@
                 {% endwith %}
 
                 {% if widget.propose_creation %}&nbsp;
-                <label for="{{id}}_create">{% translate 'Create if not found?' %}
+                <label for="{{id}}_create">{% if hide_select %}{% translate 'Create if not found?' %}{% else %}{% translate 'Create if not found? (only with the field marked [CREATION])' %}{% endif %}
                     <input type="checkbox" id="{{id}}_create" name="{{name}}_create"{% if widget.creation_checked %} checked{% endif %}>
                 </label>
                 {% endif %}

@@ -127,6 +127,8 @@ def ready():
         fake_models.FakeContact,      fake_forms.get_csv_form_builder,
     ).register(
         fake_models.FakeOrganisation, fake_forms.get_csv_form_builder,
+    ).register(
+        fake_models.FakeTicket,
     )
 
     merge_form_registry.register(
