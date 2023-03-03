@@ -12,6 +12,14 @@
         * Assistants :
             - The deadline of validated Alerts & ToDos is now displayed in blue.
 
+  Developers side :
+  -----------------
+
+    Non breaking changes :
+    ----------------------
+        # The creation of small models (status etc...) during a mass-import is now disabled
+          for models with disabled creation (or with a customised view) in 'creme_config'.
+
 
 == Version 2.3.10 ==
 
