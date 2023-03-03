@@ -486,7 +486,7 @@ class BasicAutoField(models.PositiveIntegerField):
         setdefault('editable', False)
         setdefault('blank',    True)
 
-        # Not '1', in order to distinguish a initialised value from a non initialised one.
+        # Not '1', in order to distinguish an initialised value from a non initialised one.
         kwargs['default'] = None
 
         super().__init__(*args, **kwargs)

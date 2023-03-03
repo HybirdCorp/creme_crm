@@ -1806,6 +1806,7 @@ class Migration(migrations.Migration):
                 fields=[
                     ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                     ('name', models.CharField(max_length=100, verbose_name='Name')),
+                    ('color', core_fields.ColorField(verbose_name='Color', default='ff0000')),
                     ('is_custom', models.BooleanField(default=True)),
                 ],
                 options={

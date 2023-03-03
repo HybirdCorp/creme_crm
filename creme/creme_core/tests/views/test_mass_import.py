@@ -26,6 +26,9 @@ from creme.creme_core.models import (
     FakeOrganisation,
     FakePosition,
     FakeSector,
+    FakeTicket,
+    FakeTicketPriority,
+    FakeTicketStatus,
     FieldsConfig,
     Job,
     MassImportJobResult,
@@ -1601,6 +1604,42 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         response = self.assertGET200(self._build_import_url(FakeContact), follow=True)
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
+    def test_auxiliary_creation(self):
+        """Ok if several fields but the not selected fields have a default value."""
+        user = self.login()
+
+        priority = FakeTicketPriority.objects.first()
+
+        ticket_title = 'Duplicated ticket'
+        status_name = 'Duplicated'
+        doc = self._build_csv_doc([(ticket_title, status_name)])
+        response = self.assertPOST200(
+            self._build_import_url(FakeTicket),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'title_colselect': 1,
+
+                'priority_colselect': 0,
+                'priority_defval': priority.id,
+
+                'status_colselect': 2,
+                'status_subfield': 'name',
+                'status_create': True,
+            },
+        )
+        self.assertNoFormError(response)
+
+        self._execute_job(response)
+        ticket = self.get_object_or_fail(FakeTicket, title=ticket_title)
+        self.assertEqual(priority, ticket.priority)
+
+        status = self.get_object_or_fail(FakeTicketStatus, name=status_name)
+        self.assertEqual(status, ticket.status)
+        self.assertEqual('FF0000', status.color)
+
     def test_auxiliary_creation_error01(self):
         "Creation for 'auxiliary' model is disabled in creme_config."
         user = self.login()
@@ -1648,6 +1687,36 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         self.assertFormError(
             response.context['form'],
             field='legal_form', errors='You can not create instances',
+        )
+
+    def test_auxiliary_creation_error03(self):
+        "Several fields, only one without a default value but another one is selected."
+        user = self.login()
+        priority = FakeTicketPriority.objects.first()
+        doc = self._build_csv_doc([('Duplicated ticket', '00ff00')])
+        response = self.assertPOST200(
+            self._build_import_url(FakeTicket),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'title_colselect': 1,
+
+                'priority_colselect': 0,
+                'priority_defval': priority.id,
+
+                'status_colselect': 2,
+                'status_subfield': 'color',
+                'status_create': True,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='status',
+            errors=_(
+                'You can not create a «{model}» with only a value for «{field}»'
+            ).format(model='Test Ticket status', field=_('Color')),
         )
 
     def test_credentials01(self):

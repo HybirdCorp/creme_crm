@@ -722,6 +722,7 @@ else:
 
     class FakeTicketStatus(CremeModel):
         name = models.CharField(_('Name'), max_length=100)
+        color = core_fields.ColorField(verbose_name=_('Color'), default='ff0000')
         # NB: used by creme_config
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)
 

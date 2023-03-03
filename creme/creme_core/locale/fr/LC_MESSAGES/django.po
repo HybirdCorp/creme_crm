@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Creme-Core 2.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-01-05 10:00+0100\n"
+"POT-Creation-Date: 2023-03-07 11:21+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -1125,6 +1125,10 @@ msgid ""
 msgstr ""
 "Sélectionnez un choix valide. \"{value}\" n'est pas un des sous-champs "
 "disponibles."
+
+#, python-brace-format
+msgid "{field} [CREATION]"
+msgstr "{field} [CRÉATION]"
 
 #, python-brace-format
 msgid ""
@@ -3142,6 +3146,9 @@ msgstr "Valeur par défaut"
 msgid "Search by:"
 msgstr "Chercher selon:"
 
+msgid "Create if not found? (only with the field marked [CREATION])"
+msgstr "Créer si non trouvé ? (juste avec le champ marqué [CRÉATION])"
+
 msgid ""
 "Create entities if they are not found ? (only fields followed by [CREATION] "
 "allows you to create, if they exist)"
@@ -3613,10 +3620,6 @@ msgstr "Nouvelles propriétés pour «{entity}»"
 #, python-brace-format
 msgid "The field \"{model}.{field}\" is hidden."
 msgstr "Le champ \"{model}.{field}\" est caché."
-
-#, python-brace-format
-msgid "{field} [CREATION]"
-msgstr "{field} [CRÉATION]"
 
 msgid "This model does not use the generic clone view."
 msgstr "Ce modèle n'utilise pas la vue de clonage générique."
