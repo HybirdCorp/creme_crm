@@ -350,12 +350,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'position_colselect': 3,
                 'position_subfield': 'title',
                 'position_defval': '',  # The browser POST an empty string
-                'position_create': True,
+                # 'position_create': False,
 
                 'sector_colselect': 4,
                 'sector_subfield': 'title',
                 'sector_defval': '',  # The browser POST an empty string
-                # sector_create=False,
+                'sector_create': True,
 
                 'property_types': [ptype1.id],
 
@@ -374,13 +374,12 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         lines_count = len(lines) - 1  # '-1' for header
         self.assertEqual(contact_count + lines_count, FakeContact.objects.count())
 
-        positions = FakePosition.objects.exclude(id__in=position_ids)
-        self.assertEqual(1, len(positions))
+        self.assertFalse(FakePosition.objects.exclude(id__in=sector_ids).exists())
 
-        position = positions[0]
-        self.assertEqual(pos_title, position.title)
-
-        self.assertFalse(FakeSector.objects.exclude(id__in=sector_ids).exists())
+        sectors = FakeSector.objects.exclude(id__in=position_ids)
+        self.assertEqual(1, len(sectors))
+        sector = sectors[0]
+        self.assertEqual(sctr_title, sector.title)
 
         created_contacts = {}
         for first_name, last_name, pos_title, sector_title, city_name, __orga_name in lines[1:]:
@@ -390,7 +389,8 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             created_contacts[first_name] = contact
 
             self.assertEqual(default_descr, contact.description)
-            self.assertEqual(position,      contact.position)
+            self.assertIsNone(contact.position)
+            self.assertEqual(sector,      contact.sector)
             self.get_object_or_fail(CremeProperty, type=ptype1, creme_entity=contact.id)
             self.assertRelationCount(1, contact, loves.id, shinji)
 
@@ -1601,6 +1601,55 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
         response = self.assertGET200(self._build_import_url(FakeContact), follow=True)
         self.assertRedirects(response, reverse('creme_core__my_jobs'))
 
+    def test_auxiliary_creation_error01(self):
+        "Creation for 'auxiliary' model is disabled in creme_config."
+        user = self.login()
+
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
+        response = self.assertPOST200(
+            self._build_import_url(FakeContact),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'first_name_colselect': 2,
+                'last_name_colselect': 1,
+
+                'position_colselect': 3,
+                'position_subfield': 'title',
+                'position_create': True,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='position', errors='You can not create instances',
+        )
+
+    def test_auxiliary_creation_error02(self):
+        "Creation for 'auxiliary' model in creme_config use a custom URL."
+        user = self.login()
+
+        doc = self._build_csv_doc([('NERV', 'Secret organisation')])
+        response = self.assertPOST200(
+            self._build_import_url(FakeOrganisation),
+            follow=True,
+            data={
+                **self.lv_import_data,
+                'document': doc.id,
+                'user': user.id,
+                'name_colselect': 1,
+
+                'legal_form_colselect': 2,
+                'legal_form_subfield': 'title',
+                'legal_form_create': True,
+            },
+        )
+        self.assertFormError(
+            response.context['form'],
+            field='legal_form', errors='You can not create instances',
+        )
+
     def test_credentials01(self):
         "Creation credentials for imported model."
         user = self.login(
@@ -1618,7 +1667,7 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
             creatable_models=[FakeContact, FakeOrganisation, Document],
         )
 
-        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Pilot')])
+        doc = self._build_csv_doc([('Ayanami', 'Rei', 'Piloting')])
         response = self.assertPOST200(
             self._build_import_url(FakeContact),
             data={
@@ -1628,14 +1677,14 @@ class MassImportViewsTestCase(MassImportBaseTestCaseMixin,
                 'first_name_colselect': 2,
                 'last_name_colselect': 1,
 
-                'position_colselect': 3,
-                'position_subfield': 'title',
-                'position_create': True,
+                'sector_colselect': 3,
+                'sector_subfield': 'title',
+                'sector_create': True,
             },
         )
         self.assertFormError(
             response.context['form'],
-            field='position', errors='You can not create instances',
+            field='sector', errors='You can not create instances',
         )
 
     def test_credentials03(self):
