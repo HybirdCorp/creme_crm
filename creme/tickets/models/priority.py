@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,7 @@ from creme.creme_core.models.fields import BasicAutoField
 class Priority(MinionModel):
     """Priority of a ticket: urgent etc..."""
     name = CharField(_('Name'), max_length=100, unique=True)
-    order = BasicAutoField(_('Order'))  # Used by creme_config
+    order = BasicAutoField()  # Used by creme_config
 
     creation_label = pgettext_lazy('tickets-priority', 'Create a priority')
 

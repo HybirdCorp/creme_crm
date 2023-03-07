@@ -3,7 +3,7 @@ Developer's notebook for Creme modules
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-02-2023 for Creme 2.5
+:Version: 07-03-2023 for Creme 2.5
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1160,7 +1160,7 @@ statuses (in forms, in list-views quick-search etc…), you have to add a field
     class Status(CremeModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)
-        order = BasicAutoField(_('Order'))  # <- NEW
+        order = BasicAutoField()  # <- NEW
 
         [...]
 

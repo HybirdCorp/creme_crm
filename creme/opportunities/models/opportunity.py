@@ -38,7 +38,7 @@ from .. import constants
 
 class SalesPhase(core_models.MinionModel):
     name = models.CharField(_('Name'), max_length=100)
-    order = core_fields.BasicAutoField(_('Order'))
+    order = core_fields.BasicAutoField()
     color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     won  = models.BooleanField(pgettext_lazy('opportunities-sales_phase', 'Won'),  default=False)

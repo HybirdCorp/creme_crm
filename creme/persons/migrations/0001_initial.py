@@ -98,7 +98,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('size', models.CharField(max_length=100, verbose_name='Size')),
-                ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                # ('order', core_fields.BasicAutoField(verbose_name='Order', editable=False, blank=True)),
+                ('order', core_fields.BasicAutoField(editable=False, blank=True)),
                 ('extra_data', models.JSONField(default=dict, editable=False)),
                 ('is_custom', models.BooleanField(default=True)),
                 ('uuid', models.UUIDField(default=uuid4, editable=False, unique=True)),

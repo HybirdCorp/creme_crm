@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -89,7 +89,7 @@ class LegalForm(MinionModel):
 
 class StaffSize(MinionModel):
     size  = CharField(_('Size'), max_length=100)
-    order = BasicAutoField(_('Order'))  # Used by creme_config
+    order = BasicAutoField()  # Used by creme_config
 
     creation_label = _('Create a staff size')
 
