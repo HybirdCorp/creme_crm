@@ -49,7 +49,7 @@ class Status(MinionModel):
             'not be updated automatically (i.e. closing dates will not be set).'
         ),
     )
-    order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
+    order = core_fields.BasicAutoField()  # Used by creme_config
     color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     creation_label = pgettext_lazy('tickets-status', 'Create a status')

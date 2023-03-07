@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'PROJECTS' APP
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Projects 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2023-03-07 18:05+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -163,9 +163,6 @@ msgstr "Couleur"
 msgid "Description"
 msgstr "Description"
 
-msgid "Order"
-msgstr "Ordre"
-
 msgctxt "projects-project_status"
 msgid "Create a status"
 msgstr "Créer un statut"
@@ -201,6 +198,9 @@ msgstr "Ressources de projet"
 
 msgid "Title"
 msgstr "Titre"
+
+msgid "Order"
+msgstr "Ordre"
 
 msgid "Start"
 msgstr "Début"

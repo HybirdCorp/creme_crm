@@ -245,7 +245,7 @@ else:
         title = models.CharField(_('Title'), max_length=100)
         # Used by creme_config
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)
-        order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
+        order = core_fields.BasicAutoField()  # Used by creme_config
 
         creation_label = _('Create a sector')
         save_label     = _('Save the sector')
@@ -480,7 +480,7 @@ else:
 
     class FakeActivityType(CremeModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
-        order = core_fields.BasicAutoField(_('Order'))  # Used by creme_config
+        order = core_fields.BasicAutoField()  # Used by creme_config
 
         def __str__(self):
             return self.name

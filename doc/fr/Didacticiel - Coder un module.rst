@@ -3,7 +3,7 @@ Carnet du développeur de modules Creme
 ======================================
 
 :Author: Guillaume Englert
-:Version: 17-02-2023 pour la version 2.5 de Creme
+:Version: 07-03-2023 pour la version 2.5 de Creme
 :Copyright: Hybird
 :License: GNU FREE DOCUMENTATION LICENSE version 1.3
 :Errata: Hugo Smett, Patix, Morgane Alonso
@@ -1194,7 +1194,7 @@ vous devez rajouter un champ ``order`` comme ceci : ::
     class Status(CremeModel):
         name = models.CharField(_('Name'), max_length=100, unique=True)
         is_custom = models.BooleanField(default=True).set_tags(viewable=False)
-        order = BasicAutoField(_('Order'))  # <- NEW
+        order = BasicAutoField()  # <- NEW
 
         [...]
 

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Persons 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-24 19:08+0100\n"
+"POT-Creation-Date: 2023-03-07 17:47+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -535,9 +535,6 @@ msgstr "Formes juridiques"
 msgid "Size"
 msgstr "Taille"
 
-msgid "Order"
-msgstr "Ordre"
-
 msgid "Create a staff size"
 msgstr "Créer un effectif de société"
 
@@ -1058,6 +1055,9 @@ msgstr ""
 
 msgid "You must have at least one managed organisation."
 msgstr "Vous devez avoir au moins une société gérée."
+
+#~ msgid "Order"
+#~ msgstr "Ordre"
 
 #~ msgid "Create a suspect / prospect / customer"
 #~ msgstr "Créer un suspect / prospect / client"

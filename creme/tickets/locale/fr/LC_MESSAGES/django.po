@@ -1,5 +1,5 @@
 # FR LOCALISATION OF 'TICKETS' APP
-# Copyright (C) 2022 Hybird
+# Copyright (C) 2023 Hybird
 # This file is distributed under the same license as the Creme package.
 #
 # > django-admin makemessages -l fr -i tests.py --no-location
@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Creme Tickets 2.5\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-02-06 13:44+0100\n"
+"POT-Creation-Date: 2023-03-07 18:14+0100\n"
 "Last-Translator: Hybird <contact@hybird.org>\n"
 "Language: fr\n"
 "MIME-Version: 1.0\n"
@@ -56,9 +56,6 @@ msgstr "Temps de résolution"
 
 msgid "Name"
 msgstr "Nom"
-
-msgid "Order"
-msgstr "Ordre"
 
 msgctxt "tickets-criticality"
 msgid "Create a criticality"
@@ -219,6 +216,9 @@ msgstr "Le type de relation «%(predicate)s» est désactivé"
 
 msgid "Link to a ticket"
 msgstr "Lier à un ticket"
+
+#~ msgid "Order"
+#~ msgstr "Ordre"
 
 #~ msgid "forbidden"
 #~ msgstr "interdit"

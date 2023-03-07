@@ -44,7 +44,7 @@ class SettlementTerms(MinionModel):
 
 class AbstractStatus(MinionModel):
     name = models.CharField(_('Name'), max_length=100)
-    order = core_fields.BasicAutoField(_('Order'))
+    order = core_fields.BasicAutoField()
     color = core_fields.ColorField(default=core_fields.ColorField.random)
 
     creation_label = pgettext_lazy('billing-status', 'Create a status')
