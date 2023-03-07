@@ -28,7 +28,9 @@ from django.core.validators import EMPTY_VALUES
 from django.db import models
 from django.db.models import Field
 from django.template.loader import get_template
+from django.utils.encoding import force_str
 from django.utils.formats import date_format, number_format
+from django.utils.hashable import make_hashable
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from django.utils.timezone import localtime
@@ -104,7 +106,11 @@ class FieldChangeExplainer:
     def render_choice(self, *, user, value):
         # NB: django way for '_get_FIELD_display()' methods
         #       => would a linear search be faster ?
-        return dict(self._field.flatchoices).get(value, value)
+        # return dict(self._field.flatchoices).get(value, value)
+        return force_str(
+            dict(make_hashable(self._field.flatchoices)).get(make_hashable(value), value),
+            strings_only=True,
+        )
 
     def render_value(self, *, user, value) -> str:
         return str(value)
