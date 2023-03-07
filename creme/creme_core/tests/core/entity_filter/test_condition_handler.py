@@ -999,6 +999,25 @@ class FilterConditionHandlerTestCase(CremeTestCase):
             handler2.description(user),
         )
 
+    def test_regularfield_description06(self):
+        "Field with choices."
+        user = self.create_user()
+
+        value = FakeInvoiceLine.Discount.PERCENT
+        handler = RegularFieldConditionHandler(
+            model=FakeInvoiceLine,
+            field_name='discount_unit',
+            operator_id=operators.EQUALS,
+            values=[value],
+        )
+        self.assertEqual(
+            _('«{field}» is {values}').format(
+                field=_('Discount Unit'),
+                values=_('«{enum_value}»').format(enum_value=_('Percent')),
+            ),
+            handler.description(user),
+        )
+
     def test_dateregularfield_init(self):
         fname = 'created'
         range_name = 'previous_year'
