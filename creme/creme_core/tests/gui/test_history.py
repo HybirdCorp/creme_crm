@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.utils.formats import date_format, number_format
 from django.utils.html import escape, format_html
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import ngettext
 
@@ -113,25 +112,26 @@ class HistoryRenderTestCase(CremeTestCase):
 
     def test_render_edition(self):
         user = self.create_user()
-
-        old_name = 'Acme'
-        orga = FakeOrganisation.objects.create(user=user, name=old_name)
+        orga = FakeOrganisation.objects.create(user=user, name='<i>Acme</i>')
 
         # One modification ---
         orga = self.refresh(orga)
-        orga.name += ' corp'
+        orga.name = '<i>Acme corp</i>'
         orga.save()
 
         hline1 = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline1.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(self.FMT_3_VALUES(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{_("Name")}</span>',
-                    oldvalue=f'<span class="field-change-old_value">{old_name}</span>',
-                    value=f'<span class="field-change-new_value">{orga.name}</span>',
-                )),
+                    oldvalue='<span class="field-change-old_value">'
+                             '&lt;i&gt;Acme&lt;/i&gt;'
+                             '</span>',
+                    value='<span class="field-change-new_value">'
+                          '&lt;i&gt;Acme corp&lt;/i&gt;'
+                          '</span>',
+                ),
             ),
             self.render_line(hline1, user),
         )
@@ -145,37 +145,36 @@ class HistoryRenderTestCase(CremeTestCase):
         orga.save()
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                '  <li>{mod3}</li>'
-                '  <li>{mod4}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(self.FMT_2_VALUES(
+            '<div class="history-line history-line-edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            '  <li>{mod3}</li>'
+            '  <li>{mod4}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Email address")}</span>',
                     value=f'<span class="field-change-new_value">{orga.email}</span>',
-                )),
-                mod2=mark_safe(self.FMT_2_VALUES(
+                ),
+                mod2=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Capital")}</span>',
                     value=f'<span class="field-change-new_value">'
                           # f'{number_format(orga.capital, use_l10n=True, force_grouping=True)}'
                           f'{number_format(orga.capital, force_grouping=True)}'
                           f'</span>',
-                )),
-                mod3=mark_safe(self.FMT_3_VALUES(
+                ),
+                mod3=self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{_("Subject to VAT")}</span>',
                     oldvalue=f'<span class="field-change-old_value">{_("Yes")}</span>',
                     value=f'<span class="field-change-new_value">{_("No")}</span>',
-                )),
-                mod4=mark_safe(self.FMT_2_VALUES(
+                ),
+                mod4=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Date of creation")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{date_format(orga.creation_date, "DATE_FORMAT")}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -198,9 +197,8 @@ class HistoryRenderTestCase(CremeTestCase):
         hline.save()
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                _('“{field}” set').format(field=fname),
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('“{field}” set').format(field=fname)
             ),
             self.render_line(hline, user),
         )
@@ -220,14 +218,13 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(self.FMT_2_VALUES(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Start")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{date_format(activity.start, "DATETIME_FORMAT")}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -244,9 +241,8 @@ class HistoryRenderTestCase(CremeTestCase):
         orga.save()
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} set {details_link}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} set {details_link}').format(
                     field=f'<span class="field-change-field_name">{_("Description")}</span>',
                     details_link=(
                         f'<a class="field-change-text_details" data-action="popover">'
@@ -262,7 +258,7 @@ class HistoryRenderTestCase(CremeTestCase):
                         f' </details>'
                         f'</a>'
                     ),
-                ))
+                )
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -273,9 +269,8 @@ class HistoryRenderTestCase(CremeTestCase):
         orga.save()
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} set {details_link}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} set {details_link}').format(
                     field=f'<span class="field-change-field_name">{_("Description")}</span>',
                     details_link=(
                         f'<a class="field-change-text_details" data-action="popover">'
@@ -291,7 +286,7 @@ class HistoryRenderTestCase(CremeTestCase):
                         f' </details>'
                         f'</a>'
                     ),
-                ))
+                )
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -304,9 +299,8 @@ class HistoryRenderTestCase(CremeTestCase):
 
         hline3 = self.get_hline()
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} emptied {details_link}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} emptied {details_link}').format(
                     field=f'<span class="field-change-field_name">{_("Description")}</span>',
                     details_link=(
                         f'<a class="field-change-text_details" data-action="popover">'
@@ -322,7 +316,7 @@ class HistoryRenderTestCase(CremeTestCase):
                         f' </details>'
                         f'</a>'
                     ),
-                ))
+                ),
             ),
             self.render_line(hline3, user),
         )
@@ -335,13 +329,11 @@ class HistoryRenderTestCase(CremeTestCase):
 
         hline3.value = json.dumps([str(orga), ['description']])
         hline3.save()
-
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} set').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} set').format(
                     field=f'<span class="field-change-field_name">{_("Description")}</span>',
-                ))
+                ),
             ),
             self.render_line(self.refresh(hline3), user),
         )
@@ -364,22 +356,21 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(self.FMT_2_VALUES(
+            '<div class="history-line history-line-edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=self.FMT_2_VALUES(
                     field='<span class="field-change-field_name">Type</span>',
                     value='<span class="field-change-new_value">External</span>',
-                )),
-                mod2=mark_safe(self.FMT_3_VALUES(
+                ),
+                mod2=self.FMT_3_VALUES(
                     field='<span class="field-change-field_name">Status</span>',
                     oldvalue='<span class="field-change-old_value">Waiting</span>',
                     value='<span class="field-change-new_value">Sent</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -400,13 +391,12 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(self.FMT_3_VALUES(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{_("Loves comics")}</span>',
                     oldvalue=f'<span class="field-change-old_value">{_("Yes")}</span>',
                     value=f'<span class="field-change-new_value">{_("N/A")}</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -425,15 +415,14 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} emptied (it was {oldvalue})').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} emptied (it was {oldvalue})').format(
                     field=f'<span class="field-change-field_name">{_("Capital")}</span>',
                     oldvalue=f'<span class="field-change-old_value">'
                              # f'{number_format(old_capital, use_l10n=True, force_grouping=True)}'
                              f'{number_format(old_capital, force_grouping=True)}'
                              f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -449,7 +438,7 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao = FakeContact.objects.create(
             user=user, first_name='Hayao', last_name='Miyazaki',
         )
-        img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
+        img = FakeImage.objects.create(user=user, name='<b>Grumpy</b> Hayao')
         # NB: should be escaped
         position = FakePosition.objects.create(title='Director<br>')
 
@@ -461,23 +450,24 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(_('{field} set to {value}').format(
+            '<div class="history-line history-line-edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=_('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Position")}</span>',
                     value=f'<span class="field-change-new_value">{escape(position.title)}</span>',
-                )),
-                mod2=mark_safe(_('{field} set to {value}').format(
+                ),
+                mod2=_('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
                     value=f'<span class="field-change-new_value">'
-                          f'<a href="{img.get_absolute_url()}" target="_self">{img.name}</a>'
+                          f'<a href="{img.get_absolute_url()}" target="_self">'
+                          f'&lt;b&gt;Grumpy&lt;/b&gt; Hayao'
+                          f'</a>'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -490,25 +480,24 @@ class HistoryRenderTestCase(CremeTestCase):
         position.delete()
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(_('{field} set to {value}').format(
+            '<div class="history-line history-line-edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=_('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Position")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{_("{pk} (deleted)").format(pk=position_id)}'
                           f'</span>',
-                )),
-                mod2=mark_safe(_('{field} set to {value}').format(
+                ),
+                mod2=_('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{_("{pk} (deleted)").format(pk=img_id)}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -534,21 +523,21 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} set to {value}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} set to {value}').format(
                     field=f'<span class="field-change-field_name">{_("Photograph")}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{settings.HIDDEN_VALUE}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
 
     def test_render_edition_m2m01(self):
         user = self.create_user()
-        cat1, cat2, cat3 = FakeImageCategory.objects.order_by('id')[:3]
+        cat1, cat2 = FakeImageCategory.objects.order_by('id')[:2]
+        cat3 = FakeImageCategory.objects.create(name='<i>grumpy</i>')
 
         img = FakeImage.objects.create(user=user, name='Grumpy Hayao')
 
@@ -559,14 +548,13 @@ class HistoryRenderTestCase(CremeTestCase):
 
         field_msg = f'<span class="field-change-field_name">{_("Categories")}</span>'
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} changed: {changes}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} changed: {changes}').format(
                     field=field_msg,
                     changes=ngettext('{} was added', '{} were added', 1).format(
                         f'<span class="field-change-m2m_added">{cat1}</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(hline1, user),
         )
@@ -574,17 +562,16 @@ class HistoryRenderTestCase(CremeTestCase):
         # Several addition ---
         self.refresh(img).categories.set([cat1, cat2, cat3])
 
-        first_cat1, second_cat1 = sorted([cat2.name, cat3.name])
+        first_cat1, second_cat1 = sorted([cat2.name, '&lt;i&gt;grumpy&lt;/i&gt;'])
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} changed: {changes}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} changed: {changes}').format(
                     field=field_msg,
                     changes=ngettext('{} was added', '{} were added', 2).format(
                         f'<span class="field-change-m2m_added">{first_cat1}</span>, '
                         f'<span class="field-change-m2m_added">{second_cat1}</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -592,31 +579,29 @@ class HistoryRenderTestCase(CremeTestCase):
         # One removing ---
         self.refresh(img).categories.remove(cat2)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} changed: {changes}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} changed: {changes}').format(
                     field=field_msg,
                     changes=ngettext('{} was removed', '{} were removed', 1).format(
                         f'<span class="field-change-m2m_removed">{cat2}</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
 
         # Several removing
-        first_cat2, second_cat2 = sorted([cat1.name, cat3.name])
+        first_cat2, second_cat2 = sorted([cat1.name, '&lt;i&gt;grumpy&lt;/i&gt;'])
         self.refresh(img).categories.clear()
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} changed: {changes}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} changed: {changes}').format(
                     field=field_msg,
                     changes=ngettext('{} was removed', '{} were removed', 2).format(
                         f'<span class="field-change-m2m_removed">{first_cat2}</span>, '
                         f'<span class="field-change-m2m_removed">{second_cat2}</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -633,9 +618,8 @@ class HistoryRenderTestCase(CremeTestCase):
 
         first_cat, second_cat = sorted([cat1.name, cat3.name])
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(_('{field} changed: {changes}').format(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                _('{field} changed: {changes}').format(
                     field=f'<span class="field-change-field_name">{_("Categories")}</span>',
                     changes='{}, {}'.format(
                         ngettext('{} was added', '{} were added', 2).format(
@@ -646,7 +630,7 @@ class HistoryRenderTestCase(CremeTestCase):
                             f'<span class="field-change-m2m_removed">{cat2}</span>'
                         ),
                     ),
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -671,16 +655,15 @@ class HistoryRenderTestCase(CremeTestCase):
             f'</span>'
         )
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(change_fmt(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                change_fmt(
                     field=field_msg,
                     changes=ngettext('{} was added', '{} were added', 1).format(
                         f'<span class="field-change-m2m_added">'
                         f'<a href="{ml.get_absolute_url()}" target="_self">{ml}</a>'
                         f'</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(self.get_hline(), user),
         )
@@ -689,16 +672,15 @@ class HistoryRenderTestCase(CremeTestCase):
         self.refresh(campaign).mailing_lists.remove(ml)
         hline2 = self.get_hline()
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(change_fmt(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                change_fmt(
                     field=field_msg,
                     changes=ngettext('{} was removed', '{} were removed', 1).format(
                         f'<span class="field-change-m2m_removed">'
                         f'<a href="{ml.get_absolute_url()}" target="_self">{ml}</a>'
                         f'</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(hline2, user),
         )
@@ -707,16 +689,15 @@ class HistoryRenderTestCase(CremeTestCase):
         ml.user = self.other_user
         ml.save()
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-edition">{}<div>',
-                mark_safe(change_fmt(
+            '<div class="history-line history-line-edition">{}<div>'.format(
+                change_fmt(
                     field=field_msg,
                     changes=ngettext('{} was removed', '{} were removed', 1).format(
                         f'<span class="field-change-m2m_removed">'
                         f'{settings.HIDDEN_VALUE}'
                         f'</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(hline2, user),
         )
@@ -778,30 +759,29 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_CUSTOM_EDITION, hline1.type)
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-custom_edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                '  <li>{mod3}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(self.FMT_2_VALUES(
+            '<div class="history-line history-line-custom_edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            '  <li>{mod3}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{cfield1.name}</span>',
                     value=f'<span class="field-change-new_value">{value_str1}</span>',
-                )),
-                mod2=mark_safe(self.FMT_2_VALUES(
+                ),
+                mod2=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{cfield2.name}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{date_format(value_date, "DATE_FORMAT")}'
                           f'</span>',
-                )),
-                mod3=mark_safe(self.FMT_2_VALUES(
+                ),
+                mod3=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{cfield3.name}</span>',
                     value=f'<span class="field-change-new_value">'
                           f'{number_format(value_int, force_grouping=True)}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline1, user),
         )
@@ -817,13 +797,12 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertNotEqual(hline1, hline2)
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-custom_edition">{}<div>',
-                mark_safe(self.FMT_3_VALUES(
+            '<div class="history-line history-line-custom_edition">{}<div>'.format(
+                self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{cfield1.name}</span>',
                     oldvalue=f'<span class="field-change-old_value">{value_str1}</span>',
                     value=f'<span class="field-change-new_value">{value_str2}</span>',
-                )),
+                ),
             ),
             self.render_line(hline2, user),
         )
@@ -853,24 +832,22 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_CUSTOM_EDITION, hline1.type)
 
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-custom_edition">'
-                ' <ul>'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
-                mod1=mark_safe(self.FMT_2_VALUES(
+            '<div class="history-line history-line-custom_edition">'
+            ' <ul>'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
+                mod1=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{cfield1.name}</span>',
                     value=f'<span class="field-change-new_value">{choice1}</span>',
-                )),
-                mod2=mark_safe(_('{field} changed: {changes}').format(
+                ),
+                mod2=_('{field} changed: {changes}').format(
                     field=f'<span class="field-change-field_name">{cfield2.name}</span>',
                     changes=ngettext('{} was added', '{} were added', 1).format(
                         f'<span class="field-change-m2m_added">{choice2}</span>'
                     ),
-                )),
-
+                ),
             ),
             self.render_line(hline1, user),
         )
@@ -892,8 +869,7 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_CUSTOM_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-custom_edition">{}<div>',
+            '<div class="history-line history-line-custom_edition">{}<div>'.format(
                 _('Deleted field (with id={id}) set').format(id=cfield_id),
             ),
             self.render_line(hline, user),
@@ -997,33 +973,32 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_RELATED, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-related_edition'
-                ' history-line-collapsable history-line-collapsed">'
-                ' <div class="history-line-main">'
-                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <div class="toggle-icon-container toggle-icon-collapse"'
-                '       title="{collapse_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <span class="history-line-title">{title}</span>'
-                ' </div>'
-                ' <ul class="history-line-details">'
-                '  <li>{mod}</li>'
-                ' </ul>'
-                '<div>',
-                title=mark_safe(_('%(entity_link)s edited') % {
+            '<div class="history-line history-line-related_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details">'
+            '  <li>{mod}</li>'
+            ' </ul>'
+            '<div>'.format(
+                title=_('%(entity_link)s edited') % {
                     'entity_link':
                         f'<a href="{hayao.get_absolute_url()}" target="_self">{hayao}</a>',
-                }),
+                },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
-                mod=mark_safe(self.FMT_2_VALUES(
+                mod=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("First name")}</span>',
                     value=f'<span class="field-change-new_value">{hayao.first_name}</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -1033,30 +1008,29 @@ class HistoryRenderTestCase(CremeTestCase):
         hayao.delete()
         self.maxDiff = None
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-related_edition'
-                ' history-line-collapsable history-line-collapsed">'
-                ' <div class="history-line-main">'
-                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <div class="toggle-icon-container toggle-icon-collapse"'
-                '       title="{collapse_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <span class="history-line-title">{title}</span>'
-                ' </div>'
-                ' <ul class="history-line-details">'
-                '  <li>{mod}</li>'
-                ' </ul>'
-                '<div>',
+            '<div class="history-line history-line-related_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details">'
+            '  <li>{mod}</li>'
+            ' </ul>'
+            '<div>'.format(
                 title=_('“%(entity)s“ edited') % {'entity': hayao_repr},
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
-                mod=mark_safe(self.FMT_2_VALUES(
+                mod=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("First name")}</span>',
                     value=f'<span class="field-change-new_value">{hayao.first_name}</span>',
-                )),
+                ),
             ),
             self.render_line(self.refresh(hline), user),
         )
@@ -1074,12 +1048,9 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_PROP_ADD, hline.type)
         html_format_str = '<div class="history-line history-line-property_addition">{}<div>'
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(property_text)s added') % {
-                    'property_text': f'<span class="property-text">{text}</span>',
-                }),
-            ),
+            html_format_str.format(_('%(property_text)s added') % {
+                'property_text': f'<span class="property-text">{text}</span>',
+            }),
             self.render_line(hline, user),
         )
 
@@ -1087,13 +1058,9 @@ class HistoryRenderTestCase(CremeTestCase):
         prop.delete()
         ptype.delete()
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                # _('“%(property_text)s” added') % {'property_text': ptype_id},
-                mark_safe(_('%(property_text)s added') % {
-                    'property_text': f'<span class="property-text">{ptype_id}</span>',
-                }),
-            ),
+            html_format_str.format(_('%(property_text)s added') % {
+                'property_text': f'<span class="property-text">{ptype_id}</span>',
+            }),
             self.render_line(hline, user),
         )
 
@@ -1113,24 +1080,18 @@ class HistoryRenderTestCase(CremeTestCase):
 
         html_format_str = '<div class="history-line history-line-property_deletion">{}<div>'
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(property_text)s removed') % {
-                    'property_text': f'<span class="property-text">{text}</span>',
-                }),
-            ),
+            html_format_str.format(_('%(property_text)s removed') % {
+                'property_text': f'<span class="property-text">{text}</span>',
+            }),
             self.render_line(hline, user),
         )
 
         # ---
         ptype.delete()
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(property_text)s removed') % {
-                    'property_text': f'<span class="property-text">{ptype_id}</span>',
-                }),
-            ),
+            html_format_str.format(_('%(property_text)s removed') % {
+                'property_text': f'<span class="property-text">{ptype_id}</span>',
+            }),
             self.render_line(hline, user),
         )
 
@@ -1180,30 +1141,23 @@ class HistoryRenderTestCase(CremeTestCase):
             '<div class="history-line history-line-relationship_addition">{}<div>'
         )
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype.predicate}'
-                                 f'</span>',  # <==
-                    'entity_link':
-                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s added to %(entity_link)s') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype.predicate}'
+                             f'</span>',  # <==
+                'entity_link': f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
+            }),
             self.render_line(hline, user),
         )
 
         self.assertEqual(history.TYPE_SYM_RELATION, hline_sym.type)
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{srtype.predicate}'
-                                 f'</span>',  # <==
-                    'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s added to %(entity_link)s') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{srtype.predicate}'
+                             f'</span>',  # <==
+                'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
+            }),
             self.render_line(hline_sym, user),
         )
 
@@ -1214,16 +1168,12 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertDoesNotExist(relation)
         self.assertDoesNotExist(rtype)
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s added to %(entity_link)s') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype_id}'
-                                 f'</span>',  # <==
-                    'entity_link':
-                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s added to %(entity_link)s') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype_id}'
+                             f'</span>',  # <==
+                'entity_link': f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
+            }),
             self.render_line(self.refresh(hline), user),
         )
 
@@ -1231,15 +1181,12 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv_repr = str(nerv)
         nerv.delete()
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s added to “%(entity)s“') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype_id}'
-                                 f'</span>',  # <==
-                    'entity': nerv_repr,
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s added to “%(entity)s“') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype_id}'
+                             f'</span>',  # <==
+                'entity': nerv_repr,
+            }),
             self.render_line(self.refresh(hline), user),
         )
 
@@ -1263,30 +1210,24 @@ class HistoryRenderTestCase(CremeTestCase):
             '<div class="history-line history-line-relationship_deletion">{}<div>'
         )
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype.predicate}'
-                                 f'</span>',  # <==
-                    'entity_link':
-                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s to %(entity_link)s removed') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype.predicate}'
+                             f'</span>',  # <==
+                'entity_link':
+                    f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
+            }),
             self.render_line(hline, user),
         )
 
         self.assertEqual(history.TYPE_SYM_REL_DEL, hline_sym.type)
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{srtype.predicate}'
-                                 f'</span>',  # <==
-                    'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s to %(entity_link)s removed') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{srtype.predicate}'
+                             f'</span>',  # <==
+                'entity_link': f'<a href="{rei.get_absolute_url()}" target="_self">{rei}</a>',
+            }),
             self.render_line(hline_sym, user),
         )
 
@@ -1295,16 +1236,13 @@ class HistoryRenderTestCase(CremeTestCase):
         rtype.delete()
         self.assertDoesNotExist(rtype)
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s to %(entity_link)s removed') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype_id}'
-                                 f'</span>',  # <==
-                    'entity_link':
-                        f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s to %(entity_link)s removed') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype_id}'
+                             f'</span>',  # <==
+                'entity_link':
+                    f'<a href="{nerv.get_absolute_url()}" target="_self">{nerv}</a>',
+            }),
             self.render_line(self.refresh(hline), user),
         )
 
@@ -1312,15 +1250,12 @@ class HistoryRenderTestCase(CremeTestCase):
         nerv_repr = str(nerv)
         nerv.delete()
         self.assertHTMLEqual(
-            format_html(
-                html_format_str,
-                mark_safe(_('%(predicate)s to “%(entity)s“ removed') % {
-                    'predicate': f'<span class="relationship-predicate">'
-                                 f'{rtype_id}'
-                                 f'</span>',
-                    'entity': nerv_repr,  # <==
-                }),
-            ),
+            html_format_str.format(_('%(predicate)s to “%(entity)s“ removed') % {
+                'predicate': f'<span class="relationship-predicate">'
+                             f'{rtype_id}'
+                             f'</span>',
+                'entity': nerv_repr,  # <==
+            }),
             self.render_line(self.refresh(hline), user),
         )
 
@@ -1381,10 +1316,9 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_AUX_CREATION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-auxiliary_creation">'
-                '{title}'
-                '<div>',
+            '<div class="history-line history-line-auxiliary_creation">'
+            '{title}'
+            '<div>'.format(
                 title=_('“%(auxiliary_ctype)s“ added: %(auxiliary_value)s') % {
                     'auxiliary_ctype': 'Test address',
                     'auxiliary_value': address,
@@ -1411,39 +1345,38 @@ class HistoryRenderTestCase(CremeTestCase):
         hline = self.get_hline()
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-auxiliary_edition'
-                ' history-line-collapsable history-line-collapsed">'
-                ' <div class="history-line-main">'
-                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <div class="toggle-icon-container toggle-icon-collapse"'
-                '       title="{collapse_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <span class="history-line-title">{title}</span>'
-                ' </div>'
-                ' <ul class="history-line-details">'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
+            '<div class="history-line history-line-auxiliary_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details">'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
                 title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
                     'auxiliary_ctype': 'Test address',
                     'auxiliary_value': address,
                 },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
-                mod1=mark_safe(self.FMT_3_VALUES(
+                mod1=self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">{_("City")}</span>',
                     oldvalue=f'<span class="field-change-old_value">{old_city}</span>',
                     value=f'<span class="field-change-new_value">{address.city}</span>',
-                )),
-                mod2=mark_safe(self.FMT_2_VALUES(
+                ),
+                mod2=self.FMT_2_VALUES(
                     field=f'<span class="field-change-field_name">{_("Department")}</span>',
                     value=f'<span class="field-change-new_value">{address.department}</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -1473,31 +1406,30 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
         self.maxDiff = None
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-auxiliary_edition'
-                ' history-line-collapsable history-line-collapsed">'
-                ' <div class="history-line-main">'
-                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <div class="toggle-icon-container toggle-icon-collapse"'
-                '       title="{collapse_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <span class="history-line-title">{title}</span>'
-                ' </div>'
-                ' <ul class="history-line-details">'
-                '  <li>{mod1}</li>'
-                '  <li>{mod2}</li>'
-                ' </ul>'
-                '<div>',
+            '<div class="history-line history-line-auxiliary_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details">'
+            '  <li>{mod1}</li>'
+            '  <li>{mod2}</li>'
+            ' </ul>'
+            '<div>'.format(
                 title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
                     'auxiliary_ctype': 'Test Invoice Line',
                     'auxiliary_value': pline,
                 },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
-                mod1=mark_safe(self.FMT_3_VALUES(
+                mod1=self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">'
                           f'{_("Quantity")}'
                           f'</span>',
@@ -1507,8 +1439,8 @@ class HistoryRenderTestCase(CremeTestCase):
                     value=f'<span class="field-change-new_value">'
                           f'{number_format(pline.quantity)}'
                           f'</span>',
-                )),
-                mod2=mark_safe(self.FMT_3_VALUES(
+                ),
+                mod2=self.FMT_3_VALUES(
                     field=f'<span class="field-change-field_name">'
                           f'{_("Discount Unit")}'
                           f'</span>',
@@ -1518,7 +1450,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     value=f'<span class="field-change-new_value">'
                           f'{_("Percent")}'
                           f'</span>',
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
@@ -1536,30 +1468,29 @@ class HistoryRenderTestCase(CremeTestCase):
         self.assertEqual(history.TYPE_AUX_EDITION, hline.type)
         self.maxDiff = None
         self.assertHTMLEqual(
-            format_html(
-                '<div class="history-line history-line-auxiliary_edition'
-                ' history-line-collapsable history-line-collapsed">'
-                ' <div class="history-line-main">'
-                '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <div class="toggle-icon-container toggle-icon-collapse"'
-                '       title="{collapse_title}">'
-                '   <div class="toggle-icon"></div>'
-                '  </div>'
-                '  <span class="history-line-title">{title}</span>'
-                ' </div>'
-                ' <ul class="history-line-details">'
-                '  <li>{mod}</li>'
-                ' </ul>'
-                '<div>',
+            '<div class="history-line history-line-auxiliary_edition'
+            ' history-line-collapsable history-line-collapsed">'
+            ' <div class="history-line-main">'
+            '  <div class="toggle-icon-container toggle-icon-expand" title="{expand_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <div class="toggle-icon-container toggle-icon-collapse"'
+            '       title="{collapse_title}">'
+            '   <div class="toggle-icon"></div>'
+            '  </div>'
+            '  <span class="history-line-title">{title}</span>'
+            ' </div>'
+            ' <ul class="history-line-details">'
+            '  <li>{mod}</li>'
+            ' </ul>'
+            '<div>'.format(
                 title=_('“%(auxiliary_ctype)s“ edited: %(auxiliary_value)s') % {
                     'auxiliary_ctype': 'Test Todo',
                     'auxiliary_value': todo,
                 },
                 expand_title=_('Expand'),
                 collapse_title=_('Close'),
-                mod=mark_safe(_('{field} changed: {changes}').format(
+                mod=_('{field} changed: {changes}').format(
                     field=(
                         f'<span class="field-change-field_name">'
                         f'{_("Categories")}'
@@ -1568,7 +1499,7 @@ class HistoryRenderTestCase(CremeTestCase):
                     changes=ngettext('{} was added', '{} were added', 1).format(
                         f'<span class="field-change-m2m_added">{cat}</span>'
                     ),
-                )),
+                ),
             ),
             self.render_line(hline, user),
         )
