@@ -2,7 +2,7 @@
 
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2021  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -365,7 +365,8 @@ class JoinNode(TemplateNode):
 
 
 @register.filter
-def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=None):
+# def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=None):
+def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=True):
     if settings.URLIZE_TARGET_BLANK:
         url_ized = django_urlize(
             value, trim_url_limit=trim_url_limit, nofollow=False, autoescape=autoescape,
@@ -375,4 +376,4 @@ def widget_urlize(value, trim_url_limit=None, nofollow=False, autoescape=None):
             value, trim_url_limit=trim_url_limit, nofollow=nofollow, autoescape=autoescape,
         )
 
-    return mark_safe(url_ized)
+    return mark_safe(url_ized) if autoescape else url_ized
