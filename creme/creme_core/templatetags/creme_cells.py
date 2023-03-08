@@ -21,10 +21,10 @@ from __future__ import annotations
 import logging
 import warnings
 
+# from django.utils.safestring import mark_safe
 from django.template import Library
 from django.template import Node as TemplateNode
 from django.template import TemplateSyntaxError
-from django.utils.safestring import mark_safe
 
 from ..core.entity_cell import EntityCellRegularField
 from ..gui.view_tag import ViewTag
@@ -320,7 +320,8 @@ class CellRenderNode(TemplateNode):
             render = ''
 
         if self.asvar_name:
-            context[self.asvar_name] = mark_safe(render)
+            # context[self.asvar_name] = mark_safe(render)
+            context[self.asvar_name] = render
             return ''
         else:
             return render

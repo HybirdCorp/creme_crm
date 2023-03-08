@@ -20,6 +20,7 @@ import logging
 
 from django.template import Library, TemplateSyntaxError
 from django.template.base import TextNode
+from django.utils.html import format_html, format_html_join
 from django.utils.safestring import SafeData, mark_safe
 from django.utils.translation import gettext as _
 from django.utils.translation import gettext_lazy
@@ -733,7 +734,8 @@ def brick_tile_for_cell(cell, instance, user):
         'key':   cell.key,
         'label': cell.title,
 
-        'content':   mark_safe(content),
+        # 'content':   mark_safe(content),
+        'content':   content,
         'data_type': cell.data_type,
         'multiline': cell.is_multiline,
 
@@ -1068,10 +1070,14 @@ def brick_end(context):
     remaining_groups = bricks_manager.get_remaining_groups()
 
     if remaining_groups:
-        res = """
-<div>
-    BEWARE ! There are some unused imported bricks.
-    <ul>{}</ul>
-</div>""".format(''.join(f'<li>{group}</li>' for group in remaining_groups))
+        res = format_html(
+            '<div>'
+            ' BEWARE ! There are some unused imported bricks.'
+            ' <ul>{}</ul>'
+            '</div>',
+            format_html_join(
+                sep='', format_string='<li>{}</li>', args_generator=remaining_groups,
+            ),
+        )
 
-    return mark_safe(res)
+    return res
