@@ -14,6 +14,7 @@
 
   Users side :
   ------------
+    # Some escaping issues have been fixed.
     # The description of filter conditions on fields with a "choices" attribute has been fixed
       (the label is displayed now, not the internal value anymore).
     # Apps :
