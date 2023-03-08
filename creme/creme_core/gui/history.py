@@ -172,6 +172,9 @@ class HTMLFieldChangeExplainer(FieldChangeExplainer):
     def render(self, user):
         return mark_safe(super().render(user=user))
 
+    def render_value(self, *, user, value) -> str:
+        return escape(value)
+
 
 class HTMLBooleanFieldChangeExplainer(HTMLFieldChangeExplainer):
     @staticmethod
@@ -299,8 +302,8 @@ class HTMLForeignKeyFieldChangeExplainer(ForeignKeyExplainerMixin,
     def render_value(self, *, user, value):
         return self.render_fk(user=user, value=value)
 
-    def render(self, user):
-        return mark_safe(super().render(user=user))
+    # def render(self, user):
+    #     return mark_safe(super().render(user=user))
 
 
 # TODO: prefetcher.order(model=model, pks=values)
