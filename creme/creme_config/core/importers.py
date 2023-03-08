@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2017-2022  Hybird
+#    Copyright (C) 2017-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import FieldDoesNotExist
 from django.db.models import Model
 from django.forms import ValidationError
+from django.template.defaultfilters import linebreaks
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -1413,7 +1414,8 @@ class EntityFiltersImporter(Importer):
         except DependenciesLoopError as e:
             raise ValidationError(mark_safe(
                 _('There is a cycle between the filters [{}].').format(
-                    str(e).replace('\n', '<br>'),
+                    # str(e).replace('\n', '<br>'),
+                    linebreaks(e)
                 )
             ))
 
