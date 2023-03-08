@@ -18,6 +18,13 @@
           for models with disabled creation (or with a customised view) in 'creme_config'.
         # The field 'forms.fields.ColorField' behaves now correctly with empty value.
 
+    Breaking changes :
+    ------------------
+        # In the templatetag library "creme_widgets" an escaping issue has been
+          fixed in the template filter "widget_urlize".
+            - When used in templates, the result is now escaped (it should not be a problem).
+            - When used as a regular Python function, the argument "autoescape" is now 'True' by default.
+
 
 == Version 2.4.1 ==
 
