@@ -159,10 +159,11 @@ class CremeWidgetsTagsTestCase(CremeTestCase):
         with self.assertNoException():
             render = Template(
                 r'{% load creme_widgets %}{{text|widget_urlize}}'
-            ).render(Context({'text': 'Do not forget to visit www.cremecrm.com'}))
+            ).render(Context({'text': 'Do <b>not</b> forget to visit www.cremecrm.com'}))
 
         self.assertEqual(
-            'Do not forget to visit <a href="http://www.cremecrm.com">www.cremecrm.com</a>',
+            'Do &lt;b&gt;not&lt;/b&gt; forget to visit '
+            '<a href="http://www.cremecrm.com">www.cremecrm.com</a>',
             render,
         )
 

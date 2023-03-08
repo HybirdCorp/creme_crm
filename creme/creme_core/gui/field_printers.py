@@ -608,7 +608,7 @@ def print_email_html(*, value, **kwargs) -> str:
 # def print_text_html(entity: Model, fval, user, field: Field) -> str:
 def print_text_html(*, value, **kwargs) -> str:
     # return mark_safe(linebreaks(widget_urlize(fval, autoescape=True))) if fval else ''
-    return mark_safe(linebreaks(widget_urlize(value, autoescape=True))) if value else ''
+    return mark_safe(linebreaks(widget_urlize(value))) if value else ''
 
 
 # def print_unsafehtml_html(entity: Model, fval, user, field: Field) -> str:
