@@ -49,6 +49,12 @@ function djangoLocalisation(options) {
         loadingMore: function () {
             return options.loadingMoreMsg || gettext('Loading more results…');
         },
+        labelPlaceholder: function() {
+            return options.labelPlaceholderMsg || gettext('Loading…');
+        },
+        enumInvalidLabel: function() {
+            return options.labelPlaceholderMsg || gettext('⚠');
+        },
         enumTooManyResults: function() {
             return options.tooManyResults || gettext('Show more results');
         },
@@ -181,6 +187,13 @@ function renderSelect2Result(state) {
 
 function selectionRenderer(options) {
     function renderer(state, container) {
+        if (container) {
+            var status = state.enumLabelStatus || {};
+
+            container.toggleClass('select2-selection__loading', status.loading === true);
+            container.toggleClass('select2-selection__invalid', status.invalid === true);
+        }
+
         if (options.selectionShowGroup) {
             var group = $(state.element).parent('optgroup').get();
             return group.length ? group[0].label + ' − ' + state.text : state.text;
@@ -201,6 +214,18 @@ function clearSelect2Data(items) {
     }, undefined, true);
 }
 
+function getSelect2Data(items, key) {
+    var res;
+
+    S2.require(['select2/utils'], function(Utils) {
+        res = items.map(function() {
+            return Utils.GetData(this, key);
+        });
+    }, undefined, true);
+
+    return res.length === 1 ? res[0] : res;
+}
+
 S2.define('select2/data/enum', [
     'select2/data/array',
     'select2/utils'
@@ -218,7 +243,7 @@ S2.define('select2/data/enum', [
             this._queryBackend = creme.ajax.defaultBackend();
         }
 
-        Adapter.__super__.constructor.call(this, element, options);
+        Adapter.__super__.constructor.apply(this, arguments);
     };
 
     Utils.Extend(Adapter, ArrayAdapter);
@@ -227,6 +252,97 @@ S2.define('select2/data/enum', [
         var data = this.item($options);
         data.pinned = true;
         return data;
+    };
+
+    Adapter.prototype.enumFetchOptions = function(selectedIds) {
+        var self = this;
+        var existingIds = this.$element.children().map(function () {
+            return self.item($(this)).id;
+        }).get();
+
+        var missingIds = _.difference(selectedIds, existingIds).filter(Object.isNotEmpty);
+
+        /*
+         * If any value of the selection is not in the <select>, create an "empty" options
+         */
+        if (missingIds.length > 0) {
+            var labelPlaceholder = this.options.get('translations').get('labelPlaceholder');
+            var $options = this.convertToOptions(missingIds.map(function(value) {
+                return {
+                    id: value,
+                    text: labelPlaceholder(),
+                    selected: true,
+                    enumLabelStatus: {loading: true}
+                };
+            }));
+
+            this.addOptions($options);
+        }
+
+        /*
+         * Fetch the labels for the missing values.
+         */
+        if (missingIds.length > 0) {
+            this.enumFetchLabels(missingIds);
+        }
+    };
+
+    Adapter.prototype.enumFetchLabels = function(missingIds) {
+        var self = this;
+        var query = this._queryBackend.query({backend: {dataType: 'json'}});
+        var enumInvalidLabel = this.options.get('translations').get('enumInvalidLabel');
+
+        query.url(this.enumOptions.url)
+             .onDone(function(event, data) {
+                 var labels = {};
+                 var updated = [];
+
+                 data.forEach(function(d) { labels[d.value] = d.label; });
+
+                 self.$element.find('option').each(function() {
+                     var item = self.item($(this));
+
+                     if ((item.enumLabelStatus || {}).loading) {
+                         var label = labels[item.id];
+
+                         if (label) {
+                             item.text = label;
+                             delete item.enumLabelStatus;
+                         } else {
+                             item.text = enumInvalidLabel();
+                             item.enumLabelStatus = {invalid: true};
+                         }
+
+                         $(this).replaceWith(self.option(item));
+                         updated.push(item);
+                     };
+                 });
+
+                 self.trigger('enum:selection:render', {
+                     data: updated
+                 });
+             })
+             .onFail(function(event, data) {
+                 var updated = [];
+
+                 self.$element.find('option').each(function() {
+                     var item = self.item($(this));
+
+                     if ((item.enumLabelStatus || {}).loading) {
+                         item.text = enumInvalidLabel();
+                         item.enumLabelStatus = {invalid: true};
+                         updated.push(item);
+                     }
+                 });
+
+                 self.trigger('enum:selection:render', {
+                     data: updated
+                 });
+             });
+
+        query.get({
+            only: missingIds.join(',')
+        });
     };
 
     Adapter.prototype.bind = function (container, $container) {
@@ -267,12 +383,12 @@ S2.define('select2/data/enum', [
         }.bind(this));
     };
 
-    Adapter.prototype.processResults = function (data, limit) {
+    Adapter.prototype.processResults = function (data, params) {
         var items = (this._pinItems || []).concat(convertToSelect2Data(data));
 
         return {
-            results: items.slice(0, limit),
-            more: data.length > limit
+            results: items.slice(0, params.limit),
+            more: data.length > params.limit
         };
     };
 
@@ -291,7 +407,7 @@ S2.define('select2/data/enum', [
         query.url(options.url)
              .onDone(function(event, data) {
                  self._lastEnumParams = params;
-                 callback(self.processResults(data, params.limit));
+                 callback(self.processResults(data, params));
              })
              .onFail(function() {
                  self.trigger('results:message', {
@@ -391,7 +507,7 @@ S2.define('select2/dropdown/creator', [], function () {
 
             var text = self._lastCreatorText;
             var form = new creme.dialog.FormDialog({
-                url: self.options.get('creatorURL')
+                url: self.options.get('createURL')
             });
 
             form.one('frame-update', function(event, frame) {
@@ -553,22 +669,50 @@ S2.define('select2/dropdown/creator', [], function () {
     return CreatorButton;
 });
 
+S2.define('select2/selection/enum', [
+    'select2/utils'
+], function(Utils) {
+    function EnumSelection(decorated, $element, options) {
+        decorated.call(this, $element, options);
+    }
+
+    EnumSelection.prototype.bind = function (decorated, container, $container) {
+        var self = this;
+
+        decorated.call(this, container, $container);
+
+        container.on('enum:selection:render', function (params) {
+            var $selection = self.$selection;
+
+            this.$selection.find('select2-selection__choice').each(function() {
+                var item = Utils.GetData(this, 'data');
+                var formatted = self.display(item, $selection);
+                $(this).replaceWith(formatted);
+            });
+        });
+    };
+
+    return EnumSelection;
+});
+
 creme.form.Select2 = creme.component.Component.sub({
     _init_: function(element, options) {
         Assert.not(element.is('.select2-hidden-accessible'), 'Select2 instance is already active');
 
         options = this._options = $.extend(true, {
-            multiple: element.is('[multiple]'),
+            multiple: element.prop('multiple'),
             sortable: element.is('[sortable]'),
             allowClear: element.data('allowClear'),
             selectionShowGroup: element.data('selectionShowGroup'),
             placeholder: element.data('placeholder'),
             placeholderMultiple: element.data('placeholderMultiple'),
+            labelPlaceholder: element.data('labelPlaceholder'),
             createURL: element.data('createUrl'),
             enumURL: element.data('enumUrl'),
             enumLimit: element.data('enumLimit'),
             enumDebounce: element.data('enumDebounce'),
-            enumCache: element.data('enumCache')
+            enumCache: element.data('enumCache'),
+            noEmpty: element.data('noEmpty')
         }, options || {});
 
         var placeholder = options.multiple ? options.placeholderMultiple : options.placeholder;
@@ -584,13 +728,25 @@ creme.form.Select2 = creme.component.Component.sub({
 
         S2.require([
             'select2/utils',
+            'select2/options',
+            'select2/selection/enum',
             'select2/results',
             'select2/data/enum',
             'select2/dropdown/enum',
             'select2/dropdown/creator',
             'select2/dropdown/hidePlaceholder'
-        ], function(Utils, ResultsAdapter, EnumAdapter, EnumMessage, CreatorButton, HidePlaceholder) {
+        ], function(
+            Utils,
+            Options,
+            EnumSelection,
+            ResultsAdapter,
+            EnumAdapter,
+            EnumMessage, CreatorButton, HidePlaceholder
+        ) {
+            var defaults = new Options({}, element);
+
             var resultsAdapter = ResultsAdapter;
+            var selectionAdapter = defaults.options.selectionAdapter;
 
             if (placeholder) {
                 resultsAdapter = Utils.Decorate(resultsAdapter, HidePlaceholder);
@@ -602,6 +758,7 @@ creme.form.Select2 = creme.component.Component.sub({
 
             if (options.enumURL) {
                 resultsAdapter = Utils.Decorate(resultsAdapter, EnumMessage);
+                selectionAdapter = Utils.Decorate(selectionAdapter, EnumSelection);
 
                 $.extend(select2Options, {
                     'enum': {
@@ -615,9 +772,10 @@ creme.form.Select2 = creme.component.Component.sub({
             }
 
             $.extend(select2Options, {
-                creatorURL: options.createURL,
+                createURL: options.createURL,
                 templateResult: renderSelect2Result,
-                resultsAdapter: resultsAdapter
+                resultsAdapter: resultsAdapter,
+                selectionAdapter: selectionAdapter
             });
         }, undefined, true);
 
@@ -631,20 +789,35 @@ creme.form.Select2 = creme.component.Component.sub({
          * are on the same page, for instance when you open a popup...
          */
         element.attr('data-select2-id', _.uniqueId('select2-'));
-
-        var instance = element.select2(select2Options);
+        element.select2(select2Options);
 
         if (options.multiple && options.sortable) {
             this._activateSort(element);
         }
 
-        this._instance = instance;
+        this._instance = getSelect2Data(element, 'select2');
+        Assert.not(Object.isNone(this._instance), 'Select2 instance is not availabe');
+
         this.element = element;
         return this;
     },
 
     options: function() {
-        return $.extend({}, this._options);
+        return $.extend(true, {}, this._options);
+    },
+
+    noEmpty: function(value) {
+        if (value === undefined) {
+            return this._instance.options.get('noEmpty');
+        }
+
+        this._instance.options.set('noEmpty', value);
+        this._options['noEmpty'] = value;
+        return this;
+    },
+
+    select2: function() {
+        return this._instance;
     },
 
     localisation: function(options) {
@@ -673,6 +846,86 @@ creme.form.Select2 = creme.component.Component.sub({
         return this;
     },
 
+    _cleanSelectData: function(selected, options) {
+        var $options = this.element.find('option:not(:disabled)');
+
+        /*
+         * Specific behavior designed for the chained select.
+         * In single value mode, fallback on first option if the selected one is invalid or empty.
+         */
+        if (options.multiple || !options.noEmpty) {
+            return selected;
+        }
+
+        // Filter all the existing values
+        if (selected.length > 0) {
+            var available = new Set($options.map(function() {
+                return $(this).attr('value');
+            }));
+
+            selected = selected.filter(function(value) {
+                return available.has(value);
+            });
+        }
+
+        // If empty and not multiple select the first option.
+        if (selected.length === 0) {
+            var first = $options.first();
+            selected = first ? [first.attr('value')] : [];
+        }
+
+        return options.multiple ? selected : (selected[0] || null);
+    },
+
+    select: function(data, params) {
+        Assert.that(Array.isArray(data));
+
+        var append = (params || {}).append === true;
+        var options = this.options();
+        var adapter = this._instance.dataAdapter;
+
+        if (options.enumURL) {
+            adapter.enumFetchOptions(data);
+        }
+
+        var selectedIds = this._cleanSelectData(data, options);
+
+        if (append && options.multiple) {
+            /*
+             * Retrieve the new option items (if any)
+             */
+            var items = this.element.find('option').map(function () {
+                return adapter.item($(this));
+            }).get();
+
+            /*
+            * Force the new selection status in the options
+            */
+            selectedIds = new Set(selectedIds);
+            var selected = items.filter(function(item) {
+                return selectedIds.has(item.id);
+            }).map(function(item) {
+                item.selected = true;
+                return item;
+            });
+
+            /*
+             * Render the selection
+             */
+            adapter.trigger('selection:update', {
+                data: selected
+            });
+        } else {
+            this.element.val(selectedIds).trigger('input').trigger('change');
+        }
+
+        return this;
+    },
+
+    isEnum: function() {
+        return Object.isEmpty(this.options().enumURL) === false;
+    },
+
     refresh: function() {
         /*
          * If the "EnumAdapter" is enabled, we cannot refresh the data from the
@@ -680,7 +933,7 @@ creme.form.Select2 = creme.component.Component.sub({
          * and this cause a rendering conflict : we have the 'placeholder' twice and thats all...
          * TODO : find a way to do it swiftly
          */
-        if (Object.isEmpty(this.options().enumURL) === false) {
+        if (this.isEnum()) {
             return this;
         }
 

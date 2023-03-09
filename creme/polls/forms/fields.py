@@ -40,7 +40,7 @@ class PollFormLineConditionsWidget(SelectorList):
         add_dselect = partial(chained_input.add_dselect, attrs={
             'auto': False,
             'data-cache': 'force',
-        })
+        }, avoid_empty=True)
         add_dselect(src_name, options=self.sources)
         add_dselect(
             'choice',
