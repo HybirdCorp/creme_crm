@@ -902,6 +902,7 @@ class RelationExtractorSelector(SelectorList):
         add_dselect = partial(
             chained_input.add_dselect,
             attrs={'auto': False, 'autocomplete': True},
+            avoid_empty=True,
         )
         add_dselect(
             'rtype',

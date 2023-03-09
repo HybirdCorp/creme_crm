@@ -24,8 +24,24 @@ class EnumerableViewsTestCase(ViewsTestCase):
         url = self._build_choices_url(models.FakeContact, 'civility')
         self.assertGET(400, f'{url}?limit=NaN')
 
+    def test_choices__missing_only(self):
+        self.login()
+        mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
+        url = self._build_choices_url(models.FakeContact, 'civility')
+
+        response = self.assertGET200(f'{url}?only=99999')
+        self.assertListEqual([], response.json())
+
+        response = self.assertGET200(f'{url}?only={mister.pk},99999')
+        self.assertListEqual([
+            {'value': mister.pk, 'label': str(mister)}
+        ], response.json())
+
     def test_choices_success_fk(self):
         self.login()
+
+        mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
+        miss = self.get_object_or_fail(models.FakeCivility, title='Miss')
 
         expected = [
             {'value': id, 'label': title}
@@ -40,19 +56,28 @@ class EnumerableViewsTestCase(ViewsTestCase):
 
         self.assertListEqual(expected, choices)
 
-        response = self.assertGET200(url + '?limit=2')
+        response = self.assertGET200(f'{url}?limit=2')
 
         with self.assertNoException():
             self.assertListEqual(expected[:2], response.json())
 
-        mister = self.get_object_or_fail(models.FakeCivility, title='Mister')
-        response = self.assertGET200(url + '?term=Mister')
+        response = self.assertGET200(f'{url}?term=Mister')
 
         with self.assertNoException():
             choices = response.json()
 
         self.assertListEqual([
             {'value': mister.id, 'label': str(mister)}
+        ], response.json())
+
+        response = self.assertGET200(f'{url}?only={mister.pk},{miss.pk}')
+
+        with self.assertNoException():
+            choices = response.json()
+
+        self.assertListEqual([
+            {'value': miss.id, 'label': str(miss)},
+            {'value': mister.id, 'label': str(mister)},
         ], response.json())
 
     def test_choices_success_m2m(self):
@@ -242,9 +267,9 @@ class EnumerableViewsTestCase(ViewsTestCase):
         )
         self.assertListEqual(
             [
-                [eva00.id, eva00.value],
-                [eva01.id, eva01.value],
-                [eva02.id, eva02.value],
+                {'value': eva00.id, 'label': eva00.value},
+                {'value': eva01.id, 'label': eva01.value},
+                {'value': eva02.id, 'label': eva02.value},
             ],
             response.json(),
         )

@@ -12,6 +12,7 @@
     # In entity filter form:
         - The regular fields with foreign keys are now using the Select2 combobox with lazy loading & search.
         - The regular fields with static choices (like 'Discount' in billing lines) are now using combobox instead of a text input.
+        - The custom fields of ENUM/MULTI_ENUM type are now using the Select2 combobox with lazy loading & search.
     # Apps :
         * Creme_config :
             - Each CustomForm can now be reset (to set the fields it would have have after a fresh installation).
@@ -91,12 +92,14 @@
                     model=Contact, field_name='last_name', printer=my_lastname_printer,
                 )
         # In 'creme_core.forms.enumerable' :
-            - In the class 'EnumerableChoiceSet', the property 'url' can override the
-              URL "creme_core__enumerable_choices" provided by the new property 'default_url'. FIXME
+            - In the class 'EnumerableChoiceSet', the optional property 'url' allows to use any URL instead of only "creme_core__enumerable_choices"
             - A class 'FieldEnumerableChoiceSet' has been added;
               it inherits 'EnumerableChoiceSet' (which is now a base class) and has all its previous features (see the section <Breaking changes>).
             - A new widget class 'EnumerableSelectMultiple' has been added; it supports multiple selection.
-
+        # In 'creme_core.forms.widgets':
+            - The 'DynamicSelect' widget now accepts 'avoid_empty' constructor argument : when true the 'data-no-empty' attribute is enabled on client side.
+            - Keep the actual behaviour of 'DynamicSelect' within the ChainedSelect widget definitions:
+                - Add avoid_empty=True to all DynamicSelect having a child dependency.
         # In 'creme_core.gui.button_menu', the rendering of Button has been reworked (see the section <Breaking changes>!) ;
           the verbose name of the button (often use for the button's label) is now always injected in the context ("{{button.verbose_name}}" to get it).
         # In 'creme_core.models':
@@ -106,6 +109,9 @@
               (see '_clone_m2m()').
         # In 'creme_core.templatetags' :
             - In 'creme_widgets', the templatetag '{% widget_entity_hyperlink %}' has a new optional argument "target".
+        # In Javascript :
+            - 'creme.form.Select2' now supports the lazy loading of selections :
+               Useful in entity filter polymorphic inputs that do not know the selected options beforehand.
 
     Breaking changes :
     ------------------
@@ -155,8 +161,9 @@
         # In 'creme_core.forms' :
             - In 'entity_filter', the widget class 'creme_core.forms.enumerable.EnumerableSelectMultiple'
               is now used for regular-field conditions of EntityFilter instead of 'DynamicSelectMultiple'.
-            - In 'enumerable', the constructor of class 'EnumerableChoiceSet' has changed;
-              it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
+            - In 'enumerable':
+                - The constructor of class 'EnumerableChoiceSet' has changed; it requires now an 'Enumerator' instead of a model 'Field' and an 'EnumerableRegistry'.
+                - The 'FieldEnumerableChoiceSet' has a lazy 'url' property that uses the "creme_core__enumerable_choices" provided by the new property 'default_url'.
             - In 'mass_import' :
                 - In the class 'RegularFieldExtractorField', the attribute '_can_create' has been removed.
                 - In the method 'RegularFieldExtractor.set_subfield_search()', the argument 'create_if_unfound'
@@ -216,6 +223,9 @@
                   The attribute '_http_server' & the method '_clean_http_server()' have been removed.
         # In templates :
             - The template "creme_core/templatetags/menu_buttons.html" has been removed.
+        # In Javascript :
+            - 'creme.widget.DynamicSelect' widget does not select the first option as default behaviour. A new argument 'data-no-empty' is needed.
+            - 'creme.form.Select2' accepts the 'data-no-empty' attribute : select the first option as default if the value is empty.
         # Apps :
             * Creme_config :
                 - 'creme.creme_config.MenuContainersController' has been renamed 'creme.MenuContainersController'

@@ -130,10 +130,14 @@ QUnit.parametrize('creme.widgets.actionlist.create (initial state)', [
     [{popupUrl: 'mock/create/popup'}, {disabled: false, label: gettext('Add')}],
     [{popupUrl: 'mock/create/popup', popupTitle: 'Create It !'}, {disabled: false, label: 'Create It !'}]
 ], function(buttonAttrs, expected, assert) {
-    var delegate = this.createDynamicSelectTag();
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -170,8 +174,12 @@ QUnit.parametrize('creme.widgets.actionlist.create (initial state)', [
 });
 
 QUnit.test('creme.widgets.actionlist.create (disabled actionlist, html)', function(assert) {
-    var delegate = this.createDynamicSelectTag();
-    this.appendOptionTag(delegate, 'a', 1);
+    var delegate = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -206,8 +214,12 @@ QUnit.test('creme.widgets.actionlist.create (disabled actionlist, html)', functi
 });
 
 QUnit.test('creme.widgets.actionlist.create (disabled actionlist, option)', function(assert) {
-    var delegate = this.createDynamicSelectTag();
-    this.appendOptionTag(delegate, 'a', 1);
+    var delegate = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -235,8 +247,12 @@ QUnit.test('creme.widgets.actionlist.create (disabled actionlist, option)', func
 });
 
 QUnit.test('creme.widgets.actionlist.create (disabled action)', function(assert) {
-    var delegate = this.createDynamicSelectTag();
-    this.appendOptionTag(delegate, 'a', 1);
+    var delegate = $(this.createSelectHtml({
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -264,7 +280,9 @@ QUnit.test('creme.widgets.actionlist.create (disabled action)', function(assert)
 });
 
 QUnit.test('creme.widgets.actionlist.dependencies (url delegate)', function(assert) {
-    var delegate = this.createDynamicSelectTag('mock/${ctype}/options', true);
+    var delegate = $(this.createSelectHtml({
+        url: 'mock/${ctype}/options'
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -281,7 +299,10 @@ QUnit.test('creme.widgets.actionlist.dependencies (url delegate)', function(asse
 // TODO : add dependency support for actions
 /*
 QUnit.test('creme.widgets.actionlist.dependencies (url actions)', function(assert) {
-    var delegate = this.createDynamicSelectTag('mock/${ctype}/options', true);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        url: 'mock/${ctype}/options'
+    }));
     this.appendOptionTag(delegate, 'a', 1);
     this.appendOptionTag(delegate, 'b', 5);
     this.appendOptionTag(delegate, 'c', 3);
@@ -297,10 +318,15 @@ QUnit.test('creme.widgets.actionlist.dependencies (url actions)', function(asser
 */
 
 QUnit.test('creme.widgets.actionlist.value', function() {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -324,10 +350,16 @@ QUnit.test('creme.widgets.actionlist.value', function() {
 });
 
 QUnit.test('creme.widgets.actionlist.url', function() {
-    var delegate = this.createDynamicSelectTag('mock/${ctype}/options', true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        url: 'mock/${ctype}/options',
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -365,10 +397,15 @@ QUnit.test('creme.widgets.actionlist.url', function() {
 });
 
 QUnit.test('creme.widgets.actionlist.reset', function() {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 12);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 12, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -391,10 +428,15 @@ QUnit.test('creme.widgets.actionlist.reset', function() {
 });
 
 QUnit.test('creme.widgets.actionlist.reset (button click)', function() {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 12);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 12, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -417,10 +459,15 @@ QUnit.test('creme.widgets.actionlist.reset (button click)', function() {
 });
 
 QUnit.test('creme.widgets.actionlist.reload', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -450,10 +497,15 @@ QUnit.test('creme.widgets.actionlist.reload', function(assert) {
 });
 
 QUnit.test('creme.widgets.actionlist.action (popup, canceled)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -489,10 +541,15 @@ QUnit.test('creme.widgets.actionlist.action (popup, canceled)', function(assert)
 });
 
 QUnit.test('creme.widgets.actionlist.action (popup, fail)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -529,10 +586,15 @@ QUnit.test('creme.widgets.actionlist.action (popup, fail)', function(assert) {
 
 
 QUnit.test('creme.widgets.actionlist.action (popup, empty url)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -567,10 +629,15 @@ QUnit.test('creme.widgets.actionlist.action (popup, empty url)', function(assert
 });
 
 QUnit.test('creme.widgets.actionlist.action (popup, success)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -612,10 +679,15 @@ QUnit.test('creme.widgets.actionlist.action (popup, success)', function(assert) 
 });
 
 QUnit.test('creme.widgets.actionlist.action (unknow action)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -650,10 +722,15 @@ QUnit.test('creme.widgets.actionlist.action (unknow action)', function(assert) {
 });
 
 QUnit.test('creme.widgets.actionlist.action (disabled action)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -686,10 +763,15 @@ QUnit.test('creme.widgets.actionlist.action (disabled action)', function(assert)
 });
 
 QUnit.test('creme.widgets.actionlist.action (doAction, button)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -758,10 +840,15 @@ QUnit.test('creme.widgets.actionlist.action (doAction, button)', function(assert
 });
 
 QUnit.test('creme.widgets.actionlist.action (doAction, disabled buttons)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -831,10 +918,15 @@ QUnit.test('creme.widgets.actionlist.action (doAction, disabled buttons)', funct
 });
 
 QUnit.test('creme.widgets.actionlist.action (doAction, delegate)', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
@@ -868,10 +960,15 @@ QUnit.test('creme.widgets.actionlist.action (doAction, delegate)', function(asse
 
 
 QUnit.test('creme.widgets.actionlist.action (trigger delegate "action")', function(assert) {
-    var delegate = this.createDynamicSelectTag(undefined, true);
-    this.appendOptionTag(delegate, 'a', 1);
-    this.appendOptionTag(delegate, 'b', 5);
-    this.appendOptionTag(delegate, 'c', 3);
+    var delegate = $(this.createSelectHtml({
+        auto: false,
+        noEmpty: true,
+        choices: [
+            {value: 1, label: 'a'},
+            {value: 5, label: 'b'},
+            {value: 3, label: 'c'}
+        ]
+    }));
 
     var element = this.createActionListTag({
         delegate: delegate,
