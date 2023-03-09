@@ -67,6 +67,10 @@ class Line(CremeEntity):
         default=1,
     )
 
+    order = models.PositiveIntegerField(
+        editable=False, default=0
+    ).set_tags(viewable=False)
+
     creation_label = _('Create a line')
 
     _related_document = False

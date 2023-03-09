@@ -44,6 +44,8 @@ class ReorderInstances(View):
      - order_field_name: Name of the model field used for ordering.
      - use_select_for_update: True means that .select_for_update() will be called
             on the instances queryset.
+     - use_raw_update : True means that .update(order_field_name=...) will be used
+            in place of model.save() : ignore save() overrides and signals.
 
     Notice:
     the values for 'order_field' are automatically re-mapped on [1, 2 ...]
@@ -56,6 +58,7 @@ class ReorderInstances(View):
     target_order_post_argument: str = 'target'
     order_field_name: str = 'order'
     use_select_for_update = True
+    use_raw_update = False
 
     def get_moved_instance_index(self, instances: Sequence[Model]) -> int | None:
         """Returns the index of the instance we want to move.
@@ -99,6 +102,14 @@ class ReorderInstances(View):
 
         return order
 
+    def update_order(self, instance, order_fname, order):
+        setattr(instance, order_fname, order)
+
+        if self.use_raw_update:
+            instance._meta.model.objects.filter(pk=instance.pk).update(**{order_fname: order})
+        else:
+            instance.save()
+
     def post(self, request, *args, **kwargs):
         new_order = self.get_target_order()  # order 1..N
         order_fname = self.order_field_name
@@ -122,7 +133,6 @@ class ReorderInstances(View):
                 old_order = getattr(instance, order_fname)
 
                 if old_order != order:
-                    setattr(instance, order_fname, order)
-                    instance.save(force_update=True, update_fields=(order_fname,))
+                    self.update_order(instance, order_fname, order)
 
         return HttpResponse()

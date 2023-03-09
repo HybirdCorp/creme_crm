@@ -344,6 +344,40 @@ ul.bline-error-list > li {
     background-color: #f08080;
 }
 
+.billing-lines-brick .bline-form .bline-reorder-anchor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.billing-lines-brick .bline-form .bline-reorder-anchor:hover {
+    cursor: move;
+}
+
+.billing-lines-brick .bline-form .bline-ghost {
+    min-height: 140px;
+    border: 2px dashed #999;
+}
+
+.billing-lines-brick .bline-hidden-fields {
+    display: none;
+}
+
+.billing-lines-brick .bline-container > * {
+    padding-bottom: 4px;
+}
+
+.billing-lines-brick .bline-container {
+    border-bottom: 1px solid #ccc;
+}
+
+.billing-lines-brick .bline-container + .bline-container {
+    border-top: 1px solid #ccc;
+    margin-top: 13px;
+    background-clip: border-box;
+    background-color: white;
+}
+
 /* Brick billing lines - end */
 
 /* Brick credit notes */

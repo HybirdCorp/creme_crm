@@ -1,11 +1,13 @@
 from decimal import Decimal
 from functools import partial
 from json import dumps as json_dump
+from unittest.mock import patch
 
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.utils.translation import gettext as _
+from parameterized import parameterized
 
 from creme.billing import bricks
 from creme.creme_core.auth.entity_credentials import EntityCredentials
@@ -996,6 +998,7 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
         self.assertEqual(Decimal(unit_price), product_line.unit_price)
         self.assertEqual(Decimal(quantity),   product_line.quantity)
         self.assertEqual(unit,                product_line.unit)
+        self.assertEqual(1,                   product_line.order)
 
     @skipIfCustomServiceLine
     def test_multi_save_lines03(self):
@@ -1185,6 +1188,209 @@ class LineTestCase(BrickTestCaseMixin, _BillingTestCase):
                 }),
             },
         )
+
+    @skipIfCustomProductLine
+    def test_multiple_save_lines__order(self):
+        user = self.login()
+
+        invoice = self.create_invoice_n_orgas('Invoice001')[0]
+        lines = [
+            ProductLine.objects.create(
+                user=user, related_document=invoice,
+                unit_price=Decimal('50.0'), on_the_fly_item=f'Product {order}',
+                order=order,
+            ) for order in range(1, 4)
+        ]
+
+        data = {
+            'product_line_formset-TOTAL_FORMS': len(lines) + 1,
+            'product_line_formset-INITIAL_FORMS': len(lines),
+            'product_line_formset-MAX_NUM_FORMS': '',
+        }
+
+        for index, line in enumerate(lines):
+            data.update({
+                f'product_line_formset-{index}-cremeentity_ptr': line.id,
+                f'product_line_formset-{index}-user':            user.id,
+                f'product_line_formset-{index}-on_the_fly_item': line.on_the_fly_item,
+                f'product_line_formset-{index}-unit_price':      str(line.unit_price),
+                f'product_line_formset-{index}-quantity':        str(line.quantity),
+                f'product_line_formset-{index}-discount':        str(line.discount),
+                f'product_line_formset-{index}-discount_unit':   str(line.discount_unit),
+                f'product_line_formset-{index}-vat_value':       line.vat_value_id,
+                f'product_line_formset-{index}-unit':            line.unit,
+            })
+
+        data.update({
+            'product_line_formset-3-user':            user.id,
+            'product_line_formset-3-on_the_fly_item': 'New on the fly product',
+            'product_line_formset-3-unit_price':      '69.0',
+            'product_line_formset-3-quantity':        '2',
+            'product_line_formset-3-discount':        '50.00',
+            'product_line_formset-3-discount_unit':   '1',
+            'product_line_formset-3-vat_value':       Vat.objects.first().id,
+            'product_line_formset-3-unit':            'month',
+        })
+
+        response = self.client.post(
+            self._build_msave_url(invoice),
+            data={
+                lines[0].entity_type_id: json_dump(data)
+            },
+        )
+
+        self.assertNoFormError(response)
+
+        self.assertEqual([
+            (1, 'Product 1'),
+            (2, 'Product 2'),
+            (3, 'Product 3'),
+            (4, 'New on the fly product'),
+        ], [
+            (line.order, line.on_the_fly_item)
+            for line in ProductLine.objects.order_by('order')
+        ])
+
+    @parameterized.expand([
+        ('Product 1', 3, [
+            (1, 'Product 2'),
+            (2, 'Product 3'),
+            (3, 'Product 1'),
+            (0, 'Service 1'),
+            (0, 'Service 2'),
+        ]),
+        ('Product 3', 1, [
+            (1, 'Product 3'),
+            (2, 'Product 1'),
+            (3, 'Product 2'),
+            (0, 'Service 1'),
+            (0, 'Service 2'),
+        ]),
+        ('Product 1', 2, [
+            (1, 'Product 2'),
+            (2, 'Product 1'),
+            (3, 'Product 3'),
+            (0, 'Service 1'),
+            (0, 'Service 2'),
+        ]),
+        ('Service 1', 3, [
+            (0, 'Product 1'),
+            (0, 'Product 2'),
+            (0, 'Product 3'),
+            (1, 'Service 2'),
+            (2, 'Service 1'),
+        ]),
+    ])
+    @skipIfCustomProductLine
+    def test_reorder_lines(self, target_name, next_order, expected):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        default_vat = Vat.objects.default()
+        create_prod_line = partial(
+            ProductLine.objects.create,
+            user=user, related_document=invoice, vat_value=default_vat, unit_price=Decimal('10'),
+        )
+        create_serv_line = partial(
+            ServiceLine.objects.create,
+            user=user, related_document=invoice, vat_value=default_vat, unit_price=Decimal('10'),
+        )
+
+        lines = {
+            **{
+                f'Product {order}': create_prod_line(on_the_fly_item=f'Product {order}')
+                for order in range(1, 4)
+            },
+            **{
+                f'Service {order}': create_serv_line(on_the_fly_item=f'Service {order}')
+                for order in range(1, 3)
+            }
+        }
+
+        url = reverse('billing__reorder_line', args=(invoice.pk, lines[target_name].pk))
+
+        with patch('creme.billing.models.Invoice.save') as fake_invoice_save:
+            response = self.client.post(url, data={'target': next_order})
+            self.assertEqual(response.status_code, 200)
+
+        invoice.refresh_from_db()
+        self.assertEqual(
+            [
+                (line.order, line.on_the_fly_item)
+                for model in (ProductLine, ServiceLine)
+                for line in invoice.get_lines(model).order_by('order')
+            ],
+            expected,
+        )
+
+        # billing document save() is never called !
+        self.assertEqual(0, fake_invoice_save.call_count)
+
+    def test_reorder_lines__invalid_ids(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+
+        line = ProductLine.objects.create(
+            user=user, related_document=invoice, vat_value=Vat.objects.default(),
+            unit_price=Decimal('10'), on_the_fly_item='Product A'
+        )
+        data = {'target': 1}
+
+        self.assertPOST404(
+            reverse('billing__reorder_line', args=(line.pk, line.pk)), data=data
+        )
+        self.assertPOST404(
+            reverse('billing__reorder_line', args=(invoice.pk, invoice.pk)), data=data
+        )
+        self.assertPOST404(
+            reverse('billing__reorder_line', args=(999999, line.pk)), data=data
+        )
+        self.assertPOST404(
+            reverse('billing__reorder_line', args=(invoice.pk, 9999999)), data=data
+        )
+
+    def test_reorder_lines__invalid_perms(self):
+        user = self.login(
+            is_superuser=False,
+            allowed_apps=['persons', 'billing'],
+            creatable_models=[Invoice, Organisation]
+        )
+
+        SetCredentials.objects.create(
+            role=self.role,
+            value=(
+                EntityCredentials.VIEW
+                | EntityCredentials.DELETE
+                | EntityCredentials.LINK
+                | EntityCredentials.UNLINK
+            ),  # Not CHANGE
+            set_type=SetCredentials.ESET_OWN,
+        )
+
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+        self.assertFalse(user.has_perm_to_change(invoice))
+
+        line = ProductLine.objects.create(
+            user=user, related_document=invoice, vat_value=Vat.objects.default(),
+            unit_price=Decimal('10'), on_the_fly_item='Product A'
+        )
+
+        self.assertPOST403(
+            reverse('billing__reorder_line', args=(invoice.pk, line.pk)), data={'target': 1}
+        )
+
+    def test_reorder_lines__invalid_target(self):
+        user = self.login()
+        invoice = self.create_invoice_n_orgas('Invoice001', discount=0)[0]
+
+        line = ProductLine.objects.create(
+            user=user, related_document=invoice, vat_value=Vat.objects.default(),
+            unit_price=Decimal('10'), on_the_fly_item='Product A'
+        )
+
+        url = reverse('billing__reorder_line', args=(invoice.pk, line.pk))
+
+        self.assertPOST404(url, data={})
+        self.assertPOST409(url, data={'target': 0})
 
     @skipIfCustomProductLine
     def test_global_discount_change(self):

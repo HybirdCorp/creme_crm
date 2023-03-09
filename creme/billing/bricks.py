@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -95,7 +95,7 @@ class _LinesBrick(SimpleBrick):
         document = context['object']
         user = context['user']
         line_model = self.line_model
-        lines = document.get_lines(line_model)
+        lines = document.get_lines(line_model).order_by('order')
 
         lineformset = line_forms.BaseLineEditFormset(
             line_model,

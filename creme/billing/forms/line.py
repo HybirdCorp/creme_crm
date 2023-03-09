@@ -1,6 +1,6 @@
 ################################################################################
 #    Creme is a free/open-source Customer Relationship Management software
-#    Copyright (C) 2009-2022  Hybird
+#    Copyright (C) 2009-2023  Hybird
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU Affero General Public License as published by
@@ -71,17 +71,23 @@ class _LineMultipleAddForm(core_forms.CremeForm):
 
     def save(self):
         cdata = self.cleaned_data
+        line_class = self._get_line_class()
         create_item = partial(
-            self._get_line_class().objects.create,
+            line_class.objects.create,
             related_document=self.billing_document,
             quantity=cdata['quantity'],
             discount=cdata['discount_value'],
             vat_value=cdata['vat'],
         )
 
-        for item in cdata['items']:
+        order_start = max(
+            (line.order for line in self.billing_document.get_lines(line_class)),
+            default=0
+        ) + 1
+
+        for order, item in enumerate(cdata['items'], order_start):
             create_item(
-                related_item=item, unit_price=item.unit_price, unit=item.unit,
+                related_item=item, unit_price=item.unit_price, unit=item.unit, order=order
             )
 
 
@@ -184,6 +190,10 @@ class LineEditForm(core_forms.CremeModelForm):
         # handle add on the fly client side js
         if not instance.pk:
             instance.related_document = self.related_document
+            instance.order = max(
+                (line.order for line in self.related_document.get_lines(type(self.instance))),
+                default=0
+            ) + 1
 
         return super().save(*args, **kwargs)
 
